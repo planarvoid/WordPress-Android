@@ -23,8 +23,8 @@ import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
@@ -109,9 +109,9 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         onEngagementListener.onToggleLike(true);
 
-        TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_LIKE);
-        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.UNKNOWN.get());
+        assertThat(uiEvent.getContextScreen()).isEqualTo(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -121,9 +121,9 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         onEngagementListener.onToggleLike(false);
 
-        TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_UNLIKE);
-        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.UNKNOWN.get());
+        assertThat(uiEvent.getContextScreen()).isEqualTo(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -133,9 +133,9 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         onEngagementListener.onToggleRepost(true, false);
 
-        TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_REPOST);
-        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.UNKNOWN.get());
+        assertThat(uiEvent.getContextScreen()).isEqualTo(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -145,9 +145,9 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         onEngagementListener.onToggleRepost(false, false);
 
-        TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_UNREPOST);
-        assertThat(uiEvent.getAttributes().get("context")).isEqualTo(Screen.UNKNOWN.get());
+        assertThat(uiEvent.getContextScreen()).isEqualTo(Screen.UNKNOWN.get());
     }
 
     @Test
@@ -155,15 +155,22 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         onEngagementListener.onShare();
-
-        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), Screen.UNKNOWN.get(), Screen.PLAYLIST_DETAILS.get(), playlistWithTracks.getUrn(), null);
+        EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
+                .contextScreen(Screen.UNKNOWN.get())
+                .pageName(Screen.PLAYLIST_DETAILS.get())
+                .pageUrn(playlistWithTracks.getUrn())
+                .invokerScreen(Screen.PLAYLIST_DETAILS.get())
+                .build();
+        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), eventContextMetadata, null);
     }
 
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
         onEngagementListener.onShare();
 
-        verify(shareOperations, never()).share(any(Context.class), any(PropertySet.class), any(String.class), any(String.class), any(Urn.class), any(PromotedSourceInfo.class));
+        verify(shareOperations, never())
+                .share(any(Context.class), any(PropertySet.class),
+                        any(EventContextMetadata.class), any(PromotedSourceInfo.class));
     }
 
     @Test
@@ -285,8 +292,13 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         onEngagementListener.onShare();
-
-        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), Screen.SEARCH_MAIN.get(), Screen.PLAYLIST_DETAILS.get(), playlistWithTracks.getUrn(), null);
+        EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
+                .contextScreen(Screen.SEARCH_MAIN.get())
+                .pageName(Screen.PLAYLIST_DETAILS.get())
+                .pageUrn(playlistWithTracks.getUrn())
+                .invokerScreen(Screen.PLAYLIST_DETAILS.get())
+                .build();
+        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), eventContextMetadata, null);
     }
 
     @Test

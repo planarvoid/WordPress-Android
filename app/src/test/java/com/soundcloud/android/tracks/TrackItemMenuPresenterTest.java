@@ -12,6 +12,7 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -69,6 +70,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
+        when(screenProvider.getLastScreenTag()).thenReturn("screen");
 
         presenter = new TrackItemMenuPresenter(popupMenuWrapperFactory, trackRepository, eventBus, context,
                 likeOperations, repostOperations, playlistOperations, screenProvider, playbackInitiator,
@@ -105,8 +107,14 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
         presenter.onMenuItemClick(menuItem, context);
 
-        verify(shareOperations).share(context, trackItem.getSource(), ScreenElement.LIST.get(),
-                screenProvider.getLastScreenTag(), Urn.NOT_SET, null);
+        EventContextMetadata eventContextMetadata =
+                EventContextMetadata.builder()
+                        .invokerScreen(ScreenElement.LIST.get())
+                        .contextScreen(screenProvider.getLastScreenTag())
+                        .pageName(screenProvider.getLastScreenTag())
+                        .isFromOverflow(true)
+                        .build();
+        verify(shareOperations).share(context, trackItem.getSource(), eventContextMetadata, null);
     }
 
     private TrackItem createTrackItem() {

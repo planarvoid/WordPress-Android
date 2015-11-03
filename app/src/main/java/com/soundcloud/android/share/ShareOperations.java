@@ -2,12 +2,12 @@ package com.soundcloud.android.share;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -28,10 +28,11 @@ public class ShareOperations {
         this.eventBus = eventBus;
     }
 
-    public void share(Context context, PropertySet playable, String screenTag, String pageName, Urn pageUrn, PromotedSourceInfo promotedSourceInfo) {
+    public void share(Context context, PropertySet playable, EventContextMetadata contextMetadata,
+                      PromotedSourceInfo promotedSourceInfo) {
         if (!playable.get(PlayableProperty.IS_PRIVATE)) {
             startShareActivity(context, playable);
-            publishShareTracking(playable, screenTag, pageName, pageUrn, promotedSourceInfo);
+            publishShareTracking(playable, contextMetadata, promotedSourceInfo);
         }
     }
 
@@ -39,12 +40,11 @@ public class ShareOperations {
         context.startActivity(buildShareIntent(context, playable));
     }
 
-    private void publishShareTracking(PropertySet playable, String screen, String pageName, Urn pageUrn, PromotedSourceInfo promotedSourceInfo) {
+    private void publishShareTracking(PropertySet playable, EventContextMetadata contextMetadata,
+                                      PromotedSourceInfo promotedSourceInfo) {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(
-                screen,
-                pageName,
                 playable.get(EntityProperty.URN),
-                pageUrn,
+                contextMetadata,
                 promotedSourceInfo,
                 EntityMetadata.from(playable)));
     }

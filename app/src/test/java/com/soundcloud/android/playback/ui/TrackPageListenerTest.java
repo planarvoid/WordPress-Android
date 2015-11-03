@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -85,7 +86,14 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
         listener.onToggleLike(true, TRACK_URN);
 
-        verify(engagementsTracking).likeTrackUrn(TRACK_URN, true, "player", "context_screen", "tracks:main", TRACK_URN, null);
+        EventContextMetadata contextMetadata = EventContextMetadata.builder()
+                .invokerScreen("player")
+                .contextScreen("context_screen")
+                .pageName("tracks:main")
+                .pageUrn(TRACK_URN)
+                .build();
+
+        verify(engagementsTracking).likeTrackUrn(TRACK_URN, true, contextMetadata, null);
     }
 
     @Test
@@ -97,7 +105,13 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
         listener.onToggleLike(false, TRACK_URN);
 
-        verify(engagementsTracking).likeTrackUrn(TRACK_URN, false, "player", "context_screen", "tracks:main", TRACK_URN, null);
+        EventContextMetadata contextMetadata = EventContextMetadata.builder()
+                .invokerScreen("player")
+                .contextScreen("context_screen")
+                .pageName("tracks:main")
+                .pageUrn(TRACK_URN)
+                .build();
+        verify(engagementsTracking).likeTrackUrn(TRACK_URN, false, contextMetadata, null);
     }
 
     @Test

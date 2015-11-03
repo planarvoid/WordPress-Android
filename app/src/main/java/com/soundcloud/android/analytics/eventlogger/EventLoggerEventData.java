@@ -14,6 +14,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONN
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONSUMER_SUBS_PLAN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.DURATION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_CODE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EVENT_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EXTERNAL_MEDIA;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.FORMAT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.HOST;
@@ -26,7 +27,6 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATE
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LOCAL_STORAGE_PLAYBACK;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EVENT_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OFFLINE_EVENT_STAGE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OS;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_NAME;
@@ -342,6 +342,16 @@ class EventLoggerEventData {
     @Deprecated // this is added to the base event in v1
     public EventLoggerEventData connectionType(String connectionType) {
         addToPayload(CONNECTION_TYPE, connectionType);
+        return this;
+    }
+
+    public EventLoggerEventData fromOverflowMenu(boolean fromOverflow) {
+        // Not supported by v0
+        return this;
+    }
+
+    public EventLoggerEventData clickSource(String source) {
+        // Not supported by v0
         return this;
     }
 

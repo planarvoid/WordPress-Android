@@ -157,11 +157,15 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         switch (event.getKind()) {
             case UIEvent.KIND_AUDIO_AD_CLICK:
             case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
+                trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
+                break;
             case UIEvent.KIND_LIKE:
             case UIEvent.KIND_UNLIKE:
             case UIEvent.KIND_REPOST:
             case UIEvent.KIND_UNREPOST:
-                trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
+                trackEvent(event.getTimestamp(),
+                        featureFlags.isEnabled(Flag.NEW_ENGAGEMENTS_TRACKING)
+                                ? dataBuilderV1.get().buildForUIEvent(event) : dataBuilderV0.get().build(event));
                 break;
             case UIEvent.KIND_OFFLINE_LIKES_ADD:
             case UIEvent.KIND_OFFLINE_LIKES_REMOVE:

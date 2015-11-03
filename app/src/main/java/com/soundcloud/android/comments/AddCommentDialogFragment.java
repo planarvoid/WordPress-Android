@@ -7,8 +7,9 @@ import com.cocosw.undobar.UndoBarStyle;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -109,12 +110,17 @@ public class AddCommentDialogFragment extends DialogFragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CommentAddedSubscriber(activity, track, eventBus));
 
-        final String originScreen = getArguments().getString(EXTRA_ORIGIN_SCREEN);
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(originScreen, trackUrn.getNumericId(), EntityMetadata.from(track)));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(getEventContextMetadata(),
+                trackUrn.getNumericId(), EntityMetadata.from(track)));
+    }
+
+    private EventContextMetadata getEventContextMetadata() {
+        return EventContextMetadata.builder().contextScreen(getArguments().getString(EXTRA_ORIGIN_SCREEN)).build();
     }
 
     @VisibleForTesting
-    static final class CommentAddedSubscriber extends DefaultSubscriber<PublicApiComment> implements UndoBarController.UndoListener {
+    static final class CommentAddedSubscriber extends DefaultSubscriber<PublicApiComment>
+            implements UndoBarController.UndoListener {
 
         private final Activity activity;
         private final PropertySet track;

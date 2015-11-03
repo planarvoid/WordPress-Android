@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventQueue;
@@ -49,11 +50,18 @@ class TrackPageListener extends PageListener {
 
         engagementsTracking.likeTrackUrn(trackUrn,
                 addLike,
-                ScreenElement.PLAYER.get(),
-                playQueueManager.getScreenTag(),
-                Screen.PLAYER_MAIN.get(),
-                trackUrn,
+                getEventContextMetadata(trackUrn),
                 playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
+    }
+
+    private EventContextMetadata getEventContextMetadata(Urn trackUrn) {
+        return EventContextMetadata.builder()
+                .invokerScreen(ScreenElement.PLAYER.get())
+                .contextScreen(playQueueManager.getScreenTag())
+                .pageName(Screen.PLAYER_MAIN.get())
+                .trackSourceInfo(playQueueManager.getCurrentTrackSourceInfo())
+                .pageUrn(trackUrn)
+                .build();
     }
 
     public void onGotoUser(final Context activityContext, final Urn userUrn) {

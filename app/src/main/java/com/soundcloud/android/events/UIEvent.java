@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.appboy.ui.support.StringUtils;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
@@ -38,6 +39,7 @@ public final class UIEvent extends TrackingEvent {
     private static final String TYPE_UNKNOWN = "unknown";
 
     private final Map<String, List<String>> promotedTrackingUrls;
+    private EventContextMetadata eventContextMetadata;
 
     public static final String KIND_FOLLOW = "follow";
     public static final String KIND_UNFOLLOW = "unfollow";
@@ -46,7 +48,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_REPOST = "repost";
     public static final String KIND_UNREPOST = "unrepost";
     public static final String KIND_ADD_TO_PLAYLIST = "add_to_playlist";
-    public static final String KIND_CREATE_PLAYLIST= "create_playlist";
+    public static final String KIND_CREATE_PLAYLIST = "create_playlist";
     public static final String KIND_COMMENT = "comment";
     public static final String KIND_SHARE = "share";
     public static final String KIND_SHUFFLE_LIKES = "shuffle_likes";
@@ -80,66 +82,56 @@ public final class UIEvent extends TrackingEvent {
     }
 
     public static UIEvent fromToggleLike(boolean isLike,
-                                         String invokerScreen,
-                                         String contextScreen,
-                                         String pageName,
                                          @NonNull Urn resourceUrn,
-                                         @NonNull Urn pageUrn,
+                                         @NonNull EventContextMetadata contextMetadata,
                                          @Nullable PromotedSourceInfo promotedSourceInfo,
                                          @NonNull EntityMetadata playable) {
         return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_LOCATION, invokerScreen)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, contextScreen)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
                 .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
-                .<UIEvent>put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
-                .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
+                .putEventContextMetadata(contextMetadata)
                 .putPromotedItemKeys(promotedSourceInfo)
                 .putPlayableMetadata(playable);
     }
 
     public static UIEvent fromToggleRepost(boolean isRepost,
-                                           String screenTag,
-                                           String pageName,
                                            @NonNull Urn resourceUrn,
-                                           @NonNull Urn pageUrn,
+                                           @NonNull EventContextMetadata contextMetadata,
                                            @Nullable PromotedSourceInfo promotedSourceInfo,
                                            @NonNull EntityMetadata entityMetadata) {
         return new UIEvent(isRepost ? KIND_REPOST : KIND_UNREPOST)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
                 .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
-                .<UIEvent>put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
-                .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
+                .putEventContextMetadata(contextMetadata)
                 .putPromotedItemKeys(promotedSourceInfo)
                 .putPlayableMetadata(entityMetadata);
     }
 
-    public static UIEvent fromAddToPlaylist(String invokerScreen, String contextScreen, boolean isNewPlaylist, long trackId) {
+    public static UIEvent fromAddToPlaylist(EventContextMetadata eventContextMetadata, boolean isNewPlaylist, long trackId) {
         return new UIEvent(KIND_ADD_TO_PLAYLIST)
-                .put(LocalyticTrackingKeys.KEY_LOCATION, invokerScreen)
-                .put(LocalyticTrackingKeys.KEY_CONTEXT, contextScreen)
+                .putEventContextMetadata(eventContextMetadata)
                 .put(LocalyticTrackingKeys.KEY_IS_NEW_PLAYLIST, isNewPlaylist ? "yes" : "no")
                 .put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId));
     }
 
-    public static UIEvent fromComment(String screenTag, long trackId, @NonNull EntityMetadata playable) {
+    public static UIEvent fromComment(EventContextMetadata eventContextMetadata, long trackId, @NonNull EntityMetadata playable) {
         return new UIEvent(KIND_COMMENT)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId))
+                .putEventContextMetadata(eventContextMetadata)
                 .putPlayableMetadata(playable);
     }
 
-    public static UIEvent fromShare(String screenTag, String pageName, @NonNull Urn resourceUrn, @NonNull Urn pageUrn, @Nullable PromotedSourceInfo promotedSourceInfo, @NonNull EntityMetadata playable) {
+    public static UIEvent fromShare(@NonNull Urn resourceUrn,
+                                    @NonNull EventContextMetadata contextMetadata,
+                                    @Nullable PromotedSourceInfo promotedSourceInfo,
+                                    @NonNull EntityMetadata playable) {
         return new UIEvent(KIND_SHARE)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
                 .<UIEvent>put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
-                .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
-                .<UIEvent>put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
+                .putEventContextMetadata(contextMetadata)
                 .putPromotedItemKeys(promotedSourceInfo)
                 .putPlayableMetadata(playable);
     }
@@ -286,9 +278,34 @@ public final class UIEvent extends TrackingEvent {
         return this;
     }
 
+    private UIEvent putEventContextMetadata(@NonNull EventContextMetadata contextMetadata) {
+        this.eventContextMetadata = contextMetadata;
+
+        put(AdTrackingKeys.KEY_PAGE_URN, contextMetadata.pageUrn().toString())
+                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, contextMetadata.pageName());
+        return this;
+    }
+
     private UIEvent putPlayableMetadata(@NonNull EntityMetadata metadata) {
         metadata.addToTrackingEvent(this);
         return this;
+    }
+
+    public String getContextScreen() {
+        return eventContextMetadata.contextScreen();
+    }
+
+    public String getInvokerScreen() {
+        return eventContextMetadata.invokerScreen();
+    }
+
+    public String getClickSource() {
+        final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
+        if (sourceInfo != null && sourceInfo.hasSource()) {
+            return sourceInfo.getSource();
+        } else {
+            return StringUtils.EMPTY_STRING;
+        }
     }
 
     public List<String> getAudioAdClickthroughUrls() {
@@ -299,6 +316,10 @@ public final class UIEvent extends TrackingEvent {
     public List<String> getAudioAdSkipUrls() {
         List<String> urls = promotedTrackingUrls.get(SKIPS);
         return urls == null ? Collections.<String>emptyList() : urls;
+    }
+
+    public boolean isFromOverflow() {
+        return eventContextMetadata.isFromOverflow();
     }
 
     @Override

@@ -8,14 +8,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import org.apache.maven.model.Model;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -83,7 +79,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Test
     public void filteringMonetizableTracksStoresTheFetchedPolicies() {
         Collection<ApiPolicyInfo> policies = Arrays.asList(
-               ModelFixtures.apiPolicyInfo(TRACK_URN, true, ApiPolicyInfo.MONETIZE, false),
+                ModelFixtures.apiPolicyInfo(TRACK_URN, true, ApiPolicyInfo.MONETIZE, false),
                 ModelFixtures.apiPolicyInfo(TRACK_URN2, false, ApiPolicyInfo.ALLOW, false)
         );
 
