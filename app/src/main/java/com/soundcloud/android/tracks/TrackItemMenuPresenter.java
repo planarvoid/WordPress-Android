@@ -133,8 +133,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         this.promotedSourceInfo = promotedSourceInfo;
         this.pageUrn = pageUrn;
         this.menuOptions = menuOptions;
-        final PopupMenuWrapper menu = setupMenu(button);
-        loadTrack(menu);
+        loadTrack(setupMenu(button));
     }
 
     private PopupMenuWrapper setupMenu(View button) {
