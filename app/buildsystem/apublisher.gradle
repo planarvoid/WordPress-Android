@@ -5,7 +5,7 @@ task uploadBeta {
 
   doLast {
     executeCmd(
-            ['apublisher', '-d', '-n', rootProject.('applicationId'), '-a', findApkPath("beta", project.('betaVersionCode')), '-t', 'beta'],
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("beta", project.('betaVersionCode')), '-t', 'beta'],
             "Upload app to Google Play Store Beta Track failed"
     )
   }
@@ -16,7 +16,7 @@ task uploadFollowUpBeta {
 
   doLast {
     executeCmd(
-            ['apublisher', '-d', '-n', rootProject.('applicationId'), '-a', findApkPath("beta", project.('followUpBetaVersionCode')), '-t', 'beta'],
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("beta", project.('followUpBetaVersionCode')), '-t', 'beta'],
             "Upload app to Google Play Store Beta Track failed"
     )
   }
@@ -27,7 +27,7 @@ task rolloutOnePercent {
 
   doLast {
     executeCmd(
-            ['apublisher', '-d', '-n', rootProject.('applicationId'), '-a', findApkPath("release", project.('releaseVersionCode')), '-t', 'rollout'],
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("release", project.('releaseVersionCode')), '-t', 'rollout'],
             "Rollout to 1% failed"
     )
   }
@@ -38,7 +38,7 @@ task rolloutFivePercent {
 
   doLast {
     executeCmd(
-            ['apublisher', '-d', '-n', rootProject.('applicationId'), '-a', findApkPath("release", project.('releaseVersionCode')), '-t', 'rollout',
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("release", project.('releaseVersionCode')), '-t', 'rollout',
              '--fraction', '0.05'],
             "Rollout to 5% failed"
     )
@@ -50,7 +50,7 @@ task rolloutFull {
 
   doLast {
     executeCmd(
-            ['apublisher', '-d', '-n', rootProject.('applicationId'), '-a', findApkPath("release", project.('releaseVersionCode')), '-t', 'rollout',
+            ['apublisher', '-n', rootProject.('applicationId'), '-a', findApkPath("release", project.('releaseVersionCode')), '-t', 'rollout',
              '--fraction', '0'],
             "Rollout to 100% failed"
     )
