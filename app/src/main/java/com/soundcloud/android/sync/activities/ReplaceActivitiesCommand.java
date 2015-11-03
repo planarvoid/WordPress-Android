@@ -21,7 +21,7 @@ class ReplaceActivitiesCommand extends StoreActivitiesCommand {
 
     private class ReplaceActivitiesTransaction extends StoreActivitiesTransaction {
 
-        private ReplaceActivitiesTransaction(Iterable<ApiActivityItem> activities) {
+        ReplaceActivitiesTransaction(Iterable<ApiActivityItem> activities) {
             super(activities);
         }
 
