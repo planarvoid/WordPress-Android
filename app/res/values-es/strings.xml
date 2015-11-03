@@ -50,7 +50,6 @@
   <string name="notification_username_liked_tracktitle">hizo me gusta en %s</string>
   <string name="notification_username_reposted_tracktitle">republicó %s</string>
   <string name="notification_username_commented_on_tracktitle">hizo un comentario sobre %s</string>
-  <string name="notification_username_mentioned_you_on_tracktitle">te mencionó en %s</string>
   <!--__ADS-->
   <string name="ads_advertisement">Publicidad</string>
   <string name="ads_learn_more">MÁS INFORMACIÓN</string>

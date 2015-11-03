@@ -2,6 +2,7 @@ package com.soundcloud.android.api.legacy.model.activities;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -25,7 +26,7 @@ public class AffiliationActivityTest {
 
         final PropertySet propertySet = activity.toPropertySet();
 
-        expect(propertySet.get(ActivityProperty.TYPE)).toEqual(ActivityProperty.TYPE_FOLLOWER);
+        expect(propertySet.get(ActivityProperty.KIND)).toEqual(ActivityKind.USER_FOLLOW);
         expect(propertySet.get(ActivityProperty.USER_NAME)).toEqual(activity.getUser().getUsername());
         expect(propertySet.get(ActivityProperty.USER_URN)).toEqual(activity.getUser().getUrn());
         expect(propertySet.get(ActivityProperty.DATE)).toEqual(activity.getCreatedAt());

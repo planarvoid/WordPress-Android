@@ -15,7 +15,6 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.java.collections.PropertySet;
 
 import android.content.Context;
 import android.content.Intent;
@@ -93,13 +92,13 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
     @Override
     protected void bindRow(int index, View rowView) {
-        itemRenderer.bindItemView(index, rowView, toPropertySets(getItems()));
+        itemRenderer.bindItemView(index, rowView, toActivityItems(getItems()));
     }
 
-    private List<PropertySet> toPropertySets(List<Activity> activities) {
-        List<PropertySet> propertySets = new ArrayList<>(activities.size());
+    private List<ActivityItem> toActivityItems(List<Activity> activities) {
+        List<ActivityItem> propertySets = new ArrayList<>(activities.size());
         for (Activity activity : activities) {
-            propertySets.add(activity.toPropertySet());
+            propertySets.add(new ActivityItem(activity.toPropertySet()));
         }
         return propertySets;
     }

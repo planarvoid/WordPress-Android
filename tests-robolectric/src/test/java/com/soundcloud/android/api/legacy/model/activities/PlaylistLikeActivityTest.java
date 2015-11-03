@@ -2,6 +2,7 @@ package com.soundcloud.android.api.legacy.model.activities;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -26,10 +27,10 @@ public class PlaylistLikeActivityTest {
 
         final PropertySet propertySet = activity.toPropertySet();
 
-        expect(propertySet.get(ActivityProperty.TYPE)).toEqual(ActivityProperty.TYPE_LIKE);
+        expect(propertySet.get(ActivityProperty.KIND)).toEqual(ActivityKind.PLAYLIST_LIKE);
         expect(propertySet.get(ActivityProperty.USER_NAME)).toEqual(activity.getUser().getUsername());
         expect(propertySet.get(ActivityProperty.DATE)).toEqual(activity.getCreatedAt());
-        expect(propertySet.get(ActivityProperty.SOUND_TITLE)).toEqual(activity.getPlayable().getTitle());
+        expect(propertySet.get(ActivityProperty.PLAYABLE_TITLE)).toEqual(activity.getPlayable().getTitle());
         expect(propertySet.get(ActivityProperty.USER_URN)).toEqual(activity.getUser().getUrn());
     }
 }

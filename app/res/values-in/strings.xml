@@ -50,7 +50,6 @@
   <string name="notification_username_liked_tracktitle">menyukai %s</string>
   <string name="notification_username_reposted_tracktitle">mengirim ulang %s</string>
   <string name="notification_username_commented_on_tracktitle">berkomentar di %s</string>
-  <string name="notification_username_mentioned_you_on_tracktitle">menyebut kamu di %s</string>
   <!--__ADS-->
   <string name="ads_advertisement">Iklan</string>
   <string name="ads_learn_more">PELAJARI LEBIH JAUH</string>

@@ -621,7 +621,6 @@
     <string name="notification_username_liked_tracktitle">liked %s</string>
     <string name="notification_username_reposted_tracktitle">reposted %s</string>
     <string name="notification_username_commented_on_tracktitle">commented on %s</string>
-    <string name="notification_username_mentioned_you_on_tracktitle">mentioned you on %s</string>
     <string name="notification_username_started_following_you">started following you</string>
 
     <!-- _NOTIFICATION_AGGREGATIONS -->
