@@ -21,6 +21,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.tracks.TrackInfoFragment;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -37,7 +38,6 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     public static final String INFO_DIALOG_TAG = "info_dialog";
     public static final String ADD_COMMENT_DIALOG_TAG = "add_comment_dialog";
-
 
     private final FeatureFlags featureFlags;
     private final FragmentActivity activity;
@@ -100,10 +100,15 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         popupMenuWrapper.setItemText(R.id.comment, String.format(commentAtUnformatted, timestamp));
     }
 
-    private void setupMenu() {
+    private void setupMenu(){
         popupMenuWrapper.inflate(R.menu.player_page_actions);
         popupMenuWrapper.setOnMenuItemClickListener(this);
+        setupStationsOption();
+    }
+
+    private void setupStationsOption() {
         popupMenuWrapper.setItemVisible(R.id.start_station, featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH));
+        popupMenuWrapper.setItemEnabled(R.id.start_station, IOUtils.isConnected(activity));
     }
 
     @Override
@@ -189,6 +194,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     public void show() {
         if (track != PlayerTrackState.EMPTY) {
+            setupStationsOption();
             popupMenuWrapper.show();
         }
     }
