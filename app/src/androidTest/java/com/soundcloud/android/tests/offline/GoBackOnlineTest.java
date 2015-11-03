@@ -12,6 +12,7 @@ import static org.hamcrest.core.IsNot.not;
 import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -82,6 +83,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         return new StreamScreen(testDriver);
     }
 
+    @BrokenScrollingTest
     public void testRemovesOfflinePlaylistAfter30DaysOffline() {
         enableOfflineContent(context);
 
