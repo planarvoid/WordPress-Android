@@ -81,10 +81,11 @@ uploadFollowUpBeta.mustRunAfter('uploadGithubFollowUpBeta')
 
 task assembleReleaseNoProguardWrapper(dependsOn: 'assembleProdReleaseNoProguard')
 
-task buildReleaseNoProguard(dependsOn: ['clean', 'assembleReleaseNoProguardWrapper', 'staticAnalysis']) {
+task buildReleaseNoProguard(dependsOn: ['clean', 'versionizeReleaseNoProguard', 'assembleReleaseNoProguardWrapper',
+                                        'staticAnalysis']) {
   description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
-assembleReleaseNoProguard.mustRunAfter('clean')
+assembleReleaseNoProguardWrapper.mustRunAfter('versionizeReleaseNoProguard')
 
 task assembleReleaseWrapper(dependsOn: 'assembleProdRelease')
 
@@ -124,7 +125,7 @@ task headsup(type: Exec) {
 // *********************************************************************************************************************
 
 task assembleAcceptanceTest(dependsOn: ["assembleProd${project.('buildType').capitalize()}AndroidTest"]) {
-  description = 'Assembles all the Test applications.'
+  description = 'Assembles the Test application.'
 }
 
 // *********************************************************************************************************************
