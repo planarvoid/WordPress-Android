@@ -3,5 +3,7 @@
 
     <dimen name="stream_avatar_size">32dp</dimen>
     <dimen name="stream_playlist_track_size">86dp</dimen>
+    <dimen name="stream_header_min_height">0dp</dimen>
+    <dimen name="stream_container_padding">-8dp</dimen>
 
 </resources>

@@ -8,4 +8,7 @@
     <!-- Collection -->
     <integer name="collection_grid_span_count">3</integer>
     <integer name="collection_preview_thumbnail_count">5</integer>
+
+    <!-- Stream -->
+    <integer name="stream_grid_columns">2</integer>
 </resources>

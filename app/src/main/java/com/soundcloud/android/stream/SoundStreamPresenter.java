@@ -80,7 +80,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
     private static Options getRecyclerOptions(FeatureFlags featureFlags) {
         if (featureFlags.isEnabled(Flag.NEW_STREAM)) {
-            return Options.custom().useItemClickListener().build();
+            return Options.staggeredGrid(R.integer.stream_grid_columns).build();
         } else {
             return Options.list().build();
         }
@@ -217,5 +217,4 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     private void publishFacebookInviteClicked(FacebookInvitesItem item) {
         eventBus.publish(EventQueue.TRACKING, StreamNotificationEvent.forFacebookInviteClick(item));
     }
-
 }

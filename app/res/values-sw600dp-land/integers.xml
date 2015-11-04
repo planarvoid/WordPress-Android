@@ -6,4 +6,7 @@
 
     <!-- Collections -->
     <integer name="collection_grid_span_count">4</integer>
+
+    <!-- Stream -->
+    <integer name="stream_grid_columns">3</integer>
 </resources>

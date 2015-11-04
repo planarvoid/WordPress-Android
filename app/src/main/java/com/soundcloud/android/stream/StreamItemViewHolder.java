@@ -31,15 +31,16 @@ public class StreamItemViewHolder {
     @Bind(R.id.play_count) TextView playCount;
     @Bind(R.id.playlist_duration) TextView duration;
     @Bind(R.id.toggle_like) ToggleButton likeButton;
-    @Bind(R.id.toggle_repost) ToggleButton repostButton;
     @Bind(R.id.now_playing) View nowPlaying;
     @Bind(R.id.overflow_button) View overflowButton;
 
+    private ToggleButton repostButton;
     private OverflowListener overflowListener;
     private CardEngagementClickListener clickListener;
 
     public StreamItemViewHolder(View view) {
         ButterKnife.bind(this, view);
+        repostButton = (ToggleButton) view.findViewById(R.id.toggle_repost);
     }
 
     @OnClick(R.id.toggle_like)
@@ -49,7 +50,6 @@ public class StreamItemViewHolder {
         }
     }
 
-    @OnClick(R.id.toggle_repost)
     public void repost() {
         if (clickListener != null) {
             clickListener.onRepostClick(repostButton);
@@ -111,7 +111,10 @@ public class StreamItemViewHolder {
         playCount.setVisibility(View.GONE);
         nowPlaying.setVisibility(View.GONE);
         duration.setVisibility(View.GONE);
-        repostButton.setVisibility(View.GONE);
+
+        if (repostButton != null) {
+            repostButton.setVisibility(View.GONE);
+        }
     }
 
     public void showPlayCount(String countString) {
@@ -139,10 +142,19 @@ public class StreamItemViewHolder {
     }
 
     public void showRepostStats(String repostsCount, boolean isUserReposted) {
-        repostButton.setTextOn(repostsCount);
-        repostButton.setTextOff(repostsCount);
-        repostButton.setChecked(isUserReposted);
-        repostButton.setVisibility(View.VISIBLE);
+        // in some designs repost button is missing
+        if (repostButton != null) {
+            repostButton.setTextOn(repostsCount);
+            repostButton.setTextOff(repostsCount);
+            repostButton.setChecked(isUserReposted);
+            repostButton.setVisibility(View.VISIBLE);
+            repostButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    repost();
+                }
+            });
+        }
     }
 
     public void setCreatedAt(String formattedTime) {
@@ -201,4 +213,5 @@ public class StreamItemViewHolder {
 
         void onRepostClick(View repostButton);
     }
+
 }
