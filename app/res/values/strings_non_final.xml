@@ -108,8 +108,8 @@
     <string name="collections_options_dialog_sort_by_creation">Recency</string>
     <string name="collections_options_dialog_sort_by_title">Title</string>
     <string name="collections_empty_playlists">Create Playlists to make mixes of your favorite tracks</string>
-    <string name="collections_filters_active_message">You have filtered your Playlists, some of them might be hidden</string>
-    <string name="collections_remove_filters">Remove Filters</string>
+    <string name="collections_filters_active_message">Not all your Playlists are being shown. Clear filters to see them all.</string>
+    <string name="collections_remove_filters">Clear filters</string>
 
     <!-- __DISCOVERY -->
     <string name="activity_title_new_search">Search SoundCloud</string>
