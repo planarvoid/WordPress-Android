@@ -107,9 +107,10 @@
     <string name="collections_options_toggle_likes">Liked</string>
     <string name="collections_options_dialog_sort_by_creation">Recency</string>
     <string name="collections_options_dialog_sort_by_title">Title</string>
-    <string name="collections_empty_playlists">Create Playlists to make mixes of your favorite tracks</string>
+    <string name="collections_empty_playlists">Your liked or created playlists will show up here.</string>
     <string name="collections_filters_active_message">Not all your Playlists are being shown. Clear filters to see them all.</string>
     <string name="collections_remove_filters">Clear filters</string>
+    <string name="collections_loading_error">There was a problem loading your collection.\nTry again later</string>
 
     <!-- __TABS -->
     <string name="tab_home">Home</string>

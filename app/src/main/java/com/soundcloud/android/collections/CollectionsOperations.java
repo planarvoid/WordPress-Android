@@ -115,7 +115,7 @@ public class CollectionsOperations {
     private static final Func3<List<PlaylistItem>, List<Urn>, List<StationRecord>, MyCollections> TO_MY_COLLECTIONS = new Func3<List<PlaylistItem>, List<Urn>, List<StationRecord>, MyCollections>() {
         @Override
         public MyCollections call(List<PlaylistItem> playlistItems, List<Urn> likes, List<StationRecord> recentStations) {
-            return new MyCollections(likes, playlistItems, transform(recentStations, StationRecord.TO_URN));
+            return new MyCollections(likes, playlistItems, transform(recentStations, StationRecord.TO_URN), false);
         }
     };
 
@@ -125,16 +125,14 @@ public class CollectionsOperations {
                 public Notification<MyCollections> call(Notification<List<PlaylistItem>> playlists,
                                                         Notification<List<Urn>> likes,
                                                         Notification<List<StationRecord>> recentStations) {
-                    if (playlists.isOnError() && likes.isOnError() && recentStations.isOnError()) {
-                        return Notification.createOnError(playlists.getThrowable());
-                    }
                     if (playlists.isOnCompleted() && likes.isOnCompleted() && recentStations.isOnCompleted()) {
                         return Notification.createOnCompleted();
                     }
-                    return Notification.createOnNext(TO_MY_COLLECTIONS.call(
-                            playlists.isOnError() ? Collections.<PlaylistItem>emptyList() : playlists.getValue(),
+                    return Notification.createOnNext(new MyCollections(
                             likes.isOnError() ? Collections.<Urn>emptyList() : likes.getValue(),
-                            recentStations.isOnError() ? Collections.<StationRecord>emptyList() : recentStations.getValue()
+                            playlists.isOnError() ? Collections.<PlaylistItem>emptyList() : playlists.getValue(),
+                            transform(recentStations.isOnError() ? Collections.<StationRecord>emptyList() : recentStations.getValue(), StationRecord.TO_URN),
+                            likes.isOnError() || playlists.isOnError() || recentStations.isOnError()
                     ));
                 }
     };

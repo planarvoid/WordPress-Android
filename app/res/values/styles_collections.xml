@@ -37,7 +37,6 @@
         <item name="android:singleLine">true</item>
         <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingMultiplier">1</item>
-        <item name="android:layout_marginTop">8dp</item>
         <item name="android:layout_marginLeft">16dp</item>
     </style>
 
@@ -87,6 +86,22 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">8dp</item>
         <item name="android:textColor">@drawable/orange_radio_text</item>
+    </style>
+
+    <style name="Collections.PlaylistsEmptyImage">
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="Collections.PlaylistsEmptyText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">13dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/collections_empty_playlists_text_color</item>
     </style>
 
 </resources>

@@ -2,7 +2,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="56dp">
 
     <View
         android:id="@+id/divider"
@@ -13,23 +13,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/collections_playlists_header"
-        android:paddingBottom="10dp"
-        android:layout_marginTop="16dp"
-        android:layout_below="@id/divider"
-        android:layout_alignParentBottom="true" />
+        android:layout_centerVertical="true" />
 
     <ImageButton
         android:id="@+id/btn_collections_playlist_options"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="?android:attr/selectableItemBackground"
-        android:layout_marginTop="16dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
         android:src="@drawable/ic_collection_playlists_filter"
-        android:layout_below="@id/divider"
+        android:layout_centerVertical="true"
         android:layout_alignParentRight="true" />
 
 </RelativeLayout>

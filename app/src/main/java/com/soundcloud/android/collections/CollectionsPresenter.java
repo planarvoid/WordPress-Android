@@ -17,7 +17,9 @@ import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -25,6 +27,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -179,14 +182,16 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     @Override
     protected CollectionBinding<CollectionsItem> onBuildBinding(Bundle bundle) {
-        return CollectionBinding.from(collectionsOperations.collections(currentOptions), toCollectionsItems)
+        final Observable<MyCollections> collections = collectionsOperations.collections(currentOptions);
+        return CollectionBinding.from(collections.doOnNext(new OnNextErrorAction()), toCollectionsItems)
                 .withAdapter(adapter)
                 .build();
     }
 
     @Override
     protected CollectionBinding<CollectionsItem> onRefreshBinding() {
-        return CollectionBinding.from(collectionsOperations.updatedCollections(currentOptions), toCollectionsItems)
+        final Observable<MyCollections> collections = collectionsOperations.updatedCollections(currentOptions);
+        return CollectionBinding.from(collections.doOnError(new OnErrorAction()), toCollectionsItems)
                 .withAdapter(adapter)
                 .build();
     }
@@ -212,4 +217,25 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
             refreshCollections();
         }
     }
+
+    private class OnErrorAction implements Action1<Throwable> {
+        @Override
+        public void call(Throwable ignored) {
+            showError();
+        }
+    }
+
+    private class OnNextErrorAction implements Action1<MyCollections> {
+        @Override
+        public void call(MyCollections myCollections) {
+            if (myCollections.hasError()) {
+                showError();
+            }
+        }
+    }
+
+    private void showError() {
+        Snackbar.make(getRecyclerView(), R.string.collections_loading_error, Snackbar.LENGTH_LONG).show();
+    }
+
 }
