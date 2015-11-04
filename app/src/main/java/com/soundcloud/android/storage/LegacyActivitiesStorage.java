@@ -8,7 +8,6 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
@@ -19,20 +18,18 @@ import java.util.List;
 public class LegacyActivitiesStorage {
     private SyncStateManager syncStateManager;
     private ActivityDAO activitiesDAO;
-    private final ContentResolver resolver;
 
     public LegacyActivitiesStorage() {
         this(SoundCloudApplication.instance);
     }
 
     public LegacyActivitiesStorage(Context context) {
-        this(context.getContentResolver(), new SyncStateManager(context), new ActivityDAO(context.getContentResolver()));
+        this(new SyncStateManager(context), new ActivityDAO(context.getContentResolver()));
     }
 
     @Inject
-    public LegacyActivitiesStorage(ContentResolver contentResolver, SyncStateManager syncStateManager,
+    public LegacyActivitiesStorage(SyncStateManager syncStateManager,
                                    ActivityDAO activitiesDAO) {
-        this.resolver = contentResolver;
         this.syncStateManager = syncStateManager;
         this.activitiesDAO = activitiesDAO;
     }
@@ -98,27 +95,6 @@ public class LegacyActivitiesStorage {
             activities.collection = result;
             return activities;
         }
-    }
-
-    @Deprecated
-    public int clear(@Nullable Content content) {
-        Content contentToDelete = Content.ME_ALL_ACTIVITIES;
-        if (content != null) {
-            contentToDelete = content;
-        }
-        if (!Activity.class.isAssignableFrom(contentToDelete.modelType)) {
-            throw new IllegalArgumentException("specified content is not an activity");
-        }
-        // make sure to delete corresponding collection
-        if (contentToDelete == Content.ME_ALL_ACTIVITIES) {
-
-            for (Content c : Content.ACTIVITIES) {
-                syncStateManager.delete(c);
-            }
-        } else {
-            syncStateManager.delete(contentToDelete);
-        }
-        return resolver.delete(contentToDelete.uri, null, null);
     }
 
     @Deprecated

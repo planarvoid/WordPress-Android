@@ -4,6 +4,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns.ActivityView;
 import com.soundcloud.android.storage.TableColumns.SoundView;
+import com.soundcloud.android.sync.timeline.TimelineStorage;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
@@ -13,7 +14,7 @@ import rx.Observable;
 
 import javax.inject.Inject;
 
-class ActivitiesStorage {
+class ActivitiesStorage implements TimelineStorage {
 
     private final PropellerRx propellerRx;
 
@@ -22,8 +23,18 @@ class ActivitiesStorage {
         this.propellerRx = propellerRx;
     }
 
-    public Observable<PropertySet> initialActivityItems(final int limit) {
+    @Override
+    public Observable<PropertySet> timelineItems(final int limit) {
         final Query query = Query.from(Table.ActivityView)
+                .order(ActivityView.CREATED_AT, Query.Order.DESC)
+                .limit(limit);
+        return propellerRx.query(query).map(new ActivityRowMapper());
+    }
+
+    @Override
+    public Observable<PropertySet> timelineItemsBefore(long timestamp, int limit) {
+        final Query query = Query.from(Table.ActivityView)
+                .whereLt(ActivityView.CREATED_AT, timestamp)
                 .order(ActivityView.CREATED_AT, Query.Order.DESC)
                 .limit(limit);
         return propellerRx.query(query).map(new ActivityRowMapper());

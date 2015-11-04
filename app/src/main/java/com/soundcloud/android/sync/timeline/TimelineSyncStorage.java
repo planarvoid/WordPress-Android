@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync;
+package com.soundcloud.android.sync.timeline;
 
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.utils.Log;

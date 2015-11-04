@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -80,26 +81,52 @@ public class SyncInitiator {
         }
     }
 
-    public Observable<Boolean> initialSoundStream() {
-        final Uri uri = SyncContent.MySoundStream.content.uri;
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                requestSoundStreamSync(null, new LegacyResultReceiverAdapter(subscriber, uri));
-            }
-        }).doOnNext(resetSyncMissesLegacy(uri));
+    public Observable<Boolean> syncNewTimelineItems(SyncContent syncContent) {
+        return explicitSync(syncContent, null);
     }
 
-    public Observable<Boolean> refreshSoundStream() {
-        final Uri uri = SyncContent.MySoundStream.content.uri;
+    public Observable<Boolean> refreshTimelineItems(SyncContent syncContent) {
+        return explicitSync(syncContent, ApiSyncService.ACTION_HARD_REFRESH);
+    }
+
+    public Observable<Boolean> backfillTimelineItems(SyncContent syncContent) {
+        return backfillSync(syncContent);
+    }
+
+    private Observable<Boolean> explicitSync(SyncContent syncContent, @Nullable final String syncAction) {
+        final Uri contentUri = syncContent.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
-                requestSoundStreamSync(
-                        ApiSyncService.ACTION_HARD_REFRESH,
-                        new LegacyResultReceiverAdapter(subscriber, uri));
+                context.startService(new Intent(context, ApiSyncService.class)
+                        .setAction(syncAction)
+                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                                new LegacyResultReceiverAdapter(subscriber, contentUri))
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                        .setData(contentUri));
             }
-        }).doOnNext(resetSyncMissesLegacy(uri));
+        }).doOnNext(resetSyncMissesLegacy(contentUri));
+    }
+
+    /**
+     * Triggers a backfill sync for the given URI.
+     * <p>
+     * This is a sync that will retrieve N more sound stream items /older/ than the oldest locally
+     * available item. Used to lazily pull in more items when paging in the stream reverse chronologically.
+     */
+    private Observable<Boolean> backfillSync(final SyncContent syncContent) {
+        final Uri contentUri = syncContent.content.uri;
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                context.startService(new Intent(context, ApiSyncService.class)
+                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                                new LegacyResultReceiverAdapter(subscriber, contentUri))
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                        .setData(contentUri)
+                        .setAction(ApiSyncService.ACTION_APPEND));
+            }
+        });
     }
 
     public Observable<SyncResult> syncRecommendations() {
@@ -118,14 +145,6 @@ public class SyncInitiator {
                         .putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(userUrn)));
             }
         });
-    }
-
-    private void requestSoundStreamSync(String action, LegacyResultReceiverAdapter resultReceiver) {
-        context.startService(new Intent(context, ApiSyncService.class)
-                .setAction(action)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(Content.ME_SOUND_STREAM.uri));
     }
 
     public Observable<Boolean> refreshFollowings() {
@@ -295,29 +314,6 @@ public class SyncInitiator {
     @Deprecated
     private Observable<SyncResult> legacyRequestSyncObservable(final String action, final Urn urn) {
         return requestSyncResultObservable(createIntent(action, urn));
-    }
-
-    /**
-     * Triggers a backfill sync for the sound stream.
-     * <p>
-     * This is a sync that will retrieve N more sound stream items /older/ than the oldest locally
-     * available item. Used to lazily pull in more items when paging in the stream reverse chronologically.
-     */
-    public Observable<Boolean> backfillSoundStream() {
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                requestSoundStreamBackfill(new LegacyResultReceiverAdapter(subscriber, Content.ME_SOUND_STREAM.uri));
-            }
-        });
-    }
-
-    private void requestSoundStreamBackfill(LegacyResultReceiverAdapter resultReceiver) {
-        context.startService(new Intent(context, ApiSyncService.class)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(Content.ME_SOUND_STREAM.uri)
-                .setAction(ApiSyncService.ACTION_APPEND));
     }
 
     public void syncLocalPlaylists() {

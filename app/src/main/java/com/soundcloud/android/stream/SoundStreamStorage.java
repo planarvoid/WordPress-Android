@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.sync.timeline.TimelineStorage;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -32,7 +33,7 @@ import rx.Observable;
 import javax.inject.Inject;
 import java.util.List;
 
-class SoundStreamStorage {
+class SoundStreamStorage implements TimelineStorage {
 
     private static final Object[] STREAM_SELECTION = new Object[]{
             SoundStreamView.SOUND_ID,
@@ -88,7 +89,8 @@ class SoundStreamStorage {
         this.database = database;
     }
 
-    public Observable<PropertySet> initialStreamItems(final int limit) {
+    @Override
+    public Observable<PropertySet> timelineItems(final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                 .select(PROMOTED_STREAM_SELECTION)
                 .leftJoin(Table.PromotedTracks.name(),
@@ -101,7 +103,8 @@ class SoundStreamStorage {
         return propellerRx.query(query).map(new PromotedStreamItemMapper());
     }
 
-    public Observable<PropertySet> streamItemsBefore(final long timestamp, final int limit) {
+    @Override
+    public Observable<PropertySet> timelineItemsBefore(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                 .select(STREAM_SELECTION)
                 .whereLt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)

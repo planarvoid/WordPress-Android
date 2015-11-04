@@ -10,7 +10,6 @@ import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncCleanupAction;
@@ -25,7 +24,6 @@ class AccountCleanupAction implements Action0 {
 
     private static final String TAG = "AccountCleanup";
 
-    private final LegacyActivitiesStorage activitiesStorage;
     private final LegacyUserAssociationStorage legacyUserAssociationStorage;
     //TODO: PlaylistTagStorage collaborator can be removed here once recommendations feature is enabled.
     private final PlaylistTagStorage tagStorage;
@@ -42,7 +40,7 @@ class AccountCleanupAction implements Action0 {
     private final CollectionsOperations collectionsOperations;
 
     @Inject
-    AccountCleanupAction(LegacyActivitiesStorage activitiesStorage, LegacyUserAssociationStorage legacyUserAssociationStorage,
+    AccountCleanupAction(LegacyUserAssociationStorage legacyUserAssociationStorage,
                          PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                          OfflineSettingsStorage offlineSettingsStorage,
@@ -52,7 +50,6 @@ class AccountCleanupAction implements Action0 {
                          ClearTableCommand clearTableCommand,
                          StationsOperations stationsOperations,
                          CollectionsOperations collectionsOperations) {
-        this.activitiesStorage = activitiesStorage;
         this.tagStorage = tagStorage;
         this.legacyUserAssociationStorage = legacyUserAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -74,7 +71,6 @@ class AccountCleanupAction implements Action0 {
 
         clearCollections();
         unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
-        activitiesStorage.clear(null);
         legacyUserAssociationStorage.clear();
         tagStorage.clear();
         offlineSettingsStorage.clear();
@@ -92,6 +88,8 @@ class AccountCleanupAction implements Action0 {
             clearTableCommand.call(Table.Likes);
             clearTableCommand.call(Table.Posts);
             clearTableCommand.call(Table.SoundStream);
+            clearTableCommand.call(Table.Activities);
+            clearTableCommand.call(Table.Comments);
             clearTableCommand.call(Table.PromotedTracks);
             clearTableCommand.call(Table.Waveforms);
             removeLocalPlaylistsCommand.call(null);

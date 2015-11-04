@@ -66,43 +66,43 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateIntentForRefreshingTheSoundStream() {
-        initiator.refreshSoundStream().subscribe(legacySyncSubscriber);
+    public void shouldCreateIntentForSyncingNewTimelineContent() {
+        initiator.syncNewTimelineItems(SyncContent.MySoundStream).subscribe(legacySyncSubscriber);
 
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isEqualTo(Content.ME_SOUND_STREAM.uri);
+        assertThat(intent.getData()).isSameAs(SyncContent.MySoundStream.contentUri());
+        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
+    }
+
+    @Test
+    public void shouldCreateIntentForRefreshingTimelineContent() {
+        initiator.refreshTimelineItems(SyncContent.MySoundStream).subscribe(legacySyncSubscriber);
+
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getData()).isEqualTo(SyncContent.MySoundStream.contentUri());
         assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_HARD_REFRESH);
         assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
         assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
     }
 
     @Test
-    public void shouldCreateIntentForInitialSoundStream() {
-        initiator.initialSoundStream().subscribe(legacySyncSubscriber);
-
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isSameAs(Content.ME_SOUND_STREAM.uri);
-        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
-        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
-    }
-
-    @Test
-    public void shouldResetSoundStreamSyncMissesOnChangedSync() {
-        initiator.refreshSoundStream().subscribe(legacySyncSubscriber);
-        final Uri uri = Content.ME_SOUND_STREAM.uri;
+    public void shouldResetTimelineSyncMissesOnChangedSync() {
+        initiator.refreshTimelineItems(SyncContent.MySoundStream).subscribe(legacySyncSubscriber);
+        final Uri uri = SyncContent.MySoundStream.contentUri();
         sendSyncChangedLegacyToUri(uri);
         verify(syncStateManager).resetSyncMisses(uri);
     }
 
     @Test
-    public void shouldCreateIntentForSyncingOlderSoundStreamItems() {
-        initiator.backfillSoundStream().subscribe(legacySyncSubscriber);
+    public void shouldCreateIntentForSyncingOlderActivityItems() {
+        initiator.backfillTimelineItems(SyncContent.MySoundStream).subscribe(legacySyncSubscriber);
 
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isSameAs(Content.ME_SOUND_STREAM.uri);
+        assertThat(intent.getData()).isSameAs(SyncContent.MySoundStream.contentUri());
         assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_APPEND);
         assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
         assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);

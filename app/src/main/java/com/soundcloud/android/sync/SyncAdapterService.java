@@ -8,7 +8,6 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
@@ -243,24 +242,17 @@ public class SyncAdapterService extends Service {
         switch (clearMode) {
             case CLEAR_ALL:
                 ContentStats.clear(app);
-                clearActivities();
                 break;
             case REWIND_LAST_DAY:
                 final long rewindTime = 24 * 3600000L; // 1d
                 ContentStats.rewind(app, rewindTime);
-                clearActivities();
                 break;
             default:
+                break;
         }
 
         final Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(app.getAccountOperations().getSoundCloudAccount(), ScContentProvider.AUTHORITY, extras);
-    }
-
-    private static void clearActivities() {
-        // drop all activities before re-sync
-        int deleted = new LegacyActivitiesStorage().clear(null);
-        Log.d(TAG, "deleted " + deleted + " activities");
     }
 }

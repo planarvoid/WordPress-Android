@@ -1,10 +1,9 @@
-package com.soundcloud.android.sync.stream;
+package com.soundcloud.android.sync.timeline;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.storage.StorageModule;
-import com.soundcloud.android.sync.TimelineSyncStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;

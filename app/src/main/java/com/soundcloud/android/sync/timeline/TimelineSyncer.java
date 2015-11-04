@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync;
+package com.soundcloud.android.sync.timeline;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClient;
@@ -8,6 +8,9 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.SyncStrategy;
 import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.reflect.TypeToken;
@@ -18,6 +21,15 @@ import android.net.Uri;
 
 import java.util.Map;
 
+// Responsible for syncing features based on the Timeline service, in
+// particular the sound stream and the notifications/activities feed.
+// See https://github.com/soundcloud/timeline
+//
+// This class performs bi-directional syncs based on chronological order,
+// either backwards in time ("appending" or "backfill" syncs) to support
+// lazy paging over a potentially large set of data, or forwards in time
+// ("prepending" syncs) to pull in new content from the given timeline
+// collection.
 public class TimelineSyncer<TimelineModel> implements SyncStrategy {
 
     static final String FUTURE_LINK_REL = "future";

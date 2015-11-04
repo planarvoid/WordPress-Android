@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync;
+package com.soundcloud.android.sync.timeline;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,6 +16,8 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;

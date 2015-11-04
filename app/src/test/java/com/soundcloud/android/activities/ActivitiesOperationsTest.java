@@ -1,41 +1,52 @@
 package com.soundcloud.android.activities;
 
-import static com.soundcloud.android.activities.ActivitiesOperations.PAGE_SIZE;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.activityTrackLike;
-import static java.util.Collections.singletonList;
-import static org.mockito.Mockito.when;
-import static rx.Observable.just;
+import static org.mockito.Mockito.mock;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.api.legacy.model.ContentStats;
+import com.soundcloud.android.sync.SyncContent;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.timeline.TimelineOperations;
+import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
 import com.soundcloud.java.collections.PropertySet;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
+import rx.Scheduler;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-// AndroidUnitTest because of PropertySet
-public class ActivitiesOperationsTest extends AndroidUnitTest {
+public class ActivitiesOperationsTest extends TimelineOperationsTest<ActivityItem, ActivitiesStorage> {
 
-    private ActivitiesOperations operations;
-
-    @Mock private ActivitiesStorage storage;
-    private TestSubscriber<List<ActivityItem>> subscriber = new TestSubscriber<>();
-
-    @Before
-    public void setUp() throws Exception {
-        operations = new ActivitiesOperations(storage, Schedulers.immediate());
+    @Override
+    protected TimelineOperations<ActivityItem> buildOperations(ActivitiesStorage storage,
+                                                               SyncInitiator syncInitiator,
+                                                               ContentStats contentStats,
+                                                               Scheduler scheduler) {
+        return new ActivitiesOperations(storage, syncInitiator, contentStats, scheduler);
     }
 
-    @Test
-    public void shouldLoadFirstPageOfItemsFromLocalStorage() {
-        final PropertySet activityTrackLike = activityTrackLike();
-        when(storage.initialActivityItems(PAGE_SIZE)).thenReturn(just(activityTrackLike));
-
-        operations.initialActivities().subscribe(subscriber);
-
-        subscriber.assertValue(singletonList(new ActivityItem(activityTrackLike)));
+    @Override
+    protected ActivitiesStorage provideStorageMock() {
+        return mock(ActivitiesStorage.class);
     }
+
+    @Override
+    protected SyncContent provideSyncContent() {
+        return SyncContent.MyActivities;
+    }
+
+    @Override
+    protected PropertySet createTimelineItem(long timestamp) {
+        return activityTrackLike().put(ActivityProperty.DATE, new Date(timestamp));
+    }
+
+    @Override
+    protected List<ActivityItem> viewModelsFromPropertySets(List<PropertySet> source) {
+        List<ActivityItem> items = new ArrayList<>(source.size());
+        for (PropertySet item : source) {
+            items.add(new ActivityItem(item));
+        }
+        return items;
+    }
+
 }

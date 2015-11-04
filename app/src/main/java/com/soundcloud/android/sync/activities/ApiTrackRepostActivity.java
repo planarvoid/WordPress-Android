@@ -18,7 +18,7 @@ public class ApiTrackRepostActivity implements TrackHolder, ApiEngagementActivit
 
     @JsonCreator
     public ApiTrackRepostActivity(@JsonProperty("track") ApiTrack track,
-                                  @JsonProperty("user") ApiUser reposter,
+                                  @JsonProperty("reposter") ApiUser reposter,
                                   @JsonProperty("created_at") Date createdAt) {
         this.track = track;
         this.reposter = reposter;

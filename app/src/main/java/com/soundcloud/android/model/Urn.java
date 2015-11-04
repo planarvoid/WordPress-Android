@@ -98,7 +98,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
         this.numericId = numericId;
     }
 
-    public boolean isSound() {
+    public boolean isPlayable() {
         return isTrack() || isPlaylist();
     }
 
