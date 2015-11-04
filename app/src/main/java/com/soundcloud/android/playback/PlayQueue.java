@@ -1,10 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.java.collections.Lists.transform;
-
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Iterables;
@@ -17,6 +12,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
 
 public class PlayQueue implements Iterable<PlayQueueItem> {
 
@@ -65,11 +65,11 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         insertPlayQueueItem(position, new VideoQueueItem(metaData));
     }
 
-    public boolean hasPreviousTrack(int position) {
+    public boolean hasPreviousItem(int position) {
         return position > 0 && !playQueueItems.isEmpty();
     }
 
-    public boolean hasNextTrack(int position) {
+    public boolean hasNextItem(int position) {
         return position < playQueueItems.size() - 1;
     }
 
@@ -132,7 +132,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return trackItemUrns;
     }
 
-    public boolean shouldPersistTrackAt(int position) {
+    public boolean shouldPersistItemAt(int position) {
         return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).shouldPersist();
     }
 

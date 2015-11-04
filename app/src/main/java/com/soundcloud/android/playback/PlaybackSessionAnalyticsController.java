@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback;
 
+import android.webkit.URLUtil;
+
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -9,12 +11,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.functions.Func1;
-import rx.subjects.ReplaySubject;
-
-import android.webkit.URLUtil;
 
 import javax.inject.Inject;
+
+import rx.functions.Func1;
+import rx.subjects.ReplaySubject;
 
 class PlaybackSessionAnalyticsController {
 
@@ -74,7 +75,7 @@ class PlaybackSessionAnalyticsController {
             return PlaybackSessionEvent.STOP_REASON_BUFFERING;
         } else {
             if (stateTransition.getReason() == Player.Reason.TRACK_COMPLETE) {
-                return playQueueManager.hasNextTrack()
+                return playQueueManager.hasNextItem()
                         ? PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED
                         : PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE;
             } else if (stateTransition.wasError()) {

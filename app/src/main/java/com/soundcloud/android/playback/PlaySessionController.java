@@ -221,7 +221,7 @@ public class PlaySessionController {
                 seek(SEEK_POSITION_RESET);
             } else {
                 publishSkipEventIfAudioAd();
-                playQueueManager.moveToPreviousTrack();
+                playQueueManager.moveToPreviousItem();
             }
         }
     }
@@ -231,7 +231,7 @@ public class PlaySessionController {
             playbackToastHelper.showUnskippableAdToast();
         } else {
             publishSkipEventIfAudioAd();
-            playQueueManager.nextTrack();
+            playQueueManager.nextItem();
         }
     }
 
@@ -323,7 +323,7 @@ public class PlaySessionController {
     }
 
     private void tryToSkipTrack(StateTransition stateTransition) {
-        if (!playQueueManager.autoNextTrack()) {
+        if (!playQueueManager.autoNextItem()) {
             eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
         }
     }
