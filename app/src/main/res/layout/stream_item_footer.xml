@@ -1,4 +1,3 @@
-
 <RelativeLayout
     style="@style/Stream.Card.Footer"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -10,9 +9,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="-8dp"
-        android:layout_marginLeft="16dp"
-        android:background="@drawable/btn_engagements_overflow" />
+        android:layout_marginLeft="8dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_more" />
 
     <ToggleButton
         android:id="@+id/toggle_like"
@@ -25,10 +24,9 @@
     <ToggleButton
         android:id="@+id/toggle_repost"
         style="@style/Stream.ToggleButton"
-        android:layout_marginRight="8dp"
         android:layout_toLeftOf="@id/toggle_like"
         android:drawableLeft="@drawable/ic_toggle_player_repost_states"
-        tools:textOff="123"/>
+        tools:textOff="123" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/play_count"
@@ -48,6 +46,6 @@
         style="@style/Stream.NowPlaying"
         android:drawableLeft="@drawable/ic_now_playing"
         android:text="@string/title_now_playing"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </RelativeLayout>

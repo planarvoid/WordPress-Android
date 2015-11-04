@@ -23,10 +23,7 @@
         <item name="android:paddingTop">16dp</item>
     </style>
 
-    <style name="Stream.Card.Footer">
-        <item name="android:paddingBottom">12dp</item>
-        <item name="android:paddingTop">12dp</item>
-    </style>
+    <style name="Stream.Card.Footer" />
 
     <style name="Stream.Image">
         <item name="android:layout_width">match_parent</item>
@@ -94,17 +91,19 @@
     </style>
 
     <style name="Stream.StatsItem" parent="ListItemText">
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:paddingBottom">20dp</item>
         <item name="android:layout_centerVertical">true</item>
         <item name="android:drawablePadding">8dp</item>
     </style>
 
     <style name="Stream.ToggleButton" parent="ListItemText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">32dp</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:textColor">@color/toggle_button_text_states</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:drawablePadding">4dp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:padding">8dp</item>
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>
     </style>
