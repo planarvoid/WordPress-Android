@@ -422,10 +422,9 @@
     <string name="search_type_tracks">TRACKS</string>
     <string name="search_type_playlists">PLAYLISTS</string>
     <string name="search_type_people">PEOPLE</string>
-    <string name="search_recent_tags">RECENT</string>
-    <string name="search_popular_tags">POPULAR TAGS</string>
-    <string name="search_tags_title">Choose your favorite tag</string>
-    <string name="search_tags_subtitle">Discover popular playlists on SoundCloud</string>
+    <string name="search_tags_title">DISCOVER POPULAR PLAYLISTS</string>
+    <string name="search_tags_popular_subtitle">Choose your favorite tag</string>
+    <string name="search_tags_recent_subtitle">Recent tags</string>
     <string name="search_empty">No results found</string>
     <string name="search_empty_subtext">Check the spelling or try a different search</string>
     <string name="search_for_query">Search for \'%s\'</string>
@@ -440,7 +439,8 @@
     <string name="recommendation_reason_liked">liked</string>
     <string name="recommendation_reason_listened_to">played</string> <!-- https://github.com/soundcloud/personalized-tracks/ -->
     <string name="recommendation_seeds_header">Recommended for you</string>
-    <string name="discovery_search_hint">Search for artists, tracks ...</string>
+    <string name="discovery_search_hint">Search SoundCloud</string>
+    <string name="discovery_search_title">Search</string>
 
     <!-- __SETTINGS -->
     <string name="pref_app_details">App details</string>

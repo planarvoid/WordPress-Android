@@ -269,9 +269,9 @@
         <!-- discovery -->
         <activity android:label="@string/activity_title_discovery" android:name=".discovery.DiscoveryActivity"/>
         <activity android:label="@string/activity_title_recommendations" android:name=".discovery.RecommendedTracksActivity"/>
-        <activity android:label="" android:name=".discovery.NewSearchActivity"/>
-        <activity android:label="@string/activity_title_search_results" android:name=".discovery.SearchResultsActivity"/>
-        <activity android:label="@string/activity_title_search_results" android:name=".discovery.PlaylistDiscoveryActivity"/>
+        <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".discovery.NewSearchActivity" android:theme="@style/Theme.SoundCloud.Search"/>
+        <activity android:label="@string/discovery_search_title" android:name=".discovery.SearchResultsActivity"/>
+        <activity android:label="@string/discovery_search_title" android:name=".discovery.PlaylistDiscoveryActivity"/>
 
         <!-- stations -->
         <activity android:name=".stations.ShowAllStationsActivity" />

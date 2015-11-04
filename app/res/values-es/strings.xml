@@ -348,10 +348,8 @@
   <string name="search_type_tracks">Pistas</string>
   <string name="search_type_playlists">Listas</string>
   <string name="search_type_people">Gente</string>
-  <string name="search_recent_tags">RECIENTE</string>
-  <string name="search_popular_tags">ETIQUETAS POPULARES</string>
   <string name="search_tags_title">Elije tu etiqueta favorita</string>
-  <string name="search_tags_subtitle">Descubre listas de reproducción populares en SoundCloud</string>
+  <string name="search_tags_popular_subtitle">Descubre listas de reproducción populares en SoundCloud</string>
   <string name="search_empty">No se encontraron resultados.</string>
   <string name="search_empty_subtext">Revisa la ortografía o intenta una búsqueda diferente</string>
   <string name="search_for_query">Buscar \'%s\'</string>

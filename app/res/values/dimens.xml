@@ -96,8 +96,15 @@
     <dimen name="collection_download_state_margin_right">5dip</dimen>
 
     <!-- Discovery -->
+    <dimen name="discovery_tags_padding_left_right">12dp</dimen>
+    <dimen name="discovery_tags_padding_top_bottom">4dp</dimen>
+    <dimen name="discovery_tags_margin_top_bottom">8dp</dimen>
+    <dimen name="discovery_tags_separation">16dp</dimen>
     <dimen name="discovery_cell_padding">4dp</dimen>
     <dimen name="discovery_cell_elevation">3dp</dimen>
+    <dimen name="discovery_search_cell_margin_left_right">4dp</dimen>
+    <dimen name="discovery_search_cell_margin_top_bottom">8dp</dimen>
+    <dimen name="discovery_search_close_icon_margin">16dp</dimen>
     <dimen name="recommendations_cell_artwork_padding">8dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_top_bottom">6dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_left_right">14dp</dimen>
@@ -142,7 +149,8 @@
     <!-- Search -->
     <dimen name="search_link_height">48dp</dimen>
     <dimen name="search_link_padding">12dp</dimen>
-    <dimen name="search_suggestion_item_height">60dp</dimen>
+    <dimen name="search_suggestion_item_height">56dp</dimen>
     <dimen name="search_suggestion_icon_dimension">33dp</dimen>
+    <dimen name="search_suggestion_type_dimension">25dp</dimen>
 
 </resources>

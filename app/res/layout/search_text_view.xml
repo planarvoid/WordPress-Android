@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EditText
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/search"
-    style="@style/Search.TextView.Input"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:imeOptions="actionSearch|flagNoExtractUi"
-    android:hint="@string/activity_title_new_search" />
+    android:orientation="horizontal">
+
+    <com.soundcloud.android.view.CustomFontEditText
+        android:id="@+id/search"
+        style="@style/Search.TextView.Input"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:hint="@string/discovery_search_hint"
+        android:imeOptions="actionSearch|flagNoExtractUi" />
+
+    <ImageView
+        android:id="@+id/search_close"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/close_icon"
+        android:visibility="invisible"
+        android:layout_marginLeft="@dimen/discovery_search_close_icon_margin"
+        android:layout_marginRight="@dimen/discovery_search_close_icon_margin"/>
+
+</LinearLayout>

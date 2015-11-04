@@ -8,6 +8,7 @@ import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,12 +26,13 @@ public class DiscoveryFragment extends LightCycleSupportFragment implements Scro
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+        final View fragmentView = inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+        fragmentView.setBackgroundColor(ContextCompat.getColor(fragmentView.getContext(), R.color.discovery_screen_background));
+        return fragmentView;
     }
 
     @Override
     public void resetScroll() {
         presenter.scrollToTop();
     }
-
 }
