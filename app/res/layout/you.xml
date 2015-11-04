@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView android:id="@+id/scroll_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,6 +12,7 @@
         tools:ignore="MergeRootFrame">
 
         <View style="@style/You.Divider" />
+
         <View style="@style/Divider.Horizontal" />
 
         <LinearLayout
@@ -19,11 +20,11 @@
             style="@style/You.Header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:background="?attr/selectableItemBackground">
+            android:orientation="horizontal">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <ImageView
                 android:id="@+id/image"
                 style="@style/You.HeaderImage" />
 
@@ -46,7 +47,9 @@
         </LinearLayout>
 
         <View style="@style/Divider.Horizontal" />
+
         <View style="@style/You.Divider" />
+
         <View style="@style/Divider.Horizontal" />
 
         <com.soundcloud.android.view.CustomFontTextView
@@ -69,14 +72,16 @@
             android:text="@string/you_record" />
 
         <View style="@style/Divider.Horizontal" />
+
         <View style="@style/You.Divider" />
+
         <View style="@style/Divider.Horizontal" />
 
         <LinearLayout
             android:id="@+id/you_offline_sync_settings_link"
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="gone">
 
             <com.soundcloud.android.view.CustomFontTextView
@@ -100,14 +105,16 @@
             android:text="@string/you_basic_settings" />
 
         <View style="@style/Divider.Horizontal" />
+
         <View style="@style/You.Divider" />
+
         <View style="@style/Divider.Horizontal" />
 
         <LinearLayout
             android:id="@+id/you_report_bug"
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="gone">
 
             <com.soundcloud.android.view.CustomFontTextView
@@ -131,14 +138,16 @@
             android:text="@string/you_legal" />
 
         <View style="@style/Divider.Horizontal" />
+
         <View style="@style/You.Divider" />
+
         <View style="@style/Divider.Horizontal" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/you_sign_out_link"
             style="@style/You.NavItem"
             android:text="@string/you_sign_out" />
-        
+
         <View style="@style/Divider.Horizontal" />
 
         <TextView

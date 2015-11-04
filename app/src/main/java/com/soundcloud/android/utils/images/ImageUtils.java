@@ -26,6 +26,9 @@ import android.graphics.drawable.TransitionDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
@@ -396,6 +399,13 @@ public final class ImageUtils {
         drawable.draw(canvas);
 
         return bitmap;
+    }
+
+    @NonNull
+    public static RoundedBitmapDrawable createCircularDrawable(Bitmap bitmap, Resources resources) {
+        final RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(resources, bitmap);
+        drawable.setCircular(true);
+        return drawable;
     }
 
     /**

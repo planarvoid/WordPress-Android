@@ -76,7 +76,7 @@ class ProfileHeaderPresenter {
 
         if (!user.getUrn().equals(lastUser)){
             lastUser = user.getUrn();
-            imageOperations.displayInAdapterView(lastUser,
+            imageOperations.displayCircularWithPlaceholder(lastUser,
                     ApiImageSize.getFullImageSize(image.getResources()),
                     image);
         }

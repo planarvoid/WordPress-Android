@@ -68,6 +68,7 @@ public class ImageOperations {
     private final BitmapLoadingAdapter.Factory bitmapAdapterFactory;
     private final FileNameGenerator fileNameGenerator;
 
+    private final CircularPlaceholderGenerator circularPlaceholderGenerator;
     private final Cache<String, TransitionDrawable> placeholderCache;
     private final Cache<Urn, Bitmap> blurredImageCache;
 
@@ -80,10 +81,11 @@ public class ImageOperations {
     private ImageProcessor imageProcessor;
 
     @Inject
-    public ImageOperations(ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
+    public ImageOperations(ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator, CircularPlaceholderGenerator circularPlaceholderGenerator,
                            FallbackBitmapLoadingAdapter.Factory adapterFactory, BitmapLoadingAdapter.Factory bitmapAdapterFactory,
                            ImageProcessor imageProcessor) {
-        this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, adapterFactory, bitmapAdapterFactory, imageProcessor,
+        this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, circularPlaceholderGenerator,
+                adapterFactory, bitmapAdapterFactory, imageProcessor,
                 Cache.<String, TransitionDrawable>withSoftValues(50),
                 Cache.<Urn, Bitmap>withSoftValues(10),
                 new HashCodeFileNameGenerator());
@@ -93,12 +95,14 @@ public class ImageOperations {
 
     @VisibleForTesting
     ImageOperations(ImageLoader imageLoader, ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
+                    CircularPlaceholderGenerator circularPlaceholderGenerator,
                     FallbackBitmapLoadingAdapter.Factory adapterFactory, BitmapLoadingAdapter.Factory bitmapAdapterFactory,
                     ImageProcessor imageProcessor, Cache<String, TransitionDrawable> placeholderCache,
                     Cache<Urn, Bitmap> blurredImageCache, FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
         this.urlBuilder = urlBuilder;
         this.placeholderGenerator = placeholderGenerator;
+        this.circularPlaceholderGenerator = circularPlaceholderGenerator;
         this.placeholderCache = placeholderCache;
         this.blurredImageCache = blurredImageCache;
         this.adapterFactory = adapterFactory;
@@ -138,6 +142,18 @@ public class ImageOperations {
                 ImageOptionsFactory.adapterView(getPlaceholderDrawable(urn, imageAware), apiImageSize), notFoundListener);
     }
 
+    public void displayCircularInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
+        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
+        final TransitionDrawable placeholderDrawable = getCircularPlaceholderDrawable(urn,
+                imageAware.getWidth(), imageAware.getHeight());
+
+        imageLoader.displayImage(
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
+                imageAware,
+                ImageOptionsFactory.adapterViewCircular(placeholderDrawable, apiImageSize),
+                notFoundListener);
+    }
+
     public void display(Urn urn,  ApiImageSize apiImageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
@@ -153,6 +169,15 @@ public class ImageOperations {
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 imageAware,
                 ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)),
+                notFoundListener);
+    }
+
+    public void displayCircularWithPlaceholder(Urn urn,  ApiImageSize apiImageSize, ImageView imageView) {
+        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
+        imageLoader.displayImage(
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
+                imageAware,
+                ImageOptionsFactory.placeholderCircular(getCircularPlaceholderDrawable(urn, imageAware.getWidth(), imageAware.getHeight())),
                 notFoundListener);
     }
 
@@ -378,6 +403,17 @@ public class ImageOperations {
             @Override
             public TransitionDrawable get(String key) {
                 return placeholderGenerator.generateTransitionDrawable(urn.toString());
+            }
+        });
+    }
+
+    @Nullable
+    private TransitionDrawable getCircularPlaceholderDrawable(final Urn urn, int width, int height) {
+        final String key = String.format(PLACEHOLDER_KEY_BASE, urn, String.valueOf(width), String.valueOf(height));
+        return placeholderCache.get(key, new ValueProvider<String, TransitionDrawable>() {
+            @Override
+            public TransitionDrawable get(String key) {
+                return circularPlaceholderGenerator.generateTransitionDrawable(urn.toString());
             }
         });
     }

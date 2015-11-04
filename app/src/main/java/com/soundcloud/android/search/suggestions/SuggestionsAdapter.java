@@ -418,14 +418,18 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             if (isUser) {
                 urn = Urn.forUser(id);
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
+
+                imageOperations.displayCircularInAdapterView(urn,
+                        ApiImageSize.getListItemImageSize(context),
+                        tag.iv_icon);
             } else {
                 urn = Urn.forTrack(id);
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
-            }
 
-            imageOperations.displayInAdapterView(urn,
-                    ApiImageSize.getListItemImageSize(context),
-                    tag.iv_icon);
+                imageOperations.displayInAdapterView(urn,
+                        ApiImageSize.getListItemImageSize(context),
+                        tag.iv_icon);
+            }
         }
         return view;
     }
