@@ -5,6 +5,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
@@ -17,11 +18,15 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.stations.StationsSyncRequestFactory;
+import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.collections.Sets;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Notification;
 import rx.Observable;
 import rx.Scheduler;
@@ -92,6 +97,7 @@ public class CollectionsOperations {
         }
     };
 
+    private final EventBus eventBus;
     private final Scheduler scheduler;
     private final SyncStateStorage syncStateStorage;
     private final PlaylistPostStorage playlistPostStorage;
@@ -137,8 +143,22 @@ public class CollectionsOperations {
                 }
     };
 
+    private static final Func1<SyncResult, Boolean> IS_COLLECTION = new Func1<SyncResult, Boolean>() {
+        @Override
+        public Boolean call(SyncResult syncResult) {
+            switch (syncResult.getAction()) {
+                case StationsSyncRequestFactory.Actions.SYNC_STATIONS:
+                case SyncActions.SYNC_PLAYLISTS:
+                    return syncResult.wasChanged();
+                default:
+                    return false;
+            }
+        }
+    };
+
     @Inject
-    CollectionsOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+    CollectionsOperations(EventBus eventBus,
+                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           SyncStateStorage syncStateStorage,
                           PlaylistPostStorage playlistPostStorage,
                           PlaylistLikesStorage playlistLikesStorage,
@@ -147,6 +167,7 @@ public class CollectionsOperations {
                           StationsOperations stationsOperations,
                           FeatureFlags featureFlags,
                           CollectionsOptionsStorage collectionsOptionsStorage) {
+        this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncStateStorage = syncStateStorage;
         this.playlistPostStorage = playlistPostStorage;
@@ -156,6 +177,10 @@ public class CollectionsOperations {
         this.stationsOperations = stationsOperations;
         this.featureFlags = featureFlags;
         this.collectionsOptionsStorage = collectionsOptionsStorage;
+    }
+
+    Observable<SyncResult> onCollectionSynced() {
+        return eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_COLLECTION);
     }
 
     Observable<MyCollections> collections(final PlaylistsOptions options) {
