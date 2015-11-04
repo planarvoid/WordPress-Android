@@ -40,7 +40,7 @@
     </style>
 
     <style name="TabsThemeBase" parent="Widget.Design.TabLayout">
-        <item name="tabSelectedTextColor">?android:colorAccent</item>
+        <item name="tabSelectedTextColor">@color/ak_sc_orange</item>
         <item name="android:background">@color/white</item>
     </style>
 
