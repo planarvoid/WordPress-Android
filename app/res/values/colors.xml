@@ -145,6 +145,7 @@
     <color name="collections_options_dialog_header">#b3b3b3</color>
     <color name="collections_kill_filter_text_color">#999999</color>
     <color name="collections_empty_slot_border">#999999</color>
+    <color name="collections_empty_playlists_text_color">#999999</color>
 
     <!-- You -->
     <color name="you_version_text">@color/gray_text</color>

@@ -99,7 +99,11 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
 
         operations.collections(options).subscribe(subscriber);
 
-        subscriber.assertError(exception);
+        assertThat(subscriber.getOnNextEvents()).hasSize(1);
+        assertThat(subscriber.getOnNextEvents().get(0).getLikes()).isEqualTo(Collections.emptyList());
+        assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Collections.emptyList());
+        assertThat(subscriber.getOnNextEvents().get(0).getRecentStations()).isEqualTo(Collections.emptyList());
+        assertThat(subscriber.getOnNextEvents().get(0).hasError()).isTrue();
     }
 
     @Test

@@ -154,9 +154,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
 
     @Override
     public void onProfileClicked(View view) {
-        if (youOpt.isPresent()) {
-            navigator.openProfile(view.getContext(), youOpt.get().get(UserProperty.URN));
-        }
+        navigator.openProfile(view.getContext(), accountOperations.getLoggedInUserUrn());
     }
 
     @Override

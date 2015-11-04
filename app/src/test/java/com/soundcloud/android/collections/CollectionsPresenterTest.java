@@ -72,7 +72,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
                 playlistItems,
-                RECENT_STATIONS);
+                RECENT_STATIONS,
+                false);
 
         when(collectionsOptionsStorage.getLastOrDefault()).thenReturn(options);
         when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(Observable.just(myCollections));
@@ -87,7 +88,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
                 playlistItems,
-                RECENT_STATIONS);
+                RECENT_STATIONS,
+                false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).build());
 
@@ -106,7 +108,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
                 playlistItems,
-                RECENT_STATIONS);
+                RECENT_STATIONS,
+                false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).build());
 
@@ -124,7 +127,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems, RECENT_STATIONS);
+                playlistItems, RECENT_STATIONS,
+                false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).showLikes(true).build());
 
@@ -141,7 +145,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems, RECENT_STATIONS);
+                playlistItems, RECENT_STATIONS,
+                false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
@@ -158,7 +163,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems, RECENT_STATIONS);
+                playlistItems, RECENT_STATIONS,
+                false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
@@ -174,7 +180,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
         final MyCollections myCollections = new MyCollections(
                 Collections.singletonList(Urn.forTrack(123L)),
-                playlistItems, RECENT_STATIONS);
+                playlistItems, RECENT_STATIONS,
+                false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
@@ -191,7 +198,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final MyCollections myCollections = new MyCollections(
                 Collections.<Urn>emptyList(),
                 playlistItems,
-                Collections.<Urn>emptyList());
+                Collections.<Urn>emptyList(),
+                false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
@@ -208,7 +216,8 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         final MyCollections myCollections = new MyCollections(
                 Collections.<Urn>emptyList(),
                 playlistItems,
-                RECENT_STATIONS);
+                RECENT_STATIONS,
+                false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 

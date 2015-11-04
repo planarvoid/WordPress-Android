@@ -10,11 +10,14 @@ public class MyCollections {
     private final List<Urn> likes;
     private final List<PlaylistItem> likedAndPostedPlaylists;
     private final List<Urn> recentStations;
+    private final boolean atLeastOneError;
 
-    public MyCollections(List<Urn> likes, List<PlaylistItem> likedAndPostedPlaylists, List<Urn> recentStations) {
+    public MyCollections(List<Urn> likes, List<PlaylistItem> likedAndPostedPlaylists,
+                         List<Urn> recentStations, boolean atLeastOneError) {
         this.likes = likes;
         this.likedAndPostedPlaylists = likedAndPostedPlaylists;
         this.recentStations = recentStations;
+        this.atLeastOneError = atLeastOneError;
     }
 
     public List<PlaylistItem> getPlaylistItems() {
@@ -29,4 +32,7 @@ public class MyCollections {
         return recentStations;
     }
 
+    public boolean hasError() {
+        return atLeastOneError;
+    }
 }
