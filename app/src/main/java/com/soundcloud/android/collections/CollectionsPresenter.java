@@ -8,14 +8,13 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -70,6 +69,14 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                 }
             };
 
+    private final Func1<SyncResult, Boolean> isNotRefreshing = new Func1<SyncResult, Boolean>() {
+        @Override
+        public Boolean call(SyncResult syncResult) {
+            return !swipeRefreshAttacher.isRefreshing();
+        }
+    };
+
+    private final SwipeRefreshAttacher swipeRefreshAttacher;
     private final CollectionsOperations collectionsOperations;
     private final PlaylistLikeOperations likeOperations;
     private final CollectionsOptionsStorage collectionsOptionsStorage;
@@ -77,7 +84,6 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     private final CollectionsPlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
-    private final FeatureFlags featureFlags;
 
     private CompositeSubscription eventSubscriptions;
     private PlaylistsOptions currentOptions;
@@ -90,9 +96,9 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                          CollectionsAdapter adapter,
                          CollectionsPlaylistOptionsPresenter optionsPresenter,
                          Resources resources,
-                         EventBus eventBus,
-                         FeatureFlags featureFlags) {
+                         EventBus eventBus) {
         super(swipeRefreshAttacher, Options.defaults());
+        this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.collectionsOperations = collectionsOperations;
         this.likeOperations = likeOperations;
         this.collectionsOptionsStorage = collectionsOptionsStorage;
@@ -100,7 +106,6 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         this.optionsPresenter = optionsPresenter;
         this.resources = resources;
         this.eventBus = eventBus;
-        this.featureFlags = featureFlags;
         adapter.setListener(this);
         adapter.setOnboardingListener(this);
         currentOptions = collectionsOptionsStorage.getLastOrDefault();
@@ -114,6 +119,10 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
+                collectionsOperations.onCollectionSynced()
+                        .filter(isNotRefreshing)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RefreshCollectionsSubscriber()),
                 likeOperations.onPlaylistLiked()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RefreshCollectionsSubscriber()),
@@ -211,9 +220,9 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         adapter.notifyItemRemoved(position);
     }
 
-    private class RefreshCollectionsSubscriber extends DefaultSubscriber<PropertySet> {
+    private class RefreshCollectionsSubscriber extends DefaultSubscriber<Object> {
         @Override
-        public void onNext(PropertySet ignored) {
+        public void onNext(Object ignored) {
             refreshCollections();
         }
     }

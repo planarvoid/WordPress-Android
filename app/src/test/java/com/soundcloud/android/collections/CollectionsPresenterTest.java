@@ -2,6 +2,8 @@ package com.soundcloud.android.collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
@@ -18,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import android.support.v4.app.Fragment;
 
@@ -47,9 +51,10 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(Observable.<MyCollections>empty());
         when(likeOperations.onPlaylistLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onPlaylistUnliked()).thenReturn(Observable.<Urn>empty());
+        when(collectionsOperations.onCollectionSynced()).thenReturn(Observable.<SyncResult>empty());
         options = PlaylistsOptions.builder().build();
         when(collectionsOptionsStorage.getLastOrDefault()).thenReturn(options);
-        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, likeOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus, featureFlags);
+        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, likeOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus);
     }
 
     @Test
@@ -226,5 +231,32 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
                 CollectionsItem.fromPlaylistHeader(),
                 CollectionsItem.fromEmptyPlaylists()
         );
+    }
+
+    @Test
+    public void onCollectionSyncedShouldRefresh() {
+        final PublishSubject<SyncResult> collectionSyncedBus = PublishSubject.create();
+        when(collectionsOperations.onCollectionSynced()).thenReturn(collectionSyncedBus);
+        when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(PublishSubject.<MyCollections>create());
+        presenter.onCreate(fragment, null);
+        reset(collectionsOperations);
+
+        collectionSyncedBus.onNext(SyncResult.success("syncResult", true));
+
+        verify(collectionsOperations).collections(any(PlaylistsOptions.class));
+    }
+
+    @Test
+    public void onCollectionSyncedShouldNotRefreshWhenAlreadyRefreshing() {
+        final PublishSubject<SyncResult> collectionSyncedBus = PublishSubject.create();
+        when(collectionsOperations.onCollectionSynced()).thenReturn(collectionSyncedBus);
+        when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(PublishSubject.<MyCollections>create());
+        when(swipeRefreshAttacher.isRefreshing()).thenReturn(true);
+        presenter.onCreate(fragment, null);
+        reset(collectionsOperations);
+
+        collectionSyncedBus.onNext(SyncResult.success("syncResult", true));
+
+        verify(collectionsOperations, never()).collections(any(PlaylistsOptions.class));
     }
 }
