@@ -17,6 +17,8 @@ import org.mockito.Mock;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 public class ProfileScrollHelperTest extends AndroidUnitTest {
 
@@ -27,7 +29,9 @@ public class ProfileScrollHelperTest extends AndroidUnitTest {
 
     @Mock private AppCompatActivity activity;
     @Mock private AppBarLayout appBarLayout;
+    @Mock private Toolbar toolbar;
     @Mock private ViewPager viewPager;
+    @Mock private View header;
 
     @Mock private ProfileScreen profileScreen1;
     @Mock private ProfileScreen profileScreen2;
@@ -38,7 +42,9 @@ public class ProfileScrollHelperTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(activity.findViewById(R.id.appbar)).thenReturn(appBarLayout);
         when(activity.findViewById(R.id.pager)).thenReturn(viewPager);
-        profileScrollHelper = new ProfileScrollHelper();
+        when(activity.findViewById(R.id.toolbar_id)).thenReturn(toolbar);
+        when(activity.findViewById(R.id.profile_header)).thenReturn(header);
+        profileScrollHelper = new ProfileScrollHelper(resources());
 
         when(viewPager.getHeight()).thenReturn(VIEW_PAGER_HEIGHT);
         when(appBarLayout.getTotalScrollRange()).thenReturn(APP_BAR_TOTAL_RANGE);
