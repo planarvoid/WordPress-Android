@@ -18,14 +18,14 @@ import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
-import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.search.LegacySearchActivity;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class SearchTest extends ActivityTest<SearchActivity> {
+public class SearchTest extends ActivityTest<LegacySearchActivity> {
     private PlaylistTagsScreen playlistTagsScreen;
 
     public SearchTest() {
-        super(SearchActivity.class);
+        super(LegacySearchActivity.class);
     }
 
     @Override

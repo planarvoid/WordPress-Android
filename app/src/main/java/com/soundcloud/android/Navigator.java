@@ -7,7 +7,7 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.DiscoveryActivity;
-import com.soundcloud.android.discovery.NewSearchActivity;
+import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchResultsActivity;
@@ -25,7 +25,7 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.search.LegacySearchActivity;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
@@ -75,12 +75,12 @@ public class Navigator {
         if (featureFlags.isEnabled(Flag.DISCOVERY)) {
             startActivity(activityContext, DiscoveryActivity.class);
         } else {
-            startActivity(activityContext, SearchActivity.class);
+            startActivity(activityContext, LegacySearchActivity.class);
         }
     }
 
     public void openNewSearch(Context activityContext) {
-        startActivity(activityContext, NewSearchActivity.class);
+        startActivity(activityContext, SearchActivity.class);
     }
 
     public void openProfile(Context context, Urn user, Screen screen) {
@@ -214,7 +214,7 @@ public class Navigator {
     }
 
     private Intent createSearchIntent(Context context, Uri uri, Screen screen) {
-        Intent intent = new Intent(context, SearchActivity.class);
+        Intent intent = new Intent(context, LegacySearchActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(uri);
         screen.addToIntent(intent);

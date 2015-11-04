@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.sothree.slidinguppanel.SlidingUpPanelLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sliding_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="bottom"
+    app:dragView="@+id/player_layout"
+    app:panelHeight="@dimen/player_footer">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/search_screen_background">
+
+        <include layout="@layout/toolbar" />
+
+        <ViewFlipper
+            android:id="@+id/search_view_flipper"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:layout_below="@id/toolbar_id"
+            android:visibility="invisible">
+
+            <ListView
+                android:id="@android:id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <FrameLayout
+                android:id="@+id/search_results_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </ViewFlipper>
+
+        <View style="@style/ToolbarShadow"
+            android:layout_below="@id/toolbar_id" />
+    </RelativeLayout>
+
+    <fragment
+        android:id="@+id/player_root"
+        android:name="com.soundcloud.android.playback.ui.PlayerFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>

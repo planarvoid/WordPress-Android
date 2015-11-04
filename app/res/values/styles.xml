@@ -141,6 +141,7 @@
     </style>
 
     <style name="ToolbarShadow">
+        <item name="android:id">@id/legacy_elevation</item>
         <item name="android:background">@drawable/toolbar_shadow</item>
         <item name="android:layout_height">5dp</item>
         <item name="android:layout_width">match_parent</item>

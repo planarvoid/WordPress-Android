@@ -12,12 +12,12 @@ import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.search.LegacySearchActivity;
 
 import android.support.v7.widget.RecyclerView;
 
 public class SearchResultsScreen extends Screen {
-    private static final Class ACTIVITY = SearchActivity.class;
+    private static final Class ACTIVITY = LegacySearchActivity.class;
     private static final String FRAGMENT = "tabbed_search";
 
     private static final String ALL_TAB_TEXT = "ALL";

@@ -12,7 +12,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.search.LegacySearchActivity;
 import com.soundcloud.android.search.suggestions.ShortcutsStorage;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.utils.BugReporter;
@@ -27,7 +27,7 @@ import android.support.v7.app.ActionBar;
 @RunWith(SoundCloudTestRunner.class)
 public class SearchActionBarControllerTest {
 
-    @Mock private SearchActivity activity;
+    @Mock private LegacySearchActivity activity;
     @Mock private ActionBar actionBar;
     @Mock private PublicApi cloudAPI;
     @Mock private SearchCallback callback;

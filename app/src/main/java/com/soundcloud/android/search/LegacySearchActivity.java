@@ -27,7 +27,7 @@ import android.view.Menu;
 
 import javax.inject.Inject;
 
-public class SearchActivity extends ScActivity implements PlaylistTagsFragment.PlaylistTagsFragmentListener {
+public class LegacySearchActivity extends ScActivity implements PlaylistTagsFragment.PlaylistTagsFragmentListener {
 
     private static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
     private static final String INTENT_URL_HOST = "soundcloud.com";
@@ -58,12 +58,12 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.P
         }
     };
 
-    public SearchActivity() {
+    public LegacySearchActivity() {
         searchActionBarController.setSearchCallback(searchCallback);
     }
 
     @VisibleForTesting
-    SearchActivity(SearchActionBarController searchActionBarController) {
+    LegacySearchActivity(SearchActionBarController searchActionBarController) {
         this();
         this.searchActionBarController = searchActionBarController;
     }

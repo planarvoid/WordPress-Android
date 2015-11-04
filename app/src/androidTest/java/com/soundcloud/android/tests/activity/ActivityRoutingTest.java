@@ -6,7 +6,7 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.search.LegacySearchActivity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -39,8 +39,8 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     }
 
     public void ignore_testSearch() {
-        assertActivityStarted(SearchActivity.class, Actions.SEARCH);
-        assertActivityStarted(SearchActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/search/1234"));
+        assertActivityStarted(LegacySearchActivity.class, Actions.SEARCH);
+        assertActivityStarted(LegacySearchActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/search/1234"));
     }
 
     public void ignore_testResolve() {

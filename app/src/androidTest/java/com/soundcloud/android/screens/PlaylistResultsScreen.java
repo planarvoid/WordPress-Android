@@ -4,13 +4,13 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.search.LegacySearchActivity;
 
 import android.support.v7.widget.RecyclerView;
 
 public class PlaylistResultsScreen extends Screen {
 
-    private static final Class ACTIVITY = SearchActivity.class;
+    private static final Class ACTIVITY = LegacySearchActivity.class;
 
     @Override
     protected Class getActivity() {
