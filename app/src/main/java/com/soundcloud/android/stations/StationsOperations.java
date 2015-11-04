@@ -90,6 +90,28 @@ public class StationsOperations {
         };
     }
 
+    public Observable<StationRecord> collection(final int type) {
+        return loadStationsCollection(type)
+                .switchIfEmpty(syncAndReloadStations(type))
+                .subscribeOn(scheduler);
+    }
+
+    private Observable<StationRecord> loadStationsCollection(final int type) {
+        return stationsStorage.getStationsCollection(type).subscribeOn(scheduler);
+    }
+
+    private Observable<StationRecord> syncAndReloadStations(final int type) {
+        return syncInitiator.syncRecentStations().flatMap(continueWith(loadStationsCollection(type)));
+    }
+
+    ChangeResult saveLastPlayedTrackPosition(Urn collectionUrn, int position) {
+        return stationsStorage.saveLastPlayedTrackPosition(collectionUrn, position);
+    }
+
+    public Observable<SyncResult> sync() {
+        return syncInitiator.syncRecentStations();
+    }
+
     public ChangeResult saveRecentlyPlayedStation(Urn stationUrn) {
         final ChangeResult result = stationsStorage.saveUnsyncedRecentlyPlayedStation(stationUrn);
         syncInitiator.requestSystemSync();
@@ -97,14 +119,18 @@ public class StationsOperations {
     }
 
     public Observable<PlayQueue> fetchUpcomingTracks(final Urn station, final int currentSize) {
-        return stationsApi
-                .fetchStation(station)
-                .doOnNext(storeTracks)
+        return fetchStation(station)
                 .doOnNext(storeStationCommand.toAction())
-                .flatMap(toTracks(station, currentSize))
+                .flatMap(loadPlayQueue(station, currentSize))
                 .toList()
                 .map(toPlayQueue(station))
                 .subscribeOn(scheduler);
+    }
+
+    private Observable<? extends StationRecord> fetchStation(Urn stationUrn) {
+        return stationsApi
+                .fetchStation(stationUrn)
+                .doOnNext(storeTracks);
     }
 
     public boolean shouldDisplayOnboardingStreamItem() {
@@ -122,41 +148,13 @@ public class StationsOperations {
     }
 
     @NonNull
-    private Func1<ApiStation, Observable<Urn>> toTracks(final Urn station, final int startPosition) {
-        return new Func1<ApiStation, Observable<Urn>>() {
+    private Func1<StationRecord, Observable<Urn>> loadPlayQueue(final Urn station, final int startPosition) {
+        return new Func1<StationRecord, Observable<Urn>>() {
             @Override
-            public Observable<Urn> call(ApiStation apiStation) {
+            public Observable<Urn> call(StationRecord ignored) {
                 return stationsStorage.loadPlayQueue(station, startPosition);
             }
         };
-    }
-
-    private Observable<? extends StationRecord> fetchStation(Urn stationUrn) {
-        return stationsApi
-                .fetchStation(stationUrn)
-                .doOnNext(storeTracks);
-    }
-
-    ChangeResult saveLastPlayedTrackPosition(Urn collectionUrn, int position) {
-        return stationsStorage.saveLastPlayedTrackPosition(collectionUrn, position);
-    }
-
-    public Observable<StationRecord> collection(final int type) {
-        return loadStationsCollection(type)
-                .switchIfEmpty(syncAndReloadStations(type))
-                .subscribeOn(scheduler);
-    }
-
-    public Observable<SyncResult> sync() {
-        return syncInitiator.syncRecentStations();
-    }
-
-    private Observable<StationRecord> loadStationsCollection(final int type) {
-        return stationsStorage.getStationsCollection(type).subscribeOn(scheduler);
-    }
-
-    private Observable<StationRecord> syncAndReloadStations(final int type) {
-        return syncInitiator.syncRecentStations().flatMap(continueWith(loadStationsCollection(type)));
     }
 
     public void clearData() {
