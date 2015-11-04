@@ -39,7 +39,7 @@ public class UserRepository {
     public Observable<PropertySet> userInfo(Urn userUrn) {
         return Observable
                 .concat(
-                        userStorage.loadUser(userUrn),
+                        userStorage.loadUser(userUrn).filter(IS_NOT_EMPTY),
                         syncedUserInfo(userUrn)
                 )
                 .first()

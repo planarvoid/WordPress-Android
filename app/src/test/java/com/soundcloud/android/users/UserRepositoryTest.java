@@ -64,7 +64,7 @@ public class UserRepositoryTest extends AndroidUnitTest {
     @Test
     public void userInfoReturnsUserInfoFromSyncerIfStorageEmpty() {
         final PublishSubject<SyncResult> subject = PublishSubject.create();
-        when(userStorage.loadUser(userUrn)).thenReturn(Observable.<PropertySet>empty(), Observable.just(updatedUser));
+        when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(PropertySet.create()), Observable.just(updatedUser));
         when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 
         userRepository.userInfo(userUrn).subscribe(observer);
