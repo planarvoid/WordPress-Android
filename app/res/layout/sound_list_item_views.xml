@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       android:layout_width="match_parent"
-       android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ImageView
-            android:id="@+id/image"
-            style="@style/ListItemImage"/>
+        android:id="@+id/image"
+        style="@style/ListItemImage" />
 
 
     <com.soundcloud.android.offline.DownloadImageView
@@ -14,43 +14,43 @@
         style="@style/DownloadItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/image"
         android:layout_alignRight="@id/image"
-        android:visibility="gone"
+        android:layout_alignTop="@id/image"
+        android:layout_marginRight="@dimen/download_progress_indicator_margin"
         android:layout_marginTop="@dimen/download_progress_indicator_margin"
-        android:layout_marginRight="@dimen/download_progress_indicator_margin"/>
+        android:visibility="gone" />
 
     <LinearLayout
-            android:id="@id/list_item_header_container"
-            android:layout_alignTop="@id/image"
-            android:layout_toRightOf="@id/image"
-            android:layout_toLeftOf="@id/list_item_right_info"
-            android:layout_marginTop="-4dp"
+        android:id="@id/list_item_header_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/image"
+        android:layout_marginTop="1dp"
+        android:layout_toLeftOf="@id/list_item_right_info"
+        android:layout_toRightOf="@id/image">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/list_item_header"
+            style="@style/ListItemText.SecondaryText" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/reposter"
+            style="@style/ListItemText.SecondaryText"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-        <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/list_item_header"
-                style="@style/ListItemText.SecondaryText"/>
-
-        <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/reposter"
-                style="@style/ListItemText.SecondaryText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="3dp"
-                android:gravity="center_vertical"
-                android:drawableLeft="@drawable/stats_repost"
-                android:drawablePadding="6dp"
-                android:visibility="gone" />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="3dp"
+            android:drawableLeft="@drawable/stats_repost"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:visibility="gone" />
 
     </LinearLayout>
 
     <com.soundcloud.android.view.CustomFontTextView
-            android:id="@id/list_item_subheader"
-            style="@style/ListItemText.PrimaryText"
-            android:layout_toRightOf="@id/image"
-            android:layout_below="@id/list_item_header_container"/>
+        android:id="@id/list_item_subheader"
+        style="@style/ListItemText.PrimaryText"
+        android:layout_below="@id/list_item_header_container"
+        android:layout_toRightOf="@id/image" />
 
 </merge>

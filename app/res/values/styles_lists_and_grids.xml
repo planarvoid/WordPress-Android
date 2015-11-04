@@ -9,9 +9,10 @@
     <style name="ListItemLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingTop">16dp</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingBottom">24dp</item>
+        <item name="android:paddingBottom">16dp</item>
     </style>
     <style name="ListItemText">
         <item name="android:layout_width">wrap_content</item>
@@ -20,7 +21,7 @@
         <item name="android:antialias">true</item>
     </style>
     <style name="ListItemText.PrimaryText">
-        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginTop">1dp</item>
         <item name="android:layout_marginLeft">12dp</item>
         <item name="android:textColor">@color/list_primary</item>
         <item name="android:ellipsize">end</item>
@@ -48,14 +49,13 @@
     <style name="ListItemText.TertiaryText">
         <item name="android:textSize">12sp</item>
         <item name="android:layout_marginLeft">12dp</item>
-        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginTop">8dp</item>
         <item name="android:gravity">center</item>
         <item name="android:drawablePadding">6dp</item>
     </style>
     <style name="ListItemImage">
         <item name="android:layout_width">@dimen/list_item_image_dimension</item>
         <item name="android:layout_height">@dimen/list_item_image_dimension</item>
-        <item name="android:layout_marginTop">20dp</item>
     </style>
     <style name="ListPrivateIndicator" parent="ListItemText.TertiaryText">
         <item name="android:drawableLeft">@drawable/stats_private</item>
@@ -68,7 +68,7 @@
     </style>
     <style name="ListItemOverflowButton">
         <item name="android:background">@drawable/btn_list_overflow</item>
-        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:layout_marginBottom">6dp</item>
     </style>
     <style name="EngagementOverflowButton">
         <item name="android:background">@drawable/btn_engagements_overflow</item>

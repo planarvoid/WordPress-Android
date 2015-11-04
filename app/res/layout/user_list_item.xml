@@ -1,40 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                style="@style/ListItemLayout"
-                android:id="@+id/user_list_item">
+<LinearLayout
+    android:id="@+id/user_list_item"
+    style="@style/ListItemLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
 
     <ImageView
-            android:id="@+id/image"
-            style="@style/ListItemImage" />
+        android:id="@+id/image"
+        style="@style/ListItemImage" />
 
-    <com.soundcloud.android.view.CustomFontTextView
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@id/list_item_header"
             style="@style/ListItemText.SecondaryText"
-            android:textColor="@color/list_primary"
-            android:layout_toRightOf="@id/image"
-            android:layout_toLeftOf="@id/toggle_btn_follow"
-            android:layout_alignTop="@id/image"
-            android:layout_marginTop="-4dp" />
+            android:textColor="@color/list_primary" />
 
-    <com.soundcloud.android.view.CustomFontTextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@id/list_item_subheader"
             style="@style/ListItemText.PrimaryText"
-            android:textColor="@color/list_secondary"
-            android:layout_toRightOf="@id/image"
-            android:layout_below="@id/list_item_header" />
+            android:textColor="@color/list_secondary" />
 
-    <com.soundcloud.android.view.CustomFontTextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@id/list_item_counter"
             style="@style/ListItemText.Numeric.Stats"
-            android:layout_toRightOf="@id/image"
-            android:layout_below="@id/list_item_subheader"
             android:drawableLeft="@drawable/stats_followers" />
 
-    <ToggleButton android:id="@+id/toggle_btn_follow"
-        android:layout_alignBaseline="@id/list_item_subheader"
-        android:layout_alignParentRight="true"
+    </LinearLayout>
+
+    <ToggleButton
+        android:id="@+id/toggle_btn_follow"
+        style="@style/Profile.ToggleButton.Follow.List"
         android:focusable="false"
-        android:visibility="gone"
-        style="@style/Profile.ToggleButton.Follow.List"/>
-</RelativeLayout>
+        android:visibility="gone" />
+
+</LinearLayout>

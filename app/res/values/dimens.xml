@@ -83,7 +83,7 @@
     <dimen name="notification_user_text_size">14sp</dimen>
 
     <!-- List item -->
-    <dimen name="list_item_image_dimension">60dp</dimen>
+    <dimen name="list_item_image_dimension">64dp</dimen>
     <dimen name="download_progress_indicator_margin">-6dp</dimen>
 
     <!-- Like -->

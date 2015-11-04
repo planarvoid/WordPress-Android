@@ -2,8 +2,8 @@ package com.soundcloud.android.users;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import rx.functions.Func1;
 
 public class UserItem implements ListItem {
@@ -42,8 +42,9 @@ public class UserItem implements ListItem {
         return source.get(UserProperty.USERNAME);
     }
 
-    public String getCountry() {
-        return source.getOrElse(UserProperty.COUNTRY, ScTextUtils.EMPTY_STRING);
+    public Optional<String> getCountry() {
+        return source.contains(UserProperty.COUNTRY) ?
+                Optional.of(source.get(UserProperty.COUNTRY)) : Optional.<String>absent();
     }
 
     public int getFollowersCount() {

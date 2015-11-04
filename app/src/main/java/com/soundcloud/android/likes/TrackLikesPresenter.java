@@ -1,16 +1,16 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_DOWNLOAD;
-import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
+import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.MidTierTrackEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
@@ -20,8 +20,6 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.RefreshRecyclerViewAdapterSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
@@ -35,13 +33,10 @@ import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
-
 import org.jetbrains.annotations.Nullable;
-
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;

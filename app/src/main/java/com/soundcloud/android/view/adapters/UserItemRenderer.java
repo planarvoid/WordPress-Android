@@ -7,6 +7,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.java.optional.Optional;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,10 +38,20 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
     public void bindItemView(int position, View itemView, List<UserItem> items) {
         UserItem user = items.get(position);
         ((TextView) itemView.findViewById(R.id.list_item_header)).setText(user.getName());
-        ((TextView) itemView.findViewById(R.id.list_item_subheader)).setText(user.getCountry());
-
+        setOptionalCountry(itemView, user);
         setupFollowersCount(itemView, user);
         loadImage(itemView, user);
+    }
+
+    private void setOptionalCountry(View itemView, UserItem user) {
+        final Optional<String> country = user.getCountry();
+        final TextView countryText = (TextView) itemView.findViewById(R.id.list_item_subheader);
+        if (country.isPresent()) {
+            countryText.setText(country.get());
+            countryText.setVisibility(View.VISIBLE);
+        } else {
+            countryText.setVisibility(View.GONE);
+        }
     }
 
     private void setupFollowersCount(View itemView, UserItem user) {

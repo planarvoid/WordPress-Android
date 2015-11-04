@@ -30,7 +30,6 @@
     <!-- New cells -->
     <color name="list_primary">#333333</color>
     <color name="list_secondary">#999999</color>
-    <color name="playlist_tracks">#e5e5e5</color>
     <color name="card_full_image_border">#f2f2f2</color>
 
     <!-- Player -->
