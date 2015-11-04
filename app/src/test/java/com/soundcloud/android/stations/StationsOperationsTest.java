@@ -10,6 +10,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncStateStorage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StationsOperationsTest {
+    @Mock SyncStateStorage syncStateStorage;
     @Mock StationsStorage stationsStorage;
     @Mock StationsApi stationsApi;
     @Mock StoreTracksCommand storeTracksCommand;
@@ -40,6 +42,7 @@ public class StationsOperationsTest {
     @Before
     public void setUp() {
         operations = new StationsOperations(
+                syncStateStorage,
                 stationsStorage,
                 stationsApi,
                 storeTracksCommand,
@@ -112,22 +115,6 @@ public class StationsOperationsTest {
     }
 
     @Test
-    public void collectionShouldReturnFromStorageIfAvailable() {
-        final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
-        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        final PublishSubject<SyncResult> syncResults = PublishSubject.create();
-
-        when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT))
-                .thenReturn(Observable.just(station));
-        when(syncInitiator.syncRecentStations()).thenReturn(syncResults);
-
-        operations.collection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
-
-        subscriber.assertValue(station);
-        assertThat(syncResults.hasObservers()).isFalse();
-    }
-
-    @Test
     public void fetchUpcomingTracksShouldFetchAndReturnTrackFromStorage() {
         final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
         final Urn station = Urn.forTrackStation(123L);
@@ -144,15 +131,27 @@ public class StationsOperationsTest {
     }
 
     @Test
-    public void collectionShouldTriggerSyncerIfNothingInLocalDatabase() {
-        final Observable<StationRecord> storageStations1 = Observable.empty();
+    public void collectionShouldReturnFromStorageWhenSyncedBefore() {
+        final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
+        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
+        final PublishSubject<SyncResult> syncResults = PublishSubject.create();
+
+        when(syncStateStorage.hasSyncedBefore(StationsSyncInitiator.TYPE)).thenReturn(true);
+        when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(station));
+        when(syncInitiator.syncRecentStations()).thenReturn(syncResults);
+
+        operations.collection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
+
+        subscriber.assertValue(station);
+        assertThat(syncResults.hasObservers()).isFalse();
+    }
+
+    @Test
+    public void collectionShouldTriggerSyncerWhenNotSyncedBefore() {
         final PublishSubject<SyncResult> syncResults = PublishSubject.create();
         final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
-        final Observable<StationRecord> storageStations2 = Observable.just(station);
         final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-
-        when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT))
-                .thenReturn(storageStations1, storageStations2);
+        when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(station));
         when(syncInitiator.syncRecentStations()).thenReturn(syncResults);
 
         operations.collection(StationsCollectionsTypes.RECENT).subscribe(subscriber);

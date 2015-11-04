@@ -33,6 +33,7 @@ public class StorageModule {
     public static final String FACEBOOK_INVITES = "FacebookInvites";
     public static final String COLLECTIONS = "collections";
     public static final String STATIONS = "stations";
+    public static final String SYNCER = "syncer";
 
     private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
     private static final String PREFS_DEVICE_MANAGEMENT = "device_management";
@@ -48,6 +49,7 @@ public class StorageModule {
     private static final String PREFS_FACEBOOK_INVITES = "facebook_invites";
     private static final String PREFS_COLLECTIONS = "collections";
     private static final String PREFS_STATIONS = "stations";
+    private static final String PREFS_SYNCER = "syncer";
 
     @Provides
     public ContentResolver provideContentResolver(SoundCloudApplication application) {
@@ -134,8 +136,14 @@ public class StorageModule {
 
     @Provides
     @Named(STATIONS)
-    public SharedPreferences provideSharedPreferences(Context context) {
+    public SharedPreferences provideStationsPreferences(Context context) {
         return context.getSharedPreferences(PREFS_STATIONS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(SYNCER)
+    public SharedPreferences provideSyncerPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_SYNCER, Context.MODE_PRIVATE);
     }
 
     @Provides

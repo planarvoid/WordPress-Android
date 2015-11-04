@@ -8,6 +8,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.propeller.ChangeResult;
 import rx.Observable;
 import rx.Scheduler;
@@ -22,6 +23,7 @@ import javax.inject.Named;
 import java.util.List;
 
 public class StationsOperations {
+    private final SyncStateStorage syncStateStorage;
     private final StationsStorage stationsStorage;
     private final StationsApi stationsApi;
     private final StoreTracksCommand storeTracksCommand;
@@ -44,12 +46,14 @@ public class StationsOperations {
     };
 
     @Inject
-    public StationsOperations(StationsStorage stationsStorage,
+    public StationsOperations(SyncStateStorage syncStateStorage,
+                              StationsStorage stationsStorage,
                               StationsApi stationsApi,
                               StoreTracksCommand storeTracksCommand,
                               StoreStationCommand storeStationCommand,
                               StationsSyncInitiator syncInitiator,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+        this.syncStateStorage = syncStateStorage;
         this.stationsStorage = stationsStorage;
         this.stationsApi = stationsApi;
         this.syncInitiator = syncInitiator;
@@ -70,7 +74,9 @@ public class StationsOperations {
         return Observable
                 .concat(
                         stationsStorage.station(station).filter(HAS_TRACKS),
-                        fetchStation(station)
+                        stationsApi
+                                .fetchStation(station)
+                                .doOnNext(storeTracks)
                                 .map(toStation)
                                 .doOnNext(storeStationCommand.toAction())
                 )
@@ -91,16 +97,20 @@ public class StationsOperations {
     }
 
     public Observable<StationRecord> collection(final int type) {
-        return loadStationsCollection(type)
-                .switchIfEmpty(syncAndReloadStations(type))
-                .subscribeOn(scheduler);
+        final Observable<StationRecord> collection;
+        if (syncStateStorage.hasSyncedBefore(StationsSyncInitiator.TYPE)) {
+            collection = loadStationsCollection(type);
+        } else {
+            collection = syncAndLoadStationsCollection(type);
+        }
+        return collection.subscribeOn(scheduler);
     }
 
     private Observable<StationRecord> loadStationsCollection(final int type) {
         return stationsStorage.getStationsCollection(type).subscribeOn(scheduler);
     }
 
-    private Observable<StationRecord> syncAndReloadStations(final int type) {
+    private Observable<StationRecord> syncAndLoadStationsCollection(int type) {
         return syncInitiator.syncRecentStations().flatMap(continueWith(loadStationsCollection(type)));
     }
 
@@ -119,18 +129,14 @@ public class StationsOperations {
     }
 
     public Observable<PlayQueue> fetchUpcomingTracks(final Urn station, final int currentSize) {
-        return fetchStation(station)
+        return stationsApi
+                .fetchStation(station)
+                .doOnNext(storeTracks)
                 .doOnNext(storeStationCommand.toAction())
                 .flatMap(loadPlayQueue(station, currentSize))
                 .toList()
                 .map(toPlayQueue(station))
                 .subscribeOn(scheduler);
-    }
-
-    private Observable<? extends StationRecord> fetchStation(Urn stationUrn) {
-        return stationsApi
-                .fetchStation(stationUrn)
-                .doOnNext(storeTracks);
     }
 
     public boolean shouldDisplayOnboardingStreamItem() {

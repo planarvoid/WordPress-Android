@@ -221,6 +221,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(StorageModule.SYNCER)
+    public SharedPreferences provideSyncerPreferences() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
     @Named(StorageModule.COLLECTIONS)
     public SharedPreferences provideCollections() {
         return provideSharedPreferences();
