@@ -33,6 +33,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
+    @BrokenScrollingTest
     public void testVisualPlayerIsAccessible() throws Exception {
         final VisualPlayerElement playerElement = streamScreen.clickFirstTrack();
         assertThat(playerElement, is(expanded()));
