@@ -9,6 +9,8 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
+import com.soundcloud.android.screens.elements.PlaylistItemOverflowMenu;
+import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -44,7 +46,7 @@ public class StreamScreen extends Screen {
     public PlaylistDetailsScreen clickFirstNotPromotedPlaylist() {
         int tries = 0;
         while (tries < MAX_SCROLLS_TO_FIND_ITEM) {
-            scrollListToItem(With.id(R.id.playlist_list_item));
+            scrollToItem(With.id(R.id.playlist_list_item), streamList());
             for (PlaylistItemElement playlistItemElement : getPlaylists()) {
                 if (!playlistItemElement.isPromotedPlaylist()) {
                     return playlistItemElement.click();
@@ -56,9 +58,17 @@ public class StreamScreen extends Screen {
         throw new ViewNotFoundException("Unable to find non-promoted playlist");
     }
 
+    public StreamCardElement firstTrackCard() {
+        return getTrackCard(0);
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;
+    }
+
+    public StreamCardElement getTrackCard(int index) {
+        return trackCardElements().get(index);
     }
 
     public TrackItemElement getTrack(int index) {
@@ -95,6 +105,11 @@ public class StreamScreen extends Screen {
         return new TrackItemMenuElement(testDriver);
     }
 
+    public PlaylistItemOverflowMenu clickFirstPlaylistOverflowButton() {
+        getPlaylist(0).clickOverflow();
+        return new PlaylistItemOverflowMenu(testDriver);
+    }
+
     public boolean isFirstTrackPromoted() {
         return getTrack(0).isPromotedTrack();
     }
@@ -114,8 +129,19 @@ public class StreamScreen extends Screen {
                 toFacebookInvitesItemElement);
     }
 
+    private PlaylistItemElement getPlaylist(int index) {
+        scrollToItem(With.id(R.id.playlist_list_item), streamList());
+        return getPlaylists().get(index);
+    }
+
     private RecyclerViewElement streamList() {
         return testDriver.findElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
+    }
+
+    private List<StreamCardElement> trackCardElements() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        scrollToItem(With.id(R.id.track_list_item), streamList());
+        return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackCardElements);
     }
 
     private List<TrackItemElement> trackItemElements() {
@@ -123,6 +149,13 @@ public class StreamScreen extends Screen {
         scrollToItem(With.id(R.id.track_list_item), streamList());
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackItemElement);
     }
+
+    private final Function<ViewElement, StreamCardElement> toTrackCardElements = new Function<ViewElement, StreamCardElement>() {
+        @Override
+        public StreamCardElement apply(ViewElement viewElement) {
+            return new StreamCardElement(testDriver);
+        }
+    };
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
         @Override

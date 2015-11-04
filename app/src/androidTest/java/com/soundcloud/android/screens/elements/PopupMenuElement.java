@@ -36,7 +36,7 @@ public class PopupMenuElement {
     }
 
     protected String getElementText(ViewElement viewElement) {
-        return new TextElement(viewElement.findElement(With.className("android.widget.TextView"))).getText();
+        return new TextElement(viewElement.findElement(With.id(android.R.id.title))).getText();
     }
 
 }

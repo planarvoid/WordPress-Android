@@ -17,7 +17,6 @@ import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 
@@ -29,8 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    private static final Urn PLAYLIST = Urn.forPlaylist(100132741L);
-    private static final Urn TRACK = Urn.forTrack(49173281L);
     private final OfflineContentHelper offlineContentHelper;
     private Context context;
     private NetworkManagerClient networkManagerClient;
