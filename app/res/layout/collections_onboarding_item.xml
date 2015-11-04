@@ -1,22 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    style="@style/OnboardingListItemNotificationLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <LinearLayout style="@style/ListItemNotificationLayout">
-        <TextView
-            android:id="@+id/title"
-            style="@style/ListItemNotificationTitle"
-            android:text="@string/collections_without_stations_onboarding_title" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:background="@color/page_background"
+        android:clickable="false"
+        android:focusable="false" />
 
-        <TextView
-            android:id="@+id/description"
-            style="@style/ListItemNotificationDescription"
-            android:text="@string/collections_onboarding_description" />
-    </LinearLayout>
+    <View style="@style/Divider.Horizontal" />
 
-    <ImageButton
+    <TextView
+        android:id="@+id/title"
+        style="@style/OnboardingListItemNotification.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/collections_without_stations_onboarding_title" />
+
+    <TextView
+        android:id="@+id/description"
+        style="@style/OnboardingListItemNotification.Description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/collections_onboarding_description" />
+
+    <TextView
         android:id="@+id/close_button"
-        style="@style/ListItemNotificationCloseButton" />
+        style="@style/OnboardingListItemNotificationCloseButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ok_got_it" />
 
-</FrameLayout>
+    <View style="@style/Divider.Horizontal" />
+</LinearLayout>
