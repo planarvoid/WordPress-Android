@@ -145,6 +145,11 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
             youOpt = Optional.of(user);
             bindUserIfPresent();
         }
+
+        @Override
+        public void onError(Throwable e) {
+            youOpt = Optional.absent();
+        }
     }
 
     @Override
