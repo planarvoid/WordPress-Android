@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
-import com.soundcloud.android.activities.ActivitiesAdapter;
+import com.soundcloud.android.activities.LegacyActivitiesAdapter;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
@@ -90,7 +90,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Inject PullToRefreshController pullToRefreshController;
 
     @Nullable private ListView listView;
-    private ActivitiesAdapter adapter;
+    private LegacyActivitiesAdapter adapter;
     @Nullable private EmptyView emptyView;
     private EmptyViewBuilder emptyViewBuilder;
     private final Content content = Content.ME_ACTIVITIES;
@@ -449,7 +449,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     private void setupListAdapter() {
         if (getListAdapter() == null) {
-            adapter = new ActivitiesAdapter();
+            adapter = new LegacyActivitiesAdapter();
             setListAdapter(adapter);
             configureEmptyView();
             if (canAppend()) {

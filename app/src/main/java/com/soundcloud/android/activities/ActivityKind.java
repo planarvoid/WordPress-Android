@@ -2,6 +2,7 @@ package com.soundcloud.android.activities;
 
 public enum ActivityKind {
 
+    UNKNOWN("unknown"),
     TRACK_LIKE("track_like"),
     PLAYLIST_LIKE("playlist_like"),
     TRACK_REPOST("track_repost"),
@@ -9,18 +10,27 @@ public enum ActivityKind {
     TRACK_COMMENT("track_comment"),
     USER_FOLLOW("user_follow");
 
-    private final String name;
+    private final String identifier;
 
-    ActivityKind(String name) {
-        this.name = name;
+    ActivityKind(String identifier) {
+        this.identifier = identifier;
     }
 
     @Override
     public String toString() {
-        return name;
+        return identifier;
     }
 
-    public String tableConstant() {
-        return name;
+    public String identifier() {
+        return identifier;
+    }
+
+    public static ActivityKind fromIdentifier(String identifier) {
+        for (ActivityKind kind : values()) {
+            if (kind.identifier.equals(identifier)) {
+                return kind;
+            }
+        }
+        return UNKNOWN;
     }
 }

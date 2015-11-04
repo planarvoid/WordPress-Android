@@ -19,6 +19,7 @@ import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.activities.ActivityKind;
+import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
@@ -42,12 +43,12 @@ public class DatabaseFixtures {
 
     public ApiTrack insertTrack() {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        insertUser(track.getUser());
         insertTrack(track);
         return track;
     }
 
     public void insertTrack(ApiTrack track) {
+        insertUser(track.getUser());
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Sounds._ID, track.getUrn().getNumericId());
         cv.put(TableColumns.Sounds.TITLE, track.getTitle());
@@ -670,9 +671,21 @@ public class DatabaseFixtures {
 
     public void insertUserFollowActivity(ApiUserFollowActivity followActivity) {
         ContentValuesBuilder builder = ContentValuesBuilder.values();
-        builder.put(TableColumns.Activities.TYPE, ActivityKind.USER_FOLLOW.tableConstant());
+        builder.put(TableColumns.Activities.TYPE, ActivityKind.USER_FOLLOW.identifier());
         builder.put(TableColumns.Activities.USER_ID, followActivity.getUserUrn().getNumericId());
         builder.put(TableColumns.Activities.CREATED_AT, followActivity.getCreatedAt().getTime());
+        insertInto(Table.Activities, builder.get());
+    }
+
+    public void insertTrackLikeActivity(ApiTrackLikeActivity activity) {
+        insertTrack(activity.getTrack());
+        insertUser(activity.getUser());
+        ContentValuesBuilder builder = ContentValuesBuilder.values();
+        builder.put(TableColumns.Activities.TYPE, ActivityKind.TRACK_LIKE.identifier());
+        builder.put(TableColumns.Activities.USER_ID, activity.getUserUrn().getNumericId());
+        builder.put(TableColumns.Activities.CREATED_AT, activity.getCreatedAt().getTime());
+        builder.put(TableColumns.Activities.SOUND_ID, activity.getTrack().getId());
+        builder.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         insertInto(Table.Activities, builder.get());
     }
 

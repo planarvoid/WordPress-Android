@@ -8,10 +8,13 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 
 import javax.inject.Inject;
 
@@ -21,14 +24,18 @@ public class ActivitiesActivity extends ScActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject Navigator navigator;
+    @Inject FeatureFlags featureFlags;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
+            final Fragment fragment = featureFlags.isEnabled(Flag.ACTIVITIES_REFACTOR)
+                    ? new ActivitiesFragment()
+                    : ScListFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
-                    .add(getContentHolderViewId(), ScListFragment.newInstance()).commit();
+                    .add(getContentHolderViewId(), fragment).commit();
         }
     }
 

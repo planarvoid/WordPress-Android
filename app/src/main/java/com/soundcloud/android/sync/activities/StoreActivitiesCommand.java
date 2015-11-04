@@ -128,7 +128,7 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
 
         private ContentValuesBuilder valuesFor(ApiActivity activity, ActivityKind activityKind) {
             final ContentValuesBuilder builder = ContentValuesBuilder.values();
-            builder.put(Activities.TYPE, activityKind.tableConstant());
+            builder.put(Activities.TYPE, activityKind.identifier());
             builder.put(Activities.USER_ID, activity.getUserUrn().getNumericId());
             builder.put(Activities.CREATED_AT, activity.getCreatedAt().getTime());
             return builder;

@@ -2,6 +2,8 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import static java.util.Arrays.asList;
 
+import com.soundcloud.android.activities.ActivityKind;
+import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
@@ -363,6 +365,16 @@ public abstract class TestPropertySets {
                 UserProperty.COUNTRY.bind(user.getCountry()),
                 UserProperty.FOLLOWERS_COUNT.bind(user.getFollowersCount()),
                 UserProperty.IS_FOLLOWED_BY_ME.bind(following));
+    }
+
+    public static PropertySet activityTrackLike() {
+        return PropertySet.from(
+                ActivityProperty.KIND.bind(ActivityKind.TRACK_LIKE),
+                ActivityProperty.DATE.bind(new Date()),
+                ActivityProperty.PLAYABLE_TITLE.bind("sounds of ze forzz"),
+                ActivityProperty.USER_NAME.bind("forss"),
+                ActivityProperty.USER_URN.bind(Urn.forUser(2L))
+        );
     }
 
     public static PropertySet midTierTrack() {

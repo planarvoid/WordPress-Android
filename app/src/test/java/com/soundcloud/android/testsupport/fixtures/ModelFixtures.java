@@ -185,9 +185,16 @@ public class ModelFixtures {
     }
 
     public static ApiActivityItem apiActivityWithLikedTrack(ApiTrack track) {
+        return ApiActivityItem.builder().trackLike(apiTrackLikeActivity(track, new Date())).build();
+    }
+
+    public static ApiTrackLikeActivity apiTrackLikeActivity(ApiTrack track, Date createdAt) {
         final ApiUser user = create(ApiUser.class);
-        final ApiTrackLikeActivity trackLike = new ApiTrackLikeActivity(track, user, new Date());
-        return ApiActivityItem.builder().trackLike(trackLike).build();
+        return new ApiTrackLikeActivity(track, user, createdAt);
+    }
+
+    public static ApiTrackLikeActivity apiTrackLikeActivity(Date createdAt) {
+        return apiTrackLikeActivity(create(ApiTrack.class), createdAt);
     }
 
     public static ApiActivityItem apiActivityWithRepostedTrack(ApiTrack track) {
