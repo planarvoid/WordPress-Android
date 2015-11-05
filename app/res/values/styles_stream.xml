@@ -25,13 +25,7 @@
 
     <style name="Stream.Card.Footer" />
 
-    <style name="Stream.Image">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:scaleType">centerCrop</item>
-        <item name="ariv_dominantMeasurement">width</item>
-        <item name="ariv_aspectRatioEnabled">true</item>
-    </style>
+    <style name="Stream.Image" parent="GridItemImageView"/>
 
     <style name="Stream.Image.Track" parent="Stream.Image">
         <item name="ariv_aspectRatio">.50</item>
