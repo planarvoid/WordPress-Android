@@ -13,7 +13,7 @@
         android:background="@android:color/white"
         tools:ignore="UselessParent">
 
-        <ImageView
+        <com.soundcloud.android.view.CircularBorderImageView
             android:id="@+id/image"
             style="@style/Profile.HeaderImage" />
 

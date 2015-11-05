@@ -232,8 +232,8 @@
         <item name="android:layout_width">42dp</item>
         <item name="android:layout_height">42dp</item>
         <item name="android:scaleType">centerCrop</item>
-        <item name="border_color">@color/white</item>
-        <item name="border_width">2dp</item>
+        <item name="cbiv_borderColor">@color/white</item>
+        <item name="cbiv_borderWidth">2dp</item>
     </style>
 
     <style name="FacebookInvitesFriendImageOverlap" parent="FacebookInvitesFriendImage">

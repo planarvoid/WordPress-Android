@@ -85,6 +85,7 @@
     <!-- List item -->
     <dimen name="list_item_image_dimension">64dp</dimen>
     <dimen name="download_progress_indicator_margin">-6dp</dimen>
+    <dimen name="user_image_border_width">1dp</dimen>
 
     <!-- Like -->
     <dimen name="likes_header_padding_top">10dp</dimen>

@@ -113,7 +113,7 @@ class StreamCardViewPresenter {
 
     private void loadAvatar(StreamItemViewHolder itemView, Urn userUrn) {
         itemView.setCreatorClickable(new ProfileClickViewListener(userUrn));
-        imageOperations.display(
+        imageOperations.displayCircularInAdapterView(
                 userUrn, ApiImageSize.getListItemImageSize(resources),
                 itemView.getUserImage());
     }

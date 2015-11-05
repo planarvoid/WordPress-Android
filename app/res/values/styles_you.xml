@@ -24,6 +24,8 @@
         <item name="android:layout_height">@dimen/profile_image_dimen</item>
         <item name="android:scaleType">centerCrop</item>
         <item name="android:src">@drawable/appwidget_artwork_placeholder</item>
+        <item name="cbiv_borderColor">@color/user_image_border_color</item>
+        <item name="cbiv_borderWidth">@dimen/user_image_border_width</item>
     </style>
 
     <style name="You.HeaderText">

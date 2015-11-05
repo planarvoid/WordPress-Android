@@ -66,4 +66,9 @@
     <declare-styleable name="RoundedColorButton">
         <attr name="backgroundColorStateList" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="CircularBorderImageView">
+        <attr name="cbiv_borderWidth" format="dimension" />
+        <attr name="cbiv_borderColor" format="reference|color" />
+    </declare-styleable>
 </resources>

@@ -183,7 +183,6 @@ dependencies {
   compile libraries.butterKnife
   compile libraries.castCompanionLibrary
   compile libraries.undoBar
-  compile libraries.circleImageView
   compile libraries.appBoy
 
   /* Android ... keep order! */

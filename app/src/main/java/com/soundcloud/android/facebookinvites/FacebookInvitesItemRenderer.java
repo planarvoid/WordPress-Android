@@ -66,7 +66,7 @@ public class FacebookInvitesItemRenderer implements CellRenderer<FacebookInvites
 
         if (friendImageUrls.size() > position) {
             imageView.setVisibility(View.VISIBLE);
-            imageOperations.display(friendImageUrls.get(position), imageView);
+            imageOperations.displayCircular(friendImageUrls.get(position), imageView);
         } else {
             imageView.setVisibility(View.GONE);
         }

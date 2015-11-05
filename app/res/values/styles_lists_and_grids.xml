@@ -57,6 +57,10 @@
         <item name="android:layout_width">@dimen/list_item_image_dimension</item>
         <item name="android:layout_height">@dimen/list_item_image_dimension</item>
     </style>
+    <style name="ListItemImage.User">
+        <item name="cbiv_borderColor">@color/user_image_border_color</item>
+        <item name="cbiv_borderWidth">@dimen/user_image_border_width</item>
+    </style>
     <style name="ListPrivateIndicator" parent="ListItemText.TertiaryText">
         <item name="android:drawableLeft">@drawable/stats_private</item>
         <item name="android:drawablePadding">3dp</item>

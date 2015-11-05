@@ -235,6 +235,11 @@ public class ImageOperations {
         imageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
     }
 
+    public void displayCircular(String imageUrl, ImageView imageView) {
+        imageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
+                ImageOptionsFactory.placeholderCircular(imageView.getResources().getDrawable(R.drawable.circular_placeholder)));
+    }
+
     public Observable<Bitmap> adImage(final Uri uri) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override

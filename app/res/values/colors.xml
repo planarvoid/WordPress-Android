@@ -101,6 +101,8 @@
     <color name="usage_bar_limit">#ffae87</color>
     <color name="usage_bar_free">#ffffff</color>
 
+    <color name="user_image_border_color">#1a000000</color>
+
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>
     <color name="notification_user">#c5c5c5</color>
