@@ -3,15 +3,15 @@ package com.soundcloud.android.tests.search.intents;
 import static com.soundcloud.android.framework.TestUser.defaultUser;
 
 import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.search.LegacySearchActivity;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Intent;
 
-public abstract class SearchIntentsBaseTest extends ActivityTest<SearchActivity> {
+public abstract class SearchIntentsBaseTest extends ActivityTest<LegacySearchActivity> {
 
     public SearchIntentsBaseTest() {
-        super(SearchActivity.class);
+        super(LegacySearchActivity.class);
     }
 
     @Override

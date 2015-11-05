@@ -10,7 +10,7 @@ import java.util.Random;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 TabbedSearchFragment.class,
-                SearchActivity.class,
+                LegacySearchActivity.class,
                 SearchResultsFragment.class,
                 PlaylistTagsFragment.class,
                 PlaylistResultsFragment.class,

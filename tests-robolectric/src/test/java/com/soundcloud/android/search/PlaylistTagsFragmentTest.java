@@ -172,7 +172,7 @@ public class PlaylistTagsFragmentTest {
     }
 
     private void createFragment() {
-        FragmentActivity activity = new SearchActivity(actionBarController);
+        FragmentActivity activity = new LegacySearchActivity(actionBarController);
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);
         fragment.onAttach(activity);

@@ -98,7 +98,7 @@
         </activity>
 
         <meta-data android:name="android.app.default_searchable" android:value=".search.MainActivity"/>
-        <activity android:label="@string/title_search" android:name=".search.SearchActivity"/> <!-- Legacy standalone search -->
+        <activity android:label="@string/title_search" android:name=".search.LegacySearchActivity"/> <!-- Legacy standalone search -->
 
         <activity android:name=".search.PlayFromVoiceSearchActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
             <intent-filter android:priority="1">
@@ -269,7 +269,7 @@
         <!-- discovery -->
         <activity android:label="@string/activity_title_discovery" android:name=".discovery.DiscoveryActivity"/>
         <activity android:label="@string/activity_title_recommendations" android:name=".discovery.RecommendedTracksActivity"/>
-        <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".discovery.NewSearchActivity" android:theme="@style/Theme.SoundCloud.Search"/>
+        <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".discovery.SearchActivity" android:theme="@style/Theme.SoundCloud.Search"/>
         <activity android:label="@string/discovery_search_title" android:name=".discovery.SearchResultsActivity"/>
         <activity android:label="@string/discovery_search_title" android:name=".discovery.PlaylistDiscoveryActivity"/>
 

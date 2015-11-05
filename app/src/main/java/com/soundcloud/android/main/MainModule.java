@@ -8,7 +8,7 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.UploadActivity;
 import com.soundcloud.android.creators.upload.MetadataFragment;
 import com.soundcloud.android.profile.VerifyAgeActivity;
-import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.search.LegacySearchActivity;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
@@ -20,7 +20,7 @@ import dagger.Module;
                 MetadataFragment.class,
                 DevDrawerFragment.class,
                 EmailOptInDialogFragment.class,
-                SearchActivity.class,
+                LegacySearchActivity.class,
                 TrackCommentsActivity.class,
                 VerifyAgeActivity.class
         }, includes = {AssociationsModule.class, AnalyticsModule.class})

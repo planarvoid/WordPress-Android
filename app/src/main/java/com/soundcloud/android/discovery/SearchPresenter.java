@@ -8,14 +8,16 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,7 +38,7 @@ import android.widget.ViewFlipper;
 
 import javax.inject.Inject;
 
-class SearchPresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
+class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private static final int SUGGESTIONS_VIEW_INDEX = 0;
     private static final int RESULTS_VIEW_INDEX = 1;
@@ -45,67 +47,61 @@ class SearchPresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     private ImageView searchCloseView;
     private ListView searchListView;
     private ViewFlipper searchViewFlipper;
+    private View toolbarElevation;
     private Window window;
     private FragmentManager fragmentManager;
     private InputMethodManager inputMethodManager;
 
+    private final Resources resources;
     private final SuggestionsAdapter adapter;
     private final SuggestionsHelper suggestionsHelper;
 
     @Inject
-    SearchPresenter(final SuggestionsAdapter adapter, SuggestionsHelperFactory suggestionsHelperFactory) {
+    SearchPresenter(Resources resources, SuggestionsAdapter adapter, SuggestionsHelperFactory suggestionsHelperFactory) {
+        this.resources = resources;
         this.adapter = adapter;
         this.suggestionsHelper = suggestionsHelperFactory.create(adapter);
         this.adapter.registerDataSetObserver(new SuggestionsVisibilityController());
     }
 
     @Override
-    public void onAttach(Fragment fragment, Activity activity) {
-        super.onAttach(fragment, activity);
+    public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.window = activity.getWindow();
-        this.fragmentManager = fragment.getFragmentManager();
+        this.fragmentManager = activity.getSupportFragmentManager();
         this.inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        setupViews(activity);
     }
 
     @Override
-    public void onDestroy(Fragment fragment) {
-        this.window = null;
-        this.fragmentManager = null;
+    public void onDestroy(AppCompatActivity activity) {
         this.inputMethodManager = null;
-        super.onDestroy(fragment);
     }
 
-    @Override
-    public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
-        super.onViewCreated(fragment, view, savedInstanceState);
-        setupViews(fragment, view);
-    }
-
-    private void setupViews(Fragment fragment, View fragmentView) {
-        setupToolbar(fragment);
-        setupListView(fragmentView);
-        setupViewFlipper(fragmentView);
+    private void setupViews(Activity activity) {
+        setupToolbar(activity);
+        setupListView(activity);
+        setupViewFlipper(activity);
         setSearchListeners();
         activateSearchView();
     }
 
-    private void setupListView(View fragmentView) {
-        searchListView = (ListView) fragmentView.findViewById(android.R.id.list);
+    private void setupListView(Activity activity) {
+        searchListView = (ListView) activity.findViewById(android.R.id.list);
         searchListView.setAdapter(adapter);
     }
 
-    private void setupViewFlipper(View fragmentView) {
-        final Context context = fragmentView.getContext();
-        searchViewFlipper = (ViewFlipper) fragmentView.findViewById(R.id.search_view_flipper);
-        searchViewFlipper.setInAnimation(AnimationUtils.loadAnimation(context, R.anim.activity_open_enter));
-        searchViewFlipper.setOutAnimation(AnimationUtils.loadAnimation(context, R.anim.activity_open_exit));
+    private void setupViewFlipper(Activity activity) {
+        searchViewFlipper = (ViewFlipper) activity.findViewById(R.id.search_view_flipper);
+        searchViewFlipper.setInAnimation(AnimationUtils.loadAnimation(activity, R.anim.activity_open_enter));
+        searchViewFlipper.setOutAnimation(AnimationUtils.loadAnimation(activity, R.anim.activity_open_exit));
     }
 
-    private void setupToolbar(Fragment fragment) {
-        final Toolbar toolbar = (Toolbar) fragment.getActivity().findViewById(R.id.toolbar_id);
-        final ViewGroup searchView = (ViewGroup) ((LayoutInflater) fragment.getActivity()
+    private void setupToolbar(Activity activity) {
+        final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
+        final ViewGroup searchView = (ViewGroup) ((LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.search_text_view, toolbar, false);
+        toolbarElevation = activity.findViewById(R.id.legacy_elevation);
         searchTextView = (EditText) searchView.findViewById(R.id.search);
         searchCloseView = (ImageView) searchView.findViewById(R.id.search_close);
         toolbar.addView(searchView);
@@ -149,8 +145,20 @@ class SearchPresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     }
 
     private void displaySearchView(int searchViewIndex) {
+        setElevation(searchViewIndex);
+
         if (searchViewFlipper.getDisplayedChild() != searchViewIndex) {
             searchViewFlipper.setDisplayedChild(searchViewIndex);
+        }
+    }
+
+    private void setElevation(int searchViewIndex) {
+        if (searchViewIndex == RESULTS_VIEW_INDEX) {
+            ViewCompat.setElevation(searchViewFlipper, (int) resources.getDimension(R.dimen.toolbar_elevation));
+            toolbarElevation.setVisibility(View.INVISIBLE);
+        } else {
+            ViewCompat.setElevation(searchViewFlipper, 0);
+            toolbarElevation.setVisibility(View.VISIBLE);
         }
     }
 

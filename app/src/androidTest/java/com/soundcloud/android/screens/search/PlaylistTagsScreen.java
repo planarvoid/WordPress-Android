@@ -8,7 +8,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.search.LegacySearchActivity;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class PlaylistTagsScreen extends Screen {
 
-    private static final Class ACTIVITY = SearchActivity.class;
+    private static final Class ACTIVITY = LegacySearchActivity.class;
 
     public PlaylistTagsScreen(Han solo) {
         super(solo);
