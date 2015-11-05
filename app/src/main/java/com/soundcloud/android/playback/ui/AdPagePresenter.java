@@ -170,6 +170,7 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
     public void onPlayerSlide(View trackView, float slideOffset) {
         final Holder holder = getViewHolder(trackView);
         helper.configureViewsFromSlide(slideOffset, holder.footer, holder.close, holder.playerOverlayController);
+        holder.close.setVisibility(slideOffset > 0 ? View.VISIBLE : View.GONE);
         holder.whyAds.setEnabled(slideOffset > 0);
     }
 
