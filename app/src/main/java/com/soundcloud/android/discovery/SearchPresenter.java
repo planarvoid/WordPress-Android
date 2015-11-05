@@ -267,7 +267,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
             searchTextView.setText(Strings.EMPTY);
             clearSuggestions();
             hideCloseButton();
-            showKeyboard();
+            activateSearchView();
             displaySearchView(SUGGESTIONS_VIEW_INDEX);
         }
     }
