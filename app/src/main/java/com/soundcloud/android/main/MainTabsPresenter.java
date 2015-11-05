@@ -135,6 +135,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private TabLayout createTabs() {
         TabLayout tabBar = new TabLayout(activity);
         tabBar.setTabGravity(TabLayout.GRAVITY_FILL);
+        tabBar.setTabMode(TabLayout.MODE_FIXED);
         tabBar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         addToToolbar(tabBar);
         return tabBar;
@@ -160,6 +161,8 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private View createTabViewFor(@DrawableRes int icon) {
         ImageView view = new ImageView(activity);
         view.setImageResource(icon);
+        int tabPadding = (int) view.getContext().getResources().getDimension(R.dimen.main_tab_padding);
+        view.setPadding(tabPadding, 0, tabPadding, 0);
         return view;
     }
 

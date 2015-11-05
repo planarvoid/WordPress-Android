@@ -133,6 +133,7 @@
     <!-- Toolbar -->
     <dimen name="toolbar_elevation">4dp</dimen>
     <dimen name="toolbar_title_left_margin">72dp</dimen>
+    <dimen name="main_tab_padding">0dp</dimen>
 
     <!-- Profile -->
     <dimen name="profile_image_dimen">104dp</dimen>
