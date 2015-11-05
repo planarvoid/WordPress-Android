@@ -224,6 +224,7 @@
     <string name="onboarding_gender_option_male">Male</string>
     <string name="onboarding_gender_option_custom">Custom</string>
     <string name="onboarding_gender_option_nopref">Prefer not to say</string>
+    <string name="ok_got_it">OK, got it</string>
 
     <!-- __TOUR -->
     <string name="tour_title_1">Hear the world\'s sounds</string>
@@ -518,8 +519,8 @@
 
 
     <!-- __COLLECTION -->
-    <string name="collections_with_stations_onboarding_title">Your likes. Your playlists. Your stations. All in one place.</string>
-    <string name="collections_without_stations_onboarding_title">Your likes. Your playlists. All in one place.</string>
+    <string name="collections_with_stations_onboarding_title">Your likes. Your playlists. Your stations.\nAll in one place.</string>
+    <string name="collections_without_stations_onboarding_title">Your likes. Your playlists.\nAll in one place.</string>
     <string name="collections_onboarding_description">Welcome to your new collection, a single destination for your sounds.</string>
 
     <!-- __TIME -->
