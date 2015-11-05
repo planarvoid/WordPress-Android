@@ -168,7 +168,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         presenter.bind(itemView, playlistItem);
 
         verify(imageOperations)
-                .display(eq(playlistItem.getReposterUrn()), any(ApiImageSize.class),
+                .displayCircularInAdapterView(eq(playlistItem.getReposterUrn()), any(ApiImageSize.class),
                         any(ImageView.class));
     }
 
@@ -193,7 +193,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         presenter.bind(itemView, playlistItem);
 
         verify(imageOperations)
-                .display(eq(playlistItem.getCreatorUrn()),
+                .displayCircularInAdapterView(eq(playlistItem.getCreatorUrn()),
                         any(ApiImageSize.class),
                         any(ImageView.class));
     }
