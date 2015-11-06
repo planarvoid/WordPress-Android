@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         auto:cardElevation="@dimen/discovery_cell_elevation"
-        auto:cardBackgroundColor="@color/primary"
+        auto:cardBackgroundColor="@color/white"
         auto:cardUseCompatPadding="true">
 
         <com.soundcloud.android.view.CustomFontEditText

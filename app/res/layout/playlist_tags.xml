@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/discovery_tags_separation"
-        android:background="@color/primary"
+        android:background="@color/white"
         android:orientation="vertical"
         android:visibility="gone">
 
@@ -40,7 +40,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/primary">
+        android:background="@color/white">
 
         <View
             android:id="@+id/tagsDivider"
