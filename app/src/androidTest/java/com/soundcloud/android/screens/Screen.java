@@ -60,6 +60,7 @@ public abstract class Screen {
     }
 
     public boolean isVisible() {
+        waiter.waitForActivity(getActivity());
         return getActivity().getSimpleName().equals(testDriver.getCurrentActivity().getClass().getSimpleName());
     }
 
