@@ -49,6 +49,7 @@ public class CollectionsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen clickOnFirstPlaylist() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         getFirstPlaylist().click();
         return new PlaylistDetailsScreen(testDriver);
     }
