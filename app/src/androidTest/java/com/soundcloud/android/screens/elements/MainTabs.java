@@ -33,6 +33,7 @@ public class MainTabs extends Tabs {
 
     public YouScreen clickYou(){
         getTabAt(Tab.YOU.ordinal()).click();
+        getTabAt(Tab.YOU.ordinal()).click();
         return new YouScreen(testDriver);
     }
 }
