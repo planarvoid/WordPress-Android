@@ -11,7 +11,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -39,7 +38,7 @@ class SearchItemRenderer implements CellRenderer<SearchItem> {
     }
 
     @OnClick(R.id.search_item)
-    public void onSearchClick(EditText searchView) {
+    public void onSearchClick(View searchView) {
         if (searchListener != null) {
             searchListener.onSearchClicked(searchView.getContext());
         }
