@@ -13,16 +13,13 @@
 
     <style name="Search.TextView.Input">
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:paddingLeft">16dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
     </style>
 
     <style name="Search.TextView.Link">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/search_link_height</item>
-        <item name="android:background">?selectableItemBackground</item>
-        <item name="android:drawableLeft">@drawable/search_icon</item>
-        <item name="android:drawablePadding">@dimen/search_link_padding</item>
-        <item name="android:paddingLeft">@dimen/search_link_padding</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="Search.Suggestion" />

@@ -302,4 +302,13 @@ public class ApplicationModule {
     public Appboy provideAppboy(Context context) {
         return Appboy.getInstance(context);
     }
+
+    @Provides
+    public Navigator provideNavigator(FeatureFlags featureFlags) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return new SmoothNavigator(featureFlags);
+        } else {
+            return new Navigator(featureFlags);
+        }
+    }
 }

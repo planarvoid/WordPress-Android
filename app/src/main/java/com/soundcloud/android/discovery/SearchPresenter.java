@@ -102,7 +102,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.search_text_view, toolbar, false);
         toolbarElevation = activity.findViewById(R.id.legacy_elevation);
-        searchTextView = (EditText) searchView.findViewById(R.id.search);
+        searchTextView = (EditText) searchView.findViewById(R.id.search_text);
         searchCloseView = (ImageView) searchView.findViewById(R.id.search_close);
         toolbar.addView(searchView);
     }

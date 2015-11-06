@@ -117,6 +117,10 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         clear();
     }
 
+    public void cancelProgressAnimations() {
+        progressController.cancelProgressAnimation();
+    }
+
 
     public static class Factory {
         private final ProgressController.Factory animationControllerFactory;

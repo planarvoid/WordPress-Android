@@ -18,6 +18,8 @@
         <item name="colorAccent">@color/ak_sc_orange</item>
 
         <item name="cropImageStyle">@style/Widget.CropImageView</item>
+
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="Theme.SoundCloud" parent="BaseTheme">

@@ -155,7 +155,7 @@ public class IntentResolver {
 
     private void showSearchScreen(Context context, Uri uri, Referrer referrer) {
         trackForegroundEvent(referrer);
-        navigator.openSearch(context, uri, Screen.DEEPLINK);
+        navigator.openLegacySearch(context, uri, Screen.DEEPLINK);
     }
 
     private void showRecordScreen(Context context, Referrer referrer) {

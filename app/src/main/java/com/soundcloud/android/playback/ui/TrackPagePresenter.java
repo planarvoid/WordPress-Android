@@ -299,6 +299,13 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         castConnectionHelper.addMediaRouterButton(viewHolder.mediaRouteButton);
     }
 
+    @Override
+    public void onDestroyView(View trackPage) {
+        final TrackPageHolder viewHolder = getViewHolder(trackPage);
+        viewHolder.artworkController.cancelProgressAnimations();
+        viewHolder.waveformController.cancelProgressAnimations();
+    }
+
     private void showRepostToast(final Context context, final boolean isReposted) {
         Toast.makeText(context, isReposted
                 ? R.string.reposted_to_followers

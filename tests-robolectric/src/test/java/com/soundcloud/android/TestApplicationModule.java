@@ -355,5 +355,10 @@ public class TestApplicationModule {
     SyncCleanupAction syncCleanupAction() {
         return mock(SyncCleanupAction.class);
     }
+
+    @Provides
+    Navigator provideNavigator() {
+        return mock(Navigator.class);
+    }
 }
 

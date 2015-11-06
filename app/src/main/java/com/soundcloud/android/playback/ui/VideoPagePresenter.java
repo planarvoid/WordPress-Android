@@ -1,15 +1,15 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.Player;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.Player;
 
 import javax.inject.Inject;
 
@@ -53,6 +53,9 @@ class VideoPagePresenter implements PlayerPagePresenter<PlayerAd> {
 
     @Override
     public void onForeground(View trackPage) {}
+
+    @Override
+    public void onDestroyView(View trackPage) {}
 
     @Override
     public void setCollapsed(View trackPage) {}

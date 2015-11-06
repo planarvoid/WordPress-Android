@@ -16,6 +16,7 @@ import com.soundcloud.android.view.EmptyView;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -56,8 +57,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     }
 
     @Override
-    public void onSearchClicked(Context context) {
-        navigator.openNewSearch(context);
+    public void onSearchClicked(Context context){
+        navigator.openSearch((Activity) context);
     }
 
     @Override

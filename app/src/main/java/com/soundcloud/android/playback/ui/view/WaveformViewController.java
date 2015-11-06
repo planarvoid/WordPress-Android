@@ -241,7 +241,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         dragProgressController.startProgressAnimation(progress);
     }
 
-    private void cancelProgressAnimations() {
+    public void cancelProgressAnimations() {
         leftProgressController.cancelProgressAnimation();
         rightProgressController.cancelProgressAnimation();
         dragProgressController.cancelProgressAnimation();

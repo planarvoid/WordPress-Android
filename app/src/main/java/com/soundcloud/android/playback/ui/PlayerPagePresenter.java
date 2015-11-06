@@ -19,6 +19,7 @@ public interface PlayerPagePresenter<T extends PlayerItem> {
 
     void onBackground(View trackPage);
     void onForeground(View trackPage);
+    void onDestroyView(View trackPage);
 
     void setCollapsed(View trackPage);
     void setExpanded(View trackPage);

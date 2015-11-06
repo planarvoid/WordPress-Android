@@ -12,7 +12,6 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleBinder;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -193,7 +192,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     @Override
     public void onDestroyView(PlayerFragment playerFragment) {
-
         unblockPagerSubscription.unsubscribe();
         playerPagerScrollListener.unsubscribe();
         changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
@@ -201,7 +199,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         subscription.unsubscribe();
         subscription = new CompositeSubscription();
 
-        AnimUtils.clearAllAnimations();
+        super.onDestroyView(playerFragment);
     }
 
     private void setPager(final PlayerTrackPager trackPager) {

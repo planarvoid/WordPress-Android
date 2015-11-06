@@ -240,12 +240,18 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     @Override
     public void onDestroyView(PlayerFragment playerFragment) {
+        for (Map.Entry<View, PlayerPageData> entry : pagesInPlayer.entrySet()) {
+            pagePresenter(entry.getValue()).onDestroyView(entry.getKey());
+        }
+
         castConnectionHelper.removeOnConnectionChangeListener(this);
         skipListener = null;
         viewVisibilityProvider = null;
 
         backgroundSubscription.unsubscribe();
         backgroundSubscription = new CompositeSubscription();
+
+        super.onDestroyView(playerFragment);
     }
 
     @NonNull

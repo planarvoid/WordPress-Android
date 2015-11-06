@@ -672,6 +672,14 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         assertThat(getHolder(trackView).shareButton).isNotVisible();
     }
 
+    @Test
+    public void onDestroyViewCancellsControllerAnimations() {
+        presenter.onDestroyView(trackView);
+
+        verify(waveformViewController).cancelProgressAnimations();
+        verify(artworkController).cancelProgressAnimations();
+    }
+
     private TrackPageHolder getHolder(View trackView) {
         return (TrackPageHolder) trackView.getTag();
     }

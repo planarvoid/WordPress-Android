@@ -38,7 +38,7 @@ class SearchItemRenderer implements CellRenderer<SearchItem> {
         ButterKnife.bind(this, itemView);
     }
 
-    @OnClick(R.id.search)
+    @OnClick(R.id.search_item)
     public void onSearchClick(EditText searchView) {
         if (searchListener != null) {
             searchListener.onSearchClicked(searchView.getContext());

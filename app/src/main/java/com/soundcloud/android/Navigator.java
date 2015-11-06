@@ -7,9 +7,9 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.DiscoveryActivity;
-import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
+import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.SearchResultsActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
@@ -32,12 +32,11 @@ import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-
-import javax.inject.Inject;
 
 public class Navigator {
 
@@ -46,7 +45,6 @@ public class Navigator {
 
     private final FeatureFlags featureFlags;
 
-    @Inject
     public Navigator(FeatureFlags featureFlags) {
         this.featureFlags = featureFlags;
     }
@@ -79,8 +77,8 @@ public class Navigator {
         }
     }
 
-    public void openNewSearch(Context activityContext) {
-        startActivity(activityContext, SearchActivity.class);
+    public void openSearch(Activity activity) {
+        startActivity(activity, SearchActivity.class);
     }
 
     public void openProfile(Context context, Urn user, Screen screen) {
@@ -169,7 +167,7 @@ public class Navigator {
         context.startActivity(createExploreIntent(context, screen));
     }
 
-    public void openSearch(Context context, Uri uri, Screen screen) {
+    public void openLegacySearch(Context context, Uri uri, Screen screen) {
         context.startActivity(createSearchIntent(context, uri, screen));
     }
 

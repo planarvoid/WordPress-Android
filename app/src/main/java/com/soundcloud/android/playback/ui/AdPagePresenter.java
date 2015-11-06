@@ -5,17 +5,17 @@ import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -32,8 +32,6 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import rx.Subscription;
 
 class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickListener {
 
@@ -154,6 +152,11 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
     @Override
     public void onForeground(View trackPage) {
         // no-op
+    }
+
+    @Override
+    public void onDestroyView(View trackPage) {
+        // no-op with no animations
     }
 
     @Override

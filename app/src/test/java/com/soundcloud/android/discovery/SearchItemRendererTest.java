@@ -1,6 +1,5 @@
 package com.soundcloud.android.discovery;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.content.Context;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -37,6 +35,6 @@ public class SearchItemRendererTest extends AndroidUnitTest {
         renderer.setSearchListener(listener);
         renderer.onSearchClick(searchView);
 
-        verify(listener).onSearchClicked(any(Context.class));
+        verify(listener).onSearchClicked(searchView.getContext());
     }
 }

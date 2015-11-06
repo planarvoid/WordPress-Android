@@ -8,20 +8,38 @@
     android:layout_marginRight="@dimen/discovery_search_cell_margin_left_right">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/search_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
         auto:cardElevation="@dimen/discovery_cell_elevation"
-        auto:cardBackgroundColor="@color/white"
         auto:cardUseCompatPadding="true">
 
-        <com.soundcloud.android.view.CustomFontEditText
-            android:id="@+id/search"
-            style="@style/Search.TextView.Link"
-            android:focusableInTouchMode="false"
-            android:focusable="false"
-            android:cursorVisible="false"
-            android:hint="@string/discovery_search_hint" />
+        <!-- this exists as a viewgroup so search text view transitions work. If it was a textview
+             with a left drawable, the text would not animate properly into the toolbar -->
+        <LinearLayout
+            android:id="@+id/search_holder"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/search_link_height"
+            android:background="@color/white"
+            android:transitionName="@string/search_text_holder_transition_name"
+            android:paddingLeft="@dimen/search_link_padding"
+            android:orientation="horizontal">
 
+            <ImageView
+                android:id="@+id/search_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/search_icon"
+                android:padding="@dimen/search_link_padding"/>
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/search_text"
+                style="@style/Search.TextView.Link"
+                android:transitionName="@string/search_text_transition_name"
+                android:hint="@string/discovery_search_hint" />
+
+        </LinearLayout>
     </android.support.v7.widget.CardView>
 
 </FrameLayout>

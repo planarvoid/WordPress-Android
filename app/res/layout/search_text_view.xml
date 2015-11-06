@@ -5,11 +5,12 @@
     android:orientation="horizontal">
 
     <com.soundcloud.android.view.CustomFontEditText
-        android:id="@+id/search"
+        android:id="@+id/search_text"
         style="@style/Search.TextView.Input"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:transitionName="@string/search_text_transition_name"
         android:hint="@string/discovery_search_hint"
         android:imeOptions="actionSearch|flagNoExtractUi" />
 
