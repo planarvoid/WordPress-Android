@@ -27,7 +27,6 @@ public class SearchResultsScreen extends Screen {
 
     public SearchResultsScreen(Han solo) {
         super(solo);
-        waiter.waitForActivity(getActivity());
         waiter.waitForFragmentByTag(FRAGMENT);
     }
 

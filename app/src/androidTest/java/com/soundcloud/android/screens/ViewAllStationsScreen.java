@@ -11,7 +11,6 @@ public class ViewAllStationsScreen extends Screen {
 
     public ViewAllStationsScreen(Han testDriver) {
         super(testDriver);
-        waiter.waitForActivity(ShowAllStationsActivity.class);
     }
 
     public StationElement getFirstStation() {

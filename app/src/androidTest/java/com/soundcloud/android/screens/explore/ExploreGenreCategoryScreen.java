@@ -15,7 +15,6 @@ public class ExploreGenreCategoryScreen extends Screen {
 
     public ExploreGenreCategoryScreen(Han solo) {
         super(solo);
-        waiter.waitForActivity(ACTIVITY);
     }
 
     public int getItemsOnList() {

@@ -24,7 +24,6 @@ public class StreamScreen extends Screen {
 
     public StreamScreen(Han solo) {
         super(solo);
-        waiter.waitForFragmentByTag("stream_fragment");
     }
 
     public int getItemCount() {

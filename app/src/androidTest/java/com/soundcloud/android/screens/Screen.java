@@ -27,7 +27,6 @@ public abstract class Screen {
     public Screen(Han solo) {
         this.testDriver = solo;
         this.waiter = new Waiter(solo);
-        waiter.waitForActivity(getActivity());
     }
 
     public void pullToRefresh() {
