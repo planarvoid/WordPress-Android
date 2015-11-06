@@ -29,7 +29,7 @@
         style="@style/Cards.PrimaryHeaderText"
         android:layout_alignTop="@id/user_image"
         android:layout_toRightOf="@id/header_text"
-        android:drawableLeft="@drawable/stats_repost"
+        android:drawableLeft="@drawable/inset_stats_repost"
         android:visibility="visible"
         tools:text=" reposted a track or a playlist" />
 
@@ -56,12 +56,12 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="0dp"
         android:layout_toRightOf="@id/promoter"
-        android:drawableLeft="@drawable/promoted_icon"
+        android:drawableLeft="@drawable/inset_promoted_icon"
         android:drawablePadding="3dp"
         android:visibility="gone"
         tools:text="promoted track or playlist" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/private_separator"
         style="@style/Cards.SecondaryHeaderText.Separator"
         android:layout_width="wrap_content"
@@ -77,7 +77,7 @@
         android:layout_below="@id/header_text"
         android:layout_marginLeft="4dp"
         android:layout_toRightOf="@id/private_separator"
-        android:drawableLeft="@drawable/ic_private"
+        android:drawableLeft="@drawable/inset_ic_private"
         android:drawablePadding="4dp"
         android:text="@string/private_indicator"
         android:visibility="gone" />

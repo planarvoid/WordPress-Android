@@ -13,7 +13,7 @@
         android:clickable="true"
         android:background="@android:color/darker_gray" />
 
-    <Button
+    <com.soundcloud.android.view.CustomFontButton
         android:id="@+id/artwork_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,17 +24,18 @@
         android:background="@color/white"
         android:textAllCaps="true"
         android:layout_marginLeft="16dp"
-        style="?android:attr/borderlessButtonStyle" />
+        style="@style/BorderlessButton" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/title_header"
+        style="@style/TextAppearance.SoundCloudLightFont"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_below="@+id/artwork"
         android:layout_marginTop="16dp"
         android:text="@string/record_track_title" />
 
-    <EditText
+    <com.soundcloud.android.view.CustomFontEditText
         android:id="@+id/title"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
@@ -43,14 +44,16 @@
         android:ellipsize="end"
         android:fadingEdge="horizontal"
         android:fadeScrollbars="true"
+        style="@style/TextAppearance.SoundCloudLightFont"
         android:inputType="textCapSentences" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/txt_record_options"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_marginTop="16dp"
         android:layout_below="@id/title"
+        style="@style/TextAppearance.SoundCloudLightFont"
         android:text="@string/record_privacy_header" />
 
     <RadioGroup

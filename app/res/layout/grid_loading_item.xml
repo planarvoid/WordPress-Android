@@ -25,10 +25,10 @@
 
             <View style="@style/HorizontalDivider"/>
 
-            <TextView android:layout_width="wrap_content"
+            <com.soundcloud.android.view.CustomFontTextView android:layout_width="wrap_content"
                       android:layout_height="0dp"
                       android:layout_weight="1"
-                      style="@style/Ak.EmptyViewContent"
+                      style="@style/EmptyViewContent"
                       android:gravity="center"
                       android:text="@string/ak_error_pager_failed" />
         </LinearLayout>

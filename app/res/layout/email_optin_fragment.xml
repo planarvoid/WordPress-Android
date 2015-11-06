@@ -7,12 +7,12 @@
               android:layout_height="wrap_content"
               android:padding="@dimen/dialog_padding">
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
             android:text="@string/optin_question"
             style="@style/DialogContentText"
             android:layout_marginBottom="@dimen/dialog_padding" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
             android:text="@string/optin_info"
             style="@style/DialogSubText" />
 

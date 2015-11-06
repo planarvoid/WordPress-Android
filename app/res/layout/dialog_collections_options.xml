@@ -7,8 +7,8 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        style="?android:attr/listSeparatorTextViewStyle"
+    <com.soundcloud.android.view.CustomFontTextView
+        style="@style/ListSeparator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
@@ -26,13 +26,13 @@
         android:showDividers="middle"
         android:divider="@drawable/horizontal_spacer">
 
-        <ToggleButton
+        <com.soundcloud.android.view.CustomFontToggleButton
             android:id="@+id/show_posts"
             style="@style/Collections.OptionsToggle"
             android:textOff="@string/collections_options_toggle_created"
             android:textOn="@string/collections_options_toggle_created" />
 
-        <ToggleButton
+        <com.soundcloud.android.view.CustomFontToggleButton
             android:id="@+id/show_likes"
             style="@style/Collections.OptionsToggle"
             android:textOff="@string/collections_options_toggle_likes"
@@ -40,8 +40,8 @@
 
     </LinearLayout>
 
-    <TextView
-        style="?android:attr/listSeparatorTextViewStyle"
+    <com.soundcloud.android.view.CustomFontTextView
+        style="@style/ListSeparator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="normal"

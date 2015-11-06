@@ -32,7 +32,7 @@
             android:layout_marginTop="@dimen/download_progress_indicator_margin"
             android:layout_marginRight="@dimen/download_progress_indicator_margin"/>
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
             style="@style/Collections.ItemTitle"
             android:layout_width="match_parent"
@@ -41,7 +41,7 @@
             android:layout_toLeftOf="@+id/like_indicator"
             android:layout_marginRight="4dp" />
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/creator"
             style="@style/Collections.Creator"
             android:layout_width="match_parent"

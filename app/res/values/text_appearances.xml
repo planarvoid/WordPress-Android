@@ -1,36 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="TextAppearance" />
 
     <!-- ****** Adapter View Base styles ****** -->
 
     <style name="TextAppearance.List" />
+
     <style name="TextAppearance.List.Main">
         <item name="android:textColor">@color/list_text_value</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:textStyle">bold</item>
     </style>
+
     <style name="TextAppearance.List.Main.Dark">
         <item name="android:textColor">@color/list_text_value_inactive</item>
     </style>
+
     <style name="TextAppearance.List.Main.Inactive">
         <item name="android:textColor">@color/list_text_value_inactive</item>
     </style>
+
     <style name="TextAppearance.List.Secondary">
         <item name="android:textColor">@color/list_text_secondary</item>
     </style>
+
     <style name="TextAppearance.List.Sub">
         <item name="android:textColor">@color/list_text_value</item>
         <item name="android:textSize">@dimen/list_txt_sub_size</item>
     </style>
+
     <style name="TextAppearance.List.Sub.Secondary">
         <item name="android:textColor">@color/list_text_secondary</item>
     </style>
+
     <style name="TextAppearance.List.CreatedAt" parent="TextAppearance.List.Sub">
         <item name="android:textColor">@color/list_text_created_at</item>
     </style>
 
     <style name="TextAppearance.Notification" />
+
     <style name="TextAppearance.Notification.Title">
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
@@ -42,23 +51,24 @@
     </style>
 
     <style name="TextAppearance.Playable" />
+
     <style name="TextAppearance.Playable.Username">
         <item name="android:textColor">@color/list_text_track_user</item>
         <item name="android:textSize">@dimen/list_txt_sub_size</item>
     </style>
 
-    <style name="TextAppearance.Playable.Reposter"  parent="@style/TextAppearance.Playable.Username">
+    <style name="TextAppearance.Playable.Reposter" parent="@style/TextAppearance.Playable.Username">
         <item name="android:textSize">@dimen/list_txt_sub_2_size</item>
     </style>
 
-    <style name="TextAppearance.ExploreTracksCategory">
+    <style name="TextAppearance.ExploreTracksCategory" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:textColor">@color/dark_gray_text</item>
         <item name="android:textSize">@dimen/explore_suggested_track_category_text_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="TextAppearance.GridItemBottom">
+    <style name="TextAppearance.GridItemBottom" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:singleLine">true</item>
         <item name="android:textColor">#666666</item>
         <item name="android:textSize">@dimen/grid_item_bottom_text_size</item>
@@ -67,6 +77,47 @@
     <style name="TextAppearance.FollowingMessage">
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textSize">@dimen/follow_btn_text</item>
+    </style>
+
+    <!-- ****** SoundCloud Custom Interstate Fonts ****** -->
+    <style name="TextAppearance.SoundCloudLightFont">
+        <item name="custom_font">@string/interstate_light</item>
+    </style>
+
+    <style name="TextAppearance.SoundCloudLightNumberFont">
+        <item name="custom_font">@string/interstate_light_tnum</item>
+    </style>
+
+    <style name="TextAppearance.SoundCloudRegularFont">
+        <item name="custom_font">@string/interstate_regular</item>
+    </style>
+
+    <style name="TextAppearance.ScAppCompat.Large" parent="TextAppearance.SoundCloudLightFont">
+        <item name="custom_font">@string/interstate_light</item>
+    </style>
+
+    <style name="TextAppearance.ScStatusBar.EventContent" parent="@android:style/TextAppearance.StatusBar.EventContent">
+        <item name="custom_font">@string/interstate_light</item>
+    </style>
+
+    <style name="TextAppearance.SoundCloudFont.ScLarge" parent="@android:style/TextAppearance.Large">
+        <item name="custom_font">@string/interstate_light</item>
+    </style>
+
+    <style name="TextAppearance.Widget.ScAppCompat.Toolbar.Title" parent="@android:style/TextAppearance.Large">
+        <item name="custom_font">@string/interstate_light</item>
+    </style>
+
+    <style name="Widget.ScAppCompat.EditText" parent="Widget.AppCompat.EditText">
+        <item name="custom_font">@string/interstate_light</item>
+    </style>
+
+    <style name="TextAppearanceMedium" parent="@android:style/TextAppearance.Medium">
+        <item name="custom_font">@string/interstate_light</item>
+    </style>
+
+    <style name="TextAppearanceSmall" parent="@android:style/TextAppearance.Small">
+        <item name="custom_font">@string/interstate_light</item>
     </style>
 
 </resources>

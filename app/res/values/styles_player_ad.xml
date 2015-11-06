@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AdText">
-        <item name="custom_font">fonts/Roboto-Light.ttf</item>
+    <style name="AdText" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:textColor">@color/white</item>
     </style>
     <style name="AdText.Advertisement">
@@ -24,7 +23,7 @@
         <item name="android:singleLine">true</item>
         <item name="android:layout_centerVertical">true</item>
     </style>
-    <style name="AdButton">
+    <style name="AdButton" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:textColor">@drawable/txt_white_states</item>
     </style>
     <style name="AdButton.WhyAds">
@@ -70,7 +69,7 @@
         <item name="android:adjustViewBounds">true</item>
     </style>
 
-    <style name="AdOverlayClose">
+    <style name="AdOverlayClose" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minWidth">0dp</item>

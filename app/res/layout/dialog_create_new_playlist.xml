@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     style="@style/DialogContainer">
 
-    <EditText
+    <com.soundcloud.android.view.CustomFontEditText
         android:id="@android:id/edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -6,7 +6,7 @@
 
         <include layout="@layout/auth_buttons_social"/>
 
-        <Button android:id="@+id/signup_with_email"
+        <com.soundcloud.android.view.CustomFontButton android:id="@+id/signup_with_email"
                 style="@style/Onboarding.BottomButton"
                 android:text="@string/signup_button"
                 android:layout_width="wrap_content"

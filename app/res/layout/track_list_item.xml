@@ -56,7 +56,7 @@
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@id/list_item_right_info"
                 style="@style/ListItemText.Numeric"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="3dp"
                 android:layout_alignTop="@id/image"
                 android:layout_alignParentRight="true" />
 

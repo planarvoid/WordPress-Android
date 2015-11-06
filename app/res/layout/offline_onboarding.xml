@@ -23,7 +23,7 @@
                 android:layout_marginBottom="12dp"
                 android:src="@drawable/player_like"/>
 
-            <TextView
+            <com.soundcloud.android.view.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/OfflineOnboarding.Header"
@@ -37,34 +37,36 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
+            <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/selective_sync_title"
                 style="@style/OfflineOnboarding.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/selective_sync_title" />
 
-            <TextView
+            <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/selective_sync_body"
+                style="@style/OfflineOnboarding"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/selective_sync_body" />
 
-            <ImageView
+            <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/offline_onboarding_image"
+                style="@style/OfflineOnboarding"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
                 android:src="@drawable/empty_stations" />
 
-            <TextView
+            <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/auto_sync_title"
                 style="@style/OfflineOnboarding.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/auto_sync_title" />
 
-            <TextView
+            <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/auto_sync_body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -77,18 +79,18 @@
                 android:layout_gravity="bottom"
                 android:gravity="right">
 
-                <Button
+                <com.soundcloud.android.view.CustomFontButton
                     android:id="@+id/selective_offline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="@style/Widget.AppCompat.Button.Borderless"
+                    style="@style/BorderlessButton"
                     android:text="@string/selective_sync_button" />
 
-                <Button
+                <com.soundcloud.android.view.CustomFontButton
                     android:id="@+id/auto_offline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="@style/Widget.AppCompat.Button.Borderless"
+                    style="@style/BorderlessButton"
                     android:textColor="@color/ak_sc_orange"
                     android:text="@string/auto_sync_button" />
             </LinearLayout>

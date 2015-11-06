@@ -1,4 +1,4 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_reposted" android:state_checked="true" />
-    <item android:drawable="@drawable/ic_repost" />
+    <item android:drawable="@drawable/inset_ic_reposted" android:state_checked="true" />
+    <item android:drawable="@drawable/inset_ic_repost" />
 </selector>

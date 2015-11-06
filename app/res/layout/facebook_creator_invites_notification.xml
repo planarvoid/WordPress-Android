@@ -8,7 +8,7 @@
         style="@style/FacebookCreatorInvitesImage"
         tools:background="@color/gray_background" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/facebook_invite_text"
         style="@style/FacebookCreatorInvitesTitle"
         android:text="@string/facebook_creator_invites_title" />

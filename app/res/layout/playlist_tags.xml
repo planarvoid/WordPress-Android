@@ -7,7 +7,7 @@
     tools:showIn="@layout/playlist_tags_fragment">
 
     <com.soundcloud.android.view.CustomFontTextView
-        style="@style/TagTitleText"
+        style="@style/PlaylistDiscovery.TagTitleText"
         android:text="@string/search_tags_title" />
 
     <LinearLayout
@@ -22,7 +22,7 @@
         <View style="@style/Divider.Section" />
 
         <com.soundcloud.android.view.CustomFontTextView
-            style="@style/TagSubtitleText"
+            style="@style/PlaylistDiscovery.TagSubtitleText"
             android:text="@string/search_tags_recent_subtitle" />
 
         <com.soundcloud.android.view.FlowLayout
@@ -48,7 +48,7 @@
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/tags_subtitle"
-            style="@style/TagSubtitleText"
+            style="@style/PlaylistDiscovery.TagSubtitleText"
             android:layout_below="@id/tagsDivider"
             android:text="@string/search_tags_popular_subtitle" />
 

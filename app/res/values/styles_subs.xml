@@ -10,7 +10,7 @@
         <item name="android:gravity">center_horizontal</item>
     </style>
 
-    <style name="UpgradeTitle">
+    <style name="UpgradeTitle" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">240dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">24sp</item>
@@ -18,7 +18,7 @@
         <item name="android:gravity">center_horizontal</item>
     </style>
 
-    <style name="UpgradeDescription">
+    <style name="UpgradeDescription" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:maxWidth">320dp</item>
@@ -27,7 +27,7 @@
         <item name="android:gravity">center_horizontal</item>
     </style>
 
-    <style name="UpgradeBuy">
+    <style name="UpgradeBuy" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/ak_sc_orange</item>
@@ -44,18 +44,17 @@
         <item name="android:background">@color/gray_background</item>
     </style>
 
-    <style name="FeatureTitle">
+    <style name="FeatureTitle" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="FeatureDescription">
+    <style name="FeatureDescription" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/gray_text</item>
-        <item name="custom_font">fonts/Roboto-Light.ttf</item>
     </style>
 
 </resources>

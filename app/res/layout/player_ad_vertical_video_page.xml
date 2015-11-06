@@ -35,13 +35,13 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true">
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/time_until_skip"
                 style="@style/AdText.NextUp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"/>
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/skip_ad"
                 style="@style/AdText.NextUp.Skip"
                 android:layout_width="wrap_content"

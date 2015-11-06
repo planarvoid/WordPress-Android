@@ -36,14 +36,14 @@
         <item name="android:windowAnimationStyle">@style/Animation.Popup</item>
     </style>
 
-    <style name="DialogContentText">
+    <style name="DialogContentText" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/dialog_content_text_size</item>
         <item name="android:textColor">@drawable/list_item_text_color</item>
     </style>
 
-    <style name="DialogSubText">
+    <style name="DialogSubText" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">13sp</item>
@@ -68,24 +68,22 @@
         <item name="android:minWidth">@dimen/dialog_width</item>
     </style>
 
-    <style name="DialogInput">
+    <style name="DialogInput" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:textSize">@dimen/dialog_content_text_size</item>
         <item name="android:inputType">text</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="MaterialDialog" />
+    <style name="MaterialDialog" parent="TextAppearance.SoundCloudLightFont" />
 
     <style name="MaterialDialog.Title">
-        <item name="custom_font">fonts/Roboto-Medium.ttf</item>
         <item name="android:textColor">@color/dark_gray_text</item>
         <item name="android:textSize">20sp</item>
         <item name="android:layout_marginTop">10dp</item>
     </style>
 
     <style name="MaterialDialog.Content">
-        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
         <item name="android:textSize">16sp</item>
         <item name="android:lineSpacingMultiplier">1.2</item>
         <item name="android:layout_marginTop">20dp</item>

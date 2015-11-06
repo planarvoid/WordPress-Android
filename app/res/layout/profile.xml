@@ -35,7 +35,7 @@
                     app:layout_collapseMode="none"
                     app:layout_scrollFlags="scroll" />
 
-                <android.support.design.widget.TabLayout
+                <com.soundcloud.android.view.CustomFontTabLayout
                     android:id="@+id/tab_indicator"
                     style="@style/TabsTheme.Scrollable"
                     android:layout_width="match_parent"

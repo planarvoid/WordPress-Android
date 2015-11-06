@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="TrackInfo" />
+    <style name="TrackInfo" parent="TextAppearance.SoundCloudLightFont" />
     <style name="TrackInfo.Text">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="custom_font">fonts/Roboto-Light.ttf</item>
         <item name="android:antialias">true</item>
         <item name="android:textColor">@color/list_primary</item>
         <item name="android:textColorLink">@color/ak_link_text</item>

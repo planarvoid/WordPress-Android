@@ -53,9 +53,9 @@
 
             </RelativeLayout>
 
-            <TextView
+            <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/upload_status_text"
-                style="?android:textAppearanceMedium"
+                style="@style/TextAppearanceMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/rec_controls"
@@ -72,9 +72,9 @@
         android:layout_alignParentBottom="true"
         android:gravity="end">
 
-        <Button
+        <com.soundcloud.android.view.CustomFontButton
             android:id="@+id/btn_cancel"
-            style="?android:attr/borderlessButtonStyle"
+            style="@style/BorderlessButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_cancel"

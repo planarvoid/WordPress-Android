@@ -10,7 +10,7 @@
 
     <include layout="@layout/downloadable_header" />
 
-    <ToggleButton
+    <com.soundcloud.android.view.CustomFontToggleButton
         android:id="@+id/toggle_like"
         style="@style/PlaylistAction.ToggleButton.Like"
         android:layout_width="wrap_content"

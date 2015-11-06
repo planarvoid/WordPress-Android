@@ -8,10 +8,11 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/collection_download_state_margin_right" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/header_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        style="@style/TextAppearance.SoundCloudLightFont" />
 
 </merge>

@@ -41,12 +41,12 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@id/image">
 
-                <TextView
+                <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/track_count"
                     style="@style/Cards.PlaylistTracks.Count"
                     tools:text="12" />
 
-                <TextView
+                <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/tracks_text"
                     style="@style/Cards.PlaylistTracks.Text"
                     tools:text="TRACKS" />

@@ -5,7 +5,7 @@
 
     <LinearLayout style="@style/SignUp.Content">
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             style="@style/SignUp.Info"
             android:layout_marginBottom="10dp"
             android:text="@string/onboarding_create_account"
@@ -21,7 +21,7 @@
                 android:layout_alignParentTop="true"
                 android:text="@string/email" />
 
-            <AutoCompleteTextView
+            <com.soundcloud.android.view.CustomFontAutoCompleteTextView
                 android:id="@+id/auto_txt_email_address"
                 style="@style/SignUp.EmailEntry"
                 android:layout_alignParentTop="true"
@@ -48,7 +48,7 @@
                 android:layout_below="@id/after_email_hr"
                 android:text="@string/password" />
 
-            <EditText
+            <com.soundcloud.android.view.CustomFontEditText
                 android:id="@+id/txt_choose_a_password"
                 style="@style/SignUp.TextEntry"
                 android:layout_below="@id/after_email_hr"
@@ -74,7 +74,7 @@
                 android:layout_below="@id/after_password_hr"
                 android:text="@string/age" />
 
-            <EditText
+            <com.soundcloud.android.view.CustomFontEditText
                 android:id="@+id/txt_enter_age"
                 style="@style/SignUp.TextEntry"
                 android:layout_alignParentEnd="true"
@@ -125,7 +125,7 @@
                 android:layout_marginTop="@dimen/signup_label_padding"
                 android:visibility="gone" />
 
-            <EditText
+            <com.soundcloud.android.view.CustomFontEditText
                 android:id="@+id/txt_enter_custom_gender"
                 style="@style/SignUp.TextEntry"
                 android:layout_below="@id/after_birthday_hr"
@@ -144,7 +144,7 @@
             android:layout_height="@dimen/tour_buttons_height"
             android:layout_marginTop="10dp">
 
-            <Button
+            <com.soundcloud.android.view.CustomFontButton
                 android:id="@+id/btn_cancel"
                 style="@style/Onboarding.CancelButton"
                 android:layout_height="@dimen/tour_buttons_height"
@@ -152,14 +152,14 @@
                 android:layout_marginRight="10dp"
                 android:text="@string/btn_cancel" />
 
-            <Button
+            <com.soundcloud.android.view.CustomFontButton
                 android:id="@+id/btn_signup"
                 style="@style/Onboarding.NextButton"
                 android:layout_height="@dimen/tour_buttons_height"
                 android:text="@string/btn_done" />
         </LinearLayout>
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/txt_msg"
             style="@style/SignUp.Info"
             android:layout_marginBottom="20dp"
