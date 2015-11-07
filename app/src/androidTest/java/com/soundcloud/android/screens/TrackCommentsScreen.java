@@ -18,6 +18,7 @@ public class TrackCommentsScreen extends Screen {
     }
 
     public String getTitle() {
+        waiter.waitForActivity(getActivity());
         return new TextElement(title()).getText();
     }
 
