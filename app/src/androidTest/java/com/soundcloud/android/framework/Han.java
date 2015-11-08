@@ -129,6 +129,10 @@ public class Han  {
         solo.clickOnView(view);
     }
 
+    public void clickOnScreen(float x, float y) {
+        solo.clickOnScreen(x, y);
+    }
+
     public void clickLongOnView(View view) {
         solo.clickLongOnView(view);
     }

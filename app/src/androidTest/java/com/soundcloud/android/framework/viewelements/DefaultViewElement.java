@@ -7,6 +7,7 @@ import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.Tabs;
 
+import android.graphics.Rect;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Display;
@@ -63,11 +64,25 @@ public final class DefaultViewElement extends ViewElement {
             throw new ViewNotVisibleException();
         }
         Log.i("CLICKEVENT", String.format("Clicking at: %s", getClickPoint()));
-        testDriver.clickOnView(view);
+        if(isFullyVisible()) {
+            testDriver.clickOnView(view);
+        } else {
+            testDriver.clickOnScreen(getVisibleRect().exactCenterX(), getVisibleRect().exactCenterY()) ;
+        }
     }
 
     private String getClickPoint() {
         return String.format("%.02f, %.02f", view.getX() + view.getWidth()/2, view.getY() + view.getHeight()/2);
+    }
+
+    private boolean isFullyVisible() {
+        return getVisibleRect().contains(getLocation()[0], getLocation()[1], getLocation()[0] + view.getWidth(), getLocation()[1]+ view.getHeight());
+    }
+
+    private Rect getVisibleRect(){
+        Rect r = new Rect();
+        view.getGlobalVisibleRect(r);
+        return r;
     }
 
     @Override
