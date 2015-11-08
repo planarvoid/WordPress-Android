@@ -93,7 +93,7 @@ public class ViewFetcher {
 
     class ElementWaiter {
         private static final int ELEMENT_TIMEOUT = 4 * 1000;
-        private static final int POLL_INTERVAL = 500;
+        private static final int POLL_INTERVAL = 10;
 
         public List<ViewElement> waitForElements(final With with) {
             return waitForMany(with.getSelector(), new Callable<List<ViewElement>>() {
