@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapters;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.associations.NextFollowingOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -20,13 +21,16 @@ public class FollowableUserItemRenderer extends UserItemRenderer {
 
     private final NextFollowingOperations followingOperations;
     private final FeatureFlags featureFlags;
+    private final EngagementsTracking engagementsTracking;
 
     @Inject
     public FollowableUserItemRenderer(ImageOperations imageOperations, CondensedNumberFormatter numberFormatter,
-                                      NextFollowingOperations followingOperations, FeatureFlags featureFlags) {
+                                      NextFollowingOperations followingOperations, FeatureFlags featureFlags,
+                                      EngagementsTracking engagementsTracking) {
         super(imageOperations, numberFormatter);
         this.followingOperations = followingOperations;
         this.featureFlags = featureFlags;
+        this.engagementsTracking = engagementsTracking;
     }
 
     @Override
@@ -45,6 +49,7 @@ public class FollowableUserItemRenderer extends UserItemRenderer {
                 @Override
                 public void onClick(View v) {
                     fireAndForget(followingOperations.toggleFollowing(user.getEntityUrn(), toggleFollow.isChecked()));
+                    engagementsTracking.followUserUrn(user.getEntityUrn(), toggleFollow.isChecked());
                 }
             });
         } else {

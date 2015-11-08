@@ -59,20 +59,17 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromToggleToFollow() {
         PropertySet userProperties = buildUserPropertySet(Urn.forUser(30l));
-        UIEvent uiEvent = UIEvent.fromToggleFollow(true, "screen", 30l, PlayableMetadata.fromUser(userProperties));
+        UIEvent uiEvent = UIEvent.fromToggleFollow(true, PlayableMetadata.fromUser(userProperties));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_FOLLOW);
-        assertThat(uiEvent.get("context")).isEqualTo("screen");
-        assertThat(uiEvent.get("user_id")).isEqualTo("30");
         assertThat(uiEvent.get("creator_urn")).isEqualTo("soundcloud:users:30");
         assertThat(uiEvent.get("creator_display_name")).isEqualTo("some username");
     }
 
     @Test
     public void shouldCreateEventFromToggleToUnfollow() {
-        UIEvent uiEvent = UIEvent.fromToggleFollow(false, "screen", 30l, PlayableMetadata.fromUser(buildUserPropertySet(Urn.forUser(30l))));
+        PropertySet userProperties = buildUserPropertySet(Urn.forUser(30l));
+        UIEvent uiEvent = UIEvent.fromToggleFollow(false, PlayableMetadata.fromUser(userProperties));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNFOLLOW);
-        assertThat(uiEvent.get("context")).isEqualTo("screen");
-        assertThat(uiEvent.get("user_id")).isEqualTo("30");
     }
 
     @Test

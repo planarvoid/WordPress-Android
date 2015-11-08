@@ -5,6 +5,7 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.associations.NextFollowingOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -38,7 +39,8 @@ class ProfileHeaderPresenter {
 
     public ProfileHeaderPresenter(final Activity profileActivity, final ImageOperations imageOperations,
                                   CondensedNumberFormatter numberFormatter, AccountOperations accountOperations,
-                                  final Urn user, final NextFollowingOperations followingOperations) {
+                                  final Urn user, final NextFollowingOperations followingOperations,
+                                  final EngagementsTracking engagementsTracking) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
 
@@ -51,6 +53,7 @@ class ProfileHeaderPresenter {
                 @Override
                 public void onClick(View v) {
                     followingOperations.toggleFollowing(user, followButton.isChecked()).subscribe(new DefaultSubscriber<PropertySet>());
+                    engagementsTracking.followUserUrn(user, followButton.isChecked());
                 }
             });
         }
@@ -88,19 +91,22 @@ class ProfileHeaderPresenter {
         private final CondensedNumberFormatter numberFormatter;
         private final AccountOperations accountOperations;
         private final NextFollowingOperations followingOperations;
+        private final EngagementsTracking engagementsTracking;
 
         @Inject
         public ProfileHeaderPresenterFactory(ImageOperations imageOperations, CondensedNumberFormatter numberFormatter,
-                                             AccountOperations accountOperations, NextFollowingOperations followingOperations) {
+                                             AccountOperations accountOperations, NextFollowingOperations followingOperations,
+                                             EngagementsTracking engagementsTracking) {
             this.imageOperations = imageOperations;
             this.numberFormatter = numberFormatter;
             this.accountOperations = accountOperations;
             this.followingOperations = followingOperations;
+            this.engagementsTracking = engagementsTracking;
         }
 
         ProfileHeaderPresenter create(Activity profileActivity, Urn user) {
             return new ProfileHeaderPresenter(profileActivity, imageOperations, numberFormatter, accountOperations,
-                    user, followingOperations);
+                    user, followingOperations, engagementsTracking);
         }
     }
 

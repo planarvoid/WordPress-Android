@@ -74,10 +74,8 @@ public final class UIEvent extends TrackingEvent {
                 .put(LocalyticTrackingKeys.KEY_METHOD, method);
     }
 
-    public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId, @NonNull PlayableMetadata userMetadata) {
+    public static UIEvent fromToggleFollow(boolean isFollow, @NonNull PlayableMetadata userMetadata) {
         return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_USER_ID, String.valueOf(userId))
                 .putPlayableMetadata(userMetadata);
     }
 
