@@ -234,6 +234,5 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     private void playTrackFromStream() {
         visualPlayerElement = streamScreen.clickFirstTrack();
-        visualPlayerElement.waitForExpandedPlayer();
     }
 }
