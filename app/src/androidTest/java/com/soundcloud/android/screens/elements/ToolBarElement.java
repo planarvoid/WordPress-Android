@@ -56,7 +56,7 @@ public class ToolBarElement extends Element {
         searchInputField().typeText(query);
     }
 
-    private TextElement title() {
+    public TextElement title() {
         return new TextElement(toolbar().findElement(With.className(TextView.class)));
     }
 

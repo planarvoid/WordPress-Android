@@ -6,6 +6,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.record.RecordScreen;
@@ -36,7 +37,7 @@ public class RecordTest extends ActivityTest<MainActivity> {
         assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_recording)));
         assertThat(recordScreen.hasNextButton(), is(false));
 
-        recordScreen.waitAndPauseRecording();
+        recordScreen.stopRecording();
         assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_idle_play)));
         assertThat(recordScreen.hasNextButton(), is(true));
     }
@@ -44,7 +45,7 @@ public class RecordTest extends ActivityTest<MainActivity> {
     public void testRecordingIsDeletable() {
         recordScreen
                 .startRecording()
-                .waitAndPauseRecording();
+                .stopRecording();
         assertThat(recordScreen.hasRecordedTrack(), is(true));
 
         recordScreen.deleteRecording();
@@ -54,7 +55,7 @@ public class RecordTest extends ActivityTest<MainActivity> {
     public void testRecordingIsSaved() {
         recordScreen
                 .startRecording()
-                .waitAndPauseRecording();
+                .stopRecording();
 
         solo.goBack();
 

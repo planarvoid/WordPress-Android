@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens.record;
 
+
 import static com.soundcloud.android.framework.with.With.text;
 
 import com.soundcloud.android.R;
@@ -34,21 +35,19 @@ public class RecordScreen extends Screen {
 
     public RecordScreen clickEditButton() {
         getEditButton().click();
+        waiter.waitForElement(actionBar().title(), testDriver.getString(R.string.rec_title_editing));
         return this;
     }
 
     public RecordScreen clickApplyButton() {
         getApplyButton().click();
+        waiter.waitForElement(actionBar().title(), testDriver.getString(R.string.rec_title_idle_play));
         return this;
     }
 
     public RecordScreen clickPlayButton() {
         getPlayButton().click();
-        return this;
-    }
-
-    public RecordScreen waitForRecord() {
-        waiter.waitTwoSeconds();
+        waiter.waitForElement(actionBar().title(), testDriver.getString(R.string.rec_title_playing));
         return this;
     }
 
@@ -97,12 +96,19 @@ public class RecordScreen extends Screen {
 
     public RecordScreen startRecording() {
         clickRecordButton();
+        waiter.waitForElement(actionBar().title(), testDriver.getString(R.string.rec_title_recording));
+        return this;
+    }
+
+    public RecordScreen stopRecording() {
+        clickRecordButton();
+        waiter.waitForElement(actionBar().title(), testDriver.getString(R.string.rec_title_idle_play));
         return this;
     }
 
     public RecordScreen waitAndPauseRecording() {
-        waitForRecord();
-        clickRecordButton();
+        waiter.waitTwoSeconds();
+        stopRecording();
         return this;
     }
 
