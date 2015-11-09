@@ -3,7 +3,7 @@ package com.soundcloud.android.share;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
@@ -46,7 +46,7 @@ public class ShareOperations {
                 playable.get(EntityProperty.URN),
                 pageUrn,
                 promotedSourceInfo,
-                PlayableMetadata.from(playable)));
+                EntityMetadata.from(playable)));
     }
 
     private Intent buildShareIntent(Context context, PropertySet playable) {

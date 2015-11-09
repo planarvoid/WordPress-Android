@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -164,7 +164,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
                         trackUrn,
                         trackUrn,
                         playQueueManager.getCurrentPromotedSourceInfo(trackUrn),
-                        PlayableMetadata.from(track)));
+                        EntityMetadata.from(track)));
     }
 
     private void showAddToPlaylistDialog(PlayerTrackState track) {
@@ -236,7 +236,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         TrackPageMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
             return new TrackPageMenuController(featureFlags, playQueueManager, repostOperations,
-                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), 
+                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView),
                     startStationPresenter, eventBus, shareOperations);
         }
     }

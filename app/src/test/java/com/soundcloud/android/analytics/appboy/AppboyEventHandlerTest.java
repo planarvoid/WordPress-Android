@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
@@ -42,7 +42,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
             .addProperty("playable_type", "track");
 
 
-    private static final PlayableMetadata metadata = PlayableMetadata.from(trackPropertySet);
+    private static final EntityMetadata metadata = EntityMetadata.from(trackPropertySet);
 
     private AppboyEventHandler eventHandler;
 
@@ -202,7 +202,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldTrackPlaylistCreation() {
         PropertySet playlist = TestPropertySets.expectedPostedPlaylistForPostsScreen();
-        UIEvent event = UIEvent.fromCreatePlaylist(PlayableMetadata.from(playlist));
+        UIEvent event = UIEvent.fromCreatePlaylist(EntityMetadata.from(playlist));
         AppboyProperties expectedProperties = new AppboyProperties()
                 .addProperty("playlist_title", playlist.get(PlayableProperty.TITLE))
                 .addProperty("playlist_urn", playlist.get(PlayableProperty.URN).toString());

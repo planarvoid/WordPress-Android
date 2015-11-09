@@ -74,10 +74,8 @@ public final class UIEvent extends TrackingEvent {
                 .put(LocalyticTrackingKeys.KEY_METHOD, method);
     }
 
-    public static UIEvent fromToggleFollow(boolean isFollow, String screenTag, long userId, @NonNull PlayableMetadata userMetadata) {
+    public static UIEvent fromToggleFollow(boolean isFollow, @NonNull EntityMetadata userMetadata) {
         return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_USER_ID, String.valueOf(userId))
                 .putPlayableMetadata(userMetadata);
     }
 
@@ -88,7 +86,7 @@ public final class UIEvent extends TrackingEvent {
                                          @NonNull Urn resourceUrn,
                                          @NonNull Urn pageUrn,
                                          @Nullable PromotedSourceInfo promotedSourceInfo,
-                                         @NonNull PlayableMetadata playable) {
+                                         @NonNull EntityMetadata playable) {
         return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_LOCATION, invokerScreen)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, contextScreen)
@@ -107,7 +105,7 @@ public final class UIEvent extends TrackingEvent {
                                            @NonNull Urn resourceUrn,
                                            @NonNull Urn pageUrn,
                                            @Nullable PromotedSourceInfo promotedSourceInfo,
-                                           @NonNull PlayableMetadata playableMetadata) {
+                                           @NonNull EntityMetadata entityMetadata) {
         return new UIEvent(isRepost ? KIND_REPOST : KIND_UNREPOST)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
@@ -116,7 +114,7 @@ public final class UIEvent extends TrackingEvent {
                 .<UIEvent>put(AdTrackingKeys.KEY_PAGE_URN, pageUrn.toString())
                 .<UIEvent>put(AdTrackingKeys.KEY_ORIGIN_SCREEN, pageName)
                 .putPromotedItemKeys(promotedSourceInfo)
-                .putPlayableMetadata(playableMetadata);
+                .putPlayableMetadata(entityMetadata);
     }
 
     public static UIEvent fromAddToPlaylist(String invokerScreen, String contextScreen, boolean isNewPlaylist, long trackId) {
@@ -127,14 +125,14 @@ public final class UIEvent extends TrackingEvent {
                 .put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId));
     }
 
-    public static UIEvent fromComment(String screenTag, long trackId, @NonNull PlayableMetadata playable) {
+    public static UIEvent fromComment(String screenTag, long trackId, @NonNull EntityMetadata playable) {
         return new UIEvent(KIND_COMMENT)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId))
                 .putPlayableMetadata(playable);
     }
 
-    public static UIEvent fromShare(String screenTag, String pageName, @NonNull Urn resourceUrn, @NonNull Urn pageUrn, @Nullable PromotedSourceInfo promotedSourceInfo, @NonNull PlayableMetadata playable) {
+    public static UIEvent fromShare(String screenTag, String pageName, @NonNull Urn resourceUrn, @NonNull Urn pageUrn, @Nullable PromotedSourceInfo promotedSourceInfo, @NonNull EntityMetadata playable) {
         return new UIEvent(KIND_SHARE)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
@@ -235,7 +233,7 @@ public final class UIEvent extends TrackingEvent {
                 .addPromotedTrackingUrls(SKIPS, audioAd.get(AdProperty.AD_SKIP_URLS));
     }
 
-    public static UIEvent fromCreatePlaylist(PlayableMetadata metadata) {
+    public static UIEvent fromCreatePlaylist(EntityMetadata metadata) {
         return new UIEvent(KIND_CREATE_PLAYLIST)
                 .putPlayableMetadata(metadata);
     }
@@ -288,7 +286,7 @@ public final class UIEvent extends TrackingEvent {
         return this;
     }
 
-    private UIEvent putPlayableMetadata(@NonNull PlayableMetadata metadata) {
+    private UIEvent putPlayableMetadata(@NonNull EntityMetadata metadata) {
         metadata.addToTrackingEvent(this);
         return this;
     }

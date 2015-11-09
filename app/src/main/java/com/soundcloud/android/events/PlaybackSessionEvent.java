@@ -97,7 +97,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         this.trackSourceInfo = trackSourceInfo;
         this.progress = progress;
         this.duration = track.get(PlayableProperty.DURATION);
-        PlayableMetadata.from(track).addToTrackingEvent(this);
+        EntityMetadata.from(track).addToTrackingEvent(this);
     }
 
     // Audio ad
