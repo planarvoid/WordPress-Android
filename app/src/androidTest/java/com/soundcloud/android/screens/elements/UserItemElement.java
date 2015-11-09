@@ -22,7 +22,7 @@ public class UserItemElement {
 
     public ProfileScreen click() {
         wrapped.click();
-        return new ProfileScreen(testDriver);
+        return new ProfileScreen(testDriver, getUsername());
     }
 
     public UserItemElement toggleFollow() {

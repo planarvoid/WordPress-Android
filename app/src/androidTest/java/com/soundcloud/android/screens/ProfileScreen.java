@@ -24,6 +24,10 @@ public class ProfileScreen extends Screen {
     public ProfileScreen(Han solo) {
         super(solo);
     }
+    public ProfileScreen(Han solo, String username) {
+        super(solo);
+        waiter.waitForElement(new TextElement(userName()), username);
+    }
 
     public VisualPlayerElement playTrack(int index) {
         waiter.waitForContentAndRetryIfLoadingFailed();
