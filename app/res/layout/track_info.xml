@@ -81,7 +81,7 @@
                     android:drawableLeft="@drawable/stats_repost" />
             </LinearLayout>
 
-            <View style="@style/Divider.Horizontal" />
+            <View style="@style/Divider.Section" />
 
             <FrameLayout
                 android:id="@+id/description_holder"

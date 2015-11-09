@@ -70,7 +70,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
         when(fragmentView.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(fragmentView.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(fragmentView.getResources()).thenReturn(resources);
-        when(resources.getDrawable(R.drawable.divider_list_grey)).thenReturn(divider);
+        when(resources.getDrawable(R.drawable.ak_list_divider_item)).thenReturn(divider);
         when(recyclerView.getResources()).thenReturn(resources);
         when(fragment.getArguments()).thenReturn(arguments);
         when(mixedClickListenerFactory.create(screen, searchQuerySourceInfo)).thenReturn(itemClickListener);

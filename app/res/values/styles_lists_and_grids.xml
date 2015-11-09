@@ -3,8 +3,8 @@
 
     <!-- list styles -->
     <style name="ListView" parent="Widget.AppCompat.ListView">
-        <item name="android:divider">@drawable/divider_list_grey</item>
-        <item name="android:dividerHeight">1px</item>
+        <item name="android:divider">@drawable/ak_list_divider_item</item>
+        <item name="android:dividerHeight">@dimen/ak_list_divider_horizontal_height</item>
     </style>
     <style name="ListItemLayout">
         <item name="android:layout_width">match_parent</item>

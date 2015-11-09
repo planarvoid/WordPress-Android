@@ -23,7 +23,7 @@
                 android:layout_weight="1" />
         </LinearLayout>
 
-        <View style="@style/Divider.Horizontal" />
+        <View style="@style/Divider.Section" />
 
     </LinearLayout>
 

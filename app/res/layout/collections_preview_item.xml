@@ -13,7 +13,7 @@
         android:clickable="false"
         android:focusable="false" />
 
-    <View style="@style/Divider.Horizontal"/>
+    <View style="@style/Divider.Section"/>
 
     <com.soundcloud.android.collections.CollectionPreviewView
         android:id="@+id/collection_likes_preview"

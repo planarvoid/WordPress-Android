@@ -5,14 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:background="@color/page_background"
-        android:clickable="false"
-        android:focusable="false" />
-
-    <View style="@style/Divider.Horizontal" />
+    <View style="@style/Divider.Background" />
+    <View style="@style/Divider.Section" />
 
     <TextView
         android:id="@+id/title"
@@ -35,5 +29,5 @@
         android:layout_height="wrap_content"
         android:text="@string/ok_got_it" />
 
-    <View style="@style/Divider.Horizontal" />
+    <View style="@style/Divider.Section" />
 </LinearLayout>

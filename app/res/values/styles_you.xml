@@ -3,12 +3,6 @@
 
     <style name="You" />
 
-    <style name="You.Divider">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">16dp</item>
-        <item name="android:background">@color/page_background</item>
-    </style>
-
     <style name="You.Container">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
