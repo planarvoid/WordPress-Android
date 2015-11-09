@@ -64,6 +64,6 @@
 
     <View
         style="@style/PlaylistDivider"
-        android:layout_below="@+id/playlist_action_bar_holder" />
+        android:layout_below="@id/playlist_action_bar_holder" />
 
 </RelativeLayout>
