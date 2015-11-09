@@ -10,13 +10,13 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -27,7 +27,6 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
@@ -169,7 +168,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                            PlayQueueManager playQueueManager,
                            PlaylistPresenter playlistPresenter,
                            Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                           FeatureFlags featureFlags,
                            FeatureOperations featureOperations,
                            AccountOperations accountOperations,
                            Navigator navigator) {
