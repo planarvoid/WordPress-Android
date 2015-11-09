@@ -1,6 +1,9 @@
 package com.soundcloud.android.sync;
 
-import rx.Observer;
+import com.soundcloud.android.utils.Log;
+import rx.Subscriber;
+import rx.functions.Action0;
+import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,22 +15,36 @@ public class ResultReceiverAdapter extends ResultReceiver {
 
     @VisibleForTesting
     public static final String SYNC_RESULT = "syncResult";
+    private static final String TAG = "RxResultReceiver";
 
-    private final Observer<? super SyncResult> observer;
+    private volatile Subscriber<? super SyncResult> subscriber;
 
-    public ResultReceiverAdapter(Observer<? super SyncResult> observer, Looper looper) {
+    public ResultReceiverAdapter(final Subscriber<? super SyncResult> subscriber, Looper looper) {
         super(new Handler(looper));
-        this.observer = observer;
+        this.subscriber = subscriber;
+        // make sure we release the observer reference as soon as we're unsubscribing
+        subscriber.add(Subscriptions.create(new Action0() {
+            @Override
+            public void call() {
+                Log.d(TAG, "observer is unsubscribing, releasing ref...");
+                ResultReceiverAdapter.this.subscriber = null;
+            }
+        }));
     }
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
-        SyncResult syncResult = resultData.getParcelable(SYNC_RESULT);
-        if (syncResult.wasSuccess()){
-            observer.onNext(syncResult);
-            observer.onCompleted();
+        if (subscriber != null && !subscriber.isUnsubscribed()) {
+            Log.d(TAG, "delivering result: " + resultData);
+            SyncResult syncResult = resultData.getParcelable(SYNC_RESULT);
+            if (syncResult.wasSuccess()) {
+                subscriber.onNext(syncResult);
+                subscriber.onCompleted();
+            } else {
+                subscriber.onError(syncResult.getException());
+            }
         } else {
-            observer.onError(syncResult.getException());
+            Log.d(TAG, "observer is gone, dropping result: " + resultData);
         }
     }
 }
