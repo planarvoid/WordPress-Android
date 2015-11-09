@@ -89,7 +89,9 @@ public class StreamScreen extends Screen {
     public VisualPlayerElement clickFirstRepostedTrack() {
         final ViewElement viewElement = scrollToItem(With.id(R.id.reposter), streamList());
         viewElement.click();
-        return new VisualPlayerElement(testDriver);
+        VisualPlayerElement player = new VisualPlayerElement(testDriver);
+        player.waitForExpandedPlayer();
+        return player;
     }
 
     public VisualPlayerElement clickTrack(int index) {
