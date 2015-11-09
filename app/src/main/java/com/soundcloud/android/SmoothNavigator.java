@@ -1,8 +1,8 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.utils.TransitionUtils;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.SharedElementCallback;
 import android.content.Intent;
+import android.transition.Transition;
 import android.util.Pair;
 import android.view.View;
 
@@ -25,6 +26,9 @@ public class SmoothNavigator extends Navigator {
 
     @Override
     public void openSearch(Activity activity) {
+        Transition autoTransition = TransitionUtils.createAutoTransition(activity);
+        activity.getWindow().setSharedElementExitTransition(autoTransition);
+        activity.getWindow().setSharedElementReturnTransition(autoTransition);
         activity.getWindow().setAllowReturnTransitionOverlap(true);
 
         final View searchIcon = activity.findViewById(R.id.search_icon);
@@ -49,15 +53,4 @@ public class SmoothNavigator extends Navigator {
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity, sharedElements);
         activity.startActivity(new Intent(activity, SearchActivity.class), options.toBundle());
     }
-
-    @Override
-    public void openMyProfile(Activity activity, Urn user) {
-        Pair[] sharedElements = new Pair[]{
-                Pair.create(activity.findViewById(R.id.image), activity.getString(R.string.profile_image_transition_name)),
-                Pair.create(activity.findViewById(R.id.username), activity.getString(R.string.profile_username_transition_name))
-        };
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity, sharedElements);
-        activity.startActivity(createProfileIntent(activity, user), options.toBundle());
-    }
-
 }

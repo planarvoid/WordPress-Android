@@ -23,7 +23,6 @@ import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -155,7 +154,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
 
     @Override
     public void onProfileClicked(View view) {
-        navigator.openMyProfile((Activity) view.getContext(), accountOperations.getLoggedInUserUrn());
+        navigator.openProfile(view.getContext(), accountOperations.getLoggedInUserUrn());
     }
 
     @Override

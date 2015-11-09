@@ -24,17 +24,9 @@ public class ProfileActivity extends ScActivity {
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        supportFinishAfterTransition();
-        return true;
-    }
-
-    @Override
     public void onBackPressed() {
         if (!playerController.handleBackPressed()) {
             super.onBackPressed();
-        } else {
-            supportFinishAfterTransition();
         }
     }
 

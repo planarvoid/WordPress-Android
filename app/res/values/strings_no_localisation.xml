@@ -22,7 +22,4 @@
     <string name="search_text_transition_name">search_text_view</string>
     <string name="search_text_holder_transition_name">search_text_holder</string>
 
-    <string name="profile_image_transition_name">profile_image_view</string>
-    <string name="profile_username_transition_name">profile_username_view</string>
-
 </resources>
