@@ -42,7 +42,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
 
         final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
         likesScreen
-                .clickHeaderOverflowButton()
+                .clickOverflowButton()
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSynced();
 
@@ -64,7 +64,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
         networkManagerClient.switchWifiOff();
 
         final DownloadImageViewElement downloadElement = likesScreen
-                .clickHeaderOverflowButton()
+                .clickOverflowButton()
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSynced()
                 .tracks()

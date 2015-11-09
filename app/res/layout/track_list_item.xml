@@ -6,7 +6,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/track_list_item">
 
-    <RelativeLayout style="@style/ListItemLayout">
+    <RelativeLayout style="@style/ListItemLayout"
+        android:paddingTop="0dp">
 
         <include layout="@layout/sound_list_item_views" />
 

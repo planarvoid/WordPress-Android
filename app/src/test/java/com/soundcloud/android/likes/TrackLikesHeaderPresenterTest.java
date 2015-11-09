@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -22,22 +21,19 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItemAdapter;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.subjects.PublishSubject;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -76,13 +72,12 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         presenter = new TrackLikesHeaderPresenter(
                 headerView,
-                likeOperations,
                 offlineContentOperations,
                 playbackOperations,
                 TestSubscribers.expandPlayerSubscriber(),
                 featureOperations,
-                eventBus,
-                likesMenuPresenter);
+                eventBus
+        );
 
         likedTrackUrns = asList(TRACK1, TRACK2);
         when(fragment.getFragmentManager()).thenReturn(fragmentManager);
@@ -94,44 +89,10 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onSubscribeListObserversUpdatesHeaderViewOnlyOnce() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
-        presenter.onViewCreated(fragment, layoutView, null);
+    public void updateTrackCountUpdatesTrackCount() {
+        presenter.updateTrackCount(3);
 
-        CollectionBinding<TrackItem> collectionBinding = CollectionBinding.from(
-                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList())
-                .withAdapter(adapter).build();
-        presenter.onSubscribeListObservers(collectionBinding);
-        collectionBinding.connect();
-
-        verify(headerView).updateTrackCount(likedTrackUrns.size());
-        verify(headerView).updateOverflowMenuButton(true);
-    }
-
-    @Test
-    public void doNotUpdateTrackCountAfterViewIsDestroyed() {
-        PublishSubject<List<Urn>> likedTrackUrnsObservable = PublishSubject.create();
-        when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrnsObservable);
-
-        presenter.onViewCreated(fragment, layoutView, null);
-        presenter.onSubscribeListObservers(CollectionBinding.from(
-                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList())
-                .withAdapter(adapter).build());
-        presenter.onDestroyView(fragment);
-        likedTrackUrnsObservable.onNext(likedTrackUrns);
-
-        verify(headerView, never()).updateTrackCount(anyInt());
-    }
-
-    @Test
-    public void updateTrackCountOnEntityLikeEvent() {
-        when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
-        presenter.onViewCreated(fragment, layoutView, null);
-
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK1, true, 5));
-
-        verify(headerView).updateTrackCount(2);
+        verify(headerView).updateTrackCount(3);
     }
 
     @Test
@@ -260,6 +221,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsDownloadedStateWhenLikedTracksDownloadStateIsDownloaded() {
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
         when(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
                 .thenReturn(Observable.just(OfflineState.DOWNLOADED));
         presenter.onViewCreated(fragment, layoutView, null);
@@ -270,6 +232,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsRequestedStateWhenLikedTracksDownloadStateIsRequested() {
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
         when(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
                 .thenReturn(Observable.just(OfflineState.REQUESTED));
         presenter.onViewCreated(fragment, layoutView, null);
@@ -311,52 +274,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         verify(headerView, never()).show(OfflineState.DOWNLOADED);
     }
 
-    @Test
-    public void showOverflowMenuIfOfflineContentIsEnabled() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        presenter.onViewCreated(fragment, layoutView, null);
-        presenter.onResume(fragment);
-
-        verify(headerView).showOverflowMenuButton();
-        verify(headerView).setOnOverflowMenuClick(any(View.OnClickListener.class));
-    }
-
-    @Test
-    public void showOverflowMenuIfUpsellIsEnabled() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        when(featureOperations.upsellOfflineContent()).thenReturn(true);
-        presenter.onViewCreated(fragment, layoutView, null);
-        presenter.onResume(fragment);
-
-        verify(headerView).showOverflowMenuButton();
-        verify(headerView).setOnOverflowMenuClick(any(View.OnClickListener.class));
-    }
-
-    @Test
-    public void doesNotShowOverflowMenuWhenOfflineContentIsDisabled() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        when(featureOperations.upsellOfflineContent()).thenReturn(false);
-        presenter.onViewCreated(fragment, layoutView, null);
-
-        verify(headerView, never()).showOverflowMenuButton();
-        verify(headerView, never()).setOnOverflowMenuClick(any(View.OnClickListener.class));
-    }
-
-    @Test
-    public void displayLikesMenuOnOverflowMenuClick() {
-        View view = mock(View.class);
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-
-        presenter.onViewCreated(fragment, layoutView, null);
-        presenter.onResume(fragment);
-
-        verify(headerView).setOnOverflowMenuClick(onClickListenerCaptor.capture());
-        onClickListenerCaptor.getValue().onClick(view);
-
-        verify(likesMenuPresenter).show(view, fragmentManager);
-    }
-
     private void enableOfflineLikes() {
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
         when(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
                 .thenReturn(Observable.just(OfflineState.REQUESTED));
     }

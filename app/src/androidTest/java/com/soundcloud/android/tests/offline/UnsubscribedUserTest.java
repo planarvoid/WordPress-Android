@@ -24,7 +24,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
 
     public void testDownloadIsUnavailableWhenTheyAccessLikes() throws Exception {
         final ViewElement overflowButton = mainNavHelper.goToTrackLikes()
-                .headerOverflowButton();
+                .overflowButton();
 
         assertThat(overflowButton, is(not(visible())));
     }

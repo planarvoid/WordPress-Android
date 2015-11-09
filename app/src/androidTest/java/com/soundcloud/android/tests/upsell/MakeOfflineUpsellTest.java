@@ -46,7 +46,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
         startEventTracking();
 
         UpgradeScreen upgradeScreen = trackLikesScreen
-                .clickHeaderOverflowButton()
+                .clickOverflowButton()
                 .clickUpsell();
 
         assertThat(upgradeScreen, is(visible()));

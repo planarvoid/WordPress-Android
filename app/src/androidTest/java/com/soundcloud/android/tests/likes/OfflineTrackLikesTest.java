@@ -46,7 +46,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         final TrackLikesScreen trackLikesScreen = mainNavHelper.goToTrackLikes();
 
         assertFalse(trackLikesScreen.headerDownloadElement().isVisible());
-        assertThat(trackLikesScreen.headerOverflowButton(), is(visible()));
+        assertThat(trackLikesScreen.overflowButton(), is(visible()));
     }
 
     @CollectionsTest
@@ -55,7 +55,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
         final TrackLikesScreen likesScreen = mainNavHelper
                 .goToTrackLikes()
-                .clickHeaderOverflowButton()
+                .clickOverflowButton()
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSyncedAndWaitToFinish();
 

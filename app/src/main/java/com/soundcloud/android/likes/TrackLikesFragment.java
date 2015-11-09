@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,6 +20,7 @@ import javax.inject.Inject;
 public class TrackLikesFragment extends LightCycleSupportFragment implements RefreshableScreen {
 
     @Inject @LightCycle TrackLikesPresenter presenter;
+    @Inject LikesMenuPresenter likesMenuPresenter;
 
     public TrackLikesFragment() {
         setRetainInstance(true);
@@ -27,14 +29,24 @@ public class TrackLikesFragment extends LightCycleSupportFragment implements Ref
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.track_likes_fragment, container, false);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        presenter.onCreateOptionsMenu(menu, inflater);
+        likesMenuPresenter.onCreateOptionsMenu(menu, inflater);
     }
 
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        likesMenuPresenter.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return likesMenuPresenter.onOptionsItemSelected(item, getActivity(), getFragmentManager());
+    }
 
     @Override
     public MultiSwipeRefreshLayout getRefreshLayout() {

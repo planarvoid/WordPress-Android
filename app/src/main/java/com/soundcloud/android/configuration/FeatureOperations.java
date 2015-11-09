@@ -31,6 +31,10 @@ public class FeatureOperations {
         return planStorage.getPlan();
     }
 
+    public boolean isOfflineContentOrUpsellEnabled() {
+        return isOfflineContentEnabled() || upsellOfflineContent();
+    }
+
     public boolean isOfflineContentEnabled() {
         return featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false);
     }

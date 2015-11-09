@@ -13,6 +13,7 @@ import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.LikesOverflowMenu;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
+import com.soundcloud.android.screens.elements.TrackLikesToolbarElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
@@ -24,8 +25,11 @@ public class TrackLikesScreen extends Screen {
 
     protected static final Class ACTIVITY = MainActivity.class;
 
+    private TrackLikesToolbarElement toolbarElement;
+
     public TrackLikesScreen(Han solo) {
         super(solo);
+        toolbarElement = new TrackLikesToolbarElement(solo);
     }
 
     public TrackLikesScreen clickOfflineTrack(int index) {
@@ -113,9 +117,12 @@ public class TrackLikesScreen extends Screen {
         return new TrackItemMenuElement(testDriver);
     }
 
-    public LikesOverflowMenu clickHeaderOverflowButton() {
-        headerOverflowButton().click();
-        return new LikesOverflowMenu(testDriver);
+    public LikesOverflowMenu clickOverflowButton() {
+        return toolbarElement.clickOverflowButton();
+    }
+
+    public ViewElement overflowButton() {
+        return toolbarElement.overflowButton();
     }
 
     public DownloadImageViewElement headerDownloadElement() {
@@ -139,10 +146,6 @@ public class TrackLikesScreen extends Screen {
     private ViewElement header() {
         return testDriver
                 .findElement(With.id(R.id.track_likes_header));
-    }
-
-    public ViewElement headerOverflowButton() {
-        return header().findElement(With.id(R.id.overflow_button));
     }
 
     @Override

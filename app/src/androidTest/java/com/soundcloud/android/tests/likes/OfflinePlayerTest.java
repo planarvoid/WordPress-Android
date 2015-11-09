@@ -38,7 +38,7 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
     public void testPlayTrackWhenContentDownloaded() throws Exception {
         likesScreen
-                .clickHeaderOverflowButton()
+                .clickOverflowButton()
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSyncedAndWaitToFinish();
         networkManagerClient.switchWifiOff();

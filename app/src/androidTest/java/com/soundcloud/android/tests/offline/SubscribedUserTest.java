@@ -30,7 +30,7 @@ public class SubscribedUserTest extends ActivityTest<MainActivity> {
 
     public void testDownloadIsAvailableWhenTheyAccessLikes() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToTrackLikes()
-                .clickHeaderOverflowButton()
+                .clickOverflowButton()
                 .getMakeAvailableOfflineItem();
 
         assertThat(offlineItem, is(visible()));

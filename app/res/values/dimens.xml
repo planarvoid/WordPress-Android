@@ -88,12 +88,11 @@
     <dimen name="user_image_border_width">1dp</dimen>
 
     <!-- Like -->
-    <dimen name="likes_header_padding_top">10dp</dimen>
-    <dimen name="likes_header_padding_bottom">6dp</dimen>
+    <dimen name="likes_header_padding_top">4dp</dimen>
+    <dimen name="likes_header_padding_bottom">4dp</dimen>
     <dimen name="likes_header_padding_right">4dp</dimen>
     <dimen name="likes_shuffle_button_padding">16dp</dimen>
     <dimen name="likes_shuffle_button_margin_left">8dp</dimen>
-    <dimen name="likes_shuffle_button_margin_right">12dp</dimen>
     <dimen name="collection_download_state_margin_right">5dip</dimen>
 
     <!-- Discovery -->

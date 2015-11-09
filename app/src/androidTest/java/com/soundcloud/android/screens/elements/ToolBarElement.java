@@ -30,6 +30,10 @@ public class ToolBarElement extends Element {
         return title().getText();
     }
 
+    public ViewElement overflowButton() {
+        return testDriver.findElement(With.className("android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton"));
+    }
+
     public PlaylistTagsScreen clickSearchButton() {
         waiter.waitForElement(SEARCH_SELECTOR);
         solo.findElement(With.id(SEARCH_SELECTOR)).click();

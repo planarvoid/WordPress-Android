@@ -28,8 +28,8 @@ import rx.Observable;
 
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import javax.inject.Provider;
 
@@ -38,7 +38,6 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
     private LikesMenuPresenter likesMenuPresenter;
     private TestEventBus eventBus;
 
-    @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private OfflineLikesDialog offlineLikesDialog;
@@ -46,9 +45,12 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
     @Mock private FragmentManager fragmentManager;
     @Mock private FragmentActivity context;
     @Mock private MenuItem menuItem;
-    @Mock private View button;
-    @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private ScreenProvider screenProvider;
+    @Mock private Menu menu;
+
+    private MenuItem makeOfflineAvailableItem;
+    private MenuItem makeOfflineUnavailableItem;
+
     @Captor private ArgumentCaptor<PopupMenuWrapper.PopupMenuWrapperListener> listenerCaptor;
 
     @Before
@@ -61,11 +63,13 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
         };
         eventBus = new TestEventBus();
 
-        when(popupMenuWrapperFactory.build(context, button)).thenReturn(popupMenuWrapper);
-        when(button.getContext()).thenReturn(context);
+        makeOfflineAvailableItem = mockMenuItem(R.id.action_make_offline_available);
+        makeOfflineUnavailableItem = mockMenuItem(R.id.action_make_offline_unavailable);
+
+        when(menu.findItem(R.id.action_make_offline_available)).thenReturn(makeOfflineAvailableItem);
+        when(menu.findItem(R.id.action_make_offline_unavailable)).thenReturn(makeOfflineUnavailableItem);
         when(screenProvider.getLastScreenTag()).thenReturn("page_name");
         likesMenuPresenter = new LikesMenuPresenter(
-                popupMenuWrapperFactory,
                 featureOperations,
                 offlineContentOperations,
                 syncLikesDialogProvider,
@@ -76,11 +80,9 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showSyncLikesDialogWhenClickOnMenuAndOfflineContentIsEnabled() {
-        MenuItem makeOfflineAvailable = mockMenuItem(R.id.action_make_offline_available);
         showMenu(true, false);
 
-        verify(popupMenuWrapper).setOnMenuItemClickListener(listenerCaptor.capture());
-        listenerCaptor.getValue().onMenuItemClick(makeOfflineAvailable, context);
+        likesMenuPresenter.onOptionsItemSelected(makeOfflineAvailableItem, context, fragmentManager);
 
         verify(offlineLikesDialog).show(any(FragmentManager.class));
     }
@@ -88,11 +90,9 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void showDisableLikesSyncingWhenClickOnMakeOfflineUnavailableMenu() {
         when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.just(true));
-        MenuItem makeOfflineUnavailable = mockMenuItem(R.id.action_make_offline_unavailable);
         showMenu(true, true);
 
-        verify(popupMenuWrapper).setOnMenuItemClickListener(listenerCaptor.capture());
-        listenerCaptor.getValue().onMenuItemClick(makeOfflineUnavailable, context);
+        likesMenuPresenter.onOptionsItemSelected(makeOfflineUnavailableItem, context, fragmentManager);
 
         verify(offlineContentOperations).disableOfflineLikedTracks();
         verifyZeroInteractions(offlineLikesDialog);
@@ -100,11 +100,9 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showSubscribeActivityWhenLikesSyncEnabledAndOfflineContentDisabled() {
-        MenuItem makeOfflineAvailable = mockMenuItem(R.id.action_make_offline_available);
         showMenu(false, false);
 
-        verify(popupMenuWrapper).setOnMenuItemClickListener(listenerCaptor.capture());
-        listenerCaptor.getValue().onMenuItemClick(makeOfflineAvailable, context);
+        likesMenuPresenter.onOptionsItemSelected(makeOfflineAvailableItem, context, fragmentManager);
 
         verify(navigator).openUpgrade(context);
         verifyZeroInteractions(offlineLikesDialog);
@@ -112,42 +110,30 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showOfflineDownloadOptionWhenOfflineTracksDisabled() {
-        PopupMenuWrapper popupMenuWrapper = mock(PopupMenuWrapper.class);
-
-        when(button.getContext()).thenReturn(context);
-        when(popupMenuWrapperFactory.build(context, button)).thenReturn(popupMenuWrapper);
         when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(false));
 
-        likesMenuPresenter.show(button, fragmentManager);
+        likesMenuPresenter.onPrepareOptionsMenu(menu);
 
-        verify(popupMenuWrapper).setItemVisible(R.id.action_make_offline_available, true);
-        verify(popupMenuWrapper).setItemVisible(R.id.action_make_offline_unavailable, false);
-        verify(popupMenuWrapper).show();
+        verify(makeOfflineAvailableItem).setVisible(true);
+        verify(makeOfflineUnavailableItem).setVisible(false);
     }
 
     @Test
     public void showOfflineRemovalOptionWhenOfflineTracksEnabled() {
-        PopupMenuWrapper popupMenuWrapper = mock(PopupMenuWrapper.class);
-
-        when(button.getContext()).thenReturn(context);
-        when(popupMenuWrapperFactory.build(context, button)).thenReturn(popupMenuWrapper);
         when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(true));
 
-        likesMenuPresenter.show(button, fragmentManager);
+        likesMenuPresenter.onPrepareOptionsMenu(menu);
 
-        verify(popupMenuWrapper).setItemVisible(R.id.action_make_offline_available, false);
-        verify(popupMenuWrapper).setItemVisible(R.id.action_make_offline_unavailable, true);
-        verify(popupMenuWrapper).show();
+        verify(makeOfflineAvailableItem).setVisible(false);
+        verify(makeOfflineUnavailableItem).setVisible(true);
     }
 
     @Test
     public void sendsTrackingEventWhenRemovingOfflineLikes() {
         when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.<Boolean>empty());
-        MenuItem makeOfflineAvailable = mockMenuItem(R.id.action_make_offline_unavailable);
         showMenu(true, false);
 
-        verify(popupMenuWrapper).setOnMenuItemClickListener(listenerCaptor.capture());
-        listenerCaptor.getValue().onMenuItemClick(makeOfflineAvailable, context);
+        likesMenuPresenter.onOptionsItemSelected(makeOfflineUnavailableItem, context, fragmentManager);
 
         TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_OFFLINE_LIKES_REMOVE);
@@ -158,7 +144,7 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
     private void showMenu(boolean offlineFeatureEnabled, boolean offlineLikesEnabled) {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(offlineFeatureEnabled);
         when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(offlineLikesEnabled));
-        likesMenuPresenter.show(button, fragmentManager);
+        likesMenuPresenter.onPrepareOptionsMenu(menu);
     }
 
     private MenuItem mockMenuItem(int menuItemId) {

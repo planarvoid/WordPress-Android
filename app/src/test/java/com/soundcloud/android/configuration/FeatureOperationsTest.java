@@ -34,6 +34,13 @@ public class FeatureOperationsTest {
     }
 
     @Test
+    public void isOfflineContentOrUpsellEnabledIfOfflineContentEnabled() {
+        when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(true);
+
+        assertThat(featureOperations.isOfflineContentOrUpsellEnabled()).isTrue();
+    }
+
+    @Test
     public void isOfflineContentEnabledDefaultsFalse() {
         assertThat(featureOperations.isOfflineContentEnabled()).isFalse();
     }
@@ -43,6 +50,11 @@ public class FeatureOperationsTest {
         when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.MID_TIER));
 
         assertThat(featureOperations.upsellMidTier()).isTrue();
+    }
+
+    @Test
+    public void isOfflineContentOrUpsellEnabledFalseByDefault() {
+        assertThat(featureOperations.isOfflineContentOrUpsellEnabled()).isFalse();
     }
 
     @Test
@@ -58,6 +70,16 @@ public class FeatureOperationsTest {
 
         assertThat(featureOperations.upsellOfflineContent()).isTrue();
     }
+
+    @Test
+    public void isOfflineContentOrUpsellEnabledIfAvailableForMidTierAndMidTierIsAvailable() {
+        when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(false);
+        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(Arrays.asList(Plan.MID_TIER));
+        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.MID_TIER));
+
+        assertThat(featureOperations.isOfflineContentOrUpsellEnabled()).isTrue();
+    }
+
 
     @Test
     public void doNotUpsellOfflineContentIfAvailableForMidTierButMidTierIsNotAvailable() {

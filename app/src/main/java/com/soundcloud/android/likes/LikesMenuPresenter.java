@@ -12,22 +12,20 @@ import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
 import android.support.v4.app.FragmentManager;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 class LikesMenuPresenter {
 
-    private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineOperations;
     private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
@@ -36,14 +34,12 @@ class LikesMenuPresenter {
     private final ScreenProvider screenProvider;
 
     @Inject
-    public LikesMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                              FeatureOperations featureOperations,
+    public LikesMenuPresenter(FeatureOperations featureOperations,
                               OfflineContentOperations offlineContentOperations,
                               Provider<OfflineLikesDialog> syncLikesDialogProvider,
                               ScreenProvider screenProvider,
                               Navigator navigator,
                               EventBus eventBus) {
-        this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.featureOperations = featureOperations;
         this.offlineOperations = offlineContentOperations;
         this.syncLikesDialogProvider = syncLikesDialogProvider;
@@ -52,46 +48,38 @@ class LikesMenuPresenter {
         this.eventBus = eventBus;
     }
 
-    public void show(View button, final FragmentManager fragmentManager) {
-        PopupMenuWrapper menu = popupMenuWrapperFactory.build(button.getContext(), button);
-        menu.inflate(R.menu.likes_actions);
-        menu.setOnMenuItemClickListener(getMenuWrapperListener(fragmentManager));
+    public boolean onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.likes_actions, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem menuItem, Context context, FragmentManager fragmentManager) {
+        switch (menuItem.getItemId()) {
+            case R.id.action_make_offline_available:
+                if (featureOperations.isOfflineContentEnabled()) {
+                    syncLikesDialogProvider.get().show(fragmentManager);
+                } else {
+                    navigator.openUpgrade(context);
+                    eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesClick());
+                }
+                return true;
+            case R.id.action_make_offline_unavailable:
+                fireAndForget(offlineOperations.disableOfflineLikedTracks());
+                eventBus.publish(EventQueue.TRACKING, UIEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public void onPrepareOptionsMenu(Menu menu) {
         configureMenu(menu);
         if (featureOperations.upsellMidTier()) {
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesImpression());
         }
     }
 
-    @NotNull
-    private PopupMenuWrapper.PopupMenuWrapperListener getMenuWrapperListener(final FragmentManager fragmentManager) {
-        return new PopupMenuWrapper.PopupMenuWrapperListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem, Context context) {
-                switch (menuItem.getItemId()) {
-                    case R.id.action_make_offline_available:
-                        if (featureOperations.isOfflineContentEnabled()) {
-                            syncLikesDialogProvider.get().show(fragmentManager);
-                        } else {
-                            navigator.openUpgrade(context);
-                            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesClick());
-                        }
-                        return true;
-                    case R.id.action_make_offline_unavailable:
-                        fireAndForget(offlineOperations.disableOfflineLikedTracks());
-                        eventBus.publish(EventQueue.TRACKING, UIEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-
-            @Override
-            public void onDismiss() {
-            }
-        };
-    }
-
-    private void configureMenu(PopupMenuWrapper menu) {
+    private void configureMenu(Menu menu) {
         offlineOperations
                 .isOfflineLikedTracksEnabled()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -99,9 +87,9 @@ class LikesMenuPresenter {
     }
 
     private final class UpdatePopupMenuOptionsSubscriber extends DefaultSubscriber<Boolean> {
-        private final PopupMenuWrapper menu;
+        private final Menu menu;
 
-        UpdatePopupMenuOptionsSubscriber(final PopupMenuWrapper menu) {
+        UpdatePopupMenuOptionsSubscriber(final Menu menu) {
             this.menu = menu;
         }
 
@@ -112,17 +100,16 @@ class LikesMenuPresenter {
             } else {
                 showOfflineDownloadOption(menu);
             }
-            menu.show();
         }
 
-        private void showOfflineDownloadOption(PopupMenuWrapper menu) {
-            menu.setItemVisible(R.id.action_make_offline_available, true);
-            menu.setItemVisible(R.id.action_make_offline_unavailable, false);
+        private void showOfflineDownloadOption(Menu menu) {
+            menu.findItem(R.id.action_make_offline_available).setVisible(true);
+            menu.findItem(R.id.action_make_offline_unavailable).setVisible(false);
         }
 
-        private void showOfflineRemovalOption(PopupMenuWrapper menu) {
-            menu.setItemVisible(R.id.action_make_offline_available, false);
-            menu.setItemVisible(R.id.action_make_offline_unavailable, true);
+        private void showOfflineRemovalOption(Menu menu) {
+            menu.findItem(R.id.action_make_offline_available).setVisible(false);
+            menu.findItem(R.id.action_make_offline_unavailable).setVisible(true);
         }
     }
 }

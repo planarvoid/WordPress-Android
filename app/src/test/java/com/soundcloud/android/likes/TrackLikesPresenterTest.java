@@ -1,11 +1,15 @@
 package com.soundcloud.android.likes;
 
-import android.content.Context;
-import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -22,7 +26,6 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.paywall.PaywallImpressionController;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -33,33 +36,28 @@ import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.android.view.adapters.PagedTracksRecyclerItemAdapter;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
-
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import javax.inject.Provider;
-
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
-import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import android.content.Context;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+
+import javax.inject.Provider;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class TrackLikesPresenterTest extends AndroidUnitTest {
 
@@ -96,13 +94,6 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
         when(offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()).thenReturn(Observable.just(true));
-    }
-
-    @Test
-    public void shouldOnSubscribeListObserversToHeaderPresenter() {
-        presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-        verify(headerPresenter).onSubscribeListObservers(any(CollectionBinding.class));
     }
 
     @Test
@@ -244,6 +235,43 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         featureChange.onNext(true);
 
         verify(adapter).notifyDataSetChanged();
+    }
+
+    @Test
+    public void showOverflowMenuIfShouldShowOfflineOptions() {
+        Fragment fragment = Mockito.mock(Fragment.class);
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, fragmentRule.getView(), null);
+        presenter.onResume(fragment);
+
+        verify(fragment).setMenuVisibility(true);
+    }
+
+    @Test
+    public void doesNotShowOverflowMenuWhenShouldShowOfflineOptionsFalse() {
+        Fragment fragment = Mockito.mock(Fragment.class);
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(false);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, fragmentRule.getView(), null);
+        presenter.onResume(fragment);
+
+        verify(fragment).setMenuVisibility(false);
+    }
+
+    @Test
+    public void loadingTrackLikesUpdatesHeaderViewOnlyOnce() {
+        List<Urn> likedTrackUrns = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        likedTracksObservable.onNext(Collections.<PropertySet>emptyList());
+        likedTracksObservable.onNext(Collections.<PropertySet>emptyList());
+
+        verify(headerPresenter).updateTrackCount(likedTrackUrns.size());
     }
 
     @NotNull

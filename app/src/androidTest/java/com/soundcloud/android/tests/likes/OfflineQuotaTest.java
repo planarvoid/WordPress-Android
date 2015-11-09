@@ -48,7 +48,7 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
 
         final TrackLikesScreen trackLikesScreen = mainNavHelper
                 .goToTrackLikes()
-                .clickHeaderOverflowButton()
+                .clickOverflowButton()
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSynced();
 

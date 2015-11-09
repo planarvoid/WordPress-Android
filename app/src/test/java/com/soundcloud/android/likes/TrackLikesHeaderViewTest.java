@@ -79,22 +79,8 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
                 .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, 1, 1));
     }
 
-    public void displayOverflowMenuWhenOfflineSyncOptionIsEnabled() {
-        trackLikesHeaderView.updateOverflowMenuButton(true);
-        assertThat(getOverflowMenuButton()).isVisible();
-    }
-
-    public void displayOverflowMenuWhenOfflineSyncOptionIsDisabled() {
-        trackLikesHeaderView.updateOverflowMenuButton(false);
-        assertThat(getOverflowMenuButton()).isInvisible();
-    }
-
     private View getShuffleButton() {
         return trackLikesHeaderView.getHeaderView().findViewById(R.id.shuffle_btn);
-    }
-
-    private View getOverflowMenuButton() {
-        return trackLikesHeaderView.getHeaderView().findViewById(R.id.overflow_button);
     }
 
     private TextView getHeaderText() {

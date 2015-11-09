@@ -8,6 +8,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.main.Screen;
@@ -20,6 +21,8 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.RefreshRecyclerViewAdapterSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
@@ -34,26 +37,23 @@ import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.List;
 
 class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
-    final
-    @LightCycle
-    CollapsingScrollHelper scrollHelper;
-    final
-    @LightCycle
-    TrackLikesHeaderPresenter headerPresenter;
+    @LightCycle final CollapsingScrollHelper scrollHelper;
+    @LightCycle final TrackLikesHeaderPresenter headerPresenter;
 
     private final TrackLikeOperations likeOperations;
     private final FeatureOperations featureOperations;
@@ -67,6 +67,11 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     private final ActionBarHelper actionMenuController;
 
     private CompositeSubscription viewLifeCycle;
+
+    private Subscription collectionSubscription = RxUtils.invalidSubscription();
+    private Subscription entityStateChangedSubscription = RxUtils.invalidSubscription();
+    private Fragment fragment;
+
 
     @Inject
     TrackLikesPresenter(TrackLikeOperations likeOperations,
@@ -99,7 +104,14 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
+        this.fragment = fragment;
         getBinding().connect();
+    }
+
+    @Override
+    public void onResume(Fragment fragment) {
+        super.onResume(fragment);
+        fragment.setMenuVisibility(featureOperations.isOfflineContentOrUpsellEnabled());
     }
 
     @Override
@@ -120,7 +132,12 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
     @Override
     protected void onSubscribeBinding(CollectionBinding<TrackItem> collectionBinding, CompositeSubscription viewLifeCycle) {
-        headerPresenter.onSubscribeListObservers(collectionBinding);
+        Observable<List<Urn>> allLikedTrackUrns = collectionBinding.items()
+                .first()
+                .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .cache();
+        collectionSubscription = allLikedTrackUrns.subscribe(new AllLikedTracksSubscriber());
     }
 
     @Override
@@ -153,16 +170,20 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
         );
 
         paywallImpressionController.attachRecyclerView(getRecyclerView());
-    }
 
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        actionMenuController.onCreateOptionsMenu(menu, inflater);
+        entityStateChangedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER)
+                .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new AllLikedTracksSubscriber());
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
         // TODO create subscription light cycle
         paywallImpressionController.detachRecyclerView(getRecyclerView());
+        entityStateChangedSubscription.unsubscribe();
+        collectionSubscription.unsubscribe();
         viewLifeCycle.unsubscribe();
         super.onDestroyView(fragment);
     }
@@ -194,6 +215,14 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
+    }
+
+    private class AllLikedTracksSubscriber extends DefaultSubscriber<List<Urn>> {
+        @Override
+        public void onNext(List<Urn> allLikedTracks) {
+            headerPresenter.updateTrackCount(allLikedTracks.size());
+            fragment.setMenuVisibility(!allLikedTracks.isEmpty() && featureOperations.isOfflineContentOrUpsellEnabled());
+        }
     }
 
 }
