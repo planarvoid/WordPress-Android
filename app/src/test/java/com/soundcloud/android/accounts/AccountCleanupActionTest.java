@@ -16,7 +16,6 @@ import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.sync.SyncCleanupAction;
@@ -37,7 +36,6 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
 
     @Mock private Context context;
     @Mock private SyncStateManager syncStateManager;
-    @Mock private LegacyActivitiesStorage activitiesStorage;
     @Mock private PlaylistTagStorage tagStorage;
     @Mock private SoundRecorder soundRecorder;
     @Mock private SharedPreferences sharedPreferences;
@@ -58,8 +56,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        action = new AccountCleanupAction(
-                activitiesStorage, legacyUserAssociationStorage, tagStorage, soundRecorder,
+        action = new AccountCleanupAction(legacyUserAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, syncCleanupAction, planStorage,
                 removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations, collectionsOperations);
 
@@ -73,12 +70,6 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldClearSyncState() {
         action.call();
         verify(syncCleanupAction).clear();
-    }
-
-    @Test
-    public void shouldClearActivitiesStorage() {
-        action.call();
-        verify(activitiesStorage).clear(null);
     }
 
     @Test
@@ -127,6 +118,18 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldClearSoundStreamStorage() throws PropellerWriteException {
         action.call();
         verify(clearTableCommand).call(Table.SoundStream);
+    }
+
+    @Test
+    public void shouldClearActivitiesTable() throws PropellerWriteException {
+        action.call();
+        verify(clearTableCommand).call(Table.Activities);
+    }
+
+    @Test
+    public void shouldClearCommentsTable() throws PropellerWriteException {
+        action.call();
+        verify(clearTableCommand).call(Table.Comments);
     }
 
     @Test

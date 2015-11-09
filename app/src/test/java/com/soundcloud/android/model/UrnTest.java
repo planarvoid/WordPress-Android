@@ -51,7 +51,7 @@ public class UrnTest extends AndroidUnitTest {
     public void shouldParseLegacyTrackUrns() throws Exception {
         Urn urn = new Urn("soundcloud:sounds:123");
         assertThat(urn.isTrack()).isTrue();
-        assertThat(urn.isSound()).isTrue();
+        assertThat(urn.isPlayable()).isTrue();
         assertThat(urn.getNumericId()).isEqualTo(123L);
         assertThat(urn.toString()).isEqualTo("soundcloud:tracks:123");
     }
@@ -60,7 +60,7 @@ public class UrnTest extends AndroidUnitTest {
     public void shouldParseTrackUrns() throws Exception {
         Urn urn = new Urn("soundcloud:tracks:123");
         assertThat(urn.isTrack()).isTrue();
-        assertThat(urn.isSound()).isTrue();
+        assertThat(urn.isPlayable()).isTrue();
         assertThat(urn.getNumericId()).isEqualTo(123L);
     }
 
@@ -68,7 +68,7 @@ public class UrnTest extends AndroidUnitTest {
     public void shouldParsePlaylistUrns() throws Exception {
         Urn urn = new Urn("soundcloud:playlists:123");
         assertThat(urn.isPlaylist()).isTrue();
-        assertThat(urn.isSound()).isTrue();
+        assertThat(urn.isPlayable()).isTrue();
         assertThat(urn.getNumericId()).isEqualTo(123L);
     }
 

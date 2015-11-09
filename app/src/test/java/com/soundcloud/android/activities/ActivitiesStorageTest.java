@@ -18,22 +18,57 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
     private ActivitiesStorage storage;
 
     private TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+    private ApiTrackLikeActivity oldestActivity, olderActivity, newestActivity;
 
     @Before
     public void setUp() throws Exception {
         storage = new ActivitiesStorage(propellerRx());
+        oldestActivity = apiTrackLikeActivity(new Date(TIMESTAMP));
+        olderActivity = apiTrackLikeActivity(new Date(TIMESTAMP + 1));
+        newestActivity = apiTrackLikeActivity(new Date(TIMESTAMP + 2));
+        testFixtures().insertTrackLikeActivity(oldestActivity);
+        testFixtures().insertTrackLikeActivity(olderActivity);
+        testFixtures().insertTrackLikeActivity(newestActivity);
     }
 
     @Test
-    public void shouldIncludeLimitedTrackLikesInInitialActivityItems() {
-        ApiTrackLikeActivity activity1 = apiTrackLikeActivity(new Date(TIMESTAMP));
-        ApiTrackLikeActivity activity2 = apiTrackLikeActivity(new Date(TIMESTAMP + 1));
-        testFixtures().insertTrackLikeActivity(activity1);
-        testFixtures().insertTrackLikeActivity(activity2);
+    public void shouldLoadLatestActivitiesInReverseChronologicalOrder() {
+        storage.timelineItems(Integer.MAX_VALUE).subscribe(subscriber);
 
-        storage.initialActivityItems(1).subscribe(subscriber);
+        subscriber.assertValues(
+                expectedTrackLikePropertiesFor(newestActivity),
+                expectedTrackLikePropertiesFor(olderActivity),
+                expectedTrackLikePropertiesFor(oldestActivity)
+        );
+        subscriber.assertCompleted();
+    }
 
-        subscriber.assertValue(expectedTrackLikePropertiesFor(activity2));
+    @Test
+    public void shouldLimitLatestActivitiesResultSet() {
+        final int limit = 1;
+        storage.timelineItems(limit).subscribe(subscriber);
+
+        subscriber.assertValue(expectedTrackLikePropertiesFor(newestActivity));
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void shouldLoadActivitiesBeforeGivenTimestampInReverseChronologicalOrder() {
+        storage.timelineItemsBefore(TIMESTAMP + 2, Integer.MAX_VALUE).subscribe(subscriber);
+
+        subscriber.assertValues(
+                expectedTrackLikePropertiesFor(olderActivity),
+                expectedTrackLikePropertiesFor(oldestActivity)
+        );
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void shouldLimitActivitiesBeforeGivenTimestamp() {
+        final int limit = 1;
+        storage.timelineItemsBefore(TIMESTAMP + 2, limit).subscribe(subscriber);
+
+        subscriber.assertValue(expectedTrackLikePropertiesFor(olderActivity));
         subscriber.assertCompleted();
     }
 

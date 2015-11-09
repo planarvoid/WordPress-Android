@@ -1,5 +1,6 @@
 package com.soundcloud.android.activities;
 
+import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -8,7 +9,7 @@ import com.soundcloud.java.strings.Strings;
 
 import java.util.Date;
 
-class ActivityItem implements ListItem {
+class ActivityItem implements ListItem, Timestamped {
 
     private final PropertySet sourceSet;
 
@@ -30,7 +31,8 @@ class ActivityItem implements ListItem {
         return sourceSet.get(ActivityProperty.USER_NAME);
     }
 
-    Date getDate() {
+    @Override
+    public Date getCreatedAt() {
         return sourceSet.get(ActivityProperty.DATE);
     }
 

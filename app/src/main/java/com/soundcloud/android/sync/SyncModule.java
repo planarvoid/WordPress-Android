@@ -5,6 +5,7 @@ import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.entities.EntitySyncModule;
 import com.soundcloud.android.sync.likes.LikesSyncModule;
 import com.soundcloud.android.sync.posts.PostsSyncModule;
+import com.soundcloud.android.sync.timeline.TimelineSyncStorage;
 import dagger.Module;
 import dagger.Provides;
 

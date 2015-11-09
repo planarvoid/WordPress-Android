@@ -99,6 +99,7 @@ public abstract class PlayableItem implements StreamItem {
         return source.get(PostProperty.REPOSTER_URN);
     }
 
+    @Override
     public Date getCreatedAt() {
         return source.get(PlayableProperty.CREATED_AT);
     }

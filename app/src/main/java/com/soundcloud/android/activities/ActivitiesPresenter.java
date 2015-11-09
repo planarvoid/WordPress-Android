@@ -35,7 +35,15 @@ class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> {
     protected CollectionBinding<ActivityItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(operations.initialActivities())
                 .withAdapter(adapter)
-                .withPager(operations.pagingFunc())
+                .withPager(operations.pagingFunction())
+                .build();
+    }
+
+    @Override
+    protected CollectionBinding<ActivityItem> onRefreshBinding() {
+        return CollectionBinding.from(operations.updatedActivities())
+                .withAdapter(adapter)
+                .withPager(operations.pagingFunction())
                 .build();
     }
 

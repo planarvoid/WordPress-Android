@@ -3,6 +3,7 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
 
+import android.net.Uri;
 import android.os.Bundle;
 
 import java.util.EnumSet;
@@ -51,5 +52,11 @@ public enum SyncContent {
                 }
             }
         }
+    }
+
+    // we won't be using Uris for syncing going forward, this just exists for legacy compat
+    @Deprecated
+    public Uri contentUri() {
+        return content.uri;
     }
 }

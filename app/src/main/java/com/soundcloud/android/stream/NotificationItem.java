@@ -6,6 +6,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
 
+import java.util.Date;
+
 public class NotificationItem implements StreamItem {
 
     @Override
@@ -25,5 +27,10 @@ public class NotificationItem implements StreamItem {
     @Override
     public Kind getKind() {
         return NOTIFICATION;
+    }
+
+    @Override
+    public Date getCreatedAt() {
+        return new Date();
     }
 }

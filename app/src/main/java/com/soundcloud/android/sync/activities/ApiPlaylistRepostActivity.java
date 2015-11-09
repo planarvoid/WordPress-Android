@@ -18,7 +18,7 @@ public class ApiPlaylistRepostActivity implements PlaylistHolder, ApiEngagementA
 
     @JsonCreator
     public ApiPlaylistRepostActivity(@JsonProperty("playlist") ApiPlaylist playlist,
-                                     @JsonProperty("user") ApiUser reposter,
+                                     @JsonProperty("reposter") ApiUser reposter,
                                      @JsonProperty("created_at") Date createdAt) {
         this.playlist = playlist;
         this.reposter = reposter;

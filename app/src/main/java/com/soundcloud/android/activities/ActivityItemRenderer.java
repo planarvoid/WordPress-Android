@@ -90,7 +90,7 @@ public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
     }
 
     private void setTimeElapsed(View itemView, ActivityItem activityItem) {
-        final Date date = activityItem.getDate();
+        final Date date = activityItem.getCreatedAt();
         final String formattedTime = ScTextUtils.formatTimeElapsedSince(resources, date.getTime(), true);
         ((TextView) itemView.findViewById(R.id.date)).setText(formattedTime);
     }
