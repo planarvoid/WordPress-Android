@@ -56,8 +56,10 @@ public class TrackItemElement {
     }
 
     public VisualPlayerElement click() {
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         wrapped.click();
-        return new VisualPlayerElement(testDriver);
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
     }
 
     public TrackItemMenuElement clickOverflowButton() {
