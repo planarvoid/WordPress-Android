@@ -106,7 +106,7 @@
     <dimen name="discovery_search_cell_margin_left_right">4dp</dimen>
     <dimen name="discovery_search_cell_margin_top_bottom">8dp</dimen>
     <dimen name="discovery_search_close_icon_margin">16dp</dimen>
-    <dimen name="discovery_search_tabs_padding">60dp</dimen>
+    <dimen name="discovery_search_tabs_padding">48dp</dimen>
     <dimen name="recommendations_cell_artwork_padding">8dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_top_bottom">6dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_left_right">14dp</dimen>
@@ -138,6 +138,7 @@
 
     <!-- Profile -->
     <dimen name="profile_image_dimen">104dp</dimen>
+    <dimen name="profile_tabs_padding">36dp</dimen>
 
     <!-- Widget -->
     <dimen name="widget_player_width">272dp</dimen>

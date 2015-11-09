@@ -42,7 +42,9 @@
                     android:layout_height="match_parent"
                     android:foregroundGravity="bottom"
                     android:background="@color/white"
-                    app:layout_collapseMode="pin" />
+                    app:layout_collapseMode="pin"
+                    android:paddingLeft="@dimen/profile_tabs_padding"
+                    android:clipToPadding="false" />
 
             </android.support.design.widget.AppBarLayout>
 
