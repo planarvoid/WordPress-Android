@@ -61,10 +61,11 @@ public class ExploreScreen extends Screen {
     }
 
     public String getTrackTitle(int index) {
-        View view = ((GridView) viewPager.getCurrentPage(GridView.class)).getChildAt(index);
+        return new TextElement(getTrackAt(index).findElement(With.id(R.id.title))).getText();
+    }
 
-        TextView textView = (TextView) view.findViewById(R.id.title);
-        return textView.getText().toString();
+    private ViewElement getTrackAt(int index) {
+        return testDriver.findElement(With.id(android.R.id.list)).getChildAt(index);
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
@@ -73,8 +74,7 @@ public class ExploreScreen extends Screen {
     }
 
     public VisualPlayerElement playPopularTrack(int trackNumber) {
-        View view = ((GridView) viewPager.getCurrentPage(GridView.class)).getChildAt(trackNumber);
-        testDriver.wrap(view).click();
+        getTrackAt(trackNumber).click();
         return new VisualPlayerElement(testDriver);
     }
 
