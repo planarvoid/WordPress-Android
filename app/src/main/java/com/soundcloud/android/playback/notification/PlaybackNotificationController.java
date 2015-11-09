@@ -25,7 +25,7 @@ import javax.inject.Singleton;
 public class PlaybackNotificationController extends DefaultActivityLightCycle<AppCompatActivity> {
 
     interface Strategy {
-        void setTrack(PropertySet track);
+        void setTrack(PlaybackService playbackService, PropertySet track);
 
         void clear(PlaybackService playbackService);
 
@@ -128,23 +128,25 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
     private void startStrategy() {
         subscriptions.unsubscribe();
         subscriptions = new CompositeSubscription(
-                eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM).subscribe(new CurrentTrackSubscriber(activeStrategy)),
+                eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM).subscribe(new CurrentTrackSubscriber(activeStrategy, playbackService)),
                 eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).subscribe(new PlaybackStateSubscriber(playbackService, activeStrategy))
         );
     }
 
     private static class CurrentTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         private final Strategy strategy;
+        private final PlaybackService playbackService;
 
-        public CurrentTrackSubscriber(Strategy strategy) {
+        public CurrentTrackSubscriber(Strategy strategy, PlaybackService playbackService) {
             this.strategy = strategy;
+            this.playbackService = playbackService;
         }
 
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
             final TrackQueueItem trackQueueItem = (TrackQueueItem) event.getCurrentPlayQueueItem();
             PropertySet trackData = trackQueueItem.getMetaData().put(EntityProperty.URN, trackQueueItem.getTrackUrn());
-            strategy.setTrack(trackData);
+            strategy.setTrack(playbackService, trackData);
         }
     }
 

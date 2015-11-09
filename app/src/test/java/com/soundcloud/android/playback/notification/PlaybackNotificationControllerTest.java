@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.notification;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -46,7 +47,7 @@ public class PlaybackNotificationControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
 
-        verify(backgroundController).setTrack(getTrackMetadata(event));
+        verify(backgroundController).setTrack(playbackService, getTrackMetadata(event));
     }
 
     @Test
@@ -87,7 +88,7 @@ public class PlaybackNotificationControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
 
-        verify(backgroundController).setTrack(getTrackMetadata(event));
+        verify(backgroundController).setTrack(playbackService, getTrackMetadata(event));
     }
 
     @Test
@@ -99,8 +100,8 @@ public class PlaybackNotificationControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
 
-        verify(foregroundController, never()).setTrack(any(PropertySet.class));
-        verify(backgroundController).setTrack(getTrackMetadata(event));
+        verify(foregroundController, never()).setTrack(any(PlaybackService.class), any(PropertySet.class));
+        verify(backgroundController).setTrack(playbackService, getTrackMetadata(event));
     }
 
     @Test
@@ -112,8 +113,8 @@ public class PlaybackNotificationControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
 
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
-        verify(foregroundController).setTrack(getTrackMetadata(event));
+        verify(backgroundController, never()).setTrack(any(PlaybackService.class), any(PropertySet.class));
+        verify(foregroundController).setTrack(playbackService, getTrackMetadata(event));
     }
 
     @Test
@@ -126,7 +127,7 @@ public class PlaybackNotificationControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
         controller.onPause(null);
 
-        verify(backgroundController).setTrack(any(PropertySet.class));
+        verify(backgroundController).setTrack(same(playbackService), any(PropertySet.class));
     }
 
     @Test

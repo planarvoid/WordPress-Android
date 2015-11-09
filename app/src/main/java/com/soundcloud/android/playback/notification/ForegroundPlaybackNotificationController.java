@@ -18,7 +18,7 @@ class ForegroundPlaybackNotificationController implements PlaybackNotificationCo
     }
 
     @Override
-    public void setTrack(PropertySet track) {
+    public void setTrack(PlaybackService playbackService, PropertySet track) {
         // no-op
     }
 
