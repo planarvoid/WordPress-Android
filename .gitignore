@@ -71,3 +71,6 @@ crashlytics-build.properties
 .repository
 tests-integration/res/values/test_properties.xml
 reports
+
+# heap dumps
+captures
