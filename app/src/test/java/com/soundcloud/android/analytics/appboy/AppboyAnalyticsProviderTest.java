@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import com.appboy.AppboyUser;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -16,14 +15,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.app.Activity;
-
 public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
 
     private AppboyAnalyticsProvider appboyAnalyticsProvider;
 
     @Mock private AppboyWrapper appboy;
-    @Mock private Activity activity;
     @Mock private AccountOperations accountOperations;
     @Mock private AppboyUser appboyUser;
 
@@ -60,44 +56,6 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldForwardFlushCallToAppboy() {
         appboyAnalyticsProvider.flush();
         verify(appboy).requestImmediateDataFlush();
-    }
-
-    @Test
-    public void shouldHandleStartLifeCycleEvents() {
-        ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnStart(activity);
-        when(appboy.openSession(activity)).thenReturn(true);
-
-        appboyAnalyticsProvider.handleActivityLifeCycleEvent(event);
-
-        verify(appboy).openSession(activity);
-        verify(appboy).requestInAppMessageRefresh();
-    }
-
-    @Test
-    public void shouldHandleStopLifeCycleEvents() {
-        ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnStop(activity);
-
-        appboyAnalyticsProvider.handleActivityLifeCycleEvent(event);
-
-        verify(appboy).closeSession(activity);
-    }
-
-    @Test
-    public void shouldHandleResumeLifeCycleEvents() {
-        ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnResume(activity);
-
-        appboyAnalyticsProvider.handleActivityLifeCycleEvent(event);
-
-        verify(appboy).registerInAppMessageManager(activity);
-    }
-
-    @Test
-    public void shouldHandlePauseLifeCycleEvents() {
-        ActivityLifeCycleEvent event = ActivityLifeCycleEvent.forOnPause(activity);
-
-        appboyAnalyticsProvider.handleActivityLifeCycleEvent(event);
-
-        verify(appboy).unregisterInAppMessageManager(activity);
     }
 
     @Test

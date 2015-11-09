@@ -18,7 +18,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 
-import android.app.Activity;
 import android.content.Context;
 
 import javax.inject.Inject;
@@ -60,30 +59,7 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-        switch (event.getKind()) {
-            case ActivityLifeCycleEvent.ON_START_EVENT:
-                openSession(event.getActivity());
-                break;
-            case ActivityLifeCycleEvent.ON_RESUME_EVENT:
-                registerInAppMessage(event.getActivity());
-                break;
-            case ActivityLifeCycleEvent.ON_PAUSE_EVENT:
-                unregisterInAppMessage(event.getActivity());
-                break;
-            case ActivityLifeCycleEvent.ON_STOP_EVENT:
-                closeSession(event.getActivity());
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void unregisterInAppMessage(Activity activity) {
-        appboy.unregisterInAppMessageManager(activity);
-    }
-
-    private void registerInAppMessage(Activity activity) {
-        appboy.registerInAppMessageManager(activity);
+        // No-op
     }
 
     @Override
@@ -114,16 +90,6 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
         } else if (event instanceof AttributionEvent) {
             eventHandler.handleEvent((AttributionEvent) event);
         }
-    }
-
-    private void openSession(Activity activity) {
-        if (appboy.openSession(activity)) {
-            appboy.requestInAppMessageRefresh();
-        }
-    }
-
-    private void closeSession(Activity activity) {
-        appboy.closeSession(activity);
     }
 
     private void changeUser(Urn userUrn) {
