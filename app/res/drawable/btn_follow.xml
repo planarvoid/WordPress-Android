@@ -7,6 +7,6 @@
 
     <item android:state_checked="false" android:state_focused="true" android:drawable="@drawable/btn_follow_profile"/>
     <item android:state_checked="false" android:state_pressed="true" android:drawable="@drawable/btn_follow_profile_pressed"/>
-    <item android:state_checked="false" android:drawable="@drawable/btn_follow_profile_pressed"/>
+    <item android:state_checked="false" android:drawable="@drawable/btn_follow_profile"/>
 
 </selector>

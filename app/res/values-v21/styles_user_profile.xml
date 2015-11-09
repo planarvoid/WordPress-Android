@@ -17,4 +17,13 @@
         <item name="android:translationZ">@dimen/toolbar_elevation</item>
     </style>
 
+    <style name="Profile.ToggleButton.Follow.Large">
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:textSize">@dimen/follow_btn_text</item>
+        <item name="android:textColor">@drawable/toggle_txt_user_follow_states</item>
+        <item name="android:textOn">@string/btn_following</item>
+        <item name="android:textOff">@string/btn_follow</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
 </resources>
