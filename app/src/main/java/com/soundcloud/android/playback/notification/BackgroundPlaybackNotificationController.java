@@ -17,7 +17,7 @@ import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.app.NotificationManager;
-import android.content.res.Resources;
+import android.app.Service;
 import android.graphics.Bitmap;
 
 import javax.inject.Inject;
@@ -57,7 +57,7 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
     }
 
     @Override
-    public void setTrack(PropertySet track) {
+    public void setTrack(PlaybackService playbackService, PropertySet track) {
         createNotificationBuilder();
         subscriptions.unsubscribe();
         subscriptions = new CompositeSubscription(trackRepository
@@ -65,7 +65,7 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(PropertySetFunctions.mergeInto(track))
                 .flatMap(toNotification).cache()
-                .subscribe(new NotificationSubscriber()));
+                .subscribe(new NotificationSubscriber(playbackService)));
     }
 
     private void createNotificationBuilder() {
@@ -109,8 +109,11 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
 
     @Override
     public void notifyPlaying(PlaybackService playbackService) {
-        presenter.updateToPlayingState(notificationBuilder);
-        playbackService.startForeground(NotificationConstants.PLAYBACK_NOTIFY_ID, notificationBuilder.build());
+        if (notificationBuilder != null){
+            presenter.updateToPlayingState(notificationBuilder);
+            playbackService.startForeground(NotificationConstants.PLAYBACK_NOTIFY_ID, notificationBuilder.build());
+        }
+
     }
 
     @Override
@@ -118,7 +121,7 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
         final boolean removeNotification;
         if (notificationBuilder != null && notificationBuilder.hasPlayStateSupport()) {
             presenter.updateToIdleState(notificationBuilder);
-            notificationManager.notify(NotificationConstants.PLAYBACK_NOTIFY_ID, notificationBuilder.build());
+            playbackService.startForeground(NotificationConstants.PLAYBACK_NOTIFY_ID, notificationBuilder.build());
             removeNotification =  false;
         } else {
             removeNotification = true;
@@ -127,10 +130,22 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
     }
 
     private class NotificationSubscriber extends DefaultSubscriber<NotificationBuilder> {
+
+        private final Service playbackService;
+
+        private NotificationSubscriber(Service playbackService) {
+            this.playbackService = playbackService;
+        }
+
         @Override
         public void onNext(NotificationBuilder notification) {
             notificationBuilder = notification;
-            notificationManager.notify(NotificationConstants.PLAYBACK_NOTIFY_ID, notificationBuilder.build());
+            if (playbackStateProvider.isSupposedToBePlaying()) {
+                playbackService.startForeground(NotificationConstants.PLAYBACK_NOTIFY_ID, notificationBuilder.build());
+            } else {
+                notificationManager.notify(NotificationConstants.PLAYBACK_NOTIFY_ID, notificationBuilder.build());
+            }
+
         }
     }
 
