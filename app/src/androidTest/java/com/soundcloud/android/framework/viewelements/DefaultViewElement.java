@@ -82,7 +82,7 @@ public final class DefaultViewElement extends ViewElement {
 
     private Rect getVisibleRect(){
         Rect viewRect = getRect();
-        viewRect.intersect(getScreenRect());
+        boolean intersect = viewRect.intersect(getScreenRect());
         return viewRect;
     }
 
