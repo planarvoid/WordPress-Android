@@ -6,7 +6,7 @@
 
     <View
         android:id="@+id/divider"
-        style="@style/Divider.Horizontal" />
+        style="@style/Divider.Section" />
 
     <TextView
         style="@style/Collections.PlaylistHeader"

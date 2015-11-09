@@ -8,9 +8,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <View style="@style/Divider.Horizontal" />
-    <View style="@style/Stream.Card.Divider" />
-    <View style="@style/Divider.Horizontal" />
+    <View style="@style/Divider.Section" />
+    <View style="@style/Divider.Background" />
+    <View style="@style/Divider.Section" />
 
     <include layout="@layout/stream_item_header" />
 

@@ -12,7 +12,7 @@
         android:clickable="false"
         android:focusable="false" />
 
-    <View style="@style/Divider.Horizontal" />
+    <View style="@style/Divider.Item" />
 
     <TextView
         android:id="@+id/title"
@@ -35,5 +35,5 @@
         android:layout_height="wrap_content"
         android:text="@string/ok_got_it" />
 
-    <View style="@style/Divider.Horizontal" />
+    <View style="@style/Divider.Item" />
 </LinearLayout>

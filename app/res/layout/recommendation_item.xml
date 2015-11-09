@@ -73,7 +73,7 @@
 
             </RelativeLayout>
 
-            <View style="@style/Divider.Horizontal" />
+            <View style="@style/Divider.Section" />
 
             <RelativeLayout
                 android:id="@+id/view_all_container"

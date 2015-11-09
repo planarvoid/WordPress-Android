@@ -19,7 +19,7 @@
         android:orientation="vertical"
         android:visibility="gone">
 
-        <View style="@style/TagsDivider" />
+        <View style="@style/Divider.Section" />
 
         <com.soundcloud.android.view.CustomFontTextView
             style="@style/TagSubtitleText"
@@ -33,7 +33,7 @@
             android:paddingBottom="@dimen/discovery_tags_padding_top_bottom"
             android:paddingLeft="@dimen/discovery_tags_padding_left_right" />
 
-        <View style="@style/TagsDivider" />
+        <View style="@style/Divider.Section" />
 
     </LinearLayout>
 
@@ -44,7 +44,7 @@
 
         <View
             android:id="@+id/tagsDivider"
-            style="@style/TagsDivider" />
+            style="@style/Divider.Section" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/tags_subtitle"
