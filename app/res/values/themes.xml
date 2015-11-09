@@ -29,6 +29,11 @@
         <item name="alertDialogTheme">@style/LollipopDialogStyle</item>
     </style>
 
+    <style name="Theme.SoundCloud.Profile">
+        <item name="android:windowEnterTransition">@transition/profile_transition</item>
+        <item name="android:windowExitTransition">@transition/profile_transition</item>
+    </style>
+
     <style name="Theme.SoundCloud.Toolbar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:textColorPrimary">@color/dark_gray_text</item>
     </style>

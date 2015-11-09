@@ -10,7 +10,6 @@ import com.soundcloud.android.discovery.DiscoveryActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.discovery.SearchResultsActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -63,6 +62,10 @@ public class Navigator {
 
     public void openPlaylist(Context context, Urn playlist, Screen screen, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo));
+    }
+
+    public void openMyProfile(Activity activity, Urn user) {
+        openProfile(activity, user);
     }
 
     public void openProfile(Context context, Urn user) {
@@ -273,11 +276,6 @@ public class Navigator {
     private Intent createRecommendationIntent(Context context, long localSeedId) {
         return new Intent(context, RecommendedTracksActivity.class)
                 .putExtra(RecommendedTracksActivity.EXTRA_LOCAL_SEED_ID, localSeedId);
-    }
-
-    private Intent createSearchResultsIntent(Context context, String searchQuery) {
-        return new Intent(context, SearchResultsActivity.class)
-                .putExtra(SearchResultsActivity.EXTRA_SEARCH_QUERY, searchQuery);
     }
 
     private Intent createPlaylistDiscoveryIntent(Context context, String playListTag) {

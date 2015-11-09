@@ -25,7 +25,8 @@
 
             <com.soundcloud.android.view.CircularBorderImageView
                 android:id="@+id/image"
-                style="@style/You.HeaderImage" />
+                style="@style/You.HeaderImage"
+                android:transitionName="@string/profile_image_transition_name" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -35,7 +36,8 @@
 
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/username"
-                    style="@style/You.HeaderText.Username" />
+                    style="@style/You.HeaderText.Username"
+                    android:transitionName="@string/profile_username_transition_name" />
 
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/profile_link"
