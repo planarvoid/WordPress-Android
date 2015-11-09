@@ -7,9 +7,11 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
+                RecordActivity.class,
                 RecordFragment.class,
                 MetadataFragment.class,
-                UploadMonitorFragment.class
+                UploadMonitorFragment.class,
+                UploadActivity.class
         })
 public class RecordModule {
 }
