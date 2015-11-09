@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -47,7 +47,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     public void testLikeTrackUrnForPromotedTrack() {
         final PromotedTrackItem trackItem = PromotedTrackItem.from(PROMOTED_TRACK);
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(trackItem);
-        final PlayableMetadata playableMetadata = PlayableMetadata.from(PROMOTED_TRACK);
+        final EntityMetadata entityMetadata = EntityMetadata.from(PROMOTED_TRACK);
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(PROMOTED_TRACK));
 
@@ -60,14 +60,14 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
                 TRACK_URN,
                 TRACK_URN,
                 promotedSourceInfo,
-                playableMetadata);
+                entityMetadata);
 
         assertExpectedEvent(expectedEvent);
     }
 
     @Test
     public void testLikeTrackUrnForPlayerTrack() {
-        final PlayableMetadata playableMetadata = PlayableMetadata.from(PLAYER_TRACK);
+        final EntityMetadata entityMetadata = EntityMetadata.from(PLAYER_TRACK);
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(PLAYER_TRACK));
 
@@ -80,14 +80,14 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
                 TRACK_URN,
                 TRACK_URN,
                 null,
-                playableMetadata);
+                entityMetadata);
 
         assertExpectedEvent(expectedEvent);
     }
 
     @Test
     public void testLikeTrackUrnForWidgetTrack() {
-        final PlayableMetadata playableMetadata = PlayableMetadata.from(WIDGET_TRACK);
+        final EntityMetadata entityMetadata = EntityMetadata.from(WIDGET_TRACK);
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(WIDGET_TRACK));
 
         engagementsTracking.likeTrackUrn(TRACK_URN, true, "widget", "context_screen", "widget", Urn.NOT_SET, null);
@@ -99,14 +99,14 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
                 TRACK_URN,
                 Urn.NOT_SET,
                 null,
-                playableMetadata);
+                entityMetadata);
 
         assertExpectedEvent(expectedEvent);
     }
 
     @Test
     public void testFollowUserUrn() {
-        final PlayableMetadata metadata = PlayableMetadata.fromUser(FOLLOWED_USER);
+        final EntityMetadata metadata = EntityMetadata.fromUser(FOLLOWED_USER);
 
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(FOLLOWED_USER));
 

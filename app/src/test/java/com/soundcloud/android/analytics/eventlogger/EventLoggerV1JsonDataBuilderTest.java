@@ -14,7 +14,7 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.OfflineSyncEvent;
-import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
@@ -65,7 +65,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:click:urn"));
-    private final PlayableMetadata playableMetadata = PlayableMetadata.from(PropertySet.create());
+    private final EntityMetadata entityMetadata = EntityMetadata.from(PropertySet.create());
 
     @Before
     public void setUp() throws Exception {
@@ -410,7 +410,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForShareEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromShare("screen", PAGE_NAME, TRACK_URN, TRACK_URN, null, playableMetadata);
+        final UIEvent event = UIEvent.fromShare("screen", PAGE_NAME, TRACK_URN, TRACK_URN, null, entityMetadata);
 
         jsonDataBuilder.buildForUIEvent(event);
 
@@ -425,7 +425,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void addsCurrentExperimentJson() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromShare("screen", PAGE_NAME, TRACK_URN, TRACK_URN, null, playableMetadata);
+        final UIEvent event = UIEvent.fromShare("screen", PAGE_NAME, TRACK_URN, TRACK_URN, null, entityMetadata);
         setupExperiments();
 
         jsonDataBuilder.buildForUIEvent(event);

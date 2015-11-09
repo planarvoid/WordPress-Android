@@ -14,7 +14,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
@@ -288,7 +288,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                             playlistWithTracks.getUrn(),
                             playlistWithTracks.getUrn(),
                             playSessionSourceInfo.getPromotedSourceInfo(),
-                            PlayableMetadata.from(playlistWithTracks)));
+                            EntityMetadata.from(playlistWithTracks)));
 
             fireAndForget(likeOperations.toggleLike(playlistWithTracks.getUrn(), addLike));
         }
@@ -304,7 +304,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                             playlistWithTracks.getUrn(),
                             playlistWithTracks.getUrn(),
                             playSessionSourceInfo.getPromotedSourceInfo(),
-                            PlayableMetadata.from(playlistWithTracks)));
+                            EntityMetadata.from(playlistWithTracks)));
 
             if (showResultToast) {
                 repostOperations.toggleRepost(playlistWithTracks.getUrn(), isReposted)

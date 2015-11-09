@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -49,7 +49,7 @@ public class EngagementsTracking {
             @Override
             public UIEvent call(PropertySet track) {
                 return UIEvent.fromToggleLike(addLike, invokerScreen, contextScreen, pageName,
-                        trackUrn, pageUrn, promotedSourceInfo, PlayableMetadata.from(track));
+                        trackUrn, pageUrn, promotedSourceInfo, EntityMetadata.from(track));
             }
         };
     }
@@ -58,7 +58,7 @@ public class EngagementsTracking {
         return new Func1<PropertySet, UIEvent>() {
             @Override
             public UIEvent call(PropertySet user) {
-                return UIEvent.fromToggleFollow(isFollow, PlayableMetadata.fromUser(user));
+                return UIEvent.fromToggleFollow(isFollow, EntityMetadata.fromUser(user));
             }
         };
     }

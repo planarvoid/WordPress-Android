@@ -9,7 +9,7 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
@@ -265,7 +265,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                         trackUrn,
                         pageUrn,
                         getPromotedSource(),
-                        PlayableMetadata.from(track)));
+                        EntityMetadata.from(track)));
     }
 
     private void handleLike() {

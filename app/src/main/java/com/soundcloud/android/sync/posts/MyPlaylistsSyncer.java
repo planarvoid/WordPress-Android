@@ -5,7 +5,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
@@ -86,7 +86,7 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     }
 
     private void publishPlaylistCreated(ApiPlaylist newPlaylist) {
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromCreatePlaylist(PlayableMetadata.from(newPlaylist)));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromCreatePlaylist(EntityMetadata.from(newPlaylist)));
     }
 
     private Map<String, Object> createPlaylistBody(PropertySet localPlaylist, List<Urn> trackUrns) {

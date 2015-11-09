@@ -13,8 +13,8 @@ import com.soundcloud.java.strings.Strings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-public class PlayableMetadata {
-    public static final PlayableMetadata EMPTY = new PlayableMetadata(Strings.EMPTY, Urn.NOT_SET, Strings.EMPTY, Urn.NOT_SET);
+public class EntityMetadata {
+    public static final EntityMetadata EMPTY = new EntityMetadata(Strings.EMPTY, Urn.NOT_SET, Strings.EMPTY, Urn.NOT_SET);
 
     public static final String KEY_CREATOR_NAME = "creator_display_name";
     public static final String KEY_CREATOR_URN = "creator_urn";
@@ -32,76 +32,76 @@ public class PlayableMetadata {
     private final String playableTitle;
     private final Urn playableUrn;
 
-    PlayableMetadata(String creatorName, Urn creatorUrn, String playableTitle, Urn playableUrn) {
+    EntityMetadata(String creatorName, Urn creatorUrn, String playableTitle, Urn playableUrn) {
         this.creatorName = creatorName;
         this.creatorUrn = creatorUrn;
         this.playableTitle = playableTitle;
         this.playableUrn = playableUrn;
     }
 
-    public static PlayableMetadata fromUser(@Nullable PropertySet userProperties) {
+    public static EntityMetadata fromUser(@Nullable PropertySet userProperties) {
         if (userProperties == null) {
             return EMPTY;
         }
 
-        return new PlayableMetadata(
+        return new EntityMetadata(
                 userProperties.getOrElse(UserProperty.USERNAME, Strings.EMPTY),
                 userProperties.getOrElse(UserProperty.URN, Urn.NOT_SET),
                 Strings.EMPTY,
                 Urn.NOT_SET);
     }
 
-    public static PlayableMetadata from(@Nullable PropertySet playableProperties) {
+    public static EntityMetadata from(@Nullable PropertySet playableProperties) {
         if (playableProperties == null) {
             return EMPTY;
         }
 
-        return new PlayableMetadata(
+        return new EntityMetadata(
                 playableProperties.getOrElse(PlayableProperty.CREATOR_NAME, Strings.EMPTY),
                 playableProperties.getOrElse(PlayableProperty.CREATOR_URN, Urn.NOT_SET),
                 playableProperties.getOrElse(PlayableProperty.TITLE, Strings.EMPTY),
                 playableProperties.getOrElse(PlayableProperty.URN, Urn.NOT_SET));
     }
 
-    public static PlayableMetadata from(@Nullable PlayableItem playable) {
+    public static EntityMetadata from(@Nullable PlayableItem playable) {
         if (playable == null) {
             return EMPTY;
         }
 
-        return new PlayableMetadata(
+        return new EntityMetadata(
                 playable.getCreatorName(),
                 playable.getCreatorUrn(),
                 playable.getTitle(),
                 playable.getEntityUrn());
     }
 
-    public static PlayableMetadata from(@Nullable PlayerTrackState track) {
+    public static EntityMetadata from(@Nullable PlayerTrackState track) {
         if (track == null) {
             return EMPTY;
         }
-        return new PlayableMetadata(
+        return new EntityMetadata(
                 track.getUserName(),
                 track.getUserUrn(),
                 track.getTitle(),
                 track.getTrackUrn());
     }
 
-    public static PlayableMetadata from(@Nullable PlaylistWithTracks playlist) {
+    public static EntityMetadata from(@Nullable PlaylistWithTracks playlist) {
         if (playlist == null) {
             return EMPTY;
         }
-        return new PlayableMetadata(
+        return new EntityMetadata(
                 playlist.getCreatorName(),
                 playlist.getCreatorUrn(),
                 playlist.getTitle(),
                 playlist.getUrn());
     }
 
-    public static PlayableMetadata from(ApiPlaylist playlist) {
+    public static EntityMetadata from(ApiPlaylist playlist) {
         if (playlist == null) {
             return EMPTY;
         }
-        return new PlayableMetadata(
+        return new EntityMetadata(
                 playlist.getUsername(),
                 playlist.getUser().getUrn(),
                 playlist.getTitle(),

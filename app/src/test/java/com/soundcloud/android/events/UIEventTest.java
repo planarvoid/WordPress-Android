@@ -27,16 +27,16 @@ public class UIEventTest extends AndroidUnitTest {
     private TrackSourceInfo trackSourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
     private PromotedSourceInfo promotedSourceInfoWithNoPromoter;
-    private PlayableMetadata trackMetadata;
-    private PlayableMetadata playlistMetadata;
+    private EntityMetadata trackMetadata;
+    private EntityMetadata playlistMetadata;
 
     @Before
     public void setUp() throws Exception {
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
         promotedSourceInfo = new PromotedSourceInfo("dfp:ad:123", TRACK_URN, Optional.of(PROMOTER_URN), null);
         promotedSourceInfoWithNoPromoter = new PromotedSourceInfo("dfp:ad:123", TRACK_URN, Optional.<Urn>absent(), null);
-        trackMetadata = PlayableMetadata.from(buildPlayablePropertySet(TRACK_URN));
-        playlistMetadata = PlayableMetadata.from(buildPlayablePropertySet(PLAYLIST_URN));
+        trackMetadata = EntityMetadata.from(buildPlayablePropertySet(TRACK_URN));
+        playlistMetadata = EntityMetadata.from(buildPlayablePropertySet(PLAYLIST_URN));
 
     }
 
@@ -59,7 +59,7 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromToggleToFollow() {
         PropertySet userProperties = buildUserPropertySet(Urn.forUser(30l));
-        UIEvent uiEvent = UIEvent.fromToggleFollow(true, PlayableMetadata.fromUser(userProperties));
+        UIEvent uiEvent = UIEvent.fromToggleFollow(true, EntityMetadata.fromUser(userProperties));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_FOLLOW);
         assertThat(uiEvent.get("creator_urn")).isEqualTo("soundcloud:users:30");
         assertThat(uiEvent.get("creator_display_name")).isEqualTo("some username");
@@ -68,7 +68,7 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromToggleToUnfollow() {
         PropertySet userProperties = buildUserPropertySet(Urn.forUser(30l));
-        UIEvent uiEvent = UIEvent.fromToggleFollow(false, PlayableMetadata.fromUser(userProperties));
+        UIEvent uiEvent = UIEvent.fromToggleFollow(false, EntityMetadata.fromUser(userProperties));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNFOLLOW);
     }
 
@@ -455,7 +455,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventWithUnknownResourceForUnexpectedUrnType() {
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", USER_URN, Urn.NOT_SET, null, PlayableMetadata.EMPTY);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", USER_URN, Urn.NOT_SET, null, EntityMetadata.EMPTY);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.get("location")).isEqualTo("invoker_screen");
         assertThat(uiEvent.get("context")).isEqualTo("context_screen");
@@ -953,11 +953,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromCreatePlaylist() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        UIEvent event = UIEvent.fromCreatePlaylist(PlayableMetadata.from(playlist));
+        UIEvent event = UIEvent.fromCreatePlaylist(EntityMetadata.from(playlist));
 
         assertThat(event.getKind()).isEqualTo(UIEvent.KIND_CREATE_PLAYLIST);
-        assertThat(event.get(PlayableMetadata.KEY_PLAYABLE_TITLE)).isEqualTo(playlist.getTitle());
-        assertThat(event.get(PlayableMetadata.KEY_PLAYABLE_URN)).isEqualTo(playlist.getUrn().toString());
+        assertThat(event.get(EntityMetadata.KEY_PLAYABLE_TITLE)).isEqualTo(playlist.getTitle());
+        assertThat(event.get(EntityMetadata.KEY_PLAYABLE_URN)).isEqualTo(playlist.getUrn().toString());
     }
 
     private PropertySet buildPlayablePropertySet(Urn urn) {

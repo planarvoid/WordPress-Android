@@ -13,7 +13,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableMetadata;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
@@ -105,8 +105,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         verify(eventBus).publish(eq(EventQueue.TRACKING), captor.capture());
         UIEvent event = captor.getValue();
         assertThat(event.getKind()).isEqualTo(UIEvent.KIND_CREATE_PLAYLIST);
-        assertThat(event.get(PlayableMetadata.KEY_PLAYABLE_TITLE)).isEqualTo(newPlaylist.getTitle());
-        assertThat(event.get(PlayableMetadata.KEY_PLAYABLE_URN)).isEqualTo(newPlaylist.getUrn().toString());
+        assertThat(event.get(EntityMetadata.KEY_PLAYABLE_TITLE)).isEqualTo(newPlaylist.getTitle());
+        assertThat(event.get(EntityMetadata.KEY_PLAYABLE_URN)).isEqualTo(newPlaylist.getUrn().toString());
     }
 
     @Test
