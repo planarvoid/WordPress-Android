@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.support.v7.widget.RecyclerView;
@@ -179,7 +180,7 @@ public class Han  {
         final int screenWidth = deviceSize.x;
         final int screenHeight = deviceSize.y;
 
-        drag(screenWidth / 4, screenWidth / 2, screenHeight - TOOLBAR_HEIGHT , screenHeight / 2, 20);
+        drag(screenWidth / 4, screenWidth / 2, screenHeight - TOOLBAR_HEIGHT, screenHeight / 2, 20);
     }
 
     public void swipeDown() {
@@ -351,6 +352,10 @@ public class Han  {
 
     public Display getDisplay() {
         return ((WindowManager) instrumentation.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+    }
+
+    public Resources getResources() {
+        return instrumentation.getTargetContext().getResources();
     }
 
     class EmptyActivity extends Activity {}
