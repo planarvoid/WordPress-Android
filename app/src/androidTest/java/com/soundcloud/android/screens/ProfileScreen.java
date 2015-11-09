@@ -86,7 +86,9 @@ public class ProfileScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
         final ViewElement viewElement = scrollToItem(With.id(R.id.reposter), currentRecyclerView());
         viewElement.click();
-        return new VisualPlayerElement(testDriver);
+        VisualPlayerElement visualPlayer = new VisualPlayerElement(testDriver);
+        visualPlayer.waitForExpandedPlayer();
+        return visualPlayer;
     }
 
     private ListView currentList() {
