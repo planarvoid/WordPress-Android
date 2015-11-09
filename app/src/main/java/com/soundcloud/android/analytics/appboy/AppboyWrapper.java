@@ -47,7 +47,7 @@ public class AppboyWrapper {
         appboy.getCurrentUser().setAttributionData(attributionData);
     }
 
-    boolean openSession(Activity activity) {
+    public boolean openSession(Activity activity) {
         return appboy.openSession(activity);
     }
 
@@ -55,7 +55,7 @@ public class AppboyWrapper {
         AppboyInAppMessageManager.getInstance().registerInAppMessageManager(activity);
     }
 
-    boolean closeSession(Activity activity) {
+    public boolean closeSession(Activity activity) {
         return appboy.closeSession(activity);
     }
 
@@ -71,7 +71,7 @@ public class AppboyWrapper {
         appboy.requestImmediateDataFlush();
     }
 
-    void requestInAppMessageRefresh() {
+    public void requestInAppMessageRefresh() {
         appboy.requestInAppMessageRefresh();
     }
 

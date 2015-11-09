@@ -1,7 +1,6 @@
 package com.soundcloud.android.events;
 
 import android.app.Activity;
-import android.support.annotation.Nullable;
 
 public final class ActivityLifeCycleEvent {
 
@@ -12,7 +11,6 @@ public final class ActivityLifeCycleEvent {
     public static final int ON_STOP_EVENT = 4;
 
     private final Class<? extends Activity> activityClass;
-    private final Activity activity;
     private final int kind;
 
     public static ActivityLifeCycleEvent forOnCreate(Activity activity) {
@@ -37,7 +35,6 @@ public final class ActivityLifeCycleEvent {
 
     private ActivityLifeCycleEvent(int kind, Activity activity) {
         this.activityClass = activity.getClass();
-        this.activity = activity;
         this.kind = kind;
     }
 
@@ -45,17 +42,12 @@ public final class ActivityLifeCycleEvent {
         return kind;
     }
 
-    public boolean isNotForeground(){
+    public boolean isNotForeground() {
         return getKind() != ActivityLifeCycleEvent.ON_RESUME_EVENT;
     }
 
     public Class<? extends Activity> getActivityClass() {
         return activityClass;
-    }
-
-    @Nullable
-    public Activity getActivity() {
-        return activity;
     }
 
     @Override
