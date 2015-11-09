@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    style="@style/OnboardingListItemNotificationLayout"
+<merge xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:background="@color/page_background"
-        android:clickable="false"
-        android:focusable="false" />
-
-    <View style="@style/Divider.Item" />
+    tools:showIn="@layout/stations_onboarding_stream_notification_list_item">
 
     <TextView
         android:id="@+id/title"
@@ -35,5 +24,4 @@
         android:layout_height="wrap_content"
         android:text="@string/ok_got_it" />
 
-    <View style="@style/Divider.Item" />
-</LinearLayout>
+</merge>
