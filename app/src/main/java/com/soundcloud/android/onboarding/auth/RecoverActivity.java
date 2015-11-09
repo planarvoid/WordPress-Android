@@ -9,6 +9,7 @@ import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.onboarding.auth.tasks.RecoverPasswordTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -21,22 +22,28 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 public class RecoverActivity extends TrackedActivity {
 
-    private PublicApi publicCloudAPI;
+    @Inject EventBus eventBus;
+    @Inject PublicApi publicApi;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         build();
         if (savedInstanceState == null) {
-            getEventBus().publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_FORGOT_PASSWORD));
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_FORGOT_PASSWORD));
         }
     }
 
-    protected void build() {
+    @Override
+    protected void setActivityContentView() {
         setContentView(R.layout.recover);
-        publicCloudAPI = PublicApi.getInstance(this);
+    }
+
+    protected void build() {
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final Button recoverBtn = (Button) findViewById(R.id.btn_ok);
 
@@ -81,7 +88,7 @@ public class RecoverActivity extends TrackedActivity {
     }
 
     private void recoverPassword(final String email) {
-        new RecoverPasswordTask(publicCloudAPI) {
+        new RecoverPasswordTask(publicApi) {
             private ProgressDialog progressDialog;
             @Override
             protected void onPreExecute() {

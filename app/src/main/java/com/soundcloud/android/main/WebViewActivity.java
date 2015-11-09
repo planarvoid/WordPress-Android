@@ -10,10 +10,9 @@ import android.webkit.WebViewClient;
 public class WebViewActivity extends TrackedActivity {
 
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         final Uri uri = getIntent() != null ? getIntent().getData() : null;
         if (uri != null) {
-            setContentView(R.layout.web_view);
+            super.onCreate(savedInstanceState);
             WebView view = (WebView) findViewById(R.id.webview);
             view.getSettings().setJavaScriptEnabled(true);
             view.getSettings().setDomStorageEnabled(true);
@@ -29,6 +28,11 @@ public class WebViewActivity extends TrackedActivity {
         } else {
             finish();
         }
+    }
+
+    @Override
+    protected void setActivityContentView() {
+        setContentView(R.layout.web_view);
     }
 
 }

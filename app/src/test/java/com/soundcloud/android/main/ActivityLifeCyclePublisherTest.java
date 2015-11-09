@@ -1,19 +1,19 @@
 package com.soundcloud.android.main;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.support.v7.app.AppCompatActivity;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ActivityLifeCyclePublisherTest {
     @Mock private AppCompatActivity activity;
     private TestEventBus eventBus;
@@ -49,8 +49,8 @@ public class ActivityLifeCyclePublisherTest {
 
     private void expectEvent(int eventType) {
         final ActivityLifeCycleEvent event = getEventOnQueue();
-        expect(event.getActivityClass() == activity.getClass()).toBeTrue();
-        expect(event.getKind()).toEqual(eventType);
+        assertThat(event.getActivityClass() == activity.getClass()).isTrue();
+        assertThat(event.getKind()).isEqualTo(eventType);
     }
 
     private ActivityLifeCycleEvent getEventOnQueue() {
