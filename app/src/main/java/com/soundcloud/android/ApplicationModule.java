@@ -305,7 +305,7 @@ public class ApplicationModule {
 
     @Provides
     public Navigator provideNavigator(FeatureFlags featureFlags) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return new SmoothNavigator(featureFlags);
         } else {
             return new Navigator(featureFlags);
