@@ -95,6 +95,7 @@ public class SignUpBasicsScreen extends Screen {
     }
 
     public boolean isDoneButtonEnabled() {
+        testDriver.sleep(1);
         return doneButton().isEnabled();
     }
 
