@@ -151,7 +151,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     private void subscribeForOfflineContentUpdates() {
         if (featureOperations.isOfflineContentEnabled()) {
-
+            offlineStateSubscription.unsubscribe();
             offlineStateSubscription = new CompositeSubscription();
             offlineStateSubscription.add(
                     eventBus.queue(EventQueue.CURRENT_DOWNLOAD)

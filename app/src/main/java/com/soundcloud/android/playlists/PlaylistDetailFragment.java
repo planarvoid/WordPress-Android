@@ -154,7 +154,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     public PlaylistDetailFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        setRetainInstance(true);
         addLifeCycleComponents();
     }
 
