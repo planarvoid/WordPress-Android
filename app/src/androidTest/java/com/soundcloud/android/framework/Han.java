@@ -246,6 +246,7 @@ public class Han  {
 
     public void goBack() {
         solo.goBack();
+        solo.sleep(1);
     }
 
     public Activity getCurrentActivity() {
