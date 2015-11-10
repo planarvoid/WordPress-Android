@@ -15,6 +15,7 @@ public class TrackCommentsScreen extends Screen {
 
     public TrackCommentsScreen(Han solo) {
         super(solo);
+        waiter.waitForActivity(getActivity());
     }
 
     public String getTitle() {
