@@ -126,17 +126,7 @@ public abstract class Screen {
     }
 
     protected ViewElement scrollToItem(With with, RecyclerViewElement recyclerViewElement) {
-        int tries = 0;
-        ViewElement result = testDriver.findElement(with);
-        while (result instanceof com.soundcloud.android.framework.viewelements.EmptyViewElement) {
-            tries++;
-            recyclerViewElement.scrollDown();
-            if (tries > MAX_SCROLLS_TO_FIND_ITEM) {
-                return new com.soundcloud.android.framework.viewelements.EmptyViewElement("Unable to scroll to item; item not in list");
-            }
-            result = testDriver.findElement(with);
-        }
-        return result;
+        return recyclerViewElement.scrollToItem(with);
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
