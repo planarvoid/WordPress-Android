@@ -5,7 +5,6 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.reset
 
 import com.soundcloud.android.framework.IntegrationTestsFixtures;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenOfflineTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
@@ -13,7 +12,6 @@ import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
-@BrokenOfflineTest
 public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivity> {
 
     public OfflineTrackLikesWithEmptyUserTest() {

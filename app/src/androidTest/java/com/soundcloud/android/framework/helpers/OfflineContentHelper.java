@@ -10,7 +10,6 @@ import android.content.Context;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Date;
 
 public class OfflineContentHelper {
     private static final File OFFLINE_DIR = new File(Consts.FILES_PATH, "offline");
@@ -41,5 +40,9 @@ public class OfflineContentHelper {
 
         final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
         randomAccessFile.setLength(sizeInMB * 1024L * 1024L);
+    }
+
+    public void updateOfflineTracksPolicyUpdateTime(Context context, long lastUpdateTime) {
+        testsFixtures.updateLastPolicyUpdateTime(context, lastUpdateTime);
     }
 }

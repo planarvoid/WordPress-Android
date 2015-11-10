@@ -4,7 +4,6 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enabl
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenOfflineTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.model.Urn;
@@ -16,7 +15,6 @@ import android.content.Context;
 
 import java.io.IOException;
 
-@BrokenOfflineTest
 public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
     private YouScreen youScreen;
     private OfflineSettingsScreen offlineSettingsScreen;

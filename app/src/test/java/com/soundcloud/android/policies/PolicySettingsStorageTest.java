@@ -3,6 +3,7 @@ package com.soundcloud.android.policies;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,12 +18,6 @@ public class PolicySettingsStorageTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         storage = new PolicySettingsStorage(preferences);
-    }
-
-    @Test
-    public void savesLastPolicyUpdateTime() {
-        storage.setPolicyUpdateTime(1000L);
-        assertThat(storage.getPolicyUpdateTime()).isEqualTo(1000L);
     }
 
     @Test

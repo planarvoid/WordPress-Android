@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class PolicyOperations {
-    private static final String TAG = PolicyOperations.class.getSimpleName();
-
     public static final long POLICY_STALE_AGE_MILLISECONDS = TimeUnit.HOURS.toMillis(24);
 
     public static final Func1<ApiPolicyInfo, Urn> TO_TRACK_URN = new Func1<ApiPolicyInfo, Urn>() {
@@ -37,6 +35,7 @@ public class PolicyOperations {
 
     private final FetchPoliciesCommand fetchPoliciesCommand;
     private final StorePoliciesCommand storePoliciesCommand;
+    private final LoadPolicyUpdateTimeCommand loadPolicyUpdateTimeCommand;
     private final LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand;
     private final Scheduler scheduler;
 
@@ -44,10 +43,12 @@ public class PolicyOperations {
     PolicyOperations(FetchPoliciesCommand fetchPoliciesCommand,
                      StorePoliciesCommand storePoliciesCommand,
                      LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand,
+                     LoadPolicyUpdateTimeCommand loadPolicyUpdateTimeCommand,
                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+        this.scheduler = scheduler;
         this.fetchPoliciesCommand = fetchPoliciesCommand;
         this.storePoliciesCommand = storePoliciesCommand;
-        this.scheduler = scheduler;
+        this.loadPolicyUpdateTimeCommand = loadPolicyUpdateTimeCommand;
         this.loadTracksForPolicyUpdateCommand = loadTracksForPolicyUpdateCommand;
     }
 
@@ -74,6 +75,11 @@ public class PolicyOperations {
             Log.e(DailyUpdateService.TAG, "Failed to update policies", ex);
             return Collections.emptyList();
         }
+    }
+
+    public Observable<Long> getMostRecentPolicyUpdateTimestamp() {
+        return loadPolicyUpdateTimeCommand.toObservable(null)
+                .subscribeOn(scheduler);
     }
 
     private Observable<Collection<ApiPolicyInfo>> fetchAndStorePolicies(Collection<Urn> urns) {
