@@ -13,6 +13,7 @@ public class YouScreen extends Screen {
 
     public YouScreen(Han solo) {
         super(solo);
+        waiter.waitForActivity(getActivity());
     }
 
     @Override

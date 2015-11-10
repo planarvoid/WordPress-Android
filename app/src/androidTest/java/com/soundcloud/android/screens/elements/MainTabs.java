@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.StreamScreen;
@@ -17,7 +18,7 @@ public class MainTabs extends Tabs {
     }
 
     public MainTabs(Han solo) {
-        super(solo.findElement(With.classSimpleName(TabLayout.class.getSimpleName())));
+        super(solo);
         this.testDriver = solo;
     }
 

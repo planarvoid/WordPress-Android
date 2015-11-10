@@ -47,6 +47,10 @@ public class Waiter {
         return waitForElementToBeVisible(matcher, ELEMENT_TIMEOUT);
     }
 
+    public boolean waitForElementToBeVisible(ViewElement viewElement) {
+        return solo.waitForCondition(new IsVisibleElementCondition(viewElement), ELEMENT_TIMEOUT);
+    }
+
     public boolean waitForElementToBeVisible(With matcher, int timeoutMs) {
         return solo.waitForCondition(new VisibleElementCondition(matcher), timeoutMs);
     }
@@ -204,6 +208,14 @@ public class Waiter {
 
     public boolean waitForElement(With with) {
         return solo.waitForCondition(new VisibleElementCondition(with), ELEMENT_TIMEOUT);
+    }
+
+    public boolean waitForElementTextToChange(TextElement textElement) {
+        return solo.waitForCondition(new ElementTextChangeCondition(textElement), TWO_SECONDS);
+    }
+
+    public boolean waitForElementTextToChange(TextElement textElement, String text) {
+        return solo.waitForCondition(new ElementTextChangeCondition(textElement, text), TWO_SECONDS);
     }
 
     private class VisibleElementCondition implements Condition {
@@ -372,6 +384,40 @@ public class Waiter {
         @Override
         public boolean isSatisfied() {
             return solo.findElement(matcher).isChecked();
+        }
+    }
+
+    private class ElementTextChangeCondition implements Condition {
+
+        private final TextElement view;
+        private final String text;
+
+        public ElementTextChangeCondition(TextElement textElement) {
+            view = textElement;
+            text = textElement.getText();
+        }
+
+        public ElementTextChangeCondition(TextElement textElement, String initialText ) {
+            view = textElement;
+            this.text = initialText;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return !view.getText().equals(text);
+        }
+    }
+
+    private class IsVisibleElementCondition implements Condition {
+        private final ViewElement view;
+
+        public IsVisibleElementCondition(ViewElement viewElement) {
+            view = viewElement;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return view.isVisible();
         }
     }
 }

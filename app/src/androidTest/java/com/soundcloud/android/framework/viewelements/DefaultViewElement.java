@@ -2,6 +2,7 @@ package com.soundcloud.android.framework.viewelements;
 
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.ViewFetcher;
+import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
@@ -24,8 +25,10 @@ public final class DefaultViewElement extends ViewElement {
     private final Han testDriver;
     private final View view;
     private ViewFetcher viewFetcher;
+    private Waiter waiter;
 
     public DefaultViewElement(View view, Han driver) {
+        waiter = new Waiter(driver);
         if (view == null) {
             throw new IllegalArgumentException("viewElement cannot be null");
         }
@@ -62,7 +65,10 @@ public final class DefaultViewElement extends ViewElement {
     @Override
     public void click() {
         if (!isVisible()) {
-            throw new ViewNotVisibleException();
+            waiter.waitForElementToBeVisible(this);
+            if (!isVisible()) {
+                throw new ViewNotVisibleException();
+            }
         }
         Log.i("CLICKEVENT", String.format("Clicking at: %s", getClickPoint()));
         if(isFullyVisible()) {
@@ -122,7 +128,7 @@ public final class DefaultViewElement extends ViewElement {
 
     @Override
     public Tabs toTabs() {
-        return new Tabs(this);
+        return new Tabs(testDriver);
     }
 
     @Override
