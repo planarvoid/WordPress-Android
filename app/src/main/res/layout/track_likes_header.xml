@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
     android:id="@+id/track_likes_header"
     style="@style/TrackLikesHeader"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:layout_collapseMode="none"
@@ -14,14 +15,15 @@
 
     <ImageButton
         android:id="@+id/shuffle_btn"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/btn_min_height"
         android:layout_marginLeft="@dimen/likes_shuffle_button_margin_left"
-        android:background="?android:attr/selectableItemBackground"
-        android:src="@drawable/ic_shuffle"
         android:contentDescription="@string/btn_shuffle"
         android:enabled="false"
+        android:minWidth="0dp"
         android:paddingLeft="@dimen/likes_shuffle_button_padding"
-        android:paddingRight="@dimen/likes_shuffle_button_padding" />
+        android:paddingRight="@dimen/likes_shuffle_button_padding"
+        android:src="@drawable/ic_shuffle" />
 
 </LinearLayout>

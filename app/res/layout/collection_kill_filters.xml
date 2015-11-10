@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:gravity="center"
+    android:orientation="vertical"
     android:padding="16dp">
 
     <TextView
@@ -14,10 +14,10 @@
 
     <Button
         android:id="@+id/btn_remove_filters"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="?borderlessButtonStyle"
-        android:text="@string/collections_remove_filters"
-        android:padding="16dp"/>
+        android:padding="16dp"
+        android:text="@string/collections_remove_filters" />
 
 </LinearLayout>
