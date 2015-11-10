@@ -4,12 +4,14 @@ import android.support.design.widget.TabLayout;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Tabs {
     private final Han testDriver;
@@ -19,6 +21,7 @@ public class Tabs {
         this.testDriver = testDriver;
         waiter = new Waiter(testDriver);
         waiter.waitForElement(With.classSimpleName(TabLayout.class.getSimpleName()));
+        waiter.waitForElementCondition(new TabsVisibleCondition(this));
     }
 
     public ViewElement getTabWithText(String tabText) {
@@ -34,7 +37,6 @@ public class Tabs {
     }
 
     private List<ViewElement> tabs() {
-        waiter.waitForElementToBeVisible(container());
         return container().getChildren().get(0).getChildren();
     }
 
@@ -42,4 +44,16 @@ public class Tabs {
         return testDriver.findElement(With.classSimpleName(TabLayout.class.getSimpleName()));
     }
 
+    private class TabsVisibleCondition implements Condition {
+
+        private final Tabs tabs;
+
+        public TabsVisibleCondition(Tabs tabs) {
+            this.tabs = tabs;
+        }
+        @Override
+        public boolean isSatisfied() {
+            return tabs.isVisible();
+        }
+    }
 }
