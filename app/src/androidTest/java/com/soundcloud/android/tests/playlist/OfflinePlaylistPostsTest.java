@@ -4,6 +4,7 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enabl
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenOfflineTest;
 import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionsScreen;
@@ -12,6 +13,7 @@ import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
+@BrokenOfflineTest
 public class OfflinePlaylistPostsTest extends ActivityTest<MainActivity> {
 
     public OfflinePlaylistPostsTest() {

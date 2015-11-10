@@ -26,6 +26,7 @@ task runLollipopTests << {
   def excludeAnnotations = [
           "com.soundcloud.android.framework.annotation.Ignore",
           "com.soundcloud.android.framework.annotation.CollectionsTest",
+          "com.soundcloud.android.framework.annotation.BrokenOfflineTest",
           "com.soundcloud.android.framework.annotation.BrokenSearchTest",
           "com.soundcloud.android.framework.annotation.StationsTest"
   ] as String[]
@@ -39,6 +40,7 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.EventTrackingTest",
           "com.soundcloud.android.framework.annotation.StationsTest",
           "com.soundcloud.android.framework.annotation.CollectionsTest",
+          "com.soundcloud.android.framework.annotation.BrokenOfflineTest",
           "com.soundcloud.android.framework.annotation.BrokenSearchTest"
   ] as String[]
   runTests("Lollipop", excludeAnnotations)

@@ -12,6 +12,7 @@ import static org.hamcrest.core.IsNot.not;
 import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenOfflineTest;
 import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
@@ -26,6 +27,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+@BrokenOfflineTest
 public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     private final OfflineContentHelper offlineContentHelper;
