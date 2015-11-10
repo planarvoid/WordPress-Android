@@ -1,311 +1,216 @@
 import groovy.json.JsonOutput
+import com.soundcloud.mobiletestrunner.client.TestRunnerFactory
+import com.soundcloud.mobiletestrunner.client.TestStatusNotifier
+import com.soundcloud.mobiletestrunner.client.model.Execution
+import com.soundcloud.mobiletestrunner.client.model.RunConfiguration
+import com.soundcloud.mobiletestrunner.client.model.Package
+import com.soundcloud.mobiletestrunner.client.model.Session
+import com.soundcloud.mobiletestrunner.client.model.TestResult
+import com.soundcloud.mobiletestrunner.client.model.Test
+import groovy.lang.Closure
+
+buildscript {
+  repositories {
+    mavenLocal()
+    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
+  }
+  dependencies {
+    classpath 'com.soundcloud.mobiletestrunner:client:68-8-7772760'
+  }
+}
 
 apply from: "${project.('buildSrcDir')}/apk_finder.gradle"
 apply from: "${project.('buildSrcDir')}/curl.gradle"
 
-class Package { String name; String location }
-class Session { Package application_package; Package test_package; Package[] tools_packages }
-class RunConfiguration { String label; String test_runner; Test[] tests; String[] only_with_annotations; String[] exclude_annotations}
-class Execution { Session session; RunConfiguration run_configuration }
-
-class Test {
-    String class_name
-    String test_name
-    int retries
-
-    def boolean equals(other) {
-        if (!(other instanceof Test)) {
-            return false
-        }
-        def otherTest = (Test) other
-        this.class_name.equals(otherTest.class_name) && this.test_name.equals(otherTest.test_name) && this.retries.equals(otherTest.retries)
-    }
-
-    def int hashCode() {
-        int hash = 1
-        hash = hash * 17 + (class_name == null ? 0 : class_name.hashCode())
-        hash = hash * 31 + (test_name == null ? 0 : test_name.hashCode())
-        hash = hash * 53 + (retries == null ? 0 : retries.hashCode())
-        return hash
-    }
+task runLollipopTests << {
+  def excludeAnnotations = [
+          "com.soundcloud.android.framework.annotation.Ignore",
+          "com.soundcloud.android.framework.annotation.CollectionsTest",
+          "com.soundcloud.android.framework.annotation.BrokenScrollingTest",
+          "com.soundcloud.android.framework.annotation.BrokenSearchTest",
+          "com.soundcloud.android.framework.annotation.StationsTest"
+  ] as String[]
+  runTests("Lollipop", excludeAnnotations)
 }
 
-class Run {
-    String id
-    Integer numTests
-    Integer maxRetries = 1
-
-    def boolean equals(other) {
-        if (!(other instanceof Run)) {
-            return false
-        }
-        def otherRun = (Run) other
-        this.id.equals(otherRun.id) && this.numTests.equals(otherRun.numTests) && this.maxRetries.equals(otherRun.maxRetries)
-    }
-
-    def int hashCode() {
-        int hash = 1
-        hash = hash * 17 + (id == null ? 0 : id.hashCode())
-        hash = hash * 31 + (numTests == null ? 0 : numTests.hashCode())
-        hash = hash * 53 + (maxRetries == null ? 0 : maxRetries.hashCode())
-        return hash
-    }
+task runLollipopTestsRelease << {
+  def excludeAnnotations = [
+          "com.soundcloud.android.framework.annotation.Ignore",
+          "com.soundcloud.android.framework.annotation.AdsTest",
+          "com.soundcloud.android.framework.annotation.EventTrackingTest",
+          "com.soundcloud.android.framework.annotation.StationsTest",
+          "com.soundcloud.android.framework.annotation.CollectionsTest",
+          "com.soundcloud.android.framework.annotation.BrokenScrollingTest",
+          "com.soundcloud.android.framework.annotation.BrokenSearchTest"
+  ] as String[]
+  runTests("Lollipop", excludeAnnotations)
 }
 
-class TestResult {
-    String description
-    Integer duration
-    Boolean result
-    Test test
-    Run run
+def runTests(label, excludeAnnotations) {
+  def factory = new TestRunnerFactory()
+  def listener = new TestResultListener(new LogHandler(project, executeGet), new TestResultPrinter(), new HTMLReportBuilder(project))
 
-    def boolean equals(other) {
-        if (!(other instanceof TestResult)) {
-            return false
-        }
-        def otherTestResult = (TestResult) other
-        this.description.equals(otherTestResult.description) && this.duration.equals(otherTestResult.duration) && this.result.equals(otherTestResult.result) && this.test.equals(otherTestResult.test) && this.run.equals(otherTestResult.run)
-    }
-
-    def int hashCode() {
-        int hash = 1
-        hash = hash * 17 + (description == null ? 0 : description.hashCode())
-        hash = hash * 31 + (duration == null ? 0 : duration.hashCode())
-        hash = hash * 53 + (result == null ? 0 : result.hashCode())
-        hash = hash * 79 + (test == null ? 0 : test.hashCode())
-        hash = hash * 97 + (run == null ? 0 : run.hashCode())
-        return hash
-    }
-
-    def consolePrint() {
-        def red = "\u001B[31m"
-        def green = "\u001B[32m"
-        def magenta = "\u001B[35m"
-        def reset = "\u001B[0m"
-        def color = green
-        def passed = "PASSED"
-        if (!result) {
-            if (test.retries < run.maxRetries) {
-                color = magenta
-                passed = "FAILED... WILL RETRY"
-            }
-            else {
-                color = red
-                passed = "FAILED"
-            }
-        }
-
-        println "$color$passed: $test.class_name.$test.test_name $reset"
-        if (!result) {
-            println()
-            description.split("\n").each{ println "$color \t$it $reset" }
-        }
-    }
+  def testRunner = factory.create(project.ext.mobileTestRunnerUrl, project.ext.mobileTestRunnerUser, project.ext.mobileTestRunnerHost, listener)
+  testRunner.run(createExecution(label, excludeAnnotations))
 }
 
-def executeSpecificTestsForLabel(execution) {
-    def url = "$project.ext.mobileTestRunnerUrl/devices/android/tests"
-    def json_execution = JsonOutput.toJson(execution)
-    executePostWithData(url, json_execution, "")
+def createSession() {
+  def applicationPackage = new Package(project.('applicationId'), findApkPath(project.('buildType'), project.('debugVersionCode')))
+  def testPackage = new Package(project.('testApplicationId'), project.('testApkPath'))
+  def toolsPackages = [new Package(project.('androidNetorkManagerApplicationId'), project.('networkManagerApkPath'))] as Package[]
+  return new Session(applicationPackage, testPackage, toolsPackages)
 }
 
-def executeQueryForResult(runId) {
-    def url = "$project.ext.mobileTestRunnerUrl/results/$runId/no_grouping"
-    executeGet(url, [])
+def createRunConfiguration(label, excludeAnnotations) {
+  return new RunConfiguration(label, project.ext.testInstrumentationRunner, null, excludeAnnotations, null, null, null)
 }
 
-def executeQueryForLogFiles(runId) {
+def createExecution(label, excludeAnnotations) {
+  def session = createSession()
+  def runConfiguration = createRunConfiguration(label, excludeAnnotations)
+
+  return new Execution(session, runConfiguration)
+}
+
+class LogHandler {
+  private final Project project
+  private final Closure curlGet;
+
+  public LogHandler(Project project, Closure curlGet) {
+    this.project = project
+    this.curlGet = curlGet
+  }
+
+  def copyLogs(runId) {
+    def baseDirectory = new File(project.rootDir, "results")
+    def xmlDirectory = new File(baseDirectory, "xml")
+    xmlDirectory.mkdirs()
+    def logfiles = executeQueryForLogFiles(runId)
+    for (def logfile : logfiles) {
+      copyLogFileFromServer(logfile, xmlDirectory.absolutePath)
+    }
+  }
+
+  private def executeQueryForLogFiles(runId) {
     def url = "$project.ext.mobileTestRunnerUrl/results/$runId/xml_report_files"
-    executeGet(url, [])
-}
+    curlGet(url, [])
+  }
 
-def parseQueryForResultResponse(response) {
-    response.collect { new TestResult(description: it.description, duration: it.duration, result: it.result, test: new Test(class_name: it.test.class_name, test_name: it.test.test_name, retries: it.test.retries), run: new Run(id: it.run.id, numTests: it.run.numTests)) }
-}
-
-def copyApkToServer(local_file_path) {
-    def remote_filename = UUID.randomUUID().toString() + ".apk"
-    def remote_filepath = "/tmp/mobile-testrunner/" + remote_filename
-    def remote_host = "$project.ext.mobileTestRunnerUser@$project.ext.mobileTestRunnerHost"
-
-    def cmd = ['scp', local_file_path, "$remote_host:$remote_filepath"]
-
-    def p = cmd.execute()
-    p.waitFor()
-    def exitValue = p.exitValue()
-    if (exitValue != 0) {
-        throw new Exception("copyToServer failed: ($cmd) exitValue: $exitValue")
-    }
-
-    println("Copied " + local_file_path + " to " + remote_filepath)
-
-    remote_filepath
-}
-
-def copyLogFileFromServer(remote_file_path, local_directory) {
+  private def copyLogFileFromServer(remote_file_path, local_directory) {
     def local_filepath = "$local_directory/${UUID.randomUUID()}.xml"
     def cmd = ['curl', '-o', local_filepath, "$remote_file_path"]
     def p = cmd.execute()
     p.waitFor()
     def exitValue = p.exitValue()
     if (exitValue != 0) {
-        throw new Exception("copyFromServer failed: ($cmd) exitValue: $exitValue")
+      throw new Exception("copyFromServer failed: ($cmd) exitValue: $exitValue")
     }
+  }
 }
 
-def createSession() {
-    def applicationPackage = new Package(name: project.('applicationId'), location: copyApkToServer(findApkPath(project.('buildType'), project.('debugVersionCode'))))
-    def testPackage = new Package(name: project.('testApplicationId'), location: copyApkToServer(project.('testApkPath')))
-    def toolsPackages = [new Package(name: project.('androidNetorkManagerApplicationId'), location: copyApkToServer(project.('networkManagerApkPath')))]
-    new Session(application_package: applicationPackage, test_package: testPackage, tools_packages: toolsPackages)
-}
-
-def createRunConfiguration(String label, String[] onlyWithAnnotations, String[] excludeAnnotations, Test[] specificTests) {
-    new RunConfiguration(label: label, test_runner: project.ext.testInstrumentationRunner,
-            only_with_annotations: onlyWithAnnotations, exclude_annotations: excludeAnnotations, tests: specificTests)
-}
-
-def execute(Execution execution) {
-    Logger.getLogger().log("Collecting test information")
-    def r = executeSpecificTestsForLabel(execution)
-    def runId = r.id
-    def numTests = r.num_tests
-    Logger.getLogger().log("Executing $numTests test(s) with run id $runId")
-    new Run(id: runId, numTests: numTests)
-}
-
-def int executeQueryForRemainingTests(runId, numRetries) {
-    def url = "$project.ext.mobileTestRunnerUrl/results/$runId/remaining_tests"
-    def response = executeGet(url, null)
-    if (null == response) {
-        if(numRetries < 3) {
-            Thread.sleep(1000L)
-            executeQueryForRemainingTests(runId, numRetries + 1)
-        }
-        else {
-            throw new GradleException("Unable to query remaining tests for run id: $runId")
-        }
-    } else {
-        response.remaining_tests
+class TestResultPrinter {
+  def print(TestResult testResult) {
+    def red = "\u001B[31m"
+    def green = "\u001B[32m"
+    def magenta = "\u001B[35m"
+    def reset = "\u001B[0m"
+    def color = green
+    def resultText = "PASSED"
+    if (!testResult.getResult()) {
+      if (testResult.getTest().getRetries() < 1) {
+        color = magenta
+        resultText = "FAILED... WILL RETRY"
+      } else {
+        color = red
+        resultText = "FAILED"
+      }
     }
-}
 
-def getAndShowNewResultsForRun(runId, retrievedResults) {
-    def result = executeQueryForResult(runId)
-    def allResults = parseQueryForResultResponse(result)
-    def newResults = allResults - retrievedResults
-    newResults.forEach{ it.consolePrint() }
-
-    (retrievedResults + allResults).unique()
-}
-
-def TestResult[] getAndShowResultsForRun(Run run) {
-    def retrievedResults = []
-
-    while ( executeQueryForRemainingTests(run.id, 0) > 0 ) {
-        retrievedResults = getAndShowNewResultsForRun(run.id, retrievedResults)
-        sleep(2000)
+    println "$color$resultText: ${testResult.getTest().getClassName()}.${testResult.getTest().getTestName()} $reset"
+    if (!testResult.getResult()) {
+      println()
+      testResult.getDescription().split("\n").each { println "$color \t$it $reset" }
     }
-    getAndShowNewResultsForRun(run.id, retrievedResults)
+  }
 }
 
-def failBuildIfNecessary(TestResult[] retrievedResults) {
-    def failedTests = retrievedResults.count{ (!it.result && it.test.retries == it.run.maxRetries) }
+class HTMLReportBuilder {
+  private final Project project
 
-    if (failedTests > 0) {
-        def red = "\u001B[31m"
-        def reset = "\u001B[0m"
-        throw new GradleException("$red$failedTests test(s) failed $reset")
-    }
-}
+  def HTMLReportBuilder(Project project) {
+    this.project = project
+  }
 
-def runTestsForLabel(String label, String[] excludeAnnotations, Test[] tests) {
-    def execution = new Execution(session: createSession(), run_configuration: createRunConfiguration(label, null, excludeAnnotations, tests))
-    def run = execute(execution)
-    createHtmlReportForRun(run.id)
-    def results = getAndShowResultsForRun(run)
-    copyLogs(run.id)
-    Logger.getLogger().log("Finished run $run.id")
-    failBuildIfNecessary(results)
-}
-
-def createHtmlReportForRun(runIdentifier) {
+  def createReport(runIdentifier) {
     def html_template = new File(project.projectDir, "buildsystem/mobile_testrunner/html_report_redirect_template.html").text
     def engine = new groovy.text.SimpleTemplateEngine()
     def template = engine.createTemplate(html_template).make(["runIdentifier": runIdentifier])
     def dir = new File(project.rootDir, "results")
     dir.mkdirs()
-    new File(dir.absolutePath, "index.html") << template.toString()
+    def report = new File(dir.absolutePath, "index.html")
+    report.newWriter().withWriter { w ->
+      w << template.toString()
+    }
+  }
 }
 
-def copyLogs(runId) {
-    def baseDirectory = new File(project.rootDir, "results")
-    def xmlDirectory = new File(baseDirectory, "xml")
-    xmlDirectory.mkdirs()
-    def logfiles = executeQueryForLogFiles(runId)
-    for(def logfile : logfiles) {
-        copyLogFileFromServer(logfile, xmlDirectory.absolutePath)
-    }
-}
+class TestResultListener implements TestStatusNotifier {
+  private final LogHandler logHandler
+  private final TestResultPrinter testResultPrinter
+  private final HTMLReportBuilder htmlReportBuilder
+  private UUID runIdentifier
+  private int numFailedTests = 0
 
-class LogEntry {
+  public TestResultListener(LogHandler logHandler, TestResultPrinter testResultPrinter, HTMLReportBuilder htmlReportBuilder) {
+    this.logHandler = logHandler
+    this.testResultPrinter = testResultPrinter
+    this.htmlReportBuilder = htmlReportBuilder
+  }
 
-    private final long timestamp;
-    private final long threadId;
-    private final String message;
-    public LogEntry(String message) {
-        this.timestamp = System.currentTimeMillis()
-        this.threadId = Thread.currentThread().getId();
-        this.message = message;
-    }
+  @Override
+  void runStarted() {
+    println "Run started"
+  }
 
-    public String toString() {
-        timestamp + ": " + message + " [" + threadId + "]"
-    }
-}
-
-class Logger {
-    def logLines = new ArrayList<LogEntry>()
-
-    private def Logger() {}
-
-    def log(String message) {
-        def logEntry = new LogEntry(message)
-        logLines.add(logEntry)
-        println logEntry
+  @Override
+  void runFinished() {
+    println "Run finished"
+    if (runIdentifier != null) {
+      htmlReportBuilder.createReport(runIdentifier)
+      logHandler.copyLogs(runIdentifier)
     }
 
-    static def Logger logger = null
-
-    static synchronized def getLogger() {
-        if (logger == null) {
-            logger = new Logger()
-        }
-
-        logger
+    if (numFailedTests > 0) {
+      throw new GradleException("FAILED: " + numFailedTests + " test(s) failed")
     }
-}
+  }
 
-task runLollipopTests << {
-    def excludeAnnotations = [
-            "com.soundcloud.android.framework.annotation.Ignore",
-            "com.soundcloud.android.framework.annotation.CollectionsTest",
-            "com.soundcloud.android.framework.annotation.BrokenScrollingTest",
-            "com.soundcloud.android.framework.annotation.BrokenSearchTest",
-            "com.soundcloud.android.framework.annotation.StationsTest"
-    ] as String[]
-    runTestsForLabel("Lollipop", excludeAnnotations, null)
-}
+  @Override
+  void runFailed(String message) {
+    throw new GradleException("FAILED: " + message)
+  }
 
-task runLollipopTestsRelease << {
-    def excludeAnnotations = [
-            "com.soundcloud.android.framework.annotation.Ignore",
-            "com.soundcloud.android.framework.annotation.AdsTest",
-            "com.soundcloud.android.framework.annotation.EventTrackingTest",
-            "com.soundcloud.android.framework.annotation.StationsTest",
-            "com.soundcloud.android.framework.annotation.CollectionsTest",
-            "com.soundcloud.android.framework.annotation.BrokenScrollingTest",
-            "com.soundcloud.android.framework.annotation.BrokenSearchTest"
-    ] as String[]
-    runTestsForLabel("Lollipop", excludeAnnotations, null)
+  @Override
+  void testSuiteStarted(String s) {}
+
+  @Override
+  void testSuiteFinished(String s) {
+  }
+
+  @Override
+  void testFinished(com.soundcloud.mobiletestrunner.client.model.TestResult testResult) {
+    this.runIdentifier = testResult.run.id
+    if (!testResult.getResult() && testResult.getTest().getRetries() > 0) {
+      numFailedTests += 1
+    }
+    testResultPrinter.print(testResult)
+  }
+
+  @Override
+  void testStarted(com.soundcloud.mobiletestrunner.client.model.Test test) {}
+
+  @Override
+  void printMessage(String message) {
+    println message
+  }
 }
