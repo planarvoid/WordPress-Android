@@ -33,18 +33,4 @@ public class ActivityLightCycleEventTest extends AndroidUnitTest {
         assertThat(activityLifeCycleEvent.getActivityClass().getSuperclass().isAssignableFrom(Activity.class)).isTrue();
     }
 
-    @Test
-    public void forOnPauseFactoryMethodShouldReturnAnEventInstanceForOnStartEvent() {
-        ActivityLifeCycleEvent activityLifeCycleEvent = ActivityLifeCycleEvent.forOnStart(activity);
-        assertThat(activityLifeCycleEvent.getKind()).isEqualTo(ActivityLifeCycleEvent.ON_START_EVENT);
-        assertThat(activityLifeCycleEvent.getActivityClass().getSuperclass().isAssignableFrom(Activity.class)).isTrue();
-    }
-
-    @Test
-    public void forOnPauseFactoryMethodShouldReturnAnEventInstanceForOnStopEvent() {
-        ActivityLifeCycleEvent activityLifeCycleEvent = ActivityLifeCycleEvent.forOnStop(activity);
-        assertThat(activityLifeCycleEvent.getKind()).isEqualTo(ActivityLifeCycleEvent.ON_STOP_EVENT);
-        assertThat(activityLifeCycleEvent.getActivityClass().getSuperclass().isAssignableFrom(Activity.class)).isTrue();
-    }
-
 }

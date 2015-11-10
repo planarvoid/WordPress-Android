@@ -7,8 +7,6 @@ public final class ActivityLifeCycleEvent {
     public static final int ON_RESUME_EVENT = 0;
     public static final int ON_CREATE_EVENT = 1;
     public static final int ON_PAUSE_EVENT = 2;
-    public static final int ON_START_EVENT = 3;
-    public static final int ON_STOP_EVENT = 4;
 
     private final Class<? extends Activity> activityClass;
     private final int kind;
@@ -19,14 +17,6 @@ public final class ActivityLifeCycleEvent {
 
     public static ActivityLifeCycleEvent forOnResume(Activity activity) {
         return new ActivityLifeCycleEvent(ON_RESUME_EVENT, activity);
-    }
-
-    public static ActivityLifeCycleEvent forOnStart(Activity activity) {
-        return new ActivityLifeCycleEvent(ON_START_EVENT, activity);
-    }
-
-    public static ActivityLifeCycleEvent forOnStop(Activity activity) {
-        return new ActivityLifeCycleEvent(ON_STOP_EVENT, activity);
     }
 
     public static ActivityLifeCycleEvent forOnPause(Activity activity) {
@@ -63,10 +53,6 @@ public final class ActivityLifeCycleEvent {
                 return "onResume";
             case ON_PAUSE_EVENT:
                 return "onPause";
-            case ON_START_EVENT:
-                return "onStart";
-            case ON_STOP_EVENT:
-                return "onStop";
             default:
                 throw new IllegalStateException(
                         "Attempting to get name of unknown lifecycle method code: " + kind);
