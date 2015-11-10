@@ -81,6 +81,7 @@ public abstract class Screen {
     }
 
     public List<PlaylistItemElement> getPlaylists() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
     }
 
