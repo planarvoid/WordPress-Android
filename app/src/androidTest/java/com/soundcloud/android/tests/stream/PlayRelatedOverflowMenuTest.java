@@ -14,10 +14,10 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
+public class PlayRelatedOverflowMenuTest extends ActivityTest<LauncherActivity> {
     private StreamScreen streamScreen;
 
-    public TrackItemOverflowMenuTest() {
+    public PlayRelatedOverflowMenuTest() {
         super(LauncherActivity.class);
     }
 
