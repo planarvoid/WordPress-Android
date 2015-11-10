@@ -20,6 +20,7 @@ public class CollectionsScreen extends Screen {
 
     public CollectionsScreen(Han solo) {
         super(solo);
+        waiter.waitForActivity(getActivity());
     }
 
     public TrackLikesScreen clickTrackLikes() {
