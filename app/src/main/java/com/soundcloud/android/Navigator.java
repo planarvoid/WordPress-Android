@@ -4,6 +4,7 @@ import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.DiscoveryActivity;
@@ -31,6 +32,7 @@ import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -201,6 +203,11 @@ public class Navigator {
 
     public void openPlaylistDiscoveryTag(Context context, String playlistTag) {
         context.startActivity(createPlaylistDiscoveryIntent(context, playlistTag));
+    }
+
+    public void openTrackComments(Context context, PropertySet track) {
+        context.startActivity(new Intent(context, TrackCommentsActivity.class)
+                .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, track));
     }
 
     private Intent createResolveIntent(Context context, Urn urn) {

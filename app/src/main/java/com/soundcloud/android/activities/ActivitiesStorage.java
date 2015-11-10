@@ -44,16 +44,19 @@ class ActivitiesStorage implements TimelineStorage {
         @Override
         public PropertySet map(CursorReader reader) {
             final PropertySet propertySet = PropertySet.create(reader.getRowCount());
-            propertySet.put(
-                    ActivityProperty.KIND, ActivityKind.fromIdentifier(reader.getString(ActivityView.TYPE)));
-            propertySet.put(
-                    ActivityProperty.DATE, reader.getDateFromTimestamp(ActivityView.CREATED_AT));
-            propertySet.put(
-                    ActivityProperty.USER_URN, Urn.forUser(reader.getLong(ActivityView.USER_ID)));
-            propertySet.put(
-                    ActivityProperty.USER_NAME, reader.getString(ActivityView.USER_USERNAME));
-            if (reader.isNotNull(ActivityView.SOUND_ID)) {
+            final ActivityKind activityKind = ActivityKind.fromIdentifier(reader.getString(ActivityView.TYPE));
+            propertySet.put(ActivityProperty.KIND, activityKind);
+            propertySet.put(ActivityProperty.DATE, reader.getDateFromTimestamp(ActivityView.CREATED_AT));
+            propertySet.put(ActivityProperty.USER_URN, Urn.forUser(reader.getLong(ActivityView.USER_ID)));
+            propertySet.put(ActivityProperty.USER_NAME, reader.getString(ActivityView.USER_USERNAME));
+
+            if (ActivityKind.PLAYABLE_RELATED.contains(activityKind)) {
                 propertySet.put(ActivityProperty.PLAYABLE_TITLE, reader.getString(SoundView.TITLE));
+            }
+            // we need to return the track URN for comments so that we can enter the comments screen
+            if (ActivityKind.TRACK_COMMENT.equals(activityKind)) {
+                final Urn trackUrn = Urn.forTrack(reader.getLong(ActivityView.SOUND_ID));
+                propertySet.put(ActivityProperty.COMMENTED_TRACK_URN, trackUrn);
             }
             return propertySet;
         }

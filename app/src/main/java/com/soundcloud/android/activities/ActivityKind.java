@@ -1,5 +1,7 @@
 package com.soundcloud.android.activities;
 
+import java.util.EnumSet;
+
 public enum ActivityKind {
 
     UNKNOWN("unknown"),
@@ -9,6 +11,9 @@ public enum ActivityKind {
     PLAYLIST_REPOST("playlist_repost"),
     TRACK_COMMENT("track_comment"),
     USER_FOLLOW("user_follow");
+
+    public static final EnumSet<ActivityKind> PLAYABLE_RELATED = EnumSet.of(TRACK_LIKE, PLAYLIST_LIKE,
+            TRACK_REPOST, PLAYLIST_REPOST, TRACK_COMMENT);
 
     private final String identifier;
 
