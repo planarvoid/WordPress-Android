@@ -284,8 +284,10 @@
         <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">12dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingLeft">8dp</item>
         <item name="android:layout_marginBottom">8dp</item>
-        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginRight">8dp</item>
         <item name="android:textColor">@color/sc_orange</item>
         <item name="android:drawableLeft">@drawable/ic_check_mark</item>
         <item name="android:drawablePadding">4dp</item>
