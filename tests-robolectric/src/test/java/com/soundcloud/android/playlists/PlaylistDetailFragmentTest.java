@@ -33,7 +33,6 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.presentation.ListItemAdapter;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -88,7 +87,6 @@ public class PlaylistDetailFragmentTest {
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private Intent intent;
-    @Mock private FeatureFlags featureFlags;
     @Mock private FeatureOperations featureOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private Navigator navigator;
@@ -107,7 +105,6 @@ public class PlaylistDetailFragmentTest {
                 playQueueManager,
                 new PlaylistPresenter(imageOperations),
                 expandPlayerSubscriberProvider,
-                featureFlags,
                 featureOperations,
                 accountOperations,
                 navigator

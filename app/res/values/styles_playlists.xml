@@ -124,7 +124,6 @@
 
     <style name="PlaylistAction">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">@dimen/btn_min_height</item>
         <item name="android:textSize">@dimen/btn_text_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:gravity">center</item>
@@ -132,14 +131,16 @@
         <item name="android:paddingRight">@dimen/btn_padding</item>
     </style>
 
-    <style name="PlaylistAction.ToggleButton">
+    <style name="PlaylistAction.ToggleButton" parent="ListItemText">
         <item name="android:layout_gravity">left|center</item>
         <item name="android:layout_centerVertical">true</item>
-        <item name="android:background">@drawable/btn_default_states</item>
-        <item name="android:minWidth">72dp</item>
-        <item name="android:drawablePadding">6dp</item>
+        <item name="android:textColor">@color/toggle_button_text_states</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:padding">8dp</item>
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
     <style name="PlaylistAction.Button">
@@ -151,11 +152,11 @@
     </style>
 
     <style name="PlaylistAction.Overflow">
-        <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
-        <item name="android:layout_width">50dp</item>
-        <item name="android:minHeight">48dp</item>
-        <item name="android:background">@drawable/btn_engagements_overflow</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:src">@drawable/ic_more</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
     <style name="PlaylistAction.ToggleButton.Like">
