@@ -7,17 +7,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.appboy.models.outgoing.AppboyProperties;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.AttributionEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreGenre;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
@@ -65,55 +63,6 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     public void shouldNotTrackUnLikeEvents() {
         UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name",
                 Urn.forTrack(123), Urn.NOT_SET, null, metadata);
-
-        eventHandler.handleEvent(event);
-
-        verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
-    }
-
-    @Test
-    public void shouldTrackUserTriggeredPlaySessionEvents() {
-        TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", true);
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(trackPropertySet, Urn.forUser(123L),
-                trackSourceInfo, 0l, 10000l, "https", "player", "wifi", false);
-
-        eventHandler.handleEvent(event);
-
-        expectCustomEvent("play", playableOnlyProperties);
-    }
-
-    @Test
-    public void shouldTriggerImmediateFlushOnManualTriggerPlay() {
-        TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", true);
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(trackPropertySet, Urn.forUser(123L),
-                trackSourceInfo, 0l, 10000l, "https", "player", "wifi", false);
-
-        eventHandler.handleEvent(event);
-
-        verify(appboy).requestImmediateDataFlush();
-    }
-
-    @Test
-    public void shouldNotTrackAutomaticTriggeredPlaySessionEvents() {
-        TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", false);
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(trackPropertySet, Urn.forUser(123L),
-                trackSourceInfo, 0l, 10000l, "https", "player", "wifi", false);
-
-        eventHandler.handleEvent(event);
-
-        verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
-    }
-
-    @Test
-    public void shouldNotTrackPauseEvents() {
-        TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", false);
-
-        PlaybackSessionEvent previousEvent = PlaybackSessionEvent.forPlay(trackPropertySet, Urn.forUser(123L),
-                trackSourceInfo, 0l, 10000l, "https", "player", "wifi", false);
-
-        PlaybackSessionEvent event = PlaybackSessionEvent.forStop(trackPropertySet, Urn.forUser(123L),
-                trackSourceInfo, previousEvent, 0l, 10000l, "https", "player", "wifi",
-                PlaybackSessionEvent.STOP_REASON_PAUSE, false);
 
         eventHandler.handleEvent(event);
 
