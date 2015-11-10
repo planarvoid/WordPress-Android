@@ -57,6 +57,11 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
+    public boolean isFullyVisible() {
+        return false;
+    }
+
+    @Override
     public boolean isAnimating() {
         throw new ViewNotFoundException(selector);
     }

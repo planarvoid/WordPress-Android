@@ -82,7 +82,8 @@ public final class DefaultViewElement extends ViewElement {
         return String.format("%.02f, %.02f", view.getX() + view.getWidth()/2, view.getY() + view.getHeight()/2);
     }
 
-    private boolean isFullyVisible() {
+    @Override
+    public boolean isFullyVisible() {
         return getVisibleRect().contains(getLocation()[0], getLocation()[1], getLocation()[0] + view.getWidth(), getLocation()[1]+ view.getHeight());
     }
 

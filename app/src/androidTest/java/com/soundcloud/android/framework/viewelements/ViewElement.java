@@ -34,6 +34,8 @@ public abstract class ViewElement {
 
     public abstract boolean isVisible();
 
+    public abstract boolean isFullyVisible();
+
     public abstract boolean isAnimating();
 
     public abstract int getHeight();
