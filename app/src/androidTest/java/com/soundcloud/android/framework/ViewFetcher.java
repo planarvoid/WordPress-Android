@@ -45,6 +45,9 @@ public class ViewFetcher {
         return getDirectChildViews().get(index);
     }
 
+    public List<ViewElement> getChildren() {
+        return getDirectChildViews();
+    }
     public boolean isElementDisplayed(With matcher) {
         testDriver.sleep(500);
         return findVisibleElement(matcher).isVisible();

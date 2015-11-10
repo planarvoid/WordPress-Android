@@ -196,6 +196,11 @@ public final class DefaultViewElement extends ViewElement {
     @Override
     /* package */ Han getTestDriver() { return testDriver; }
 
+    @Override
+    public List<ViewElement> getChildren() {
+        return viewFetcher.getChildren();
+    }
+
     private boolean isShown() {
         return view.isShown();
     }

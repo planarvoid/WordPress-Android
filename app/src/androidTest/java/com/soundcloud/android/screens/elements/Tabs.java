@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens.elements;
 
 import android.support.design.widget.TabLayout;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.soundcloud.android.framework.Han;
@@ -34,7 +35,7 @@ public class Tabs {
 
     private List<ViewElement> tabs() {
         waiter.waitForElementToBeVisible(container());
-        return container().findElements(With.className(ImageView.class));
+        return container().getChildren().get(0).getChildren();
     }
 
     private ViewElement container() {

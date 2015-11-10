@@ -61,4 +61,6 @@ public abstract class ViewElement {
     /* package */ abstract View getView();
 
     /* package */ abstract Han getTestDriver();
+
+    abstract public List<ViewElement> getChildren();
 }

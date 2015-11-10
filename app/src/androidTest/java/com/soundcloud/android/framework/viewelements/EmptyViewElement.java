@@ -136,4 +136,11 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     /* package */ Han getTestDriver() { throw new ViewNotFoundException(selector); }
+
+    @Override
+    public List<ViewElement> getChildren() {
+        throw new ViewNotFoundException(selector);
+    }
+
+
 }

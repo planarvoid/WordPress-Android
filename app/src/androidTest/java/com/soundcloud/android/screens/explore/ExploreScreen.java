@@ -12,6 +12,7 @@ import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -92,7 +93,7 @@ public class ExploreScreen extends Screen {
 
     public String currentTabTitle() {
         int currentPage = getViewPager().getCurrentItem();
-        return new TextElement(tabs().getTabAt(currentPage)).getText();
+        return new TextElement(tabs().getTabAt(currentPage).findElement(With.className(AppCompatTextView.class))).getText();
     }
 
     private ViewPager getViewPager() {
