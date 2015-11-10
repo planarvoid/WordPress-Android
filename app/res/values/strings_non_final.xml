@@ -116,7 +116,7 @@
     <string name="tab_home">Home</string>
     <string name="tab_discovery">Discovery</string>
     <string name="tab_collection">Collection</string>
-    <string name="tab_you">You</string>
+    <string name="tab_you">More</string>
 
     <!-- NEW STREAM -->
     <string name="stream_playlist_header_text">%1$s %2$s a playlist</string>
@@ -142,6 +142,6 @@
     <string name="you_view_public_profile">View Public Profile</string>
     <string name="you_app_version">App Version %s</string>
 
-    <!-- __YOU -->
+    <!-- __STREAMING -->
     <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
 </resources>
