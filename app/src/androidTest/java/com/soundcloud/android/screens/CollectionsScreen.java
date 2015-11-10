@@ -38,14 +38,18 @@ public class CollectionsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen clickPlaylistWithTitle(String title) {
-        return new PlaylistItemElement(testDriver, collectionsView().scrollToItem(With.text(title))).click();
+        PlaylistDetailsScreen playlistDetailsScreen = new PlaylistItemElement(testDriver,
+                collectionsView().scrollToFullyVisibleItem(With.text(title))).click();
+        playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
+        return playlistDetailsScreen;
     }
 
     private ViewElement getFirstPlaylist() {
-        return collectionsView().scrollToItem(With.id(R.id.collections_playlist_item));
+        return collectionsView().scrollToFullyVisibleItem(With.id(R.id.collections_playlist_item));
     }
 
     public List<PlaylistItemElement> getPlaylists() {
+        collectionsView().scrollToFullyVisibleItem(With.id(R.id.collections_playlist_item));
         return getPlaylists(R.id.collections_playlist_item);
     }
 
@@ -65,7 +69,6 @@ public class CollectionsScreen extends Screen {
     }
 
     public int getLoadedItemCount() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return collectionsView().getItemCount();
     }
 
@@ -74,6 +77,7 @@ public class CollectionsScreen extends Screen {
     }
 
     private RecyclerViewElement collectionsView() {
+        waitForContentAndRetryIfLoadingFailed();
         return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 

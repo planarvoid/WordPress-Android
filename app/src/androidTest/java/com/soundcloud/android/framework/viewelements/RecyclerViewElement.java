@@ -65,22 +65,60 @@ public class RecyclerViewElement {
         return new EmptyViewElement("Unable to find an item with the given child");
     }
 
+    public RecyclerView.Adapter getAdapter() {
+        return recyclerView.getAdapter();
+    }
+
     public ViewElement scrollToItem(With with) {
+        Criteria atLeastPartiallyVisibleCriteria = new Criteria() {
+            @Override
+            public boolean isSatisfied(ViewElement viewElement) {
+                return !(viewElement instanceof EmptyViewElement);
+            }
+        };
+
+        return scrollUntil(with, atLeastPartiallyVisibleCriteria);
+    }
+
+    public ViewElement scrollToFullyVisibleItem(With with) {
+        Criteria fullyVisibleItemCriteria = new Criteria() {
+            @Override
+            public boolean isSatisfied(ViewElement viewElement) {
+                return ( !(viewElement instanceof EmptyViewElement) && viewElement.isFullyVisible());
+            }
+        };
+
+        return scrollUntil(with, fullyVisibleItemCriteria);
+    }
+
+    private ViewElement scrollUntil(With with, Criteria criteria) {
         int tries = 0;
         ViewElement result = testDriver.findElement(with);
-        while (result instanceof EmptyViewElement) {
-            tries++;
-            testDriver.scrollDown();
-            if (tries > MAX_SCROLLS_TO_FIND_ITEM) {
+        while (!criteria.isSatisfied(result)) {
+            int previouslyViewedItems = tries * getBoundItemCount();
+            int scrollPosition = previouslyViewedItems + lastBoundItemIndex();
+
+            if (scrollPosition > lastItemIndex() || tries > MAX_SCROLLS_TO_FIND_ITEM) {
                 return new EmptyViewElement("Unable to scroll to item; item not in list");
             }
+
+            testDriver.scrollToPosition(recyclerView, scrollPosition);
             result = testDriver.findElement(with);
+            tries++;
         }
         return result;
     }
 
-    public RecyclerView.Adapter getAdapter() {
-        return recyclerView.getAdapter();
+    private interface Criteria {
+        boolean isSatisfied(ViewElement viewElement);
+    }
+
+    private int lastBoundItemIndex() {
+        return getBoundItemCount() - 1;
+    }
+
+    private int lastItemIndex() {
+        return getItemCount() - 1;
     }
 
     private RecyclerView.LayoutManager getLayoutManager() {
