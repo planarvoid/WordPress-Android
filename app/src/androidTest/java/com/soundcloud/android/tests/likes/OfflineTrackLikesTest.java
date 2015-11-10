@@ -8,6 +8,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.BrokenOfflineTest;
 import com.soundcloud.android.framework.annotation.CollectionsTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
@@ -16,6 +17,7 @@ import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
+@BrokenOfflineTest
 public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
     private final OfflineContentHelper offlineContentHelper;
