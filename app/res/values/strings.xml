@@ -202,7 +202,7 @@
     <string name="use_existing_image_error">Could not use existing image</string>
 
     <!-- __NAVIGATION -->
-    <string name="side_menu_notifications">Notifications</string>
+    <string name="side_menu_notifications">Activity</string>
     <string name="side_menu_record">Record</string>
     <string name="side_menu_you">You</string>
     <string name="side_menu_settings">Settings</string>
@@ -620,7 +620,7 @@
 
     <!-- __YOU -->
     <string name="you_explore">Explore</string>
-    <string name="you_activity">Notifications</string>
+    <string name="you_activity">Activity</string>
     <string name="you_record">Record</string>
     <string name="you_offline_sync_settings">Offline Sync Settings</string>
     <string name="you_notification_settings">Notification Settings</string>
