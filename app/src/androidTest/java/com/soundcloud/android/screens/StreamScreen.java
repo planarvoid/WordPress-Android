@@ -45,7 +45,7 @@ public class StreamScreen extends Screen {
     public PlaylistDetailsScreen clickFirstNotPromotedPlaylist() {
         int tries = 0;
         while (tries < MAX_SCROLLS_TO_FIND_ITEM) {
-            scrollToItem(With.id(R.id.playlist_list_item), streamList());
+            streamList().scrollToItem(With.id(R.id.playlist_list_item));
             for (PlaylistItemElement playlistItemElement : getPlaylists()) {
                 if (!playlistItemElement.isPromotedPlaylist()) {
                     return playlistItemElement.click();
@@ -99,7 +99,7 @@ public class StreamScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstRepostedTrack() {
-        final ViewElement viewElement = scrollToItem(With.id(R.id.reposter), streamList());
+        final ViewElement viewElement = streamList().scrollToItem(With.id(R.id.reposter));
         viewElement.click();
         VisualPlayerElement player = new VisualPlayerElement(testDriver);
         player.waitForExpandedPlayer();
@@ -143,7 +143,7 @@ public class StreamScreen extends Screen {
     }
 
     private PlaylistItemElement getPlaylist(int index) {
-        scrollToItem(With.id(R.id.playlist_list_item), streamList());
+        streamList().scrollToItem(With.id(R.id.playlist_list_item));
         return getPlaylists().get(index);
     }
 
@@ -153,13 +153,13 @@ public class StreamScreen extends Screen {
 
     private List<StreamCardElement> trackCardElements() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        scrollToItem(With.id(R.id.track_list_item), streamList());
+        streamList().scrollToItem(With.id(R.id.track_list_item));
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackCardElements);
     }
 
     private List<TrackItemElement> trackItemElements() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        scrollToItem(With.id(R.id.track_list_item), streamList());
+        streamList().scrollToItem(With.id(R.id.track_list_item));
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackItemElement);
     }
 

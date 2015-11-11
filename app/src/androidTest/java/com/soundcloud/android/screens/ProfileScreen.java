@@ -88,7 +88,7 @@ public class ProfileScreen extends Screen {
 
     public VisualPlayerElement clickFirstRepostedTrack() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        final ViewElement viewElement = scrollToItem(With.id(R.id.reposter), currentRecyclerView());
+        final ViewElement viewElement = currentRecyclerView().scrollToItem(With.id(R.id.reposter));
         viewElement.click();
         VisualPlayerElement visualPlayer = new VisualPlayerElement(testDriver);
         visualPlayer.waitForExpandedPlayer();

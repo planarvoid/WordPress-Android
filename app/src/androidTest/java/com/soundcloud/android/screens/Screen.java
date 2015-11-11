@@ -125,10 +125,6 @@ public abstract class Screen {
         return result;
     }
 
-    protected ViewElement scrollToItem(With with, RecyclerViewElement recyclerViewElement) {
-        return recyclerViewElement.scrollToItem(with);
-    }
-
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
         @Override
         public TrackItemElement apply(ViewElement viewElement) {
