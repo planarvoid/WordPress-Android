@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics;
 
+import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
@@ -16,16 +17,19 @@ import javax.inject.Inject;
 public class AnalyticsConnector extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final AppboyWrapper appboy;
+    private final AppboyPlaySessionState appboyPlaySessionState;
 
     @Inject
-    public AnalyticsConnector(AppboyWrapper appboy) {
+    public AnalyticsConnector(AppboyWrapper appboy, AppboyPlaySessionState appboyPlaySessionState) {
         this.appboy = appboy;
+        this.appboyPlaySessionState = appboyPlaySessionState;
     }
 
     @Override
     public void onStart(AppCompatActivity activity) {
         if (appboy.openSession(activity)) {
             appboy.requestInAppMessageRefresh();
+            appboyPlaySessionState.setSessionPlayed(false);
         }
     }
 

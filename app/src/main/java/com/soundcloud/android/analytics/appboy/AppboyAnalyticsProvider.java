@@ -28,9 +28,11 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
     private final AppboyEventHandler eventHandler;
 
     @Inject
-    public AppboyAnalyticsProvider(AppboyWrapper appboy, AccountOperations accountOperations) {
+    public AppboyAnalyticsProvider(AppboyWrapper appboy,
+                                   AccountOperations accountOperations,
+                                   AppboyPlaySessionState appboyPlaySessionState) {
         this.appboy = appboy;
-        eventHandler = new AppboyEventHandler(appboy);
+        this.eventHandler = new AppboyEventHandler(appboy, appboyPlaySessionState);
         changeUser(accountOperations.getLoggedInUserUrn());
     }
 

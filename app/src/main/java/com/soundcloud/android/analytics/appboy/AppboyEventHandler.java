@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics.appboy;
 
-import static com.soundcloud.android.main.Screen.SEARCH_EVERYTHING;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CATEGORY;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_DISPLAY_NAME;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_URN;
@@ -13,15 +12,16 @@ import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYLI
 import static com.soundcloud.android.events.SearchEvent.CLICK_NAME_SEARCH;
 import static com.soundcloud.android.events.SearchEvent.KEY_CLICK_NAME;
 import static com.soundcloud.android.events.SearchEvent.KEY_PAGE_NAME;
+import static com.soundcloud.android.main.Screen.SEARCH_EVERYTHING;
 
 import com.appboy.models.outgoing.AppboyProperties;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.Screen;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,9 +40,11 @@ class AppboyEventHandler {
     private static final List<AppboyAttributeName> PLAYLIST_ATTRIBUTES = Arrays.asList(PLAYLIST_TITLE, PLAYLIST_URN);
 
     private final AppboyWrapper appboy;
+    private final AppboyPlaySessionState appboyPlaySessionState;
 
-    AppboyEventHandler(AppboyWrapper appboy) {
+    AppboyEventHandler(AppboyWrapper appboy, AppboyPlaySessionState appboyPlaySessionState) {
         this.appboy = appboy;
+        this.appboyPlaySessionState = appboyPlaySessionState;
     }
 
     public void handleEvent(UIEvent event) {
@@ -90,8 +92,12 @@ class AppboyEventHandler {
     }
 
     public void handleEvent(PlaybackSessionEvent event) {
-        if (event.isPlayEvent() && event.isUserTriggered()) {
+        boolean sessionPlayed = appboyPlaySessionState.isSessionPlayed();
+
+        if (!sessionPlayed && event.isPlayEvent() && event.isMarketablePlay()) {
+            appboyPlaySessionState.setSessionPlayed(true);
             tagEvent(AppboyEvents.PLAY, buildPlayableProperties(event));
+            appboy.requestInAppMessageRefresh();
             appboy.requestImmediateDataFlush();
         }
     }

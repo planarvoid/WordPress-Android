@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.main.Screen;
@@ -31,89 +32,94 @@ import org.mockito.Mock;
 public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Mock private AppboyWrapper appboy;
+    @Mock private AppboyPlaySessionState appboyPlaySessionState;
 
-    private static final PropertySet trackPropertySet = TestPropertySets.expectedTrackForPlayer();
-    private static final TrackItem track = TrackItem.from(trackPropertySet);
+    private static final PropertySet TRACK_PROPERTY_SET = TestPropertySets.expectedTrackForPlayer();
+    private static final TrackItem TRACK = TrackItem.from(TRACK_PROPERTY_SET);
+    private static final TrackSourceInfo TRACK_SOURCE_INFO = new TrackSourceInfo("origin", true);
+    private static final PlaybackSessionEvent MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(TRACK_PROPERTY_SET, Urn.forUser(123L), TRACK_SOURCE_INFO, 0l, 10000l, "https", "player", "wifi", false, true);
+    private static final PlaybackSessionEvent NON_MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(TRACK_PROPERTY_SET, Urn.forUser(123L), TRACK_SOURCE_INFO, 0l, 10000l, "https", "player", "wifi", false, false);
 
-    private static final AppboyProperties playableOnlyProperties = new AppboyProperties()
-            .addProperty("creator_display_name", track.getCreatorName())
-            .addProperty("creator_urn", track.getCreatorUrn().toString())
-            .addProperty("playable_title", track.getTitle())
-            .addProperty("playable_urn", track.getEntityUrn().toString())
+    private static final AppboyProperties PLAYABLE_ONLY_PROPERTIES = new AppboyProperties()
+            .addProperty("creator_display_name", TRACK.getCreatorName())
+            .addProperty("creator_urn", TRACK.getCreatorUrn().toString())
+            .addProperty("playable_title", TRACK.getTitle())
+            .addProperty("playable_urn", TRACK.getEntityUrn().toString())
             .addProperty("playable_type", "track");
 
 
-    private static final EntityMetadata metadata = EntityMetadata.from(trackPropertySet);
+    private static final EntityMetadata METADATA = EntityMetadata.from(TRACK_PROPERTY_SET);
 
     private AppboyEventHandler eventHandler;
 
     @Before
     public void setUp() throws Exception {
-        eventHandler = new AppboyEventHandler(appboy);
+        eventHandler = new AppboyEventHandler(appboy, appboyPlaySessionState);
+        when(appboyPlaySessionState.isSessionPlayed()).thenReturn(false);
     }
 
     @Test
     public void shouldTrackLikeEvents() {
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
-        UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, null, metadata);
+        UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, null, METADATA);
 
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("like", playableOnlyProperties);
+        expectCustomEvent("like", PLAYABLE_ONLY_PROPERTIES);
     }
 
     @Test
     public void shouldNotTrackUnLikeEvents() {
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
-        UIEvent event = UIEvent.fromToggleLike(false, Urn.forTrack(123), eventContext, null, metadata);
+        UIEvent event = UIEvent.fromToggleLike(false, Urn.forTrack(123), eventContext, null, METADATA);
 
         eventHandler.handleEvent(event);
 
         verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
     }
 
+
     @Test
-    public void shouldTrackUserTriggeredPlaySessionEvents() {
-        TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", true);
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(trackPropertySet, Urn.forUser(123L),
-                trackSourceInfo, 0l, 10000l, "https", "player", "wifi", false);
+    public void shouldTrackMarketablePlaySessionEvents() {
+        eventHandler.handleEvent(MARKETABLE_PLAY_EVENT);
 
-        eventHandler.handleEvent(event);
-
-        expectCustomEvent("play", playableOnlyProperties);
+        expectCustomEvent("play", PLAYABLE_ONLY_PROPERTIES);
     }
 
     @Test
-    public void shouldTriggerImmediateFlushOnManualTriggerPlay() {
-        TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", true);
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(trackPropertySet, Urn.forUser(123L),
-                trackSourceInfo, 0l, 10000l, "https", "player", "wifi", false);
-
-        eventHandler.handleEvent(event);
+    public void shouldTriggerImmediateFlushOnMarketablePlays() {
+        eventHandler.handleEvent(MARKETABLE_PLAY_EVENT);
 
         verify(appboy).requestImmediateDataFlush();
     }
 
     @Test
-    public void shouldNotTrackAutomaticTriggeredPlaySessionEvents() {
-        TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", false);
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(trackPropertySet, Urn.forUser(123L),
-                trackSourceInfo, 0l, 10000l, "https", "player", "wifi", false);
+    public void shouldTriggerInAppMessagesRefresh() {
+        eventHandler.handleEvent(MARKETABLE_PLAY_EVENT);
 
-        eventHandler.handleEvent(event);
+        verify(appboy).requestInAppMessageRefresh();
+    }
+
+    @Test
+    public void shouldNotTrackNonMarketablePlays() {
+        eventHandler.handleEvent(NON_MARKETABLE_PLAY_EVENT);
+
+        verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
+    }
+
+    @Test
+    public void shouldNotTrackWhenSessionAlreadyPlayed() {
+        when(appboyPlaySessionState.isSessionPlayed()).thenReturn(true);
+
+        eventHandler.handleEvent(MARKETABLE_PLAY_EVENT);
 
         verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
     }
 
     @Test
     public void shouldNotTrackPauseEvents() {
-        TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", false);
-
-        PlaybackSessionEvent previousEvent = PlaybackSessionEvent.forPlay(trackPropertySet, Urn.forUser(123L),
-                trackSourceInfo, 0l, 10000l, "https", "player", "wifi", false);
-
-        PlaybackSessionEvent event = PlaybackSessionEvent.forStop(trackPropertySet, Urn.forUser(123L),
-                trackSourceInfo, previousEvent, 0l, 10000l, "https", "player", "wifi",
+        PlaybackSessionEvent event = PlaybackSessionEvent.forStop(TRACK_PROPERTY_SET, Urn.forUser(123L),
+                TRACK_SOURCE_INFO, NON_MARKETABLE_PLAY_EVENT, 0l, 10000l, "https", "player", "wifi",
                 PlaybackSessionEvent.STOP_REASON_PAUSE, false);
 
         eventHandler.handleEvent(event);
@@ -124,11 +130,11 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldTrackCommentEvents() {
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder().contextScreen("screen").build();
-        UIEvent event = UIEvent.fromComment(eventContextMetadata, 123l, metadata);
+        UIEvent event = UIEvent.fromComment(eventContextMetadata, 123l, METADATA);
 
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("comment", playableOnlyProperties);
+        expectCustomEvent("comment", PLAYABLE_ONLY_PROPERTIES);
     }
 
     @Test
@@ -166,11 +172,11 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldTrackShareEvents() {
         EventContextMetadata eventContext = eventContextBuilder().pageUrn(Urn.forTrack(123L)).build();
-        UIEvent event = UIEvent.fromShare(Urn.forTrack(123l), eventContext, null, metadata);
+        UIEvent event = UIEvent.fromShare(Urn.forTrack(123l), eventContext, null, METADATA);
 
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("share", playableOnlyProperties);
+        expectCustomEvent("share", PLAYABLE_ONLY_PROPERTIES);
     }
 
     @Test
@@ -184,17 +190,17 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRepostEvents() {
-        UIEvent event = UIEvent.fromToggleRepost(true, Urn.forTrack(123), eventContextBuilder().build(), null, metadata);
+        UIEvent event = UIEvent.fromToggleRepost(true, Urn.forTrack(123), eventContextBuilder().build(), null, METADATA);
 
         eventHandler.handleEvent(event);
 
-        expectCustomEvent("repost", playableOnlyProperties);
+        expectCustomEvent("repost", PLAYABLE_ONLY_PROPERTIES);
     }
 
     @Test
     public void shouldNotTrackUnRepostEvents() {
         EventContextMetadata eventContext = eventContextBuilder().build();
-        UIEvent event = UIEvent.fromToggleRepost(false, Urn.forTrack(123), eventContext, null, metadata);
+        UIEvent event = UIEvent.fromToggleRepost(false, Urn.forTrack(123), eventContext, null, METADATA);
 
         eventHandler.handleEvent(event);
 

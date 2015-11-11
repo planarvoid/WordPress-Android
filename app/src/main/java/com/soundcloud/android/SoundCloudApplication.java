@@ -11,6 +11,7 @@ import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
@@ -106,6 +107,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject FacebookSdk facebookSdk;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
     @Inject EncryptionTester encryptionTester;
+    @Inject AppboyPlaySessionState appboyPlaySessionState;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -175,6 +177,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         playSessionStateProvider.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();
+        appboyPlaySessionState.subscribe();
         castSessionController.startListening();
 
         if (featureFlags.isEnabled(Flag.FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB)) {
