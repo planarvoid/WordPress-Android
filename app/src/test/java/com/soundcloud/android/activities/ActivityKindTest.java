@@ -12,7 +12,9 @@ public class ActivityKindTest {
     }
 
     @Test
-    public void shouldResolveToUnknownFromInvalidIdentifier() {
-        assertThat(ActivityKind.fromIdentifier("unsupported")).isEqualTo(ActivityKind.UNKNOWN);
+    public void shouldSpecifySupportedTypeIdentifiersFromBackend() {
+        final String[] supported = {"track_like", "playlist_like", "track_repost", "playlist_repost",
+                "track_comment", "user_follow"};
+        assertThat(ActivityKind.SUPPORTED_IDENTIFIERS).isEqualTo(supported);
     }
 }

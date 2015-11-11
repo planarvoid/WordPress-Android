@@ -4,7 +4,6 @@ import java.util.EnumSet;
 
 public enum ActivityKind {
 
-    UNKNOWN("unknown"),
     TRACK_LIKE("track_like"),
     PLAYLIST_LIKE("playlist_like"),
     TRACK_REPOST("track_repost"),
@@ -12,6 +11,7 @@ public enum ActivityKind {
     TRACK_COMMENT("track_comment"),
     USER_FOLLOW("user_follow");
 
+    public static final String[] SUPPORTED_IDENTIFIERS = supportedIdentifiers();
     public static final EnumSet<ActivityKind> PLAYABLE_RELATED = EnumSet.of(TRACK_LIKE, PLAYLIST_LIKE,
             TRACK_REPOST, PLAYLIST_REPOST, TRACK_COMMENT);
 
@@ -36,6 +36,14 @@ public enum ActivityKind {
                 return kind;
             }
         }
-        return UNKNOWN;
+        throw new IllegalArgumentException("Unsupported Activity type: " + identifier);
+    }
+
+    private static String[] supportedIdentifiers() {
+        final String[] identifiers = new String[values().length];
+        for (int i = 0; i < values().length; i++) {
+            identifiers[i] = values()[i].identifier;
+        }
+        return identifiers;
     }
 }

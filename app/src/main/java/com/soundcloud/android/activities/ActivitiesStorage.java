@@ -27,6 +27,7 @@ class ActivitiesStorage implements TimelineStorage {
     public Observable<PropertySet> timelineItems(final int limit) {
         final Query query = Query.from(Table.ActivityView)
                 .order(ActivityView.CREATED_AT, Query.Order.DESC)
+                .whereIn(ActivityView.TYPE, ActivityKind.SUPPORTED_IDENTIFIERS)
                 .limit(limit);
         return propellerRx.query(query).map(new ActivityRowMapper());
     }
@@ -36,6 +37,7 @@ class ActivitiesStorage implements TimelineStorage {
         final Query query = Query.from(Table.ActivityView)
                 .whereLt(ActivityView.CREATED_AT, timestamp)
                 .order(ActivityView.CREATED_AT, Query.Order.DESC)
+                .whereIn(ActivityView.TYPE, ActivityKind.SUPPORTED_IDENTIFIERS)
                 .limit(limit);
         return propellerRx.query(query).map(new ActivityRowMapper());
     }
