@@ -49,7 +49,6 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public boolean containsTrackWithTitle(String title) {
-        pullToRefresh();
         return !(tracksListElement().scrollToItem(With.text(title)) instanceof EmptyViewElement);
     }
 
