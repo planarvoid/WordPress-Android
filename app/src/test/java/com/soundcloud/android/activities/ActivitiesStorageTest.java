@@ -50,6 +50,20 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void shouldNotReturnUnsupportedActivitiesFromLatestActivities() {
+        testFixtures().insertUnsupportedActivity();
+
+        storage.timelineItems(Integer.MAX_VALUE).subscribe(subscriber);
+
+        subscriber.assertValues(
+                expectedPropertiesFor(newestActivity),
+                expectedPropertiesFor(olderActivity),
+                expectedPropertiesFor(oldestActivity)
+        );
+        subscriber.assertCompleted();
+    }
+
+    @Test
     public void shouldLimitLatestActivitiesResultSet() {
         final int limit = 1;
         storage.timelineItems(limit).subscribe(subscriber);
@@ -63,6 +77,20 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
         storage.timelineItemsBefore(TIMESTAMP + 2, Integer.MAX_VALUE).subscribe(subscriber);
 
         subscriber.assertValues(
+                expectedPropertiesFor(olderActivity),
+                expectedPropertiesFor(oldestActivity)
+        );
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void shouldNotReturnUnsupportedActivitiesFromActivitiesBeforeGivenTimestamp() {
+        testFixtures().insertUnsupportedActivity();
+
+        storage.timelineItemsBefore(Long.MAX_VALUE, Integer.MAX_VALUE).subscribe(subscriber);
+
+        subscriber.assertValues(
+                expectedPropertiesFor(newestActivity),
                 expectedPropertiesFor(olderActivity),
                 expectedPropertiesFor(oldestActivity)
         );

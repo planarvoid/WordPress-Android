@@ -671,6 +671,14 @@ public class DatabaseFixtures {
         insertInto(Table.Collections, cv);
     }
 
+    public void insertUnsupportedActivity() {
+        ContentValuesBuilder builder = ContentValuesBuilder.values();
+        builder.put(TableColumns.Activities.TYPE, "unsupported type");
+        builder.put(TableColumns.Activities.USER_ID, 123L);
+        builder.put(TableColumns.Activities.CREATED_AT, new Date().getTime());
+        insertInto(Table.Activities, builder.get());
+    }
+
     public void insertUserFollowActivity(ApiUserFollowActivity followActivity) {
         insertUser(followActivity.getUser());
         ContentValuesBuilder builder = ContentValuesBuilder.values();
