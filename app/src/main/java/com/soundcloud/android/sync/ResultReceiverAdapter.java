@@ -11,29 +11,33 @@ import android.os.Looper;
 import android.os.ResultReceiver;
 import android.support.annotation.VisibleForTesting;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public class ResultReceiverAdapter extends ResultReceiver {
 
     @VisibleForTesting
     public static final String SYNC_RESULT = "syncResult";
     private static final String TAG = "RxResultReceiver";
 
-    private volatile Subscriber<? super SyncResult> subscriber;
+    private final AtomicReference<Subscriber<? super SyncResult>> subscriberRef;
 
     public ResultReceiverAdapter(final Subscriber<? super SyncResult> subscriber, Looper looper) {
         super(new Handler(looper));
-        this.subscriber = subscriber;
-        // make sure we release the observer reference as soon as we're unsubscribing
+        this.subscriberRef = new AtomicReference<Subscriber<? super SyncResult>>(subscriber);
+        // make sure we release the observer reference as soon as we're unsubscribing, or
+        // we might create a memory leak
         subscriber.add(Subscriptions.create(new Action0() {
             @Override
             public void call() {
                 Log.d(TAG, "observer is unsubscribing, releasing ref...");
-                ResultReceiverAdapter.this.subscriber = null;
+                subscriberRef.set(null);
             }
         }));
     }
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
+        final Subscriber<? super SyncResult> subscriber = subscriberRef.get();
         if (subscriber != null && !subscriber.isUnsubscribed()) {
             Log.d(TAG, "delivering result: " + resultData);
             SyncResult syncResult = resultData.getParcelable(SYNC_RESULT);
