@@ -8,7 +8,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -77,7 +76,6 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     private final CollectionsPlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
-    private final FeatureFlags featureFlags;
 
     private CompositeSubscription eventSubscriptions;
     private PlaylistsOptions currentOptions;
@@ -90,8 +88,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                          CollectionsAdapter adapter,
                          CollectionsPlaylistOptionsPresenter optionsPresenter,
                          Resources resources,
-                         EventBus eventBus,
-                         FeatureFlags featureFlags) {
+                         EventBus eventBus) {
         super(swipeRefreshAttacher, Options.defaults());
         this.collectionsOperations = collectionsOperations;
         this.likeOperations = likeOperations;
@@ -100,7 +97,6 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         this.optionsPresenter = optionsPresenter;
         this.resources = resources;
         this.eventBus = eventBus;
-        this.featureFlags = featureFlags;
         adapter.setListener(this);
         adapter.setOnboardingListener(this);
         currentOptions = collectionsOptionsStorage.getLastOrDefault();
@@ -128,7 +124,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         super.onViewCreated(fragment, view, savedInstanceState);
 
         RecyclerView recyclerView = getRecyclerView();
-        final int spanCount = resources.getInteger(R.integer.stations_grid_span_count);
+        final int spanCount = resources.getInteger(R.integer.collection_grid_span_count);
         final GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), spanCount);
         layoutManager.setSpanSizeLookup(createSpanSizeLookup(spanCount));
         recyclerView.setLayoutManager(layoutManager);

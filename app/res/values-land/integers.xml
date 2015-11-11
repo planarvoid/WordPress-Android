@@ -6,5 +6,6 @@
     <integer name="timestamp_animate_percentage">25</integer>
 
     <!-- Collection -->
+    <integer name="collection_grid_span_count">3</integer>
     <integer name="collection_preview_thumbnail_count">5</integer>
 </resources>
