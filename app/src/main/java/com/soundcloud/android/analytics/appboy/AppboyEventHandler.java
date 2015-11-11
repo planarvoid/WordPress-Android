@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.appboy;
 
+import static com.soundcloud.android.main.Screen.SEARCH_EVERYTHING;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CATEGORY;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_DISPLAY_NAME;
 import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.CREATOR_URN;
@@ -12,15 +13,15 @@ import static com.soundcloud.android.analytics.appboy.AppboyAttributeName.PLAYLI
 import static com.soundcloud.android.events.SearchEvent.CLICK_NAME_SEARCH;
 import static com.soundcloud.android.events.SearchEvent.KEY_CLICK_NAME;
 import static com.soundcloud.android.events.SearchEvent.KEY_PAGE_NAME;
-import static com.soundcloud.android.main.Screen.SEARCH_EVERYTHING;
 
 import com.appboy.models.outgoing.AppboyProperties;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.AttributionEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.main.Screen;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,6 +87,13 @@ class AppboyEventHandler {
     private boolean isSearchEverythingClick(SearchEvent event) {
         return CLICK_NAME_SEARCH.equals(event.get(KEY_CLICK_NAME))
                 && SEARCH_EVERYTHING.get().equals(event.get(KEY_PAGE_NAME));
+    }
+
+    public void handleEvent(PlaybackSessionEvent event) {
+        if (event.isPlayEvent() && event.isUserTriggered()) {
+            tagEvent(AppboyEvents.PLAY, buildPlayableProperties(event));
+            appboy.requestImmediateDataFlush();
+        }
     }
 
     public void handleEvent(ScreenEvent event) {
