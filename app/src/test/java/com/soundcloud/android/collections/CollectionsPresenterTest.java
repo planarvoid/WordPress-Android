@@ -2,6 +2,7 @@ package com.soundcloud.android.collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -236,14 +237,21 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
     @Test
     public void onCollectionSyncedShouldRefresh() {
         final PublishSubject<SyncResult> collectionSyncedBus = PublishSubject.create();
+        final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
+        final MyCollections myCollections = new MyCollections(
+                Collections.singletonList(Urn.forTrack(123L)),
+                playlistItems,
+                RECENT_STATIONS,
+                false);
+
         when(collectionsOperations.onCollectionSynced()).thenReturn(collectionSyncedBus);
-        when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(PublishSubject.<MyCollections>create());
+        when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(Observable.just(myCollections));
         presenter.onCreate(fragment, null);
         reset(collectionsOperations);
 
         collectionSyncedBus.onNext(SyncResult.success("syncResult", true));
 
-        verify(collectionsOperations).collections(any(PlaylistsOptions.class));
+        verify(adapter).onNext(presenter.toCollectionsItems.call(myCollections));
     }
 
     @Test
@@ -256,7 +264,7 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         reset(collectionsOperations);
 
         collectionSyncedBus.onNext(SyncResult.success("syncResult", true));
-
-        verify(collectionsOperations, never()).collections(any(PlaylistsOptions.class));
+    
+        verify(adapter, never()).onNext(anyCollection());
     }
 }

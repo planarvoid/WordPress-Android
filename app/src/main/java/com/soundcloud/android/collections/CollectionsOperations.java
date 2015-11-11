@@ -143,7 +143,7 @@ public class CollectionsOperations {
                 }
     };
 
-    private static final Func1<SyncResult, Boolean> IS_COLLECTION = new Func1<SyncResult, Boolean>() {
+    private static final Func1<SyncResult, Boolean> IS_NEW_COLLECTION_ITEMS = new Func1<SyncResult, Boolean>() {
         @Override
         public Boolean call(SyncResult syncResult) {
             switch (syncResult.getAction()) {
@@ -180,7 +180,7 @@ public class CollectionsOperations {
     }
 
     Observable<SyncResult> onCollectionSynced() {
-        return eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_COLLECTION);
+        return eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_NEW_COLLECTION_ITEMS);
     }
 
     Observable<MyCollections> collections(final PlaylistsOptions options) {

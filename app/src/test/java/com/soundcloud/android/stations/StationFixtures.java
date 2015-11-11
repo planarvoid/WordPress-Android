@@ -24,7 +24,11 @@ public class StationFixtures {
     }
 
     public static ApiStation getApiStation(Urn station, int size) {
-        final ModelCollection<ApiTrack> tracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class, size));
+        final ModelCollection<ApiTrack> tracks = new ModelCollection<>(
+                ModelFixtures.create(ApiTrack.class, size),
+                null,
+                "soundcloud:radio:123123123"
+        );
         return new ApiStation(getApiStationMetadata(station), tracks);
     }
 
@@ -102,6 +106,9 @@ public class StationFixtures {
         for (Urn station : stations) {
             stationsCollection.add(getApiStation(station).getMetadata());
         }
-        return new ModelCollection<>(stationsCollection);
+        return new ModelCollection<>(
+                stationsCollection,
+                null,
+                "soundcloud:radio:123123123");
     }
 }

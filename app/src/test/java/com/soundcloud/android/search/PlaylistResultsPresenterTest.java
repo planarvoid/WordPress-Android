@@ -56,7 +56,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
     }
 
     private void fakePlaylistResultsForTag(String searchTag) {
-        ApiPlaylistCollection collection = new ApiPlaylistCollection(singletonList(playlist));
+        ApiPlaylistCollection collection = new ApiPlaylistCollection(singletonList(playlist), null, null);
         when(operations.playlistsForTag(searchTag)).thenReturn(Observable.just(collection));
 
         Bundle fragmentArgs = new Bundle();

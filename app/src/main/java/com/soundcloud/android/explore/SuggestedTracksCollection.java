@@ -10,20 +10,18 @@ import java.util.Map;
 
 public class SuggestedTracksCollection extends ModelCollection<ApiTrack> {
 
-    private String trackingTag;
+    private final String trackingTag;
 
     public SuggestedTracksCollection(@JsonProperty("collection") List<ApiTrack> collection,
                                      @JsonProperty("_links") Map<String, Link> links,
-                                     @JsonProperty("query_urn") String queryUrn) {
+                                     @JsonProperty("query_urn") String queryUrn,
+                                     @JsonProperty("tracking_tag") String trackingTag) {
         super(collection, links, queryUrn);
+        this.trackingTag = trackingTag;
     }
 
     public String getTrackingTag() {
         return trackingTag;
     }
 
-    @JsonProperty("tracking_tag")
-    public void setTrackingTag(String trackingTag) {
-        this.trackingTag = trackingTag;
-    }
 }

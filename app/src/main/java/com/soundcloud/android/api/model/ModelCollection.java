@@ -49,7 +49,7 @@ public class ModelCollection<T> implements Iterable<T> {
                            @JsonProperty("_links") Map<String, Link> links,
                            @JsonProperty("query_urn") String queryUrn) {
         this(collection, links);
-        if (queryUrn!= null) {
+        if (queryUrn != null) {
             this.queryUrn = new Urn(queryUrn);
         }
     }

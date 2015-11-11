@@ -12,21 +12,19 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.schedulers.Schedulers;
 
-import java.util.Arrays;
+import java.util.Collections;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ExploreTracksOperationsTest {
+public class ExploreTracksOperationsTest extends AndroidUnitTest {
 
     private ExploreTracksOperations exploreTracksOperations;
 
@@ -95,11 +93,8 @@ public class ExploreTracksOperationsTest {
     }
 
     private SuggestedTracksCollection buildSuggestedTracksResponse() throws CreateModelException {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        SuggestedTracksCollection collection = new SuggestedTracksCollection();
-        collection.setCollection(Arrays.asList(track));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(SuggestedTracksCollection.class))).thenReturn(
-                Observable.just(collection));
+        SuggestedTracksCollection collection = new SuggestedTracksCollection(Collections.singletonList(ModelFixtures.create(ApiTrack.class)), null, null, null);
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(SuggestedTracksCollection.class))).thenReturn(Observable.just(collection));
         return collection;
     }
 }

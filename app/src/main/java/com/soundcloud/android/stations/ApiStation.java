@@ -27,11 +27,13 @@ public final class ApiStation implements StationRecord {
 
     private final ApiStationMetadata metadata;
     private final List<? extends TrackRecord> tracks;
+    private final Urn queryUrn;
 
     @JsonCreator
     public ApiStation(@JsonProperty("station") ApiStationMetadata metadata, @JsonProperty("tracks") ModelCollection<ApiTrack> tracks) {
         this.metadata = metadata;
         this.tracks = tracks.getCollection();
+        this.queryUrn = tracks.getQueryUrn().isPresent() ? tracks.getQueryUrn().get() : Urn.NOT_SET;
     }
 
     @VisibleForTesting
@@ -61,6 +63,12 @@ public final class ApiStation implements StationRecord {
     @Override
     public String getTitle() {
         return metadata.getTitle();
+    }
+
+    public Urn getQueryUrn() {
+        // TODO : in the next story add `getQueryUrn` to `StationRecord` and
+        // store it in the DB.
+        return queryUrn;
     }
 
     public String getPermalink() {

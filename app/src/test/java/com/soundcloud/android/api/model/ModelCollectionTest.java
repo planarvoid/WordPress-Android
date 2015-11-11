@@ -12,5 +12,4 @@ public class ModelCollectionTest {
                 .suppress(Warning.NONFINAL_FIELDS)
                 .verify();
     }
-
 }
