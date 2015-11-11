@@ -13,7 +13,7 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
-import com.soundcloud.android.screens.search.SearchResultsScreen;
+import com.soundcloud.android.screens.search.LegacySearchResultsScreen;
 
 public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
     private static final String MIDTIER_TEST_SCENARIO = "midtier-tracking-test";
@@ -70,10 +70,10 @@ public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void ignore_testClickingOnMidTierTrackInSearchEverythingOpensUpsell() {
-        final SearchResultsScreen searchResultsScreen = streamScreen.actionBar()
+        final LegacySearchResultsScreen searchResultsScreen = streamScreen.actionBar()
                 .clickSearchButton()
                 .actionBar()
-                .doSearch("idon'tgetit muff");
+                .doLegacySearch("idon'tgetit muff");
 
         final UpgradeScreen upgradeScreen = searchResultsScreen.clickMidTierTrackForUpgrade("Muff");
 
@@ -81,10 +81,10 @@ public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void ignore_testClickingOnMidTierTrackInSearchTracksOpensUpsell() {
-        final SearchResultsScreen searchResultsScreen = streamScreen.actionBar()
+        final LegacySearchResultsScreen searchResultsScreen = streamScreen.actionBar()
                 .clickSearchButton()
                 .actionBar()
-                .doSearch("idon'tgetit muff");
+                .doLegacySearch("idon'tgetit muff");
 
         final UpgradeScreen upgradeScreen = searchResultsScreen
                 .touchTracksTab()

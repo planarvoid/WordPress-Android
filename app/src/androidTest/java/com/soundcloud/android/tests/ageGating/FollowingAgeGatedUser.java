@@ -35,7 +35,7 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
     public void ignore_testAbove21UsersAreAbleToFollowAgeGatedUsers() {
         ProfileScreen annoyMouseUserScreen = playlistTagsScreen
                 .actionBar()
-                .doSearch("annoymouse")
+                .doLegacySearch("annoymouse")
                 .clickFirstUserItem()
                 .clickFollowToggle();
 

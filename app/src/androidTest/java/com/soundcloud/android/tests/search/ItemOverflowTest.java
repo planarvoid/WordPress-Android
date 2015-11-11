@@ -37,7 +37,7 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
     @BrokenSearchTest
     public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
         playlistTagsScreen.actionBar()
-                .doSearch("clownstep")
+                .doLegacySearch("clownstep")
                 .touchTracksTab()
                 .clickFirstTrackOverflowButton()
                 .clickAddToPlaylist();

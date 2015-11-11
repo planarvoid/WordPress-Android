@@ -1,6 +1,9 @@
 package com.soundcloud.android.tests.search.intents;
 
-import com.soundcloud.android.screens.search.SearchResultsScreen;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import com.soundcloud.android.screens.search.LegacySearchResultsScreen;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -13,9 +16,8 @@ public class ResolveSearchContentUriWithQueryTest extends SearchIntentsBaseTest 
     }
 
     public void testSearchContentUriResolution() {
-        SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
-        assertEquals("Search results screen should be visible", true, resultsScreen.isVisible());
-        assertEquals("Search query should be set", "skrillex", resultsScreen.actionBar().getSearchQuery());
+        LegacySearchResultsScreen resultsScreen = new LegacySearchResultsScreen(solo);
+        assertThat("Search results screen should be visible", resultsScreen.isVisible());
+        assertThat("Search query should be set", resultsScreen.actionBar().getLegacySearchQuery(), is("skrillex"));
     }
-
 }

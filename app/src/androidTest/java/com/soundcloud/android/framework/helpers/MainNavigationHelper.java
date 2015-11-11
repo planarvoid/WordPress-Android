@@ -2,10 +2,11 @@ package com.soundcloud.android.framework.helpers;
 
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.screens.ActivitiesScreen;
+import com.soundcloud.android.screens.BasicSettingsScreen;
 import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.BasicSettingsScreen;
 import com.soundcloud.android.screens.StationsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
@@ -40,6 +41,10 @@ public class MainNavigationHelper {
 
     public ProfileScreen goToMyProfile() {
         return mainTabs().clickYou().clickMyProfileLink();
+    }
+
+    public DiscoveryScreen goToDiscovery() {
+        return mainTabs().clickDiscovery();
     }
 
     public ExploreScreen goToExplore() {

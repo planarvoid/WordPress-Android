@@ -1,11 +1,9 @@
 package com.soundcloud.android.framework.viewelements;
 
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.utils.Log;
 
 import android.support.v7.widget.RecyclerView;
-
 import android.view.View;
 
 
@@ -19,7 +17,7 @@ public class RecyclerViewElement {
     }
 
     public RecyclerViewElement(View view, Han testDriver) {
-        if (!(view instanceof RecyclerView)){
+        if (!(view instanceof RecyclerView)) {
             throw new IllegalArgumentException("Argument must be a valid recycler view");
         }
 
@@ -87,7 +85,7 @@ public class RecyclerViewElement {
         return getAdapter().getItemCount();
     }
 
-    private RecyclerView.Adapter getAdapter() {
+    public RecyclerView.Adapter getAdapter() {
         return recyclerView.getAdapter();
     }
 }

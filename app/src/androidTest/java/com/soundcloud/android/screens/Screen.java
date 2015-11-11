@@ -68,6 +68,10 @@ public abstract class Screen {
         return new ToolBarElement(testDriver);
     }
 
+    public String getActionBarTitle() {
+        return actionBar().getTitle();
+    }
+
     public GoBackOnlineDialogElement getGoBackOnlineDialog() {
         return new GoBackOnlineDialogElement(testDriver);
     }
