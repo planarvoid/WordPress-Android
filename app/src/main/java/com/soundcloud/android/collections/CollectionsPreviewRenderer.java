@@ -4,6 +4,8 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 
 import android.content.res.Resources;
@@ -18,6 +20,7 @@ class CollectionsPreviewRenderer implements CellRenderer<CollectionsItem> {
 
     private final Navigator navigator;
     private final Resources resources;
+    private final FeatureFlags featureFlags;
 
     private final View.OnClickListener goToTrackLikesListener = new View.OnClickListener() {
         @Override
@@ -34,9 +37,10 @@ class CollectionsPreviewRenderer implements CellRenderer<CollectionsItem> {
     };
 
     @Inject
-    public CollectionsPreviewRenderer(Navigator navigator, Resources resources) {
+    public CollectionsPreviewRenderer(Navigator navigator, Resources resources, FeatureFlags featureFlags) {
         this.navigator = navigator;
         this.resources = resources;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -44,8 +48,15 @@ class CollectionsPreviewRenderer implements CellRenderer<CollectionsItem> {
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         final View view = inflater.inflate(R.layout.collections_preview_item, parent, false);
         getLikesPreviewView(view).setOnClickListener(goToTrackLikesListener);
-        getRecentStationsPreviewView(view).setOnClickListener(goToRecentStationsListener);
+        setupRecentStationsView(getRecentStationsPreviewView(view));
         return view;
+    }
+
+    private void setupRecentStationsView(CollectionPreviewView recentStationsView) {
+        if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
+            recentStationsView.setVisibility(View.VISIBLE);
+            recentStationsView.setOnClickListener(goToRecentStationsListener);
+        }
     }
 
     private CollectionPreviewView getRecentStationsPreviewView(View view) {
