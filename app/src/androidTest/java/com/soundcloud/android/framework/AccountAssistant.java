@@ -40,15 +40,16 @@ public final class AccountAssistant {
     private static final Lock lock = new ReentrantLock();
     private static final Condition accountDataCleaned = lock.newCondition();
 
-    protected static Token getToken(Context context, PublicApi apiWrapper, String username, String password) throws IOException {
-        final Token token = apiWrapper.login(username, password);
+    protected static Token setToken(Context context, Token token) throws IOException {
         final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
         application.getAccountOperations().updateToken(token);
         return token;
     }
 
     static boolean addAccountAndEnableSync(Context context, Token token, PublicApiUser user) {
-        return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE);
+        final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
+        application.getAccountOperations().updateToken(token);
+        return application.addUserAccountAndEnableSync(user, token, SignupVia.NONE);
     }
 
     // Dirty workaround :
