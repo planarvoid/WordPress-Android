@@ -6,7 +6,12 @@ import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.sync.timeline.TimelineStorage;
+import com.soundcloud.android.utils.PropertySets;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.collections.PropertySet;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 
 import android.content.Context;
 import android.net.Uri;
@@ -15,7 +20,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 @Deprecated
-public class LegacyActivitiesStorage {
+public class LegacyActivitiesStorage implements TimelineStorage {
     private SyncStateManager syncStateManager;
     private ActivityDAO activitiesDAO;
 
@@ -32,6 +37,24 @@ public class LegacyActivitiesStorage {
                                    ActivityDAO activitiesDAO) {
         this.syncStateManager = syncStateManager;
         this.activitiesDAO = activitiesDAO;
+    }
+
+    @Override
+    public Observable<PropertySet> timelineItems(int limit) {
+        // this is unused, we'll delete this class soon
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Observable<PropertySet> timelineItemsBefore(long timestamp, int limit) {
+        // this is unused, we'll delete this class soon
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<PropertySet> timelineItemsSince(long timestamp, int limit) {
+        final Activities collectionSince = getCollectionSince(Content.ME_ACTIVITIES.uri, timestamp, limit);
+        return Lists.transform(collectionSince.collection, PropertySets.toPropertySet());
     }
 
     @Deprecated

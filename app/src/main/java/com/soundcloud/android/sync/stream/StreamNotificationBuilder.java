@@ -1,4 +1,4 @@
-package com.soundcloud.android.stream;
+package com.soundcloud.android.sync.stream;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class StreamNotificationBuilder {
+class StreamNotificationBuilder {
 
     private static final int NOTIFICATION_MAX = 100;
 
@@ -30,17 +30,17 @@ public class StreamNotificationBuilder {
     private final Provider<Builder> builderProvider;
     private final int notificationMax;
 
-    public StreamNotificationBuilder(Context appContext, Provider<Builder> builderProvider) {
+    StreamNotificationBuilder(Context appContext, Provider<Builder> builderProvider) {
         this(appContext, builderProvider, NOTIFICATION_MAX);
     }
 
-    public StreamNotificationBuilder(Context appContext, Provider<Builder> builderProvider, int notificationMax) {
+    StreamNotificationBuilder(Context appContext, Provider<Builder> builderProvider, int notificationMax) {
         this.appContext = appContext;
         this.builderProvider = builderProvider;
         this.notificationMax = notificationMax;
     }
 
-    public Observable<Notification> notification(List<PropertySet> streamItems) {
+    Observable<Notification> notification(List<PropertySet> streamItems) {
         return Observable.just(getBuilder(streamItems).build());
     }
 
@@ -90,8 +90,7 @@ public class StreamNotificationBuilder {
         return String.valueOf(streamItems.size() > notificationMax ? notificationMax + "+" : streamItems.size());
     }
 
-    /* package */
-    public String getIncomingNotificationMessage(List<PropertySet> streamItems) {
+    private String getIncomingNotificationMessage(List<PropertySet> streamItems) {
         LinkedHashSet<String> uniqueUsers = getUniqueUsersFromStreamItems(streamItems);
         final Iterator<String> iterator = uniqueUsers.iterator();
         switch (uniqueUsers.size()) {

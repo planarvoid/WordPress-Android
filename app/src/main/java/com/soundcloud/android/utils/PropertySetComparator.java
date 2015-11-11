@@ -13,14 +13,23 @@ import java.util.Comparator;
  */
 public class PropertySetComparator<T extends Comparable<T>> implements Comparator<PropertySet> {
 
+    public static final int ASC = 1;
+    public static final int DESC = -1;
+
     private final Property<T> property;
+    private final int order;
 
     public PropertySetComparator(Property<T> property) {
+        this(property, ASC);
+    }
+
+    public PropertySetComparator(Property<T> property, int order) {
         this.property = property;
+        this.order = order;
     }
 
     @Override
     public int compare(PropertySet lhs, PropertySet rhs) {
-        return lhs.get(property).compareTo(rhs.get(property));
+        return order * lhs.get(property).compareTo(rhs.get(property));
     }
 }
