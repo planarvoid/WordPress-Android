@@ -3,7 +3,6 @@ package com.soundcloud.android.policies;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;
-import static com.soundcloud.android.storage.Table.TrackPolicies;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
@@ -12,21 +11,16 @@ import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.query.ColumnFunctions;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 
 import android.provider.BaseColumns;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 class LoadTracksForPolicyUpdateCommand extends Command<Void, List<Urn>> {
 

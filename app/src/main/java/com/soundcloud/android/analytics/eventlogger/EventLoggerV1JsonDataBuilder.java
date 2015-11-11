@@ -85,6 +85,14 @@ public class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent("collection_to_offline::remove", event));
             case UIEvent.KIND_SHARE:
                 return transform(buildEngagementEvent("share", event));
+            case UIEvent.KIND_REPOST:
+                return transform(buildEngagementEvent("repost::add", event));
+            case UIEvent.KIND_UNREPOST:
+                return transform(buildEngagementEvent("repost::remove", event));
+            case UIEvent.KIND_LIKE:
+                return transform(buildEngagementEvent("like::add", event));
+            case UIEvent.KIND_UNLIKE:
+                return transform(buildEngagementEvent("like::remove", event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -133,12 +141,17 @@ public class EventLoggerV1JsonDataBuilder {
                 .clickObject(event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN));
     }
 
-    private EventLoggerEventData buildEngagementEvent(String clickName, UIEvent event) {
-        EventLoggerEventData eventData = buildClickEvent(clickName, event)
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT);
+    private EventLoggerEventData buildEngagementEvent(String engagementClickName, UIEvent event) {
+        EventLoggerEventData eventData = buildClickEvent(engagementClickName, event)
+                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                .clickSource(event.getClickSource());
 
         if (!event.get(AdTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
             eventData.pageUrn(event.get(AdTrackingKeys.KEY_PAGE_URN));
+        }
+
+        if (event.isFromOverflow()) {
+            eventData.fromOverflowMenu(event.isFromOverflow());
         }
 
         return eventData;

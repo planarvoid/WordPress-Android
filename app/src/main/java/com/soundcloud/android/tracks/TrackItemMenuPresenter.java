@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
@@ -224,8 +225,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     }
 
     private void handleShare(Context context) {
-        shareOperations.share(context, track.getSource(), ScreenElement.LIST.get(),
-                screenProvider.getLastScreenTag(), pageUrn, getPromotedSource());
+        shareOperations.share(context, track.getSource(), getEventContextMetadata(), getPromotedSource());
     }
 
     private void playRelatedTracksWithDelayedLoadingDialog(Context context, String loadingMessage, String onErrorToastText, int startPosition) {
@@ -259,13 +259,31 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
 
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike,
-                        ScreenElement.LIST.get(),
-                        screenProvider.getLastScreenTag(),
-                        screenProvider.getLastScreenTag(),
                         trackUrn,
-                        pageUrn,
+                        getEventContextMetadata(),
                         getPromotedSource(),
                         EntityMetadata.from(track)));
+    }
+
+    private void trackRepost(boolean repost) {
+        final Urn trackUrn = track.getEntityUrn();
+
+        eventBus.publish(EventQueue.TRACKING,
+                UIEvent.fromToggleRepost(repost,
+                        trackUrn,
+                        getEventContextMetadata(),
+                        getPromotedSource(),
+                        EntityMetadata.from(track)));
+    }
+
+    private EventContextMetadata getEventContextMetadata() {
+        return EventContextMetadata.builder()
+                .invokerScreen(ScreenElement.LIST.get())
+                .contextScreen(screenProvider.getLastScreenTag())
+                .pageName(screenProvider.getLastScreenTag())
+                .pageUrn(pageUrn)
+                .isFromOverflow(true)
+                .build();
     }
 
     private void handleLike() {
@@ -284,6 +302,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         repostOperations.toggleRepost(trackUrn, repost)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new RepostResultSubscriber(context, repost));
+
+        trackRepost(repost);
     }
 
     private static class TrackSubscriber extends DefaultSubscriber<PropertySet> {

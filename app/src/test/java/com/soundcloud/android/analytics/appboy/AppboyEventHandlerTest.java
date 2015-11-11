@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -51,8 +52,8 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackLikeEvents() {
-        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name",
-                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
+        EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
+        UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, null, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -61,8 +62,8 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotTrackUnLikeEvents() {
-        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name",
-                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
+        EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
+        UIEvent event = UIEvent.fromToggleLike(false, Urn.forTrack(123), eventContext, null, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -71,7 +72,8 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackCommentEvents() {
-        UIEvent event = UIEvent.fromComment("screen", 123l, metadata);
+        EventContextMetadata eventContextMetadata = EventContextMetadata.builder().contextScreen("screen").build();
+        UIEvent event = UIEvent.fromComment(eventContextMetadata, 123l, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -112,7 +114,8 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackShareEvents() {
-        UIEvent event = UIEvent.fromShare("screen", "page", Urn.forTrack(123l), Urn.forTrack(123l), null, metadata);
+        EventContextMetadata eventContext = eventContextBuilder().pageUrn(Urn.forTrack(123L)).build();
+        UIEvent event = UIEvent.fromShare(Urn.forTrack(123l), eventContext, null, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -130,8 +133,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRepostEvents() {
-        UIEvent event = UIEvent.fromToggleRepost(true, "invoker_screen", "page_name",
-                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
+        UIEvent event = UIEvent.fromToggleRepost(true, Urn.forTrack(123), eventContextBuilder().build(), null, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -140,8 +142,8 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotTrackUnRepostEvents() {
-        UIEvent event = UIEvent.fromToggleRepost(false, "invoker_screen", "page_name",
-                Urn.forTrack(123), Urn.NOT_SET, null, metadata);
+        EventContextMetadata eventContext = eventContextBuilder().build();
+        UIEvent event = UIEvent.fromToggleRepost(false, Urn.forTrack(123), eventContext, null, metadata);
 
         eventHandler.handleEvent(event);
 
@@ -172,4 +174,10 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         assertThat(generatedJson).isEqualTo(expectedJson);
     }
 
+    private EventContextMetadata.Builder eventContextBuilder() {
+        return EventContextMetadata.builder()
+                .contextScreen("context_screen")
+                .pageName("page_name")
+                .pageUrn(Urn.NOT_SET);
+    }
 }

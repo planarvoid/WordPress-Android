@@ -6,8 +6,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -16,6 +19,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -34,12 +38,14 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
     @Mock AccountOperations accountOperations;
     @Mock StreamItemViewHolder viewHolder;
     @Mock View view;
+    @Mock ScreenProvider screenProvider;
     @Captor ArgumentCaptor<StreamItemViewHolder.CardEngagementClickListener> listenerCaptor;
 
     private final CondensedNumberFormatter numberFormatter =
             CondensedNumberFormatter.create(Locale.US, resources());
 
     private PlayableItem playableItem;
+    private TestEventBus eventBus;
     private StreamItemEngagementsPresenter presenter;
     private PublishSubject<PropertySet> testSubject;
 
@@ -47,12 +53,15 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
     public void setUp() {
         testSubject = PublishSubject.create();
         playableItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        presenter = new StreamItemEngagementsPresenter(numberFormatter, likeOperations, repostOperations, accountOperations);
+        eventBus = new TestEventBus();
+        presenter = new StreamItemEngagementsPresenter(numberFormatter, likeOperations, repostOperations,
+                accountOperations, eventBus);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(999));
         when(likeOperations.toggleLike(playableItem.getEntityUrn(), !playableItem.isLiked())).thenReturn(testSubject);
         when(repostOperations.toggleRepost(playableItem.getEntityUrn(), !playableItem.isReposted())).thenReturn(testSubject);
         when(viewHolder.getContext()).thenReturn(context());
+        when(screenProvider.getLastScreenTag()).thenReturn("screen");
     }
 
     @Test
@@ -94,6 +103,28 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
 
         verify(repostOperations).toggleRepost(playableItem.getEntityUrn(), !playableItem.isReposted());
         assertThat(testSubject.hasObservers()).isTrue();
+    }
+
+    @Test
+    public void toggleRepostSendsTrackingEvent() {
+        presenter.bind(viewHolder, playableItem);
+
+        captureListener().onRepostClick(view);
+
+        UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.getKind()).isEqualTo(playableItem.isReposted() ? UIEvent.KIND_UNREPOST : UIEvent.KIND_REPOST);
+        assertThat(trackingEvent.isFromOverflow()).isFalse();
+    }
+
+    @Test
+    public void toggleLikeSendsTrackingEvent() {
+        presenter.bind(viewHolder, playableItem);
+
+        captureListener().onLikeClick(view);
+
+        UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.getKind()).isEqualTo(playableItem.isLiked() ? UIEvent.KIND_UNLIKE : UIEvent.KIND_LIKE);
+        assertThat(trackingEvent.isFromOverflow()).isFalse();
     }
 
     private StreamItemViewHolder.CardEngagementClickListener captureListener() {

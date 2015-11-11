@@ -10,6 +10,7 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
@@ -141,13 +142,18 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private void playlistLike(boolean addLike) {
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike,
-                        ScreenElement.LIST.get(),
-                        screenProvider.getLastScreenTag(),
-                        screenProvider.getLastScreenTag(),
                         playlist.getEntityUrn(),
-                        Urn.NOT_SET,
+                        getEventContextMetadata(),
                         getPromotedSourceIfExists(),
                         EntityMetadata.from(playlist)));
+    }
+
+    private EventContextMetadata getEventContextMetadata() {
+        return EventContextMetadata.builder()
+                .invokerScreen(ScreenElement.LIST.get())
+                .contextScreen(screenProvider.getLastScreenTag())
+                .pageName(screenProvider.getLastScreenTag())
+                .build();
     }
 
     private void handleLike() {
@@ -174,9 +180,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
 
     private void handleShare(Context context) {
         shareOperations.share(context, playlist.getSource(),
-                ScreenElement.LIST.get(),
-                screenProvider.getLastScreenTag(),
-                Urn.NOT_SET,
+                getEventContextMetadata(),
                 getPromotedSourceIfExists());
     }
 

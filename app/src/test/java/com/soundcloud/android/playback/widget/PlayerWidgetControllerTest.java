@@ -20,6 +20,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.likes.LikeOperations;
@@ -272,7 +273,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         controller.handleToggleLikeAction(true);
 
-        verify(engagementsTracking).likeTrackUrn(WIDGET_TRACK_URN, true, "widget", "context_screen", "widget", Urn.NOT_SET, null);
+        verify(engagementsTracking).likeTrackUrn(WIDGET_TRACK_URN, true, getWidgetContextMetadata(), null);
     }
 
     @Test
@@ -290,8 +291,9 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         controller.handleToggleLikeAction(true);
 
-        verify(engagementsTracking).likeTrackUrn(promotedTrackItem.getEntityUrn(), true, "widget", "context_screen", "widget", Urn.NOT_SET, promotedSourceInfo);
+        verify(engagementsTracking).likeTrackUrn(promotedTrackItem.getEntityUrn(), true, getWidgetContextMetadata(), promotedSourceInfo);
     }
+
 
     @Test
     public void toggleLikeActionShouldEmitLikeUIEventForTrackInPromotedPlaylist() {
@@ -308,7 +310,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         controller.handleToggleLikeAction(true);
 
-        verify(engagementsTracking).likeTrackUrn(WIDGET_TRACK_URN, true, "widget", "context_screen", "widget", Urn.NOT_SET, promotedSourceInfo);
+        verify(engagementsTracking).likeTrackUrn(WIDGET_TRACK_URN, true, getWidgetContextMetadata(), promotedSourceInfo);
     }
 
     @Test
@@ -329,6 +331,15 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         controller.handleToggleLikeAction(true);
 
-        verify(engagementsTracking).likeTrackUrn(WIDGET_TRACK_URN, true, "widget", "context_screen", "widget", Urn.NOT_SET, null);
+        verify(engagementsTracking).likeTrackUrn(WIDGET_TRACK_URN, true, getWidgetContextMetadata(), null);
     }
+
+    private EventContextMetadata getWidgetContextMetadata() {
+        return EventContextMetadata.builder()
+                .invokerScreen("widget")
+                .contextScreen("context_screen")
+                .pageName("widget")
+                .build();
+    }
+
 }

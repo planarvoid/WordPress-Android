@@ -13,6 +13,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -63,6 +64,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Mock private NetworkConnectionHelper connectionHelper;
 
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
+    private EventContextMetadata eventContextMetadata = createEventContextMetadata();
     private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:click:urn"));
     private final EntityMetadata entityMetadata = EntityMetadata.from(PropertySet.create());
@@ -410,22 +412,15 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForShareEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromShare("screen", PAGE_NAME, TRACK_URN, TRACK_URN, null, entityMetadata);
+        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
 
         jsonDataBuilder.buildForUIEvent(event);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                        .clickName("share")
-                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                        .clickObject(TRACK_URN.toString())
-                        .pageName(PAGE_NAME)
-                        .pageUrn(TRACK_URN.toString())
-        );
+        assertEngagementClickEventJson("share", event.getTimestamp());
     }
 
     @Test
     public void addsCurrentExperimentJson() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromShare("screen", PAGE_NAME, TRACK_URN, TRACK_URN, null, entityMetadata);
+        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
         setupExperiments();
 
         jsonDataBuilder.buildForUIEvent(event);
@@ -441,11 +436,87 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         );
     }
 
-    private void setupExperiments() {
-        HashMap<String, Integer> activeExperiments = new HashMap<>();
-        activeExperiments.put("exp_android_listening", 2345);
-        activeExperiments.put("exp_android_ui", 3456);
-        when(experimentOperations.getTrackingParams()).thenReturn(activeExperiments);
+    @Test
+    public void createsJsonForRepostEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleRepost(true, TRACK_URN, eventContextMetadata, null, entityMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+        assertEngagementClickEventJson("repost::add", event.getTimestamp());
+    }
+
+    @Test
+    public void createsJsonForUnpostEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleRepost(false, TRACK_URN, eventContextMetadata, null, entityMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+        assertEngagementClickEventJson("repost::remove", event.getTimestamp());
+    }
+
+    @Test
+    public void createsJsonForLikeEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleLike(true, TRACK_URN, eventContextMetadata, null, entityMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+        assertEngagementClickEventJson("like::add", event.getTimestamp());
+    }
+
+    @Test
+    public void createsJsonForUnlikeEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromToggleLike(false, TRACK_URN, eventContextMetadata, null, entityMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+        assertEngagementClickEventJson("like::remove", event.getTimestamp());
+    }
+
+    @Test
+    public void createsJsonFromEngagementClickFromOverflow() throws ApiMapperException {
+        EventContextMetadata eventContext = EventContextMetadata.builder()
+                .contextScreen("screen")
+                .pageName(PAGE_NAME)
+                .pageUrn(TRACK_URN)
+                .isFromOverflow(true)
+                .build();
+
+        final UIEvent event = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, entityMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                        .clickName("repost::add")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
+                        .fromOverflowMenu(true)
+        );
+    }
+
+    @Test
+    public void createsJsonFromEngagementClickFromOverflowWithClickSource() throws ApiMapperException {
+        TrackSourceInfo info = new TrackSourceInfo(Screen.STREAM.get(), true);
+        info.setSource("stream", "version");
+
+        EventContextMetadata eventContext = EventContextMetadata.builder()
+                .contextScreen("screen")
+                .pageName(PAGE_NAME)
+                .pageUrn(TRACK_URN)
+                .isFromOverflow(true)
+                .trackSourceInfo(info)
+                .build();
+
+        final UIEvent event = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, entityMetadata);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+                        .clickName("repost::add")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
+                        .clickSource("stream")
+                        .fromOverflowMenu(true)
+        );
     }
 
     @Test
@@ -460,8 +531,33 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .clickCategory(EventLoggerClickCategories.COLLECTION));
     }
 
+    private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
+        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", timestamp)
+                        .clickName(engagementName)
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
+        );
+    }
+
+    private void setupExperiments() {
+        HashMap<String, Integer> activeExperiments = new HashMap<>();
+        activeExperiments.put("exp_android_listening", 2345);
+        activeExperiments.put("exp_android_ui", 3456);
+        when(experimentOperations.getTrackingParams()).thenReturn(activeExperiments);
+    }
+
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
         return new EventLoggerEventDataV1(eventName, boogalooVersion, 3152, UDID, LOGGED_IN_USER.toString(), timestamp, ConnectionType.WIFI.getValue());
+    }
+
+    private EventContextMetadata createEventContextMetadata() {
+        return EventContextMetadata.builder()
+                .contextScreen("screen")
+                .pageName(PAGE_NAME)
+                .pageUrn(TRACK_URN)
+                .build();
     }
 
 }

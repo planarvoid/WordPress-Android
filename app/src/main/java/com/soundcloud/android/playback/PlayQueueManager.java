@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback;
 
-import android.support.annotation.VisibleForTesting;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.OriginProvider;
@@ -16,25 +18,20 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
-import static com.soundcloud.java.checks.Preconditions.checkNotNull;
+import android.support.annotation.VisibleForTesting;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Singleton
 public class PlayQueueManager implements OriginProvider {
