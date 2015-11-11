@@ -38,22 +38,7 @@
             app:elevation="0dp"
             app:layout_behavior="com.soundcloud.android.view.FlingBehavior">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_scrollFlags="scroll"
-                android:orientation="vertical">
-
-                <View style="@style/Divider.Background" />
-
-                <View style="@style/Divider.Section" />
-
-                <include layout="@layout/track_likes_header" />
-
-                <View style="@style/Divider.Section" />
-
-            </LinearLayout>
-
+            <include layout="@layout/track_likes_header" />
 
         </android.support.design.widget.AppBarLayout>
     </android.support.design.widget.CoordinatorLayout>
