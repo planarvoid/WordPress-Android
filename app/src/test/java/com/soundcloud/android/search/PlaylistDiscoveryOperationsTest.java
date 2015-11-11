@@ -138,8 +138,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
 
     private ApiPlaylistCollection buildPlaylistSummariesResponse() throws CreateModelException {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        ApiPlaylistCollection collection = new ApiPlaylistCollection();
-        collection.setCollection(Arrays.asList(playlist));
+        ApiPlaylistCollection collection = new ApiPlaylistCollection(Arrays.asList(playlist));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPlaylistCollection.class))).thenReturn(Observable.just(collection));
         return collection;
     }

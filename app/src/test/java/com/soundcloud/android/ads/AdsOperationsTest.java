@@ -36,6 +36,7 @@ import rx.Observable;
 import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public class AdsOperationsTest extends AndroidUnitTest {
 
@@ -249,7 +250,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void applyAdIsNoOpIfNoAdsAvailable() throws Exception {
-        ApiAdsForTrack fullAdsForTrack = new ApiAdsForTrack();
+        ApiAdsForTrack fullAdsForTrack = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
         adsOperations.applyAdToTrack(TRACK_URN, fullAdsForTrack);
 
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
