@@ -57,6 +57,18 @@ public class StreamScreen extends Screen {
         throw new ViewNotFoundException("Unable to find non-promoted playlist");
     }
 
+    public StreamCardElement firstNotPromotedTrackCard() {
+        if (!isFirstTrackPromoted()) {
+            return firstTrackCard();
+        }
+        skipFirstItem();
+        return firstTrackCard();
+    }
+
+    private void skipFirstItem() {
+        streamList().scrollToPosition(1);
+    }
+
     public StreamCardElement firstTrackCard() {
         return getTrackCard(0);
     }

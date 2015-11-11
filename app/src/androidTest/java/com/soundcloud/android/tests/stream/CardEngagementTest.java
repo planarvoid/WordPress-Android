@@ -90,13 +90,13 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingUserAvatarGoesToUserProfile() {
-        ProfileScreen profileScreen = streamScreen.firstTrackCard().clickUserAvatar();
+        ProfileScreen profileScreen = streamScreen.firstNotPromotedTrackCard().clickUserAvatar();
 
         assertThat(profileScreen, is(visible()));
     }
 
     public void testClickingArtistNameGoToArtistProfile() {
-        ProfileScreen profileScreen = streamScreen.firstTrackCard().clickArtistName();
+        ProfileScreen profileScreen = streamScreen.firstNotPromotedTrackCard().clickArtistName();
 
         assertThat(profileScreen, is(visible()));
     }

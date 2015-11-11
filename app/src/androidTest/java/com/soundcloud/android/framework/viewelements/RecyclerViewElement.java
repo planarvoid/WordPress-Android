@@ -47,6 +47,11 @@ public class RecyclerViewElement {
         return this;
     }
 
+    public RecyclerViewElement scrollToPosition(int position){
+        testDriver.scrollToPosition(recyclerView, position);
+        return this;
+    }
+
     public RecyclerViewElement scrollToBottomOfPage() {
         testDriver.scrollToPosition(recyclerView, getItemCount() - 1);
         return this;
