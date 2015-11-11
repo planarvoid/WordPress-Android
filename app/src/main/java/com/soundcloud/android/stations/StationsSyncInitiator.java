@@ -19,6 +19,6 @@ public class StationsSyncInitiator extends SyncInitiator {
     }
 
     Observable<SyncResult> syncRecentStations() {
-        return requestSyncObservable(TYPE, StationsSyncRequestFactory.Actions.ACTION_SYNC_STATIONS);
+        return requestSyncObservable(TYPE, StationsSyncRequestFactory.Actions.SYNC_STATIONS);
     }
 }
