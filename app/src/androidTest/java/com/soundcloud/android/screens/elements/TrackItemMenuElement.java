@@ -46,7 +46,7 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     public boolean isReposted() {
-        return getElementText(likeItem()).equals("Unpost");
+        return getElementText(repostItem()).equals("Unpost");
     }
 
     private ViewElement likeItem() {
