@@ -9,7 +9,6 @@ import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
@@ -37,7 +36,6 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
     @Mock private CollectionsPlaylistOptionsPresenter optionsPresenter;
     @Mock private CollectionsAdapter adapter;
     @Mock private Fragment fragment;
-    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
     private PlaylistsOptions options;
@@ -49,7 +47,7 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         when(likeOperations.onPlaylistUnliked()).thenReturn(Observable.<Urn>empty());
         options = PlaylistsOptions.builder().build();
         when(collectionsOptionsStorage.getLastOrDefault()).thenReturn(options);
-        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, likeOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus, featureFlags);
+        presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, likeOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus);
     }
 
     @Test

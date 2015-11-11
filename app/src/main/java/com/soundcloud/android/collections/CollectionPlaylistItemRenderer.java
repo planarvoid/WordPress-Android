@@ -12,6 +12,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
+import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -25,6 +26,8 @@ import java.util.List;
 
 class CollectionPlaylistItemRenderer implements CellRenderer<CollectionsItem> {
 
+    public static final int TOUCH_DELEGATE_DP = 8;
+    
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Navigator navigator;
@@ -55,11 +58,15 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionsItem> {
         final ImageView artwork = (ImageView) view.findViewById(R.id.artwork);
         final TextView title = (TextView) view.findViewById(R.id.title);
         final TextView creator = (TextView) view.findViewById(R.id.creator);
+        final View privateIndicator = view.findViewById(R.id.private_indicator);
+        final View likeIndicator = view.findViewById(R.id.like_indicator);
 
         view.setOnClickListener(goToPlaylist(playlistItem));
 
         title.setText(playlistItem.getTitle());
         creator.setText(playlistItem.getCreatorName());
+        privateIndicator.setVisibility(playlistItem.isPrivate() ? View.VISIBLE : View.GONE);
+        likeIndicator.setVisibility(playlistItem.isLiked() ? View.VISIBLE : View.GONE);
 
         imageOperations.displayInAdapterView(
                 playlistItem.getEntityUrn(),
@@ -79,6 +86,7 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionsItem> {
                 playlistItemMenuPresenter.show(button, playlistItem, options);
             }
         });
+        ViewUtils.extendTouchArea(button, TOUCH_DELEGATE_DP);
     }
 
     private void setDownloadProgressIndicator(View itemView, PlaylistItem playlistItem) {
