@@ -20,7 +20,7 @@ public class TrackItemElement {
     }
 
     public String getTitle() {
-        return new TextElement(wrapped.findElement(With.id(R.id.list_item_subheader))).getText();
+        return new TextElement(wrapped.findElement(With.id(R.id.title))).getText();
     }
 
     public boolean isPromotedTrack() {
