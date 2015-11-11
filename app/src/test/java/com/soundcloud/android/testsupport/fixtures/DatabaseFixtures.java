@@ -6,6 +6,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
+import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationFixtures;
@@ -19,6 +20,7 @@ import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.activities.ActivityKind;
+import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
@@ -670,6 +672,7 @@ public class DatabaseFixtures {
     }
 
     public void insertUserFollowActivity(ApiUserFollowActivity followActivity) {
+        insertUser(followActivity.getUser());
         ContentValuesBuilder builder = ContentValuesBuilder.values();
         builder.put(TableColumns.Activities.TYPE, ActivityKind.USER_FOLLOW.identifier());
         builder.put(TableColumns.Activities.USER_ID, followActivity.getUserUrn().getNumericId());
@@ -687,6 +690,28 @@ public class DatabaseFixtures {
         builder.put(TableColumns.Activities.SOUND_ID, activity.getTrack().getId());
         builder.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         insertInto(Table.Activities, builder.get());
+    }
+
+    public void insertTrackCommentActivity(ApiTrackCommentActivity activity) {
+        insertTrack(activity.getTrack());
+        insertComment(activity.getComment());
+        ContentValuesBuilder builder = ContentValuesBuilder.values();
+        builder.put(TableColumns.Activities.TYPE, ActivityKind.TRACK_COMMENT.identifier());
+        builder.put(TableColumns.Activities.USER_ID, activity.getUserUrn().getNumericId());
+        builder.put(TableColumns.Activities.CREATED_AT, activity.getCreatedAt().getTime());
+        builder.put(TableColumns.Activities.SOUND_ID, activity.getTrack().getId());
+        builder.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
+        insertInto(Table.Activities, builder.get());
+    }
+
+    public void insertComment(ApiComment comment) {
+        insertUser(comment.getUser());
+        ContentValuesBuilder builder = ContentValuesBuilder.values();
+        builder.put(TableColumns.Comments.CREATED_AT, comment.getCreatedAt().getTime());
+        builder.put(TableColumns.Comments.BODY, comment.getBody());
+        builder.put(TableColumns.Comments.TIMESTAMP, comment.getTrackTime());
+        builder.put(TableColumns.Comments.TRACK_ID, comment.getTrackUrn().getNumericId());
+        builder.put(TableColumns.Comments.USER_ID, comment.getUser().getUrn().getNumericId());
     }
 
     public long insertInto(com.soundcloud.propeller.schema.Table table, ContentValues cv) {

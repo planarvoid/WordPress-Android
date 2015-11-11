@@ -368,10 +368,43 @@ public abstract class TestPropertySets {
     }
 
     public static PropertySet activityTrackLike() {
+        return basicActivity()
+                .put(ActivityProperty.KIND, ActivityKind.TRACK_LIKE)
+                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
+    }
+
+    public static PropertySet activityTrackRepost() {
+        return basicActivity()
+                .put(ActivityProperty.KIND, ActivityKind.TRACK_REPOST)
+                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
+    }
+
+    public static PropertySet activityPlaylistLike() {
+        return basicActivity()
+                .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_LIKE)
+                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
+    }
+
+    public static PropertySet activityPlaylistRepost() {
+        return basicActivity()
+                .put(ActivityProperty.KIND, ActivityKind.PLAYLIST_REPOST)
+                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
+    }
+
+    public static PropertySet activityUserFollow() {
+        return basicActivity().put(ActivityProperty.KIND, ActivityKind.USER_FOLLOW);
+    }
+
+    public static PropertySet activityTrackComment() {
+        return basicActivity()
+                .put(ActivityProperty.KIND, ActivityKind.TRACK_COMMENT)
+                .put(ActivityProperty.COMMENTED_TRACK_URN, Urn.forTrack(123))
+                .put(ActivityProperty.PLAYABLE_TITLE, "sounds of ze forzz");
+    }
+
+    private static PropertySet basicActivity() {
         return PropertySet.from(
-                ActivityProperty.KIND.bind(ActivityKind.TRACK_LIKE),
                 ActivityProperty.DATE.bind(new Date()),
-                ActivityProperty.PLAYABLE_TITLE.bind("sounds of ze forzz"),
                 ActivityProperty.USER_NAME.bind("forss"),
                 ActivityProperty.USER_URN.bind(Urn.forUser(2L))
         );

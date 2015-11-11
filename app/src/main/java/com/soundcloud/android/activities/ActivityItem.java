@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 import java.util.Date;
@@ -38,6 +39,10 @@ class ActivityItem implements ListItem, Timestamped {
 
     String getPlayableTitle() {
         return sourceSet.getOrElse(ActivityProperty.PLAYABLE_TITLE, Strings.EMPTY);
+    }
+
+    Optional<Urn> getCommentedTrackUrn() {
+        return Optional.fromNullable(sourceSet.getOrElseNull(ActivityProperty.COMMENTED_TRACK_URN));
     }
 
     @Override

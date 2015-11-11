@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
@@ -25,6 +26,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -277,5 +279,17 @@ public class NavigatorTest extends AndroidUnitTest {
                 .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQueryInfo)
                 .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .containsUri(itemUri);
+    }
+
+    @Test
+    public void opensTrackComments() {
+        PropertySet track = TestPropertySets.fromApiTrack();
+
+        navigator.openTrackComments(activityContext, track);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(TrackCommentsActivity.class)
+                .containsExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, track);
+
     }
 }
