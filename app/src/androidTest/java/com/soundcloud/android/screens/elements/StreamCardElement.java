@@ -2,6 +2,7 @@ package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -41,6 +42,10 @@ public class StreamCardElement extends Element {
     public StreamScreen toggleLike() {
         likeItem().click();
         return new StreamScreen(solo);
+    }
+
+    public String trackTitle() {
+        return new TextElement(solo.findElement(With.id(R.id.title))).getText();
     }
 
     private ViewElement repostItem() {
