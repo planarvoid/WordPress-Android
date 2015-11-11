@@ -25,7 +25,8 @@
             android:layout_height="@dimen/search_link_height"
             android:background="@color/white"
             android:transitionName="@string/search_text_holder_transition_name"
-            android:paddingLeft="@dimen/search_link_padding"
+            android:paddingLeft="@dimen/search_link_holder_padding_horizontal"
+            android:paddingRight="@dimen/search_link_holder_padding_horizontal"
             android:orientation="horizontal">
 
             <ImageView
@@ -33,7 +34,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/search_icon"
-                android:padding="@dimen/search_link_padding"/>
+                android:paddingLeft="@dimen/search_link_padding_horizontal"
+                android:paddingRight="@dimen/search_link_padding_horizontal"
+                android:paddingTop="@dimen/search_link_padding_vertical"
+                android:paddingBottom="@dimen/search_link_padding_vertical"/>
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/search_text"

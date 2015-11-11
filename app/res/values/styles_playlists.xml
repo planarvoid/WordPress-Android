@@ -47,7 +47,7 @@
         <item name="android:gravity">center_vertical</item>
         <item name="custom_font">fonts/Roboto-Regular.ttf</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/tag_text</item>
+        <item name="android:textColor">@color/tag_section_text</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>
     </style>

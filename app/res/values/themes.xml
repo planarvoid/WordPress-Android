@@ -56,8 +56,8 @@
     </style>
 
     <style name="TabsTheme.Scrollable">
-        <item name="tabPaddingStart">24dp</item>
-        <item name="tabPaddingEnd">24dp</item>
+        <item name="tabPaddingStart">16dp</item>
+        <item name="tabPaddingEnd">16dp</item>
         <item name="tabMode">scrollable</item>
     </style>
 

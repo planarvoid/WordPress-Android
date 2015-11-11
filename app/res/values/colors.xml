@@ -59,7 +59,8 @@
     <color name="signup_separator">#999999</color>
 
     <!-- Search -->
-    <color name="tag_text">#666666</color>
+    <color name="tag_text">#666</color>
+    <color name="tag_section_text">#999</color>
 
     <!-- Dialogs -->
     <color name="dialog_text">#666666</color>

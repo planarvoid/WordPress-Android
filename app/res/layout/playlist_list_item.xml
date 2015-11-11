@@ -5,7 +5,8 @@
     android:layout_height="wrap_content">
 
     <RelativeLayout
-        style="@style/ListItemLayout">
+        style="@style/ListItemLayout"
+        android:paddingTop="0dp">
 
         <include layout="@layout/sound_list_item_views" />
 
