@@ -78,6 +78,10 @@ public final class AccountAssistant {
 
     public static boolean logOut(Context context) throws Exception {
         Log.i(TAG, "Logging out");
+        for(Account account : getAccounts(context)){
+            AccountManager.get(context).removeAccount(account, null, null).getResult(3, TimeUnit.SECONDS);
+        }
+
         Account account = getAccount(context);
         if (account == null) {
             return false;
@@ -138,6 +142,11 @@ public final class AccountAssistant {
         } else {
             throw new AssertionError("More than one account found");
         }
+    }
+
+    private static Account[] getAccounts(Context context) {
+        AccountManager am = AccountManager.get(context);
+        return am.getAccountsByType(context.getString(R.string.account_type));
     }
 
     static PublicApiUser getLoggedInUser(PublicApi apiWrapper) throws IOException {
