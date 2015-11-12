@@ -10,6 +10,7 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicates;
 import com.soundcloud.java.optional.Optional;
@@ -30,6 +31,7 @@ import java.util.List;
 public class PlaylistDiscoveryOperations {
 
     private final ApiClientRx apiClientRx;
+    private final NetworkConnectionHelper connectionHelper;
     private final PlaylistTagStorage tagStorage;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final Scheduler scheduler;
@@ -49,10 +51,13 @@ public class PlaylistDiscoveryOperations {
     };
 
     @Inject
-    PlaylistDiscoveryOperations(ApiClientRx apiClientRx, PlaylistTagStorage tagStorage,
+    PlaylistDiscoveryOperations(ApiClientRx apiClientRx,
+                                NetworkConnectionHelper connectionHelper,
+                                PlaylistTagStorage tagStorage,
                                 StorePlaylistsCommand storePlaylistsCommand,
                                 @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
+        this.connectionHelper = connectionHelper;
         this.tagStorage = tagStorage;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.scheduler = scheduler;
@@ -66,7 +71,7 @@ public class PlaylistDiscoveryOperations {
         return getCachedPlaylistTags().flatMap(new Func1<List<String>, Observable<List<String>>>() {
             @Override
             public Observable<List<String>> call(List<String> tags) {
-                if (tags.isEmpty()) {
+                if ((tags.isEmpty() || tagStorage.isTagsCacheExpired()) && connectionHelper.isNetworkConnected()) {
                     return fetchAndCachePopularTags();
                 }
                 return Observable.just(tags);
