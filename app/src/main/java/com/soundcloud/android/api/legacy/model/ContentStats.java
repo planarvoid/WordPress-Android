@@ -10,11 +10,6 @@ import javax.inject.Inject;
 
 public class ContentStats {
 
-    private static final Content[] CONTENTS = new Content[] {
-            Content.ME_SOUND_STREAM,
-            Content.ME_ACTIVITIES
-    };
-
     public static final String NOTIFIED_ITEM = "notified.item";
     public static final String NOTIFIED = "notified";
     public static final String SEEN = "seen";
@@ -33,8 +28,12 @@ public class ContentStats {
         setLastSeen(context, content, timestamp);
     }
 
+    public long getLastNotified(Content content) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getLong(prefKey(content, NOTIFIED), 0);
+    }
+
     public long getLastNotifiedItem(Content content){
-        return getLastNotifiedItem(context, content);
+        return PreferenceManager.getDefaultSharedPreferences(context).getLong(prefKey(content, NOTIFIED_ITEM), 0);
     }
 
     public void setLastNotified(Content content, long timestamp) {
@@ -42,7 +41,7 @@ public class ContentStats {
     }
 
     public void setLastNotifiedItem(Content content, long timestamp) {
-        setLastNotifiedItem(context, content, timestamp);
+        setTimestamp(context, NOTIFIED_ITEM, content, timestamp);
     }
 
     // Deprecated in favor of using non-static instances above
@@ -50,16 +49,6 @@ public class ContentStats {
     @Deprecated
     public static long getLastSeen(Context context, Content content) {
         return PreferenceManager.getDefaultSharedPreferences(context).getLong(prefKey(content, SEEN), 0);
-    }
-
-    @Deprecated
-    public static long getLastNotified(Context context, Content content) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getLong(prefKey(content, NOTIFIED), 0);
-    }
-
-    @Deprecated
-    public static long getLastNotifiedItem(Context context, Content content) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getLong(prefKey(content, NOTIFIED_ITEM), 0);
     }
 
     @Deprecated
@@ -73,32 +62,9 @@ public class ContentStats {
     }
 
     @Deprecated
-    public static void setLastNotifiedItem(Context context, Content content, long timestamp) {
-        setTimestamp(context, NOTIFIED_ITEM, content, timestamp);
-    }
-
-    @Deprecated
     public static void setTimestamp(Context context, String key, Content content, long timestamp) {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         editor.putLong(prefKey(content, key), timestamp).apply();
-    }
-
-    @Deprecated
-    public static void clear(Context context) {
-        for (Content c : CONTENTS) {
-            setLastSeen(context, c, 1);
-            setLastNotified(context, c, 1);
-            setLastNotifiedItem(context, c, 1);
-        }
-    }
-
-    @Deprecated
-    public static void rewind(Context context, long time) {
-        for (Content c : CONTENTS) {
-            setLastSeen(context, c, Math.max(0, getLastSeen(context, c) - time));
-            setLastNotified(context, c, Math.max(0, getLastNotified(context, c) - time));
-            setLastNotifiedItem(context, c, Math.max(0, getLastNotifiedItem(context, c) - time));
-        }
     }
 
     private static String prefKey(Content content, String what) {

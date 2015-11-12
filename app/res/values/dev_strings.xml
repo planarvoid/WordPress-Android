@@ -15,15 +15,6 @@
     <string name="dev_drawer_action_policy_sync_key">policy_sync</string>
     <string name="dev_drawer_action_policy_sync_title">Force sync policies</string>
 
-    <string name="dev_drawer_action_clear_notifications_key">clear_notifications</string>
-    <string name="dev_drawer_action_clear_notifications_title">Clear Notifications</string>
-
-    <string name="dev_drawer_action_rewind_notifications_key">rewind_notifications</string>
-    <string name="dev_drawer_action_rewind_notifications_title">Rewind Notifications</string>
-
-    <string name="dev_drawer_action_sync_now_key">sync_now</string>
-    <string name="dev_drawer_action_sync_now_title">Sync Now</string>
-
     <string name="dev_drawer_action_crash_key">crash</string>
     <string name="dev_drawer_action_crash_title">Crash the app</string>
 

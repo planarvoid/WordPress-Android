@@ -8,6 +8,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
@@ -265,6 +266,21 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         timelineSyncer.syncContent(CONTENT_URI, null);
 
         verify(timelineSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
+    }
+
+    @Test
+    public void softRefreshWithNextPageUrlClearsTableSoWeDontCreateDataGaps() throws Exception {
+        when(timelineSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
+        when(timelineSyncStorage.getNextPageUrl()).thenReturn(NEXT_URL);
+
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
+                .thenReturn(itemsWithNextLink());
+
+        timelineSyncer.syncContent(CONTENT_URI, null);
+
+        verify(replaceCommand).call(iterableArgumentCaptor.capture());
+        verifyZeroInteractions(insertCommand);
+        assertThat(iterableArgumentCaptor.getValue()).containsExactly(streamItem1, streamItem2);
     }
 
     private ModelCollection<?> itemsWithoutLinks() {

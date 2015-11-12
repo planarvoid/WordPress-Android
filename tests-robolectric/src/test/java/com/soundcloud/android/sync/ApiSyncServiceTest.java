@@ -235,7 +235,7 @@ public class ApiSyncServiceTest {
     public void shouldClearSyncStatuses() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         svc.onDestroy();
-        expect(syncStateManager.fromContent(Content.ME_SOUNDS).sync_state).toEqual(LocalCollection.SyncState.IDLE);
+        expect(syncStateManager.fromContent(Content.ME_SOUNDS.uri).sync_state).toEqual(LocalCollection.SyncState.IDLE);
     }
 
     private void sync(ApiSyncService svc, Content content, String... fixtures) throws IOException {

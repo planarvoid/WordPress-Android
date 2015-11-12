@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.storage.provider.Content;
@@ -28,6 +29,7 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
     @Mock private SoundStreamNotifier soundStreamNotifier;
     @Mock private ActivitiesNotifier activitiesNotifier;
     @Mock private SyncStateManager syncStateManager;
+    @Mock private ContentStats contentStats;
     @Mock private SyncServiceResultReceiver.OnResultListener onResultListener;
 
     private SyncResult syncResult = new SyncResult();
@@ -35,7 +37,7 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         syncServiceResultReceiver = new SyncServiceResultReceiver.Factory(context(), soundStreamNotifier,
-                activitiesNotifier, syncStateManager)
+                activitiesNotifier, syncStateManager, contentStats)
                 .create(syncResult, onResultListener);
     }
 
@@ -95,7 +97,7 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
 
     @Test
     public void syncSuccessOnStreamCreatesNotification() throws Exception {
-        ContentStats.setLastSeen(context(), Content.ME_SOUND_STREAM, 1000L);
+        when(contentStats.getLastSeen(Content.ME_SOUND_STREAM)).thenReturn(1000L);
 
         final Bundle resultData = new Bundle();
         resultData.putBoolean(LIKES_URI_STRING, true);

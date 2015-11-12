@@ -5,7 +5,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -25,8 +24,6 @@ import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
 public class DevDrawerFragment extends PreferenceFragment {
-
-    private static final int SYNC_CLEAR_MODE_NOT_SET = -1;
 
     @Inject EventBus eventBus;
     @Inject FeatureFlags featureFlags;
@@ -93,32 +90,6 @@ public class DevDrawerFragment extends PreferenceFragment {
                     }
                 });
 
-        screen.findPreference(getString(R.string.dev_drawer_action_rewind_notifications_key))
-                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        SyncAdapterService.requestNewSync(getApp(), SyncAdapterService.REWIND_LAST_DAY);
-                        return true;
-                    }
-                });
-
-        screen.findPreference(getString(R.string.dev_drawer_action_clear_notifications_key))
-                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        SyncAdapterService.requestNewSync(getApp(), SyncAdapterService.CLEAR_ALL);
-                        return true;
-                    }
-                });
-
-        screen.findPreference(getString(R.string.dev_drawer_action_sync_now_key))
-                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        SyncAdapterService.requestNewSync(getApp(), SYNC_CLEAR_MODE_NOT_SET);
-                        return true;
-                    }
-                });
 
         screen.findPreference(getString(R.string.dev_drawer_action_crash_key))
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -132,11 +103,6 @@ public class DevDrawerFragment extends PreferenceFragment {
                 });
 
     }
-
-    private SoundCloudApplication getApp() {
-        return (SoundCloudApplication) getActivity().getApplication();
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
