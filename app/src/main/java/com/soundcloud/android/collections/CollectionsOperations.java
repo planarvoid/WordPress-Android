@@ -1,11 +1,13 @@
 package com.soundcloud.android.collections;
 
+import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
@@ -143,13 +145,26 @@ public class CollectionsOperations {
                 }
     };
 
-    private static final Func1<SyncResult, Boolean> IS_COLLECTION = new Func1<SyncResult, Boolean>() {
+    private static final Func1<SyncResult, Boolean> IS_COLLECTION_SYNC_EVENT = new Func1<SyncResult, Boolean>() {
         @Override
         public Boolean call(SyncResult syncResult) {
             switch (syncResult.getAction()) {
                 case StationsSyncRequestFactory.Actions.SYNC_STATIONS:
                 case SyncActions.SYNC_PLAYLISTS:
                     return syncResult.wasChanged();
+                default:
+                    return false;
+            }
+        }
+    };
+
+    public static final Func1<? super EntityStateChangedEvent, Boolean> IS_COLLECTION_CHANGE_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            switch (event.getKind()) {
+                case EntityStateChangedEvent.LIKE:
+                case EntityStateChangedEvent.PLAYLIST_CREATED:
+                    return true;
                 default:
                     return false;
             }
@@ -180,7 +195,12 @@ public class CollectionsOperations {
     }
 
     Observable<SyncResult> onCollectionSynced() {
-        return eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_COLLECTION);
+        return eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_COLLECTION_SYNC_EVENT);
+    }
+
+    public Observable<EntityStateChangedEvent> onCollectionChanged() {
+        return eventBus.queue(ENTITY_STATE_CHANGED)
+                .filter(IS_COLLECTION_CHANGE_FILTER);
     }
 
     Observable<MyCollections> collections(final PlaylistsOptions options) {

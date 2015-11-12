@@ -39,6 +39,13 @@ public class PlaylistOperations {
         }
     };
 
+    private final Action1<Urn> publishPlaylistCreatedEvent = new Action1<Urn>() {
+        @Override
+        public void call(Urn urn) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(urn));
+        }
+    };
+
     private final Scheduler scheduler;
     private final PlaylistStorage playlistStorage;
     private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
@@ -95,6 +102,7 @@ public class PlaylistOperations {
 
     Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
         return playlistTracksStorage.createNewPlaylist(title, isPrivate, firstTrackUrn)
+                .doOnNext(publishPlaylistCreatedEvent)
                 .subscribeOn(scheduler)
                 .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }

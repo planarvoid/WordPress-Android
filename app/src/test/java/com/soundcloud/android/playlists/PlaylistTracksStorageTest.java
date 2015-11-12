@@ -147,8 +147,10 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))
                 .subscribe(testSubscriber);
 
-        long playlistId = testSubscriber.getOnNextEvents().get(0).getNumericId();
-        databaseAssertions().assertPlaylistInserted(playlistId, "title", true);
+        final Urn urn = testSubscriber.getOnNextEvents().get(0);
+        assertThat(urn.isPlaylist()).isTrue();
+        assertThat(Urn.isLocalUrn(urn.toString())).isTrue();
+        databaseAssertions().assertPlaylistInserted(urn.getNumericId(), "title", true);
     }
 
     @Test

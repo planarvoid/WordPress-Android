@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
@@ -63,6 +64,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     private PropertySet likedPlaylist1;
     private PropertySet likedPlaylist2;
     private TestEventBus eventBus;
+    private TestSubscriber<EntityStateChangedEvent> collectionChangedSubscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
@@ -94,6 +96,51 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
 
         final Observable<List<PropertySet>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylist1, likedPlaylist2));
         when(playlistLikeStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(likedPlaylists);
+    }
+
+    @Test
+    public void onCollectionChangedWhenTrackLikeEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(1), true, 1));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forTrack(1), true, 1)));
+    }
+
+    @Test
+    public void onCollectionChangedWhenTrackUnlikeEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(1), false, 1));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forTrack(1), false, 1)));
+    }
+
+    @Test
+    public void onCollectionChangedWhenPlaylistLikeEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), true, 1));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), true, 1)));
+    }
+
+    @Test
+    public void onCollectionChangedWhenPlaylistUnlikeEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), false, 1));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), false, 1)));
+    }
+
+    @Test
+    public void onCollectionChangedWhenPlaylistCreatedEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(Urn.forLocalPlaylist(1)));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromPlaylistCreated(Urn.forLocalPlaylist(1))));
     }
 
     @Test
