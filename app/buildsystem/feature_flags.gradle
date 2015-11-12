@@ -74,6 +74,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
       buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, TRUE
+      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_TABS, FALSE
@@ -91,7 +92,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
     }
 
     debug {
