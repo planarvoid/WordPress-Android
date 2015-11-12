@@ -2,6 +2,17 @@
 
 <resources>
 
+    <style name="Toolbar" />
+
+    <style name="Toolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
+        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
     <style name="Divider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/ak_list_divider_horizontal_height</item>
