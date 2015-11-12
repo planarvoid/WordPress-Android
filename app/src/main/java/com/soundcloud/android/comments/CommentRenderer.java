@@ -54,7 +54,7 @@ public class CommentRenderer implements CellRenderer<Comment> {
     }
 
     private void setUserAvatar(View itemView, Urn userUrn) {
-        imageOperations.displayInAdapterView(
+        imageOperations.displayCircularInAdapterView(
                 userUrn,
                 ApiImageSize.getListItemImageSize(resources),
                 (ImageView) itemView.findViewById(R.id.image));
