@@ -276,19 +276,15 @@ public class TimelineSyncerTest extends AndroidUnitTest {
     }
 
     private ModelCollection<?> itemsWithNextLink(String nextUrl) {
-        final ModelCollection<?> items = itemsWithoutLinks();
         final HashMap<String, Link> links = new HashMap<>();
         links.put(ModelCollection.NEXT_LINK_REL, new Link(nextUrl));
-        items.setLinks(links);
-        return items;
+        return new ModelCollection<>(Arrays.asList(streamItem1, streamItem2), links);
     }
 
     private ModelCollection<?> itemsWithFutureLink() {
-        final ModelCollection<?> refreshedStream = itemsWithoutLinks();
         final HashMap<String, Link> links = new HashMap<>();
         links.put(TimelineSyncer.FUTURE_LINK_REL, new Link(FUTURE_URL));
-        refreshedStream.setLinks(links);
-        return refreshedStream;
+        return new ModelCollection<>(Arrays.asList(streamItem1, streamItem2), links);
     }
 
 }

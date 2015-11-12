@@ -10,7 +10,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.api.model.SearchCollection;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.associations.LoadFollowingCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
@@ -46,10 +46,10 @@ class SearchOperations {
     static final int TYPE_PLAYLISTS = 2;
     static final int TYPE_USERS = 3;
 
-    static final Func1<SearchCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
-            new Func1<SearchCollection<? extends PropertySetSource>, SearchResult>() {
+    static final Func1<ModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
+            new Func1<ModelCollection<? extends PropertySetSource>, SearchResult>() {
                 @Override
-                public SearchResult call(SearchCollection<? extends PropertySetSource> propertySetSources) {
+                public SearchResult call(ModelCollection<? extends PropertySetSource> propertySetSources) {
                     return new SearchResult(propertySetSources.getCollection(), propertySetSources.getNextLink(),
                             propertySetSources.getQueryUrn());
                 }
@@ -162,7 +162,7 @@ class SearchOperations {
 
     private final class TrackSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<SearchCollection<ApiTrack>> typeToken = new TypeToken<SearchCollection<ApiTrack>>() {
+        private final TypeToken<ModelCollection<ApiTrack>> typeToken = new TypeToken<ModelCollection<ApiTrack>>() {
         };
 
         protected TrackSearchStrategy() {
@@ -180,8 +180,8 @@ class SearchOperations {
 
     private final class PlaylistSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<SearchCollection<ApiPlaylist>> typeToken =
-                new TypeToken<SearchCollection<ApiPlaylist>>() {
+        private final TypeToken<ModelCollection<ApiPlaylist>> typeToken =
+                new TypeToken<ModelCollection<ApiPlaylist>>() {
                 };
 
         protected PlaylistSearchStrategy() {
@@ -200,7 +200,7 @@ class SearchOperations {
 
     private final class UserSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<SearchCollection<ApiUser>> typeToken = new TypeToken<SearchCollection<ApiUser>>() {
+        private final TypeToken<ModelCollection<ApiUser>> typeToken = new TypeToken<ModelCollection<ApiUser>>() {
         };
 
         protected UserSearchStrategy() {
@@ -219,8 +219,8 @@ class SearchOperations {
 
     private final class UniversalSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<SearchCollection<ApiUniversalSearchItem>> typeToken =
-                new TypeToken<SearchCollection<ApiUniversalSearchItem>>() {
+        private final TypeToken<ModelCollection<ApiUniversalSearchItem>> typeToken =
+                new TypeToken<ModelCollection<ApiUniversalSearchItem>>() {
                 };
 
         protected UniversalSearchStrategy() {

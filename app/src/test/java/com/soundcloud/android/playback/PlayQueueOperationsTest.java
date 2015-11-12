@@ -39,6 +39,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 
 public class PlayQueueOperationsTest extends AndroidUnitTest {
@@ -196,7 +197,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getRelatedTracksPlayQueueShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(new RecommendedTracksCollection()));
+                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(), "version")));
 
         TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
         playQueueOperations.relatedTracksPlayQueue(Urn.forTrack(123), false).subscribe(testSubscriber);
@@ -207,7 +208,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getRelatedTracksPlayQueueWithSeedTrackShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(new RecommendedTracksCollection()));
+                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(), "version")));
 
         TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
         playQueueOperations.relatedTracksPlayQueueWithSeedTrack(Urn.forTrack(123)).subscribe(testSubscriber);
@@ -217,8 +218,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
-        RecommendedTracksCollection collection = createCollection(
-                ModelFixtures.create(ApiTrack.class));
+        RecommendedTracksCollection collection = createCollection(ModelFixtures.create(ApiTrack.class));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
                 .thenReturn(Observable.just(collection));
 
@@ -228,9 +228,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     }
 
     private RecommendedTracksCollection createCollection(ApiTrack... suggestions) {
-        final RecommendedTracksCollection collection = new RecommendedTracksCollection();
-        collection.setCollection(Arrays.asList(suggestions));
-        return collection;
+        return new RecommendedTracksCollection(Arrays.asList(suggestions), "version");
     }
 
 }
