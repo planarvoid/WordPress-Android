@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
-import rx.schedulers.TestScheduler;
 
 import static android.support.v4.view.PagerAdapter.POSITION_NONE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,7 +99,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
             new TrackPageData(1, TRACK2_URN, Urn.NOT_SET, PropertySet.create()),
             new TrackPageData(2, AD_URN, Urn.NOT_SET, TestPropertySets.audioAdProperties(MONETIZABLE_TRACK_URN)),
             new TrackPageData(3, MONETIZABLE_TRACK_URN, Urn.NOT_SET, TestPropertySets.interstitialForPlayer()));
-    private TestScheduler scheduler;
 
     @Before
     public void setUp() throws Exception {
@@ -110,7 +108,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         when(videoPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(videoAdView);
 
         eventBus = new TestEventBus();
-        scheduler = new TestScheduler();
         presenter = new PlayerPagerPresenter(playQueueManager,
                 playSessionStateProvider,
                 trackRepository,
@@ -119,8 +116,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                 adPagePresenter,
                 videoPagePresenter,
                 castConnectionHelper,
-                eventBus,
-                scheduler
+                eventBus
         );
 
         when(container.findViewById(R.id.player_track_pager)).thenReturn(playerTrackPager);
@@ -203,7 +199,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         Player.StateTransition state = new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, TRACK1_URN);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
-        scheduler.advanceTimeBy(150, TimeUnit.MILLISECONDS);
 
         verify(trackPagePresenter).setPlayState(currentTrackView, state, true, true);
     }
@@ -220,7 +215,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         Mockito.reset(trackPagePresenter);
         Player.StateTransition state = new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, TRACK1_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
-        scheduler.advanceTimeBy(150, TimeUnit.MILLISECONDS);
 
         verify(trackPagePresenter).setPlayState(viewForCurrentTrack, state, true, true);
         verify(trackPagePresenter).setPlayState(viewForOtherTrack, state, false, true);
@@ -318,7 +312,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onResume(playerFragment);
         Player.StateTransition state = new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, TRACK1_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
-        scheduler.advanceTimeBy(150, TimeUnit.MILLISECONDS);
 
         View currentPageView = getPageView();
 
