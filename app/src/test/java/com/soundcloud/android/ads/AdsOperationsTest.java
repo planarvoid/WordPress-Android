@@ -16,6 +16,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -108,6 +109,15 @@ public class AdsOperationsTest extends AndroidUnitTest {
         assertThat(adsOperations.isCurrentItemAd()).isFalse();
     }
 
+    @Test
+    public void isCurrentItemAdShouldReturnFalseOnEmptyPlayQueueItem() throws CreateModelException {
+        when(playQueueManager.getQueueSize()).thenReturn(1);
+        when(playQueueManager.getCurrentPosition()).thenReturn(0);
+        when(playQueueManager.getPlayQueueItemAtPosition(0)).thenReturn(PlayQueueItem.EMPTY);
+
+        assertThat(adsOperations.isCurrentItemAd()).isFalse();
+    }
+
    @Test
     public void isNextItemAdShouldReturnTrueIfNextItemIsAudioAd() throws CreateModelException {
         when(playQueueManager.getQueueSize()).thenReturn(2);
@@ -139,6 +149,15 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void isNextItemAdShouldReturnFalseIfNextItemIsEmptyPlayQueueItem() throws CreateModelException {
+        when(playQueueManager.getQueueSize()).thenReturn(2);
+        when(playQueueManager.getCurrentPosition()).thenReturn(0);
+        when(playQueueManager.getPlayQueueItemAtPosition(1)).thenReturn(PlayQueueItem.EMPTY);
+
+        assertThat(adsOperations.isNextItemAd()).isFalse();
+    }
+
+    @Test
     public void isCurrentItemAudioAdShouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
         when(playQueueManager.getQueueSize()).thenReturn(1);
         when(playQueueManager.getCurrentPosition()).thenReturn(0);
@@ -157,6 +176,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         assertThat(adsOperations.isCurrentItemAudioAd()).isFalse();
     }
+
     @Test
     public void isCurrentItemAudioAdShouldReturnFalseIfCurrentItemIsRegularTrack() throws CreateModelException {
         when(playQueueManager.getQueueSize()).thenReturn(1);
