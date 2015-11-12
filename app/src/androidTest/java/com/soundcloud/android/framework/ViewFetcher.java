@@ -2,6 +2,7 @@ package com.soundcloud.android.framework;
 
 import static com.soundcloud.java.collections.MoreCollections.filter;
 
+import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.viewelements.DefaultViewElement;
 import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -14,16 +15,21 @@ import com.soundcloud.java.functions.Predicate;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 public class ViewFetcher {
+    private static final int NETWORK_TIMEOUT = (int) TimeUnit.MINUTES.toMillis(1);
+
     private Han testDriver;
     private View parentView;
     private ElementWaiter elementWaiter = new ElementWaiter();
     private String TAG = getClass().getSimpleName().toString();
+    private With busyUiIndicator;
 
     public ViewFetcher(Han driver){
         testDriver = driver;
@@ -33,8 +39,24 @@ public class ViewFetcher {
         parentView = view;
         testDriver = driver;
     }
+
+    public void registerBusyUIIndicator(With busyUiIndicator) {
+        this.busyUiIndicator = busyUiIndicator;
+    }
+
+    private boolean waitForBusyUi() {
+        if(busyUiIndicator != null) {
+            return testDriver.waitForCondition(new BusyIndicatorCondition(busyUiIndicator), NETWORK_TIMEOUT);
+        }
+        return true;
+    }
+
     public ViewElement findElement(final With with) {
-        return elementWaiter.waitForElement(with);
+        ViewElement viewElement = elementWaiter.waitForElement(with);
+        if(!viewElement.isVisible() && waitForBusyUi()) {
+            return elementWaiter.waitForElement(with);
+        }
+        return viewElement;
     }
 
     public List<ViewElement> findElements(With with) {
@@ -95,7 +117,7 @@ public class ViewFetcher {
     }
 
     class ElementWaiter {
-        private static final int ELEMENT_TIMEOUT = 4 * 1000;
+        private static final int ELEMENT_TIMEOUT = 2 * 1000;
         private static final int POLL_INTERVAL = 100;
 
         public List<ViewElement> waitForElements(final With with) {
@@ -136,6 +158,17 @@ public class ViewFetcher {
 
         private ViewElement waitForOne(String selector, Callable<List<ViewElement>> callable) {
             return waitForMany(selector, callable).get(0);
+        }
+    }
+    private class BusyIndicatorCondition implements Condition{
+        private final With viewMatcher;
+
+        public BusyIndicatorCondition(With matcher){
+            viewMatcher = matcher;
+        }
+        @Override
+        public boolean isSatisfied() {
+            return !isElementDisplayed(viewMatcher);
         }
     }
 }

@@ -52,6 +52,10 @@ public class Han  {
         setupActivityListener();
     }
 
+    public void registerBusyUiIndicator(With busyUiIndicator) {
+        viewFetcher.registerBusyUIIndicator(busyUiIndicator);
+    }
+
     private void setupActivityListener() {
         IntentFilter filter = null;
         final Instrumentation.ActivityMonitor activityMonitor = instrumentation.addMonitor(filter, null, false);
