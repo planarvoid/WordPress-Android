@@ -15,7 +15,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.ads.LeaveBehindAd;
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.experiments.ShareButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;

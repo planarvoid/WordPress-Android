@@ -5,7 +5,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
@@ -119,8 +118,8 @@ public class StationsOperationsTest {
         final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
         final Urn station = Urn.forTrackStation(123L);
         final ApiStation stationApi = StationFixtures.getApiStation(Urn.forTrackStation(123L), 10);
-        final List<Urn> tracks = stationApi.getTracks();
-        final List<Urn> subTrackList = tracks.subList(2, tracks.size());
+        final List<StationTrack> tracks = stationApi.getTracks();
+        final List<StationTrack> subTrackList = tracks.subList(2, tracks.size());
 
         when(stationsApi.fetchStation(station)).thenReturn(Observable.just(stationApi));
         when(stationsStorage.loadPlayQueue(station, 2)).thenReturn(Observable.from(subTrackList));

@@ -24,7 +24,7 @@ public class StoreStationCommandTest extends StorageIntegrationTest {
         command.call(station);
         command.call(stationWithNewTracks);
 
-        final ArrayList<Urn> allTracks = new ArrayList<>();
+        final ArrayList<StationTrack> allTracks = new ArrayList<>();
         allTracks.addAll(station.getTracks());
         allTracks.addAll(stationWithNewTracks.getTracks());
         databaseAssertions().assertStationPlayQueueContains(station.getUrn(), allTracks);

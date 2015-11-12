@@ -4,7 +4,6 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;

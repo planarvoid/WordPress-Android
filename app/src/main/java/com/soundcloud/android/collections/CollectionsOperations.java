@@ -5,7 +5,7 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.likes.LikeProperty;

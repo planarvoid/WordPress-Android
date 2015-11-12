@@ -1,4 +1,4 @@
-package com.soundcloud.android.api.model;
+package com.soundcloud.android.stations;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.functions.Function;
@@ -14,7 +14,7 @@ public interface StationRecord {
         }
     };
 
-    List<Urn> getTracks();
+    List<StationTrack> getTracks();
 
     Urn getUrn();
 
@@ -25,4 +25,5 @@ public interface StationRecord {
     String getPermalink();
 
     int getPreviousPosition();
+
 }

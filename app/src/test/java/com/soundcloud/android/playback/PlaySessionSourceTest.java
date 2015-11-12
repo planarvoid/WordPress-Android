@@ -103,7 +103,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
 
         assertThat(playSessionSource.getSearchQuerySourceInfo()).isEqualTo(searchQuerySourceInfo);
-        assertThat(playSessionSource.isFromQuery()).isEqualTo(true);
+        assertThat(playSessionSource.isFromSearchQuery()).isEqualTo(true);
     }
 
     @Test
@@ -167,7 +167,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
         PlaySessionSource copy = new PlaySessionSource(parcel);
         assertThat(copy.isFromPromotedItem()).isFalse();
-        assertThat(copy.isFromQuery()).isFalse();
+        assertThat(copy.isFromSearchQuery()).isFalse();
     }
 
     @Test

@@ -19,7 +19,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 60;
+    public static final int DATABASE_VERSION = 61;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -171,6 +171,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 60:
                             success = upgradeTo60(db, oldVersion);
+                            break;
+                        case 61:
+                            success = upgradeTo61(db, oldVersion);
                             break;
                         default:
                             break;
@@ -547,6 +550,23 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 60);
+        }
+        return false;
+    }
+
+    /**
+     * Adds QUERY_URN & SOURCE_URN to the PlayQueue table
+     * Adds the QUERY_URN column to the StationsPlayQueues table
+     */
+    private static boolean upgradeTo61(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable(Tables.PlayQueue.TABLE.name(), db);
+            dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
+            db.execSQL(Tables.PlayQueue.SQL);
+            db.execSQL(Tables.StationsPlayQueues.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 61);
         }
         return false;
     }

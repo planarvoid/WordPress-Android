@@ -1,7 +1,6 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;

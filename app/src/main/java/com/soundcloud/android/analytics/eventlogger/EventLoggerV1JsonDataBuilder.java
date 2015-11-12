@@ -204,7 +204,12 @@ public class EventLoggerV1JsonDataBuilder {
         }
 
         if (trackSourceInfo.isFromStation()) {
-            data.queryUrn(trackSourceInfo.getCollectionUrn().toString());
+            // When updating it, please update V0 too. Your friend.
+            data.sourceUrn(trackSourceInfo.getCollectionUrn().toString());
+
+            if (!trackSourceInfo.getStationsSourceInfo().getQueryUrn().equals(Urn.NOT_SET)) {
+                data.queryUrn(trackSourceInfo.getStationsSourceInfo().getQueryUrn().toString());
+            }
         }
 
         return data;

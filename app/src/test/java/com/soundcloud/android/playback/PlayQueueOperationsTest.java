@@ -89,7 +89,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadAPreviouslyStoredPlayQueue() throws Exception {
-        PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(1L))
+        PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(123L))
                 .fromSource("source1", "version1")
                 .build();
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
@@ -104,8 +104,42 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateQueueFromItemsObservable() throws Exception {
+    public void shouldOnlyReturnPlayQueueIfPlayQueueContainsTheLastStoredPlayingTrack() throws Exception {
+        TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
+
+        PlayQueueItem playQueueItem1 = new TrackQueueItem.Builder(Urn.forTrack(1L))
+                .fromSource("source1", "version1")
+                .build();
+        PlayQueueItem playQueueItem2 = new TrackQueueItem.Builder(Urn.forTrack(2L))
+                .fromSource("source2", "version2")
+                .build();
+
+        Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1, playQueueItem2));
+
+        when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
+
+        playQueueOperations.getLastStoredPlayQueue().subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents()).isEmpty();
+        assertThat(subscriber.getOnCompletedEvents()).hasSize(1);
+    }
+
+    @Test
+    public void shouldReturnEmptyObservableIfStoredPlayQueueIsEmpty() throws Exception {
+        final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
+
+        when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
+        when(playQueueStorage.loadAsync()).thenReturn(Observable.<PlayQueueItem>empty());
+        playQueueOperations.getLastStoredPlayQueue().subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents()).isEmpty();
+        assertThat(subscriber.getOnCompletedEvents()).hasSize(1);
+    }
+
+    @Test
+    public void shouldCreateQueueFromItemsObservable() throws Exception {
+        when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(1L);
 
         PlayQueueItem playQueueItem1 = new TrackQueueItem.Builder(Urn.forTrack(1L))
                 .fromSource("source1", "version1")
@@ -122,10 +156,10 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldReturnNullWhenReloadingWithNoValidStoredLastTrack() throws Exception {
+    public void shouldReturnEmptyObservableWhenReloadingWithNoValidStoredLastTrack() throws Exception {
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(-1L);
         verifyZeroInteractions(playQueueStorage);
-        assertThat(playQueueOperations.getLastStoredPlayQueue()).isNull();
+        assertThat(playQueueOperations.getLastStoredPlayQueue()).isEqualTo(Observable.empty());
     }
 
     @Test

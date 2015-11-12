@@ -4,9 +4,16 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 
 public abstract class PlayQueueItem {
+
+    public static final Function<PlayQueueItem, Long> TO_ID = new Function<PlayQueueItem, Long>() {
+        public Long apply(PlayQueueItem playQueueItem) {
+            return playQueueItem.getUrnOrNotSet().getNumericId();
+        }
+    };
 
     public static final PlayQueueItem EMPTY = new Empty();
 

@@ -67,14 +67,18 @@ public interface Tables {
         public static final Column RELATED_ENTITY = Column.create(TABLE, "related_entity");
         public static final Column SOURCE = Column.create(TABLE, "source");
         public static final Column SOURCE_VERSION = Column.create(TABLE, "source_version");
+        public static final Column SOURCE_URN = Column.create(TABLE, "source_urn");
+        public static final Column QUERY_URN = Column.create(TABLE, "query_urn");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS PlayQueue (" +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "track_id INTEGER," +
                 "reposter_id INTEGER," +
                 "related_entity TEXT," +
-                "source VARCHAR(255)," +
-                "source_version VARCHAR(255)" +
+                "source TEXT," +
+                "source_version TEXT," +
+                "source_urn TEXT," +
+                "query_urn TEXT" +
                 ");";
 
         protected PlayQueue() {
@@ -110,11 +114,13 @@ public interface Tables {
 
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
         public static final Column TRACK_URN = Column.create(TABLE, "track_urn");
+        public static final Column QUERY_URN = Column.create(TABLE, "query_urn");
         public static final Column POSITION = Column.create(TABLE, "position");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS StationsPlayQueues (" +
                 "station_urn TEXT," +
                 "track_urn TEXT," +
+                "query_urn TEXT," +
                 "position INTEGER DEFAULT 0," +
                 "PRIMARY KEY(station_urn, track_urn, position) ON CONFLICT REPLACE," +
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +

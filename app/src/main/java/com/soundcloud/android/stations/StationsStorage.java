@@ -2,7 +2,6 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Tables.Stations;
@@ -39,7 +38,7 @@ class StationsStorage {
                     new Urn(cursorReader.getString(Stations.STATION_URN)),
                     cursorReader.getString(Stations.TITLE),
                     cursorReader.getString(Stations.TYPE),
-                    Collections.<Urn>emptyList(),
+                    Collections.<StationTrack>emptyList(),
                     cursorReader.getString(Stations.PERMALINK),
                     cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION)
                             ? com.soundcloud.android.stations.Stations.NEVER_PLAYED
@@ -48,10 +47,13 @@ class StationsStorage {
         }
     };
 
-    private static final Func1<CursorReader, Urn> TO_TRACK_URN = new Func1<CursorReader, Urn>() {
+    private static final Func1<CursorReader, StationTrack> TO_STATION_TRACK = new Func1<CursorReader, StationTrack>() {
         @Override
-        public Urn call(CursorReader cursorReader) {
-            return new Urn(cursorReader.getString(StationsPlayQueues.TRACK_URN));
+        public StationTrack call(CursorReader cursorReader) {
+            return StationTrack.create(
+                    new Urn(cursorReader.getString(StationsPlayQueues.TRACK_URN)),
+                    new Urn(cursorReader.getString(StationsPlayQueues.QUERY_URN))
+            );
         }
     };
 
@@ -89,14 +91,14 @@ class StationsStorage {
         this.dateProvider = dateProvider;
     }
 
-    public Observable<Urn> loadPlayQueue(Urn station, int startPosition) {
+    public Observable<StationTrack> loadPlayQueue(Urn station, int startPosition) {
         return propellerRx
                 .query(Query
                         .from(StationsPlayQueues.TABLE)
                         .whereEq(StationsPlayQueues.STATION_URN, station.toString())
                         .whereGe(StationsPlayQueues.POSITION, startPosition)
                         .order(StationsPlayQueues.POSITION, Query.Order.ASC))
-                .map(TO_TRACK_URN);
+                .map(TO_STATION_TRACK);
     }
 
     void clear() {
@@ -123,10 +125,10 @@ class StationsStorage {
     Observable<StationRecord> station(Urn stationUrn) {
         return Observable.zip(
                 propellerRx.query(Query.from(Stations.TABLE).whereEq(Stations.STATION_URN, stationUrn)).map(TO_STATION_WITHOUT_TRACKS),
-                propellerRx.query(buildTracksListQuery(stationUrn)).map(TO_TRACK_URN).toList(),
-                new Func2<Station, List<Urn>, StationRecord>() {
+                propellerRx.query(buildTracksListQuery(stationUrn)).map(TO_STATION_TRACK).toList(),
+                new Func2<Station, List<StationTrack>, StationRecord>() {
                     @Override
-                    public StationRecord call(Station station, List<Urn> tracks) {
+                    public StationRecord call(Station station, List<StationTrack> tracks) {
                         return new Station(
                                 station.getUrn(),
                                 station.getTitle(),
@@ -143,7 +145,7 @@ class StationsStorage {
     private Query buildTracksListQuery(Urn stationUrn) {
         return Query
                 .from(StationsPlayQueues.TABLE)
-                .select(StationsPlayQueues.TRACK_URN)
+                .select(StationsPlayQueues.TRACK_URN, StationsPlayQueues.QUERY_URN)
                 .whereEq(StationsPlayQueues.STATION_URN, stationUrn)
                 .order(StationsPlayQueues.POSITION, Query.Order.ASC);
     }
