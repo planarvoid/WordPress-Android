@@ -14,7 +14,7 @@ import android.view.View;
 
 import java.util.List;
 
-@TargetApi(19)
+@TargetApi(21)
 @SuppressLint("NewApi")
 public class SmoothNavigator extends Navigator {
 

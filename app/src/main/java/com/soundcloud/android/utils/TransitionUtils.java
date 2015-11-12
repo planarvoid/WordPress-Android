@@ -8,18 +8,18 @@ import android.transition.ChangeBounds;
 import android.view.Window;
 import android.view.animation.Interpolator;
 
-@TargetApi(19)
+@TargetApi(21)
 @SuppressLint("NewApi")
 public class TransitionUtils {
 
     public static void setChangeBoundsEnterTransition(Window window, int duration, Interpolator interpolator) {
-        if (transitionsSupported()){
+        if (transitionsSupported()) {
             window.setSharedElementEnterTransition(createChangeBoundsTransition(duration, interpolator));
         }
     }
 
     public static void setChangeBoundsExitTransition(Window window, int duration, Interpolator interpolator) {
-        if (transitionsSupported()){
+        if (transitionsSupported()) {
             window.setSharedElementEnterTransition(createChangeBoundsTransition(duration, interpolator));
         }
     }
@@ -32,7 +32,7 @@ public class TransitionUtils {
         return bounds;
     }
 
-    public static boolean transitionsSupported(){
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+    public static boolean transitionsSupported() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 }
