@@ -41,6 +41,16 @@ public class UrnTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldValidateLocalPlaylistUrnAsLocalUrn() {
+        assertThat(Urn.isLocalUrn("local:playlists:1")).isTrue();
+    }
+
+    @Test
+    public void shouldValidateUnknownUrnAsLocalUrn() {
+        assertThat(Urn.isLocalUrn("unknown:playlists:1")).isFalse();
+    }
+
+    @Test
     public void shouldParseUserUrns() throws Exception {
         Urn urn = new Urn("soundcloud:users:123");
         assertThat(urn.isUser()).isTrue();
@@ -67,6 +77,14 @@ public class UrnTest extends AndroidUnitTest {
     @Test
     public void shouldParsePlaylistUrns() throws Exception {
         Urn urn = new Urn("soundcloud:playlists:123");
+        assertThat(urn.isPlaylist()).isTrue();
+        assertThat(urn.isPlayable()).isTrue();
+        assertThat(urn.getNumericId()).isEqualTo(123L);
+    }
+
+    @Test
+    public void shouldParseLocalPlaylistUrns() throws Exception {
+        Urn urn = new Urn("local:playlists:123");
         assertThat(urn.isPlaylist()).isTrue();
         assertThat(urn.isPlayable()).isTrue();
         assertThat(urn.getNumericId()).isEqualTo(123L);
