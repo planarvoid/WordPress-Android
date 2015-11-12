@@ -14,7 +14,9 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.schedulers.Schedulers;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,7 +37,8 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new FacebookInvitesOperations(storage, facebookApi, facebookApiHelper, networkConnectionHelper);
+        operations = new FacebookInvitesOperations(storage, facebookApi, facebookApiHelper, networkConnectionHelper,
+                Schedulers.immediate());
 
         when(storage.getMillisSinceLastClick()).thenReturn(clickInterval);
         when(storage.getTimesAppOpened()).thenReturn(openCount);
@@ -148,4 +151,12 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
         verify(observer).onNext(Optional.of(new FacebookInvitesItem(pictureUrls)));
     }
 
+    @Test
+    public void shouldFallBackToEmptyResultIfSequenceFails() {
+        when(facebookApi.friendPictureUrls()).thenReturn(Observable.<List<String>>error(new IOException()));
+
+        operations.loadWithPictures().subscribe(observer);
+
+        verify(observer).onNext(Optional.<FacebookInvitesItem>absent());
+    }
 }
