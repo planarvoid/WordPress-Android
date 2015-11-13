@@ -89,10 +89,19 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateTrackCountUpdatesTrackCount() {
+    public void updateTrackCountUpdatesTrackCountWhenViewIsReady() {
+        when(headerView.isViewCreated()).thenReturn(true);
         presenter.updateTrackCount(3);
 
         verify(headerView).updateTrackCount(3);
+    }
+
+    @Test
+    public void doesNotUpdateTrackCountUpdatesTrackCountWhenViewIsReady() {
+        when(headerView.isViewCreated()).thenReturn(false);
+        presenter.updateTrackCount(3);
+
+        verify(headerView, never()).updateTrackCount(3);
     }
 
     @Test
