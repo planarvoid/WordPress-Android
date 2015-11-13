@@ -237,12 +237,19 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setStatusBarColor(int color) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) { // why less than M??
-            final Window window = playerFragment.getActivity().getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(color);
+        if (shouldColorStatusBar()) {
+            if (playerFragment.isAdded()) {
+                final Window window = playerFragment.getActivity().getWindow();
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.setStatusBarColor(color);
+            }
         }
+    }
+
+    private boolean shouldColorStatusBar() {
+        // Status bar color cannot be changed before Lollipop and we use `windowLightStatusBar` from Marshmallow
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
     }
 
     @Override
