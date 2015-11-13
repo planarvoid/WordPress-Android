@@ -6,7 +6,6 @@ import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -64,7 +63,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
     private final PaywallImpressionController paywallImpressionController;
-    private final ActionBarHelper actionMenuController;
 
     private CompositeSubscription viewLifeCycle;
 
@@ -78,7 +76,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
                         OfflinePlaybackOperations playbackOperations,
                         OfflineContentOperations offlineContentOperations,
                         PagedTracksRecyclerItemAdapter adapter,
-                        ActionBarHelper actionMenuController,
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
                         SwipeRefreshAttacher swipeRefreshAttacher,
@@ -91,7 +88,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
         this.playbackOperations = playbackOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.adapter = adapter;
-        this.actionMenuController = actionMenuController;
         this.headerPresenter = headerPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
