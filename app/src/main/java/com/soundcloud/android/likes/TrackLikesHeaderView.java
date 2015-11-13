@@ -41,6 +41,10 @@ class TrackLikesHeaderView {
         ButterKnife.bind(this, headerView);
     }
 
+    public boolean isViewCreated() {
+        return headerView != null;
+    }
+
     void onDestroyView() {
         downloadableHeaderView.onDestroyView();
         ButterKnife.unbind(this);

@@ -90,7 +90,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     public void updateTrackCount(int size) {
-        if (headerView != null) {
+        if (headerView.isViewCreated()) {
             headerView.updateTrackCount(size);
         }
     }
