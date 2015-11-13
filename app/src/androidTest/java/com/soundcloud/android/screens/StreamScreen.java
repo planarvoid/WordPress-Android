@@ -27,7 +27,6 @@ public class StreamScreen extends Screen {
     }
 
     public int getItemCount() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return streamList().getItemCount();
     }
 
@@ -148,11 +147,11 @@ public class StreamScreen extends Screen {
     }
 
     private RecyclerViewElement streamList() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return testDriver.findElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
     }
 
     private List<StreamCardElement> trackCardElements() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         streamList().scrollToItem(With.id(R.id.track_list_item));
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackCardElements);
     }
@@ -166,7 +165,7 @@ public class StreamScreen extends Screen {
     private final Function<ViewElement, StreamCardElement> toTrackCardElements = new Function<ViewElement, StreamCardElement>() {
         @Override
         public StreamCardElement apply(ViewElement viewElement) {
-            return new StreamCardElement(testDriver);
+            return new StreamCardElement(testDriver, viewElement);
         }
     };
 
