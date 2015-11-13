@@ -103,9 +103,8 @@ public class StreamScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstRepostedTrack() {
-        streamList().scrollToItem(With.id(R.id.reposter));
         ViewElement trackWithReposter = streamList()
-                .getItemWithChild(With.id(R.id.track_list_item), With.id(R.id.reposter));
+                .scrollToItemWithChild(With.id(R.id.track_list_item), With.id(R.id.reposter));
         return new StreamCardElement(testDriver, trackWithReposter).click();
     }
 

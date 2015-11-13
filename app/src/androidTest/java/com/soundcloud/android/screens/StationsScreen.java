@@ -42,7 +42,7 @@ public class StationsScreen extends Screen {
 
     public StationsBucketElement getBucket(With child) {
         final RecyclerViewElement buckets = stationsBucketsListElement();
-        return new StationsBucketElement(testDriver, buckets.getItemWithChild(With.id(R.id.stations_bucket), child));
+        return new StationsBucketElement(testDriver, buckets.scrollToItemWithChild(With.id(R.id.stations_bucket), child));
     }
 
     private RecyclerViewElement stationsBucketsListElement() {

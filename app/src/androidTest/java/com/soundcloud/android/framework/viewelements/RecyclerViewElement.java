@@ -57,19 +57,6 @@ public class RecyclerViewElement {
         return this;
     }
 
-    public ViewElement getItemWithChild(With with, With child) {
-        scrollToItem(child);
-        final List<ViewElement> items = testDriver.findElements(with);
-
-        for (ViewElement item : items) {
-            if (item.findElement(child).isVisible()) {
-                return item;
-            }
-        }
-
-        return new EmptyViewElement("Unable to find an item with the given child");
-    }
-
     public RecyclerView.Adapter getAdapter() {
         return recyclerView.getAdapter();
     }
@@ -83,6 +70,16 @@ public class RecyclerViewElement {
         };
 
         return scrollUntil(with, atLeastPartiallyVisibleCriteria);
+    }
+
+    public ViewElement scrollToItemWithChild(With with, final With child) {
+        Criteria itemWithChildCriteria = new Criteria() {
+            @Override
+            public boolean isSatisfied(ViewElement viewElement) {
+                return !(viewElement instanceof EmptyViewElement) && itemHasVisibleChild(viewElement, child);
+            }
+        };
+        return scrollUntil(with, itemWithChildCriteria);
     }
 
     public ViewElement scrollToFullyVisibleItem(With with) {
@@ -127,5 +124,9 @@ public class RecyclerViewElement {
 
     private RecyclerView.LayoutManager getLayoutManager() {
         return recyclerView.getLayoutManager();
+    }
+
+    private boolean itemHasVisibleChild(ViewElement item, With child) {
+        return item.findElement(child).isVisible();
     }
 }
