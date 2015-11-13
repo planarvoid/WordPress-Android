@@ -11,9 +11,11 @@ import com.soundcloud.android.screens.StreamScreen;
 public class StreamCardElement extends Element {
 
     private static final int CONTAINER = R.id.track_list_item;
+    private final ViewElement wrapped;
 
-    public StreamCardElement(Han testDriver) {
+    public StreamCardElement(Han testDriver, ViewElement wrapped) {
         super(testDriver, With.id(CONTAINER));
+        this.wrapped = wrapped;
     }
 
     public ProfileScreen clickUserAvatar() {
@@ -45,23 +47,23 @@ public class StreamCardElement extends Element {
     }
 
     public String trackTitle() {
-        return new TextElement(solo.findElement(With.id(R.id.title))).getText();
+        return new TextElement(wrapped.findElement(With.id(R.id.title))).getText();
     }
 
     private ViewElement repostItem() {
-        return solo.findElement(With.id(R.id.toggle_repost));
+        return wrapped.findElement(With.id(R.id.toggle_repost));
     }
 
     private ViewElement likeItem() {
-        return solo.findElement(With.id(R.id.toggle_like));
+        return wrapped.findElement(With.id(R.id.toggle_like));
     }
 
     private ViewElement artistName() {
-        return solo.findElement(With.id(R.id.creator));
+        return wrapped.findElement(With.id(R.id.creator));
     }
 
     private ViewElement userAvatar() {
-        return solo.findElement(With.id(R.id.user_image));
+        return wrapped.findElement(With.id(R.id.user_image));
     }
 
 }
