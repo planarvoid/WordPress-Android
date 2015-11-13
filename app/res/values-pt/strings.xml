@@ -127,7 +127,6 @@
   <string name="list_empty_user_following_action">Encontrar pessoas para seguir</string>
   <string name="empty_playlist_title">Playlist vazia</string>
   <string name="empty_playlist_description">Esta playlist ainda não tem faixas</string>
-  <string name="list_empty_liked_playlists_message">Curta suas playlists favoritas para ouvi-las novamente</string>
   <string name="list_empty_you_followers_message">Você ainda não tem nenhum seguidor.</string>
   <string name="list_empty_you_followers_secondary">Compartilhe suas faixas e playlists favoritas para criar sua comunidade</string>
   <string name="empty_user_tracks_text">%1$s ainda não fez upload de nenhuma faixa pública.</string>
@@ -287,8 +286,6 @@
   <!--__PLAYLISTS-->
   <string name="tab_title_user_playlists">Playlists</string>
   <string name="activity_title_playlist">Playlist</string>
-  <string name="your_playlists_tab">Suas playlists</string>
-  <string name="liked_playlists_tab">Playlists curtidas</string>
   <string name="playlist_load_error">Não foi possível carregar esta playlist</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Playlist aleatória</string>

@@ -133,7 +133,6 @@
   <string name="empty_playlist_description">Belum ada trek di daftar putar ini</string>
   <string name="empty_user_playlists_text">%1$s saat ini tidak punya daftar putar.</string>
   <string name="list_empty_you_playlists_message">Buat Daftar Putar untuk membuat mix dari audio-audio favorit Anda.</string>
-  <string name="list_empty_liked_playlists_message">Sukai daftar putar favoritmu untuk mendengarnya lagi.</string>
   <string name="empty_user_likes_text">%1$s belum\nmemilih satu suka pun.</string>
   <string name="empty_user_followers_text">%1$s belum\n memiliki pengikut.</string>
   <string name="empty_user_followings_text">%1$s belum\nmengikuti siapa-siapa.</string>
@@ -287,8 +286,6 @@
   <!--__PLAYLISTS-->
   <string name="tab_title_user_playlists">Daftar Putar</string>
   <string name="activity_title_playlist">Daftar putar</string>
-  <string name="your_playlists_tab">Daftar putarmu</string>
-  <string name="liked_playlists_tab">Daftar Putar yang Disukai</string>
   <string name="playlist_load_error">Tidak bisa memuat daftar putar ini</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Acak daftar lagu</string>
