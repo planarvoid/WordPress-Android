@@ -96,7 +96,15 @@ public class RecyclerViewElement {
         return scrollUntil(with, fullyVisibleItemCriteria);
     }
 
-    private ViewElement scrollUntil(With with, Criteria criteria) {
+    public int lastBoundItemIndex() {
+        return getBoundItemCount() - 1;
+    }
+
+    public int lastItemIndex() {
+        return getItemCount() - 1;
+    }
+
+    public ViewElement scrollUntil(With with, Criteria criteria) {
         int tries = 0;
         ViewElement result = testDriver.findElement(with);
         while (!criteria.isSatisfied(result)) {
@@ -114,16 +122,8 @@ public class RecyclerViewElement {
         return result;
     }
 
-    private interface Criteria {
+    public interface Criteria {
         boolean isSatisfied(ViewElement viewElement);
-    }
-
-    private int lastBoundItemIndex() {
-        return getBoundItemCount() - 1;
-    }
-
-    private int lastItemIndex() {
-        return getItemCount() - 1;
     }
 
     private RecyclerView.LayoutManager getLayoutManager() {
