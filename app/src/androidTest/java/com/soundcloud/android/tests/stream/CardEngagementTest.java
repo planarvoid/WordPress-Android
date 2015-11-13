@@ -51,7 +51,7 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
 
     public void testClickingToggleRepostFromOverflowMenu() {
         TrackItemMenuElement trackItemMenuElement =
-                streamScreen.clickFirstTrackOverflowButton();
+                streamScreen.clickFirstTrackCardOverflowButton();
 
         boolean reposted = trackItemMenuElement.isReposted();
         trackItemMenuElement.toggleRepost();

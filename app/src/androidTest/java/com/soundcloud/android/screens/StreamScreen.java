@@ -2,9 +2,9 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.framework.viewelements.ViewNotFoundException;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
@@ -41,54 +41,47 @@ public class StreamScreen extends Screen {
         return new UpgradeScreen(testDriver);
     }
 
-    public PlaylistDetailsScreen clickFirstNotPromotedPlaylist() {
-        int tries = 0;
-        while (tries < MAX_SCROLLS_TO_FIND_ITEM) {
-            streamList().scrollToItem(With.id(R.id.playlist_list_item));
-            for (PlaylistItemElement playlistItemElement : getPlaylists()) {
-                if (!playlistItemElement.isPromotedPlaylist()) {
-                    return playlistItemElement.click();
-                }
+    public PlaylistItemElement firstNonPromotedPlaylist() {
+        RecyclerViewElement.Criteria nonPromotedPlaylistCriteria = new RecyclerViewElement.Criteria() {
+            @Override
+            public boolean isSatisfied(ViewElement viewElement) {
+                return !(viewElement instanceof EmptyViewElement) && !new PlaylistItemElement(testDriver, viewElement).isPromotedPlaylist();
             }
-            testDriver.scrollToBottom();
-            tries++;
-        }
-        throw new ViewNotFoundException("Unable to find non-promoted playlist");
+        };
+        return new PlaylistItemElement(testDriver, streamList().scrollUntil(With.id(R.id.playlist_list_item), nonPromotedPlaylistCriteria));
     }
 
-    public StreamCardElement firstNotPromotedTrackCard() {
-        if (!isFirstTrackPromoted()) {
-            return firstTrackCard();
-        }
-        skipFirstItem();
-        return firstTrackCard();
+    public PlaylistDetailsScreen clickFirstNotPromotedPlaylist() {
+        return firstNonPromotedPlaylist().click();
     }
 
     private void skipFirstItem() {
-        streamList().scrollToPosition(1);
+        streamList().scrollToPosition(streamList().lastBoundItemIndex());
     }
 
     public StreamCardElement firstTrackCard() {
         return getTrackCard(0);
     }
 
-    @Override
-    protected Class getActivity() {
-        return ACTIVITY;
+    @Deprecated
+    public TrackItemElement getTrack(int index) {
+        return trackItemElements().get(index);
     }
 
     public StreamCardElement getTrackCard(int index) {
         return trackCardElements().get(index);
     }
 
-    public TrackItemElement getTrack(int index) {
-        return trackItemElements().get(index);
-    }
-
+    @Deprecated
     public VisualPlayerElement clickFirstTrack() {
         return clickTrack(0);
     }
 
+    public VisualPlayerElement clickFirstTrackCard() {
+        return clickTrackCard(0);
+    }
+
+    @Deprecated
     public VisualPlayerElement clickFirstNotPromotedTrack() {
         if (isFirstTrackPromoted()) {
             return clickTrack(1);
@@ -97,37 +90,63 @@ public class StreamScreen extends Screen {
         }
     }
 
+    public VisualPlayerElement clickFirstNotPromotedTrackCard() {
+        return firstNotPromotedTrackCard().click();
+    }
+
+    public StreamCardElement firstNotPromotedTrackCard() {
+        if (!isFirstTrackCardPromoted()) {
+            return firstTrackCard();
+        }
+        skipFirstItem();
+        return firstTrackCard();
+    }
+
     public VisualPlayerElement clickFirstRepostedTrack() {
-        final ViewElement viewElement = streamList().scrollToItem(With.id(R.id.reposter));
-        viewElement.click();
-        VisualPlayerElement player = new VisualPlayerElement(testDriver);
-        player.waitForExpandedPlayer();
-        return player;
+        streamList().scrollToItem(With.id(R.id.reposter));
+        ViewElement trackWithReposter = streamList()
+                .getItemWithChild(With.id(R.id.track_list_item), With.id(R.id.reposter));
+        return new StreamCardElement(testDriver, trackWithReposter).click();
     }
 
+    @Deprecated
     public VisualPlayerElement clickTrack(int index) {
-        getTrack(index).click();
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
-        visualPlayerElement.waitForExpandedPlayer();
-        return visualPlayerElement;
+        return getTrack(index).click();
     }
 
+    public VisualPlayerElement clickTrackCard(int index) {
+        return getTrackCard(index).click();
+    }
+
+    @Deprecated
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        getTrack(0).clickOverflowButton();
-        return new TrackItemMenuElement(testDriver);
+        return getTrack(0).clickOverflowButton();
     }
 
-    public PlaylistItemOverflowMenu clickFirstPlaylistOverflowButton() {
-        getPlaylist(0).clickOverflow();
-        return new PlaylistItemOverflowMenu(testDriver);
+    public TrackItemMenuElement clickFirstTrackCardOverflowButton() {
+        return getTrackCard(0).clickOverflowButton();
     }
 
+    @Deprecated
     public boolean isFirstTrackPromoted() {
         return getTrack(0).isPromotedTrack();
     }
 
+    public boolean isFirstTrackCardPromoted() {
+        return getTrackCard(0).isPromotedTrack();
+    }
+
+    @Deprecated
     public boolean isPromotedTrackWithPromoter() {
         return getTrack(0).hasPromoter();
+    }
+
+    public boolean isPromotedTrackCardWithPromoter(int index) {
+        return getTrackCard(index).hasPromoter();
+    }
+
+    public PlaylistItemOverflowMenu clickFirstPlaylistOverflowButton() {
+        return getPlaylist(0).clickOverflow();
     }
 
     public FacebookInvitesItemElement getFirstFacebookInvitesNotification() {
@@ -141,8 +160,13 @@ public class StreamScreen extends Screen {
                 toFacebookInvitesItemElement);
     }
 
+    @Override
+    protected Class getActivity() {
+        return ACTIVITY;
+    }
+
     private PlaylistItemElement getPlaylist(int index) {
-        streamList().scrollToItem(With.id(R.id.playlist_list_item));
+        streamList().scrollToFullyVisibleItem(With.id(R.id.playlist_list_item));
         return getPlaylists().get(index);
     }
 
@@ -152,10 +176,11 @@ public class StreamScreen extends Screen {
     }
 
     private List<StreamCardElement> trackCardElements() {
-        streamList().scrollToItem(With.id(R.id.track_list_item));
+        streamList().scrollToFullyVisibleItem(With.id(R.id.track_list_item));
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackCardElements);
     }
 
+    @Deprecated
     private List<TrackItemElement> trackItemElements() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         streamList().scrollToItem(With.id(R.id.track_list_item));

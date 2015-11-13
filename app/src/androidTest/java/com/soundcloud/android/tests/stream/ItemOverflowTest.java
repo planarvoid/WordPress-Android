@@ -35,7 +35,7 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
 
     public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
         final AddToPlaylistScreen addToPlaylistScreen = streamScreen
-                .clickFirstTrackOverflowButton()
+                .clickFirstTrackCardOverflowButton()
                 .clickAddToPlaylist();
 
         assertThat(addToPlaylistScreen, is(visible()));
@@ -43,7 +43,7 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
 
     public void testClickingToggleLikeFromOverflowMenu() {
         TrackItemMenuElement trackItemMenuElement =
-                streamScreen.clickFirstTrackOverflowButton();
+                streamScreen.clickFirstTrackCardOverflowButton();
 
         boolean liked = trackItemMenuElement.isLiked();
         trackItemMenuElement.toggleLike();

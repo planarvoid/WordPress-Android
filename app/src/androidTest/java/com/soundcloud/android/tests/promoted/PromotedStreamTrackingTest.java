@@ -40,10 +40,10 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
         StreamScreen streamScreen = mainNavHelper.goToStream();
 
         // do not run when promoted item is a promoted playlist
-        if (streamScreen.isFirstTrackPromoted()) {
-            final boolean hasPromoter = streamScreen.isPromotedTrackWithPromoter();
+        if (streamScreen.isFirstTrackCardPromoted()) {
+            final boolean hasPromoter = streamScreen.isPromotedTrackCardWithPromoter(0);
 
-            VisualPlayerElement playerElement = streamScreen.clickFirstTrack();
+            VisualPlayerElement playerElement = streamScreen.clickFirstTrackCard();
             assertThat(playerElement, is(visible()));
             assertThat(playerElement, is(playing()));
 

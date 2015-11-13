@@ -95,7 +95,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testSkippingWithNextAndPreviousChangesTrack() {
-        visualPlayerElement = streamScreen.clickFirstTrack();
+        visualPlayerElement = streamScreen.clickFirstTrackCard();
         String originalTrack = visualPlayerElement.getTrackTitle();
         visualPlayerElement.clickArtwork();
 
@@ -233,6 +233,6 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     private void playTrackFromStream() {
-        visualPlayerElement = streamScreen.clickFirstTrack();
+        visualPlayerElement = streamScreen.clickFirstTrackCard();
     }
 }

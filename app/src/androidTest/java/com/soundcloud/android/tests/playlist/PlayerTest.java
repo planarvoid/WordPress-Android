@@ -36,7 +36,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     @BrokenScrollingTest
     public void testVisualPlayerIsAccessible() throws Exception {
-        final VisualPlayerElement playerElement = streamScreen.clickFirstTrack();
+        final VisualPlayerElement playerElement = streamScreen.clickFirstTrackCard();
         assertThat(playerElement, is(expanded()));
         playerElement.pressBackToCollapse();
 
@@ -52,7 +52,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlayerAddTrackToPlaylist() {
-        final AddToPlaylistScreen addToPlaylistScreen = streamScreen.clickFirstTrack()
+        final AddToPlaylistScreen addToPlaylistScreen = streamScreen.clickFirstTrackCard()
                 .clickMenu()
                 .clickAddToPlaylist();
 

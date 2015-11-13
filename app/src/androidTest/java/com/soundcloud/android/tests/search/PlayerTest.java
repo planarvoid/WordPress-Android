@@ -33,7 +33,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     @BrokenSearchTest
     public void testVisualPlayerIsAccessibleFromSearch() throws Exception {
-        streamScreen().clickFirstTrack();
+        streamScreen().clickFirstTrackCard();
         player().waitForContent();
         assertThat(player(), is(expanded()));
         player().pressBackToCollapse();

@@ -49,7 +49,7 @@ public class OfflineTrackItemOverflowMenuTest extends ActivityTest<MainActivity>
     public void testWhenOfflineClickingAddToPlaylistOverflowMenuItemOpensDialog() {
         enableOfflineContent(context);
 
-        final CreatePlaylistScreen createPlaylistScreen = streamScreen.clickFirstTrackOverflowButton().
+        final CreatePlaylistScreen createPlaylistScreen = streamScreen.clickFirstTrackCardOverflowButton().
                 clickAddToPlaylist().
                 clickCreateNewPlaylist();
 

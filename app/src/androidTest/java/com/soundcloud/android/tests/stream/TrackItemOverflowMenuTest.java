@@ -38,7 +38,7 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
 
     //FIXME: https://github.com/soundcloud/SoundCloud-Android/issues/2914
     public void ignore_testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
-        final CreatePlaylistScreen createPlaylistScreen = streamScreen.clickFirstTrackOverflowButton().
+        final CreatePlaylistScreen createPlaylistScreen = streamScreen.clickFirstTrackCardOverflowButton().
                 clickAddToPlaylist().
                 clickCreateNewPlaylist();
 
@@ -47,7 +47,7 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testPlayRelatedTracks() {
-        final VisualPlayerElement player = streamScreen.clickFirstTrackOverflowButton().clickPlayRelatedTracks();
+        final VisualPlayerElement player = streamScreen.clickFirstTrackCardOverflowButton().clickPlayRelatedTracks();
 
         assertThat(player, is(visible()));
     }
@@ -56,7 +56,7 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
         toastObserver.observe();
         networkManagerClient.switchWifiOff();
 
-        final VisualPlayerElement playerElement = streamScreen.clickFirstTrackOverflowButton().clickPlayRelatedTracks();
+        final VisualPlayerElement playerElement = streamScreen.clickFirstTrackCardOverflowButton().clickPlayRelatedTracks();
 
         assertThat(playerElement, is(not(visible())));
         assertFalse(toastObserver.wasToastObserved(solo.getString(R.string.unable_to_play_related_tracks)));
