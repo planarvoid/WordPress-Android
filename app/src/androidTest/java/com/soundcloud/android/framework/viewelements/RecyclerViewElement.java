@@ -9,7 +9,7 @@ import android.view.View;
 import java.util.List;
 
 public class RecyclerViewElement {
-    protected static final int MAX_SCROLLS_TO_FIND_ITEM = 10;
+    protected static final int MAX_SCROLLS_TO_FIND_ITEM = 20;
 
     protected final Han testDriver;
     private final RecyclerView recyclerView;
@@ -108,8 +108,7 @@ public class RecyclerViewElement {
         int tries = 0;
         ViewElement result = testDriver.findElement(with);
         while (!criteria.isSatisfied(result)) {
-            int previouslyViewedItems = tries * getBoundItemCount();
-            int scrollPosition = previouslyViewedItems + lastBoundItemIndex();
+            int scrollPosition = tries + 1;
 
             if (scrollPosition > lastItemIndex() || tries > MAX_SCROLLS_TO_FIND_ITEM) {
                 return new EmptyViewElement("Unable to scroll to item; item not in list");
