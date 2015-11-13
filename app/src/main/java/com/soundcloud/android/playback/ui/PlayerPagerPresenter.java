@@ -75,7 +75,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private View videoAdView;
     private SkipListener skipListener;
     private List<PlayerPageData> currentData = Collections.emptyList();
-    private ViewVisibilityProvider viewVisibilityProvider;
+    private ViewVisibilityProvider viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
     private PlayerUIEvent lastPlayerUIEvent;
     private StateTransition lastStateTransition;
     private boolean isForeground;
@@ -152,12 +152,12 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     public void onViewCreated(PlayerFragment fragment, View view, Bundle savedInstanceState) {
         final PlayerTrackPager trackPager = (PlayerTrackPager) view.findViewById(R.id.player_track_pager);
 
+        viewVisibilityProvider = new PlayerViewVisibilityProvider(trackPager);
         trackPager.setPageMargin(view.getResources().getDimensionPixelSize(R.dimen.player_pager_spacing));
         trackPager.setPageMarginDrawable(R.color.black);
         trackPager.setAdapter(trackPagerAdapter);
 
         skipListener = createSkipListener(trackPager);
-        viewVisibilityProvider = new PlayerViewVisibilityProvider(trackPager);
         castConnectionHelper.addOnConnectionChangeListener(this);
         populateScrapViews(trackPager);
 
