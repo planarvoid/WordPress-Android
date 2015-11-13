@@ -22,6 +22,7 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.MultiMap;
@@ -44,14 +45,15 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
 
     private PlaylistDiscoveryOperations operations;
 
-    @Mock PlaylistTagStorage tagStorage;
-    @Mock ApiClientRx apiClientRx;
-    @Mock Observer observer;
-    @Mock StorePlaylistsCommand storePlaylistsCommand;
+    @Mock private PlaylistTagStorage tagStorage;
+    @Mock private ApiClientRx apiClientRx;
+    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private Observer observer;
+    @Mock private StorePlaylistsCommand storePlaylistsCommand;
 
     @Before
     public void setup() {
-        operations = new PlaylistDiscoveryOperations(apiClientRx, tagStorage, storePlaylistsCommand, Schedulers.immediate());
+        operations = new PlaylistDiscoveryOperations(apiClientRx, connectionHelper, tagStorage, storePlaylistsCommand, Schedulers.immediate());
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPlaylistCollection.class)))
                 .thenReturn(Observable.<ApiPlaylistCollection>empty());
     }
@@ -59,6 +61,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldMakeGETRequestToPlaylistTagsEndpoint() throws Exception {
         when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         operations.popularPlaylistTags().subscribe(observer);
 
         verify(apiClientRx).mappedResponse(
@@ -70,6 +73,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         ModelCollection<String> tags = new ModelCollection<>(Lists.newArrayList("tag"));
         when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.just(tags));
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
 
         operations.popularPlaylistTags().subscribe(observer);
 
@@ -215,5 +219,25 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
 
         verify(tagStorage).clear();
         verifyNoMoreInteractions(tagStorage);
+    }
+
+    @Test
+    public void shouldNotFetchPlaylistTagsIfNoInternetConnection() {
+        when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.singletonList("tag")));
+        when(tagStorage.isTagsCacheExpired()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+        operations.popularPlaylistTags().subscribe(observer);
+
+        verifyZeroInteractions(apiClientRx);
+    }
+
+    @Test
+    public void shouldNotFetchPlaylistTagsIfTagsCachedIsNotExpired() {
+        when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.singletonList("tag")));
+        when(tagStorage.isTagsCacheExpired()).thenReturn(false);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
+        operations.popularPlaylistTags().subscribe(observer);
+
+        verifyZeroInteractions(apiClientRx);
     }
 }
