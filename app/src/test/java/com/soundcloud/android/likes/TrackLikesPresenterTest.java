@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
@@ -69,7 +68,6 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private OfflinePlaybackOperations playbackOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private PagedTracksRecyclerItemAdapter adapter;
-    @Mock private ActionBarHelper actionMenuController;
     @Mock private TrackLikesHeaderPresenter headerPresenter;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private Menu menu;
@@ -88,7 +86,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Before
     public void setup() {
         presenter = new TrackLikesPresenter(likeOperations, playbackOperations,
-                offlineContentOperations, adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
+                offlineContentOperations, adapter, headerPresenter, expandPlayerSubscriberProvider,
                 eventBus, swipeRefreshAttacher, featureOperations, navigator, collapsingScrollHelper, paywallImpressionController);
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
