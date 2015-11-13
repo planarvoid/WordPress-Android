@@ -20,19 +20,11 @@ public class TrackItemElement {
     }
 
     public String getTitle() {
-        return new TextElement(wrapped.findElement(With.id(R.id.title))).getText();
+        return new TextElement(wrapped.findElement(With.id(R.id.list_item_subheader))).getText();
     }
 
     public boolean isPromotedTrack() {
-        return isPromotedCardItem() || isPromotedTrackListItem();
-    }
-
-    private boolean isPromotedTrackListItem() {
         return wrapped.findElement(With.id(R.id.promoted_track)).isVisible();
-    }
-
-    private boolean isPromotedCardItem() {
-        return wrapped.findElement(With.id(R.id.promoted_item)).isVisible();
     }
 
     public boolean hasPromoter() {
