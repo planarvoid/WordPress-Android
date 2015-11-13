@@ -38,9 +38,7 @@ public class ActivitiesTest extends ActivityTest<MainActivity> {
         assertThat(profileScreen.getUserName(), not(isEmptyOrNullString()));
     }
 
-    // Until https://github.com/soundcloud/SoundCloud-Android/issues/2265 is fixed
-    // we will not receive new "like activities" for a given user
-    public void ignoreLikeGoesToProfile() {
+    public void testLikeGoesToProfile() {
         ProfileScreen profileScreen = activitiesScreen.clickLike();
         assertThat(profileScreen.getUserName(), not(isEmptyOrNullString()));
     }
