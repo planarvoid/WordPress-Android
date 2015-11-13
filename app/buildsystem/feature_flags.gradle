@@ -55,6 +55,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_TABS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
+      buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, FALSE
@@ -66,7 +67,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE   //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE            //FEATURE_DISCOVERY must be enable as well
-      buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
     }
 
@@ -111,6 +111,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_TABS, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
+      buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_COLLECTIONS, FALSE
@@ -120,7 +121,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
-      buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
     }
 
