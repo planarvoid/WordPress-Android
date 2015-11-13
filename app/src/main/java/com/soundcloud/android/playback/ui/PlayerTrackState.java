@@ -25,7 +25,7 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
             TrackProperty.LIKES_COUNT.bind(0),
             TrackProperty.PERMALINK_URL.bind(ScTextUtils.EMPTY_STRING),
             TrackProperty.IS_PRIVATE.bind(false)
-    ), false, false, null);
+    ), false, false, ViewVisibilityProvider.EMPTY);
 
     private final boolean isCurrentTrack;
     private final boolean isForeground;
