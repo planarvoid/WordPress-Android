@@ -73,13 +73,15 @@ class LikesMenuPresenter {
     }
 
     public void onPrepareOptionsMenu(Menu menu) {
-        configureMenu(menu);
-        if (featureOperations.upsellMidTier()) {
-            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesImpression());
+        if (featureOperations.isOfflineContentOrUpsellEnabled()) {
+            configureOfflineContentMenu(menu);
+            if (featureOperations.upsellMidTier()) {
+                eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesImpression());
+            }
         }
     }
 
-    private void configureMenu(Menu menu) {
+    private void configureOfflineContentMenu(Menu menu) {
         offlineOperations
                 .isOfflineLikedTracksEnabled()
                 .observeOn(AndroidSchedulers.mainThread())
