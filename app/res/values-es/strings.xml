@@ -127,7 +127,6 @@
   <string name="list_empty_user_following_action">Encontrar gente para seguir</string>
   <string name="empty_playlist_title">Lista vacía</string>
   <string name="empty_playlist_description">Esta lista no tiene pistas aún</string>
-  <string name="list_empty_liked_playlists_message">Haz Me gusta en tus listas favoritas para escucharlas de nuevo</string>
   <string name="list_empty_you_followers_message">Aún no tienes seguidores.</string>
   <string name="list_empty_you_followers_secondary">Comparte tus canciones y listas de reproducción favoritas para crear tu comunidad</string>
   <string name="empty_user_tracks_text">%1$s no ha subido\nninguna pista pública todavía.</string>
@@ -287,8 +286,6 @@
   <!--__PLAYLISTS-->
   <string name="tab_title_user_playlists">Listas</string>
   <string name="activity_title_playlist">Lista</string>
-  <string name="your_playlists_tab">Tus listas</string>
-  <string name="liked_playlists_tab">Listas que te han gustado</string>
   <string name="playlist_load_error">No se pudo cargar esta lista</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Lista aleatoria</string>
