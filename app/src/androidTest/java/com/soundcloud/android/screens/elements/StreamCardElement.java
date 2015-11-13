@@ -50,6 +50,26 @@ public class StreamCardElement extends Element {
         return new TextElement(wrapped.findElement(With.id(R.id.title))).getText();
     }
 
+    public TrackItemMenuElement clickOverflowButton() {
+        overflowButton().click();
+        return new TrackItemMenuElement(solo);
+    }
+
+    public boolean isPromotedTrack() {
+        return wrapped.findElement(With.id(R.id.promoted_item)).isVisible();
+    }
+
+    public boolean hasPromoter() {
+        return wrapped.findElement(With.id(R.id.promoter)).isVisible();
+    }
+
+    public VisualPlayerElement click() {
+        wrapped.click();
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(solo);
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
+    }
+
     private ViewElement repostItem() {
         return wrapped.findElement(With.id(R.id.toggle_repost));
     }
@@ -66,4 +86,7 @@ public class StreamCardElement extends Element {
         return wrapped.findElement(With.id(R.id.user_image));
     }
 
+    private ViewElement overflowButton() {
+        return wrapped.findElement(With.id(R.id.overflow_button));
+    }
 }
