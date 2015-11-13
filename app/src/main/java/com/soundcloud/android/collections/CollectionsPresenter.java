@@ -81,7 +81,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     private final Resources resources;
     private final EventBus eventBus;
 
-    private CompositeSubscription eventSubscriptions;
+    private CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private PlaylistsOptions currentOptions;
 
     @Inject
@@ -109,17 +109,6 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     public void onCreate(Fragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
-
-        eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
-                collectionsOperations.onCollectionSynced()
-                        .filter(isNotRefreshing)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RefreshCollectionsSubscriber()),
-                collectionsOperations.onCollectionChanged()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RefreshCollectionsSubscriber())
-        );
     }
 
     @Override
@@ -160,7 +149,10 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     private void refreshCollections() {
         adapter.clear();
-        retryWith(onBuildBinding(null));
+        final CollectionBinding<CollectionsItem> binding = CollectionBinding
+                .from(collectionsOperations.collections(currentOptions), toCollectionsItems)
+                .withAdapter(adapter).build();
+        retryWith(binding);
     }
 
     @Override
@@ -182,7 +174,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     @Override
     protected CollectionBinding<CollectionsItem> onBuildBinding(Bundle bundle) {
         final Observable<MyCollections> collections = collectionsOperations.collections(currentOptions);
-        return CollectionBinding.from(collections.doOnNext(new OnNextErrorAction()), toCollectionsItems)
+        return CollectionBinding.from(collections.doOnNext(new OnCollectionLoadedAction()), toCollectionsItems)
                 .withAdapter(adapter)
                 .build();
     }
@@ -224,13 +216,27 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         }
     }
 
-    private class OnNextErrorAction implements Action1<MyCollections> {
+    private class OnCollectionLoadedAction implements Action1<MyCollections> {
         @Override
         public void call(MyCollections myCollections) {
+            subscribeForUpdates();
             if (myCollections.hasError()) {
                 showError();
             }
         }
+    }
+
+    private void subscribeForUpdates() {
+        eventSubscriptions = new CompositeSubscription(
+                eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
+                collectionsOperations.onCollectionSynced()
+                        .filter(isNotRefreshing)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RefreshCollectionsSubscriber()),
+                collectionsOperations.onCollectionChanged()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RefreshCollectionsSubscriber())
+        );
     }
 
     private void showError() {
