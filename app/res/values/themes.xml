@@ -49,8 +49,8 @@
     <style name="TabsTheme" parent="TabsThemeBase" />
 
     <style name="TabsTheme.Fixed">
-        <item name="tabPaddingStart">4dp</item>
-        <item name="tabPaddingEnd">4dp</item>
+        <item name="tabPaddingStart">@dimen/fixed_tab_padding</item>
+        <item name="tabPaddingEnd">@dimen/fixed_tab_padding</item>
         <item name="tabMode">fixed</item>
         <item name="tabGravity">fill</item>
     </style>
