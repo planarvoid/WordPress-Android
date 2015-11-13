@@ -1,33 +1,29 @@
-package com.soundcloud.android.stream;
+package com.soundcloud.android.sync.stream;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.observers.TestSubscriber;
 
 import android.app.Notification;
-import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 
 import javax.inject.Provider;
 import java.util.Arrays;
+import java.util.Collections;
 
-@RunWith(SoundCloudTestRunner.class)
-public class StreamNotificationBuilderTest {
+public class StreamNotificationBuilderTest extends AndroidUnitTest {
 
     private static final int NOTIFICATION_MAX = 3;
 
     private StreamNotificationBuilder streamNotificationBuilder;
 
-    @Mock private Context context;
     @Mock private NotificationCompat.Builder notificationBuilder;
     @Mock private Notification notification;
 
@@ -38,7 +34,7 @@ public class StreamNotificationBuilderTest {
     public void setUp() throws Exception {
         when(notificationBuilder.build()).thenReturn(notification);
 
-        streamNotificationBuilder = new StreamNotificationBuilder(Robolectric.application, new Provider<NotificationCompat.Builder>() {
+        streamNotificationBuilder = new StreamNotificationBuilder(context(), new Provider<NotificationCompat.Builder>() {
             @Override
             public NotificationCompat.Builder get() {
                 return notificationBuilder;
@@ -48,25 +44,23 @@ public class StreamNotificationBuilderTest {
 
     @Test
     public void notificationReturnsNotificationForSingleTrack() throws Exception {
-        streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"))).subscribe(subscriber);
+        streamNotificationBuilder.notification(Collections.singletonList(getTrack("creator1"))).subscribe(subscriber);
 
-        subscriber.assertReceivedOnNext(Arrays.asList(notification));
-        subscriber.assertTerminalEvent();
-        subscriber.assertNoErrors();
+        subscriber.assertValue(notification);
+        subscriber.assertCompleted();
     }
 
     @Test
     public void notificationReturnsNotificationForMultipleTracks() throws Exception {
         streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"), getTrack("creator2"))).subscribe(subscriber);
 
-        subscriber.assertReceivedOnNext(Arrays.asList(notification));
-        subscriber.assertTerminalEvent();
-        subscriber.assertNoErrors();
+        subscriber.assertValue(notification);
+        subscriber.assertCompleted();
     }
 
     @Test
     public void notificationSetsTickerForSingleTrack() throws Exception {
-        streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"))).subscribe(subscriber);
+        streamNotificationBuilder.notification(Collections.singletonList(getTrack("creator1"))).subscribe(subscriber);
         verify(notificationBuilder).setTicker("1 new sound");
     }
 
@@ -84,7 +78,7 @@ public class StreamNotificationBuilderTest {
 
     @Test
     public void notificationSetsTitleAndTextForSingleTrack() throws Exception {
-        streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"))).subscribe(subscriber);
+        streamNotificationBuilder.notification(Collections.singletonList(getTrack("creator1"))).subscribe(subscriber);
         verify(notificationBuilder).setContentTitle("SoundCloud");
         verify(notificationBuilder).setContentText("1 new sound from creator1");
     }
@@ -112,7 +106,7 @@ public class StreamNotificationBuilderTest {
 
     @Test
     public void notificationSetsVisibilityToPublic() throws Exception {
-        streamNotificationBuilder.notification(Arrays.asList(getTrack("creator1"))).subscribe(subscriber);
+        streamNotificationBuilder.notification(Collections.singletonList(getTrack("creator1"))).subscribe(subscriber);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
     }
 

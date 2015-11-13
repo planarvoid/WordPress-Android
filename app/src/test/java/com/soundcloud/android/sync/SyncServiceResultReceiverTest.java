@@ -1,35 +1,32 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.stream.SoundStreamSyncOperations;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.sync.activities.ActivitiesNotifier;
+import com.soundcloud.android.sync.stream.SoundStreamNotifier;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.content.Context;
 import android.content.SyncResult;
 import android.net.Uri;
 import android.os.Bundle;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SyncServiceResultReceiverTest {
+public class SyncServiceResultReceiverTest extends AndroidUnitTest {
 
     private static final String LIKES_URI_STRING = Content.ME_LIKES.uri.toString();
     private static final Uri LIKES_URI = Content.ME_LIKES.uri;
 
-    SyncServiceResultReceiver syncServiceResultReceiver;
+    private SyncServiceResultReceiver syncServiceResultReceiver;
 
-    private Context context = Robolectric.application;
-    @Mock private SoundStreamSyncOperations soundStreamSyncOperations;
+    @Mock private SoundStreamNotifier soundStreamNotifier;
+    @Mock private ActivitiesNotifier activitiesNotifier;
     @Mock private SyncStateManager syncStateManager;
     @Mock private SyncServiceResultReceiver.OnResultListener onResultListener;
 
@@ -37,7 +34,8 @@ public class SyncServiceResultReceiverTest {
 
     @Before
     public void setUp() throws Exception {
-        syncServiceResultReceiver = new SyncServiceResultReceiver.Factory(context, soundStreamSyncOperations, syncStateManager)
+        syncServiceResultReceiver = new SyncServiceResultReceiver.Factory(context(), soundStreamNotifier,
+                activitiesNotifier, syncStateManager)
                 .create(syncResult, onResultListener);
     }
 
@@ -50,7 +48,7 @@ public class SyncServiceResultReceiverTest {
         resultData.putParcelable(ApiSyncService.EXTRA_SYNC_RESULT, syncResultArg);
         syncServiceResultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_ERROR, resultData);
 
-        expect(syncResult.stats.numIoExceptions).toEqual(12L);
+        assertThat(syncResult.stats.numIoExceptions).isEqualTo(12L);
     }
 
     @Test
@@ -62,7 +60,7 @@ public class SyncServiceResultReceiverTest {
         resultData.putParcelable(ApiSyncService.EXTRA_SYNC_RESULT, syncResultArg);
         syncServiceResultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_ERROR, resultData);
 
-        expect(syncResult.delayUntil).toEqual(1000L);
+        assertThat(syncResult.delayUntil).isEqualTo(1000L);
     }
 
     @Test
@@ -74,7 +72,7 @@ public class SyncServiceResultReceiverTest {
         resultData.putParcelable(ApiSyncService.EXTRA_SYNC_RESULT, syncResultArg);
         syncServiceResultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_ERROR, resultData);
 
-        expect(syncResult.stats.numAuthExceptions).toEqual(12L);
+        assertThat(syncResult.stats.numAuthExceptions).isEqualTo(12L);
     }
 
     @Test
@@ -97,13 +95,12 @@ public class SyncServiceResultReceiverTest {
 
     @Test
     public void syncSuccessOnStreamCreatesNotification() throws Exception {
-        ContentStats.setLastSeen(Robolectric.application, Content.ME_SOUND_STREAM, 1000L);
+        ContentStats.setLastSeen(context(), Content.ME_SOUND_STREAM, 1000L);
 
         final Bundle resultData = new Bundle();
         resultData.putBoolean(LIKES_URI_STRING, true);
         syncServiceResultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
 
-        verify(soundStreamSyncOperations).createNotificationForUnseenItems();
-
+        verify(soundStreamNotifier).notifyUnseenItems();
     }
 }

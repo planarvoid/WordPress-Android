@@ -33,7 +33,7 @@ import rx.Observable;
 import javax.inject.Inject;
 import java.util.List;
 
-class SoundStreamStorage implements TimelineStorage {
+public class SoundStreamStorage implements TimelineStorage {
 
     private static final Object[] STREAM_SELECTION = new Object[]{
             SoundStreamView.SOUND_ID,
@@ -115,7 +115,8 @@ class SoundStreamStorage implements TimelineStorage {
         return propellerRx.query(query).map(new StreamItemMapper());
     }
 
-    public List<PropertySet> loadStreamItemsSince(final long timestamp, final int limit) {
+    @Override
+    public List<PropertySet> timelineItemsSince(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                 .select(STREAM_SELECTION)
                 .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)

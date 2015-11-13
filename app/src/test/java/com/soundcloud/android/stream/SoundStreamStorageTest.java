@@ -238,7 +238,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         final ApiTrack newest = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(newest.getId(), TIMESTAMP + 1);
 
-        final List<PropertySet> actual = storage.loadStreamItemsSince(TIMESTAMP, 50);
+        final List<PropertySet> actual = storage.timelineItemsSince(TIMESTAMP, 50);
         assertThat(actual).hasSize(1);
         assertThat(actual.get(0).get(PlayableProperty.URN)).isEqualTo(newest.getUrn());
     }
@@ -251,7 +251,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItems(50).subscribe(observer);
 
-        final List<PropertySet> actual = storage.loadStreamItemsSince(TIMESTAMP - 1, 50);
+        final List<PropertySet> actual = storage.timelineItemsSince(TIMESTAMP - 1, 50);
         assertThat(actual).hasSize(1);
     }
 

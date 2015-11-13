@@ -1,4 +1,4 @@
-package com.soundcloud.android.stream;
+package com.soundcloud.android.sync.stream;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class RichStreamNotificationBuilder extends StreamNotificationBuilder {
+class RichStreamNotificationBuilder extends StreamNotificationBuilder {
 
     private final ImageOperations imageOperations;
     private final Func1<Builder, Notification> buildNotification = new Func1<Builder, Notification>() {
@@ -35,13 +35,13 @@ public class RichStreamNotificationBuilder extends StreamNotificationBuilder {
         this.imageOperations = imageOperations;
     }
 
-    public Observable<Notification> notification(List<PropertySet> streamItems) {
+    Observable<Notification> notification(List<PropertySet> streamItems) {
         final Builder builder = getBuilder(streamItems);
         final Urn artworkUrn = streamItems.get(0).get(PlayableProperty.URN);
         return builderWithArtwork(builder, artworkUrn).map(buildNotification);
     }
 
-    protected Observable<Builder> builderWithArtwork(final Builder builder, Urn artworkUrn) {
+    private Observable<Builder> builderWithArtwork(final Builder builder, Urn artworkUrn) {
         final Resources resources = appContext.getResources();
         final int targetIconWidth = resources.getDimensionPixelSize(R.dimen.notification_image_large_width);
         final int targetIconHeight = resources.getDimensionPixelSize(R.dimen.notification_image_large_height);
