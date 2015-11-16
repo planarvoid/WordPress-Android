@@ -27,7 +27,7 @@ public class DiscoveryFragment extends LightCycleSupportFragment implements Scro
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View fragmentView = inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
-        fragmentView.setBackgroundColor(ContextCompat.getColor(fragmentView.getContext(), R.color.discovery_screen_background));
+        fragmentView.setBackgroundColor(ContextCompat.getColor(fragmentView.getContext(), R.color.page_background));
         return fragmentView;
     }
 
