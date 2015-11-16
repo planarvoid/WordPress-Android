@@ -21,6 +21,7 @@ import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -63,7 +64,8 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
     private final SuggestionsHelper suggestionsHelper;
 
     @Inject
-    SearchPresenter(EventBus eventbus, Resources resources, SuggestionsAdapter adapter, SuggestionsHelperFactory suggestionsHelperFactory) {
+    SearchPresenter(EventBus eventbus, Resources resources, SuggestionsAdapter adapter,
+                    SuggestionsHelperFactory suggestionsHelperFactory) {
         this.eventBus = eventbus;
         this.resources = resources;
         this.adapter = adapter;
@@ -85,7 +87,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         this.inputMethodManager = null;
     }
 
-    private void setupViews(Activity activity) {
+    private void setupViews(AppCompatActivity activity) {
         setupToolbar(activity);
         setupListView(activity);
         setupViewFlipper(activity);
@@ -104,14 +106,18 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         searchViewFlipper.setOutAnimation(AnimationUtils.loadAnimation(activity, R.anim.activity_open_exit));
     }
 
-    private void setupToolbar(Activity activity) {
+    private void setupToolbar(AppCompatActivity activity) {
         final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
         final ViewGroup searchView = (ViewGroup) ((LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.search_text_view, toolbar, false);
+        final ActionBar actionBar = activity.getSupportActionBar();
         toolbarElevation = activity.findViewById(R.id.legacy_elevation);
         searchTextView = (EditText) searchView.findViewById(R.id.search_text);
         searchCloseView = (ImageView) searchView.findViewById(R.id.search_close);
+        if (actionBar != null) {
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
         toolbar.addView(searchView);
     }
 
