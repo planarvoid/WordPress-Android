@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
+import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
@@ -38,6 +39,7 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
         setRequiredEnabledFeatures(Flag.NEW_STREAM);
 
         super.setUp();
+        mainNavHelper.goToStream();
         streamScreen = new StreamScreen(solo);
     }
 
