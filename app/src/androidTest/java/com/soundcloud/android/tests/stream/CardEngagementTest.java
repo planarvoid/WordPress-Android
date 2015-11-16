@@ -9,9 +9,9 @@ import static org.hamcrest.Matchers.not;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.elements.PlaylistItemOverflowMenu;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -33,20 +33,6 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     @Override
     protected void logInHelper() {
         streamUser.logIn(getInstrumentation().getTargetContext());
-    }
-
-    public void testClickingToggleRepostPlaylistFromOverflowMenu() {
-        PlaylistItemOverflowMenu playlistItemOverflowMenu =
-                streamScreen.clickFirstPlaylistOverflowButton();
-
-        boolean reposted = playlistItemOverflowMenu.isReposted();
-        playlistItemOverflowMenu.toggleRepost();
-
-        assertThat(streamScreen, is(visible()));
-
-        final String repostToastMessage = getRepostToastMessage(reposted);
-        assertTrue("Did not observe a toast with a message: " + repostToastMessage,
-                waiter.expectToastWithText(toastObserver, repostToastMessage));
     }
 
     public void testClickingToggleRepostFromOverflowMenu() {
@@ -99,6 +85,14 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
         ProfileScreen profileScreen = streamScreen.firstNotPromotedTrackCard().clickArtistName();
 
         assertThat(profileScreen, is(visible()));
+    }
+
+    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
+        final AddToPlaylistScreen addToPlaylistScreen = streamScreen
+                .clickFirstTrackCardOverflowButton()
+                .clickAddToPlaylist();
+
+        assertThat(addToPlaylistScreen, is(visible()));
     }
 
     private String getRepostToastMessage(boolean reposted) {
