@@ -6,7 +6,6 @@ import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -43,9 +42,9 @@ public abstract class AdOverlayPresenter {
         }
     };
 
-    public abstract boolean shouldDisplayOverlay(PropertySet data, boolean isExpanded, boolean isPortrait, boolean isForeground);
+    public abstract boolean shouldDisplayOverlay(OverlayAdData data, boolean isExpanded, boolean isPortrait, boolean isForeground);
 
-    public void onAdVisible(PlayQueueItem playQueueItem, PropertySet data, TrackSourceInfo trackSourceInfo) {
+    public void onAdVisible(PlayQueueItem playQueueItem, OverlayAdData data, TrackSourceInfo trackSourceInfo) {
         overlay.setClickable(true);
         adImage.setVisibility(View.VISIBLE);
         leaveBehindHeader.setVisibility(View.VISIBLE);
@@ -70,8 +69,8 @@ public abstract class AdOverlayPresenter {
 
     public abstract boolean isFullScreen();
 
-    public void bind(PropertySet data) {
-        imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), getImageView(), imageListener);
+    public void bind(OverlayAdData data) {
+        imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), getImageView(), imageListener);
     }
 
     public interface Listener {
@@ -80,7 +79,7 @@ public abstract class AdOverlayPresenter {
         void onCloseButtonClick();
     }
 
-    public static AdOverlayPresenter create(PropertySet data, View trackView, Listener listener, EventBus eventBus, Resources resources, ImageOperations imageOperations) {
+    public static AdOverlayPresenter create(OverlayAdData data, View trackView, Listener listener, EventBus eventBus, Resources resources, ImageOperations imageOperations) {
         if (isInterstitial(data)) {
             return new InterstitialPresenter(trackView, listener, eventBus, imageOperations, resources);
         } else {
@@ -88,8 +87,8 @@ public abstract class AdOverlayPresenter {
         }
     }
 
-    private static boolean isInterstitial(PropertySet data) {
-        return data != null && data.contains(InterstitialProperty.INTERSTITIAL_URN);
+    private static boolean isInterstitial(OverlayAdData data) {
+        return data instanceof InterstitialAd;
     }
 
     protected AdOverlayPresenter(View trackView, int overlayId, int overlayStubId, int adImageId, int adClickId, int headerId, final Listener listener, ImageOperations imageOperations, EventBus eventBus) {

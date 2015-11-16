@@ -4,6 +4,7 @@ import android.webkit.URLUtil;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -25,7 +26,7 @@ class PlaybackSessionAnalyticsController {
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
     private PlaybackSessionEvent lastSessionEventData;
-    private PropertySet lastPlayAudioAd;
+    private AudioAd lastPlayAudioAd;
 
     private TrackSourceInfo currentTrackSourceInfo;
     private Player.StateTransition lastStateTransition = Player.StateTransition.DEFAULT;
@@ -111,7 +112,7 @@ class PlaybackSessionAnalyticsController {
                         progress, protocol, playerType, connectionType, localStoragePlayback);
 
                 if (adsOperations.isCurrentItemAudioAd()) {
-                    lastPlayAudioAd = playQueueManager.getCurrentPlayQueueItem().getMetaData();
+                    lastPlayAudioAd = (AudioAd) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
                     lastSessionEventData = lastSessionEventData.withAudioAd(lastPlayAudioAd);
                 } else {
                     final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();

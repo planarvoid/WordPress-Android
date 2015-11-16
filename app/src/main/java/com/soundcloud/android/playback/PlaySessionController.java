@@ -8,6 +8,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -28,7 +29,6 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.rx.PropertySetFunctions;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import rx.Observable;
@@ -262,7 +262,8 @@ public class PlaySessionController {
     private void publishSkipEventIfAudioAd() {
         if (adsOperations.isCurrentItemAudioAd()) {
             final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueueManager.getCurrentPlayQueueItem();
-            final UIEvent event = UIEvent.fromSkipAudioAdClick(trackQueueItem.getMetaData(), trackQueueItem.getTrackUrn(),
+            final AudioAd audioAd = (AudioAd) trackQueueItem.getAdData().get();
+            final UIEvent event = UIEvent.fromSkipAudioAdClick(audioAd, trackQueueItem.getTrackUrn(),
                     accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo());
             eventBus.publish(EventQueue.TRACKING, event);
         }
@@ -364,7 +365,6 @@ public class PlaySessionController {
             if (playQueueItem.isTrack() ) {
                 currentTrackSubscription = trackRepository
                         .track(playQueueItem.getUrn())
-                        .map(PropertySetFunctions.mergeInto(playQueueItem.getMetaData()))
                         .subscribe(new CurrentTrackSubscriber());
             }
         }

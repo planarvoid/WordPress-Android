@@ -1,31 +1,32 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.java.optional.Optional;
 
 public abstract class PlayerPageData {
     enum Kind {TRACK, VIDEO}
 
     final int positionInPlayQueue;
-    final PropertySet properties;
+    final Optional<AdData> adData;
     final Kind kind;
 
-    PlayerPageData(Kind kind, int positionInPlayQueue, PropertySet properties)  {
+    PlayerPageData(Kind kind, int positionInPlayQueue, Optional<AdData> adData)  {
         this.kind = kind;
         this.positionInPlayQueue = positionInPlayQueue;
-        this.properties = properties;
+        this.adData = adData;
     }
 
     public int getPositionInPlayQueue() {
         return positionInPlayQueue;
     }
 
-    public PropertySet getProperties() {
-        return properties;
+    public Optional<AdData> getAdData() {
+        return adData;
     }
 
     boolean isAdPage(){
-        return properties.contains(AdProperty.AD_URN);
+        return adData.isPresent() && adData.get() instanceof PlayerAdData;
     }
 
     boolean isTrackPage() {

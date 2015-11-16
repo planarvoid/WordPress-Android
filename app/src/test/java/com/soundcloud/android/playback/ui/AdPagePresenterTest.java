@@ -10,7 +10,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -51,7 +53,7 @@ public class AdPagePresenterTest extends AndroidUnitTest {
 
         presenter = new AdPagePresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener, context());
         adView = presenter.createItemView(new FrameLayout(context()), skipListener);
-        presenter.bindItemView(adView, new PlayerAd(buildAd()));
+        presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
     }
 
     @Test
@@ -155,7 +157,7 @@ public class AdPagePresenterTest extends AndroidUnitTest {
     @Test
     public void bothLayoutsInvisibleOnNullAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just((Bitmap) null));
-        presenter.bindItemView(adView, new PlayerAd(buildAd()));
+        presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
 
         assertCenteredLayoutInvisible();
         assertFullbleedLayoutInvisible();
@@ -164,7 +166,7 @@ public class AdPagePresenterTest extends AndroidUnitTest {
     @Test
     public void centeredLayoutSetOnIABSizedAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(300, 250)));
-        presenter.bindItemView(adView, new PlayerAd(buildAd()));
+        presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
 
         assertCenteredLayoutVisible();
         assertFullbleedLayoutInvisible();
@@ -173,7 +175,7 @@ public class AdPagePresenterTest extends AndroidUnitTest {
     @Test
     public void centeredLayoutSetOn2xIABSizedAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(600, 500)));
-        presenter.bindItemView(adView, new PlayerAd(buildAd()));
+        presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
 
         assertCenteredLayoutVisible();
         assertFullbleedLayoutInvisible();
@@ -182,7 +184,7 @@ public class AdPagePresenterTest extends AndroidUnitTest {
     @Test
     public void fullbleedLayoutSetOnLargerThan2xIABSizedAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(601, 501)));
-        presenter.bindItemView(adView, new PlayerAd(buildAd()));
+        presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
 
         assertCenteredLayoutInvisible();
         assertFullbleedLayoutVisible();
@@ -280,21 +282,17 @@ public class AdPagePresenterTest extends AndroidUnitTest {
         return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     }
 
-    private PropertySet buildAd() {
+    private PlayerAdData buildAd() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        audioAd.setMonetizableTitle("track");
+        audioAd.setMonetizableCreator("artist");
+        return audioAd;
+    }
+
+    private PropertySet buildTrack() {
         return PropertySet.from(
                 PlayableProperty.TITLE.bind("Ad Title"),
-                TrackProperty.URN.bind(Urn.forTrack(123L)),
-                AdProperty.ARTWORK.bind(Uri.EMPTY),
-                AdProperty.CLICK_THROUGH_LINK.bind(Uri.EMPTY),
-                AdProperty.MONETIZABLE_TRACK_URN.bind(Urn.forTrack(123L)),
-                AdProperty.MONETIZABLE_TRACK_TITLE.bind("track"),
-                AdProperty.MONETIZABLE_TRACK_CREATOR.bind("artist"),
-                AdProperty.DEFAULT_TEXT_COLOR.bind("#111111"),
-                AdProperty.DEFAULT_BACKGROUND_COLOR.bind("#222222"),
-                AdProperty.PRESSED_TEXT_COLOR.bind("#333333"),
-                AdProperty.PRESSED_BACKGROUND_COLOR.bind("#444444"),
-                AdProperty.FOCUSED_TEXT_COLOR.bind("#555555"),
-                AdProperty.FOCUSED_BACKGROUND_COLOR.bind("#666666")
+                TrackProperty.URN.bind(Urn.forTrack(123L))
         );
     }
 }

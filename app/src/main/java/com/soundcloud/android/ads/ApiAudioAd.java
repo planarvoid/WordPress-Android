@@ -3,17 +3,14 @@ package com.soundcloud.android.ads;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.Nullable;
 
-import android.net.Uri;
 import android.support.annotation.VisibleForTesting;
 
 import java.util.List;
 
-class ApiAudioAd implements PropertySetSource {
+class ApiAudioAd {
 
     private final String urn;
     private final ApiTrack apiTrack;
@@ -55,6 +52,18 @@ class ApiAudioAd implements PropertySetSource {
         return apiTrack;
     }
 
+    public List<String> getTrackingImpressionUrls() {
+        return trackingImpressionUrls;
+    }
+
+    public List<String> getTrackingFinishUrls() {
+        return trackingFinishUrls;
+    }
+
+    public List<String> getTrackingSkipUrls() {
+        return trackingSkipUrls;
+    }
+
     public boolean hasApiLeaveBehind() {
         return leaveBehind != null;
     }
@@ -84,27 +93,6 @@ class ApiAudioAd implements PropertySetSource {
     }
 
     @Override
-    public PropertySet toPropertySet() {
-        return PropertySet.from(
-                AdProperty.AD_URN.bind(urn),
-                AdProperty.AD_TYPE.bind(AdProperty.AD_TYPE_AUDIO),
-                AdProperty.COMPANION_URN.bind(visualAd.urn),
-                AdProperty.ARTWORK.bind(Uri.parse(visualAd.imageUrl)),
-                AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse(visualAd.clickthroughUrl)),
-                AdProperty.DEFAULT_TEXT_COLOR.bind(visualAd.displayProperties.defaultTextColor),
-                AdProperty.DEFAULT_BACKGROUND_COLOR.bind(visualAd.displayProperties.defaultBackgroundColor),
-                AdProperty.PRESSED_TEXT_COLOR.bind(visualAd.displayProperties.pressedTextColor),
-                AdProperty.PRESSED_BACKGROUND_COLOR.bind(visualAd.displayProperties.pressedBackgroundColor),
-                AdProperty.FOCUSED_TEXT_COLOR.bind(visualAd.displayProperties.focusedTextColor),
-                AdProperty.FOCUSED_BACKGROUND_COLOR.bind(visualAd.displayProperties.focusedBackgroundColor),
-                AdProperty.AD_IMPRESSION_URLS.bind(trackingImpressionUrls),
-                AdProperty.AD_FINISH_URLS.bind(trackingFinishUrls),
-                AdProperty.AD_CLICKTHROUGH_URLS.bind(visualAd.trackingClickUrls),
-                AdProperty.AD_SKIP_URLS.bind(trackingSkipUrls),
-                AdProperty.AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(visualAd.trackingImpressionUrls));
-    }
-
-    @Override
     public String toString() {
         return MoreObjects.toStringHelper(getClass())
                 .add("urn", urn)
@@ -116,5 +104,4 @@ class ApiAudioAd implements PropertySetSource {
                 .add("trackingSkipUrls", trackingSkipUrls)
                 .toString();
     }
-
 }
