@@ -1,6 +1,6 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,22 +9,20 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackRepositoryTest {
+public class TrackRepositoryTest extends AndroidUnitTest {
 
     public static final String TITLE = "title";
     public static final String CREATOR = "creator";
@@ -64,7 +62,7 @@ public class TrackRepositoryTest {
 
         trackRepository.track(trackUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(track);
+        assertThat(observer.getOnNextEvents()).containsExactly(track);
     }
 
     @Test
@@ -75,7 +73,7 @@ public class TrackRepositoryTest {
 
         trackRepository.track(trackUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(syncedTrack);
+        assertThat(observer.getOnNextEvents()).containsExactly(syncedTrack);
         verify(syncInitiator, times(2)).syncTrack(trackUrn);
     }
 
@@ -87,7 +85,7 @@ public class TrackRepositoryTest {
 
         trackRepository.track(trackUrn).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(syncedTrack);
+        assertThat(observer.getOnNextEvents()).containsExactly(syncedTrack);
         verify(syncInitiator).syncTrack(trackUrn);
     }
 
@@ -100,9 +98,9 @@ public class TrackRepositoryTest {
         trackRepository.fullTrackWithUpdate(trackUrn).subscribe(observer);
 
         final PropertySet first = observer.getOnNextEvents().get(0);
-        expect(first.get(PlayableProperty.TITLE)).toEqual(TITLE);
-        expect(first.get(PlayableProperty.CREATOR_NAME)).toEqual(CREATOR);
-        expect(first.get(TrackProperty.DESCRIPTION)).toEqual(DESCRIPTION);
+        assertThat(first.get(PlayableProperty.TITLE)).isEqualTo(TITLE);
+        assertThat(first.get(PlayableProperty.CREATOR_NAME)).isEqualTo(CREATOR);
+        assertThat(first.get(TrackProperty.DESCRIPTION)).isEqualTo(DESCRIPTION);
     }
 
     @Test
@@ -114,7 +112,7 @@ public class TrackRepositoryTest {
         trackRepository.fullTrackWithUpdate(trackUrn).subscribe(observer);
 
         final PropertySet propertySet = track.merge(trackDescription);
-        expect(observer.getOnNextEvents()).toContainExactly(propertySet, propertySet);
+        assertThat(observer.getOnNextEvents()).containsExactly(propertySet, propertySet);
         verify(trackStorage, times(2)).loadTrack(trackUrn);
     }
 
@@ -126,7 +124,7 @@ public class TrackRepositoryTest {
 
         trackRepository.fullTrackWithUpdate(trackUrn).subscribe();
 
-        expect(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED).getNextChangeSet()).toEqual(
+        assertThat(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED).getNextChangeSet()).isEqualTo(
                 track.merge(trackDescription));
     }
 }
