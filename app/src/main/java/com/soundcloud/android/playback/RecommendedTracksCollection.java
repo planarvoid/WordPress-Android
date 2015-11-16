@@ -14,7 +14,8 @@ class RecommendedTracksCollection extends ModelCollection<ApiTrack> {
 
     public RecommendedTracksCollection(@JsonProperty("collection") List<ApiTrack> collection,
                                        @JsonProperty("_links") Map<String, Link> links,
-                                       @JsonProperty("query_urn") String queryUrn, String sourceVersion) {
+                                       @JsonProperty("query_urn") String queryUrn,
+                                       @JsonProperty("source_version") String sourceVersion) {
         super(collection, links, queryUrn);
         this.sourceVersion = sourceVersion;
     }
