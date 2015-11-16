@@ -60,7 +60,11 @@ public class ViewFetcher {
     }
 
     public List<ViewElement> findElements(With with) {
-        return elementWaiter.waitForElements(with);
+        List<ViewElement> viewElements = elementWaiter.waitForElements(with);
+        if(viewElements.isEmpty() && waitForBusyUi()) {
+            return elementWaiter.waitForElements(with);
+        }
+        return viewElements;
     }
 
     public ViewElement getChildAt(int index) {
@@ -168,6 +172,7 @@ public class ViewFetcher {
         }
         @Override
         public boolean isSatisfied() {
+            Log.i("BUSYUI", String.format("Waiting for Busy UI (Is busy: %b)", !isElementDisplayed(viewMatcher)));
             return !isElementDisplayed(viewMatcher);
         }
     }
