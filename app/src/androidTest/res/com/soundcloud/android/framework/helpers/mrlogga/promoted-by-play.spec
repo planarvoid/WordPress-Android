@@ -26,6 +26,7 @@ expected_events:
     ts: '[0-9]+'
     anonymous_id: (\w|-)+
     connection_type: wifi
+    source: stream
     monetization_type: promoted
     track_length: '[0-9]+'
     ad_urn: dfp:ads:[0-9,-]+
