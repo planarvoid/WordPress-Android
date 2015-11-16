@@ -131,7 +131,6 @@
   <string name="list_empty_user_following_action">Encontre pessoas para seguir.</string>
   <string name="empty_playlist_title">Playlist vazia</string>
   <string name="empty_playlist_description">Esta playlist ainda não tem faixas.</string>
-  <string name="list_empty_liked_playlists_message">Curta suas playlists favoritas para ouvi-las novamente.</string>
   <string name="list_empty_you_sounds_message">Republique os sons para compartilhá-los com seus seguidores.</string>
   <string name="list_empty_you_playlists_message">Crie playlists para fazer mixes de seus sons favoritos.</string>
   <string name="list_empty_you_likes_message">Curta seus sons favoritos para ouvi-los novamente.</string>
