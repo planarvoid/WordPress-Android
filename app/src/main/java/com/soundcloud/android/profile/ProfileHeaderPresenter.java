@@ -6,7 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EngagementsTracking;
-import com.soundcloud.android.associations.NextFollowingOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -39,7 +39,7 @@ class ProfileHeaderPresenter {
 
     public ProfileHeaderPresenter(final Activity profileActivity, final ImageOperations imageOperations,
                                   CondensedNumberFormatter numberFormatter, AccountOperations accountOperations,
-                                  final Urn user, final NextFollowingOperations followingOperations,
+                                  final Urn user, final FollowingOperations followingOperations,
                                   final EngagementsTracking engagementsTracking) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
@@ -90,12 +90,12 @@ class ProfileHeaderPresenter {
         private final ImageOperations imageOperations;
         private final CondensedNumberFormatter numberFormatter;
         private final AccountOperations accountOperations;
-        private final NextFollowingOperations followingOperations;
+        private final FollowingOperations followingOperations;
         private final EngagementsTracking engagementsTracking;
 
         @Inject
         public ProfileHeaderPresenterFactory(ImageOperations imageOperations, CondensedNumberFormatter numberFormatter,
-                                             AccountOperations accountOperations, NextFollowingOperations followingOperations,
+                                             AccountOperations accountOperations, FollowingOperations followingOperations,
                                              EngagementsTracking engagementsTracking) {
             this.imageOperations = imageOperations;
             this.numberFormatter = numberFormatter;

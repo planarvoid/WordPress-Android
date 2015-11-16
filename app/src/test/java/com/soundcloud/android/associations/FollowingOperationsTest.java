@@ -26,10 +26,10 @@ import rx.Scheduler;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-public class NextFollowingOperationsTest extends AndroidUnitTest {
+public class FollowingOperationsTest extends AndroidUnitTest {
 
     public static final int FOLLOWER_COUNT = 2;
-    private NextFollowingOperations operations;
+    private FollowingOperations operations;
 
     @Mock private SyncInitiator syncInitiator;
     @Mock private UpdateFollowingCommand updateFollowingCommand;
@@ -43,7 +43,7 @@ public class NextFollowingOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new NextFollowingOperations(
+        operations = new FollowingOperations(
                 syncInitiator, eventBus, updateFollowingCommand, scheduler, userAssociationStorage);
 
         when(updateFollowingCommand.toObservable(any(UpdateFollowingParams.class))).thenReturn(Observable.just(5));

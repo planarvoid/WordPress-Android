@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.associations.NextFollowingOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -34,7 +34,7 @@ public class FollowableUserItemRendererTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
-    @Mock private NextFollowingOperations followingOperations;
+    @Mock private FollowingOperations followingOperations;
     @Mock private EngagementsTracking engagementsTracking;
 
     private final CondensedNumberFormatter numberFormatter =

@@ -23,7 +23,7 @@ import javax.inject.Named;
 /**
  * This class is "work in progress", and it's meant to replace {@link FollowingOperations}
  */
-public class NextFollowingOperations {
+public class FollowingOperations {
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
@@ -70,11 +70,11 @@ public class NextFollowingOperations {
     };
 
     @Inject
-    public NextFollowingOperations(SyncInitiator syncInitiator,
-                                   EventBus eventBus,
-                                   UpdateFollowingCommand storeFollowingCommand,
-                                   @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                                   UserAssociationStorage userAssociationStorage) {
+    public FollowingOperations(SyncInitiator syncInitiator,
+                               EventBus eventBus,
+                               UpdateFollowingCommand storeFollowingCommand,
+                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                               UserAssociationStorage userAssociationStorage) {
         this.syncInitiator = syncInitiator;
         this.eventBus = eventBus;
         this.storeFollowingCommand = storeFollowingCommand;
