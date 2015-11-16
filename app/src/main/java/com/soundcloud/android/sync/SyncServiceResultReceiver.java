@@ -22,6 +22,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
     private final SoundStreamNotifier soundStreamNotifier;
     private final ActivitiesNotifier activitiesNotifier;
     private final SyncStateManager syncStateManager;
+    private final ContentStats contentStats;
     private final SyncResult result;
     private final Context context;
     private final OnResultListener listener;
@@ -31,11 +32,13 @@ class SyncServiceResultReceiver extends ResultReceiver {
                                       SoundStreamNotifier soundStreamNotifier,
                                       ActivitiesNotifier activitiesNotifier,
                                       SyncStateManager syncStateManager,
+                                      ContentStats contentStats,
                                       SyncResult result,
                                       OnResultListener listener) {
         super(new Handler());
         this.activitiesNotifier = activitiesNotifier;
         this.syncStateManager = syncStateManager;
+        this.contentStats = contentStats;
         this.result = result;
         this.context = context;
         this.soundStreamNotifier = soundStreamNotifier;
@@ -79,7 +82,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
     private void createSystemNotification() {
         final long frequency = SyncConfig.getNotificationsFrequency(context);
-        final long delta = System.currentTimeMillis() - ContentStats.getLastNotified(context, Content.ME_SOUND_STREAM);
+        final long delta = System.currentTimeMillis() - contentStats.getLastNotified(Content.ME_SOUND_STREAM);
 
         // deliver incoming sounds, if the user has enabled this
         if (SyncConfig.isIncomingEnabled(context)) {
@@ -105,19 +108,22 @@ class SyncServiceResultReceiver extends ResultReceiver {
         private final SoundStreamNotifier streamNotifier;
         private final ActivitiesNotifier activitiesNotifier;
         private final SyncStateManager syncStateManager;
+        private final ContentStats contentStats;
 
         @Inject
         public Factory(Context context, SoundStreamNotifier streamNotifier,
-                       ActivitiesNotifier activitiesNotifier, SyncStateManager syncStateManager) {
+                       ActivitiesNotifier activitiesNotifier, SyncStateManager syncStateManager,
+                       ContentStats contentStats) {
             this.context = context;
             this.streamNotifier = streamNotifier;
             this.activitiesNotifier = activitiesNotifier;
             this.syncStateManager = syncStateManager;
+            this.contentStats = contentStats;
         }
 
         public SyncServiceResultReceiver create(SyncResult result, OnResultListener listener) {
             return new SyncServiceResultReceiver(context, streamNotifier, activitiesNotifier,
-                    syncStateManager, result, listener);
+                    syncStateManager, contentStats, result, listener);
         }
     }
 }

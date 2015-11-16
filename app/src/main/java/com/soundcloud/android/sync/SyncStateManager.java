@@ -1,15 +1,12 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.api.legacy.model.LocalCollection;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
-import rx.Observable;
-import rx.Subscriber;
 
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
@@ -28,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// TODO: merge this class with SyncOperations
 public class SyncStateManager {
     private final LocalCollectionDAO localCollectionDao;
     private final ContentResolver resolver;
@@ -46,11 +42,6 @@ public class SyncStateManager {
         this.resolver = resolver;
         localCollectionDao = dao;
         contentObservers = new HashMap<>();
-    }
-
-    @NotNull
-    public LocalCollection fromContent(Content content) {
-        return fromContent(content.uri);
     }
 
     @NotNull
@@ -75,35 +66,12 @@ public class SyncStateManager {
         return syncState;
     }
 
-    public boolean updateLastSyncSuccessTime(Content content, long time) {
-        return updateLastSyncSuccessTime(content.uri, time);
-    }
-
-    public boolean updateLastSyncSuccessTime(Uri uri, long time) {
-        LocalCollection lc = fromContent(uri);
-
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Collections.LAST_SYNC, time);
-
-        return localCollectionDao.update(lc.getId(), cv);
-    }
-
     public boolean delete(Content content) {
         return localCollectionDao.deleteUri(content.uri);
     }
 
     public void clear() {
         localCollectionDao.deleteAll();
-    }
-
-    public Observable<Boolean> forceToStaleAsync(final Content content) {
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> observer) {
-                observer.onNext(forceToStale(content));
-                observer.onCompleted();
-            }
-        }).subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
     public Boolean forceToStale(final Content content) {
@@ -150,16 +118,6 @@ public class SyncStateManager {
         }
     }
 
-    public long getLastSyncAttempt(Uri contentUri) {
-        LocalCollection lc = localCollectionDao.fromContentUri(contentUri, false);
-        return lc == null ? -1 : lc.last_sync_attempt;
-    }
-
-    public long getLastSyncSuccess(Uri contentUri) {
-        LocalCollection lc = localCollectionDao.fromContentUri(contentUri, false);
-        return lc == null ? -1 : lc.last_sync_success;
-    }
-
     /**
      * Returns a list of uris to be synced, based on recent changes. The idea is that collections which don't change
      * very often don't get synced as frequently as collections which do.
@@ -177,7 +135,7 @@ public class SyncStateManager {
     }
 
     public boolean isContentDueForSync(SyncContent syncContent) {
-        final LocalCollection lc = fromContent(syncContent.content);
+        final LocalCollection lc = fromContent(syncContent.content.uri);
         if (syncContent.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
             return true;
         }
@@ -232,14 +190,6 @@ public class SyncStateManager {
         if (listener != null) {
             listener.onLocalCollectionChanged(localCollection);
         }
-    }
-
-    /* package */ ChangeObserver getObserverById(long id) {
-        return (ChangeObserver) contentObservers.get(id);
-    }
-
-    /* package */ boolean hasObservers() {
-        return contentObservers != null && !contentObservers.isEmpty();
     }
 
     /* package */ class ChangeObserver extends ContentObserver {

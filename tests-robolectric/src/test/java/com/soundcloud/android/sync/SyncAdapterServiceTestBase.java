@@ -119,7 +119,8 @@ public abstract class SyncAdapterServiceTestBase {
         final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory = new SyncServiceResultReceiver.Factory(app,
                 Mockito.mock(SoundStreamNotifier.class),
                 Mockito.mock(ActivitiesNotifier.class),
-                new SyncStateManager(Robolectric.application));
+                new SyncStateManager(Robolectric.application),
+                new ContentStats(app));
 
         SyncAdapterService.performSync(
                 app,

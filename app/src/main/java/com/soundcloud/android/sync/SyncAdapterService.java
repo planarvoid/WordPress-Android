@@ -10,7 +10,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.Log;
@@ -45,9 +44,6 @@ public class SyncAdapterService extends Service {
 
     public static final String EXTRA_SYNC_PUSH = "syncPush";
     public static final String EXTRA_SYNC_PUSH_URI = "syncPushUri";
-
-    public static final int CLEAR_ALL = 1;
-    public static final int REWIND_LAST_DAY = 2;
 
     private AbstractThreadedSyncAdapter syncAdapter;
 
@@ -236,23 +232,4 @@ public class SyncAdapterService extends Service {
         return syncIntent;
     }
 
-
-    // only used for debugging
-    public static void requestNewSync(SoundCloudApplication app, int clearMode) {
-        switch (clearMode) {
-            case CLEAR_ALL:
-                ContentStats.clear(app);
-                break;
-            case REWIND_LAST_DAY:
-                final long rewindTime = 24 * 3600000L; // 1d
-                ContentStats.rewind(app, rewindTime);
-                break;
-            default:
-                break;
-        }
-
-        final Bundle extras = new Bundle();
-        extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(app.getAccountOperations().getSoundCloudAccount(), ScContentProvider.AUTHORITY, extras);
-    }
 }
