@@ -47,7 +47,7 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     public ViewElement repostItem() {
-        return container().findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
+        return getRootMenuElements().get(2);
     }
 
     private ViewElement comment() {
