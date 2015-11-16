@@ -29,6 +29,11 @@ public class PlayerMenuElement extends PopupMenuElement {
         return new AddCommentScreen(testDriver);
     }
 
+    public VisualPlayerElement toggleRepost() {
+        repostItem().click();
+        return new VisualPlayerElement(testDriver);
+    }
+
     public void clickStartStation() {
         startStation().click();
     }
@@ -42,7 +47,7 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     public ViewElement repostItem() {
-        return getRootMenuElements().get(2);
+        return container().findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
     }
 
     private ViewElement comment() {

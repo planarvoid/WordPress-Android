@@ -11,7 +11,6 @@ import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.PlaylistItemOverflowMenu;
 import com.soundcloud.android.screens.elements.StreamCardElement;
-import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.java.collections.Lists;
@@ -60,34 +59,11 @@ public class StreamScreen extends Screen {
     }
 
     public StreamCardElement firstTrackCard() {
-        return getTrackCard(0);
-    }
-
-    @Deprecated
-    public TrackItemElement getTrack(int index) {
-        return trackItemElements().get(index);
-    }
-
-    public StreamCardElement getTrackCard(int index) {
-        return trackCardElements().get(index);
-    }
-
-    @Deprecated
-    public VisualPlayerElement clickFirstTrack() {
-        return clickTrack(0);
+        return trackCardElements().get(0);
     }
 
     public VisualPlayerElement clickFirstTrackCard() {
         return clickTrackCard(0);
-    }
-
-    @Deprecated
-    public VisualPlayerElement clickFirstNotPromotedTrack() {
-        if (isFirstTrackPromoted()) {
-            return clickTrack(1);
-        } else {
-            return clickFirstTrack();
-        }
     }
 
     public VisualPlayerElement clickFirstNotPromotedTrackCard() {
@@ -108,40 +84,20 @@ public class StreamScreen extends Screen {
         return new StreamCardElement(testDriver, trackWithReposter).click();
     }
 
-    @Deprecated
-    public VisualPlayerElement clickTrack(int index) {
-        return getTrack(index).click();
-    }
-
     public VisualPlayerElement clickTrackCard(int index) {
-        return getTrackCard(index).click();
-    }
-
-    @Deprecated
-    public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        return getTrack(0).clickOverflowButton();
+        return trackCardElements().get(index).click();
     }
 
     public TrackItemMenuElement clickFirstTrackCardOverflowButton() {
-        return getTrackCard(0).clickOverflowButton();
-    }
-
-    @Deprecated
-    public boolean isFirstTrackPromoted() {
-        return getTrack(0).isPromotedTrack();
+        return firstTrackCard().clickOverflowButton();
     }
 
     public boolean isFirstTrackCardPromoted() {
-        return getTrackCard(0).isPromotedTrack();
-    }
-
-    @Deprecated
-    public boolean isPromotedTrackWithPromoter() {
-        return getTrack(0).hasPromoter();
+        return firstTrackCard().isPromotedTrack();
     }
 
     public boolean isPromotedTrackCardWithPromoter(int index) {
-        return getTrackCard(index).hasPromoter();
+        return trackCardElements().get(index).hasPromoter();
     }
 
     public PlaylistItemOverflowMenu clickFirstPlaylistOverflowButton() {
@@ -179,24 +135,10 @@ public class StreamScreen extends Screen {
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackCardElements);
     }
 
-    @Deprecated
-    private List<TrackItemElement> trackItemElements() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        streamList().scrollToItem(With.id(R.id.track_list_item));
-        return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackItemElement);
-    }
-
     private final Function<ViewElement, StreamCardElement> toTrackCardElements = new Function<ViewElement, StreamCardElement>() {
         @Override
         public StreamCardElement apply(ViewElement viewElement) {
             return new StreamCardElement(testDriver, viewElement);
-        }
-    };
-
-    private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
-        @Override
-        public TrackItemElement apply(ViewElement viewElement) {
-            return new TrackItemElement(testDriver, viewElement);
         }
     };
 
