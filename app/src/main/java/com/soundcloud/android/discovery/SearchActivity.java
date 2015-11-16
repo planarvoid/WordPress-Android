@@ -67,7 +67,7 @@ public class SearchActivity extends ScActivity {
     }
 
     private void dismiss() {
-        if (TransitionUtils.transitionsSupported()){
+        if (TransitionUtils.transitionsSupported()) {
             ((ViewGroup) findViewById(R.id.toolbar_id)).getChildAt(1)
                     .animate()
                     .alpha(0)
