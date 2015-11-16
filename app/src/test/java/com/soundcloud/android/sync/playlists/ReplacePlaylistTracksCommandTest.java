@@ -1,19 +1,16 @@
 package com.soundcloud.android.sync.playlists;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class ReplacePlaylistTracksCommandTest extends StorageIntegrationTest {
 
     private ReplacePlaylistTracksCommand command;
@@ -30,7 +27,7 @@ public class ReplacePlaylistTracksCommandTest extends StorageIntegrationTest {
     public void persistsPlaylistTracksInDatabase() throws Exception {
         final List<Urn> newTracklist = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(456L));
 
-        expect(command.with(apiPlaylist.getUrn()).with(newTracklist).call().success()).toBeTrue();
+        assertThat(command.with(apiPlaylist.getUrn()).with(newTracklist).call().success()).isTrue();
 
         databaseAssertions().assertPlaylistTracklist(apiPlaylist.getId(), newTracklist);
     }
@@ -44,7 +41,7 @@ public class ReplacePlaylistTracksCommandTest extends StorageIntegrationTest {
 
         final List<Urn> newTracklist = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(456L));
 
-        expect(command.with(apiPlaylist.getUrn()).with(newTracklist).call().success()).toBeTrue();
+        assertThat(command.with(apiPlaylist.getUrn()).with(newTracklist).call().success()).isTrue();
 
         databaseAssertions().assertPlaylistTracklist(apiPlaylist.getId(), newTracklist);
     }

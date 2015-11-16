@@ -1,22 +1,18 @@
 package com.soundcloud.android.commands;
 
+import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.propeller.query.Query.from;
-import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
+import static java.util.Arrays.asList;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import java.util.Arrays;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class StorePlaylistsCommandTest extends StorageIntegrationTest {
 
     private StorePlaylistsCommand command;
@@ -41,9 +37,9 @@ public class StorePlaylistsCommandTest extends StorageIntegrationTest {
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
         playlist.setTitle("new title");
 
-        command.call(Arrays.asList(playlist));
+        command.call(asList(playlist));
 
-        assertThat(select(from(Table.Sounds.name())), counts(1));
+        assertThat(select(from(Sounds.name()))).counts(1);
         databaseAssertions().assertPlaylistInserted(playlist);
     }
 }
