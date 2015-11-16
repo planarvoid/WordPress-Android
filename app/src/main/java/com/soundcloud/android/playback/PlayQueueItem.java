@@ -1,11 +1,14 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 public abstract class PlayQueueItem {
+
+    public static final PlayQueueItem EMPTY = new Empty();
+
     enum Kind {EMPTY, TRACK, VIDEO}
 
     private PropertySet metaData;
@@ -43,7 +46,11 @@ public abstract class PlayQueueItem {
 
     public abstract Kind getKind();
 
-    public static class Empty extends PlayQueueItem {
+    private static class Empty extends PlayQueueItem {
+        public Empty() {
+            super.setMetaData(PropertySet.create());
+        }
+
         @Override
         public boolean shouldPersist() {
             return false;
