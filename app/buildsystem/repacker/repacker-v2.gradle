@@ -31,7 +31,7 @@ apply plugin: 'com.android.application'
 
 buildscript {
   repositories {
-    mavenCentral()
+    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
     classpath 'com.android.tools.build:gradle:1.2.2'
