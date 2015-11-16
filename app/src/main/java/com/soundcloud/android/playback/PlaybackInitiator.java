@@ -2,18 +2,15 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.Stations;
-import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
-
-import android.net.Uri;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -23,16 +20,14 @@ public class PlaybackInitiator {
     public static final boolean WITH_RELATED = true;
     public static final boolean WITHOUT_RELATED = false;
 
-    private final TrackStorage trackStorage;
     private final PlayQueueManager playQueueManager;
     private final PlayQueueOperations playQueueOperations;
     private final PlaySessionController playSessionController;
 
     @Inject
-    public PlaybackInitiator(TrackStorage trackStorage,
-                             PlayQueueManager playQueueManager,
-                             PlayQueueOperations playQueueOperations, PlaySessionController playSessionController) {
-        this.trackStorage = trackStorage;
+    public PlaybackInitiator(PlayQueueManager playQueueManager,
+                             PlayQueueOperations playQueueOperations,
+                             PlaySessionController playSessionController) {
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
         this.playSessionController = playSessionController;
@@ -58,13 +53,6 @@ public class PlaybackInitiator {
                                                  PlaySessionSource playSessionSource) {
         final Observable<PlayQueue> playQueue = allTracks.map(tracksToPlayQueue(playSessionSource));
         return playTracksList(playQueue, initialTrack, position, playSessionSource, WITHOUT_RELATED);
-    }
-
-    @Deprecated
-    public Observable<PlaybackResult> playTracksFromUri(Uri uri, int startPosition, Urn initialTrack,
-                                                        PlaySessionSource playSessionSource) {
-        final Observable<PlayQueue> playQueue = trackStorage.getTracksForUriAsync(uri).map(urnsToPlayQueue(playSessionSource));
-        return playTracksList(playQueue, initialTrack, startPosition, playSessionSource, WITHOUT_RELATED);
     }
 
     @Deprecated

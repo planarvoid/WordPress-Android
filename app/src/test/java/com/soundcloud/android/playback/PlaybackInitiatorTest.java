@@ -20,7 +20,6 @@ import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationFixtures;
-import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -51,7 +50,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     private PublicApiPlaylist playlist;
 
-    @Mock private TrackStorage trackStorage;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlayQueueOperations playQueueOperations;
@@ -66,7 +64,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     public void setUp() throws Exception {
 
         playbackInitiator = new PlaybackInitiator(
-                trackStorage,
                 playQueueManager,
                 playQueueOperations,
                 playSessionController);
@@ -185,7 +182,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
 
         final List<Urn> trackUrns = createTrackUrns(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
-        when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_SCREEN.get(), playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
 
@@ -202,7 +198,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
 
         final List<Urn> trackUrns = createTrackUrns(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
-        when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
         when(playQueueManager.isCurrentCollection(Urn.forPlaylist(1234))).thenReturn(false); // different Playlist Id
