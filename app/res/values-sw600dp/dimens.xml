@@ -19,4 +19,6 @@
 
     <dimen name="buy_button_margin">128dp</dimen>
 
+    <dimen name="fixed_tab_padding">40dp</dimen>
+
 </resources>

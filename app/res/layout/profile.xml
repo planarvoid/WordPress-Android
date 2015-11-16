@@ -45,18 +45,23 @@
                     app:layout_collapseMode="pin"
                     android:paddingLeft="@dimen/profile_tabs_padding"
                     android:clipToPadding="false" />
-
             </android.support.design.widget.AppBarLayout>
 
-            <View style="@style/ToolbarShadow" />
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/pager"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <View style="@style/ToolbarShadow" />
+            </FrameLayout>
 
         </android.support.design.widget.CoordinatorLayout>
+
     </RelativeLayout>
 
     <fragment

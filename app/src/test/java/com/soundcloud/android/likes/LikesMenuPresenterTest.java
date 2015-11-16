@@ -66,6 +66,7 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
         makeOfflineAvailableItem = mockMenuItem(R.id.action_make_offline_available);
         makeOfflineUnavailableItem = mockMenuItem(R.id.action_make_offline_unavailable);
 
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
         when(menu.findItem(R.id.action_make_offline_available)).thenReturn(makeOfflineAvailableItem);
         when(menu.findItem(R.id.action_make_offline_unavailable)).thenReturn(makeOfflineUnavailableItem);
         when(screenProvider.getLastScreenTag()).thenReturn("page_name");

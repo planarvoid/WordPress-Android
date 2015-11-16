@@ -167,8 +167,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         setupCurrentUserAccount();
         generateDeviceKey();
 
-        playlistTagStorage.resetPopularTags();
-
         widgetController.subscribe();
         peripheralsController.subscribe();
         playSessionController.subscribe();

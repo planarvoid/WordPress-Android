@@ -71,10 +71,11 @@ public class PlaylistPostStorage {
 
     public static Query likeQuery() {
         final Where joinConditions = filter()
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
+                .whereEq(Table.SoundView.field(TableColumns.Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
+                .whereEq(Table.SoundView.field(TableColumns.Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
 
         return Query.from(Table.Likes.name())
+                // do not use SoundView here. The exists query will fail, in spite of passing tests
                 .innerJoin(Table.Sounds.name(), joinConditions)
                 .whereNull(TableColumns.Likes.REMOVED_AT);
     }

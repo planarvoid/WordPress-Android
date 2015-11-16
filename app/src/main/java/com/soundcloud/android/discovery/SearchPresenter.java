@@ -33,6 +33,7 @@ import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -119,6 +120,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         searchTextView.setOnClickListener(new SearchViewClickListener());
         searchTextView.setOnEditorActionListener(new SearchActionListener());
         searchListView.setOnItemClickListener(new SearchResultClickListener());
+        searchListView.setOnScrollListener(new SuggestionsScrollListener());
         searchCloseView.setOnClickListener(new SearchCloseClickListener());
     }
 
@@ -281,6 +283,19 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
             activateSearchView();
             displaySearchView(SUGGESTIONS_VIEW_INDEX);
             trackScreenEvent();
+        }
+    }
+
+    private class SuggestionsScrollListener implements AbsListView.OnScrollListener {
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+            if (scrollState == SCROLL_STATE_TOUCH_SCROLL) {
+                hideKeyboard();
+            }
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         }
     }
 

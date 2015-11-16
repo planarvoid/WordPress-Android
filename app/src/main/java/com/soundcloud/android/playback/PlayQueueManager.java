@@ -120,7 +120,7 @@ public class PlayQueueManager implements OriginProvider {
         if (position >= 0 && position < getQueueSize()) {
             return playQueue.getPlayQueueItem(position);
         } else {
-            return new PlayQueueItem.Empty();
+            return PlayQueueItem.EMPTY;
         }
     }
 

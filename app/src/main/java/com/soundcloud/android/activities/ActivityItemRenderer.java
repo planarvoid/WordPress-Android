@@ -43,7 +43,7 @@ public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
     }
 
     private void setUserAvatar(View itemView, ActivityItem activityItem) {
-        imageOperations.displayInAdapterView(
+        imageOperations.displayCircularInAdapterView(
                 activityItem.getEntityUrn(),
                 ApiImageSize.getListItemImageSize(resources),
                 (ImageView) itemView.findViewById(R.id.image));

@@ -27,6 +27,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int TRACK_ADDED_TO_PLAYLIST = 5;
     public static final int TRACK_REMOVED_FROM_PLAYLIST = 6;
     public static final int FOLLOWING = 7;
+    public static final int PLAYLIST_CREATED = 8;
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -156,6 +157,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
                 OfflineProperty.Collection.OFFLINE_LIKES.bind(isMarkedForOffline)));
     }
 
+    public static EntityStateChangedEvent fromPlaylistCreated(Urn newPlaylistUrn) {
+        return create(PLAYLIST_CREATED, PropertySet.from(PlaylistProperty.URN.bind(newPlaylistUrn)));
+    }
+
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(Urn playlistUrn, int trackCount) {
         return fromTrackAddedToPlaylist(PropertySet.from(
                 PlayableProperty.URN.bind(playlistUrn),
@@ -208,6 +213,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public boolean isPlaylistLike() {
         return isSingularChange() && getFirstUrn().isPlaylist() && getKind() == LIKE;
+    }
+
+    public boolean isLike() {
+        return isSingularChange() && getKind() == LIKE;
     }
 
     private boolean isTrackAddedEvent() {

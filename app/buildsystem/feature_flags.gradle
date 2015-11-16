@@ -74,9 +74,9 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
       buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, TRUE
+      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, FALSE
@@ -155,7 +155,6 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
       buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
 
       //Feature flags disabled
@@ -177,13 +176,13 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
+      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
     }
 
     releaseNoProguard {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
       buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
 
       //Feature flags disabled
@@ -204,13 +203,14 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
+      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
+
     }
 
     release_non_play_store {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_APPBOY, TRUE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
       buildConfigField BOOLEAN, FEATURE_PROFILE_API_MOBILE, TRUE
 
       //Feature flags disabled
@@ -231,6 +231,8 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
+      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
+
     }
   }
 }

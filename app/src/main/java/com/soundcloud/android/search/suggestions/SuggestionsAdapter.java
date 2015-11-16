@@ -222,7 +222,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     public void clearSuggestions() {
         localSuggestions = SearchSuggestions.EMPTY;
         remoteSuggestions = SearchSuggestions.EMPTY;
-        changeCursor(null);
         newSuggestionsHandler.removeMessages(0);
         suggestionsHandler.removeMessages(0);
     }

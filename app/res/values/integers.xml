@@ -12,5 +12,6 @@
     <integer name="stations_list_max_recent_stations">20</integer>
 
     <!-- Collection -->
+    <integer name="collection_grid_span_count">2</integer>
     <integer name="collection_preview_thumbnail_count">3</integer>
 </resources>

@@ -1,9 +1,9 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -15,17 +15,16 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
@@ -41,8 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaylistOperationsTest {
+public class PlaylistOperationsTest extends AndroidUnitTest {
 
     private PlaylistOperations operations;
 
@@ -82,9 +80,9 @@ public class PlaylistOperationsTest {
 
         operations.trackUrnsForPlayback(Urn.forPlaylist(123L)).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toEqual(urnList);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0)).isEqualTo(urnList);
+        assertThat(observer.getOnCompletedEvents()).hasSize(1);
     }
 
     @Test
@@ -185,6 +183,18 @@ public class PlaylistOperationsTest {
     }
 
     @Test
+    public void shouldPublishEntityChangedEventAfterCreatingPlaylist() {
+        TestObserver<Urn> observer = new TestObserver<>();
+        when(tracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(Observable.just(Urn.forLocalPlaylist(1L)));
+
+        operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
+
+        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.PLAYLIST_CREATED);
+        assertThat(event.getFirstUrn()).isEqualTo(Urn.forLocalPlaylist(1));
+    }
+
+    @Test
     public void shouldRequestSystemSyncAfterCreatingPlaylist() throws Exception {
         TestObserver<Urn> observer = new TestObserver<>();
         when(tracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(Observable.just(Urn.forPlaylist(123)));
@@ -203,10 +213,9 @@ public class PlaylistOperationsTest {
         verifyAddToPlaylistParams();
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getKind()).toEqual(EntityStateChangedEvent.TRACK_ADDED_TO_PLAYLIST);
-        expect(event.getFirstUrn()).toEqual(playlist.getUrn());
-        expect(event.getChangeMap().get(playlist.getUrn())).toEqual(playlistChangeSet(playlist.getUrn()));
-
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.TRACK_ADDED_TO_PLAYLIST);
+        assertThat(event.getFirstUrn()).isEqualTo(playlist.getUrn());
+        assertThat(event.getChangeMap().get(playlist.getUrn())).isEqualTo(playlistChangeSet(playlist.getUrn()));
     }
 
     @Test
@@ -239,9 +248,9 @@ public class PlaylistOperationsTest {
         verifyRemoveFromPlaylistParams();
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getKind()).toEqual(EntityStateChangedEvent.TRACK_REMOVED_FROM_PLAYLIST);
-        expect(event.getFirstUrn()).toEqual(playlist.getUrn());
-        expect(event.getChangeMap().get(playlist.getUrn())).toEqual(playlistChangeSet(playlist.getUrn()));
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.TRACK_REMOVED_FROM_PLAYLIST);
+        assertThat(event.getFirstUrn()).isEqualTo(playlist.getUrn());
+        assertThat(event.getChangeMap().get(playlist.getUrn())).isEqualTo(playlistChangeSet(playlist.getUrn()));
 
     }
 
@@ -279,13 +288,13 @@ public class PlaylistOperationsTest {
 
     private void verifyAddToPlaylistParams() {
         verify(addTrackToPlaylistCommand).toObservable(addTrackCommandParamsCaptor.capture());
-        expect(addTrackCommandParamsCaptor.getValue().playlistUrn).toEqual(playlist.getUrn());
-        expect(addTrackCommandParamsCaptor.getValue().trackUrn).toEqual(trackUrn);
+        assertThat(addTrackCommandParamsCaptor.getValue().playlistUrn).isEqualTo(playlist.getUrn());
+        assertThat(addTrackCommandParamsCaptor.getValue().trackUrn).isEqualTo(trackUrn);
     }
 
     private void verifyRemoveFromPlaylistParams() {
         verify(removeTrackFromPlaylistCommand).toObservable(removeTrackCommandParamsCaptor.capture());
-        expect(removeTrackCommandParamsCaptor.getValue().playlistUrn).toEqual(playlist.getUrn());
-        expect(removeTrackCommandParamsCaptor.getValue().trackUrn).toEqual(trackUrn);
+        assertThat(removeTrackCommandParamsCaptor.getValue().playlistUrn).isEqualTo(playlist.getUrn());
+        assertThat(removeTrackCommandParamsCaptor.getValue().trackUrn).isEqualTo(trackUrn);
     }
 }

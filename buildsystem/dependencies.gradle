@@ -14,7 +14,7 @@ ext {
   androidMultiDex = "1.0.1"
   androidSupportVersion = '23.1.0'
   playServicesVersion = '7.8.0'
-  androidKitVersion = '0.38'
+  androidKitVersion = '0.39'
   lightCycleVersion = '0.0.6'
   daggerVersion = '1.2.2'
   propellerVersion = '0.52'
@@ -43,7 +43,7 @@ ext {
                                            exclude group: "com.soundcloud.lightcycle"
                                          }],
           propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
-          skippy                      : "com.soundcloud.android:skippy:4.3.2@aar",
+          skippy                      : "com.soundcloud.android:skippy:4.3.3@aar",
           soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
 
           // Analytics / tracking

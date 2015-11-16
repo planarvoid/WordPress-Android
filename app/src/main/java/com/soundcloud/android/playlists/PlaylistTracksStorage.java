@@ -67,7 +67,7 @@ class PlaylistTracksStorage {
                 step(propeller.insert(Table.Posts, getContentValuesForPostsTable(localId, createdAt)));
                 step(propeller.insert(Table.PlaylistTracks, getContentValuesForPlaylistTrack(localId, firstTrackUrn)));
             }
-        }).map(returning(Urn.forPlaylist(localId)));
+        }).map(returning(Urn.forLocalPlaylist(localId)));
     }
 
     Observable<List<AddTrackToPlaylistItem>> loadAddTrackToPlaylistItems(Urn trackUrn) {

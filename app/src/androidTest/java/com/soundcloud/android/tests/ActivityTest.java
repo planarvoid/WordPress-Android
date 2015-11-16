@@ -54,7 +54,6 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         AccountAssistant.logOut(getInstrumentation());
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
 
-        observeToasts();
         networkManagerClient = new NetworkManagerClient(getInstrumentation().getContext());
 
         testCaseName = String.format("%s.%s", getClass().getName(), getName());
@@ -67,6 +66,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         beforeStartActivity();
         logIn();
         getActivity();
+
+        observeToasts();
 
         mainNavHelper = new MainNavigationHelper(solo);
 

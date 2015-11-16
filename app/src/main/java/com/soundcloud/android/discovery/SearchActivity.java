@@ -11,9 +11,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 
 import javax.inject.Inject;
 
@@ -23,6 +25,14 @@ public class SearchActivity extends ScActivity {
 
     @Inject @LightCycle SearchPresenter presenter;
     @Inject @LightCycle PlayerController playerController;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        TransitionUtils.setChangeBoundsEnterTransition(getWindow(), 500, new DecelerateInterpolator());
+        TransitionUtils.setChangeBoundsExitTransition(getWindow(), 200, new DecelerateInterpolator());
+    }
 
     @Override
     protected void setActivityContentView() {
