@@ -70,6 +70,10 @@ public class StreamCardElement extends Element {
         return visualPlayerElement;
     }
 
+    public int height(){
+        return wrapped.getHeight();
+    }
+
     private ViewElement repostItem() {
         return wrapped.findElement(With.id(R.id.toggle_repost));
     }
