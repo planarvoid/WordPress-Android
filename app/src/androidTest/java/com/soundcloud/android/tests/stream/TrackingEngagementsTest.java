@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -15,6 +16,7 @@ import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
+@Ignore
 @EventTrackingTest
 public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> {
 
