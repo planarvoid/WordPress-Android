@@ -65,9 +65,9 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
         beforeStartActivity();
         logIn();
+        observeToasts();
         getActivity();
 
-        observeToasts();
 
         mainNavHelper = new MainNavigationHelper(solo);
 
