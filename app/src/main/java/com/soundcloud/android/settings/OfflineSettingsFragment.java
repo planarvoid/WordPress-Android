@@ -104,6 +104,9 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
                 return true;
             case WIFI_ONLY:
                 offlineSettings.setWifiOnlyEnabled((boolean) newValue);
+                if (!offlineSettings.isWifiOnlyEnabled()) {
+                    OfflineContentService.start(getActivity());
+                }
                 return true;
             default:
                 return false;
