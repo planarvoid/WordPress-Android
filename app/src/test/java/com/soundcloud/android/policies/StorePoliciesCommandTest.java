@@ -2,7 +2,6 @@ package com.soundcloud.android.policies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -25,9 +24,9 @@ public class StorePoliciesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreListOfPolicies() {
-        final ApiTrack track1 = testFixtures().insertTrack();
-        final ApiTrack track2 = testFixtures().insertTrack();
-        final ApiTrack track3 = testFixtures().insertTrack();
+        testFixtures().insertTrack();
+        testFixtures().insertTrack();
+        testFixtures().insertTrack();
 
         List<ApiPolicyInfo> policies = new ArrayList<>();
         policies.add(ModelFixtures.apiPolicyInfo(Urn.forTrack(123L)));

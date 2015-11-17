@@ -1,9 +1,16 @@
 package com.soundcloud.android.playback;
 
-import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.util.DisplayMetrics;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
@@ -35,33 +42,24 @@ import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.rx.eventbus.TestEventBus;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import rx.Observable;
+import rx.observers.TestSubscriber;
+import rx.subjects.PublishSubject;
+
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.util.DisplayMetrics;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.subjects.PublishSubject;
-
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 public class PlaySessionControllerTest extends AndroidUnitTest {
     private final PlayQueue recommendedPlayQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), PlaySessionSource.EMPTY);
@@ -511,7 +509,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentWhenEmptyCallsLoadsQueueBeforePlayingCurrentOnPlaybackStrategy() {
-        final PublishSubject<PlayQueue> subject = PublishSubject.<PlayQueue>create();
+        final PublishSubject<PlayQueue> subject = PublishSubject.create();
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
         when(playQueueManager.loadPlayQueueAsync()).thenReturn(subject);
 
@@ -766,7 +764,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(track), playSessionSource);
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.just(PlaybackResult.success()));
 
-        controller.playNewQueue(playQueue, track, 0, false, playSessionSource)
+        controller.playNewQueue(playQueue, track, 0, playSessionSource)
                 .subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
@@ -779,7 +777,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         Urn track = Urn.forTrack(123L);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, false, PlaySessionSource.EMPTY)
+        controller.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
                 .subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
@@ -795,7 +793,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, false, PlaySessionSource.EMPTY)
+        controller.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
                 .subscribe(subscriber);
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
@@ -816,7 +814,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
 
-        controller.playNewQueue(playQueue, track, 0, false, playSessionSource).subscribe(new TestSubscriber<PlaybackResult>());
+        controller.playNewQueue(playQueue, track, 0, playSessionSource).subscribe(new TestSubscriber<PlaybackResult>());
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
     }
@@ -847,7 +845,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.just(PlaybackResult.success()));
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(playQueue, track, 0, false, playSessionSource)
+        controller.playNewQueue(playQueue, track, 0, playSessionSource)
                 .subscribe(subscriber);
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
@@ -855,7 +853,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void reloadPlayQueueIfEmptyDoesNotReloadQueueIfQueueNotEmpty() {
-        final PublishSubject<PlayQueue> subject = PublishSubject.<PlayQueue>create();
+        final PublishSubject<PlayQueue> subject = PublishSubject.create();
         when(playQueueManager.loadPlayQueueAsync()).thenReturn(subject);
 
         controller.reloadQueueAndShowPlayerIfEmpty();
@@ -865,7 +863,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void reloadPlayQueueReloadsIfQueueEmpty() {
-        final PublishSubject<PlayQueue> subject = PublishSubject.<PlayQueue>create();
+        final PublishSubject<PlayQueue> subject = PublishSubject.create();
         when(playQueueManager.loadPlayQueueAsync()).thenReturn(subject);
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
 
@@ -876,7 +874,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     private void setupSetNewQueue(Urn track, PlaySessionSource playSessionSource, PlayQueue playQueue, Observable<PlaybackResult> result) {
-        when(playbackStrategy.setNewQueue(playQueue, track, 0, false, playSessionSource))
+        when(playbackStrategy.setNewQueue(playQueue, track, 0, playSessionSource))
                 .thenReturn(result);
     }
 

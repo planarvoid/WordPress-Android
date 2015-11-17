@@ -4,7 +4,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackService.Action;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;

@@ -232,7 +232,7 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public CastConnectionHelper provideCastConnectionHelper(Context context, FeatureFlags featureFlags, ApplicationProperties applicationProperties) {
+    public CastConnectionHelper provideCastConnectionHelper(Context context, ApplicationProperties applicationProperties) {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
 

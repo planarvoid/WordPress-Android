@@ -173,7 +173,7 @@ public class IntentResolver {
 
             if (accountOperations.isUserLoggedIn()) {
                 trackForegroundEventForResource(urn, referrer);
-                navigateToResource(context, resource, referrer);
+                navigateToResource(context, resource);
             } else {
                 showOnboardingForUrn(context, urn, referrer);
             }
@@ -182,11 +182,11 @@ public class IntentResolver {
         }
     }
 
-    private void navigateToResource(Context context, PublicApiResource resource, Referrer referrer) {
+    private void navigateToResource(Context context, PublicApiResource resource) {
         Urn urn = resource.getUrn();
 
         if (urn.isTrack()) {
-            fireAndForget(playbackInitiator.startPlayback((PublicApiTrack) resource, Screen.DEEPLINK, shouldLoadRelated(referrer)));
+            fireAndForget(playbackInitiator.startPlayback((PublicApiTrack) resource, Screen.DEEPLINK));
             navigator.openStreamWithExpandedPlayer(context, Screen.DEEPLINK);
         } else if (urn.isUser()) {
             navigator.openProfile(context, urn, Screen.DEEPLINK);

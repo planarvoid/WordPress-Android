@@ -105,7 +105,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         // make sure there aren't any other messages coming
         delayedStopHandler.removeCallbacksAndMessages(null);
         fadeHandler.removeCallbacksAndMessages(null);
-        audioManager.abandonMusicFocus(false);
+        audioManager.abandonMusicFocus();
         unregisterReceiver(playbackReceiver);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
         instance = null;
@@ -168,7 +168,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void resetAll() {
         stop();
         currentPlaybackItem = Optional.absent();
-        audioManager.abandonMusicFocus(false); // kills lockscreen
+        audioManager.abandonMusicFocus(); // kills lockscreen
     }
 
     @Override

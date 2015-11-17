@@ -8,7 +8,7 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 
 public class TestEvents {
 
-    public static PlaybackSessionEvent playbackSessionPlayEvent() throws CreateModelException {
+    public static PlaybackSessionEvent playbackSessionPlayEvent() {
         return ModelFixtures.create(PlaybackSessionEvent.class);
     }
 

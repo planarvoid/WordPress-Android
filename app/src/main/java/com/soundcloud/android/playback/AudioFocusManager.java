@@ -50,7 +50,7 @@ public class AudioFocusManager implements IAudioManager {
     }
 
     @Override
-    public boolean abandonMusicFocus(boolean isTemporary) {
+    public boolean abandonMusicFocus() {
         if (listener != null) {
             final int ret = getAudioManager().abandonAudioFocus(listener);
             if (ret == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
@@ -68,11 +68,6 @@ public class AudioFocusManager implements IAudioManager {
 
     @Override
     public void onFocusAbandoned() {
-    }
-
-    @Override
-    public boolean isFocusSupported() {
-        return true;
     }
 
     protected AudioManager getAudioManager() {

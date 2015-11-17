@@ -1,6 +1,5 @@
 package com.soundcloud.android.storage.provider;
 
-
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.LIKE;
@@ -19,11 +18,9 @@ import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
-import com.soundcloud.android.search.suggestions.Shortcut;
 import com.soundcloud.android.storage.Table;
 import org.jetbrains.annotations.Nullable;
 
-import android.app.SearchManager;
 import android.content.UriMatcher;
 import android.net.Uri;
 import android.util.SparseArray;

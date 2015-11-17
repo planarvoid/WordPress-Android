@@ -138,7 +138,7 @@ public class ObfuscatedPreferencesTest extends AndroidUnitTest {
         verify(changeListener, never()).onSharedPreferenceChanged(preferences, KEY);
     }
 
-    private void configureMockObfuscation() throws Exception {
+    private void configureMockObfuscation() {
         when(obfuscator.obfuscate(anyString())).thenAnswer(new Answer<String>() {
             @Override
             public String answer(InvocationOnMock invocation) throws Throwable {

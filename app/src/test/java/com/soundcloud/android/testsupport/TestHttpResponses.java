@@ -14,7 +14,7 @@ public final class TestHttpResponses {
                 ResponseBody.create(MediaType.parse("text"), "<test response body>"));
     }
 
-    public static Response.Builder response(int code, ResponseBody responseBody) throws IOException {
+    public static Response.Builder response(int code, ResponseBody responseBody) {
         return new Response.Builder()
                 .protocol(Protocol.HTTP_1_1)
                 .code(code)
@@ -22,7 +22,7 @@ public final class TestHttpResponses {
                 .body(responseBody);
     }
 
-    public static Response.Builder jsonResponse(int code, String jsonBody) throws IOException {
+    public static Response.Builder jsonResponse(int code, String jsonBody) {
         return new Response.Builder()
                 .protocol(Protocol.HTTP_1_1)
                 .code(code)

@@ -248,12 +248,12 @@ public class PlaySessionController {
     }
 
     public Observable<PlaybackResult> playNewQueue(PlayQueue playQueue, Urn initialTrack, int startPosition,
-                                                   boolean loadRelated, PlaySessionSource playSessionSource) {
+                                                   PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
             return Observable.just(PlaybackResult.error(UNSKIPPABLE));
         } else {
             return playbackStrategyProvider.get()
-                    .setNewQueue(playQueue, initialTrack, startPosition, loadRelated, playSessionSource)
+                    .setNewQueue(playQueue, initialTrack, startPosition, playSessionSource)
                     .doOnSubscribe(stopLoadingPreviousTrack)
                     .doOnNext(playCurrentTrack);
         }

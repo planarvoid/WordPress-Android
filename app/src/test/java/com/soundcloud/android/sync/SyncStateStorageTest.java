@@ -18,11 +18,10 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
 
     private SyncStateStorage storage;
     private TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
-    private RoboSharedPreferences preferences;
 
     @Before
     public void setUp() throws Exception {
-        preferences = new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "TEST", Context.MODE_PRIVATE);
+        RoboSharedPreferences preferences = new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "TEST", Context.MODE_PRIVATE);
         storage = new SyncStateStorage(propellerRx(), preferences, new TestDateProvider());
     }
 

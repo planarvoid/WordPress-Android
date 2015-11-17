@@ -103,7 +103,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject AdIdHelper adIdHelper;
     @Inject CastSessionController castSessionController;
     @Inject StationsController stationsController;
-    @Inject FacebookSdk facebookSdk;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
     @Inject EncryptionTester encryptionTester;
 
@@ -188,7 +187,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         }
 
         configurationFeatureController.subscribe();
-        facebookSdk.sdkInitialize(getApplicationContext());
+        FacebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();
     }
 

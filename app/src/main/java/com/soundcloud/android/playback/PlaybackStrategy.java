@@ -13,7 +13,7 @@ public interface PlaybackStrategy {
 
     Observable<Void> playCurrent();
 
-    Observable<PlaybackResult> setNewQueue(final PlayQueue playQueue, Urn initialTrackUrn, int initialTrackPosition, boolean loadRelated, PlaySessionSource playSessionSource);
+    Observable<PlaybackResult> setNewQueue(final PlayQueue playQueue, Urn initialTrackUrn, int initialTrackPosition, PlaySessionSource playSessionSource);
 
     void seek(long position);
 

@@ -108,7 +108,7 @@ class TrackingStorage {
     }
 
 
-    private ContentValues createValuesFromEvent(TrackingRecord event) throws UnsupportedEncodingException {
+    private ContentValues createValuesFromEvent(TrackingRecord event) {
         ContentValues values = new ContentValues();
         values.put(TrackingDbHelper.TrackingColumns.BACKEND, event.getBackend());
         values.put(TrackingDbHelper.TrackingColumns.TIMESTAMP, event.getTimeStamp());

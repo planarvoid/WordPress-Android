@@ -6,7 +6,6 @@ import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 

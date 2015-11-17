@@ -282,10 +282,8 @@ public class SearchActionBarController extends DefaultActivityLightCycle<AppComp
             ImageView closeButton = (ImageView) searchField.get(searchView);
             closeButton.setBackgroundResource(R.drawable.item_background_dark);
 
-        } catch (NoSuchFieldException e) {
-            Log.e(getClass().getSimpleName(), e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            Log.e(getClass().getSimpleName(), e.getMessage(), e);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Log.e(getClass().getSimpleName(), "Failed to style search field via reflection");
         }
     }
 

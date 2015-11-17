@@ -4,9 +4,6 @@ import android.media.AudioManager;
 
 public interface IAudioManager {
     int FOCUS_GAIN           = AudioManager.AUDIOFOCUS_GAIN;
-    int FOCUS_TRANSIENT      = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
-    int FOCUS_TRANSIENT_DUCK = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
-
 
     interface MusicFocusable {
         void focusGained();
@@ -14,9 +11,7 @@ public interface IAudioManager {
     }
 
     boolean requestMusicFocus(final MusicFocusable focusable, int durationHint);
-    boolean abandonMusicFocus(boolean isTemporary);
-
-    boolean isFocusSupported();
+    boolean abandonMusicFocus();
 
     void onFocusObtained();
     void onFocusAbandoned();

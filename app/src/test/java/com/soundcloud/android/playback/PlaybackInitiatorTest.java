@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.testsupport.TestUrns.createTrackUrns;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -81,7 +80,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        verify(playSessionController).playNewQueue(createPlayQueueFromUrns(playSessionSource, TRACK1), TRACK1, 0, false, playSessionSource);
+        verify(playSessionController).playNewQueue(createPlayQueueFromUrns(playSessionSource, TRACK1), TRACK1, 0, playSessionSource);
     }
 
     @Test
@@ -102,7 +101,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 Observable.just(TRACK1).toList(), TRACK1, 0, newPlaySessionSource)
                 .subscribe(observer);
 
-        verify(playSessionController).playNewQueue(createPlayQueueFromUrns(newPlaySessionSource, TRACK1), TRACK1, 0, false, newPlaySessionSource);
+        verify(playSessionController).playNewQueue(createPlayQueueFromUrns(newPlaySessionSource, TRACK1), TRACK1, 0, newPlaySessionSource);
     }
 
     @Test
@@ -111,7 +110,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        verify(playSessionController).playNewQueue(createPlayQueue(playSessionSource, track), TRACK1, 0, false, playSessionSource);
+        verify(playSessionController).playNewQueue(createPlayQueue(playSessionSource, track), TRACK1, 0, playSessionSource);
     }
 
     @Test
@@ -134,7 +133,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, newPlaySessionSource).subscribe(observer);
 
-        verify(playSessionController).playNewQueue(createPlayQueue(newPlaySessionSource, track), TRACK1, 0, false, newPlaySessionSource);
+        verify(playSessionController).playNewQueue(createPlayQueue(newPlaySessionSource, track), TRACK1, 0, newPlaySessionSource);
     }
 
     @Test
@@ -145,14 +144,14 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         final PlaySessionSource expected = PlaySessionSource.forExplore(ORIGIN_SCREEN.get(), EXPLORE_VERSION);
 
-        verify(playSessionController).playNewQueue(eq(createPlayQueueFromUrns(expected, TRACK1)), eq(TRACK1), eq(0), anyBoolean(), eq(expected));
+        verify(playSessionController).playNewQueue(eq(createPlayQueueFromUrns(expected, TRACK1)), eq(TRACK1), eq(0), eq(expected));
     }
 
     @Test
     public void playExploreTrackPlaysNewQueueWithRelatedTracks() {
         playbackInitiator.playTrackWithRecommendationsLegacy(TRACK1, new PlaySessionSource(ORIGIN_SCREEN.get())).subscribe(observer);
 
-        verify(playSessionController).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), eq(true), any(PlaySessionSource.class));
+        verify(playSessionController).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class));
     }
 
     @Test
@@ -174,7 +173,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator.playTrackWithRecommendations(TRACK1, playSessionSource, 0).subscribe(observer);
 
         final PlayQueue expectedQueue = PlayQueue.fromRecommendationsWithPrependedSeed(TRACK1, relatedTracks);
-        verify(playSessionController).playNewQueue(eq(expectedQueue), any(Urn.class), anyInt(), eq(false), any(PlaySessionSource.class));
+        verify(playSessionController).playNewQueue(eq(expectedQueue), any(Urn.class), anyInt(), any(PlaySessionSource.class));
     }
 
     @Test
@@ -190,7 +189,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 .subscribe(observer);
 
         final PlayQueue expectedQueue = createPlayQueueFromUrns(playSessionSource, tracks.get(0).getUrn(), tracks.get(1).getUrn(), tracks.get(2).getUrn());
-        verify(playSessionController).playNewQueue(expectedQueue, tracks.get(1).getUrn(), 1, false, playSessionSource);
+        verify(playSessionController).playNewQueue(expectedQueue, tracks.get(1).getUrn(), 1, playSessionSource);
     }
 
     @Test
@@ -201,7 +200,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
         when(playQueueManager.isCurrentCollection(Urn.forPlaylist(1234))).thenReturn(false); // different Playlist Id
-        when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
+        when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
 
         final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.EXPLORE_TRENDING_MUSIC.get(), playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
 
@@ -211,7 +210,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         expectSuccessPlaybackResult();
         final PlayQueue expectedQueue = PlayQueue.fromTrackUrnList(trackUrns, playSessionSource);
-        verify(playSessionController).playNewQueue(expectedQueue, tracks.get(1).getUrn(), 1, false, playSessionSource);
+        verify(playSessionController).playNewQueue(expectedQueue, tracks.get(1).getUrn(), 1, playSessionSource);
     }
 
     @Test
@@ -227,7 +226,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 .subscribe(observer);
 
         expectSuccessPlaybackResult();
-        verify(playSessionController, never()).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class));
+        verify(playSessionController, never()).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class));
     }
 
     @Test
@@ -246,7 +245,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 .subscribe(observer);
 
         expectSuccessPlaybackResult();
-        verify(playSessionController, never()).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class));
+        verify(playSessionController, never()).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class));
     }
 
     @Test
@@ -256,7 +255,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         playbackInitiator.playTracksShuffled(Observable.just(tracksToPlay), playSessionSource).subscribe(observer);
 
-        verify(playSessionController).playNewQueue(playQueueTracksCaptor.capture(), any(Urn.class), eq(0), anyBoolean(), eq(playSessionSource));
+        verify(playSessionController).playNewQueue(playQueueTracksCaptor.capture(), any(Urn.class), eq(0), eq(playSessionSource));
         final PlayQueue actualQueue = playQueueTracksCaptor.getValue();
         assertThat(actualQueue.getTrackItemUrns()).contains(TRACK1, TRACK2, TRACK3);
     }
@@ -266,7 +265,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final List<Urn> idsOrig = createTrackUrns(1L, 2L, 3L);
         playbackInitiator.playTracksShuffled(Observable.just(idsOrig), new PlaySessionSource(Screen.YOUR_LIKES)).subscribe(observer);
 
-        verify(playSessionController).playNewQueue(any(PlayQueue.class), any(Urn.class), eq(0), eq(false), any(PlaySessionSource.class));
+        verify(playSessionController).playNewQueue(any(PlayQueue.class), any(Urn.class), eq(0), any(PlaySessionSource.class));
     }
 
     @Test
@@ -278,7 +277,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 .subscribe(observer);
 
         final PlayQueue expectedPlayQueue = createPlayQueueFromUrns(playSessionSource, TRACK1, TRACK2, TRACK3);
-        verify(playSessionController).playNewQueue(expectedPlayQueue, TRACK3, 2, false, playSessionSource);
+        verify(playSessionController).playNewQueue(expectedPlayQueue, TRACK3, 2, playSessionSource);
     }
 
     @Test
@@ -287,7 +286,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 .playTracks(Observable.<Urn>empty().toList(), TRACK1, 2, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe(observer);
 
-        verify(playSessionController, never()).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), eq(false), any(PlaySessionSource.class));
+        verify(playSessionController, never()).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class));
     }
 
     @Test
@@ -297,7 +296,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator.playTracks(playables, 1, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        verify(playSessionController).playNewQueue(createPlayQueueFromUrns(playSessionSource, Urn.forTrack(1L), Urn.forTrack(2L)), Urn.forTrack(2L), 1, false, playSessionSource);
+        verify(playSessionController).playNewQueue(createPlayQueueFromUrns(playSessionSource, Urn.forTrack(1L), Urn.forTrack(2L)), Urn.forTrack(2L), 1, playSessionSource);
     }
 
     @Test
@@ -309,7 +308,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 eq(createPlayQueueFromUrns(playSessionSource, TRACK1)),
                 eq(TRACK1),
                 eq(0),
-                anyBoolean(),
                 eq(playSessionSource));
     }
 
@@ -318,14 +316,14 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator.startPlaybackWithRecommendations(TRACK1, ORIGIN_SCREEN, searchQuerySourceInfo).subscribe(observer);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
-        verify(playSessionController).playNewQueue(eq(createPlayQueueFromUrns(playSessionSource, TRACK1)), eq(TRACK1), eq(0), anyBoolean(), eq(playSessionSource));
+        verify(playSessionController).playNewQueue(eq(createPlayQueueFromUrns(playSessionSource, TRACK1)), eq(TRACK1), eq(0), eq(playSessionSource));
     }
 
     @Test
     public void startPlaybackWithRecommendationsPlaysNewQueueWithRelatedTracks() {
         playbackInitiator.startPlaybackWithRecommendations(TRACK1, ORIGIN_SCREEN, searchQuerySourceInfo).subscribe(observer);
 
-        verify(playSessionController).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), eq(true), any(PlaySessionSource.class));
+        verify(playSessionController).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class));
     }
 
     @Test
@@ -336,7 +334,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         when(playQueueManager.isCurrentTrack(station.getTracks().get(0))).thenReturn(true);
         when(playQueueManager.isCurrentCollectionOrRecommendation(stationUrn)).thenReturn(true);
-        when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
+        when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSessionSource, 0).subscribe(observer);
 
         verifyZeroInteractions(playSessionController);
@@ -347,12 +345,12 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
-        when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
+        when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
 
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSessionSource, Consts.NOT_SET).subscribe(observer);
 
         final PlayQueue expectedQueue = PlayQueue.fromStation(stationUrn, station.getTracks());
-        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(0), 0, false, playSessionSource);
+        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(0), 0, playSessionSource);
     }
 
     @Test
@@ -360,12 +358,12 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn, 2);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
-        when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
+        when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
 
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSessionSource, 0).subscribe(observer);
 
         final PlayQueue expectedQueue = PlayQueue.fromStation(stationUrn, station.getTracks());
-        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(1), 1, false, playSessionSource);
+        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(1), 1, playSessionSource);
     }
 
     @Test
@@ -373,12 +371,12 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
-        when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), anyBoolean(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
+        when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
 
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSessionSource, station.getTracks().size() - 1).subscribe(observer);
 
         final PlayQueue expectedQueue = PlayQueue.fromStation(stationUrn, station.getTracks());
-        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(0), 0, false, playSessionSource);
+        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(0), 0, playSessionSource);
     }
 
 

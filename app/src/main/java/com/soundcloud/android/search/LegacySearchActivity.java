@@ -40,25 +40,24 @@ public class LegacySearchActivity extends ScActivity implements PlaylistTagsFrag
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject PlaybackInitiator playbackInitiator;
 
-    private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
-        @Override
-        public void performTextSearch(String query) {
-            addContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
-        }
-
-        @Override
-        public void performTagSearch(String tag) {
-            addContent(PlaylistResultsFragment.create(tag), PlaylistResultsFragment.TAG);
-        }
-
-        @Override
-        public void exitSearchMode() {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_MAIN));
-            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        }
-    };
-
     public LegacySearchActivity() {
+        SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
+            @Override
+            public void performTextSearch(String query) {
+                addContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
+            }
+
+            @Override
+            public void performTagSearch(String tag) {
+                addContent(PlaylistResultsFragment.create(tag), PlaylistResultsFragment.TAG);
+            }
+
+            @Override
+            public void exitSearchMode() {
+                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_MAIN));
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            }
+        };
         searchActionBarController.setSearchCallback(searchCallback);
     }
 

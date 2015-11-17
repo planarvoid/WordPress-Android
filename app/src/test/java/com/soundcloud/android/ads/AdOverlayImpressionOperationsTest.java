@@ -31,11 +31,9 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
 
     @Mock private Activity activity;
     @Mock private AccountOperations accountOperations;
-    private TestEventBus eventBus;
     private ActivityLifeCycleEvent activityResumed;
     private ActivityLifeCycleEvent activityPaused;
 
-    private AdOverlayImpressionOperations controller;
     private TestObserver<TrackingEvent> observer;
 
     private Subject<AdOverlayEvent, AdOverlayEvent> leaveBehindEventQueue;
@@ -45,8 +43,8 @@ public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
-        eventBus = new TestEventBus();
-        controller = new AdOverlayImpressionOperations(eventBus, accountOperations);
+        TestEventBus eventBus = new TestEventBus();
+        AdOverlayImpressionOperations controller = new AdOverlayImpressionOperations(eventBus, accountOperations);
 
         activityResumed = ActivityLifeCycleEvent.forOnResume(activity);
         activityPaused = ActivityLifeCycleEvent.forOnPause(activity);

@@ -1,11 +1,7 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
-import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +38,7 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
     private final TestSubscriber<ModelCollection<PropertySetSource>> subscriber = new TestSubscriber<>();
     private final ApiTrack apiTrack =  ModelFixtures.create(ApiTrack.class);
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
-    private final ModelCollection<ApiPostHolder> apiMobileHolder = new ModelCollection<ApiPostHolder>(
+    private final ModelCollection<ApiPostHolder> apiMobileHolder = new ModelCollection<>(
             Arrays.asList(
                     new ApiPostHolder(new ApiTrackPost(apiTrack), null, null, null),
                     new ApiPostHolder(null, new ApiTrackRepost(apiTrack, REPOST_DATE), null, null),
@@ -79,7 +75,7 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
     }
 
     private void assertAllPostsEmitted() {
-        subscriber.assertReceivedOnNext(Arrays.asList(new ModelCollection<PropertySetSource>(Arrays.asList(new ApiTrackPost(apiTrack),
+        subscriber.assertReceivedOnNext(Arrays.asList(new ModelCollection<>(Arrays.asList(new ApiTrackPost(apiTrack),
                 new ApiTrackRepost(apiTrack, REPOST_DATE),
                 new ApiPlaylistPost(apiPlaylist),
                 new ApiPlaylistRepost(apiPlaylist, REPOST_DATE)), NEXT_HREF)));
