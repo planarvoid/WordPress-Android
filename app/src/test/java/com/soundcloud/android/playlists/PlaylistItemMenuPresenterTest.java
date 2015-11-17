@@ -120,6 +120,21 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clickingOnRepostSendsTrackingEvent() {
+        final PublishSubject<PropertySet> repostObservable = PublishSubject.create();
+        when(repostOperations.toggleRepost(playlist.getEntityUrn(), !playlist.isReposted())).thenReturn(repostObservable);
+        when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
+
+        presenter.onMenuItemClick(menuItem, context);
+
+        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING, UIEvent.class);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
+        assertThat(uiEvent.isFromOverflow()).isTrue();
+        assertThat(uiEvent.getAttributes()
+                .containsValue(String.valueOf(playlist.getEntityUrn().getNumericId()))).isTrue();
+    }
+
+    @Test
     public void clickingOnShareItemSharesPlaylist() {
         when(menuItem.getItemId()).thenReturn(R.id.share);
 
@@ -128,20 +143,22 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
                 .contextScreen(screenProvider.getLastScreenTag())
                 .pageName(screenProvider.getLastScreenTag())
+                .isFromOverflow(true)
                 .invokerScreen(ScreenElement.LIST.get()).build();
 
         verify(shareOperations).share(context, playlist.getSource(), eventContextMetadata, null);
     }
 
     @Test
-    public void clickingOnAddToLikesSendsTrackingEvents() {
+    public void clickingOnAddToLikesSendsTrackingEvent() {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         presenter.onMenuItemClick(menuItem, context);
 
-        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
-        assertThat(trackingEvent.getAttributes()
+        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING, UIEvent.class);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
+        assertThat(uiEvent.isFromOverflow()).isTrue();
+        assertThat(uiEvent.getAttributes()
                 .containsValue(String.valueOf(playlist.getEntityUrn().getNumericId()))).isTrue();
     }
 
