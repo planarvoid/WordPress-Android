@@ -166,7 +166,7 @@ public class ViewFetcher {
         }
         @Override
         public boolean isSatisfied() {
-            Log.i("BUSYUI", String.format("Waiting for Busy UI (Is busy: %b)", !isElementDisplayed(viewMatcher)));
+            Log.i("BUSYUI", String.format("Waiting for Busy UI (Is busy: %b)", isElementDisplayed(viewMatcher)));
             return !isElementDisplayed(viewMatcher);
         }
     }
