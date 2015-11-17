@@ -31,18 +31,13 @@ import android.content.Intent;
 
 public class PeripheralsControllerTest extends AndroidUnitTest {
 
+    @SuppressWarnings("FieldCanBeLocal")
     private PeripheralsController controller;
-
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private Context context;
-
-    @Mock
-    private TrackRepository trackRepository;
-
-    @Captor
-    private ArgumentCaptor<Intent> captor;
+    @Mock private Context context;
+    @Mock private TrackRepository trackRepository;
+    @Captor private ArgumentCaptor<Intent> captor;
 
     @Before
     public void setUp() {

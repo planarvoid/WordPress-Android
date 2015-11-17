@@ -18,7 +18,6 @@ import javax.inject.Provider;
 public class GcmRegistrationService extends IntentService {
 
     private static final String TAG = "GcmRegistrationService";
-    private static final String[] TOPICS = {"global"};
 
     @Inject GcmStorage gcmStorage;
     @Inject InstanceIdWrapper instanceId;

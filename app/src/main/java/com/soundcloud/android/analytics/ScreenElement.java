@@ -7,7 +7,7 @@ public enum ScreenElement {
 
     private final String trackingTag;
 
-    private ScreenElement(String trackingTag) {
+    ScreenElement(String trackingTag) {
         this.trackingTag = trackingTag;
     }
 

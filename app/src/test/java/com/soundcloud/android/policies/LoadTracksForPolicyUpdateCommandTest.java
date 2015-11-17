@@ -2,7 +2,6 @@ package com.soundcloud.android.policies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;

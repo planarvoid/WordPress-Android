@@ -3,7 +3,6 @@ package com.soundcloud.android.stations;
 import butterknife.ButterKnife;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
@@ -21,15 +20,11 @@ class StationsBucketRenderer implements CellRenderer<StationBucket> {
 
     private final StationRenderer stationRenderer;
     private final Navigator navigator;
-    private final PlayQueueManager playQueueManager;
 
     @Inject
-    public StationsBucketRenderer(StationRenderer stationRenderer,
-                                  Navigator navigator,
-                                  PlayQueueManager playQueueManager) {
+    public StationsBucketRenderer(StationRenderer stationRenderer, Navigator navigator) {
         this.stationRenderer = stationRenderer;
         this.navigator = navigator;
-        this.playQueueManager = playQueueManager;
     }
 
     @Override

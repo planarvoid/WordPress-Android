@@ -43,8 +43,6 @@ public class WaveformView extends FrameLayout {
     private final Paint progressBelowPaint;
     private final Paint unplayedAbovePaint;
     private final Paint unplayedBelowPaint;
-    private final int progressColor;
-    private final int unplayedColor;
     private final float waveformWidthRatio;
 
     private final WaveformCanvas leftWaveform;
@@ -94,9 +92,6 @@ public class WaveformView extends FrameLayout {
         baseline = a.getDimensionPixelSize(R.styleable.WaveformView_baseline, (int) (DEFAULT_BASELINE_DP * density));
         a.recycle();
 
-        progressColor = progressAboveEnd;
-        unplayedColor = unplayedAbove;
-
         progressAbovePaint = new Paint();
         progressAbovePaint.setShader(new LinearGradient(0, 0, 0, baseline, progressAboveStart,
                 progressAboveEnd, Shader.TileMode.MIRROR));
@@ -130,8 +125,8 @@ public class WaveformView extends FrameLayout {
         leftLine = (ImageView) findViewById(R.id.line_left);
         rightLine = (ImageView) findViewById(R.id.line_right);
 
-        leftLine.setImageDrawable(createLoadingDrawable(progressColor));
-        rightLine.setImageDrawable(createLoadingDrawable(unplayedColor));
+        leftLine.setImageDrawable(createLoadingDrawable(progressAboveEnd));
+        rightLine.setImageDrawable(createLoadingDrawable(unplayedAbove));
     }
 
     public void setOnWidthChangedListener(OnWidthChangedListener onWidthChangedListener) {

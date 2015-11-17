@@ -171,7 +171,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void setNewQueueOpensReturnsPlaybackResult() {
         final PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
 
-        defaultPlaybackStrategy.setNewQueue(PlayQueue.fromTrackUrnList(asList(TRACK1), playSessionSource), TRACK1, 0, false, playSessionSource).subscribe(playNewQueueSubscriber);
+        defaultPlaybackStrategy.setNewQueue(PlayQueue.fromTrackUrnList(asList(TRACK1), playSessionSource), TRACK1, 0, playSessionSource).subscribe(playNewQueueSubscriber);
 
         assertThat(playNewQueueSubscriber.getOnNextEvents().get(0).isSuccess()).isTrue();
         playNewQueueSubscriber.assertTerminalEvent();
@@ -181,7 +181,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playNewQueueRemovesDuplicates() {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
         defaultPlaybackStrategy.setNewQueue(
-                PlayQueue.fromTrackUrnList(asList(TRACK1, TRACK2, TRACK3, TRACK2, TRACK1), playSessionSource), TRACK1, 0, false, playSessionSource).subscribe(playNewQueueSubscriber);
+                PlayQueue.fromTrackUrnList(asList(TRACK1, TRACK2, TRACK3, TRACK2, TRACK1), playSessionSource), TRACK1, 0, playSessionSource).subscribe(playNewQueueSubscriber);
 
         PlayQueue expectedPlayQueue = PlayQueue.fromTrackUrnList(asList(TRACK1, TRACK2, TRACK3), playSessionSource);
         verify(playQueueManager).setNewPlayQueue(eq(expectedPlayQueue), eq(playSessionSource), eq(0));
@@ -191,7 +191,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playNewQueueShouldFallBackToPositionZeroIfInitialTrackNotFound() {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
         defaultPlaybackStrategy.setNewQueue(
-                PlayQueue.fromTrackUrnList(asList(TRACK1, TRACK2), playSessionSource), TRACK1, 2, false, playSessionSource).subscribe(playNewQueueSubscriber);
+                PlayQueue.fromTrackUrnList(asList(TRACK1, TRACK2), playSessionSource), TRACK1, 2, playSessionSource).subscribe(playNewQueueSubscriber);
 
         PlayQueue expectedPlayQueue = PlayQueue.fromTrackUrnList(asList(TRACK1, TRACK2), playSessionSource);
         verify(playQueueManager).setNewPlayQueue(eq(expectedPlayQueue), eq(playSessionSource), eq(0));

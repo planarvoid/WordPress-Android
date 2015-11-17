@@ -591,9 +591,7 @@ public class PublicApi {
             } else {
                 error = Http.getJSON(response).getString("error");
             }
-        } catch (IOException ignored) {
-            error = ignored.getMessage();
-        } catch (JSONException ignored) {
+        } catch (IOException | JSONException ignored) {
             error = ignored.getMessage();
         }
         throw status == HttpStatus.SC_UNAUTHORIZED ?

@@ -14,7 +14,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -92,7 +91,7 @@ public class ExploreTracksOperationsTest extends AndroidUnitTest {
         verify(storeTracksCommand).call(collection);
     }
 
-    private SuggestedTracksCollection buildSuggestedTracksResponse() throws CreateModelException {
+    private SuggestedTracksCollection buildSuggestedTracksResponse() {
         SuggestedTracksCollection collection = new SuggestedTracksCollection(Collections.singletonList(ModelFixtures.create(ApiTrack.class)), null, null, null);
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(SuggestedTracksCollection.class))).thenReturn(Observable.just(collection));
         return collection;

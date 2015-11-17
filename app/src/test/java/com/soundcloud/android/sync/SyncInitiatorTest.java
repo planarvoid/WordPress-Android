@@ -192,7 +192,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     public void shouldResetMyLikesSyncMissesOnChangedTrackLikesSync() {
         initiator.syncTrackLikes().subscribe(syncSubscriber);
         final Uri uri = Content.ME_LIKES.uri;
-        sendSyncChangedToUri(uri);
+        sendSyncChangedToUri();
         verify(syncStateManager).resetSyncMisses(uri);
     }
 
@@ -210,7 +210,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     public void shouldResetMyLikesSyncMissesOnChangedPlaylistLikesSync() {
         initiator.syncPlaylistLikes().subscribe(syncSubscriber);
         final Uri uri = Content.ME_LIKES.uri;
-        sendSyncChangedToUri(uri);
+        sendSyncChangedToUri();
         verify(syncStateManager).resetSyncMisses(uri);
     }
 
@@ -271,7 +271,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         resultReceiver.send(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
     }
 
-    private void sendSyncChangedToUri(Uri uri) {
+    private void sendSyncChangedToUri() {
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         final ResultReceiver resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
         final Bundle resultData = new Bundle();

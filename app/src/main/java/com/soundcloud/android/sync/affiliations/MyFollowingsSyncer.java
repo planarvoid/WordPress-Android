@@ -56,8 +56,6 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
     private final JsonTransformer jsonTransformer;
     private final Navigator navigator;
 
-    private int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
-
     public MyFollowingsSyncer(Context context, AccountOperations accountOperations,
                               FollowingOperations followingOperations,
                               NotificationManager notificationManager,
@@ -117,8 +115,8 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         itemDeletions.removeAll(remote);
         legacyUserAssociationStorage.deleteAssociations(Content.ME_FOLLOWINGS.uri, itemDeletions);
 
-        int startPosition = 1;
-        int added = 0;
+        int startPosition;
+        int added;
 
         // load the first page of items to get proper last_seen ordering
         // parse and add first items
@@ -139,6 +137,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         startPosition = resources.size();
 
         log("Added " + added + " new items for this endpoint");
+        int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
         legacyUserAssociationStorage.insertInBatches(userId, remote, startPosition, bulkInsertBatchSize);
         result.success = true;
         return result;

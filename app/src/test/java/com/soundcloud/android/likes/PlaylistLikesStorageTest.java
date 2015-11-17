@@ -1,7 +1,6 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static junit.framework.Assert.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;

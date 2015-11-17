@@ -7,8 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.soundcloud.android.ServiceInitiator;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,20 +24,17 @@ public class GcmManagerTest {
 
     @Mock private GcmStorage gcmStorage;
     @Mock private GooglePlayServicesWrapper googlePlayServices;
-    @Mock private FeatureFlags featureFlags;
     @Mock private ServiceInitiator serviceInitiator;
     @Mock private AppCompatActivity activity;
 
     @Before
     public void setUp() throws Exception {
-        gcmManager = new GcmManager(gcmStorage, googlePlayServices, serviceInitiator, featureFlags);
+        gcmManager = new GcmManager(gcmStorage, googlePlayServices, serviceInitiator);
         activity = new AppCompatActivity();
     }
 
     @Test
     public void checksForPlayServicesWhenBundleIsNull() {
-        when(featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(true);
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
 
         gcmManager.onCreate(activity, null);
@@ -49,8 +44,6 @@ public class GcmManagerTest {
 
     @Test
     public void showsErrorDialogWhenPlayServicesAvailableReturnsRecoverableErrorWhenBundleIsNull() {
-        when(featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(true);
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(123);
         when(googlePlayServices.isUserRecoverableError(123)).thenReturn(true);
 
@@ -61,8 +54,6 @@ public class GcmManagerTest {
 
     @Test
     public void startsRegistrationServiceWithNoToken() {
-        when(featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(true);
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
 
         gcmManager.onCreate(activity, null);
@@ -73,8 +64,6 @@ public class GcmManagerTest {
 
     @Test
     public void doesNotStartRegistrationServiceWithToken() {
-        when(featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(true);
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
         when(gcmStorage.hasToken()).thenReturn(true);
 

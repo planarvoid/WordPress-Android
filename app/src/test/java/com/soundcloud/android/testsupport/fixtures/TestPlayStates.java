@@ -6,7 +6,6 @@ import com.soundcloud.android.playback.Player.PlayerState;
 import com.soundcloud.android.playback.Player.Reason;
 import com.soundcloud.android.playback.Player.StateTransition;
 import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 
 public class TestPlayStates {

@@ -23,7 +23,6 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -59,7 +58,6 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     private static final Urn WIDGET_TRACK_URN = Urn.forTrack(123L);
 
     private static PropertySet widgetTrack;
-    private static EntityMetadata entityMetadata;
 
     @Mock private Context context;
     @Mock private PlayerWidgetPresenter playerWidgetPresenter;
@@ -83,7 +81,6 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
                 engagementsTracking);
         when(context.getResources()).thenReturn(resources());
         widgetTrack = expectedTrackForWidget().put(AdProperty.IS_AUDIO_AD, false);
-        entityMetadata = EntityMetadata.from(widgetTrack);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
     }
 

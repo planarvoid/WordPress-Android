@@ -26,6 +26,7 @@ public class PlayPublisherTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123);
 
+    @SuppressWarnings("FieldCanBeLocal")
     private PlayPublisher playPublisher;
 
     @Mock private GcmStorage gcmStorage;

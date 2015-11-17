@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.InterstitialAd;
 import com.soundcloud.android.ads.LeaveBehindAd;

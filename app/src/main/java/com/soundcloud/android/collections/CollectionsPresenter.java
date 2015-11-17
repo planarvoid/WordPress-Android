@@ -182,7 +182,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     @Override
     protected CollectionBinding<CollectionsItem> onBuildBinding(Bundle bundle) {
-        final Observable<MyCollections> collections = collectionsOperations.collections(currentOptions).observeOn(AndroidSchedulers.mainThread());;
+        final Observable<MyCollections> collections = collectionsOperations.collections(currentOptions).observeOn(AndroidSchedulers.mainThread());
         return CollectionBinding.from(collections.doOnNext(new OnCollectionLoadedAction()), toCollectionsItems)
                 .withAdapter(adapter)
                 .build();

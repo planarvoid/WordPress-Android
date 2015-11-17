@@ -33,11 +33,9 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private Activity activity;
     @Mock private AdsOperations adsOperations;
-    private TestEventBus eventBus;
     private ActivityLifeCycleEvent activityResumeEvent;
     private ActivityLifeCycleEvent activityPauseEvent;
 
-    private VisualAdImpressionOperations controller;
     private TestSubscriber<Object> subscriber;
 
     private Subject<CurrentPlayQueueItemEvent, CurrentPlayQueueItemEvent> currentTrackQueue;
@@ -46,8 +44,8 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        eventBus = new TestEventBus();
-        controller = new VisualAdImpressionOperations(eventBus, playQueueManager, accountOperations, adsOperations);
+        TestEventBus eventBus = new TestEventBus();
+        VisualAdImpressionOperations controller = new VisualAdImpressionOperations(eventBus, playQueueManager, accountOperations, adsOperations);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         currentTrackQueue = eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);

@@ -81,12 +81,11 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     private TrackPagePresenter presenter;
     private View trackView;
-    private ViewGroup container;
     private TestDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
-        container = new FrameLayout(context());
+        ViewGroup container = new FrameLayout(context());
         presenter = new TrackPagePresenter(waveformOperations, listener, numberFormatter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
                 errorControllerFactory, castConnectionHelper, resources(), shareButtonExperiment);

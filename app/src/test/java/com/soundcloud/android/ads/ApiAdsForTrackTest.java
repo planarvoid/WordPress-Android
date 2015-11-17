@@ -1,7 +1,6 @@
 package com.soundcloud.android.ads;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
 
 import org.junit.Before;

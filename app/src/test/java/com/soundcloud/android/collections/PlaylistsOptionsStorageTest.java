@@ -14,7 +14,6 @@ public class PlaylistsOptionsStorageTest extends AndroidUnitTest {
     private CollectionsOptionsStorage storage;
 
     private SharedPreferences preferences;
-    private SharedPreferences.Editor editor;
 
     @Before
     public void setUp() throws Exception {
@@ -24,7 +23,7 @@ public class PlaylistsOptionsStorageTest extends AndroidUnitTest {
 
     @Test
     public void loadsOptionsFromStorage() {
-        editor = preferences.edit();
+        SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean(CollectionsOptionsStorage.KEY_SHOW_POSTS, true);
         editor.putBoolean(CollectionsOptionsStorage.KEY_SHOW_LIKES, true);
         editor.putBoolean(CollectionsOptionsStorage.KEY_SHOW_OFFLINE_ONLY, true);
