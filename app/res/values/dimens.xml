@@ -137,7 +137,7 @@
 
     <!-- Profile -->
     <dimen name="profile_image_dimen">104dp</dimen>
-    <dimen name="profile_tabs_padding">40dp</dimen>
+    <dimen name="profile_tabs_padding">38dp</dimen>
 
     <!-- Widget -->
     <dimen name="widget_player_width">272dp</dimen>
@@ -151,7 +151,6 @@
 
     <!-- Search -->
     <dimen name="search_link_height">48dp</dimen>
-    <dimen name="search_link_holder_padding_horizontal">8dp</dimen>
     <dimen name="search_link_padding_horizontal">16dp</dimen>
     <dimen name="search_link_padding_vertical">12dp</dimen>
     <dimen name="search_suggestion_item_height">56dp</dimen>

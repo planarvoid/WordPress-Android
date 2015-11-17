@@ -78,7 +78,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.TrackDownloads.TABLE.name(), db);
         dropTable(Tables.OfflineContent.TABLE.name(), db);
         dropTable(LegacyTables.RecentStations.TABLE.name(), db);
-        dropTable(Tables.Shortcuts.TABLE.name(), db);
+
         // legacy tables
         for (Table t : Table.values()) {
             SchemaMigrationHelper.drop(t, db);
