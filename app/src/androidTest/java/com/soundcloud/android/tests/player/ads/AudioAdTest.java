@@ -92,6 +92,12 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(dialog, is(not(visible())));
     }
 
+    public void testCustomCTAButtonText() {
+        swipeToAd();
+
+        assertEquals(playerElement.getAdCTAButtonText(), "TRY FREE FOR 30 DAYS");
+    }
+
     public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() {
         playerElement
                 .pressBackToCollapse()
