@@ -59,7 +59,7 @@
 
     <!-- __ADS -->
     <string name="ads_advertisement">Advertisement</string>
-    <string name="ads_learn_more">LEARN MORE</string>
+    <string name="ads_call_to_action">LEARN MORE</string>
     <string name="ads_why_ads">Why ads?</string>
     <string name="ads_why_ads_dialog_message">Every time you see or hear an ad, artists get paid. Occasional ads allow us to continue to support artists and keep SoundCloud free for listeners.</string>
     <string name="ads_skip_ad">Skip ad</string>

@@ -32,6 +32,13 @@ public class AdFixtures {
         return AudioAd.create(getApiAudioAd(), monetizableUrn);
     }
 
+    public static AudioAd getAudioAdWithCustomCTA(String ctaText, Urn monetizableUrn) {
+        return AudioAd.create(
+            getApiAudioAdWithCompanion(getApiCompanionAdWithCustomCTA(ctaText)),
+            monetizableUrn
+        );
+    }
+
     public static VideoAd getVideoAd(Urn monetizableUrn) {
         return VideoAd.create(getApiVideoAd(), monetizableUrn);
     }
@@ -47,18 +54,24 @@ public class AdFixtures {
         );
     }
 
-    public static ApiCompanionAd getApiCompanionAd() {
+    static ApiCompanionAd getApiCompanionAd() {
+        final String ctaText = null;
+        return getApiCompanionAdWithCustomCTA(ctaText);
+    }
+
+    static ApiCompanionAd getApiCompanionAdWithCustomCTA(String ctaText) {
         return new ApiCompanionAd(
                 "ad:urn:746",
                 "http://image.visualad.com",
                 "http://clickthrough.visualad.com",
                 Arrays.asList("comp_impression1", "comp_impression2"),
                 Arrays.asList("comp_click1", "comp_click2"),
+                ctaText,
                 getApiDisplayProperties()
         );
     }
 
-    public static ApiInterstitial getApiInterstitial() {
+    static ApiInterstitial getApiInterstitial() {
         return new ApiInterstitial(
                 "adswizz:35",
                 "http://image.visualad.com",
@@ -68,7 +81,7 @@ public class AdFixtures {
         );
     }
 
-    public static ApiLeaveBehind getApiLeaveBehind() {
+    static ApiLeaveBehind getApiLeaveBehind() {
         return new ApiLeaveBehind(
                 "adswizz:35",
                 "http://image.visualad.com",
@@ -78,11 +91,15 @@ public class AdFixtures {
         );
     }
 
-    public static ApiAudioAd getApiAudioAd() {
+    static ApiAudioAd getApiAudioAd() {
+        return getApiAudioAdWithCompanion(getApiCompanionAd());
+    }
+
+    static ApiAudioAd getApiAudioAdWithCompanion(ApiCompanionAd companion) {
         return new ApiAudioAd(
                 "adswizz:ads:869",
                 ModelFixtures.create(ApiTrack.class),
-                getApiCompanionAd(),
+                companion,
                 getApiLeaveBehind(),
                 Arrays.asList("audio_impression1", "audio_impression2"),
                 Arrays.asList("audio_finish1", "audio_finish2"),
@@ -90,7 +107,7 @@ public class AdFixtures {
         );
     }
 
-    public static ApiAudioAd getApiAudioAdWithoutLeaveBehind() {
+    static ApiAudioAd getApiAudioAdWithoutLeaveBehind() {
         return new ApiAudioAd(
                 "adswizz:ads:869",
                 ModelFixtures.create(ApiTrack.class),

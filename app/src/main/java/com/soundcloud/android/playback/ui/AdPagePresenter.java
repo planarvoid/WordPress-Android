@@ -76,7 +76,7 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
         final Holder holder = getViewHolder(view);
         displayAdvertisement(playerAd, holder);
         displayPreview(playerAd, holder);
-        styleLearnMoreButton(holder, playerAd);
+        styleCallToActionButton(holder, playerAd);
         setClickListener(this, holder.onClickViews);
     }
 
@@ -104,7 +104,7 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
                 break;
             case R.id.centered_ad_overlay:
             case R.id.centered_ad_artwork:
-            case R.id.learn_more:
+            case R.id.cta_button:
                 listener.onClickThrough();
                 break;
             case R.id.why_ads:
@@ -187,13 +187,14 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
         // no-op
     }
 
-    private void styleLearnMoreButton(Holder holder, PlayerAd playerAd) {
-        holder.learnMore.setTextColor(getColorStates(
+    private void styleCallToActionButton(Holder holder, PlayerAd playerAd) {
+        holder.ctaButton.setText(playerAd.getCallToActionButtonText(resources));
+        holder.ctaButton.setTextColor(getColorStates(
                 playerAd.getFocusedTextColor(),
                 playerAd.getPressedTextColor(),
                 playerAd.getDefaultTextColor()
         ));
-        holder.learnMore.setBackground(getColorStates(
+        holder.ctaButton.setBackground(getColorStates(
                 playerAd.getFocusedBackgroundColor(),
                 playerAd.getPressedBackgroundColor(),
                 playerAd.getDefaultBackgroundColor()
@@ -319,7 +320,7 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
         private final TextView timeUntilSkip;
         private final View skipAd;
         private final View previewContainer;
-        private final RoundedColorButton learnMore;
+        private final RoundedColorButton ctaButton;
         private final View whyAds;
         private final View playControlsHolder;
 
@@ -362,7 +363,7 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
             timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
             skipAd = adView.findViewById(R.id.skip_ad);
             previewContainer = adView.findViewById(R.id.preview_container);
-            learnMore = (RoundedColorButton) adView.findViewById(R.id.learn_more);
+            ctaButton = (RoundedColorButton) adView.findViewById(R.id.cta_button);
             whyAds = adView.findViewById(R.id.why_ads);
             playControlsHolder = adView.findViewById(R.id.play_controls);
 
@@ -377,10 +378,10 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
 
         private void populateViewSets() {
             List<View> centeredLayoutViews = Arrays.asList(centeredAdOverlay, centeredAdArtworkView);
-            List<View> fullbleedLayoutViews = Arrays.asList(fullbleedAdArtworkView, learnMore);
+            List<View> fullbleedLayoutViews = Arrays.asList(fullbleedAdArtworkView, ctaButton);
             List<View> disableViews = Arrays.asList(previousButton, nextButton);
             List<View> clickViews = Arrays.asList(centeredAdArtworkView, fullbleedAdArtworkView, centeredAdOverlay,
-                    artworkIdleOverlay, playButton, nextButton, previousButton, learnMore, whyAds, skipAd, previewContainer,
+                    artworkIdleOverlay, playButton, nextButton, previousButton, ctaButton, whyAds, skipAd, previewContainer,
                     footerPlayToggle, close, footer);
 
 

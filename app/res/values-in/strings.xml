@@ -49,7 +49,7 @@
   <string name="accessibility_like_action">Suka</string>
   <!--__ADS-->
   <string name="ads_advertisement">Iklan</string>
-  <string name="ads_learn_more">PELAJARI LEBIH LANJUT</string>
+  <string name="ads_call_to_action">PELAJARI LEBIH LANJUT</string>
   <string name="ads_why_ads">Mengapa ada iklan?</string>
   <string name="ads_why_ads_dialog_message">Setiap kali Anda melihat atau mendengar iklan, para artis mendapat bayaran. Iklan yang sesekali muncul membantu kami memberi dukungan kepada artis dan membuat SoundCloud tetap gratis untuk para pendengar.</string>
   <string name="ads_next_up_tracktitle_creatorname">Selanjutnya: %1$s (%2$s)</string>

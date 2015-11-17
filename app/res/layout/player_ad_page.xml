@@ -12,11 +12,11 @@
     <include layout="@layout/player_ad_expanded_header"/>
 
     <com.soundcloud.android.playback.ui.view.RoundedColorButton
-            android:id="@+id/learn_more"
-            style="@style/AdButton.LearnMore"
+            android:id="@+id/cta_button"
+            style="@style/AdButton.CallToAction"
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="@dimen/ad_learn_more_bottom"
+            android:layout_marginBottom="@dimen/ad_cta_button_bottom_margin"
             android:visibility="invisible"/>
 
     <FrameLayout

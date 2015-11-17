@@ -28,6 +28,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -120,10 +121,28 @@ public class AdPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clickThroughOnLearnMoreClick() {
-        adView.findViewById(R.id.learn_more).performClick();
+    public void clickThroughOnCallToActionClick() {
+        adView.findViewById(R.id.cta_button).performClick();
 
         verify(pageListener).onClickThrough();
+    }
+
+    @Test
+    public void callToActionTextShouldHaveDefaultTextIfNotProvided() {
+        final Button button = (Button) adView.findViewById(R.id.cta_button);
+
+        assertThat(button).hasText("LEARN MORE");
+    }
+
+    @Test
+    public void callToActionTextShouldUseProvidedText() {
+        final String expectedText = "CLICK ME!!!";
+        final PlayerAdData adData = prepareAd(AdFixtures.getAudioAdWithCustomCTA(expectedText, Urn.forTrack(123L)));
+        presenter.bindItemView(adView, new PlayerAd(adData, buildTrack()));
+
+        final Button button = (Button) adView.findViewById(R.id.cta_button);
+
+        assertThat(button).hasText(expectedText);
     }
 
     @Test
@@ -259,12 +278,12 @@ public class AdPagePresenterTest extends AndroidUnitTest {
     }
 
     private void assertFullbleedLayoutVisible() {
-        assertThat(adView.findViewById(R.id.learn_more)).isVisible();
+        assertThat(adView.findViewById(R.id.cta_button)).isVisible();
         assertThat(adView.findViewById(R.id.fullbleed_ad_artwork)).isVisible();
     }
 
     private void assertFullbleedLayoutInvisible() {
-        assertThat(adView.findViewById(R.id.learn_more)).isInvisible();
+        assertThat(adView.findViewById(R.id.cta_button)).isInvisible();
         assertThat(adView.findViewById(R.id.fullbleed_ad_artwork)).isInvisible();
     }
 
@@ -283,7 +302,10 @@ public class AdPagePresenterTest extends AndroidUnitTest {
     }
 
     private PlayerAdData buildAd() {
-        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        return prepareAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
+    }
+
+    private PlayerAdData prepareAd(AudioAd audioAd) {
         audioAd.setMonetizableTitle("track");
         audioAd.setMonetizableCreator("artist");
         return audioAd;
