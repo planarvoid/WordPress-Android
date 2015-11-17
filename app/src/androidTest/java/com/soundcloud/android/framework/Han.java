@@ -38,6 +38,7 @@ public class Han  {
     private final Solo solo;
     private final Instrumentation instrumentation;
     private Activity visibleActivity = new EmptyActivity();
+    private With busyUiIndicator;
 
     @Deprecated
     public Solo getSolo() {
@@ -53,7 +54,11 @@ public class Han  {
     }
 
     public void registerBusyUiIndicator(With busyUiIndicator) {
-        viewFetcher.registerBusyUIIndicator(busyUiIndicator);
+        this.busyUiIndicator = busyUiIndicator;
+    }
+
+    public With getBusyUiIndicator() {
+        return busyUiIndicator;
     }
 
     private void setupActivityListener() {

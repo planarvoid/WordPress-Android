@@ -15,7 +15,6 @@ import com.soundcloud.java.functions.Predicate;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +28,6 @@ public class ViewFetcher {
     private View parentView;
     private ElementWaiter elementWaiter = new ElementWaiter();
     private String TAG = getClass().getSimpleName().toString();
-    private With busyUiIndicator;
 
     public ViewFetcher(Han driver){
         testDriver = driver;
@@ -40,13 +38,9 @@ public class ViewFetcher {
         testDriver = driver;
     }
 
-    public void registerBusyUIIndicator(With busyUiIndicator) {
-        this.busyUiIndicator = busyUiIndicator;
-    }
-
     private boolean waitForBusyUi() {
-        if(busyUiIndicator != null) {
-            return testDriver.waitForCondition(new BusyIndicatorCondition(busyUiIndicator), NETWORK_TIMEOUT);
+        if(testDriver.getBusyUiIndicator() != null) {
+            return testDriver.waitForCondition(new BusyIndicatorCondition(testDriver.getBusyUiIndicator()), NETWORK_TIMEOUT);
         }
         return true;
     }
@@ -61,7 +55,7 @@ public class ViewFetcher {
 
     public List<ViewElement> findElements(With with) {
         List<ViewElement> viewElements = elementWaiter.waitForElements(with);
-        if(viewElements.isEmpty() && waitForBusyUi()) {
+        if(!viewElements.get(0).isVisible() && waitForBusyUi()) {
             return elementWaiter.waitForElements(with);
         }
         return viewElements;
