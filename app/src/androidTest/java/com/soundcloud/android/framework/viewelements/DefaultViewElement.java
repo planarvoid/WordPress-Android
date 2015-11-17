@@ -69,6 +69,7 @@ public final class DefaultViewElement extends ViewElement {
                 throw new ViewNotVisibleException();
             }
         }
+        Log.i("CLICKEVENT", String.format("View rect: %s", getRect().flattenToString()));
         Log.i("CLICKEVENT", String.format("Clicking at: %s", getClickPoint()));
         if(isFullyVisible()) {
             Log.i("CLICKEVENT", "View is fully visible");
