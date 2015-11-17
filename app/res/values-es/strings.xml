@@ -54,7 +54,7 @@
   </plurals>
   <!--__ADS-->
   <string name="ads_advertisement">Publicidad</string>
-  <string name="ads_learn_more">MÁS INFORMACIÓN</string>
+  <string name="ads_call_to_action">MÁS INFORMACIÓN</string>
   <string name="ads_why_ads">¿Por qué publicidad?</string>
   <string name="ads_why_ads_dialog_message">Cada vez que ves o escuchas un anuncio, los artistas reciben dinero. Los anuncios ocasionales nos permiten continuar ayudando a los artistas y a mantener SoundCloud gratuito para los oyentes.</string>
   <string name="ads_skip_ad">Saltar anuncio</string>

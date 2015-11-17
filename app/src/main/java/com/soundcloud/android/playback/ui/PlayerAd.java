@@ -12,7 +12,7 @@ import android.net.Uri;
 
 public class PlayerAd extends PlayerItem {
 
-    final PlayerAdData adData;
+    private final PlayerAdData adData;
 
     PlayerAd(PlayerAdData adData, PropertySet source) {
         super(source);
@@ -39,6 +39,12 @@ public class PlayerAd extends PlayerItem {
 
     Urn getMonetizableTrack() {
         return adData.getMonetizableTrackUrn();
+    }
+
+    String getCallToActionButtonText(Resources resources) {
+        return adData.getVisualAd().getCallToActionButtonText().or(
+            resources.getString(R.string.ads_call_to_action)
+        );
     }
 
     int getDefaultTextColor() {

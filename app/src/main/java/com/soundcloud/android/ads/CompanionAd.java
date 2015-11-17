@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import android.net.Uri;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public abstract class CompanionAd {
                 Uri.parse(apiCompanionAd.clickthroughUrl),
                 apiCompanionAd.trackingImpressionUrls,
                 apiCompanionAd.trackingClickUrls,
+                apiCompanionAd.ctaButtonText,
                 apiCompanionAd.displayProperties.defaultTextColor,
                 apiCompanionAd.displayProperties.defaultBackgroundColor,
                 apiCompanionAd.displayProperties.pressedTextColor,
@@ -34,6 +36,8 @@ public abstract class CompanionAd {
     public abstract List<String> getImpressionUrls();
 
     public abstract List<String> getClickUrls();
+
+    public abstract Optional<String> getCallToActionButtonText();
 
     public abstract String getDefaultTextColor();
 
