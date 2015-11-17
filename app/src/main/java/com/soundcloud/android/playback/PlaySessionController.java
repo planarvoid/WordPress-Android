@@ -6,6 +6,8 @@ import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdFunctions;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
@@ -29,6 +31,7 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.PropertySetFunctions;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import rx.Observable;
@@ -363,8 +366,10 @@ public class PlaySessionController {
 
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
             if (playQueueItem.isTrack() ) {
+                final boolean isAudioAd = AdFunctions.IS_AUDIO_AD_ITEM.apply(playQueueItem);
                 currentTrackSubscription = trackRepository
                         .track(playQueueItem.getUrn())
+                        .map(PropertySetFunctions.mergeWith(PropertySet.from(AdProperty.IS_AUDIO_AD.bind(isAudioAd))))
                         .subscribe(new CurrentTrackSubscriber());
             }
         }
