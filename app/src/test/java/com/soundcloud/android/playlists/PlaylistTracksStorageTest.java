@@ -232,6 +232,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 TrackProperty.URN.bind(apiTrack.getUrn()),
                 TrackProperty.TITLE.bind(apiTrack.getTitle()),
                 TrackProperty.DURATION.bind(apiTrack.getDuration()),
+                TrackProperty.FULL_DURATION.bind(apiTrack.getFullDuration()),
                 TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
                 TrackProperty.LIKES_COUNT.bind(apiTrack.getStats().getLikesCount()),
                 TrackProperty.IS_PRIVATE.bind(apiTrack.isPrivate()),

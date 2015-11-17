@@ -57,6 +57,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Sounds.USER_ID, track.getUser().getUrn().getNumericId());
         cv.put(TableColumns.Sounds.DURATION, track.getDuration());
+        cv.put(TableColumns.Sounds.FULL_DURATION, track.getFullDuration());
         cv.put(TableColumns.Sounds.WAVEFORM_URL, track.getWaveformUrl());
         cv.put(TableColumns.Sounds.STREAM_URL, track.getStreamUrl());
         cv.put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount());

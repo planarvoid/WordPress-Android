@@ -219,6 +219,7 @@ public abstract class TestPropertySets {
                 TrackProperty.URN.bind(apiTrack.getUrn()),
                 PlayableProperty.TITLE.bind(apiTrack.getTitle()),
                 PlayableProperty.DURATION.bind(apiTrack.getDuration()),
+                TrackProperty.FULL_DURATION.bind(apiTrack.getFullDuration()),
                 PlayableProperty.CREATOR_NAME.bind(apiTrack.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
                 TrackProperty.WAVEFORM_URL.bind(apiTrack.getWaveformUrl()),

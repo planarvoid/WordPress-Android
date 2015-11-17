@@ -34,6 +34,9 @@ public class ApiTrackBlueprint {
     @Default(force = true)
     long duration = 12345L;
 
+    @Default(force = true)
+    long fullDuration = 678910L;
+
     @Default
     String artworkUrl = "http://i1.sndcdn.com/artworks-000056989650-zm98k6-large.jpg?5e64f12";
 

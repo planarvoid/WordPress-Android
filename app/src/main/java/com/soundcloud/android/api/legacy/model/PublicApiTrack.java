@@ -334,6 +334,11 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         return duration;
     }
 
+    @Override
+    public long getFullDuration() {
+        return duration;
+    }
+
     public String getWaveformUrl() {
         return waveform_url;
     }
@@ -587,6 +592,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         apiTrack.setArtworkUrl(artwork_url);
         apiTrack.setCommentable(commentable);
         apiTrack.setDuration(duration);
+        apiTrack.setFullDuration(duration);
         apiTrack.setGenre(genre);
         apiTrack.setMonetizable(isMonetizable());
         apiTrack.setPermalinkUrl(permalink_url);

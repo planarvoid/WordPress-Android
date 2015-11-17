@@ -36,6 +36,7 @@ import static com.soundcloud.android.storage.TableColumns.SoundView.USERNAME;
 import static com.soundcloud.android.storage.TableColumns.Sounds.COMMENTABLE;
 import static com.soundcloud.android.storage.TableColumns.Sounds.COMMENT_COUNT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.DURATION;
+import static com.soundcloud.android.storage.TableColumns.Sounds.FULL_DURATION;
 import static com.soundcloud.android.storage.TableColumns.Sounds.GENRE;
 import static com.soundcloud.android.storage.TableColumns.Sounds.LIKES_COUNT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.PERMALINK_URL;
@@ -149,6 +150,7 @@ public class DatabaseAssertions {
                 .whereEq(_TYPE, TYPE_TRACK)
                 .whereEq(TITLE, track.getTitle())
                 .whereEq(DURATION, track.getDuration())
+                .whereEq(FULL_DURATION, track.getFullDuration())
                 .whereEq(WAVEFORM_URL, track.getWaveformUrl())
                 .whereEq(STREAM_URL, track.getStreamUrl())
                 .whereEq(PERMALINK_URL, track.getPermalinkUrl())
@@ -161,7 +163,6 @@ public class DatabaseAssertions {
                 .whereEq(REPOSTS_COUNT, track.getStats().getRepostsCount())
                 .whereEq(PLAYBACK_COUNT, track.getStats().getPlaybackCount())
                 .whereEq(COMMENT_COUNT, track.getStats().getCommentsCount()))).counts(1);
-
         assertTrackPolicyInserted(track);
     }
 

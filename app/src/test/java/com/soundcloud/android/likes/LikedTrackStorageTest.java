@@ -170,6 +170,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
                 TrackProperty.CREATOR_NAME.bind(track.get(TrackProperty.CREATOR_NAME)),
                 TrackProperty.TITLE.bind(track.get(TrackProperty.TITLE)),
                 TrackProperty.DURATION.bind(track.get(TrackProperty.DURATION)),
+                TrackProperty.FULL_DURATION.bind(track.get(TrackProperty.FULL_DURATION)),
                 TrackProperty.PLAY_COUNT.bind(track.get(TrackProperty.PLAY_COUNT)),
                 TrackProperty.LIKES_COUNT.bind(track.get(TrackProperty.LIKES_COUNT)),
                 LikeProperty.CREATED_AT.bind((likedAt)),
