@@ -1,22 +1,22 @@
 package com.soundcloud.android.sync.likes;
 
-import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.android.model.Urn.forPlaylist;
+import static com.soundcloud.android.storage.Table.Likes;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiPlaylistLike;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackLike;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
+import static com.soundcloud.android.utils.PropertySets.toPropertySets;
+import static com.soundcloud.propeller.query.Query.from;
+import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
+import static java.util.Arrays.asList;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.propeller.PropellerWriteException;
-import com.soundcloud.propeller.query.Query;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 public class RemoveLikesCommandTest extends StorageIntegrationTest {
 
@@ -32,26 +32,26 @@ public class RemoveLikesCommandTest extends StorageIntegrationTest {
         final ApiLike trackLike = testFixtures().insertTrackLike();
         final ApiLike trackLike2 = testFixtures().insertTrackLike();
 
-        command.call(PropertySets.toPropertySets(Arrays.asList(trackLike, trackLike2)));
+        command.call(toPropertySets(asList(trackLike, trackLike2)));
 
-        assertThat(select(Query.from(Table.Likes.name())), counts(0));
+        assertThat(select(from(Likes.name()))).isEmpty();
     }
 
     @Test
     public void shouldRemoveJustTrackLikeWhenIdsAreTheSame() throws PropellerWriteException {
-        ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
-        apiPlaylist.setUrn(Urn.forPlaylist(apiTrack.getId()));
+        ApiTrack apiTrack = create(ApiTrack.class);
+        ApiPlaylist apiPlaylist = create(ApiPlaylist.class);
+        apiPlaylist.setUrn(forPlaylist(apiTrack.getId()));
 
-        final ApiLike trackLike = ModelFixtures.apiTrackLike(apiTrack);
+        final ApiLike trackLike = apiTrackLike(apiTrack);
         testFixtures().insertLike(trackLike);
 
-        final ApiLike playlistLike = ModelFixtures.apiPlaylistLike(apiPlaylist);
+        final ApiLike playlistLike = apiPlaylistLike(apiPlaylist);
         testFixtures().insertLike(playlistLike);
 
-        command.call(PropertySets.toPropertySets(Arrays.asList(trackLike)));
+        command.call(toPropertySets(asList(trackLike)));
 
-        assertThat(select(Query.from(Table.Likes.name())), counts(1));
+        assertThat(select(from(Likes.name()))).counts(1);
     }
 
 }

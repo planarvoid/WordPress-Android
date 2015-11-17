@@ -1,20 +1,17 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Date;
 
-@RunWith(SoundCloudTestRunner.class)
 public class RemoveTrackFromPlaylistCommandTest extends StorageIntegrationTest {
 
     private RemoveTrackFromPlaylistCommand command;
@@ -31,7 +28,7 @@ public class RemoveTrackFromPlaylistCommandTest extends StorageIntegrationTest {
 
         final Integer updatedCount = command.call(new RemoveTrackFromPlaylistParams(apiPlaylist.getUrn(), track1.getUrn()));
 
-        expect(updatedCount).toEqual(0);
+        assertThat(updatedCount).isEqualTo(0);
     }
 
     @Test
@@ -69,6 +66,6 @@ public class RemoveTrackFromPlaylistCommandTest extends StorageIntegrationTest {
 
         final Integer updatedCount = command.call(new RemoveTrackFromPlaylistParams(apiPlaylist.getUrn(), track1.getUrn()));
 
-        expect(updatedCount).toEqual(1);
+        assertThat(updatedCount).isEqualTo(1);
     }
 }

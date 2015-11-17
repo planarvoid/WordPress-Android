@@ -1,28 +1,32 @@
 package com.soundcloud.android.sync.stream;
 
+import static com.soundcloud.android.storage.Table.PromotedTracks;
+import static com.soundcloud.android.storage.Table.SoundStream;
+import static com.soundcloud.android.storage.TableColumns.SoundStream.CREATED_AT;
+import static com.soundcloud.android.storage.TableColumns.SoundStream.PROMOTED_ID;
+import static com.soundcloud.android.storage.TableColumns.SoundStream.REPOSTER_ID;
+import static com.soundcloud.android.storage.TableColumns.SoundStream.SOUND_ID;
+import static com.soundcloud.android.storage.TableColumns.SoundStream.SOUND_TYPE;
+import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
+import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static com.soundcloud.propeller.query.Query.from;
-import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
+import static java.lang.Long.MAX_VALUE;
 
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ApiStreamItemFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PromotedFixtures;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
 
-@RunWith(SoundCloudTestRunner.class)
 public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
 
     @Mock private Thread backgroundThread;
@@ -159,67 +163,67 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
     }
 
     private void expectStreamItemCountToBe(int count) {
-        assertThat(select(from(Table.SoundStream.name())), counts(count));
+        assertThat(select(from(SoundStream.name()))).counts(count);
     }
 
     private void expectPromotedTrackItemCountToBe(int count) {
-        assertThat(select(from(Table.PromotedTracks.name())), counts(count));
+        assertThat(select(from(PromotedTracks.name()))).counts(count);
     }
 
     private void expectTrackPostItemInserted(ApiStreamItem streamItem) {
-        assertThat(select(from(Table.SoundStream.name())
-                        .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getTrack().get().getId())
-                        .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
-                        .whereNull(TableColumns.SoundStream.REPOSTER_ID)
-                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime())
-        ), counts(1));
+        assertThat(select(from(SoundStream.name())
+                        .whereEq(SOUND_ID, streamItem.getTrack().get().getId())
+                        .whereEq(SOUND_TYPE, TYPE_TRACK)
+                        .whereNull(REPOSTER_ID)
+                        .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
+        )).counts(1);
     }
 
     private void expectPromotedTrackPostItemInserted(ApiStreamItem streamItem) {
-        assertThat(select(from(Table.SoundStream.name())
-                        .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getTrack().get().getId())
-                        .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
-                        .whereNull(TableColumns.SoundStream.REPOSTER_ID)
-                        .whereEq(TableColumns.SoundStream.CREATED_AT, Long.MAX_VALUE)
-                        .whereNotNull(TableColumns.SoundStream.PROMOTED_ID)
-        ), counts(1));
+        assertThat(select(from(SoundStream.name())
+                        .whereEq(SOUND_ID, streamItem.getTrack().get().getId())
+                        .whereEq(SOUND_TYPE, TYPE_TRACK)
+                        .whereNull(REPOSTER_ID)
+                        .whereEq(CREATED_AT, MAX_VALUE)
+                        .whereNotNull(PROMOTED_ID)
+        )).counts(1);
     }
 
     private void expectPromotedPlaylistPostItemInserted(ApiStreamItem streamItem) {
-        assertThat(select(from(Table.SoundStream.name())
-                        .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getPlaylist().get().getId())
-                        .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                        .whereNull(TableColumns.SoundStream.REPOSTER_ID)
-                        .whereEq(TableColumns.SoundStream.CREATED_AT, Long.MAX_VALUE)
-                        .whereNotNull(TableColumns.SoundStream.PROMOTED_ID)
-        ), counts(1));
+        assertThat(select(from(SoundStream.name())
+                        .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
+                        .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
+                        .whereNull(REPOSTER_ID)
+                        .whereEq(CREATED_AT, MAX_VALUE)
+                        .whereNotNull(PROMOTED_ID)
+        )).counts(1);
     }
 
     private void expectTrackRepostItemInserted(ApiStreamItem streamItem) {
-        assertThat(select(from(Table.SoundStream.name())
-                        .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getTrack().get().getId())
-                        .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
-                        .whereEq(TableColumns.SoundStream.REPOSTER_ID, streamItem.getReposter().get().getId())
-                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime())
-        ), counts(1));
+        assertThat(select(from(SoundStream.name())
+                        .whereEq(SOUND_ID, streamItem.getTrack().get().getId())
+                        .whereEq(SOUND_TYPE, TYPE_TRACK)
+                        .whereEq(REPOSTER_ID, streamItem.getReposter().get().getId())
+                        .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
+        )).counts(1);
     }
 
     private void expectPlaylistPostItemInserted(ApiStreamItem streamItem) {
-        assertThat(select(from(Table.SoundStream.name())
-                        .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getPlaylist().get().getId())
-                        .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                        .whereNull(TableColumns.SoundStream.REPOSTER_ID)
-                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime())
-        ), counts(1));
+        assertThat(select(from(SoundStream.name())
+                        .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
+                        .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
+                        .whereNull(REPOSTER_ID)
+                        .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
+        )).counts(1);
     }
 
     private void expectPlaylistRepostItemInserted(ApiStreamItem streamItem) {
-        assertThat(select(from(Table.SoundStream.name())
-                        .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getPlaylist().get().getId())
-                        .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                        .whereEq(TableColumns.SoundStream.REPOSTER_ID, streamItem.getReposter().get().getId())
-                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime())
-        ), counts(1));
+        assertThat(select(from(SoundStream.name())
+                        .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
+                        .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
+                        .whereEq(REPOSTER_ID, streamItem.getReposter().get().getId())
+                        .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
+        )).counts(1);
     }
 
 }

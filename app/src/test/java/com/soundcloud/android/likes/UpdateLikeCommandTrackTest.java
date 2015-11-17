@@ -1,24 +1,21 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import android.content.ContentValues;
 
 import java.util.Date;
 
-@RunWith(SoundCloudTestRunner.class)
-public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
+public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
 
     private UpdateLikeCommand command;
     private Urn targetUrn;
@@ -26,40 +23,40 @@ public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         command = new UpdateLikeCommand(propeller());
-        targetUrn = testFixtures().insertPlaylist().getUrn();
+        targetUrn = testFixtures().insertTrack().getUrn();
     }
 
     @Test
     public void updatesLikeStatusWhenLikingTrack() throws Exception {
         command.call(new UpdateLikeParams(targetUrn, true));
 
-        databaseAssertions().assertLikedPlaylistPendingAddition(targetUrn);
+        databaseAssertions().assertLikedTrackPendingAddition(targetUrn);
     }
 
     @Test
     public void updatesLikesCountInSoundsWhenLiked() throws Exception {
-        databaseAssertions().assertLikesCount(targetUrn, 10);
+        databaseAssertions().assertLikesCount(targetUrn, 34);
 
         final int newLikesCount = command.call(new UpdateLikeParams(targetUrn, true));
 
-        expect(newLikesCount).toBe(11);
-        databaseAssertions().assertLikesCount(targetUrn, 11);
+        assertThat(newLikesCount).isEqualTo(35);
+        databaseAssertions().assertLikesCount(targetUrn, 35);
     }
 
     @Test
-    public void upsertReplacesLikedPlaylist() throws Exception {
-        Urn playlistUrn = testFixtures().insertLikedPlaylistPendingRemoval(new Date()).getUrn();
+    public void upsertReplacesLikedTrack() throws Exception {
+        Urn trackUrn = testFixtures().insertLikedTrackPendingRemoval(new Date()).getUrn();
 
-        command.call(new UpdateLikeParams(playlistUrn, true));
+        command.call(new UpdateLikeParams(trackUrn, true));
 
-        databaseAssertions().assertLikedPlaylistPendingAddition(playlistUrn);
+        databaseAssertions().assertLikedTrackPendingAddition(trackUrn);
     }
 
     @Test
-    public void updatesLikeStatusWhenUnlikingPlaylist() throws Exception {
+    public void updatesLikeStatusWhenUnlikingTrack() throws Exception {
         command.call(new UpdateLikeParams(targetUrn, false));
 
-        databaseAssertions().assertLikedPlaylistPendingRemoval(targetUrn);
+        databaseAssertions().assertLikedTrackPendingRemoval(targetUrn);
     }
 
     @Test
@@ -68,17 +65,16 @@ public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
 
         final int newLikesCount = command.call(new UpdateLikeParams(targetUrn, false));
 
-        expect(newLikesCount).toBe(0);
+        assertThat(newLikesCount).isEqualTo(0);
         databaseAssertions().assertLikesCount(targetUrn, 0);
     }
 
     private void updateLikesCount() {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Sounds.LIKES_COUNT, 1);
-        expect(propeller().update(Table.Sounds, cv, filter()
+        assertThat(propeller().update(Table.Sounds, cv, filter()
                 .whereEq(TableColumns.Sounds._ID, targetUrn.getNumericId())
-                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)).success()).toBeTrue();
+                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)).success()).isTrue();
         databaseAssertions().assertLikesCount(targetUrn, 1);
     }
-
 }

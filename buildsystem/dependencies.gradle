@@ -17,7 +17,7 @@ ext {
   androidKitVersion = '0.39'
   lightCycleVersion = '0.0.6'
   daggerVersion = '1.2.2'
-  propellerVersion = '0.52'
+  propellerVersion = '0.56'
   findBugsVersion = '3.0.0'
   networkManager = '29'
 
@@ -88,7 +88,7 @@ ext {
           daggerCompiler                  : "com.squareup.dagger:dagger-compiler:$daggerVersion",
           junit                           : "junit:junit:4.12",
           assertj                         : "org.assertj:assertj-core:1.7.1",
-          assertjAndroid                  : "com.squareup.assertj:assertj-android:1.0.0",
+          assertjAndroid                  : "com.squareup.assertj:assertj-android:1.1.1",
           robolectric                     : "org.robolectric:robolectric:3.0",
           robolectricSupport              : "org.robolectric:shadows-support-v4:3.0",
           mockito                         : "org.mockito:mockito-core:1.9.5",
