@@ -139,20 +139,12 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         return null;
     }
 
-    private void playlistLike(boolean addLike) {
-        eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromToggleLike(addLike,
-                        playlist.getEntityUrn(),
-                        getEventContextMetadata(),
-                        getPromotedSourceIfExists(),
-                        EntityMetadata.from(playlist)));
-    }
-
     private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder()
                 .invokerScreen(ScreenElement.LIST.get())
                 .contextScreen(screenProvider.getLastScreenTag())
                 .pageName(screenProvider.getLastScreenTag())
+                .isFromOverflow(true)
                 .build();
     }
 
@@ -163,7 +155,12 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(appContext, addLike));
 
-        playlistLike(addLike);
+        eventBus.publish(EventQueue.TRACKING,
+                UIEvent.fromToggleLike(addLike,
+                        playlist.getEntityUrn(),
+                        getEventContextMetadata(),
+                        getPromotedSourceIfExists(),
+                        EntityMetadata.from(playlist)));
 
         if (isUnlikingNotOwnedPlaylistInOfflineMode(addLike)) {
             fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn));
@@ -176,6 +173,13 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         repostOperations.toggleRepost(playlistUrn, addRepost)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new RepostResultSubscriber(appContext, addRepost));
+
+        eventBus.publish(EventQueue.TRACKING,
+                UIEvent.fromToggleRepost(addRepost,
+                        playlist.getEntityUrn(),
+                        getEventContextMetadata(),
+                        getPromotedSourceIfExists(),
+                        EntityMetadata.from(playlist)));
     }
 
     private void handleShare(Context context) {
