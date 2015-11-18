@@ -6,9 +6,7 @@
 
     <android.support.design.widget.TabLayout
         android:id="@+id/tab_indicator"
-        style="@style/TabsTheme.Scrollable"
-        android:paddingLeft="@dimen/discovery_search_tabs_padding"
-        android:clipToPadding="false"
+        style="@style/TabsTheme.Fixed"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

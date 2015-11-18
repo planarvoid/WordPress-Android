@@ -99,7 +99,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">16dp</item>
-        <item name="android:layout_marginBottom">13dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/collections_empty_playlists_text_color</item>
     </style>

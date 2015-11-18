@@ -402,7 +402,7 @@ public final class ImageUtils {
     @NonNull
     public static RoundedBitmapDrawable createCircularDrawable(Bitmap bitmap, Resources resources) {
         final RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(resources, bitmap);
-        drawable.setCircular(true);
+        drawable.setCornerRadius(Math.max(bitmap.getHeight(), bitmap.getWidth()) / 2.0f);
         return drawable;
     }
 

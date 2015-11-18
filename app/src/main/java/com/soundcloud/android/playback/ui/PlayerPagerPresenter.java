@@ -27,6 +27,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -78,7 +79,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private View videoAdView;
     private SkipListener skipListener;
     private List<PlayerPageData> currentData = Collections.emptyList();
-    private ViewVisibilityProvider viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
+    @NotNull private ViewVisibilityProvider viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
     private PlayerUIEvent lastPlayerUIEvent;
     private StateTransition lastStateTransition;
     private boolean isForeground;
@@ -238,7 +239,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
         castConnectionHelper.removeOnConnectionChangeListener(this);
         skipListener = null;
-        viewVisibilityProvider = null;
+        viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
 
         backgroundSubscription.unsubscribe();
         backgroundSubscription = new CompositeSubscription();

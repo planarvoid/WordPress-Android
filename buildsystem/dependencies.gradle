@@ -12,7 +12,8 @@ ext {
 
   // Dependency versions
   androidMultiDex = "1.0.1"
-  androidSupportVersion = '23.1.0'
+  // we are not upgrading this until this is resolved in 23.x : https://code.google.com/p/android/issues/detail?id=78377
+  androidSupportVersion = '22.2.1'
   playServicesVersion = '7.8.0'
   androidKitVersion = '0.39'
   lightCycleVersion = '0.0.6'
