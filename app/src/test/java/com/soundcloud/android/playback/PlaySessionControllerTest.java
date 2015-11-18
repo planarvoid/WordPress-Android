@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
@@ -100,7 +101,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                 sharedPreferences, networkConnectionHelper, InjectionSupport.providerOf(playbackStrategy), playbackToastHelper, accountOperations, stationsOperations);
         controller.subscribe();
 
-        track = expectedTrackForPlayer();
+        track = expectedTrackForPlayer().put(AdProperty.IS_AUDIO_AD, false);
         trackUrn = track.get(TrackProperty.URN);
         trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn);
 
@@ -191,6 +192,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         InOrder inOrder = Mockito.inOrder(audioManager);
         trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn, AdFixtures.getAudioAd(Urn.forTrack(123L)));
+        track.put(AdProperty.IS_AUDIO_AD, true);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
         inOrder.verify(audioManager).onTrackChanged(eq(track), eq(((Bitmap) null)));
         inOrder.verify(audioManager).onTrackChanged(eq(track), any(Bitmap.class));
