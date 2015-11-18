@@ -8,6 +8,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -44,6 +45,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private TrackSourceInfo trackSourceInfo;
     @Mock private AdsOperations adsOperations;
+    @Mock private AppboyPlaySessionState appboyPlaySessionState;
 
     @Before
     public void setUp() throws Exception {
@@ -56,7 +58,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
 
         analyticsController = new PlaybackSessionAnalyticsController(
-                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations);
+                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, appboyPlaySessionState);
     }
 
     @Test

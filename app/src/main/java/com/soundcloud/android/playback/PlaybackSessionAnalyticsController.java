@@ -1,22 +1,22 @@
 package com.soundcloud.android.playback;
 
-import android.webkit.URLUtil;
-
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
-
-import javax.inject.Inject;
-
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
+
+import android.webkit.URLUtil;
+
+import javax.inject.Inject;
 
 class PlaybackSessionAnalyticsController {
 
@@ -25,6 +25,7 @@ class PlaybackSessionAnalyticsController {
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
+    private final AppboyPlaySessionState appboyPlaySessionState;
     private PlaybackSessionEvent lastSessionEventData;
     private AudioAd lastPlayAudioAd;
 
@@ -42,12 +43,14 @@ class PlaybackSessionAnalyticsController {
     @Inject
     public PlaybackSessionAnalyticsController(EventBus eventBus, TrackRepository trackRepository,
                                               AccountOperations accountOperations, PlayQueueManager playQueueManager,
-                                              AdsOperations adsOperations) {
+                                              AdsOperations adsOperations,
+                                              AppboyPlaySessionState appboyPlaySessionState) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.accountOperations = accountOperations;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
+        this.appboyPlaySessionState = appboyPlaySessionState;
     }
 
     public void onStateTransition(Player.StateTransition stateTransition) {
@@ -107,9 +110,10 @@ class PlaybackSessionAnalyticsController {
                 final String playerType = getPlayerType(stateTransition);
                 final String connectionType = getConnectionType(stateTransition);
                 final boolean localStoragePlayback = isLocalStoragePlayback(stateTransition);
+                final boolean marketablePlay = appboyPlaySessionState.isMarketablePlay();
 
                 lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo,
-                        progress, protocol, playerType, connectionType, localStoragePlayback);
+                        progress, protocol, playerType, connectionType, localStoragePlayback, marketablePlay);
 
                 if (adsOperations.isCurrentItemAudioAd()) {
                     lastPlayAudioAd = (AudioAd) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
