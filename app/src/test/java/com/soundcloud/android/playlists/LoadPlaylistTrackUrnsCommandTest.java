@@ -1,19 +1,16 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class LoadPlaylistTrackUrnsCommandTest extends StorageIntegrationTest {
 
     private LoadPlaylistTrackUrnsCommand command;
@@ -32,7 +29,7 @@ public class LoadPlaylistTrackUrnsCommandTest extends StorageIntegrationTest {
 
         List<Urn> trackUrns = command.with(playlist.getUrn()).call();
 
-        expect(trackUrns).toContainExactly(track1.getUrn(), track2.getUrn(), track3.getUrn());
+        assertThat(trackUrns).containsExactly(track1.getUrn(), track2.getUrn(), track3.getUrn());
     }
 
     @Test
@@ -47,6 +44,6 @@ public class LoadPlaylistTrackUrnsCommandTest extends StorageIntegrationTest {
 
         List<Urn> trackUrns = command.with(playlist.getUrn()).call();
 
-        expect(trackUrns).toContainExactly(track1.getUrn(), track2.getUrn());
+        assertThat(trackUrns).containsExactly(track1.getUrn(), track2.getUrn());
     }
 }
