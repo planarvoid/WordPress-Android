@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -20,7 +21,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -66,7 +66,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     @Mock private StationsOperations stationsOperations;
     @Mock private RecyclerViewParallaxer parallaxer;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private StreamDesignExperiment streamExperiment;
     @Mock private View view;
    
     private TestEventBus eventBus = new TestEventBus();
@@ -82,7 +82,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 swipeRefreshAttacher,
                 eventBus,
                 itemClickListenerFactory,
-                parallaxer, facebookInvitesDialogPresenter, featureFlags);
+                parallaxer, facebookInvitesDialogPresenter, streamExperiment);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);

@@ -1,9 +1,8 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,16 +19,16 @@ public class StationsOnboardingStreamItemRenderer implements CellRenderer<Statio
 
     private Listener listener;
 
-    private final FeatureFlags featureFlags;
+    private final StreamDesignExperiment streamExperiment;
 
     @Inject
-    public StationsOnboardingStreamItemRenderer(FeatureFlags featureFlags) {
-        this.featureFlags = featureFlags;
+    public StationsOnboardingStreamItemRenderer(StreamDesignExperiment streamExperiment) {
+        this.streamExperiment = streamExperiment;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
-        int layoutId = featureFlags.isEnabled(Flag.NEW_STREAM)
+        int layoutId = streamExperiment.isCardDesign()
                 ? R.layout.stations_onboarding_stream_notification_card
                 : R.layout.stations_onboarding_stream_notification_item;
         return LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);

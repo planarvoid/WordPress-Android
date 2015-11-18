@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.StreamNotificationEvent;
@@ -16,8 +17,6 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -46,9 +45,9 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     private final RecyclerViewParallaxer recyclerViewParallaxer;
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
+    private final StreamDesignExperiment streamDesignExperiment;
     private final MixedItemClickListener itemClickListener;
     private final StationsOperations stationsOperations;
-    private final FeatureFlags featureFlags;
 
     private CompositeSubscription viewLifeCycle;
     private Fragment fragment;
@@ -63,8 +62,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
                          MixedItemClickListener.Factory itemClickListenerFactory,
                          RecyclerViewParallaxer recyclerViewParallaxer,
                          FacebookInvitesDialogPresenter facebookInvitesDialogPresenter,
-                         FeatureFlags featureFlags) {
-        super(swipeRefreshAttacher, getRecyclerOptions(featureFlags));
+                         StreamDesignExperiment streamDesignExperiment) {
+        super(swipeRefreshAttacher, getRecyclerOptions(streamDesignExperiment));
         this.streamOperations = streamOperations;
         this.adapter = adapter;
         this.stationsOperations = stationsOperations;
@@ -72,14 +71,14 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         this.eventBus = eventBus;
         this.recyclerViewParallaxer = recyclerViewParallaxer;
         this.facebookInvitesDialogPresenter = facebookInvitesDialogPresenter;
-        this.featureFlags = featureFlags;
+        this.streamDesignExperiment = streamDesignExperiment;
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
     }
 
-    private static Options getRecyclerOptions(FeatureFlags featureFlags) {
-        if (featureFlags.isEnabled(Flag.NEW_STREAM)) {
+    private static Options getRecyclerOptions(StreamDesignExperiment experiment) {
+        if (experiment.isCardDesign()) {
             return Options.staggeredGrid(R.integer.stream_grid_columns).build();
         } else {
             return Options.list().build();
@@ -128,7 +127,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
     private void addScrollListeners() {
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
-        if (featureFlags.isEnabled(Flag.NEW_STREAM)) {
+        if (streamDesignExperiment.isCardDesign()) {
             getRecyclerView().addOnScrollListener(recyclerViewParallaxer);
         }
     }

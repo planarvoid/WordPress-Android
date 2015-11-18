@@ -16,6 +16,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
@@ -23,7 +24,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
@@ -56,7 +56,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineOperations;
     @Mock private AccountOperations accountOperations;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private StreamDesignExperiment streamExperiment;
     @Mock private Navigator navigator;
     @Mock private MenuItem menuItem;
     @Mock private View button;
@@ -83,7 +83,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("some tag");
         presenter = new PlaylistItemMenuPresenter(context, eventBus, popupMenuWrapperFactory, accountOperations,
                 playlistOperations, likeOperations, repostOperations, shareOperations, screenProvider, featureOperations,
-                featureFlags, offlineOperations, navigator);
+                streamExperiment, offlineOperations, navigator);
 
         presenter.show(button, playlist, menuOptions);
     }
