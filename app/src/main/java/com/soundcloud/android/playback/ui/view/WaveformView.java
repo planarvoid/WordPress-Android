@@ -43,6 +43,7 @@ public class WaveformView extends FrameLayout {
     private final Paint progressBelowPaint;
     private final Paint unplayedAbovePaint;
     private final Paint unplayedBelowPaint;
+    private final int unplayedColor;
     private final float waveformWidthRatio;
 
     private final WaveformCanvas leftWaveform;
@@ -92,6 +93,8 @@ public class WaveformView extends FrameLayout {
         spaceWidth = a.getDimensionPixelSize(R.styleable.WaveformView_spaceWidth, (int) (DEFAULT_BAR_SPACE_DP * density));
         baseline = a.getDimensionPixelSize(R.styleable.WaveformView_baseline, (int) (DEFAULT_BASELINE_DP * density));
         a.recycle();
+
+        unplayedColor = unplayedAbove;
 
         progressAbovePaint = new Paint();
         progressAbovePaint.setShader(new LinearGradient(0, 0, 0, baseline, progressAboveStart,
