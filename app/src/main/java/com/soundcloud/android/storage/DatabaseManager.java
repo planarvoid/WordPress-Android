@@ -546,7 +546,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             recreateSoundDependentViews(db);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 59);
+            handleUpgradeException(exception, oldVersion, 60);
         }
         return false;
     }
