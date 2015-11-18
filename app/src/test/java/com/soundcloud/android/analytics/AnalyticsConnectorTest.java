@@ -50,7 +50,7 @@ public class AnalyticsConnectorTest {
 
         analyticsConnector.onStart(activity);
 
-        verify(appboyPlaySessionState).setSessionPlayed(false);
+        verify(appboyPlaySessionState).resetSessionPlayed();
     }
 
     @Test
@@ -68,7 +68,7 @@ public class AnalyticsConnectorTest {
 
         analyticsConnector.onStart(activity);
 
-        verify(appboyPlaySessionState, never()).setSessionPlayed(false);
+        verify(appboyPlaySessionState, never()).resetSessionPlayed();
     }
 
     @Test

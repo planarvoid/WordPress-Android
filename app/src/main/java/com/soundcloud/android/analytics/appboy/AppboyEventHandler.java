@@ -95,7 +95,7 @@ class AppboyEventHandler {
         boolean sessionPlayed = appboyPlaySessionState.isSessionPlayed();
 
         if (!sessionPlayed && event.isPlayEvent() && event.isMarketablePlay()) {
-            appboyPlaySessionState.setSessionPlayed(true);
+            appboyPlaySessionState.setSessionPlayed();
             tagEvent(AppboyEvents.PLAY, buildPlayableProperties(event));
             appboy.requestInAppMessageRefresh();
             appboy.requestImmediateDataFlush();

@@ -29,7 +29,7 @@ public class AnalyticsConnector extends DefaultActivityLightCycle<AppCompatActiv
     public void onStart(AppCompatActivity activity) {
         if (appboy.openSession(activity)) {
             appboy.requestInAppMessageRefresh();
-            appboyPlaySessionState.setSessionPlayed(false);
+            appboyPlaySessionState.resetSessionPlayed();
         }
     }
 

@@ -45,8 +45,12 @@ public class AppboyPlaySessionState {
         eventBus.subscribe(EventQueue.AD_OVERLAY, new AdOverlaySubscriber());
     }
 
-    public void setSessionPlayed(boolean sessionPlayed) {
-        this.sessionPlayed = sessionPlayed;
+    public void setSessionPlayed() {
+        sessionPlayed = true;
+    }
+
+    public void resetSessionPlayed() {
+        sessionPlayed = false;
     }
 
     public boolean isMarketablePlay() {
