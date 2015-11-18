@@ -1,8 +1,6 @@
 package com.soundcloud.android.analytics.appboy;
 
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.ads.InterstitialProperty;
-import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdOverlayEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -11,8 +9,6 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.java.collections.Property;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
@@ -86,20 +82,7 @@ public class AppboyPlaySessionState {
     }
 
     private boolean hasAdOverlay() {
-        return isInterstitialAd() || isLeaveBehindAdAd();
-    }
-
-    private boolean isInterstitialAd() {
-        return hasMetadataProperty(InterstitialProperty.INTERSTITIAL_URN);
-    }
-
-    private boolean isLeaveBehindAdAd() {
-        return hasMetadataProperty(LeaveBehindProperty.LEAVE_BEHIND_URN);
-    }
-
-    private boolean hasMetadataProperty(Property<String> property) {
-        PropertySet metadata = getCurrentPlayQueueItem().getMetaData();
-        return metadata != null && metadata.contains(property);
+        return getCurrentPlayQueueItem().getAdData().isPresent();
     }
 
     private class PlayerUiSubscriber extends DefaultSubscriber<PlayerUIEvent> {
