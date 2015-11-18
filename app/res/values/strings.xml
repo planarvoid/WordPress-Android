@@ -136,9 +136,9 @@
     <string name="info_empty_you_secondary">To edit your profile, sign in to SoundCloud on your desktop.</string>
     <string name="list_empty_notification_message">You don\'t have any notifications yet.</string>
     <string name="list_empty_notification_secondary">Follow your favorite artists, bands and podcasts to hear their latest tracks.</string>
-    <string name="list_empty_stream_action">Find people to follow.</string>
+    <string name="list_empty_stream_action">FIND PEOPLE TO FOLLOW</string>
     <string name="list_empty_stream_message">Follow your favorite artists, bands and podcasts to hear their latest tracks.</string>
-    <string name="list_empty_user_following_action">Find people to follow.</string>
+    <string name="list_empty_user_following_action">FIND PEOPLE TO FOLLOW</string>
     <string name="empty_playlist_title">Empty playlist</string>
     <string name="empty_playlist_description">This playlist has no tracks yet.</string>
     <string name="list_empty_liked_playlists_message">Like your favorite playlists to hear them again.</string>

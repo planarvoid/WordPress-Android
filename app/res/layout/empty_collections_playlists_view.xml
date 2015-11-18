@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
+    android:paddingTop="16dp"
     tools:ignore="Overdraw,UseCompoundDrawables">
 
     <ImageView
