@@ -4,8 +4,6 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -21,7 +19,6 @@ public class GcmRegistrationService extends IntentService {
 
     @Inject GcmStorage gcmStorage;
     @Inject InstanceIdWrapper instanceId;
-    @Inject FeatureFlags featureFlags;
     @Inject Provider<AppboyWrapper> appboyWrapperProvider;
 
     public GcmRegistrationService() {
@@ -32,12 +29,10 @@ public class GcmRegistrationService extends IntentService {
     @VisibleForTesting
     GcmRegistrationService(GcmStorage gcmStorage,
                            InstanceIdWrapper instanceId,
-                           FeatureFlags featureFlags,
                            Provider<AppboyWrapper> appboyWrapperProvider) {
         super(TAG);
         this.gcmStorage = gcmStorage;
         this.instanceId = instanceId;
-        this.featureFlags = featureFlags;
         this.appboyWrapperProvider = appboyWrapperProvider;
     }
 
@@ -49,9 +44,7 @@ public class GcmRegistrationService extends IntentService {
 
             Log.d(TAG, "GCM Registration Token: " + token);
 
-            if (featureFlags.isEnabled(Flag.APPBOY)) {
-                appboyWrapperProvider.get().handleRegistration(token);
-            }
+            appboyWrapperProvider.get().handleRegistration(token);
 
             gcmStorage.storeToken(token);
 

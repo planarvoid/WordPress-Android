@@ -12,8 +12,6 @@ import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +32,6 @@ public class AnalyticsProviderFactoryTest {
     @Mock private SharedPreferences sharedPreferences;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private AnalyticsProperties analyticsProperties;
-    @Mock private FeatureFlags featureFlags;
     @Mock private EventLoggerAnalyticsProvider eventLoggerProvider;
     @Mock private PlayCountAnalyticsProvider playCountProvider;
     @Mock private Provider<AppboyAnalyticsProvider> appboyAnalyticsProvider;
@@ -46,10 +43,9 @@ public class AnalyticsProviderFactoryTest {
     @Before
     public void setUp() throws Exception {
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(true);
         when(appboyAnalyticsProvider.get()).thenReturn(mock(AppboyAnalyticsProvider.class));
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
-                featureFlags, eventLoggerProvider, playCountProvider, appboyAnalyticsProvider, promotedProvider,
+                eventLoggerProvider, playCountProvider, appboyAnalyticsProvider, promotedProvider,
                 adjustAnalyticsProvider, comScoreProvider, fabricAnalyticsProvider);
     }
 
@@ -86,7 +82,7 @@ public class AnalyticsProviderFactoryTest {
     @Test
     public void getProvidersReturnsAllProvidersExceptComScoreWhenItFailedToInitialize() {
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
-                featureFlags, eventLoggerProvider, playCountProvider, appboyAnalyticsProvider,
+                eventLoggerProvider, playCountProvider, appboyAnalyticsProvider,
                 promotedProvider, adjustAnalyticsProvider, null, fabricAnalyticsProvider);
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
@@ -98,25 +94,6 @@ public class AnalyticsProviderFactoryTest {
                 adjustAnalyticsProvider,
                 fabricAnalyticsProvider,
                 appboyAnalyticsProvider.get());
-    }
-
-    @Test
-    public void getProvidersReturnsAllProvidersExceptAppboyWhenFlagIsDisabled() {
-        factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
-                featureFlags, eventLoggerProvider, playCountProvider, appboyAnalyticsProvider,
-                promotedProvider, adjustAnalyticsProvider, null, fabricAnalyticsProvider);
-
-        when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.APPBOY)).thenReturn(false);
-
-        List<AnalyticsProvider> providers = factory.getProviders();
-
-        assertThat(providers).containsExactly(
-                eventLoggerProvider,
-                playCountProvider,
-                promotedProvider,
-                adjustAnalyticsProvider,
-                fabricAnalyticsProvider);
     }
 
 }
