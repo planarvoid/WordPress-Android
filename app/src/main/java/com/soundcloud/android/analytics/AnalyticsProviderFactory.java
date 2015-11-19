@@ -7,8 +7,6 @@ import com.soundcloud.android.analytics.crashlytics.FabricAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +24,6 @@ public class AnalyticsProviderFactory {
 
     private final SharedPreferences sharedPreferences;
     private final AnalyticsProperties analyticsProperties;
-    private final FeatureFlags featureFlags;
     private final EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
     private final PlayCountAnalyticsProvider playCountAnalyticsProvider;
     private final PromotedAnalyticsProvider promotedAnalyticsProvider;
@@ -39,7 +36,6 @@ public class AnalyticsProviderFactory {
     @Inject
     public AnalyticsProviderFactory(AnalyticsProperties analyticsProperties,
                                     SharedPreferences sharedPreferences,
-                                    FeatureFlags featureFlags,
                                     EventLoggerAnalyticsProvider eventLoggerProvider,
                                     PlayCountAnalyticsProvider playCountProvider,
                                     Provider<AppboyAnalyticsProvider> appboyAnalyticsProvider,
@@ -49,7 +45,6 @@ public class AnalyticsProviderFactory {
                                     FabricAnalyticsProvider fabricAnalyticsProvider) {
         this.sharedPreferences = sharedPreferences;
         this.analyticsProperties = analyticsProperties;
-        this.featureFlags = featureFlags;
         this.eventLoggerAnalyticsProvider = eventLoggerProvider;
         this.playCountAnalyticsProvider = playCountProvider;
         this.appboyAnalyticsProvider = appboyAnalyticsProvider;
@@ -84,10 +79,7 @@ public class AnalyticsProviderFactory {
     private void addOptInProviders(List<AnalyticsProvider> providers) {
         providers.add(adjustAnalyticsProvider);
         providers.add(fabricAnalyticsProvider);
-
-        if (featureFlags.isEnabled(Flag.APPBOY)) {
-            providers.add(appboyAnalyticsProvider.get());
-        }
+        providers.add(appboyAnalyticsProvider.get());
 
         if (comScoreAnalyticsProvider != null) {
             providers.add(comScoreAnalyticsProvider);
