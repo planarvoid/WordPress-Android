@@ -13,7 +13,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Point;
-import android.support.v7.internal.view.menu.ActionMenuItemView;
+import android.support.v7.view.menu.ActionMenuItemView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
