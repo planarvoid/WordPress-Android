@@ -16,6 +16,7 @@ public final class EventQueue {
         }
     };
 
+    public static final Queue<ConnectionType> NETWORK_CONNECTION_CHANGED = Queue.of(ConnectionType.class).onError(ON_ERROR).replay(ConnectionType.UNKNOWN).get();
     public static final Queue<StateTransition> PLAYBACK_STATE_CHANGED = Queue.of(StateTransition.class).onError(ON_ERROR).replay(StateTransition.DEFAULT).get();
     public static final Queue<PlaybackProgressEvent> PLAYBACK_PROGRESS = Queue.of(PlaybackProgressEvent.class).onError(ON_ERROR).get();
     public static final Queue<ActivityLifeCycleEvent> ACTIVITY_LIFE_CYCLE = Queue.of(ActivityLifeCycleEvent.class).onError(ON_ERROR).get();

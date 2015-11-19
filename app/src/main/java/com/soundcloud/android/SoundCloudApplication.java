@@ -48,6 +48,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -85,6 +86,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     @Inject MigrationEngine migrationEngine;
     @Inject EventBus eventBus;
+    @Inject NetworkConnectivityListener networkConnectivityListener;
     @Inject ScModelManager modelManager;
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
@@ -168,6 +170,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         setupCurrentUserAccount();
         generateDeviceKey();
 
+        networkConnectivityListener.startListening();
         widgetController.subscribe();
         peripheralsController.subscribe();
         playSessionController.subscribe();

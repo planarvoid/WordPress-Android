@@ -8,7 +8,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.activities.LegacyActivitiesAdapter;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.ContentStats;
@@ -20,13 +19,13 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
-import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -39,11 +38,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
@@ -57,7 +54,6 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 
 import javax.inject.Inject;
-import java.lang.ref.WeakReference;
 
 @Deprecated
 public class ScListFragment extends ListFragment implements OnRefreshListener,
@@ -66,9 +62,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         CollectionTask.Callback,
         AbsListView.OnScrollListener {
     public static final String TAG = ScListFragment.class.getSimpleName();
-    private static final int CONNECTIVITY_MSG = 0;
     private static final String EXTRA_SCREEN = "screen";
-    private static final String EXTRA_QUERY_SOURCE_INFO = "querySourceInfo";
     private static final String KEY_IS_RETAINED = "is_retained";
     private final DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
     private final DefaultSubscriber<CurrentUserChangedEvent> userEventObserver = new DefaultSubscriber<CurrentUserChangedEvent>() {
@@ -175,10 +169,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         if (syncStateManager != null) {
             localCollection = syncStateManager.fromContentAsync(contentUri, this);
         }
-
-        NetworkConnectivityListener connectivityListener = new NetworkConnectivityListener();
-        Handler connectivityHandler = new ConnectivityHandler(this, connectivityListener);
-        connectivityListener.registerHandler(connectivityHandler, CONNECTIVITY_MSG);
 
         subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, userEventObserver));
@@ -615,34 +605,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private static void log(String msg) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, msg);
-        }
-    }
-
-    private static final class ConnectivityHandler extends Handler {
-        private final WeakReference<ScListFragment> fragmentRef;
-        private final WeakReference<NetworkConnectivityListener> listenerRef;
-
-        private ConnectivityHandler(ScListFragment fragment, NetworkConnectivityListener listener) {
-            this.fragmentRef = new WeakReference<>(fragment);
-            this.listenerRef = new WeakReference<>(listener);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            final ScListFragment fragment = fragmentRef.get();
-            final NetworkConnectivityListener listener = listenerRef.get();
-            switch (msg.what) {
-                case CONNECTIVITY_MSG:
-                    if (fragment != null && listener != null) {
-                        final NetworkInfo networkInfo = listener.getNetworkInfo();
-                        if (networkInfo != null) {
-                            fragment.onDataConnectionUpdated(networkInfo.isConnectedOrConnecting());
-                        }
-                    }
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown msg.what: " + msg.what);
-            }
         }
     }
 

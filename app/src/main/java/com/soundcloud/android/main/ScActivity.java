@@ -32,7 +32,6 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
 
     @Inject @LightCycle CastConnectionHelper castConnectionHelper;
     @Inject @LightCycle ActivityLifeCyclePublisher activityLifeCyclePublisher;
-    @Inject @LightCycle NetworkConnectivityController networkConnectivityController;
     @Inject @LightCycle UnauthorisedRequestReceiver.LightCycle unauthorisedRequestLightCycle;
     @Inject @LightCycle UserRemovedController userRemovedController;
     @Inject @LightCycle ImageOperationsController imageOperationsController;
