@@ -28,7 +28,7 @@
         android:layout_marginLeft="8dp"
         android:layout_toLeftOf="@id/toggle_like"
         android:drawableLeft="@drawable/ic_toggle_player_repost_states"
-        tools:textOff="123" />
+        tools:textOff="12333" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/play_count"

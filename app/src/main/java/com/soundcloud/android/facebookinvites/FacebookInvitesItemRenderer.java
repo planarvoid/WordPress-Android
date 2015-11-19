@@ -3,6 +3,8 @@ package com.soundcloud.android.facebookinvites;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ public class FacebookInvitesItemRenderer implements CellRenderer<FacebookInvites
 
     private final ImageOperations imageOperations;
     private final FacebookInvitesStorage facebookInvitesStorage;
+    private final FeatureFlags featureFlags;
 
     public interface OnFacebookInvitesClickListener {
         void onFacebookInvitesCloseButtonClicked(int position);
@@ -27,14 +30,19 @@ public class FacebookInvitesItemRenderer implements CellRenderer<FacebookInvites
 
     @Inject
     public FacebookInvitesItemRenderer(ImageOperations imageOperations,
-                                       FacebookInvitesStorage facebookInvitesStorage) {
+                                       FacebookInvitesStorage facebookInvitesStorage,
+                                       FeatureFlags featureFlags) {
         this.imageOperations = imageOperations;
         this.facebookInvitesStorage = facebookInvitesStorage;
+        this.featureFlags = featureFlags;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(R.layout.facebook_invites_notification_list_item, parent, false);
+        return LayoutInflater.from(parent.getContext()).inflate(
+                featureFlags.isEnabled(Flag.NEW_STREAM) ?
+                        R.layout.facebook_invites_notification_card :
+                        R.layout.facebook_invites_notification_list_item, parent, false);
     }
 
     @Override

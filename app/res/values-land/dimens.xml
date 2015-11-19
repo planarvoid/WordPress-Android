@@ -11,4 +11,8 @@
     <dimen name="rec_record_button_dimension">60dp</dimen>
 
     <dimen name="profile_image_dimen">@dimen/list_item_image_dimension</dimen>
+
+    <!-- stream -->
+    <dimen name="stream_header_min_height">72dp</dimen>
+    <dimen name="stream_container_padding">8dp</dimen>
 </resources>

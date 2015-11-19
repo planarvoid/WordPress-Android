@@ -18,7 +18,10 @@
     <dimen name="dialog_width">640dp</dimen>
 
     <dimen name="buy_button_margin">128dp</dimen>
-
     <dimen name="fixed_tab_padding">40dp</dimen>
+
+    <!-- stream -->
+    <dimen name="stream_header_min_height">72dp</dimen>
+    <dimen name="stream_container_padding">8dp</dimen>
 
 </resources>
