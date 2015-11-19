@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.not;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -24,7 +23,6 @@ public class CollectionsPlaylistOptionsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.COLLECTIONS);
         super.setUp();
     }
 
