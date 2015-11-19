@@ -10,10 +10,6 @@ import java.util.List;
 import java.util.Locale;
 
 public enum ApiEndpoints {
-    // onboarding
-    SUGGESTED_USER_CATEGORIES("/suggestions/users/categories"),
-    SUGGESTED_USER_FACEBOOK_CATEGORIES("/suggestions/users/social/facebook"),
-
     // explore
     EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/popular/music"),
     EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/popular/audio"),
