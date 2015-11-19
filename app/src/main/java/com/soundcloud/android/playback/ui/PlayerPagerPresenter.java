@@ -62,8 +62,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private final PlaySessionStateProvider playSessionStateProvider;
     private final TrackRepository trackRepository;
     private final TrackPagePresenter trackPagePresenter;
-    private final AdPagePresenter adPagePresenter;
-    private final VideoPagePresenter videoPagePresenter;
+    private final AudioAdPresenter audioAdPresenter;
+    private final VideoAdPresenter videoAdPresenter;
     private final CastConnectionHelper castConnectionHelper;
     private final EventBus eventBus;
     private final StationsOperations stationsOperations;
@@ -114,16 +114,16 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
                          PlaySessionStateProvider playSessionStateProvider,
                          TrackRepository trackRepository,
                          StationsOperations stationsOperations, TrackPagePresenter trackPagePresenter,
-                         AdPagePresenter adPagePresenter,
-                         VideoPagePresenter videoPagePresenter,
+                         AudioAdPresenter audioAdPresenter,
+                         VideoAdPresenter videoAdPresenter,
                          CastConnectionHelper castConnectionHelper,
                          EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionStateProvider = playSessionStateProvider;
-        this.adPagePresenter = adPagePresenter;
-        this.videoPagePresenter = videoPagePresenter;
+        this.audioAdPresenter = audioAdPresenter;
+        this.videoAdPresenter = videoAdPresenter;
         this.castConnectionHelper = castConnectionHelper;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
@@ -323,7 +323,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     private PlayerPagePresenter pagePresenter(PlayerPageData playerPageData) {
         if (playerPageData.isAdPage()) {
-            return playerPageData.isTrackPage() ? adPagePresenter : videoPagePresenter;
+            return playerPageData.isTrackPage() ? audioAdPresenter : videoAdPresenter;
         } else {
             return trackPagePresenter;
         }
@@ -579,10 +579,10 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             View view;
             switch (getItemViewType(position)) {
                 case TYPE_AUDIO_AD_VIEW:
-                    view = instantiateAdView(adPagePresenter, container, position);
+                    view = instantiateAdView(audioAdPresenter, container, position);
                     break;
                 case TYPE_VIDEO_AD_VIEW:
-                    view = instantiateAdView(videoPagePresenter, container, position);
+                    view = instantiateAdView(videoAdPresenter, container, position);
                     break;
                 default:
                     view = instantiateTrackView(position);

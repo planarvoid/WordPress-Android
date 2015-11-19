@@ -13,13 +13,13 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-class VideoPagePresenter implements PlayerPagePresenter<PlayerAd> {
+class VideoAdPresenter implements PlayerPagePresenter<PlayerAd> {
 
     private final Resources resources;
     private final Context context;
 
     @Inject
-    public VideoPagePresenter(Resources resources, Context context) {
+    public VideoAdPresenter(Resources resources, Context context) {
         this.resources = resources;
         this.context = context;
     }

@@ -36,9 +36,9 @@ import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 
-public class AdPagePresenterTest extends AndroidUnitTest {
+public class AudioAdPresenterTest extends AndroidUnitTest {
 
-    private AdPagePresenter presenter;
+    private AudioAdPresenter presenter;
     private View adView;
 
     @Mock private ImageOperations imageOperations;
@@ -52,7 +52,7 @@ public class AdPagePresenterTest extends AndroidUnitTest {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.<Bitmap>empty());
 
-        presenter = new AdPagePresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener, context());
+        presenter = new AudioAdPresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener, context());
         adView = presenter.createItemView(new FrameLayout(context()), skipListener);
         presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
     }

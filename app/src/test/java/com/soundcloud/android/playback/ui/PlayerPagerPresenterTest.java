@@ -69,8 +69,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private TrackRepository trackRepository;
     @Mock private TrackPagePresenter trackPagePresenter;
-    @Mock private AdPagePresenter adPagePresenter;
-    @Mock private VideoPagePresenter videoPagePresenter;
+    @Mock private AudioAdPresenter audioAdPresenter;
+    @Mock private VideoAdPresenter videoAdPresenter;
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private StationsOperations stationsOperations;
 
@@ -106,8 +106,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
 
         when(trackPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(view1, view2, view3, view4, view5, view6);
-        when(adPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(audioAdView);
-        when(videoPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(videoAdView);
+        when(audioAdPresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(audioAdView);
+        when(videoAdPresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(videoAdView);
 
         eventBus = new TestEventBus();
         presenter = new PlayerPagerPresenter(playQueueManager,
@@ -115,8 +115,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                 trackRepository,
                 stationsOperations,
                 trackPagePresenter,
-                adPagePresenter,
-                videoPagePresenter,
+                audioAdPresenter,
+                videoAdPresenter,
                 castConnectionHelper,
                 eventBus
         );
@@ -396,7 +396,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         setupAudioAd();
         getAudioAdPageView();
 
-        verify(adPagePresenter).createItemView(any(ViewGroup.class), any(SkipListener.class));
+        verify(audioAdPresenter).createItemView(any(ViewGroup.class), any(SkipListener.class));
     }
 
     @Test
@@ -405,7 +405,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         setupVideoAd();
         getVideoAdPageView();
 
-        verify(videoPagePresenter).createItemView(any(ViewGroup.class), any(SkipListener.class));
+        verify(videoAdPresenter).createItemView(any(ViewGroup.class), any(SkipListener.class));
     }
 
     @Test
@@ -415,7 +415,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         View pageView = getAudioAdPageView();
         ArgumentCaptor<PlayerAd> captorPropertySet = ArgumentCaptor.forClass(PlayerAd.class);
 
-        verify(adPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
+        verify(audioAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
 
         assertThat(captorPropertySet.getValue().getArtwork()).isNotNull();
         assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
@@ -429,7 +429,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         View pageView = getVideoAdPageView();
         ArgumentCaptor<PlayerAd> captorPropertySet = ArgumentCaptor.forClass(PlayerAd.class);
 
-        verify(videoPagePresenter).bindItemView(eq(pageView), captorPropertySet.capture());
+        verify(videoAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
 
         assertThat(captorPropertySet.getValue().getArtwork()).isNotNull();
         assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
@@ -461,13 +461,13 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         when(playSessionStateProvider.getLastProgressForTrack(TRACK1_URN)).thenReturn(firstProgress);
         when(playSessionStateProvider.hasLastKnownProgress(TRACK2_URN)).thenReturn(true);
         when(playSessionStateProvider.getLastProgressForTrack(TRACK2_URN)).thenReturn(secondProgress);
-        Mockito.reset(adPagePresenter); // progress gets set on initial bind, which we are not testing
+        Mockito.reset(audioAdPresenter); // progress gets set on initial bind, which we are not testing
 
         presenter.onTrackChange();
 
         verify(trackPagePresenter).setProgress(firstTrack, firstProgress);
         verify(trackPagePresenter).setProgress(secondTrack, secondProgress);
-        verify(adPagePresenter, never()).setProgress(any(View.class), any(PlaybackProgress.class));
+        verify(audioAdPresenter, never()).setProgress(any(View.class), any(PlaybackProgress.class));
     }
 
     @Test
@@ -480,7 +480,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         setupAudioAd();
         final View pageView = getAudioAdPageView();
         presenter.onPlayerSlide(0.5f);
-        verify(adPagePresenter).onPlayerSlide(pageView, 0.5f);
+        verify(audioAdPresenter).onPlayerSlide(pageView, 0.5f);
     }
 
     @Test

@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickListener {
+class AudioAdPresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickListener {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -43,8 +43,8 @@ class AdPagePresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickList
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
-    public AdPagePresenter(ImageOperations imageOperations, Resources resources,
-                           PlayerOverlayController.Factory playerOverlayControllerFactory, AdPageListener listener, Context context) {
+    public AudioAdPresenter(ImageOperations imageOperations, Resources resources,
+                            PlayerOverlayController.Factory playerOverlayControllerFactory, AdPageListener listener, Context context) {
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
