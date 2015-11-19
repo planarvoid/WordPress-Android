@@ -2,23 +2,17 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
-import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
@@ -31,9 +25,8 @@ import android.widget.ToggleButton;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-class AudioAdPresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickListener {
+class AudioAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -50,34 +43,6 @@ class AudioAdPresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickLis
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.listener = listener;
         this.context = context;
-    }
-
-    @Override
-    public View createItemView(ViewGroup container, SkipListener skipListener) {
-        final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_page, container, false);
-        final Holder holder = new Holder(adView, playerOverlayControllerFactory);
-        adView.setTag(holder);
-        resetSkip(holder);
-        return adView;
-    }
-
-    @Override
-    public View clearItemView(View convertView) {
-        final Holder holder = getViewHolder(convertView);
-        holder.footerAdTitle.setText(ScTextUtils.EMPTY_STRING);
-        holder.previewTitle.setText(ScTextUtils.EMPTY_STRING);
-        resetAdImageLayouts(holder);
-        resetSkip(holder);
-        return convertView;
-    }
-
-    @Override
-    public void bindItemView(View view, PlayerAd playerAd) {
-        final Holder holder = getViewHolder(view);
-        displayAdvertisement(playerAd, holder);
-        displayPreview(playerAd, holder);
-        styleCallToActionButton(holder, playerAd);
-        setClickListener(this, holder.onClickViews);
     }
 
     @Override
@@ -119,15 +84,36 @@ class AudioAdPresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickLis
     }
 
     @Override
-    public void setProgress(View adView, PlaybackProgress progress) {
-        final int secondsUntilSkip = AdConstants.UNSKIPPABLE_TIME_SECS - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
-        final boolean canSkip = secondsUntilSkip <= 0;
+    public View createItemView(ViewGroup container, SkipListener skipListener) {
+        final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_page, container, false);
+        final Holder holder = new Holder(adView, playerOverlayControllerFactory);
+        adView.setTag(holder);
+        resetSkipButton(holder, resources);
+        return adView;
+    }
 
-        final Holder viewHolder = getViewHolder(adView);
-        toggleSkip(viewHolder, canSkip);
-        if (!canSkip) {
-            updateCountDown(viewHolder, secondsUntilSkip);
-        }
+    @Override
+    public View clearItemView(View convertView) {
+        final Holder holder = getViewHolder(convertView);
+        holder.footerAdTitle.setText(ScTextUtils.EMPTY_STRING);
+        holder.previewTitle.setText(ScTextUtils.EMPTY_STRING);
+        resetAdImageLayouts(holder);
+        resetSkipButton(holder, resources);
+        return convertView;
+    }
+
+    @Override
+    public void bindItemView(View view, PlayerAd playerAd) {
+        final Holder holder = getViewHolder(view);
+        displayAdvertisement(playerAd, holder);
+        displayPreview(playerAd, holder, imageOperations, resources);
+        styleCallToActionButton(holder, playerAd, resources);
+        setClickListener(this, holder.onClickViews);
+    }
+
+    @Override
+    public void setProgress(View adView, PlaybackProgress progress) {
+        updateSkipStatus(getViewHolder(adView), progress, resources);
     }
 
     @Override
@@ -137,26 +123,6 @@ class AudioAdPresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickLis
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
         holder.footerPlayToggle.setChecked(playSessionIsActive);
         holder.playerOverlayController.setPlayState(stateTransition);
-    }
-
-    @Override
-    public void onPlayableUpdated(View trackPage, EntityStateChangedEvent trackChangedEvent) {
-        // no-op
-    }
-
-    @Override
-    public void onBackground(View trackPage) {
-        // no-op
-    }
-
-    @Override
-    public void onForeground(View trackPage) {
-        // no-op
-    }
-
-    @Override
-    public void onDestroyView(View trackPage) {
-        // no-op with no animations
     }
 
     @Override
@@ -177,41 +143,6 @@ class AudioAdPresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickLis
         holder.whyAds.setEnabled(slideOffset > 0);
     }
 
-    @Override
-    public void clearAdOverlay(View trackPage) {
-        // no-op
-    }
-
-    @Override
-    public void setCastDeviceName(View trackPage, String deviceName) {
-        // no-op
-    }
-
-    private void styleCallToActionButton(Holder holder, PlayerAd playerAd) {
-        holder.ctaButton.setText(playerAd.getCallToActionButtonText(resources));
-        holder.ctaButton.setTextColor(getColorStates(
-                playerAd.getFocusedTextColor(),
-                playerAd.getPressedTextColor(),
-                playerAd.getDefaultTextColor()
-        ));
-        holder.ctaButton.setBackground(getColorStates(
-                playerAd.getFocusedBackgroundColor(),
-                playerAd.getPressedBackgroundColor(),
-                playerAd.getDefaultBackgroundColor()
-        ));
-    }
-
-    private ColorStateList getColorStates(int focusedColor, int pressedColor, int defaultColor) {
-        return new ColorStateList(new int[][]{
-                new int[]{android.R.attr.state_focused},
-                new int[]{android.R.attr.state_pressed},
-                new int[]{},
-        }, new int[]{
-                focusedColor,
-                pressedColor,
-                defaultColor});
-    }
-
     private void resetAdImageLayouts(Holder holder) {
         holder.centeredAdArtworkView.setImageDrawable(null);
         holder.fullbleedAdArtworkView.setImageDrawable(null);
@@ -224,7 +155,6 @@ class AudioAdPresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickLis
     private void displayAdvertisement(PlayerAd playerAd, Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.ads_advertisement));
         holder.footerAdTitle.setText(playerAd.getAdTitle());
-
         holder.adImageSubscription = imageOperations.adImage(playerAd.getArtwork()).subscribe(getAdImageSubscriber(holder));
     }
 
@@ -255,91 +185,26 @@ class AudioAdPresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickLis
                 height <= AdConstants.IAB_UNIVERSAL_MED_HEIGHT * AdConstants.IAB_UNIVERSAL_MED_MAX_SCALE;
     }
 
-    private void displayPreview(PlayerAd playerAd, Holder holder) {
-        holder.previewTitle.setText(playerAd.getPreviewTitle(holder.previewTitle.getResources()));
-        imageOperations.displayWithPlaceholder(playerAd.getMonetizableTrack(), getOptimizedImageSize(), holder.previewArtwork);
-    }
-
-    private ApiImageSize getOptimizedImageSize() {
-        return ApiImageSize.getListItemImageSize(context);
-    }
-
-    private void resetSkip(Holder holder) {
-        updateCountDown(holder, AdConstants.UNSKIPPABLE_TIME_SECS);
-        toggleSkip(holder, false);
-    }
-
-    private void toggleSkip(Holder holder, boolean canSkip) {
-        holder.skipAd.setVisibility(canSkip ? View.VISIBLE : View.GONE);
-        holder.timeUntilSkip.setVisibility(canSkip ? View.GONE : View.VISIBLE);
-        holder.previewArtworkOverlay.setVisibility(canSkip ? View.GONE : View.VISIBLE);
-        setEnabled(canSkip, holder.skipDisableViews);
-    }
-
-    private void updateCountDown(Holder viewHolder, int secondsUntilSkip) {
-        String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
-        viewHolder.timeUntilSkip.setText(resources.getString(R.string.ads_skip_in_time, formattedTime));
-    }
-
-    private void setClickListener(View.OnClickListener listener, Iterable<View> views) {
-        for (View v : views) {
-            v.setOnClickListener(listener);
-        }
-    }
-
-    private void setEnabled(boolean enabled, Iterable<View> views) {
-        for (View v : views) {
-            v.setEnabled(enabled);
-        }
-    }
-
-    private void setVisibility(boolean visible, Iterable<View> views) {
-        for (View v : views) {
-            v.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
-        }
-    }
-
     private Holder getViewHolder(View trackView) {
         return (Holder) trackView.getTag();
     }
 
-    static class Holder {
-        // Expanded player
+    static class Holder extends AdHolder {
         private final ImageView fullbleedAdArtworkView;
         private final ImageView centeredAdArtworkView;
         private final View centeredAdOverlay;
         private final View artworkIdleOverlay;
 
-        private final View previewArtworkOverlay;
-        private final View playButton;
-        private final View nextButton;
-        private final View previousButton;
         private final ToggleButton footerPlayToggle;
         private final View close;
-        private final TextView previewTitle;
-        private final TextView timeUntilSkip;
-        private final View skipAd;
-        private final View previewContainer;
-        private final RoundedColorButton ctaButton;
-        private final View whyAds;
-        private final View playControlsHolder;
 
-        // Footer player
         private final View footer;
         private final TextView footerAdTitle;
         private final TextView footerAdvertisement;
-        private final ImageView previewArtwork;
+
         private final PlayerOverlayController playerOverlayController;
 
-        private final Predicate<View> presentInConfig = new Predicate<View>() {
-            @Override
-            public boolean apply(@Nullable View v) {
-                return v != null;
-            }
-        };
-
         // View sets
-        Iterable<View> skipDisableViews;
         Iterable<View> onClickViews;
         Iterable<View> centeredAdViews;
         Iterable<View> fullbleedAdViews;
@@ -347,25 +212,14 @@ class AudioAdPresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickLis
         private Subscription adImageSubscription = RxUtils.invalidSubscription();
 
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
+            super(adView);
             fullbleedAdArtworkView = (ImageView) adView.findViewById(R.id.fullbleed_ad_artwork);
             centeredAdArtworkView = (ImageView) adView.findViewById(R.id.centered_ad_artwork);
             centeredAdOverlay = adView.findViewById(R.id.centered_ad_overlay);
             artworkIdleOverlay = adView.findViewById(R.id.artwork_overlay);
 
-            previewArtworkOverlay = adView.findViewById(R.id.preview_artwork_overlay);
-            playButton = adView.findViewById(R.id.player_play);
-            nextButton = adView.findViewById(R.id.player_next);
-            previousButton = adView.findViewById(R.id.player_previous);
             footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
             close = adView.findViewById(R.id.player_close);
-            previewTitle = (TextView) adView.findViewById(R.id.preview_title);
-            previewArtwork = ((ImageView) adView.findViewById(R.id.preview_artwork));
-            timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
-            skipAd = adView.findViewById(R.id.skip_ad);
-            previewContainer = adView.findViewById(R.id.preview_container);
-            ctaButton = (RoundedColorButton) adView.findViewById(R.id.cta_button);
-            whyAds = adView.findViewById(R.id.why_ads);
-            playControlsHolder = adView.findViewById(R.id.play_controls);
 
             footer = adView.findViewById(R.id.footer_controls);
             footerAdTitle = (TextView) adView.findViewById(R.id.footer_title);
@@ -379,13 +233,11 @@ class AudioAdPresenter implements PlayerPagePresenter<PlayerAd>, View.OnClickLis
         private void populateViewSets() {
             List<View> centeredLayoutViews = Arrays.asList(centeredAdOverlay, centeredAdArtworkView);
             List<View> fullbleedLayoutViews = Arrays.asList(fullbleedAdArtworkView, ctaButton);
-            List<View> disableViews = Arrays.asList(previousButton, nextButton);
             List<View> clickViews = Arrays.asList(centeredAdArtworkView, fullbleedAdArtworkView, centeredAdOverlay,
                     artworkIdleOverlay, playButton, nextButton, previousButton, ctaButton, whyAds, skipAd, previewContainer,
                     footerPlayToggle, close, footer);
 
 
-            skipDisableViews = Iterables.filter(disableViews, presentInConfig);
             onClickViews = Iterables.filter(clickViews, presentInConfig);
             centeredAdViews = Iterables.filter(centeredLayoutViews, presentInConfig);
             fullbleedAdViews = Iterables.filter(fullbleedLayoutViews, presentInConfig);
