@@ -17,7 +17,7 @@ import javax.inject.Inject;
  */
 public class NetworkConnectivityListener {
 
-    private static final String TAG = "NetworkConnectivityListener";
+    private static final String TAG = "NetworkListener";
 
     private final Context context;
     private final ConnectivityBroadcastReceiver receiver;
