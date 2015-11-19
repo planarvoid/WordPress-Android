@@ -66,7 +66,7 @@
 
     <style name="Stream.PrimaryHeaderText" parent="ListItemText.PrimaryText">
         <item name="android:layout_marginLeft">4dp</item>
-        <item name="android:singleLine">true</item>
+        <item name="android:maxLines">1</item>
         <item name="android:lineSpacingMultiplier">1.0</item>
     </style>
 
@@ -85,7 +85,7 @@
         <item name="android:paddingBottom">20dp</item>
         <item name="android:layout_centerVertical">true</item>
         <item name="android:drawablePadding">8dp</item>
-        <item name="android:singleLine">true</item>
+        <item name="android:maxLines">1</item>
     </style>
 
     <style name="Stream.ToggleButton" parent="ListItemText">

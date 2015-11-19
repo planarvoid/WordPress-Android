@@ -6,6 +6,7 @@ import butterknife.OnClick;
 import com.soundcloud.android.R;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.SpannableString;
 import android.view.View;
 import android.widget.ImageView;
@@ -34,13 +35,13 @@ public class StreamItemViewHolder {
     @Bind(R.id.now_playing) View nowPlaying;
     @Bind(R.id.overflow_button) View overflowButton;
 
-    private ToggleButton repostButton;
+    @Nullable @Bind(R.id.toggle_repost) ToggleButton repostButton;
+
     private OverflowListener overflowListener;
     private CardEngagementClickListener clickListener;
 
     public StreamItemViewHolder(View view) {
         ButterKnife.bind(this, view);
-        repostButton = (ToggleButton) view.findViewById(R.id.toggle_repost);
     }
 
     @OnClick(R.id.toggle_like)
@@ -50,6 +51,8 @@ public class StreamItemViewHolder {
         }
     }
 
+    // yes this @nullable annotation here is required
+    @Nullable @OnClick(R.id.toggle_repost)
     public void repost() {
         if (clickListener != null) {
             clickListener.onRepostClick(repostButton);
@@ -148,12 +151,6 @@ public class StreamItemViewHolder {
             repostButton.setTextOff(repostsCount);
             repostButton.setChecked(isUserReposted);
             repostButton.setVisibility(View.VISIBLE);
-            repostButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    repost();
-                }
-            });
         }
     }
 
