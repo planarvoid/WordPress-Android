@@ -82,7 +82,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     private String searchQuery;
     private Boolean publishSearchSubmissionEvent;
     private SearchOperations.SearchPagingFunction pagingFunction;
-    private CompositeSubscription viewLifeCycle;
+    private CompositeSubscription fragmentLifeCycle;
 
     @Inject
     SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher, SearchOperations searchOperations,
@@ -99,22 +99,21 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
+        fragmentLifeCycle = new CompositeSubscription(
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new LegacyUpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)));
     }
 
     @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new LegacyUpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
-                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)));
-
         new EmptyViewBuilder().configureForSearch(getEmptyView());
     }
 
     @Override
-    public void onDestroyView(Fragment fragment) {
-        viewLifeCycle.unsubscribe();
-        super.onDestroyView(fragment);
+    public void onDestroy(Fragment fragment) {
+        fragmentLifeCycle.unsubscribe();
+        super.onDestroy(fragment);
     }
 
     @Override

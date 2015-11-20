@@ -228,10 +228,10 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void unsubscribesFromEventBusOnDestroyView() {
+    public void unsubscribesFromEventBusOnDestroy() {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-        presenter.onDestroyView(fragmentRule.getFragment());
+        presenter.onDestroy(fragmentRule.getFragment());
 
         eventBus.verifyUnsubscribed();
     }

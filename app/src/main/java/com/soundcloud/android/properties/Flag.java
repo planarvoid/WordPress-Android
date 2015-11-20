@@ -10,7 +10,6 @@ public enum Flag {
     TEST_FEATURE(true),
     PAYMENTS_TEST(BuildConfig.FEATURE_PAYMENTS_TEST),
     OFFLINE_SYNC(BuildConfig.FEATURE_OFFLINE_SYNC),
-    FOLLOW_USER_SEARCH(BuildConfig.FEATURE_FOLLOW_USER_SEARCH),
     PLAY_RELATED_TRACKS(BuildConfig.FEATURE_PLAY_RELATED_TRACKS && !BuildConfig.FEATURE_STATIONS_SOFT_LAUNCH),
     // When removing this feature flag, make sure the ci does not exclude tests annotated with @StationsTest
     STATIONS_SOFT_LAUNCH(BuildConfig.FEATURE_STATIONS_SOFT_LAUNCH),
