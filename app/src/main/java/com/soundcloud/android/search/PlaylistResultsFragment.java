@@ -36,7 +36,7 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment implement
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+        return inflater.inflate(R.layout.recyclerview_with_refresh_and_page_bg, container, false);
     }
 
     @Override

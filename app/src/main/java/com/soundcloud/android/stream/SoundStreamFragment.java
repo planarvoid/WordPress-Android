@@ -48,6 +48,6 @@ public class SoundStreamFragment extends LightCycleSupportFragment implements Re
 
     private int getLayoutResource() {
         return experiment.isCardDesign()
-                ? R.layout.stream_recyclerview_with_refresh : R.layout.default_recyclerview_with_refresh;
+                ? R.layout.recyclerview_with_refresh_and_page_bg : R.layout.default_recyclerview_with_refresh;
     }
 }

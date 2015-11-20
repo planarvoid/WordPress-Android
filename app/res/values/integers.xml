@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="grid_view_num_columns">1</integer>
+
     <integer name="waveform_ratio_top">2</integer>
     <integer name="waveform_ratio_bottom">1</integer>
     <integer name="timestamp_animate_percentage">50</integer>
@@ -15,6 +15,7 @@
     <integer name="collection_grid_span_count">2</integer>
     <integer name="collection_preview_thumbnail_count">3</integer>
 
-    <!-- Stream -->
-    <integer name="stream_grid_columns">1</integer>
+    <!-- Grids -->
+    <integer name="grids_num_columns">1</integer>
+
 </resources>
