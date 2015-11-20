@@ -314,7 +314,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     private void updateLikeStatus(View likeToggle) {
         final Urn trackUrn = (Urn) likeToggle.getTag();
-        listener.onToggleLike(isLiked(likeToggle), trackUrn);
+
+        if (trackUrn != null) {
+            listener.onToggleLike(isLiked(likeToggle), trackUrn);
+        }
     }
 
     private void revealShareButton(View shareButton) {
