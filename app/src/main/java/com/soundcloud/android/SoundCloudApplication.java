@@ -29,6 +29,7 @@ import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackServiceModule;
+import com.soundcloud.android.playback.StreamPreloader;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
@@ -40,6 +41,7 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.stations.StationsController;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
@@ -66,6 +68,8 @@ import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.File;
 
 public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
@@ -109,6 +113,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
     @Inject EncryptionTester encryptionTester;
     @Inject AppboyPlaySessionState appboyPlaySessionState;
+    @Inject StreamPreloader streamPreloader;
+    @Inject @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -156,7 +162,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         uncaughtExceptionHandlerController.reportSystemMemoryStats();
 
-        IOUtils.createCacheDirs();
+        IOUtils.createCacheDirs(streamCacheDirectory);
 
         analyticsEngine.onAppCreated(this);
 
@@ -190,6 +196,10 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         if (featureFlags.isEnabled(Flag.DAILY_POLICY_UPDATES)) {
             dailyUpdateScheduler.schedule();
+        }
+
+        if (featureFlags.isEnabled(Flag.PRELOAD_NEXT_TRACK)) {
+            streamPreloader.subscribe();
         }
 
         configurationFeatureController.subscribe();

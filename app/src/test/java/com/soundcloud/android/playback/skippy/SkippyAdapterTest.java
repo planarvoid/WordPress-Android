@@ -69,6 +69,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     private static final long DURATION = 1000L;
 
     @Mock private Skippy skippy;
+    @Mock private Skippy skippyPreloader;
     @Mock private SkippyFactory skippyFactory;
     @Mock private Player.PlayerListener listener;
     @Mock private AccountOperations accountOperations;
@@ -78,6 +79,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Mock private Message message;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private Skippy.Configuration configuration;
+    @Mock private Skippy.Configuration preloadConfiguration;
     @Mock private LockUtil lockUtil;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Mock private SharedPreferences sharedPreferences;
@@ -95,6 +97,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     public void setUp() {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
+        when(skippyFactory.create()).thenReturn(skippyPreloader);
         dateProvider = new TestDateProvider();
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, apiUrlBuilder,
                 stateChangeHandler, eventBus, connectionHelper, lockUtil, bufferUnderrunListener, sharedPreferences,
@@ -114,15 +117,29 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         when(apiUrlBuilder.from(ApiEndpoints.HLS_STREAM, trackUrn)).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, "access")).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.build()).thenReturn(STREAM_URL);
+
+        when(skippyFactory.createConfiguration()).thenReturn(configuration);
+        when(skippyFactory.createPreloaderConfiguration()).thenReturn(preloadConfiguration);
     }
 
     @Test
      public void initInitializesWithContextAndFactoryConfiguration() {
-        when(skippyFactory.createConfiguration()).thenReturn(configuration);
         skippyAdapter.init(context());
         verify(skippy).init(context(), configuration);
     }
 
+    @Test
+     public void initInitializesPreloaderWithContextAndFactoryConfiguration() {
+        when(skippy.init(context(), configuration)).thenReturn(true);
+        skippyAdapter.init(context());
+        verify(skippyPreloader).init(context(), preloadConfiguration);
+    }
+
+    @Test
+    public void preloadCallsCueOnSkippyPreloader() {
+        skippyAdapter.preload(trackUrn);
+        verify(skippyPreloader).cue(STREAM_URL, 0);
+    }
 
     @Test
     public void playDoesNotInteractWithSkippyIfNoListenerPresent() {
@@ -521,9 +538,33 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void initilizationSuccessPublishesSkippyInitSuccessEvent() {
-        when(skippyFactory.createConfiguration()).thenReturn(configuration);
+    public void initilizationSuccessWhenSkippyAndPreloadInitialize() {
         when(skippy.init(context(), configuration)).thenReturn(true);
+        when(skippyPreloader.init(context(), preloadConfiguration)).thenReturn(true);
+
+        assertThat(skippyAdapter.init(context())).isTrue();
+    }
+
+    @Test
+    public void initilizationErrorWhenSkippyFailsToinit() {
+        when(skippy.init(context(), configuration)).thenReturn(false);
+        when(skippyPreloader.init(context(), preloadConfiguration)).thenReturn(true);
+
+        assertThat(skippyAdapter.init(context())).isFalse();
+    }
+
+    @Test
+    public void initilizationErrorWhenSkippyPreloaderFailsToinit() {
+        when(skippy.init(context(), configuration)).thenReturn(true);
+        when(skippyPreloader.init(context(), preloadConfiguration)).thenReturn(false);
+
+        assertThat(skippyAdapter.init(context())).isFalse();
+    }
+
+    @Test
+    public void initilizationSuccessPublishesSkippyInitSuccessEvent() {
+        when(skippy.init(context(), configuration)).thenReturn(true);
+        when(skippyPreloader.init(context(), preloadConfiguration)).thenReturn(true);
         skippyAdapter.init(context());
 
         final SkippyInitilizationSucceededEvent event = (SkippyInitilizationSucceededEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -536,6 +577,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     public void initilizationSuccessIncrementsSuccessCount() {
         when(skippyFactory.createConfiguration()).thenReturn(configuration);
         when(skippy.init(context(), configuration)).thenReturn(true);
+        when(skippyPreloader.init(context(), preloadConfiguration)).thenReturn(true);
         skippyAdapter.init(context());
         verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_SUCCESS_COUNT_KEY, 1);
         verify(sharedPreferencesEditor).apply();

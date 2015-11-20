@@ -6,6 +6,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 
+import java.util.EnumSet;
+
 public enum ConnectionType {
     TWO_G("2g"),
     THREE_G("3g"),
@@ -13,6 +15,11 @@ public enum ConnectionType {
     WIFI("wifi"),
     OFFLINE("offline"),
     UNKNOWN("unknown");
+
+    private static final EnumSet<ConnectionType> MOBILE =
+            EnumSet.of(TWO_G, THREE_G, FOUR_G);
+
+
     private final String value;
 
     ConnectionType(String value) {
@@ -44,6 +51,10 @@ public enum ConnectionType {
                 return ConnectionType.UNKNOWN;
 
         }
+    }
+
+    public Boolean isMobile() {
+        return MOBILE.contains(this);
     }
 
     /**

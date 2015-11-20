@@ -18,6 +18,7 @@ def FEATURE_NEW_STREAM = "FEATURE_NEW_STREAM"
 def FEATURE_NEW_ENGAGEMENTS_TRACKING = "FEATURE_NEW_ENGAGEMENTS_TRACKING"
 def FEATURE_ACTIVITIES_REFACTOR = "FEATURE_ACTIVITIES_REFACTOR"
 def FEATURE_VIDEO_ADS = "FEATURE_VIDEO_ADS"
+def FEATURE_PRELOAD_NEXT_TRACK = "FEATURE_PRELOAD_NEXT_TRACK"
 
 /**
  * Discovery is a group of subfeatures which includes:
@@ -47,6 +48,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
+      buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -68,6 +70,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
+      buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -93,6 +96,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
+      buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -111,6 +115,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
@@ -132,6 +137,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -155,6 +161,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -178,6 +185,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE

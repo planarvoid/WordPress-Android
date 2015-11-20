@@ -1,10 +1,8 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.playback.PlaybackType.DEFAULT;
-import static com.soundcloud.android.playback.PlaybackType.OFFLINE;
-import static com.soundcloud.android.playback.PlaybackType.UNINTERRUPTED;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Player.PlayerListener;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
@@ -97,6 +95,10 @@ class StreamPlayer implements PlayerListener {
                 currentPlayer.playUninterrupted(playbackItem.getTrackUrn());
                 break;
         }
+    }
+
+    public void preload(Urn urn) {
+        skippyPlayerDelegate.preload(urn);
     }
 
     private void prepareForPlay(PlaybackItem playbackItem) {

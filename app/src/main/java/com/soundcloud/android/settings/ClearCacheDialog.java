@@ -4,6 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.StreamCacheConfig;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -33,6 +34,7 @@ public class ClearCacheDialog extends DialogFragment {
     @Inject Context appContext;
     @Inject ImageOperations imageOperations;
     @Inject WaveformOperations waveformOperations;
+    @Inject StreamCacheConfig streamCacheConfig;
 
     public static void show(FragmentManager fragmentManager) {
         new ClearCacheDialog().show(fragmentManager, TAG);
@@ -64,7 +66,7 @@ public class ClearCacheDialog extends DialogFragment {
             public void call(Subscriber<? super Void> subscriber) {
                 waveformOperations.clearWaveforms();
                 imageOperations.clearDiskCache();
-                IOUtils.cleanDirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY);
+                IOUtils.cleanDirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, streamCacheConfig.getStreamCacheDirectory());
                 subscriber.onCompleted();
             }
         });

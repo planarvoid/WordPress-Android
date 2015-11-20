@@ -70,6 +70,15 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void preloadCallsPreloadOnSkippy() {
+        instantiateStreamPlaya();
+
+        streamPlayerWrapper.preload(trackUrn);
+
+        verify(skippyAdapter).preload(trackUrn);
+    }
+
+    @Test
     public void playCallsPlayOnSkippyByDefault() {
         instantiateStreamPlaya();
 

@@ -1,11 +1,11 @@
 package com.soundcloud.android.playback.skippy;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.crypto.CryptoOperations;
-import com.soundcloud.android.playback.CacheConfig;
+import com.soundcloud.android.playback.StreamCacheConfig;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
-import com.soundcloud.android.utils.TelphonyBasedCountryProvider;
+
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -15,19 +15,18 @@ public class SkippyFactory {
     private static final String KEY_PREFERENCE_NAME = "skippy_cache";
     private static final int PROGRESS_INTERVAL_MS = 500;
     private static final int BUFFER_DURATION_MS = (int) TimeUnit.SECONDS.toMillis(90);
+    private static final int PRELOADER_BUFFER_DURATION_MS = (int) TimeUnit.SECONDS.toMillis(10);
     private static final Skippy.CacheRestriction USE_CACHE_ALWAYS = Skippy.CacheRestriction.NONE;
-    private static final int CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE = 1;
 
     private final ApplicationProperties applicationProperties;
     private final CryptoOperations cryptoOperations;
-    private final TelphonyBasedCountryProvider countryProvider;
+    private final StreamCacheConfig cacheConfig;
 
     @Inject
-    SkippyFactory(CryptoOperations cryptoOperations, ApplicationProperties applicationProperties,
-                  TelphonyBasedCountryProvider countryProvider) {
+    SkippyFactory(CryptoOperations cryptoOperations, ApplicationProperties applicationProperties, StreamCacheConfig cacheConfig) {
         this.cryptoOperations = cryptoOperations;
         this.applicationProperties = applicationProperties;
-        this.countryProvider = countryProvider;
+        this.cacheConfig = cacheConfig;
     }
 
     public Skippy create() {
@@ -39,12 +38,21 @@ public class SkippyFactory {
     }
 
     public Skippy.Configuration createConfiguration() {
+        return getConfiguration(BUFFER_DURATION_MS);
+    }
+
+    public Skippy.Configuration createPreloaderConfiguration() {
+        return getConfiguration(PRELOADER_BUFFER_DURATION_MS);
+    }
+
+    @NonNull
+    private Skippy.Configuration getConfiguration(int bufferDurationMs) {
         return new Skippy.Configuration(
                 PROGRESS_INTERVAL_MS,
-                BUFFER_DURATION_MS,
-                CacheConfig.getCacheSize(countryProvider.getCountryCode()),
-                CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE,
-                Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY.getAbsolutePath(),
+                bufferDurationMs,
+                cacheConfig.getStreamCacheSize(),
+                cacheConfig.getStreamCacheMinFreeSpaceAvailablePercentage(),
+                cacheConfig.getStreamCacheDirectory().getAbsolutePath(),
                 cryptoOperations.getKeyOrGenerateAndStore(KEY_PREFERENCE_NAME),
                 !applicationProperties.isReleaseBuild(),
                 USE_CACHE_ALWAYS
