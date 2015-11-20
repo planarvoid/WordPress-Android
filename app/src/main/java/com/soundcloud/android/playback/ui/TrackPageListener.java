@@ -1,16 +1,17 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.EngagementsTracking;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -21,6 +22,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscriber;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 
@@ -44,7 +46,8 @@ class TrackPageListener extends PageListener {
         this.engagementsTracking = engagementsTracking;
     }
 
-    public void onToggleLike(final boolean addLike, final Urn trackUrn) {
+    public void onToggleLike(final boolean addLike, @NonNull final Urn trackUrn) {
+        checkNotNull(trackUrn);
         fireAndForget(likeOperations.toggleLike(trackUrn, addLike));
 
         engagementsTracking.likeTrackUrn(trackUrn,
