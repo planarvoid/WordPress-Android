@@ -16,7 +16,9 @@
         <item name="android:minHeight">@dimen/stream_header_min_height</item>
     </style>
 
-    <style name="Stream.Card.Footer" />
+    <style name="Stream.Card.Footer">
+        <item name="android:minHeight">56dp</item>
+    </style>
 
     <style name="Stream.Image" parent="GridItemImageView" />
 
@@ -81,8 +83,6 @@
 
     <style name="Stream.StatsItem" parent="ListItemText">
         <item name="android:layout_alignParentLeft">true</item>
-        <item name="android:paddingTop">20dp</item>
-        <item name="android:paddingBottom">20dp</item>
         <item name="android:layout_centerVertical">true</item>
         <item name="android:drawablePadding">8dp</item>
         <item name="android:maxLines">1</item>
@@ -103,8 +103,6 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:textColor">@color/ak_sc_orange</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:paddingTop">18dp</item>
-        <item name="android:paddingBottom">17dp</item>
         <item name="android:drawablePadding">2dp</item>
     </style>
 
