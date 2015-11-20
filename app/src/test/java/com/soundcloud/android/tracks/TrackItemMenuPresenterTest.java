@@ -3,6 +3,7 @@ package com.soundcloud.android.tracks;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,7 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -48,6 +50,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock PlaybackInitiator playbackInitiator;
     @Mock PlaybackToastHelper playbackToastHelper;
     @Mock FeatureFlags featureFlags;
+    @Mock StreamDesignExperiment streamExperiment;
     @Mock StartStationPresenter startStationPresenter;
     @Mock Context context;
     @Mock FragmentActivity activity;
@@ -73,10 +76,8 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("screen");
 
         presenter = new TrackItemMenuPresenter(popupMenuWrapperFactory, trackRepository, eventBus, context,
-                likeOperations, repostOperations, playlistOperations, screenProvider, playbackInitiator,
-                playbackToastHelper, featureFlags, shareOperations, dialogBuilder, startStationPresenter, accountOperations);
-
-        presenter.show(activity, view, trackItem, 0);
+                likeOperations, repostOperations, playlistOperations, screenProvider, playbackInitiator, playbackToastHelper,
+                featureFlags, streamExperiment, shareOperations, dialogBuilder, startStationPresenter, accountOperations);
     }
 
     @Test
@@ -85,6 +86,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(likeOperations.toggleLike(trackItem.getEntityUrn(), !trackItem.isLiked())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
+        presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
         assertThat(likeObservable.hasObservers()).isTrue();
@@ -96,6 +98,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(repostOperations.toggleRepost(trackItem.getEntityUrn(), !trackItem.isReposted())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
+        presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
         assertThat(repostObservable.hasObservers()).isTrue();
@@ -105,6 +108,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     public void clickingOnShareItemSharesTrack() {
         when(menuItem.getItemId()).thenReturn(R.id.share);
 
+        presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
         EventContextMetadata eventContextMetadata =
@@ -115,6 +119,26 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                         .isFromOverflow(true)
                         .build();
         verify(shareOperations).share(context, trackItem.getSource(), eventContextMetadata, null);
+    }
+
+    @Test
+    public void showsAdditionalEngagementOptionsWhenCardDesignIsEnabled() {
+        when(streamExperiment.isCardDesign()).thenReturn(true);
+
+        presenter.show(activity, view, trackItem, 0, OverflowMenuOptions.builder().showAllEngagements(true).build());
+
+        verify(popupMenuWrapper).setItemVisible(R.id.toggle_repost, true);
+        verify(popupMenuWrapper).setItemVisible(R.id.share, true);
+    }
+
+    @Test
+    public void hidesAdditionalEngagementOptionsWhenCardDesignIsDisabled() {
+        when(streamExperiment.isCardDesign()).thenReturn(false);
+
+        presenter.show(activity, view, trackItem, 0, OverflowMenuOptions.builder().showAllEngagements(true).build());
+
+        verify(popupMenuWrapper, never()).setItemVisible(R.id.toggle_repost, true);
+        verify(popupMenuWrapper, never()).setItemVisible(R.id.share, true);
     }
 
     private TrackItem createTrackItem() {

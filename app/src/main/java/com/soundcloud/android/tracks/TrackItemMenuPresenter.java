@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
@@ -60,6 +61,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private final PlaybackInitiator playbackInitiator;
     private final PlaybackToastHelper playbackToastHelper;
     private final FeatureFlags featureFlags;
+    private final StreamDesignExperiment streamExperiment;
     private final DelayedLoadingDialogPresenter.Builder dialogBuilder;
     private final StartStationPresenter startStationPresenter;
     private final AccountOperations accountOperations;
@@ -91,6 +93,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                            PlaybackInitiator playbackInitiator,
                            PlaybackToastHelper playbackToastHelper,
                            FeatureFlags featureFlags,
+                           StreamDesignExperiment streamExperiment,
                            ShareOperations shareOperations,
                            DelayedLoadingDialogPresenter.Builder dialogBuilder,
                            StartStationPresenter startStationPresenter, AccountOperations accountOperations) {
@@ -105,6 +108,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         this.playbackInitiator = playbackInitiator;
         this.playbackToastHelper = playbackToastHelper;
         this.featureFlags = featureFlags;
+        this.streamExperiment = streamExperiment;
         this.dialogBuilder = dialogBuilder;
         this.startStationPresenter = startStationPresenter;
         this.shareOperations = shareOperations;
@@ -156,7 +160,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     }
 
     private void configureAdditionalEngagementsOptions(PopupMenuWrapper menu) {
-        if (featureFlags.isEnabled(Flag.NEW_STREAM) && menuOptions.showAllEngagements()) {
+        if (streamExperiment.isCardDesign() && menuOptions.showAllEngagements()) {
             menu.setItemVisible(R.id.toggle_repost, canRepost(track));
             menu.setItemVisible(R.id.share, !track.isPrivate());
         }
