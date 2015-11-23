@@ -29,11 +29,8 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
         assertThat(overflowButton, is(not(visible())));
     }
 
-    @BrokenScrollingTest
     public void testDownloadIsUnavailableWhenTheyAccessPlaylists() throws Exception {
-        final ViewElement offlineItem = mainNavHelper.goToCollections()
-                .getPlaylists()
-                .get(0)
+        final ViewElement offlineItem = mainNavHelper.goToCollections().scrollToFirstPlaylist()
                 .clickOverflow()
                 .getMakeAvailableOfflineItem();
 

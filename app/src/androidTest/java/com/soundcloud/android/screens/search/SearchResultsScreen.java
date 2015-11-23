@@ -84,7 +84,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        resultsList().scrollToBottomOfPage();
+        resultsList().scrollToBottom();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
@@ -110,7 +110,6 @@ public class SearchResultsScreen extends Screen {
 
     public int getResultItemCount() {
         final RecyclerViewElement recyclerViewElement = resultsList();
-        waiter.waitForItemCountToIncrease(recyclerViewElement.getAdapter(), 0);
         return recyclerViewElement.getItemCount();
     }
 

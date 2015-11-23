@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.ViewFetcher;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
+import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.Tabs;
 
@@ -47,6 +48,11 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     @Override
+    public boolean isElementDisplayed(With matcher) {
+        return viewFetcher.isElementDisplayed(matcher);
+    }
+
+    @Override
     public void dragHorizontally(int n, int steps) {
         int[] xy = getLocation();
         testDriver.drag(Math.max(xy[0], 0),
@@ -71,13 +77,7 @@ public final class DefaultViewElement extends ViewElement {
         }
         Log.i("CLICKEVENT", String.format("View rect: %s", getRect().flattenToString()));
         Log.i("CLICKEVENT", String.format("Clicking at: %s", getClickPoint()));
-        if(isFullyVisible()) {
-            Log.i("CLICKEVENT", "View is fully visible");
-            testDriver.clickOnView(view);
-        } else {
-            Log.i("CLICKEVENT", "View is partially visible");
-            testDriver.clickOnScreen(getVisibleRect().exactCenterX(), getVisibleRect().exactCenterY()) ;
-        }
+        testDriver.clickOnScreen(getVisibleRect().exactCenterX(), getVisibleRect().exactCenterY()) ;
     }
 
     private String getClickPoint() {
@@ -98,6 +98,7 @@ public final class DefaultViewElement extends ViewElement {
     @Override
     public boolean isFullyVisible() {
         Rect viewRect = getRect();
+        Log.i("CLICKEVENT", String.format("View rect: %s", getRect().flattenToString()));
         return getVisibleRect().contains(viewRect.left, viewRect.top, viewRect.right, viewRect.bottom);
     }
 

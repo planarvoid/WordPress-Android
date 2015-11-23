@@ -1,5 +1,7 @@
 package com.soundcloud.android.screens.elements;
 
+import android.util.Log;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
@@ -8,24 +10,28 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 
-public class StreamCardElement extends Element {
+public class StreamCardElement {
 
-    private static final int CONTAINER = R.id.track_list_item;
     private final ViewElement wrapped;
+    private final Han testDriver;
 
     public StreamCardElement(Han testDriver, ViewElement wrapped) {
-        super(testDriver, With.id(CONTAINER));
+        this.testDriver = testDriver;
         this.wrapped = wrapped;
     }
 
     public ProfileScreen clickUserAvatar() {
         userAvatar().click();
-        return new ProfileScreen(solo);
+        return new ProfileScreen(testDriver);
     }
 
     public ProfileScreen clickArtistName() {
         artistName().click();
-        return new ProfileScreen(solo);
+        return new ProfileScreen(testDriver);
+    }
+
+    public boolean hasReposter() {
+        return wrapped.isElementDisplayed(With.id(R.id.reposter));
     }
 
     public boolean isReposted() {
@@ -38,12 +44,20 @@ public class StreamCardElement extends Element {
 
     public StreamScreen toggleRepost() {
         repostItem().click();
-        return new StreamScreen(solo);
+        return new StreamScreen(testDriver);
+    }
+
+    public boolean isTrack() {
+        return wrapped.getId() == R.id.track_list_item;
+    }
+
+    public boolean isPlaylist() {
+        return wrapped.getId() == R.id.playlist_list_item;
     }
 
     public StreamScreen toggleLike() {
         likeItem().click();
-        return new StreamScreen(solo);
+        return new StreamScreen(testDriver);
     }
 
     public String trackTitle() {
@@ -52,11 +66,11 @@ public class StreamCardElement extends Element {
 
     public TrackItemMenuElement clickOverflowButton() {
         overflowButton().click();
-        return new TrackItemMenuElement(solo);
+        return new TrackItemMenuElement(testDriver);
     }
 
     public boolean isPromotedTrack() {
-        return wrapped.findElement(With.id(R.id.promoted_item)).isVisible();
+        return wrapped.isElementDisplayed(With.id(R.id.promoted_item));
     }
 
     public boolean hasPromoter() {
@@ -65,13 +79,13 @@ public class StreamCardElement extends Element {
 
     public VisualPlayerElement click() {
         wrapped.click();
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(solo);
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
 
-    public int height(){
-        return wrapped.getHeight();
+    private ViewElement reposter() {
+        return wrapped.findElement(With.id(R.id.reposter));
     }
 
     private ViewElement repostItem() {

@@ -7,8 +7,10 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.screens.elements.CollectionsPlaylistOptionsDialogElement;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
+import com.soundcloud.android.screens.elements.StreamCardElement;
 
 import android.support.v7.widget.RecyclerView;
 
@@ -33,29 +35,31 @@ public class CollectionsScreen extends Screen {
         return new ViewAllStationsScreen(testDriver);
     }
 
+    public ViewElement scrollToPlaylistWithTitle(String title) {
+        return collectionsView().scrollToItem(new CollectionPlaylistWithTitleCriteria(testDriver, title));
+    }
+
     public String getFirstPlaylistTitle() {
-        return new TextElement(getFirstPlaylist().findElement(With.id(R.id.title))).getText();
+        return scrollToFirstPlaylist().getTitle();
     }
 
     public PlaylistDetailsScreen clickPlaylistWithTitle(String title) {
-        PlaylistDetailsScreen playlistDetailsScreen = new PlaylistItemElement(testDriver,
-                collectionsView().scrollToFullyVisibleItem(With.text(title))).click();
-        playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
-        return playlistDetailsScreen;
+        PlaylistItemElement view = new PlaylistItemElement(testDriver, scrollToPlaylistWithTitle(title));
+        return view.click();
     }
 
-    private ViewElement getFirstPlaylist() {
-        return collectionsView().scrollToFullyVisibleItem(With.id(R.id.collections_playlist_item));
+    public PlaylistItemElement scrollToFirstPlaylist() {
+        return new PlaylistItemElement(testDriver,collectionsView().scrollToItem(new CollectionPlaylistCriteria(testDriver)));
     }
 
     public List<PlaylistItemElement> getPlaylists() {
-        collectionsView().scrollToFullyVisibleItem(With.id(R.id.collections_playlist_item));
+        // Item 3 on collections is Playlists
+        collectionsView().scrollToItemAt(3);
         return getPlaylists(R.id.collections_playlist_item);
     }
 
     public PlaylistDetailsScreen clickOnFirstPlaylist() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        getFirstPlaylist().click();
+        scrollToFirstPlaylist().click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
@@ -65,7 +69,7 @@ public class CollectionsScreen extends Screen {
     }
 
     public void removeFilters() {
-        collectionsView().scrollToItem(With.id(R.id.btn_remove_filters)).click();
+//        collectionsView().scrollToItem(With.id(R.id.btn_remove_filters)).click();
     }
 
     public int getLoadedItemCount() {
@@ -92,5 +96,34 @@ public class CollectionsScreen extends Screen {
     @Override
     protected Class getActivity() {
         return ACTIVITY;
+    }
+
+
+    private class CollectionPlaylistCriteria implements RecyclerViewElement.Criteria {
+        private final Han testDriver;
+
+        public CollectionPlaylistCriteria(Han testDriver) {
+            this.testDriver = testDriver;
+        }
+
+        @Override
+        public boolean isSatisfied(ViewElement viewElement) {
+            return viewElement.getId() == R.id.collections_playlist_item;
+        }
+    }
+
+    private class CollectionPlaylistWithTitleCriteria implements RecyclerViewElement.Criteria {
+        private final Han testDriver;
+        private final String title;
+
+        public CollectionPlaylistWithTitleCriteria(Han testDriver, String title) {
+            this.testDriver = testDriver;
+            this.title = title;
+        }
+
+        @Override
+        public boolean isSatisfied(ViewElement viewElement) {
+            return viewElement.getId() == R.id.collections_playlist_item && new StreamCardElement(testDriver, viewElement).trackTitle().equals(title);
+        }
     }
 }

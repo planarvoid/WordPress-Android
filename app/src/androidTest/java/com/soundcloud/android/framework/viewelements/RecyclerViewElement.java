@@ -1,15 +1,15 @@
 package com.soundcloud.android.framework.viewelements;
 
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.elements.StreamCardElement;
+import com.soundcloud.android.utils.Log;
 
 import android.support.v7.widget.RecyclerView;
+
 import android.view.View;
 
-import java.util.List;
 
 public class RecyclerViewElement {
-    protected static final int MAX_SCROLLS_TO_FIND_ITEM = 20;
 
     protected final Han testDriver;
     private final RecyclerView recyclerView;
@@ -27,100 +27,62 @@ public class RecyclerViewElement {
         recyclerView = (RecyclerView) view;
     }
 
-    public int getItemCount() {
-        // Returns the total number of items in the data set hold by the adapter.
-        return getAdapter().getItemCount();
+    public ViewElement getItemAt(int position) {
+        int childCount = recyclerView.getChildCount();
+        for(int i = 0; i < childCount; i++) {
+            View view = recyclerView.getChildAt(i);
+            if(recyclerView.getChildAdapterPosition(view) == position) {
+                DefaultViewElement viewElement = new DefaultViewElement(view, testDriver);
+                if(viewElement.isFullyVisible()) {
+                    return viewElement;
+                }
+            }
+        }
+        return new EmptyViewElement("RecyclerView Item");
     }
 
-    public int getBoundItemCount() {
-        // Returns the number of items in the adapter bound to the parent RecyclerView.
-        return getLayoutManager().getChildCount();
-    }
-
-    public ViewElement getItemAt(int index) {
-        return new DefaultViewElement(recyclerView.getChildAt(index), testDriver);
-    }
-
-    public RecyclerViewElement scrollToPosition(int position){
+    public ViewElement scrollToItemAt(int position) {
         testDriver.scrollToPosition(recyclerView, position);
+        return getItemAt(position);
+    }
+
+    public ViewElement scrollToItem(Criteria criteria) {
+        int itemCount = getItemCount();
+        for(int i = 0; i < itemCount; i++) {
+            scrollToItemAt(i);
+            scrollViewToBeFullyVisible(i, itemCount);
+            if(criteria.isSatisfied(getItemAt(i))) {
+                return getItemAt(i);
+            }
+        }
+        return new EmptyViewElement("Item With Criteria not found");
+    }
+
+    private void scrollViewToBeFullyVisible(int position, int boundary) {
+        while(!getItemAt(position).isFullyVisible() && position < boundary) {
+            scrollToItemAt(position++);
+        }
+    }
+
+    public RecyclerViewElement scrollToTop() {
+        testDriver.scrollToPosition(recyclerView, 0);
         return this;
     }
 
-    public RecyclerViewElement scrollToBottomOfPage() {
+    public RecyclerViewElement scrollToBottom() {
         testDriver.scrollToPosition(recyclerView, getItemCount() - 1);
         return this;
-    }
-
-    public RecyclerView.Adapter getAdapter() {
-        return recyclerView.getAdapter();
-    }
-
-    public ViewElement scrollToItem(With with) {
-        Criteria atLeastPartiallyVisibleCriteria = new Criteria() {
-            @Override
-            public boolean isSatisfied(ViewElement viewElement) {
-                return !(viewElement instanceof EmptyViewElement);
-            }
-        };
-
-        return scrollUntil(with, atLeastPartiallyVisibleCriteria);
-    }
-
-    public ViewElement scrollToItemWithChild(With with, final With child) {
-        Criteria itemWithChildCriteria = new Criteria() {
-            @Override
-            public boolean isSatisfied(ViewElement viewElement) {
-                return !(viewElement instanceof EmptyViewElement) && itemHasVisibleChild(viewElement, child);
-            }
-        };
-        return scrollUntil(with, itemWithChildCriteria);
-    }
-
-    public ViewElement scrollToFullyVisibleItem(With with) {
-        Criteria fullyVisibleItemCriteria = new Criteria() {
-            @Override
-            public boolean isSatisfied(ViewElement viewElement) {
-                return ( !(viewElement instanceof EmptyViewElement) && viewElement.isFullyVisible());
-            }
-        };
-
-        return scrollUntil(with, fullyVisibleItemCriteria);
-    }
-
-    public int lastBoundItemIndex() {
-        return getBoundItemCount() - 1;
-    }
-
-    public int lastItemIndex() {
-        return getItemCount() - 1;
-    }
-
-    public ViewElement scrollUntil(With with, Criteria criteria) {
-        int tries = 0;
-        ViewElement result = testDriver.findElement(with);
-        while (!criteria.isSatisfied(result)) {
-            int scrollPosition = tries + 1;
-
-            if (scrollPosition > lastItemIndex() || tries > MAX_SCROLLS_TO_FIND_ITEM) {
-                return new EmptyViewElement("Unable to scroll to item; item not in list");
-            }
-
-            testDriver.scrollToPosition(recyclerView, scrollPosition);
-            result = testDriver.findElement(with);
-            tries++;
-        }
-        return result;
     }
 
     public interface Criteria {
         boolean isSatisfied(ViewElement viewElement);
     }
 
-    private RecyclerView.LayoutManager getLayoutManager() {
-        return recyclerView.getLayoutManager();
+    public int getItemCount() {
+        return getAdapter().getItemCount();
     }
 
-    private boolean itemHasVisibleChild(ViewElement item, With child) {
-        return item.findElement(child).isVisible();
+    private RecyclerView.Adapter getAdapter() {
+        return recyclerView.getAdapter();
     }
 }

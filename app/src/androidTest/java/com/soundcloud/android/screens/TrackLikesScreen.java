@@ -70,7 +70,7 @@ public class TrackLikesScreen extends Screen {
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        likesList().scrollToBottomOfPage();
+        likesList().scrollToBottom();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 

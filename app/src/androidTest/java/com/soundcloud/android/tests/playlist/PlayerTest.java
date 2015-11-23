@@ -61,7 +61,6 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     private void openPlaylist() {
         CollectionsScreen playlistsScreen = mainNavHelper.goToCollections();
-        waiter.waitForContentAndRetryIfLoadingFailed();
         playlistsScreen.clickOnFirstPlaylist();
     }
 

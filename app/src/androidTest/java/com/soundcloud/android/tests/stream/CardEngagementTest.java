@@ -50,12 +50,12 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingToggleRepostFromCard() {
-        boolean reposted = streamScreen.firstTrackCard().isReposted();
+        boolean reposted = streamScreen.scrollToFirstTrack().isReposted();
 
-        streamScreen.firstTrackCard().toggleRepost();
+        streamScreen.scrollToFirstTrack().toggleRepost();
 
         assertThat(streamScreen, is(visible()));
-        assertThat(streamScreen.firstTrackCard().isReposted(), is(not(reposted)));
+        assertThat(streamScreen.scrollToFirstTrack().isReposted(), is(not(reposted)));
 
         final String repostToastMessage = getRepostToastMessage(reposted);
         assertTrue("Did not observe a toast with a message: " + repostToastMessage,
@@ -63,12 +63,12 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingToggleLikeFromCard() {
-        boolean liked = streamScreen.firstTrackCard().isLiked();
+        boolean liked = streamScreen.scrollToFirstTrack().isLiked();
 
-        streamScreen.firstTrackCard().toggleLike();
+        streamScreen.scrollToFirstTrack().toggleLike();
 
         assertThat(streamScreen, is(visible()));
-        assertThat(streamScreen.firstTrackCard().isLiked(), is(not(liked)));
+        assertThat(streamScreen.scrollToFirstTrack().isLiked(), is(not(liked)));
 
         final String likeToastMessage = getLikeToastMessage(liked);
         assertTrue("Did not observe a toast with a message: " + likeToastMessage,
@@ -76,13 +76,13 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingUserAvatarGoesToUserProfile() {
-        ProfileScreen profileScreen = streamScreen.firstNotPromotedTrackCard().clickUserAvatar();
+        ProfileScreen profileScreen = streamScreen.scrollToFirstNotPromotedTrackCard().clickUserAvatar();
 
         assertThat(profileScreen, is(visible()));
     }
 
     public void testClickingArtistNameGoToArtistProfile() {
-        ProfileScreen profileScreen = streamScreen.firstNotPromotedTrackCard().clickArtistName();
+        ProfileScreen profileScreen = streamScreen.scrollToFirstNotPromotedTrackCard().clickArtistName();
 
         assertThat(profileScreen, is(visible()));
     }
