@@ -67,6 +67,7 @@ ext {
           butterKnife                 : "com.jakewharton:butterknife:7.0.1",
           castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.3.2-SOUNDCLOUD@aar",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
+          scrollDecorator             : 'me.everything:overscroll-decor-android:1.0.0',
 
           // Android libraries
           androidMultidex                 : "com.android.support:multidex:$androidMultiDex",

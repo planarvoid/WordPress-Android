@@ -17,7 +17,7 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.view.ListenableHorizontalScrollView;
+import com.soundcloud.android.view.WaveformScrollView;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformOperations;
 import org.junit.Before;
@@ -47,7 +47,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     @Mock private WaveformCanvas rightWaveform;
     @Mock private ImageView leftLine;
     @Mock private ImageView rightLine;
-    @Mock private ListenableHorizontalScrollView dragViewHolder;
+    @Mock private WaveformScrollView dragViewHolder;
     @Mock private ProgressController leftAnimationController;
     @Mock private ProgressController rightAnimationController;
     @Mock private ProgressController dragAnimationController;
@@ -390,7 +390,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     public void displayScrubPositionSetsScrubPositionOnWaveforms() {
         waveformViewController.onWaveformViewWidthChanged(500);
         waveformViewController.showPlayingState(playbackProgress);
-        waveformViewController.displayScrubPosition(.5f);
+        waveformViewController.displayScrubPosition(.5f, 0);
         verify(leftWaveform).setTranslationX(-250f);
         verify(rightWaveform).setTranslationX(-500f);
     }
@@ -399,7 +399,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     public void displayScrubPositionSetsScrubPositionOnWaveformsIfPlaySessionNotActive() {
         waveformViewController.onWaveformViewWidthChanged(500);
         waveformViewController.showIdleState();
-        waveformViewController.displayScrubPosition(.5f);
+        waveformViewController.displayScrubPosition(.5f, 0);
         verify(leftWaveform).setTranslationX(-250f);
         verify(rightWaveform).setTranslationX(-500f);
     }
@@ -408,7 +408,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     public void displayScrubPositionSetsScrubPositionOnLinesIfPlaySessionActive() {
         waveformViewController.onWaveformViewWidthChanged(500);
         waveformViewController.showIdleState();
-        waveformViewController.displayScrubPosition(.5f);
+        waveformViewController.displayScrubPosition(.5f, 0);
         verify(leftLine).setTranslationX(-250f);
         verify(rightLine).setTranslationX(-500f);
     }

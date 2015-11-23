@@ -161,8 +161,8 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     }
 
     @Override
-    public void displayScrubPosition(float scrubPosition) {
-        long scrubTime = (long) (scrubPosition * duration);
+    public void displayScrubPosition(float actualPosition, float boundedPosition) {
+        long scrubTime = (long) (boundedPosition * duration);
         progressText.setText(format(scrubTime));
         selectiveInvalidate(false);
     }

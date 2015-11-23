@@ -1,12 +1,9 @@
 package com.soundcloud.android.playback.ui.progress;
 
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.view.ListenableHorizontalScrollView;
+import com.soundcloud.android.view.WaveformScrollView;
 
-import android.graphics.Rect;
 import android.os.Handler;
-import android.view.MotionEvent;
-import android.view.View;
 
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -24,7 +21,7 @@ public class ScrubController {
     private final Handler seekHandler;
     private final PlaySessionController playSessionController;
     private final Set<OnScrubListener> listeners = new HashSet<>();
-    private final Rect scrubViewBounds = new Rect();
+
 
     private ProgressHelper progressHelper;
     private Float pendingSeek;
@@ -46,7 +43,7 @@ public class ScrubController {
 
     public interface OnScrubListener {
         void scrubStateChanged(int newScrubState);
-        void displayScrubPosition(float scrubPosition);
+        void displayScrubPosition(float scrubPosition, float boundedScrubPosition);
     }
 
     void finishSeek(Float seekPercentage) {
@@ -56,14 +53,13 @@ public class ScrubController {
         pendingSeek = null;
     }
 
-    ScrubController(ListenableHorizontalScrollView scrubView, PlaySessionController playSessionController,
+    ScrubController(WaveformScrollView scrubView, PlaySessionController playSessionController,
                     SeekHandler.Factory seekHandlerFactory) {
 
         this.playSessionController = playSessionController;
         this.seekHandler = seekHandlerFactory.create(this);
 
-        scrubView.setOnScrollListener(new ScrollListener());
-        scrubView.setOnTouchListener(new TouchListener());
+        scrubView.setListener(new ScrollViewListener());
     }
 
     private void setScrubState(int newState) {
@@ -82,46 +78,36 @@ public class ScrubController {
         listeners.add(listener);
     }
 
-    private class ScrollListener implements ListenableHorizontalScrollView.OnScrollListener {
+    private class ScrollViewListener implements WaveformScrollView.OnScrollListener {
         @Override
         public void onScroll(int left, int oldLeft) {
             if (isScrubbing() && progressHelper != null) {
-                final float seekTo = Math.max(0, Math.min(1, progressHelper.getProgressFromPosition(left)));
+                final float actualPosition = progressHelper.getProgressFromPosition(left);
+                final float boundedPosition = Math.max(0, Math.min(1, actualPosition));
                 seekHandler.removeMessages(MSG_PERFORM_SEEK);
-                seekHandler.sendMessageDelayed(seekHandler.obtainMessage(MSG_PERFORM_SEEK, seekTo), SEEK_DELAY);
+                seekHandler.sendMessageDelayed(seekHandler.obtainMessage(MSG_PERFORM_SEEK, boundedPosition), SEEK_DELAY);
 
                 for (OnScrubListener listener : listeners) {
-                    listener.displayScrubPosition(seekTo);
+                    listener.displayScrubPosition(actualPosition, boundedPosition);
                 }
             }
         }
-    }
 
-    private class TouchListener implements View.OnTouchListener {
         @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
-                dragging = true;
-                setScrubState(SCRUB_STATE_SCRUBBING);
-            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL || isOutsideBounds(v, event)) {
-                dragging = false;
-                onRelease();
-            }
-            return false;
+        public void onPress() {
+            dragging = true;
+            setScrubState(SCRUB_STATE_SCRUBBING);
         }
-    }
 
-    private boolean isOutsideBounds(View v, MotionEvent event) {
-        scrubViewBounds.set(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
-        return !scrubViewBounds.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY());
-    }
-
-    private void onRelease() {
-        if (!seekHandler.hasMessages(MSG_PERFORM_SEEK)) {
-            if (pendingSeek == null) {
-                setScrubState(SCRUB_STATE_CANCELLED);
-            } else {
-                finishSeek(pendingSeek);
+        @Override
+        public void onRelease() {
+            dragging = false;
+            if (!seekHandler.hasMessages(MSG_PERFORM_SEEK)) {
+                if (pendingSeek == null) {
+                    setScrubState(SCRUB_STATE_CANCELLED);
+                } else {
+                    finishSeek(pendingSeek);
+                }
             }
         }
     }
@@ -142,7 +128,7 @@ public class ScrubController {
             this.seekHandlerFactory = seekHandlerFactory;
         }
 
-        public ScrubController create(ListenableHorizontalScrollView scrubView) {
+        public ScrubController create(WaveformScrollView scrubView) {
             return new ScrubController(scrubView, playSessionController, seekHandlerFactory);
         }
 

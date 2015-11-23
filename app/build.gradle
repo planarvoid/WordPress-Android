@@ -175,6 +175,7 @@ dependencies {
   compile libraries.rxJava
   compile libraries.rxJavaAsyncUtil // remove when getting rid of LegacyCommand
   compile libraries.universalImageLoader
+  compile libraries.scrollDecorator
   compile libraries.facebookRebound
   compile(libraries.facebookAndroidSdk) {
       // see https://github.com/mente/facebook-api-android-aar/issues/11

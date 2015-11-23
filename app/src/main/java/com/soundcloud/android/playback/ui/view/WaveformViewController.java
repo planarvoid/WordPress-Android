@@ -94,12 +94,12 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     @Override
-    public void displayScrubPosition(float scrubPosition) {
-        leftProgressHelper.setValueFromProportion(waveformView.getLeftWaveform(), scrubPosition);
-        rightProgressHelper.setValueFromProportion(waveformView.getRightWaveform(), scrubPosition);
+    public void displayScrubPosition(float actualPosition, float boundedPosition) {
+        leftProgressHelper.setValueFromProportion(waveformView.getLeftWaveform(), actualPosition);
+        rightProgressHelper.setValueFromProportion(waveformView.getRightWaveform(), actualPosition);
         if (currentState == IDLE) {
-            leftProgressHelper.setValueFromProportion(waveformView.getLeftLine(), scrubPosition);
-            rightProgressHelper.setValueFromProportion(waveformView.getRightLine(), scrubPosition);
+            leftProgressHelper.setValueFromProportion(waveformView.getLeftLine(), actualPosition);
+            rightProgressHelper.setValueFromProportion(waveformView.getRightLine(), actualPosition);
         }
     }
 

@@ -1,10 +1,6 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.utils.Log;
-
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 

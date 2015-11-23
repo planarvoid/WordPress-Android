@@ -6,8 +6,10 @@ import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.FixedWidthView;
-import com.soundcloud.android.view.ListenableHorizontalScrollView;
+import com.soundcloud.android.view.WaveformScrollView;
 import com.soundcloud.android.waveform.WaveformData;
+import me.everything.android.ui.overscroll.HorizontalOverScrollBounceEffectDecorator;
+import me.everything.android.ui.overscroll.adapters.HorizontalScrollViewOverScrollDecorAdapter;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
@@ -35,6 +37,8 @@ public class WaveformView extends FrameLayout {
 
     private static final double SPRING_TENSION = 180.0D;
     private static final double SPRING_FRICTION = 10.0D;
+    private static final float OVERSCROLL_TOUCH_DRAG_RATIO_FWD = 2.0f;
+    private static final float OVERSCROLL_DECELERATE_FACTOR = -1f;
 
     private final int barWidth;
     private final int spaceWidth;
@@ -53,7 +57,7 @@ public class WaveformView extends FrameLayout {
     private final ImageView rightLine;
 
     private final FixedWidthView dragView;
-    private final ListenableHorizontalScrollView dragViewHolder;
+    private final WaveformScrollView dragViewHolder;
 
     private final SpringSystem springSystem = SpringSystem.create();
     private Spring springY;
@@ -116,8 +120,9 @@ public class WaveformView extends FrameLayout {
         rightWaveform = (WaveformCanvas) findViewById(R.id.waveform_right);
 
         dragView = (FixedWidthView) findViewById(R.id.drag_view);
-        dragViewHolder = (ListenableHorizontalScrollView) findViewById(R.id.drag_view_holder);
-        dragViewHolder.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        dragViewHolder = (WaveformScrollView) findViewById(R.id.drag_view_holder);
+
+        configureOverscroller();
 
         leftWaveform.setScaleY(0);
         rightWaveform.setScaleY(0);
@@ -133,11 +138,19 @@ public class WaveformView extends FrameLayout {
         rightLine.setImageDrawable(createLoadingDrawable(unplayedAbove));
     }
 
+    private void configureOverscroller() {
+        new HorizontalOverScrollBounceEffectDecorator(new HorizontalScrollViewOverScrollDecorAdapter(dragViewHolder),
+                OVERSCROLL_TOUCH_DRAG_RATIO_FWD,
+                HorizontalOverScrollBounceEffectDecorator.DEFAULT_TOUCH_DRAG_MOVE_RATIO_BCK,
+                OVERSCROLL_DECELERATE_FACTOR
+        );
+    }
+
     public void setOnWidthChangedListener(OnWidthChangedListener onWidthChangedListener) {
         this.onWidthChangedListener = onWidthChangedListener;
     }
 
-    public ListenableHorizontalScrollView getDragViewHolder() {
+    public WaveformScrollView getDragViewHolder() {
         return dragViewHolder;
     }
 

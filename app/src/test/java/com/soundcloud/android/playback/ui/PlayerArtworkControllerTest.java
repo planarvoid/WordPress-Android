@@ -153,7 +153,7 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
         when(wrappedImageView.getMeasuredWidth()).thenReturn(20);
         when(playerTrackArtworkView.getWidth()).thenReturn(10);
         playerArtworkController.onArtworkSizeChanged();
-        playerArtworkController.displayScrubPosition(.5f);
+        playerArtworkController.displayScrubPosition(.5f, .5f);
         assertThat(artworkHolder.getTranslationX()).isEqualTo(-5F);
     }
 

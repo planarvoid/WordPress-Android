@@ -525,7 +525,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             }
 
             @Override
-            public void displayScrubPosition(float scrubPosition) {
+            public void displayScrubPosition(float actualPosition, float boundedPosition) {
                 // no-op
             }
         };

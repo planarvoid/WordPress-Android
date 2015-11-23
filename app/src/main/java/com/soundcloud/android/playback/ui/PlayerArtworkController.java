@@ -90,9 +90,9 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     }
 
     @Override
-    public void displayScrubPosition(float scrubPosition) {
+    public void displayScrubPosition(float actualPosition, float boundedPosition) {
         if (helper != null) {
-            helper.setValueFromProportion(imageHolder, scrubPosition);
+            helper.setValueFromProportion(imageHolder, boundedPosition);
         }
     }
 
