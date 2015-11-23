@@ -11,15 +11,17 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="8dp"
-        android:padding="@dimen/stream_container_padding"
         android:background="@color/page_background">
 
         <android.support.v7.widget.RecyclerView
             android:id="@id/ak_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipToPadding="false"
             android:headerDividersEnabled="false"
+            android:paddingLeft="@dimen/stream_container_side_padding"
+            android:paddingRight="@dimen/stream_container_side_padding"
+            android:paddingTop="@dimen/stream_container_top_padding"
             android:scrollbars="vertical" />
 
         <com.soundcloud.android.view.EmptyView
