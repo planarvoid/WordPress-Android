@@ -14,5 +14,5 @@
 
     <!-- stream -->
     <dimen name="stream_header_min_height">72dp</dimen>
-    <dimen name="stream_container_padding">8dp</dimen>
+    <dimen name="stream_container_side_padding">8dp</dimen>
 </resources>
