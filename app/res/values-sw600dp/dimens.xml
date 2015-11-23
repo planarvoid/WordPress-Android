@@ -23,7 +23,10 @@
     <!-- stream -->
     <dimen name="stream_header_min_height">72dp</dimen>
 
-    <!-- Card grids -->
+    <!-- card grids -->
     <dimen name="grids_padding_left_right">8dp</dimen>
+
+    <!-- explore -->
+    <dimen name="explore_padding_left_right">16dp</dimen>
 
 </resources>

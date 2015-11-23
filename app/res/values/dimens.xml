@@ -159,4 +159,8 @@
     <dimen name="grid_view_loading_height">180dp</dimen>
     <dimen name="grid_item_padding">10dp</dimen>
 
+    <!-- Explore -->
+    <dimen name="explore_padding_left_right">0dp</dimen>
+    <dimen name="explore_padding_top_bottom">16dp</dimen>
+
 </resources>
