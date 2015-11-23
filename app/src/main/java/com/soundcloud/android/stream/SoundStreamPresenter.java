@@ -79,7 +79,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
     private static Options getRecyclerOptions(StreamDesignExperiment experiment) {
         if (experiment.isCardDesign()) {
-            return Options.staggeredGrid(R.integer.stream_grid_columns).build();
+            return Options.staggeredGrid(R.integer.grids_num_columns).build();
         } else {
             return Options.list().build();
         }

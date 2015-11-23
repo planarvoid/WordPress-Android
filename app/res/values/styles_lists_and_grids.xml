@@ -84,19 +84,19 @@
 
     <!-- grid styles -->
 
-    <style name="GridView" parent="@android:style/Widget.GridView">
+    <style name="Explore.GridView" parent="@android:style/Widget.GridView">
         <item name="android:clipToPadding">false</item>
         <item name="android:fadingEdge">none</item>
         <item name="android:scrollbarStyle">outsideOverlay</item>
         <item name="android:layout_gravity">top</item>
-        <item name="android:paddingLeft">@dimen/gridview_padding_left_right</item>
-        <item name="android:paddingRight">@dimen/gridview_padding_left_right</item>
-        <item name="android:paddingTop">@dimen/gridview_padding_top_bottom</item>
-        <item name="android:paddingBottom">@dimen/gridview_padding_top_bottom</item>
+        <item name="android:paddingLeft">@dimen/explore_padding_left_right</item>
+        <item name="android:paddingRight">@dimen/explore_padding_left_right</item>
+        <item name="android:paddingTop">@dimen/explore_padding_top_bottom</item>
+        <item name="android:paddingBottom">@dimen/explore_padding_top_bottom</item>
         <item name="android:horizontalSpacing">@dimen/grid_view_spacing_inside_horizontal</item>
         <item name="android:verticalSpacing">@dimen/grid_view_spacing_inside_vertical</item>
         <item name="android:listSelector">@drawable/grid_view_item_selector</item>
-        <item name="android:numColumns">@integer/grid_view_num_columns</item>
+        <item name="android:numColumns">@integer/grids_num_columns</item>
         <item name="android:drawSelectorOnTop">true</item>
     </style>
 

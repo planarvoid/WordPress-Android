@@ -19,9 +19,9 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:headerDividersEnabled="false"
-            android:paddingLeft="@dimen/stream_container_side_padding"
-            android:paddingRight="@dimen/stream_container_side_padding"
-            android:paddingTop="@dimen/stream_container_top_padding"
+            android:paddingLeft="@dimen/grids_padding_left_right"
+            android:paddingRight="@dimen/grids_padding_left_right"
+            android:paddingTop="@dimen/grids_padding_top_bottom"
             android:scrollbars="vertical" />
 
         <com.soundcloud.android.view.EmptyView

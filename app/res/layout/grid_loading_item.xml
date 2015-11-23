@@ -6,7 +6,7 @@
                 android:layout_height="wrap_content">
 
     <RelativeLayout android:layout_width="match_parent"
-                    android:layout_height="@dimen/gridview_loading_height"
+                    android:layout_height="@dimen/grid_view_loading_height"
                     tools:ignore="UselessParent">
 
         <ProgressBar android:id="@id/ak_list_progress"
@@ -18,7 +18,7 @@
 
         <LinearLayout android:id="@id/ak_list_retry"
                       android:layout_width="match_parent"
-                      android:layout_height="@dimen/gridview_loading_height"
+                      android:layout_height="@dimen/grid_view_loading_height"
                       android:gravity="center"
                       android:visibility="gone"
                       android:orientation="vertical">
