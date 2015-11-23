@@ -23,12 +23,6 @@
         <item name="android:windowSoftInputMode">stateUnspecified|adjustResize</item>
     </style>
 
-    <style name="Theme.FullImageDialog" parent="Theme.FramelessDialog">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-
     <style name="Theme.TrackInfoDialog" parent="Theme.ScDialog.Light">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowTitleStyle">@null</item>
