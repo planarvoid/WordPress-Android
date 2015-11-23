@@ -151,6 +151,11 @@ public class StreamScreen extends Screen {
         public boolean isSatisfied(ViewElement viewElement) {
             return streamCardElement(viewElement).isTrack() && !streamCardElement(viewElement).isPromotedTrack();
         }
+
+        @Override
+        public String description() {
+            return "IsTrack, isNotPromoted";
+        }
     }
 
     private class NotPromotedPlaylistCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
@@ -162,6 +167,11 @@ public class StreamScreen extends Screen {
         @Override
         public boolean isSatisfied(ViewElement viewElement) {
             return streamCardElement(viewElement).isPlaylist() && !streamCardElement(viewElement).isPromotedTrack();
+        }
+
+        @Override
+        public String description() {
+            return "IsPlaylist, isNotPromoted";
         }
     }
 
@@ -175,6 +185,11 @@ public class StreamScreen extends Screen {
         public boolean isSatisfied(ViewElement viewElement) {
             return streamCardElement(viewElement).isPlaylist();
         }
+
+        @Override
+        public String description() {
+            return "IsPlaylist";
+        }
     }
 
     private class TrackCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
@@ -187,6 +202,11 @@ public class StreamScreen extends Screen {
         public boolean isSatisfied(ViewElement viewElement) {
             return streamCardElement(viewElement).isTrack();
         }
+
+        @Override
+        public String description() {
+            return "IsTrack";
+        }
     }
 
     private class RepostedTrackCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
@@ -198,6 +218,11 @@ public class StreamScreen extends Screen {
         @Override
         public boolean isSatisfied(ViewElement viewElement) {
             return streamCardElement(viewElement).isTrack() && streamCardElement(viewElement).hasReposter();
+        }
+
+        @Override
+        public String description() {
+            return "IsTrack, HasReposter";
         }
     }
 }

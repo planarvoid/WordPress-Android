@@ -91,6 +91,11 @@ public class ProfileScreen extends Screen {
                                                                                public boolean isSatisfied(ViewElement viewElement) {
                                                                                    return viewElement.isElementDisplayed(With.id(R.id.reposter));
                                                                                }
+
+                                                                               @Override
+                                                                               public String description() {
+                                                                                   return "HasReposter";
+                                                                               }
                                                                            }
         );
         viewElement.click();

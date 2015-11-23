@@ -110,6 +110,11 @@ public class CollectionsScreen extends Screen {
         public boolean isSatisfied(ViewElement viewElement) {
             return viewElement.getId() == R.id.collections_playlist_item;
         }
+
+        @Override
+        public String description() {
+            return "IsPlaylist";
+        }
     }
 
     private class CollectionPlaylistWithTitleCriteria implements RecyclerViewElement.Criteria {
@@ -124,6 +129,11 @@ public class CollectionsScreen extends Screen {
         @Override
         public boolean isSatisfied(ViewElement viewElement) {
             return viewElement.getId() == R.id.collections_playlist_item && new StreamCardElement(testDriver, viewElement).trackTitle().equals(title);
+        }
+
+        @Override
+        public String description() {
+            return String.format("IsPlaylist, WithTitle: %s", title);
         }
     }
 }

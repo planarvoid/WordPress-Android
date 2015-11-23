@@ -48,12 +48,15 @@ public class RecyclerViewElement {
 
     public ViewElement scrollToItem(Criteria criteria) {
         int itemCount = getItemCount();
+        Log.i("RecyclerView", String.format("Has %d items", itemCount));
         for(int i = 0; i < itemCount; i++) {
             scrollToItemAt(i);
             scrollViewToBeFullyVisible(i, itemCount);
             if(criteria.isSatisfied(getItemAt(i))) {
+                Log.i("RecyclerView", String.format("View matching criteria: %s found", criteria.description()));
                 return getItemAt(i);
             }
+            Log.i("RecyclerView", String.format("View matching criteria: %s not found", criteria.description()));
         }
         return new EmptyViewElement("Item With Criteria not found");
     }
@@ -76,6 +79,8 @@ public class RecyclerViewElement {
 
     public interface Criteria {
         boolean isSatisfied(ViewElement viewElement);
+
+        String description();
     }
 
     public int getItemCount() {
