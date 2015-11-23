@@ -15,7 +15,7 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.java.collections.PropertySet;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -37,7 +37,7 @@ class ProfileHeaderPresenter {
 
     private Urn lastUser;
 
-    public ProfileHeaderPresenter(final Activity profileActivity, final ImageOperations imageOperations,
+    public ProfileHeaderPresenter(final AppCompatActivity profileActivity, final ImageOperations imageOperations,
                                   CondensedNumberFormatter numberFormatter, AccountOperations accountOperations,
                                   final Urn user, final FollowingOperations followingOperations,
                                   final EngagementsTracking engagementsTracking) {
@@ -61,7 +61,7 @@ class ProfileHeaderPresenter {
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new FullImageDialog(profileActivity, user, imageOperations).show();
+                FullImageDialog.show(profileActivity.getSupportFragmentManager(), user);
             }
         });
     }
@@ -104,7 +104,7 @@ class ProfileHeaderPresenter {
             this.engagementsTracking = engagementsTracking;
         }
 
-        ProfileHeaderPresenter create(Activity profileActivity, Urn user) {
+        ProfileHeaderPresenter create(AppCompatActivity profileActivity, Urn user) {
             return new ProfileHeaderPresenter(profileActivity, imageOperations, numberFormatter, accountOperations,
                     user, followingOperations, engagementsTracking);
         }
