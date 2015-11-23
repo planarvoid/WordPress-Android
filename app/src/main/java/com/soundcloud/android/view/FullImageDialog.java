@@ -11,6 +11,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.AndroidUtils;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -63,6 +64,7 @@ public class FullImageDialog extends DialogFragment {
         return dialog;
     }
 
+    @SuppressLint("InflateParams")
     private void setupLayout(Dialog dialog) {
         View layout = LayoutInflater.from(getActivity()).inflate(R.layout.full_image_dialog, null);
         ButterKnife.bind(this, layout);
