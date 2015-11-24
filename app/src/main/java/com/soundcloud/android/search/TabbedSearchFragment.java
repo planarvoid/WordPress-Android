@@ -33,10 +33,10 @@ public class TabbedSearchFragment extends Fragment {
     private ViewPager pager;
 
     public static TabbedSearchFragment newInstance(String query) {
-        TabbedSearchFragment fragment = new TabbedSearchFragment();
-
         Bundle bundle = new Bundle();
         bundle.putString(KEY_QUERY, query);
+
+        TabbedSearchFragment fragment = new TabbedSearchFragment();
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -72,6 +72,7 @@ public class TabbedSearchFragment extends Fragment {
 
         String query = getArguments().getString(KEY_QUERY);
         boolean firstTime = savedInstanceState == null;
+
         SearchPagerAdapter searchPagerAdapter = new SearchPagerAdapter(resources, this.getChildFragmentManager(), query, firstTime);
 
         pager = (ViewPager) view.findViewById(R.id.pager);
@@ -122,7 +123,8 @@ public class TabbedSearchFragment extends Fragment {
         }
 
         @Override
-        public void onPageScrollStateChanged(int i) {}
+        public void onPageScrollStateChanged(int i) {
+        }
     }
 
 }

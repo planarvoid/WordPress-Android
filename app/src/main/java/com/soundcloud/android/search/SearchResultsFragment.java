@@ -23,11 +23,12 @@ public class SearchResultsFragment extends LightCycleSupportFragment implements 
     @Inject @LightCycle SearchResultsPresenter presenter;
 
     public static SearchResultsFragment create(int type, String query, boolean publishSearchSubmissionEvent) {
-        final SearchResultsFragment fragment = new SearchResultsFragment();
         final Bundle bundle = new Bundle();
         bundle.putInt(EXTRA_TYPE, type);
         bundle.putString(EXTRA_QUERY, query);
         bundle.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, publishSearchSubmissionEvent);
+
+        final SearchResultsFragment fragment = new SearchResultsFragment();
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -41,7 +42,6 @@ public class SearchResultsFragment extends LightCycleSupportFragment implements 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
     }
-
 
     @Override
     public MultiSwipeRefreshLayout getRefreshLayout() {
