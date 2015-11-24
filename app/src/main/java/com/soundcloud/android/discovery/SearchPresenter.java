@@ -49,6 +49,8 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
     private static final int SUGGESTIONS_VIEW_INDEX = 0;
     private static final int RESULTS_VIEW_INDEX = 1;
 
+    private static final String CURRENT_DISPLAYING_VIEW_KEY = "currentDisplayingView";
+
     private EditText searchTextView;
     private ImageView searchCloseView;
     private ListView searchListView;
@@ -80,6 +82,18 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         this.inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         setupViews(activity);
         trackScreenEvent();
+    }
+
+    @Override
+    public void onSaveInstanceState(AppCompatActivity activity, Bundle bundle) {
+        bundle.putInt(CURRENT_DISPLAYING_VIEW_KEY, searchViewFlipper.getDisplayedChild());
+        super.onSaveInstanceState(activity, bundle);
+    }
+
+    @Override
+    public void onRestoreInstanceState(AppCompatActivity activity, Bundle bundle) {
+        super.onRestoreInstanceState(activity, bundle);
+        displaySearchView(bundle.getInt(CURRENT_DISPLAYING_VIEW_KEY));
     }
 
     @Override
@@ -161,9 +175,11 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private void displaySearchView(int searchViewIndex) {
         setElevation(searchViewIndex);
-
         if (searchViewFlipper.getDisplayedChild() != searchViewIndex) {
             searchViewFlipper.setDisplayedChild(searchViewIndex);
+        }
+        if (searchViewIndex == RESULTS_VIEW_INDEX) {
+            hideKeyboard();
         }
     }
 
@@ -179,7 +195,10 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private void showResultsFor(String query) {
         final TabbedSearchFragment searchResults = TabbedSearchFragment.newInstance(query);
-        fragmentManager.beginTransaction().replace(R.id.search_results_container, searchResults).commit();
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.search_results_container, searchResults, TabbedSearchFragment.TAG)
+                .commit();
         displaySearchView(RESULTS_VIEW_INDEX);
     }
 
