@@ -104,6 +104,13 @@ public class TrackCommentsActivity extends ScActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (!playerController.handleBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+
     private Screen getCurrentScreen() {
         return Screen.PLAYER_COMMENTS;
     }

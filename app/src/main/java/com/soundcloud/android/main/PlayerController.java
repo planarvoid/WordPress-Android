@@ -10,6 +10,10 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
+/*
+ * If this is attached as a LightCycle, it's also necessary to override
+ * onBackPressed() in the host Activity. It may be handled as a player close.
+ */
 public class PlayerController extends ActivityLightCycleDispatcher<AppCompatActivity> {
     final @LightCycle SlidingPlayerController playerController;
     final @LightCycle AdPlayerController adPlayerController;

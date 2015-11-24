@@ -75,4 +75,12 @@ public class ShowAllStationsActivity extends ScActivity {
         ShowAllStationsFragment fragment = ShowAllStationsFragment.create(getIntent().getIntExtra(COLLECTION_TYPE, Consts.NOT_SET));
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
+
+    @Override
+    public void onBackPressed() {
+        if (!playerController.handleBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+
 }
