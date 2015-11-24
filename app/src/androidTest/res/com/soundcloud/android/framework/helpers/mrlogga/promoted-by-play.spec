@@ -22,7 +22,7 @@ expected_events:
   name: audio
   params:
     trigger: manual
-    protocol: hls
+    protocol: (hls|https)
     ts: '[0-9]+'
     anonymous_id: (\w|-)+
     connection_type: wifi
@@ -31,7 +31,7 @@ expected_events:
     track_length: '[0-9]+'
     ad_urn: dfp:ads:[0-9,-]+
     track: soundcloud:tracks:[0-9]+
-    player_type: Skippy
+    player_type: (Skippy|MediaPlayer)
     action: play
     client_id: '3152'
     page_name: stream:main

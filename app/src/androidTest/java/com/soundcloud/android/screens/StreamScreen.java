@@ -7,7 +7,6 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
-import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.PlaylistItemOverflowMenu;
 import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -85,8 +84,8 @@ public class StreamScreen extends Screen {
         return scrollToFirstTrack().isPromotedTrack();
     }
 
-    public boolean isPromotedTrackCardWithPromoter(int index) {
-        return new StreamCardElement(testDriver, streamList().scrollToItemAt(index)).hasPromoter();
+    public boolean isPromotedTrackCardWithPromoter() {
+        return scrollToFirstTrack().hasPromoter();
     }
 
     public PlaylistItemOverflowMenu clickFirstPlaylistOverflowButton() {

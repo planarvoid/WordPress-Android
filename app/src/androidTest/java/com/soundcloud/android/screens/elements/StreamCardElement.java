@@ -1,7 +1,5 @@
 package com.soundcloud.android.screens.elements;
 
-import android.util.Log;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
