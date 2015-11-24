@@ -173,7 +173,11 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     private float getPlayableProportion(PlaybackProgress progress) {
-        if (progress.isDurationValid()) {
+        return Math.max(0, Math.min(1, getRawPlayableProportion(progress)));
+    }
+
+    private float getRawPlayableProportion(PlaybackProgress progress) {
+        if (progress.isDurationValid() && fullDuration > 0) {
             return ((float) progress.getDuration()) / fullDuration;
         } else if (playDuration > 0 && fullDuration > 0){
             return ((float) playDuration) / fullDuration;
