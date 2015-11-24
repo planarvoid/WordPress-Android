@@ -5,6 +5,7 @@ import com.soundcloud.android.playback.StreamCacheConfig;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
@@ -18,23 +19,27 @@ public class SkippyFactory {
     private static final int PRELOADER_BUFFER_DURATION_MS = (int) TimeUnit.SECONDS.toMillis(10);
     private static final Skippy.CacheRestriction USE_CACHE_ALWAYS = Skippy.CacheRestriction.NONE;
 
+    private final Context context;
     private final ApplicationProperties applicationProperties;
     private final CryptoOperations cryptoOperations;
     private final StreamCacheConfig cacheConfig;
 
     @Inject
-    SkippyFactory(CryptoOperations cryptoOperations, ApplicationProperties applicationProperties, StreamCacheConfig cacheConfig) {
+    SkippyFactory(Context context, CryptoOperations cryptoOperations,
+                  ApplicationProperties applicationProperties,
+                  StreamCacheConfig cacheConfig) {
+        this.context = context;
         this.cryptoOperations = cryptoOperations;
         this.applicationProperties = applicationProperties;
         this.cacheConfig = cacheConfig;
     }
 
     public Skippy create() {
-        return new Skippy();
+        return new Skippy(context);
     }
 
     public Skippy create(Skippy.PlayListener listener) {
-        return new Skippy(listener);
+        return new Skippy(context, listener);
     }
 
     public Skippy.Configuration createConfiguration() {

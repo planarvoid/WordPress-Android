@@ -39,7 +39,6 @@ import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
@@ -107,10 +106,10 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         skippyPreloader = skippyFactory.create();
     }
 
-    public boolean init(Context context) {
-        boolean initSuccess = skippy.init(context, skippyFactory.createConfiguration());
+    public boolean init() {
+        boolean initSuccess = skippy.init(skippyFactory.createConfiguration());
         if (initSuccess) {
-            initSuccess = skippyPreloader.init(context, skippyFactory.createPreloaderConfiguration());
+            initSuccess = skippyPreloader.init(skippyFactory.createPreloaderConfiguration());
         }
         if (initSuccess) {
             eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationSucceededEvent(

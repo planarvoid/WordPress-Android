@@ -42,7 +42,7 @@ class StreamPlayer implements PlayerListener {
         this.networkConnectionHelper = networkConnectionHelper;
 
         if (!skippyFailedToInitialize) {
-            skippyFailedToInitialize = !skippyPlayerDelegate.init(context);
+            skippyFailedToInitialize = !skippyPlayerDelegate.init();
         }
 
         currentPlayer = skippyFailedToInitialize ? mediaPlayerAdapter : skippyAdapter;

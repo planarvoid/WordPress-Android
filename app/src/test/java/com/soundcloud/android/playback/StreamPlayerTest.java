@@ -41,7 +41,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(skippyAdapter.init(context)).thenReturn(true);
+        when(skippyAdapter.init()).thenReturn(true);
     }
 
     @After
@@ -57,12 +57,12 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Test
     public void initCallsInitOnSkippy() {
         instantiateStreamPlaya();
-        verify(skippyAdapter).init(context);
+        verify(skippyAdapter).init();
     }
 
     @Test
     public void initDoesNotCallInitOnSkippyIfInitAlreadyFailed() {
-        when(skippyAdapter.init(context)).thenReturn(false);
+        when(skippyAdapter.init()).thenReturn(false);
         instantiateStreamPlaya();
         reset(skippyAdapter);
         instantiateStreamPlaya();
@@ -107,7 +107,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @Test
     public void playPlaysOnMediaPlayerIfSkippyLoadFailed() {
-        when(skippyAdapter.init(context)).thenReturn(false);
+        when(skippyAdapter.init()).thenReturn(false);
         instantiateStreamPlaya();
 
         startPlaybackOnSkippy();
@@ -126,7 +126,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @Test
     public void playCallsPlayOnMediaPlayerAndSkippyFailedToInitialize() {
-        when(skippyAdapter.init(context)).thenReturn(false);
+        when(skippyAdapter.init()).thenReturn(false);
         instantiateStreamPlaya();
 
         startPlaybackOnSkippy();
@@ -402,7 +402,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotDestroySkippyIfInitialisationFailed() {
-        when(skippyAdapter.init(context)).thenReturn(false);
+        when(skippyAdapter.init()).thenReturn(false);
         instantiateStreamPlaya();
         streamPlayerWrapper.destroy();
         verify(skippyAdapter, never()).destroy();

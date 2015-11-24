@@ -124,15 +124,15 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
      public void initInitializesWithContextAndFactoryConfiguration() {
-        skippyAdapter.init(context());
-        verify(skippy).init(context(), configuration);
+        skippyAdapter.init();
+        verify(skippy).init(configuration);
     }
 
     @Test
      public void initInitializesPreloaderWithContextAndFactoryConfiguration() {
-        when(skippy.init(context(), configuration)).thenReturn(true);
-        skippyAdapter.init(context());
-        verify(skippyPreloader).init(context(), preloadConfiguration);
+        when(skippy.init(configuration)).thenReturn(true);
+        skippyAdapter.init();
+        verify(skippyPreloader).init(preloadConfiguration);
     }
 
     @Test
@@ -539,33 +539,33 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void initilizationSuccessWhenSkippyAndPreloadInitialize() {
-        when(skippy.init(context(), configuration)).thenReturn(true);
-        when(skippyPreloader.init(context(), preloadConfiguration)).thenReturn(true);
+        when(skippy.init(configuration)).thenReturn(true);
+        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
 
-        assertThat(skippyAdapter.init(context())).isTrue();
+        assertThat(skippyAdapter.init()).isTrue();
     }
 
     @Test
     public void initilizationErrorWhenSkippyFailsToinit() {
-        when(skippy.init(context(), configuration)).thenReturn(false);
-        when(skippyPreloader.init(context(), preloadConfiguration)).thenReturn(true);
+        when(skippy.init(configuration)).thenReturn(false);
+        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
 
-        assertThat(skippyAdapter.init(context())).isFalse();
+        assertThat(skippyAdapter.init()).isFalse();
     }
 
     @Test
     public void initilizationErrorWhenSkippyPreloaderFailsToinit() {
-        when(skippy.init(context(), configuration)).thenReturn(true);
-        when(skippyPreloader.init(context(), preloadConfiguration)).thenReturn(false);
+        when(skippy.init(configuration)).thenReturn(true);
+        when(skippyPreloader.init(preloadConfiguration)).thenReturn(false);
 
-        assertThat(skippyAdapter.init(context())).isFalse();
+        assertThat(skippyAdapter.init()).isFalse();
     }
 
     @Test
     public void initilizationSuccessPublishesSkippyInitSuccessEvent() {
-        when(skippy.init(context(), configuration)).thenReturn(true);
-        when(skippyPreloader.init(context(), preloadConfiguration)).thenReturn(true);
-        skippyAdapter.init(context());
+        when(skippy.init(configuration)).thenReturn(true);
+        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
+        skippyAdapter.init();
 
         final SkippyInitilizationSucceededEvent event = (SkippyInitilizationSucceededEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getAttributes().get("failure_count")).isEqualTo("0");
@@ -576,9 +576,9 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void initilizationSuccessIncrementsSuccessCount() {
         when(skippyFactory.createConfiguration()).thenReturn(configuration);
-        when(skippy.init(context(), configuration)).thenReturn(true);
-        when(skippyPreloader.init(context(), preloadConfiguration)).thenReturn(true);
-        skippyAdapter.init(context());
+        when(skippy.init(configuration)).thenReturn(true);
+        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
+        skippyAdapter.init();
         verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_SUCCESS_COUNT_KEY, 1);
         verify(sharedPreferencesEditor).apply();
     }
