@@ -66,9 +66,10 @@ android {
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, TRUE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
 
       //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
@@ -78,7 +79,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
-      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
     }
 
@@ -109,9 +109,10 @@ android {
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
 
       //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
@@ -122,7 +123,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
-      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
     }
 
@@ -130,9 +130,10 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
 
       //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       // When turning this on, make sure the ci does not exclude tests annotated with @StationsTest
@@ -144,7 +145,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
-      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
     }
@@ -153,9 +153,10 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
 
       //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
@@ -166,7 +167,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
-      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
 
@@ -176,9 +176,10 @@ android {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
+      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
 
       //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
@@ -189,7 +190,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
-      buildConfigField BOOLEAN, FEATURE_NEW_STREAM, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
 
