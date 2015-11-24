@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.stream;
 
-import static com.soundcloud.android.framework.TestUser.playlistUser;
+import static com.soundcloud.android.framework.TestUser.streamUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -21,7 +21,7 @@ public class PlaylistCardEngagementsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        playlistUser.logIn(getInstrumentation().getTargetContext());
+        streamUser.logIn(getInstrumentation().getTargetContext());
         streamScreen = new StreamScreen(solo);
     }
 
