@@ -1,16 +1,17 @@
-package com.soundcloud.android.screens;
+package com.soundcloud.android.screens.discovery;
 
+import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.search.LegacySearchActivity;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.Screen;
 
 import android.support.v7.widget.RecyclerView;
 
 public class PlaylistResultsScreen extends Screen {
 
-    private static final Class ACTIVITY = LegacySearchActivity.class;
+    private static final Class ACTIVITY = PlaylistDiscoveryActivity.class;
 
     @Override
     protected Class getActivity() {
@@ -19,6 +20,7 @@ public class PlaylistResultsScreen extends Screen {
 
     public PlaylistResultsScreen(Han solo) {
         super(solo);
+        waiter.waitForFragmentByTag("playlist_results");
     }
 
     @Override
@@ -35,9 +37,9 @@ public class PlaylistResultsScreen extends Screen {
         return new PlaylistDetailsScreen(testDriver);
     }
 
-    public PlaylistTagsScreen pressBack() {
+    public DiscoveryScreen pressBack() {
         testDriver.goBack();
-        return new PlaylistTagsScreen(testDriver);
+        return new DiscoveryScreen(testDriver);
     }
 
     private RecyclerViewElement resultList() {

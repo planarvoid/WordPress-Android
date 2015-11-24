@@ -2,30 +2,32 @@ package com.soundcloud.android.screens.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
+import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.UpgradeScreen;
+import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.Tabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
-import com.soundcloud.android.screens.elements.UserItemElement;
-import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.search.LegacySearchActivity;
 
-import android.support.v7.widget.RecyclerView;
-
-public class SearchResultsScreen extends Screen {
+/**
+ * This screen uses {@link LegacySearchActivity} and will be removed when getting rid
+ * of all tests marked with {@link BrokenSearchTest}
+ *
+ * @deprecated use {@link SearchResultsScreen} instead.
+ */
+@Deprecated
+public class LegacySearchResultsScreen extends Screen {
     private static final Class ACTIVITY = LegacySearchActivity.class;
     private static final String FRAGMENT = "tabbed_search";
 
-    private static final String ALL_TAB_TEXT = "ALL";
     private static final String TRACKS_TAB_TEXT = "TRACKS";
     private static final String PLAYLISTS_TAB_TEXT = "PLAYLISTS";
-    private static final String PEOPLE_TAB_TEXT = "PEOPLE";
 
-    public SearchResultsScreen(Han solo) {
+    public LegacySearchResultsScreen(Han solo) {
         super(solo);
         waiter.waitForFragmentByTag(FRAGMENT);
     }
@@ -44,11 +46,6 @@ public class SearchResultsScreen extends Screen {
         return new UpgradeScreen(testDriver);
     }
 
-    public void clickFirstPlaylistItem() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.findElement(With.id(R.id.playlist_list_item)).click();
-    }
-
     public ProfileScreen clickFirstUserItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.findElement(With.id(R.id.user_list_item)).click();
@@ -59,33 +56,16 @@ public class SearchResultsScreen extends Screen {
         testDriver.goBack();
     }
 
-    public SearchResultsScreen touchTracksTab() {
+    public LegacySearchResultsScreen touchTracksTab() {
         touchTab(TRACKS_TAB_TEXT);
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }
 
-    public SearchResultsScreen touchPlaylistsTab() {
+    public LegacySearchResultsScreen touchPlaylistsTab() {
         touchTab(PLAYLISTS_TAB_TEXT);
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
-    }
-
-    public SearchResultsScreen touchPeopleTab() {
-        touchTab(PEOPLE_TAB_TEXT);
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return this;
-    }
-
-    public SearchResultsScreen touchAllTab() {
-        touchTab(ALL_TAB_TEXT);
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return this;
-    }
-
-    public void scrollToBottomOfTracksListAndLoadMoreItems() {
-        resultsList().scrollToBottom();
-        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
@@ -98,28 +78,6 @@ public class SearchResultsScreen extends Screen {
 
     private void touchTab(String tabText) {
         tabs().getTabWithText(tabText).click();
-    }
-
-    public String currentTabTitle() {
-        return getViewPager().getCurrentTabText();
-    }
-
-    private ViewPagerElement getViewPager() {
-        return new ViewPagerElement(testDriver);
-    }
-
-    public int getResultItemCount() {
-        final RecyclerViewElement recyclerViewElement = resultsList();
-        return recyclerViewElement.getItemCount();
-    }
-
-    public UserItemElement getFirstUser() {
-        scrollListToItem(With.id(com.soundcloud.android.R.id.user_list_item));
-        return getUsers().get(0);
-    }
-
-    private RecyclerViewElement resultsList() {
-        return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
     private Tabs tabs() {

@@ -1,7 +1,9 @@
 package com.soundcloud.android.tests.search.intents;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import com.soundcloud.android.screens.search.LegacySearchResultsScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.screens.search.SearchResultsScreen;
 
 import android.app.SearchManager;
 import android.content.Intent;
@@ -14,16 +16,15 @@ public class ResolveSearchBackstackTest extends SearchIntentsBaseTest {
     }
 
     public void testClearingQueryShowsPlaylistTagsScreen() {
-        SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
-        PlaylistTagsScreen tagsScreen = resultsScreen.actionBar().dismissSearch();
-        assertEquals("Search tags screen should be visible", true, tagsScreen.isVisible());
+        LegacySearchResultsScreen resultsScreen = new LegacySearchResultsScreen(solo);
+        PlaylistTagsScreen tagsScreen = resultsScreen.actionBar().legacyDismissSearch();
+        assertThat("Search tags screen should be visible", tagsScreen.isVisible());
     }
 
     public void testGoingBackShowsPlaylistTagsScreen() {
-        SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
+        LegacySearchResultsScreen resultsScreen = new LegacySearchResultsScreen(solo);
         resultsScreen.pressBack();
         PlaylistTagsScreen playlistTagsScreen = new PlaylistTagsScreen(solo);
-        assertEquals("Search tags screen should be visible", true, playlistTagsScreen.isVisible());
+        assertThat("Search tags screen should be visible", playlistTagsScreen.isVisible());
     }
-
 }
