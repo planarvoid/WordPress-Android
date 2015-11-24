@@ -2,9 +2,9 @@ package com.soundcloud.android.sync.stream;
 
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.stream.SoundStreamProperty;
 import com.soundcloud.android.stream.SoundStreamStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Iterables;
@@ -78,12 +78,12 @@ public class SoundStreamNotifier {
         return Iterables.tryFind(streamItems, new Predicate<PropertySet>() {
             @Override
             public boolean apply(PropertySet bindings) {
-                return bindings.get(PlayableProperty.CREATED_AT).getTime() > lastNotified;
+                return bindings.get(SoundStreamProperty.CREATED_AT).getTime() > lastNotified;
             }
         }).isPresent();
     }
 
     private long getNewestStreamItemCreatedAt(List<PropertySet> streamItems) {
-        return streamItems.get(0).get(PlayableProperty.CREATED_AT).getTime();
+        return streamItems.get(0).get(SoundStreamProperty.CREATED_AT).getTime();
     }
 }
