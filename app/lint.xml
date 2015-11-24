@@ -13,6 +13,9 @@
     </issue>
 
     <issue id="PrivateResource" severity="informational"/>
+
+    <!-- we need to set the min sdk for robolectric -->
+    <issue id="GradleOverrides" severity="informational"/>
      
     <issue id="ViewConstructor" severity="ignore"/>
     <issue id="TypographyEllipsis" severity="ignore"/>
