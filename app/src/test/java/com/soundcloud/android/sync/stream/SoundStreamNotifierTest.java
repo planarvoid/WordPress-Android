@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.stream.SoundStreamProperty;
 import com.soundcloud.android.stream.SoundStreamStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
@@ -59,7 +59,7 @@ public class SoundStreamNotifierTest extends AndroidUnitTest {
 
     @Test
     public void createNotificationForUnseenItemsDoesNothingWithNoNewerItemsThanLastNotified() throws Exception {
-        final List<PropertySet> unseenItems = Arrays.asList(PropertySet.from(PlayableProperty.CREATED_AT.bind(new Date(1000L))));
+        final List<PropertySet> unseenItems = Arrays.asList(PropertySet.from(SoundStreamProperty.CREATED_AT.bind(new Date(1000L))));
         when(contentStats.getLastSeen(Content.ME_SOUND_STREAM)).thenReturn(LAST_SEEN);
         when(contentStats.getLastNotifiedItem(Content.ME_SOUND_STREAM)).thenReturn(LAST_SEEN);
         when(soundStreamStorage.timelineItemsSince(LAST_SEEN, SoundStreamNotifier.MAX_NOTIFICATION_ITEMS))
@@ -72,7 +72,7 @@ public class SoundStreamNotifierTest extends AndroidUnitTest {
 
     @Test
     public void createNotificationForUnseenItemsWithNewerItemThanLastSeenCreatesNotification() throws Exception {
-        setupUnseenNotification(Arrays.asList(PropertySet.from(PlayableProperty.CREATED_AT.bind(new Date(1001L)))));
+        setupUnseenNotification(Arrays.asList(PropertySet.from(SoundStreamProperty.CREATED_AT.bind(new Date(1001L)))));
 
         syncOperations.notifyUnseenItems();
 
@@ -81,7 +81,7 @@ public class SoundStreamNotifierTest extends AndroidUnitTest {
 
     @Test
     public void createNotificationForUnseenItemsWithNewerItemThanLastSeenSetsLastNotifiedTimestamp() throws Exception {
-        setupUnseenNotification(Arrays.asList(PropertySet.from(PlayableProperty.CREATED_AT.bind(new Date(1001L)))));
+        setupUnseenNotification(Arrays.asList(PropertySet.from(SoundStreamProperty.CREATED_AT.bind(new Date(1001L)))));
 
         syncOperations.notifyUnseenItems();
 
@@ -90,7 +90,7 @@ public class SoundStreamNotifierTest extends AndroidUnitTest {
 
     @Test
     public void createNotificationForUnseenItemsWithNewerItemThanLastSeenSetsLastNotifiedItem() throws Exception {
-        setupUnseenNotification(Arrays.asList(PropertySet.from(PlayableProperty.CREATED_AT.bind(new Date(1001L)))));
+        setupUnseenNotification(Arrays.asList(PropertySet.from(SoundStreamProperty.CREATED_AT.bind(new Date(1001L)))));
 
         syncOperations.notifyUnseenItems();
 
