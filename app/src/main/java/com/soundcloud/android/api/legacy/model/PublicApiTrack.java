@@ -209,6 +209,10 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         this.stream_url = streamUrl;
     }
 
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
     @Override
     public boolean isSyncable() {
         return false;
