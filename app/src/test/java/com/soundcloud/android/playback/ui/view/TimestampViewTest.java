@@ -44,7 +44,7 @@ public class TimestampViewTest extends AndroidUnitTest {
 
     @Test
     public void updatesProgressWhenNotScrubbing() {
-        timestampView.setInitialProgress(MINUTES_10);
+        timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
         timestampView.setProgress(new PlaybackProgress(SECONDS_5, MINUTES_10));
 
         assertThat(progressView).hasText("0:05");
@@ -63,7 +63,7 @@ public class TimestampViewTest extends AndroidUnitTest {
 
     @Test
     public void setsInitialProgress() {
-        timestampView.setInitialProgress(MINUTES_10);
+        timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
 
         assertThat(progressView).hasText("0:00");
         assertThat(durationView).hasText("10:00");
@@ -71,7 +71,7 @@ public class TimestampViewTest extends AndroidUnitTest {
 
     @Test
     public void updatesTimestampBasedOnBoundedScrubPosition() {
-        timestampView.setInitialProgress(MINUTES_10);
+        timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
 
         timestampView.displayScrubPosition(0.2f, .5f);
 

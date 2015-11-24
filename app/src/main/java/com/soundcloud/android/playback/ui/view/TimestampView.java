@@ -50,6 +50,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
 
     private boolean inBufferingMode;
     private boolean isScrubbing;
+    private long playableDuration;
     private long duration;
     private int animatePercentage;
     private Spring springY;
@@ -113,7 +114,8 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         return bufferingAnimation;
     }
 
-    public void setInitialProgress(long duration) {
+    public void setInitialProgress(long playableDuration, long duration) {
+        this.playableDuration = playableDuration;
         this.duration = duration;
         progressText.setText(format(0));
         durationText.setText(format(duration));
@@ -163,7 +165,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     @Override
     public void displayScrubPosition(float actualPosition, float boundedPosition) {
         long scrubTime = (long) (boundedPosition * duration);
-        progressText.setText(format(scrubTime));
+        progressText.setText(format(Math.min(playableDuration, scrubTime)));
         selectiveInvalidate(false);
     }
 

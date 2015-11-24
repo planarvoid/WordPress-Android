@@ -14,17 +14,14 @@ public class ProgressLineDrawable extends Drawable {
     private final int thickness;
     private final float playableProportion;
 
-    public ProgressLineDrawable(int color, int baseline, int thickness, float playableProportion) {
+    public ProgressLineDrawable(int color, Paint unPlayablePaint, int baseline, int thickness, float playableProportion) {
         this.baseline = baseline;
         this.thickness = thickness;
         this.playableProportion = playableProportion;
-
-        paint = new Paint();
+        this.paint = new Paint();
         paint.setColor(color);
         paint.setStyle(Paint.Style.FILL);
-
-        unPlayablePaint = new Paint(paint);
-        unPlayablePaint.setAlpha(80);
+        this.unPlayablePaint = unPlayablePaint;
     }
 
     @Override

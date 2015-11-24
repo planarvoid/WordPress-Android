@@ -11,12 +11,11 @@ import android.util.AttributeSet;
 import android.view.TextureView;
 
 public class WaveformCanvas extends TextureView implements TextureView.SurfaceTextureListener {
-    private static final int TWENTY_PERCENT_OF_255 = 51;
     private WaveformData waveformData;
     private Paint abovePaint;
     private Paint belowPaint;
-    private Paint abovePaintTransparent;
-    private Paint belowPaintTransparent;
+    private Paint unplayableAbovePaint;
+    private Paint unplayableBelowPaint;
     private int barWidth, spaceWidth, baseline;
     private boolean surfaceAvailable = false;
 
@@ -36,20 +35,15 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
         setOpaque(false);
     }
 
-    public void initialize(WaveformData waveformData, Paint abovePaint, Paint belowPaint, int barWidth, int spaceWidth, int baseline) {
+    public void initialize(WaveformData waveformData, Paint abovePaint, Paint belowPaint, Paint unplayableAbovePaint, Paint unplayableBelowPaint, int barWidth, int spaceWidth, int baseline) {
         this.waveformData = waveformData;
         this.abovePaint = abovePaint;
         this.belowPaint = belowPaint;
         this.barWidth = barWidth;
         this.spaceWidth = spaceWidth;
         this.baseline = baseline;
-
-        abovePaintTransparent = new Paint(abovePaint);
-        abovePaintTransparent.setAlpha(TWENTY_PERCENT_OF_255);
-
-        belowPaintTransparent = new Paint(belowPaint);
-        belowPaintTransparent.setAlpha(TWENTY_PERCENT_OF_255);
-
+        this.unplayableAbovePaint = unplayableAbovePaint;
+        this.unplayableBelowPaint = unplayableBelowPaint;
         drawCanvas();
     }
 
@@ -106,7 +100,7 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
 
             for (int bar = playableBars; bar < length; bar++) {
                 y = Math.max(spaceWidth, waveformData.samples[bar]);
-                drawBar(canvas, x, y, abovePaintTransparent, belowPaintTransparent);
+                drawBar(canvas, x, y, unplayableAbovePaint, unplayableBelowPaint);
                 x += w;
             }
         }
