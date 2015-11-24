@@ -5,7 +5,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -23,11 +25,12 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
 
     @Mock private PlaySessionController playSessionController;
     @Mock private ServiceInitiator serviceInitiator;
+    @Mock private AdsController adsController;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Before
     public void setup() {
-        controller = new PlaybackActionController(playSessionController, serviceInitiator, playSessionStateProvider, eventBus);
+        controller = new PlaybackActionController(playSessionController, serviceInitiator, playSessionStateProvider, adsController, eventBus);
     }
 
     @Test
@@ -135,4 +138,24 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
         assertThat(event.getAttributes().get("location")).isEqualTo("source");
     }
 
+    @Test
+    public void shouldReconfigureAdIfTrackSkipFromNotification() {
+        controller.handleAction(PlaybackAction.NEXT, PlayControlEvent.SOURCE_NOTIFICATION);
+
+        verify(adsController).reconfigureAdForNextTrack();
+    }
+
+    @Test
+    public void shouldReconfigureAdIfTrackSkipFromWidget() {
+        controller.handleAction(PlaybackAction.NEXT, PlayControlEvent.SOURCE_WIDGET);
+
+        verify(adsController).reconfigureAdForNextTrack();
+    }
+
+    @Test
+    public void shouldReconfigureAdIfTrackSkipFromLockScreen() {
+        controller.handleAction(PlaybackAction.NEXT, PlayControlEvent.SOURCE_REMOTE);
+
+        verify(adsController).reconfigureAdForNextTrack();
+    }
 }

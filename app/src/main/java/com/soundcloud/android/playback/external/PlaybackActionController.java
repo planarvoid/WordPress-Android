@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.external;
 
 import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -14,13 +15,19 @@ public class PlaybackActionController {
     private final PlaySessionController playSessionController;
     private final ServiceInitiator serviceInitiator;
     private final PlaySessionStateProvider playSessionStateProvider;
+    private final AdsController adsController;
     private final EventBus eventBus;
 
     @Inject
-    public PlaybackActionController(PlaySessionController playSessionController, ServiceInitiator serviceInitiator, PlaySessionStateProvider playSessionStateProvider, EventBus eventBus) {
+    public PlaybackActionController(PlaySessionController playSessionController,
+                                    ServiceInitiator serviceInitiator,
+                                    PlaySessionStateProvider playSessionStateProvider,
+                                    AdsController adsController,
+                                    EventBus eventBus) {
         this.playSessionController = playSessionController;
         this.serviceInitiator = serviceInitiator;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.adsController = adsController;
         this.eventBus = eventBus;
     }
 
@@ -35,6 +42,7 @@ public class PlaybackActionController {
             eventBus.publish(EventQueue.TRACKING, PlayControlEvent.previous(source));
             playSessionController.previousTrack();
         } else if (PlaybackAction.NEXT.equals(action)) {
+            reconfigureAdIfBackgroundSkip(source);
             eventBus.publish(EventQueue.TRACKING, PlayControlEvent.skip(source));
             playSessionController.nextTrack();
         } else if (PlaybackAction.TOGGLE_PLAYBACK.equals(action)) {
@@ -46,4 +54,11 @@ public class PlaybackActionController {
         }
     }
 
+    private void reconfigureAdIfBackgroundSkip(String source) {
+        if (source.equals(PlayControlEvent.SOURCE_NOTIFICATION)
+                || source.equals(PlayControlEvent.SOURCE_WIDGET)
+                || source.equals(PlayControlEvent.SOURCE_REMOTE)) {
+           adsController.reconfigureAdForNextTrack();
+        }
+    }
 }
