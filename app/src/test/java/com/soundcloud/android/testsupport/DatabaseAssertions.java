@@ -146,7 +146,7 @@ public class DatabaseAssertions {
     }
 
     public void assertTrackInserted(ApiTrack track) {
-        assertThat(select(from(Sounds.name())
+        final Query query = from(Sounds.name())
                 .whereEq(_ID, track.getId())
                 .whereEq(_TYPE, TYPE_TRACK)
                 .whereEq(TITLE, track.getTitle())
@@ -163,7 +163,11 @@ public class DatabaseAssertions {
                 .whereEq(LIKES_COUNT, track.getStats().getLikesCount())
                 .whereEq(REPOSTS_COUNT, track.getStats().getRepostsCount())
                 .whereEq(PLAYBACK_COUNT, track.getStats().getPlaybackCount())
-                .whereEq(COMMENT_COUNT, track.getStats().getCommentsCount()))).counts(1);
+                .whereEq(COMMENT_COUNT, track.getStats().getCommentsCount());
+        if (track.getDescription().isPresent()) {
+            query.whereEq(DESCRIPTION, track.getDescription().get());
+        }
+        assertThat(select(query)).counts(1);
         assertTrackPolicyInserted(track);
     }
 

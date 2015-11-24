@@ -20,7 +20,7 @@ def FEATURE_ACTIVITIES_REFACTOR = "FEATURE_ACTIVITIES_REFACTOR"
 def FEATURE_VIDEO_ADS = "FEATURE_VIDEO_ADS"
 def FEATURE_PRELOAD_NEXT_TRACK = "FEATURE_PRELOAD_NEXT_TRACK"
 def FEATURE_WAVEFORM_SPRING = "FEATURE_WAVEFORM_SPRING"
-
+def FEATURE_TRACK_SYNC_APIMOBILE = "FEATURE_TRACK_SYNC_APIMOBILE"
 
 /**
  * Discovery is a group of subfeatures which includes:
@@ -53,6 +53,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY, TRUE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, TRUE   //Enable only if FEATURE_DISCOVERY is TRUE
+      buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -87,6 +88,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
+      buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, FALSE
     }
 
     debug {
@@ -101,6 +103,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
       buildConfigField BOOLEAN, FEATURE_ACTIVITIES_REFACTOR, TRUE
       buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
+      buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -121,6 +124,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
+      buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
@@ -160,6 +164,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
+      buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, FALSE
     }
 
     releaseNoProguard {
@@ -184,7 +189,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
-
+      buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, FALSE
     }
 
     release_non_play_store {
@@ -209,6 +214,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
+      buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, FALSE
     }
   }
 }
