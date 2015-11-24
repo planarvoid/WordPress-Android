@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -48,6 +49,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
         assertThat("Search results screen should be visible", resultsScreen.isVisible());
     }
 
+    @Ignore
     public void testSearchingFromSuggestionShortcutShowsSearchResults() {
         SearchResultsScreen resultsScreen = searchScreen.setSearchQuery("dubstep").clickOnCurrentSearchQuery();
 
@@ -78,6 +80,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
         assertThat("Player screen should be visible", playerScreen.isVisible());
     }
 
+    @Ignore
     public void testTappingPlaylistOnPlaylistsTabOpensPlaylistDetails() {
         PlaylistDetailsScreen playlistDetailsScreen = searchScreen
                 .setSearchQuery("clownstep")
