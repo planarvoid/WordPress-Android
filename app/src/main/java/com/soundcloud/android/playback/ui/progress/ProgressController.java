@@ -59,9 +59,10 @@ public class ProgressController {
         return progressAnimator != null && progressAnimator.isRunning();
     }
 
-    public void startProgressAnimation(PlaybackProgress playbackProgress) {
-        animationRequested = true;
+    public void startProgressAnimation(PlaybackProgress playbackProgress, long fullDuration) {
         this.playbackProgress = playbackProgress;
+        this.fullDuration = fullDuration;
+        animationRequested = true;
         startProgressAnimationInternal();
     }
 
@@ -90,7 +91,8 @@ public class ProgressController {
         if (progressAnimator != null){
             progressAnimator.cancel();
         }
-        progressAnimator = helper.createAnimator(progressView, getProgressProportion());
+        final float progressProportion = getProgressProportion();
+        progressAnimator = helper.createAnimator(progressView, progressProportion);
         if (progressAnimator != null) {
             progressAnimator.setDuration(getTimeLeft());
             progressAnimator.start();
