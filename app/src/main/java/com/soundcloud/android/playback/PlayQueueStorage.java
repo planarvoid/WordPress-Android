@@ -63,19 +63,20 @@ class PlayQueueStorage {
                 final Urn reposter = hasReposter(reader) ? Urn.forUser(reader.getLong(Tables.PlayQueue.REPOSTER_ID)) : Urn.NOT_SET;
                 final String source = reader.getString(Tables.PlayQueue.SOURCE);
                 final String sourceVersion = reader.getString(Tables.PlayQueue.SOURCE_VERSION);
+                final Urn sourceUrn = hasSourceUrn(reader) ? new Urn(reader.getString(Tables.PlayQueue.SOURCE_URN)) : Urn.NOT_SET;
+                final Urn queryUrn = hasQueryUrn(reader) ? new Urn(reader.getString(Tables.PlayQueue.QUERY_URN)) : Urn.NOT_SET;
                 final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.TRACK_ID));
-                final TrackQueueItem trackQueueItem = new TrackQueueItem.Builder(track, reposter)
-                        .relatedEntity(relatedEntity)
-                        .fromSource(source, sourceVersion)
-                        .build();
 
-                return trackQueueItem;
+                return new TrackQueueItem.Builder(track, reposter)
+                        .relatedEntity(relatedEntity)
+                        .fromSource(source, sourceVersion, sourceUrn, queryUrn)
+                        .build();
             }
         });
     }
 
     private ContentValues trackItemContentValues(TrackQueueItem playQueueItem) {
-        final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values(4)
+        final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values()
                 .put(Tables.PlayQueue.TRACK_ID, playQueueItem.getTrackUrn().getNumericId())
                 .put(Tables.PlayQueue.SOURCE, playQueueItem.getSource())
                 .put(Tables.PlayQueue.SOURCE_VERSION, playQueueItem.getSourceVersion());
@@ -88,6 +89,14 @@ class PlayQueueStorage {
             valuesBuilder.put(Tables.PlayQueue.REPOSTER_ID, playQueueItem.getReposter().getNumericId());
         }
 
+        if (!playQueueItem.getSourceUrn().equals(Urn.NOT_SET)) {
+            valuesBuilder.put(Tables.PlayQueue.SOURCE_URN, playQueueItem.getSourceUrn().toString());
+        }
+
+        if (!playQueueItem.getQueryUrn().equals(Urn.NOT_SET)) {
+            valuesBuilder.put(Tables.PlayQueue.QUERY_URN, playQueueItem.getQueryUrn().toString());
+        }
+
         return valuesBuilder.get();
     }
 
@@ -97,5 +106,13 @@ class PlayQueueStorage {
 
     private boolean hasReposter(CursorReader reader) {
         return reader.isNotNull(Tables.PlayQueue.REPOSTER_ID) && reader.getLong(Tables.PlayQueue.REPOSTER_ID) > 0;
+    }
+
+    private boolean hasSourceUrn(CursorReader reader) {
+        return reader.isNotNull(Tables.PlayQueue.SOURCE_URN);
+    }
+
+    private boolean hasQueryUrn(CursorReader reader) {
+        return reader.isNotNull(Tables.PlayQueue.QUERY_URN);
     }
 }

@@ -1,7 +1,5 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.api.model.StationRecord;
-
 class StationViewModel {
     private final StationRecord station;
     private boolean isPlaying;

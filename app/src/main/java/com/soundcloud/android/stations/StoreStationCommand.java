@@ -1,8 +1,6 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -32,7 +30,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
             }
 
             private void addPlayQueue(PropellerDatabase propeller) {
-                final List<Urn> tracks = station.getTracks();
+                final List<StationTrack> tracks = station.getTracks();
                 final Integer playQueueSize = propeller.query(Query.count(StationsPlayQueues.TABLE)
                         .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString()))
                         .first(Integer.class);
@@ -44,11 +42,12 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
         });
     }
 
-    private ContentValues buildContentValues(StationRecord station, Urn trackUrn, int trackPosition) {
+    private ContentValues buildContentValues(StationRecord station, StationTrack stationTrack, int trackPosition) {
         return ContentValuesBuilder
                 .values()
                 .put(StationsPlayQueues.STATION_URN, station.getUrn().toString())
-                .put(StationsPlayQueues.TRACK_URN, trackUrn.toString())
+                .put(StationsPlayQueues.TRACK_URN, stationTrack.getTrackUrn().toString())
+                .put(StationsPlayQueues.QUERY_URN, stationTrack.getQueryUrn().toString())
                 .put(StationsPlayQueues.POSITION, trackPosition)
                 .get();
     }

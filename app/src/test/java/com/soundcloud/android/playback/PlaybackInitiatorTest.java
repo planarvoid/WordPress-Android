@@ -15,7 +15,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationFixtures;
@@ -332,7 +332,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final StationRecord station = StationFixtures.getStation(stationUrn);
         final PlaySessionSource playSessionSource = PlaySessionSource.forStation(ORIGIN_SCREEN, stationUrn);
 
-        when(playQueueManager.isCurrentTrack(station.getTracks().get(0))).thenReturn(true);
+        when(playQueueManager.isCurrentTrack(station.getTracks().get(0).getTrackUrn())).thenReturn(true);
         when(playQueueManager.isCurrentCollectionOrRecommendation(stationUrn)).thenReturn(true);
         when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSessionSource, 0).subscribe(observer);
@@ -350,7 +350,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSessionSource, Consts.NOT_SET).subscribe(observer);
 
         final PlayQueue expectedQueue = PlayQueue.fromStation(stationUrn, station.getTracks());
-        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(0), 0, playSessionSource);
+        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(0).getTrackUrn(), 0, playSessionSource);
     }
 
     @Test
@@ -363,7 +363,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSessionSource, 0).subscribe(observer);
 
         final PlayQueue expectedQueue = PlayQueue.fromStation(stationUrn, station.getTracks());
-        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(1), 1, playSessionSource);
+        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(1).getTrackUrn(), 1, playSessionSource);
     }
 
     @Test
@@ -376,7 +376,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSessionSource, station.getTracks().size() - 1).subscribe(observer);
 
         final PlayQueue expectedQueue = PlayQueue.fromStation(stationUrn, station.getTracks());
-        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(0), 0, playSessionSource);
+        verify(playSessionController).playNewQueue(expectedQueue, station.getTracks().get(0).getTrackUrn(), 0, playSessionSource);
     }
 
 

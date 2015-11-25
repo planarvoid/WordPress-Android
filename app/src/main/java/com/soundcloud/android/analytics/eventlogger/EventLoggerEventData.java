@@ -45,6 +45,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFE
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPOSTER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOUND;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_VERSION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TIMESTAMP;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRACK;
@@ -166,6 +167,11 @@ class EventLoggerEventData {
 
     public EventLoggerEventData source(String source) {
         addToPayload(SOURCE, source);
+        return this;
+    }
+
+    public EventLoggerEventData sourceUrn(String sourceUrn) {
+        addToPayload(SOURCE_URN, sourceUrn);
         return this;
     }
 

@@ -15,8 +15,8 @@ public class StationTest {
         final ApiStation sourceStation = StationFixtures.getApiStation();
         final Station stationWithSeed = Station.stationWithSeedTrack(sourceStation, seed);
 
-        final ArrayList<Urn> expected = new ArrayList<>();
-        expected.add(seed);
+        final ArrayList<StationTrack> expected = new ArrayList<>();
+        expected.add(StationTrack.create(seed, Urn.NOT_SET));
         expected.addAll(sourceStation.getTracks());
         assertThat(stationWithSeed.getTracks()).isEqualTo(expected);
     }

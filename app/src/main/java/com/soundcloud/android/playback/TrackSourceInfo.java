@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
@@ -21,6 +22,7 @@ public class TrackSourceInfo {
 
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
+    private StationsSourceInfo stationsSourceInfo;
 
     public TrackSourceInfo(String originScreen, boolean userTriggered) {
         this.originScreen = originScreen;
@@ -38,8 +40,9 @@ public class TrackSourceInfo {
         this.playlistOwnerUrn = playlistOwnerUrn;
     }
 
-    public void setOriginStation(Urn stationUrn) {
+    public void setStationSourceInfo(Urn stationUrn, StationsSourceInfo sourceInfo) {
         this.collectionUrn = stationUrn;
+        this.stationsSourceInfo = sourceInfo;
     }
 
     public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
@@ -60,6 +63,10 @@ public class TrackSourceInfo {
 
     public PromotedSourceInfo getPromotedSourceInfo() {
         return promotedSourceInfo;
+    }
+
+    public StationsSourceInfo getStationsSourceInfo() {
+        return stationsSourceInfo;
     }
 
     public boolean getIsUserTriggered() {

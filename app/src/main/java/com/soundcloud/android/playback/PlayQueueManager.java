@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
@@ -25,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 
 import android.support.annotation.VisibleForTesting;
@@ -257,29 +257,19 @@ public class PlayQueueManager implements OriginProvider {
     public Observable<PlayQueue> loadPlayQueueAsync() {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
-        Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
-        if (playQueueObservable != null) {
-            return playQueueObservable
-                    .doOnSubscribe(new Action0() {
-                        @Override
-                        public void call() {
-                            // return so player can have the resume information while load is in progress
-                            setLastPlayedTrackAndPosition(
-                                    Urn.forTrack(playQueueOperations.getLastStoredPlayingTrackId()),
-                                    playQueueOperations.getLastStoredSeekPosition());
-                        }
-                    })
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(new Action1<PlayQueue>() {
-                        @Override
-                        public void call(PlayQueue savedQueue) {
-                            currentPosition = playQueueOperations.getLastStoredPlayPosition();
-                            setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
-                        }
-                    });
-        } else {
-            return Observable.empty();
-        }
+        return playQueueOperations.getLastStoredPlayQueue()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(new Action1<PlayQueue>() {
+                    @Override
+                    public void call(PlayQueue savedQueue) {
+                        setLastPlayedTrackAndPosition(
+                                Urn.forTrack(playQueueOperations.getLastStoredPlayingTrackId()),
+                                playQueueOperations.getLastStoredSeekPosition());
+
+                        currentPosition = playQueueOperations.getLastStoredPlayPosition();
+                        setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
+                    }
+                });
     }
 
     private void setLastPlayedTrackAndPosition(Urn urn, long lastStoredSeekPosition) {
@@ -324,7 +314,7 @@ public class PlayQueueManager implements OriginProvider {
             trackSourceInfo.setReposter(trackQueueItem.getReposter());
         }
 
-        if (playSessionSource.isFromQuery()) {
+        if (playSessionSource.isFromSearchQuery()) {
             trackSourceInfo.setSearchQuerySourceInfo(playSessionSource.getSearchQuerySourceInfo());
         }
 
@@ -333,7 +323,11 @@ public class PlayQueueManager implements OriginProvider {
         }
 
         if (playSessionSource.isFromStations()) {
-            trackSourceInfo.setOriginStation(playSessionSource.getCollectionUrn());
+            TrackQueueItem trackQueueItem = (TrackQueueItem) currentPlayQueueItem;
+            trackSourceInfo.setStationSourceInfo(
+                    playSessionSource.getCollectionUrn(),
+                    StationsSourceInfo.create(trackQueueItem.getQueryUrn())
+            );
         }
 
         final Urn collectionUrn = playSessionSource.getCollectionUrn();

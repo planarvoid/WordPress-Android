@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.Stations;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
@@ -69,7 +70,7 @@ public class PlaybackInitiator {
                 .flatMap(toPlaybackResult(startPosition, playSessionSource));
     }
 
-    public Observable<PlaybackResult> playStation(Urn stationUrn, List<Urn> tracks, final PlaySessionSource playSessionSource, final int previousPosition) {
+    public Observable<PlaybackResult> playStation(Urn stationUrn, List<StationTrack> stationTracks, final PlaySessionSource playSessionSource, final int previousPosition) {
         // TODO : once we land the playback operations refactoring #3876
         // move this code to a proper stations builder.
         final int nextPosition;
@@ -78,15 +79,15 @@ public class PlaybackInitiator {
             previousTrackUrn = Urn.NOT_SET;
             nextPosition = 0;
         } else {
-            previousTrackUrn = tracks.get(previousPosition);
-            nextPosition = (previousPosition + 1) % tracks.size();
+            previousTrackUrn = stationTracks.get(previousPosition).getTrackUrn();
+            nextPosition = (previousPosition + 1) % stationTracks.size();
         }
 
         if (isCurrentPlayQueueOrRecommendationState(previousTrackUrn, playSessionSource)) {
             return Observable.just(PlaybackResult.success());
         }
 
-        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks);
+        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks);
         return playNewQueue(playQueue, playQueue.getUrn(nextPosition), nextPosition, playSessionSource);
     }
 

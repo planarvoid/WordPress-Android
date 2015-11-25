@@ -1,6 +1,17 @@
 package com.soundcloud.android.playback;
 
-import android.content.SharedPreferences;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdFixtures;
@@ -15,6 +26,8 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager.QueueUpdateOperation;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.stations.StationTrack;
+import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -22,32 +35,20 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import android.content.SharedPreferences;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class PlayQueueManagerTest extends AndroidUnitTest {
 
@@ -415,6 +416,19 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
 
         assertThat(trackSourceInfo.getSearchQuerySourceInfo()).isEqualTo(searchQuerySourceInfo);
+    }
+
+    @Test
+    public void shouldReturnTrackSourceInfoWithStationsSourceInfoIfSet() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final Urn queryUrn = new Urn("soundcloud:radio:123-456");
+        StationTrack stationTrack = StationTrack.create(Urn.forTrack(123L), queryUrn);
+        List<StationTrack> tracks = Collections.singletonList(stationTrack);
+
+        playQueueManager.setNewPlayQueue(PlayQueue.fromStation(stationUrn, tracks), PlaySessionSource.forStation(Screen.PLAYLIST_DETAILS, stationUrn));
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+
+        assertThat(trackSourceInfo.getStationsSourceInfo()).isEqualTo(StationsSourceInfo.create(queryUrn));
     }
 
     @Test
@@ -817,7 +831,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldHaveNoLastPositionWhenPlaybackOperationsHasReturnsNoObservable() {
+    public void shouldHaveNoLastPositionWhenPlaybackOperationsReturnsEmptyObservable() {
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
         playQueueManager.loadPlayQueueAsync();
         assertThat(playQueueManager.getLastSavedPosition()).isEqualTo(Consts.NOT_SET);
     }
@@ -837,7 +852,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetPlayProgressInfoWhenReloadingPlayQueue() {
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(PlayQueue.empty()));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
 

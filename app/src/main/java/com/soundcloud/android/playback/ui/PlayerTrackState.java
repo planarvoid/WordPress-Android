@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;

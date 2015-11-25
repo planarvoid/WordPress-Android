@@ -1,10 +1,10 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.ads.PlayerAdData;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;

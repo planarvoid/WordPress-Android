@@ -293,6 +293,16 @@ public class EventLoggerJsonDataBuilder {
             data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
             data.queryPosition(searchQuerySourceInfo.getUpdatedResultPosition(urn));
         }
+
+        if (trackSourceInfo.isFromStation()) {
+            // When updating it, please update V1 too. Your friend.
+            data.sourceUrn(trackSourceInfo.getCollectionUrn().toString());
+
+            if (!trackSourceInfo.getStationsSourceInfo().getQueryUrn().equals(Urn.NOT_SET)) {
+                data.queryUrn(trackSourceInfo.getStationsSourceInfo().getQueryUrn().toString());
+            }
+        }
+
         return data;
     }
 
@@ -459,5 +469,4 @@ public class EventLoggerJsonDataBuilder {
     private String getLegacyTrackUrn(String urn) {
         return urn.replaceFirst(":tracks:", ":sounds:");
     }
-
 }

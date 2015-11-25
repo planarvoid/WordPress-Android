@@ -1,10 +1,16 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
+
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
@@ -16,11 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.java.collections.Lists.transform;
 
 public class PlayQueue implements Iterable<PlayQueueItem> {
 
@@ -156,12 +157,17 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return fromTrackUrnList(shuffled, playSessionSource);
     }
 
-    public static PlayQueue fromStation(Urn stationUrn, List<Urn> tracks) {
+    public static PlayQueue fromStation(Urn stationUrn, List<StationTrack> stationTracks) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
-        for (Urn track : tracks) {
-            final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(track)
+        for (StationTrack stationTrack : stationTracks) {
+            final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(stationTrack.getTrackUrn())
                     .relatedEntity(stationUrn)
-                    .fromSource(PlaySessionSource.DiscoverySource.STATIONS.value(), DEFAULT_SOURCE_VERSION);
+                    .fromSource(
+                            PlaySessionSource.DiscoverySource.STATIONS.value(),
+                            DEFAULT_SOURCE_VERSION,
+                            stationUrn,
+                            stationTrack.getQueryUrn()
+                    );
             playQueueItems.add(builder.build());
         }
         return new PlayQueue(playQueueItems);

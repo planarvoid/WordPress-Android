@@ -5,7 +5,7 @@ import static com.soundcloud.android.playback.Player.StateTransition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.OverlayAdData;
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.experiments.ShareButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;

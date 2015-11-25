@@ -3,7 +3,6 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
@@ -144,20 +143,20 @@ public class StationsOperations {
     }
 
     @NonNull
-    private Func1<List<Urn>, PlayQueue> toPlayQueue(final Urn station) {
-        return new Func1<List<Urn>, PlayQueue>() {
+    private Func1<List<StationTrack>, PlayQueue> toPlayQueue(final Urn station) {
+        return new Func1<List<StationTrack>, PlayQueue>() {
             @Override
-            public PlayQueue call(List<Urn> tracks) {
+            public PlayQueue call(List<StationTrack> tracks) {
                 return PlayQueue.fromStation(station, tracks);
             }
         };
     }
 
     @NonNull
-    private Func1<StationRecord, Observable<Urn>> loadPlayQueue(final Urn station, final int startPosition) {
-        return new Func1<StationRecord, Observable<Urn>>() {
+    private Func1<StationRecord, Observable<StationTrack>> loadPlayQueue(final Urn station, final int startPosition) {
+        return new Func1<StationRecord, Observable<StationTrack>>() {
             @Override
-            public Observable<Urn> call(StationRecord ignored) {
+            public Observable<StationTrack> call(StationRecord ignored) {
                 return stationsStorage.loadPlayQueue(station, startPosition);
             }
         };

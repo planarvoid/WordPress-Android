@@ -1,26 +1,26 @@
 package com.soundcloud.android.playback;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.newArrayList;
+
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationFixtures;
+import com.soundcloud.android.stations.StationRecord;
+import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.util.Lists.newArrayList;
 
 public class PlayQueueTest extends AndroidUnitTest {
 
@@ -177,15 +177,16 @@ public class PlayQueueTest extends AndroidUnitTest {
     public void playStationReturnsQueueWithStationPlayQueueItems() {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final StationRecord station = StationFixtures.getStation(stationUrn);
-        final List<Urn> tracks = station.getTracks();
+        final List<StationTrack> tracks = station.getTracks();
         PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks);
 
         assertThat(playQueue).hasSize(1);
-        assertThat(playQueue.getTrackItemUrns()).containsExactly(tracks.get(0));
+        assertThat(playQueue.getTrackItemUrns()).containsExactly(tracks.get(0).getTrackUrn());
 
         final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueue.getPlayQueueItem(0);
         assertThat(trackQueueItem.getSource()).isEqualTo("stations");
         assertThat(trackQueueItem.getSourceVersion()).isEqualTo("default");
+        assertThat(trackQueueItem.getSourceUrn()).isEqualTo(stationUrn);
     }
 
     private void assertTrackQueueItem(PlayQueueItem playQueueItem, Urn trackUrn) {

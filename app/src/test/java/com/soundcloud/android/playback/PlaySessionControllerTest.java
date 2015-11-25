@@ -30,6 +30,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.settings.SettingKey;
+import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
@@ -347,7 +348,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void appendsStationsTracksWhenAtTheEndOfAStationsPlayQueue() {
         final Urn station = Urn.forTrackStation(123L);
-        final PlayQueue playQueue = PlayQueue.fromStation(station, Collections.singletonList(trackUrn));
+        final PlayQueue playQueue = PlayQueue.fromStation(station, Collections.singletonList(StationTrack.create(trackUrn, Urn.NOT_SET)));
         final int queueSize = PlaySessionController.RECOMMENDED_LOAD_TOLERANCE;
 
         when(playQueueManager.getQueueSize()).thenReturn(queueSize);

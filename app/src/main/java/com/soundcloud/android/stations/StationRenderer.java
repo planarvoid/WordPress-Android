@@ -2,7 +2,6 @@ package com.soundcloud.android.stations;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
