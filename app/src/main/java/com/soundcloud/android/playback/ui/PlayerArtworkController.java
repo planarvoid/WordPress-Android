@@ -48,24 +48,33 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
 
     public void setFullDuration(long fullDuration) {
         this.fullDuration = fullDuration;
+        if (!latestProgress.isEmpty()) {
+            if (isPlaying) {
+                showPlayingState(latestProgress);
+            } else {
+                setProgress(latestProgress);
+            }
+        }
     }
 
     @Override
     public void setProgress(PlaybackProgress progress) {
         latestProgress = progress;
-        if (!suppressProgress) {
+        if (!suppressProgress && fullDuration > 0) {
             progressController.setPlaybackProgress(progress, fullDuration);
         }
     }
 
     public void showPlayingState(PlaybackProgress progress) {
+        latestProgress = progress;
         isPlaying = true;
-        if (progress != null && !suppressProgress) {
-            progressController.startProgressAnimation(progress);
+        if (progress != null && !suppressProgress && fullDuration > 0) {
+            progressController.startProgressAnimation(progress, fullDuration);
         }
     }
 
     public void showIdleState(PlaybackProgress progress) {
+        latestProgress = progress;
         showIdleState();
         if (!progress.isEmpty()){
             setProgress(progress);
@@ -85,7 +94,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
             progressController.cancelProgressAnimation();
         }
         if (newScrubState == SCRUB_STATE_CANCELLED && isPlaying) {
-            progressController.startProgressAnimation(latestProgress);
+            progressController.startProgressAnimation(latestProgress, fullDuration);
         }
     }
 

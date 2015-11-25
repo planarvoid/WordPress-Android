@@ -61,37 +61,53 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
         };
 
         playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, playerArtworkLoaderProvider).create(playerTrackArtworkView);
-        playerArtworkController.setFullDuration(FULL_DURATION);
     }
 
     @Test
-    public void showPlayingStateStartsProgressAnimationWithProgressArtument() {
+    public void showPlayingStateDoesNotStartProgressAnimationWithoutDuration() {
         playerArtworkController.showPlayingState(playbackProgress);
-        verify(progressController).startProgressAnimation(playbackProgress);
+        verify(progressController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+    }
+
+    @Test
+    public void showPlayingStateStartsProgressAnimationWithProgressArgument() {
+        playerArtworkController.setFullDuration(FULL_DURATION);
+        playerArtworkController.showPlayingState(playbackProgress);
+        verify(progressController).startProgressAnimation(playbackProgress, FULL_DURATION);
     }
 
     @Test
     public void showPlayingStateDoesNotStartProgressAnimationIfScrubbing() {
+        playerArtworkController.setFullDuration(FULL_DURATION);
         playerArtworkController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         playerArtworkController.showPlayingState(playbackProgress);
-        verify(progressController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(progressController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+    }
+
+    @Test
+    public void setDurationAfterShowPlayingStateStartsProgressAnimations() {
+        playerArtworkController.showPlayingState(playbackProgress);
+        playerArtworkController.setFullDuration(FULL_DURATION);
+        verify(progressController).startProgressAnimation(playbackProgress, FULL_DURATION);
     }
 
     @Test
     public void scrubStateCancelledStartsProgressAnimationFromLastPositionIfPlaying() {
+        playerArtworkController.setFullDuration(FULL_DURATION);
         playerArtworkController.showPlayingState(playbackProgress);
         PlaybackProgress latest = new PlaybackProgress(5, 10);
 
         playerArtworkController.setProgress(latest);
         playerArtworkController.scrubStateChanged(SCRUB_STATE_CANCELLED);
 
-        verify(progressController).startProgressAnimation(latest);
+        verify(progressController).startProgressAnimation(latest, FULL_DURATION);
     }
 
     @Test
     public void scrubStateCancelledDoesNotStartAnimationsIfNotPlaying() {
+        playerArtworkController.setFullDuration(FULL_DURATION);
         playerArtworkController.scrubStateChanged(SCRUB_STATE_CANCELLED);
-        verify(progressController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(progressController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
     }
 
     @Test
@@ -101,7 +117,17 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showIdleStateWithProgressSetsProgress() {
+    public void showIdleStateWithProgressDoesNotSetProgressIfDurationNotSet() {
+        final PlaybackProgress progress = new PlaybackProgress(5, 10);
+
+        playerArtworkController.showIdleState(progress);
+
+        verify(progressController, never()).setPlaybackProgress(any(PlaybackProgress.class), anyLong());
+    }
+
+    @Test
+    public void showIdleStateWithProgressSetsProgressIfDurationSet() {
+        playerArtworkController.setFullDuration(FULL_DURATION);
         final PlaybackProgress progress = new PlaybackProgress(5, 10);
 
         playerArtworkController.showIdleState(progress);
@@ -111,20 +137,22 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
 
     @Test
     public void showIdleStateWithEmptyProgressDoesNotSetProgress() {
-
+        playerArtworkController.setFullDuration(FULL_DURATION);
         playerArtworkController.showIdleState(PlaybackProgress.empty());
 
         verify(progressController, never()).setPlaybackProgress(any(PlaybackProgress.class), anyLong());
     }
 
     @Test
-     public void setProgressSetsProgressOnController() {
+     public void setProgressSetsProgressOnControllerIfDurationSet() {
+        playerArtworkController.setFullDuration(FULL_DURATION);
         playerArtworkController.setProgress(playbackProgress);
         verify(progressController).setPlaybackProgress(playbackProgress, FULL_DURATION);
     }
 
     @Test
     public void setProgressDoesNotSetProgressOnControllerWhileScrubbing() {
+        playerArtworkController.setFullDuration(FULL_DURATION);
         playerArtworkController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         playerArtworkController.setProgress(playbackProgress);
         verify(progressController, never()).setPlaybackProgress(any(PlaybackProgress.class), anyLong());

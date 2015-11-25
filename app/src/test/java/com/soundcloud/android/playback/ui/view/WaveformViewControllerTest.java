@@ -35,6 +35,8 @@ import android.widget.ImageView;
 public class WaveformViewControllerTest extends AndroidUnitTest {
 
     private static final float WAVEFORM_WIDTH_RATIO = 2.0f;
+    private static final long PLAYABLE_DURATION = 1000;
+    private static final long FULL_DURATION = 2000;
     private final PlaybackProgress playbackProgress = new PlaybackProgress(10, 100);
 
     private WaveformViewController waveformViewController;
@@ -77,55 +79,68 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showPlayingStateStartsProgressAnimations() {
+    public void showPlayingStateDoesNotStartProgressAnimationsWithoutSettingDuration() {
         waveformViewController.showPlayingState(playbackProgress);
-        verify(leftAnimationController).startProgressAnimation(playbackProgress);
-        verify(rightAnimationController).startProgressAnimation(playbackProgress);
-        verify(dragAnimationController).startProgressAnimation(playbackProgress);
+        verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+        verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+        verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+    }
+
+    @Test
+    public void showPlayingStateStartsProgressAnimationsAfterSettingDuration() {
+        waveformViewController.setDurations(PLAYABLE_DURATION, FULL_DURATION);
+        waveformViewController.showPlayingState(playbackProgress);
+        verify(leftAnimationController).startProgressAnimation(playbackProgress, FULL_DURATION);
+        verify(rightAnimationController).startProgressAnimation(playbackProgress, FULL_DURATION);
+        verify(dragAnimationController).startProgressAnimation(playbackProgress, FULL_DURATION);
     }
 
     @Test
     public void showPlayingStateDoesNotStartProgressAnimationsIfScrubbing() {
+        waveformViewController.setDurations(PLAYABLE_DURATION, FULL_DURATION);
         waveformViewController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
         waveformViewController.showPlayingState(playbackProgress);
-        verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
-        verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
-        verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+        verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+        verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
     }
 
     @Test
     public void scrubStateCancelledStartsProgressAnimationsFromLastPositionIfPlaying() {
+        waveformViewController.setDurations(PLAYABLE_DURATION, FULL_DURATION);
         waveformViewController.showPlayingState(playbackProgress);
         PlaybackProgress latest = new PlaybackProgress(5, 10);
 
         waveformViewController.setProgress(latest);
         waveformViewController.scrubStateChanged(SCRUB_STATE_CANCELLED);
 
-        verify(leftAnimationController).startProgressAnimation(latest);
-        verify(rightAnimationController).startProgressAnimation(latest);
-        verify(dragAnimationController).startProgressAnimation(latest);
+        verify(leftAnimationController).startProgressAnimation(latest, FULL_DURATION);
+        verify(rightAnimationController).startProgressAnimation(latest, FULL_DURATION);
+        verify(dragAnimationController).startProgressAnimation(latest, FULL_DURATION);
     }
 
     @Test
     public void scrubStateCancelledDoesntStartProgressAnimationsFromLastPositionIfBuffering() {
+        waveformViewController.setDurations(PLAYABLE_DURATION, FULL_DURATION);
         waveformViewController.showBufferingState();
         PlaybackProgress latest = new PlaybackProgress(5, 10);
 
         waveformViewController.setProgress(latest);
         waveformViewController.scrubStateChanged(SCRUB_STATE_CANCELLED);
 
-        verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
-        verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
-        verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+        verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+        verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
     }
 
     @Test
     public void scrubStateCancelledDoesNotStartAnimationsIfNotPlaying() {
+        waveformViewController.setDurations(PLAYABLE_DURATION, FULL_DURATION);
         waveformViewController.scrubStateChanged(SCRUB_STATE_CANCELLED);
 
-        verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
-        verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
-        verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class));
+        verify(leftAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+        verify(rightAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
+        verify(dragAnimationController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
     }
 
     @Test
@@ -200,9 +215,16 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setProgressCallsShowIdleLinesAtWaveformPositionWhenPlaystateNotActive() {
+    public void setProgressCallsShowIdleLinesAtWaveformPositionWhenPlaystateNotActiveAndDurationSet() {
+        waveformViewController.setDurations(PLAYABLE_DURATION, FULL_DURATION);
         waveformViewController.setProgress(playbackProgress);
         verify(waveformView).showIdleLinesAtWaveformPositions();
+    }
+
+    @Test
+    public void setProgressDoesNotCallShowIdleLinesAtWaveformPositionWhenPlaystateNotActiveAndDurationNotSet() {
+        waveformViewController.setProgress(playbackProgress);
+        verify(waveformView, never()).showIdleLinesAtWaveformPositions();
     }
 
     @Test

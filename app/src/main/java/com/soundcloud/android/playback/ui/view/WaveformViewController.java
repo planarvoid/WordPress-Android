@@ -89,7 +89,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
             cancelProgressAnimations();
         }
         if (newScrubState == SCRUB_STATE_CANCELLED && currentState == PLAYING) {
-            startProgressAnimations(latestProgress);
+            startProgressAnimations();
         }
     }
 
@@ -106,9 +106,15 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     public void setProgress(PlaybackProgress progress) {
         latestProgress = progress;
         if (!suppressProgress) {
-            leftProgressController.setPlaybackProgress(progress, fullDuration);
-            rightProgressController.setPlaybackProgress(progress, fullDuration);
-            dragProgressController.setPlaybackProgress(progress, fullDuration);
+            setProgressInternal();
+        }
+    }
+
+    private void setProgressInternal() {
+        if (fullDuration > 0 && !latestProgress.isEmpty()) {
+            leftProgressController.setPlaybackProgress(latestProgress, fullDuration);
+            rightProgressController.setPlaybackProgress(latestProgress, fullDuration);
+            dragProgressController.setPlaybackProgress(latestProgress, fullDuration);
 
             if (currentState == IDLE) {
                 waveformView.showIdleLinesAtWaveformPositions();
@@ -163,12 +169,12 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         if (progress.isDurationValid()) {
             waveformView.setPlayableWidth(adjustedWidth, getPlayableProportion(progress));
         }
-
-        progress.setDuration(fullDuration);
         currentState = PLAYING;
+        latestProgress = progress;
         showWaveform();
+
         if (!suppressProgress) {
-            startProgressAnimations(progress);
+            startProgressAnimations();
         }
     }
 
@@ -246,6 +252,12 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         this.fullDuration = fullDuration;
         scrubController.setFullDuration(fullDuration);
         waveformView.setPlayableWidth(adjustedWidth, getPlayableProportion(latestProgress));
+
+        if (currentState == PLAYING) {
+            startProgressAnimations();
+        } else {
+            setProgressInternal();
+        }
     }
 
     public void onBackground() {
@@ -257,10 +269,12 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         createWaveforms(IS_FOREGROUND);
     }
 
-    private void startProgressAnimations(PlaybackProgress progress) {
-        leftProgressController.startProgressAnimation(progress);
-        rightProgressController.startProgressAnimation(progress);
-        dragProgressController.startProgressAnimation(progress);
+    private void startProgressAnimations() {
+        if (fullDuration > 0 && latestProgress != null){
+            leftProgressController.startProgressAnimation(latestProgress, fullDuration);
+            rightProgressController.startProgressAnimation(latestProgress, fullDuration);
+            dragProgressController.startProgressAnimation(latestProgress, fullDuration);
+        }
     }
 
     public void cancelProgressAnimations() {
