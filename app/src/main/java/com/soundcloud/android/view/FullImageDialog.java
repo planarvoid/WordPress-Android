@@ -106,7 +106,7 @@ public class FullImageDialog extends DialogFragment {
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                 if (loadedImage == null) {
                     handleLoadingError();
-                } else {
+                } else if (isAdded()) {
                     image.setVisibility(View.VISIBLE);
                     progress.setVisibility(View.INVISIBLE);
                 }
