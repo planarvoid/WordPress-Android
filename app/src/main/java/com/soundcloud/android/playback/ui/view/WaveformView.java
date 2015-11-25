@@ -132,8 +132,6 @@ public class WaveformView extends FrameLayout {
         dragView = (FixedWidthView) findViewById(R.id.drag_view);
         dragViewHolder = (WaveformScrollView) findViewById(R.id.drag_view_holder);
 
-        configureOverscroller();
-
         leftWaveform.setScaleY(0);
         rightWaveform.setScaleY(0);
 
@@ -148,12 +146,16 @@ public class WaveformView extends FrameLayout {
         rightLine.setImageDrawable(createLoadingDrawable(unplayedAbove, unplayableBelowPaint));
     }
 
-    private void configureOverscroller() {
-        new HorizontalOverScrollBounceEffectDecorator(new HorizontalScrollViewOverScrollDecorAdapter(dragViewHolder),
-                OVERSCROLL_TOUCH_DRAG_RATIO_FWD,
-                HorizontalOverScrollBounceEffectDecorator.DEFAULT_TOUCH_DRAG_MOVE_RATIO_BCK,
-                OVERSCROLL_DECELERATE_FACTOR
-        );
+    void configureOverscroller(boolean useSpringOverscroll) {
+        if (useSpringOverscroll){
+            new HorizontalOverScrollBounceEffectDecorator(new HorizontalScrollViewOverScrollDecorAdapter(dragViewHolder),
+                    OVERSCROLL_TOUCH_DRAG_RATIO_FWD,
+                    HorizontalOverScrollBounceEffectDecorator.DEFAULT_TOUCH_DRAG_MOVE_RATIO_BCK,
+                    OVERSCROLL_DECELERATE_FACTOR
+            );
+        } else {
+            setOverScrollMode(OVER_SCROLL_NEVER);
+        }
     }
 
     public void setOnWidthChangedListener(OnWidthChangedListener onWidthChangedListener) {

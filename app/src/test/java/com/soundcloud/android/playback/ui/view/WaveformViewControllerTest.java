@@ -16,6 +16,7 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.WaveformScrollView;
 import com.soundcloud.android.waveform.WaveformData;
@@ -57,6 +58,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     @Mock private Bitmap bitmap;
     @Mock private WaveformOperations waveformOperations;
     @Mock private AdOverlayController adOverlayController;
+    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() throws Exception {
@@ -74,8 +76,8 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
 
         when(adOverlayController.isNotVisible()).thenReturn(true);
 
-        waveformViewController = new WaveformViewController.Factory(scrubControllerFactory, progressAnimationControllerFactory
-        ).create(waveformView);
+        waveformViewController = new WaveformViewController.Factory(scrubControllerFactory, progressAnimationControllerFactory,
+                featureFlags).create(waveformView);
     }
 
     @Test

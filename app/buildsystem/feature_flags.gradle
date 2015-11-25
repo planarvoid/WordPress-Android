@@ -19,6 +19,8 @@ def FEATURE_NEW_ENGAGEMENTS_TRACKING = "FEATURE_NEW_ENGAGEMENTS_TRACKING"
 def FEATURE_ACTIVITIES_REFACTOR = "FEATURE_ACTIVITIES_REFACTOR"
 def FEATURE_VIDEO_ADS = "FEATURE_VIDEO_ADS"
 def FEATURE_PRELOAD_NEXT_TRACK = "FEATURE_PRELOAD_NEXT_TRACK"
+def FEATURE_WAVEFORM_SPRING = "FEATURE_WAVEFORM_SPRING"
+
 
 /**
  * Discovery is a group of subfeatures which includes:
@@ -60,6 +62,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE   //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE            //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
+      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
     }
 
     beta {
@@ -83,6 +86,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
+      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
     }
 
     debug {
@@ -106,6 +110,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
+      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
     }
 
     end2end {
@@ -129,6 +134,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE  //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
+      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
     }
 
     release {
@@ -153,6 +159,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
+      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
     }
 
     releaseNoProguard {
@@ -176,6 +183,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
+      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
 
     }
 
@@ -200,7 +208,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE           //FEATURE_DISCOVERY must be enable as well
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
-
+      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
     }
   }
 }

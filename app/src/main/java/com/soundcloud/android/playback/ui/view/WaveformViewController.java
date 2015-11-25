@@ -13,6 +13,8 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.waveform.WaveformData;
@@ -67,7 +69,8 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     WaveformViewController(WaveformView waveform,
                            ProgressController.Factory animationControllerFactory,
-                           final ScrubController.Factory scrubControllerFactory) {
+                           final ScrubController.Factory scrubControllerFactory,
+                           FeatureFlags featureFlags) {
         this.waveformView = waveform;
         this.waveformWidthRatio = waveform.getWidthRatio();
         this.scrubController = scrubControllerFactory.create(waveformView.getDragViewHolder());
@@ -80,6 +83,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         leftProgressController = animationControllerFactory.create(waveformView.getLeftWaveform());
         rightProgressController = animationControllerFactory.create(waveformView.getRightWaveform());
         dragProgressController = animationControllerFactory.create(waveformView.getDragViewHolder());
+        waveformView.configureOverscroller(featureFlags.isEnabled(Flag.WAVEFORM_SPRING));
     }
 
     @Override
@@ -312,17 +316,18 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     public static class Factory {
         private final ProgressController.Factory animationControllerFactory;
         private final ScrubController.Factory scrubControllerFactory;
+        private final FeatureFlags featureFlags;
 
         @Inject
         Factory(ScrubController.Factory scrubControllerFactory,
-                ProgressController.Factory animationControllerFactory) {
+                ProgressController.Factory animationControllerFactory, FeatureFlags featureFlags) {
             this.scrubControllerFactory = scrubControllerFactory;
             this.animationControllerFactory = animationControllerFactory;
+            this.featureFlags = featureFlags;
         }
 
         public WaveformViewController create(WaveformView waveformView) {
-            return new WaveformViewController(waveformView, animationControllerFactory, scrubControllerFactory
-            );
+            return new WaveformViewController(waveformView, animationControllerFactory, scrubControllerFactory, featureFlags);
         }
     }
 
