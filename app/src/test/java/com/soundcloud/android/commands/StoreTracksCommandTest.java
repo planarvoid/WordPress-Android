@@ -45,6 +45,17 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void shouldStoreBlockedTrack() throws Exception {
+        final ApiTrack track = testFixtures().insertTrack();
+        track.setBlocked(true);
+
+        command.call(singletonList(track));
+
+        assertThat(select(from(Sounds.name()))).counts(1);
+        databaseAssertions().assertTrackInserted(track);
+    }
+
+    @Test
     public void shouldPersistTrackWithDescription() {
         ApiTrack track = create(ApiTrack.class);
         track.setDescription("description");

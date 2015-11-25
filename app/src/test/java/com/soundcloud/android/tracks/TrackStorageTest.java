@@ -59,6 +59,17 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadsBlockedTrack() throws Exception {
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        apiTrack.setBlocked(true);
+        testFixtures().insertTrack(apiTrack);
+
+        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
+
+        assertThat(track).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+    }
+
+    @Test
     public void doesntCrashOnNullWaveforms() throws Exception {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         apiTrack.setWaveformUrl(null);

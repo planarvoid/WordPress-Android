@@ -51,6 +51,7 @@ import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static com.soundcloud.android.storage.TableColumns.Sounds.USER_ID;
 import static com.soundcloud.android.storage.TableColumns.Sounds.WAVEFORM_URL;
+import static com.soundcloud.android.storage.TableColumns.TrackPolicies.BLOCKED;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.MONETIZABLE;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.MONETIZATION_MODEL;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.POLICY;
@@ -305,6 +306,7 @@ public class DatabaseAssertions {
         final Query query = from(TrackPolicies.name())
                 .whereEq(TableColumns.TrackPolicies.TRACK_ID, track.getId())
                 .whereEq(MONETIZABLE, track.isMonetizable())
+                .whereEq(BLOCKED, track.isBlocked())
                 .whereEq(SYNCABLE, track.isSyncable())
                 .whereEq(POLICY, track.getPolicy());
 

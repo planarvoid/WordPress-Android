@@ -233,6 +233,7 @@ public abstract class TestPropertySets {
                 PlayableProperty.REPOSTS_COUNT.bind(apiTrack.getStats().getRepostsCount()),
                 TrackProperty.MONETIZABLE.bind(apiTrack.isMonetizable()),
                 TrackProperty.POLICY.bind(apiTrack.getPolicy()),
+                TrackProperty.BLOCKED.bind(apiTrack.isBlocked()),
                 PlayableProperty.IS_LIKED.bind(isLiked),
                 PlayableProperty.PERMALINK_URL.bind(apiTrack.getPermalinkUrl()),
                 PlayableProperty.IS_PRIVATE.bind(isPrivate),

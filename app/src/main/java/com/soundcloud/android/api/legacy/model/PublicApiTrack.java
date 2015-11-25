@@ -53,6 +53,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     };
     private static final String TAG = "Track";
     private static final String API_MONETIZABLE_VALUE = "monetize";
+    private static final String API_BLOCK_VALUE = "BLOCK";
     // API fields
     @JsonView(Views.Full.class) @Nullable public String policy;
     @JsonView(Views.Full.class) @Nullable public State state;
@@ -375,10 +376,13 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         return policy != null && policy.equalsIgnoreCase(API_MONETIZABLE_VALUE);
     }
 
+    public boolean isBlocked() {
+        return policy != null && policy.equalsIgnoreCase(API_BLOCK_VALUE);
+    }
+
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
-
 
         if (stream_url != null) {
             cv.put(TableColumns.Sounds.STREAM_URL, stream_url);

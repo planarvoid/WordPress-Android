@@ -158,6 +158,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.TrackPolicies.TRACK_ID, track.getId());
         cv.put(TableColumns.TrackPolicies.POLICY, track.getPolicy());
         cv.put(TableColumns.TrackPolicies.MONETIZABLE, track.isMonetizable());
+        cv.put(TableColumns.TrackPolicies.BLOCKED, track.isBlocked());
         cv.put(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable());
         cv.put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 
