@@ -31,7 +31,7 @@ public class RecyclerViewElement {
             View view = recyclerView.getChildAt(i);
             if(recyclerView.getChildAdapterPosition(view) == position) {
                 DefaultViewElement viewElement = new DefaultViewElement(view, testDriver);
-                if(viewElement.isFullyVisible()) {
+                if(viewElement.isVisible()) {
                     return viewElement;
                 }
             }
@@ -61,6 +61,7 @@ public class RecyclerViewElement {
 
     private void scrollViewToBeFullyVisible(int position, int boundary) {
         while(!getItemAt(position).isFullyVisible() && position < boundary) {
+            ViewElement view = getItemAt(position);
             scrollToItemAt(position++);
         }
     }
