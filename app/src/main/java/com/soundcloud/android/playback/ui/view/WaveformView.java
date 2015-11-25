@@ -154,7 +154,7 @@ public class WaveformView extends FrameLayout {
                     OVERSCROLL_DECELERATE_FACTOR
             );
         } else {
-            setOverScrollMode(OVER_SCROLL_NEVER);
+            dragViewHolder.setOverScrollMode(OVER_SCROLL_NEVER);
         }
     }
 
