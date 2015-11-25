@@ -35,7 +35,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/recommendations_cell_text_padding"
-                android:paddingRight="@dimen/recommendations_cell_text_padding">
+                android:paddingRight="@dimen/recommendations_cell_text_padding"
+                tools:ignore="UselessParent">
 
                 <TextView
                     android:id="@+id/reason"
