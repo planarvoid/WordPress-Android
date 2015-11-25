@@ -13,7 +13,7 @@ public class EditTextElement extends TextElement {
     }
 
     public void typeText(String text) {
-        testDriver.sleep(1000);
+        viewElement.click();
         testDriver.typeText(text);
     }
 
