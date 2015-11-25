@@ -288,7 +288,7 @@ public class Han  {
                 }
         );
         //This is needed as it does not seem that we are waiting for UI Thread to fully finish
-        sleep(300);
+        sleep(500);
     }
 
     public boolean searchText(String text, boolean onlyVisible) {
