@@ -54,7 +54,7 @@
   </plurals>
   <!--__ADS-->
   <string name="ads_advertisement">Publicidad</string>
-  <string name="ads_learn_more">MÁS INFORMACIÓN</string>
+  <string name="ads_call_to_action">MÁS INFORMACIÓN</string>
   <string name="ads_why_ads">¿Por qué publicidad?</string>
   <string name="ads_why_ads_dialog_message">Cada vez que ves o escuchas un anuncio, los artistas reciben dinero. Los anuncios ocasionales nos permiten continuar ayudando a los artistas y a mantener SoundCloud gratuito para los oyentes.</string>
   <string name="ads_skip_ad">Saltar anuncio</string>
@@ -131,7 +131,6 @@
   <string name="list_empty_user_following_action">Encuentra a gente a la que seguir.</string>
   <string name="empty_playlist_title">Lista vacía</string>
   <string name="empty_playlist_description">Esta lista aún no tiene pistas.</string>
-  <string name="list_empty_liked_playlists_message">Indica que te gusta una lista para escucharla de nuevo.</string>
   <string name="list_empty_you_sounds_message">Republica pistas para compartirlas con tus seguidores.</string>
   <string name="list_empty_you_playlists_message">Crea listas para hacer mezclas de tus pistas favoritas.</string>
   <string name="list_empty_you_likes_message">Dale un me gusta a tus pistas favoritas para escucharlas de nuevo.</string>
@@ -286,8 +285,6 @@
   </plurals>
   <!--__PLAYLISTS-->
   <string name="activity_title_playlist">Lista</string>
-  <string name="your_playlists_tab">TUS LISTAS</string>
-  <string name="liked_playlists_tab">LISTAS QUE TE HAN GUSTADO</string>
   <string name="playlist_load_error">No se pudo cargar esta lista</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Lista aleatoria</string>

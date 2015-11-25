@@ -6,7 +6,7 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
-import com.soundcloud.android.associations.NextFollowingOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -26,14 +26,14 @@ public class VerifyAgePresenter extends DefaultActivityLightCycle<Activity> {
     @Bind(R.id.verify_button) Button submitButton;
 
     private final UpdateAgeCommand updateAgeCommand;
-    private final NextFollowingOperations followingOperations;
+    private final FollowingOperations followingOperations;
     private final EngagementsTracking engagementsTracking;
 
     private Activity activity;
     private Urn userToFollowUrn;
 
     @Inject
-    VerifyAgePresenter(UpdateAgeCommand updateAgeCommand, NextFollowingOperations followingOperations,
+    VerifyAgePresenter(UpdateAgeCommand updateAgeCommand, FollowingOperations followingOperations,
                        EngagementsTracking engagementsTracking) {
         this.updateAgeCommand = updateAgeCommand;
         this.followingOperations = followingOperations;

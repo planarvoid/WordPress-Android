@@ -8,9 +8,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.CollectionEvent;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
@@ -33,6 +36,7 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
@@ -96,7 +100,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClick() throws Exception {
-        PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
+        AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent().withAudioAd(audioAd);
         when(dataBuilderv0.buildForAdFinished(event)).thenReturn("clickUrl");
         when(dataBuilderv0.buildForAudioEvent(event)).thenReturn("audioEventUrl");
@@ -160,8 +164,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackAudioAdRelatedUIEvents() {
-        UIEvent event1 = UIEvent.fromAudioAdClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456), userUrn, trackSourceInfo);
-        UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(TestPropertySets.audioAdProperties(Urn.forTrack(123)), Urn.forTrack(456), userUrn, trackSourceInfo, 1000);
+        UIEvent event1 = UIEvent.fromAudioAdClick(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(456), userUrn, trackSourceInfo);
+        UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(456), userUrn, trackSourceInfo, 1000);
         when(dataBuilderv0.build(event1)).thenReturn("url1");
         when(dataBuilderv0.build(event2)).thenReturn("url2");
 
@@ -183,7 +187,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackLikeEvents() {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleLike(true, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, EntityMetadata.EMPTY);
+        EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
+        UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.EMPTY);
 
         when(dataBuilderv0.build(event)).thenReturn("ForLikeEvent");
 
@@ -198,7 +203,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackUnlikeEvents() {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleLike(false, "invoker_screen", "context_screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, EntityMetadata.EMPTY);
+        EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
+        UIEvent event = UIEvent.fromToggleLike(false, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.EMPTY);
 
         when(dataBuilderv0.build(event)).thenReturn("ForUnlikeEvent");
 
@@ -214,7 +220,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
         PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleRepost(true, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, EntityMetadata.from(trackProperties));
+        EventContextMetadata eventContext = eventContextBuilder().build();
+        UIEvent event = UIEvent.fromToggleRepost(true, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.from(trackProperties));
 
         when(dataBuilderv0.build(event)).thenReturn("ForRepostEvent");
 
@@ -230,7 +237,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
         PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        UIEvent event = UIEvent.fromToggleRepost(false, "screen", "page_name", Urn.forTrack(123), Urn.NOT_SET, promotedSourceInfo, EntityMetadata.from(trackProperties));
+        EventContextMetadata eventContext = eventContextBuilder().build();
+        UIEvent event = UIEvent.fromToggleRepost(false, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.from(trackProperties));
 
         when(dataBuilderv0.build(event)).thenReturn("ForUnRepostEvent");
 
@@ -242,9 +250,79 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldTrackLikeEventsWithV1() {
+        when(featureFlags.isEnabled(Flag.NEW_ENGAGEMENTS_TRACKING)).thenReturn(true);
+        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
+        EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
+        UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.EMPTY);
+
+        when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForLikeEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForLikeEvent");
+    }
+
+    @Test
+    public void shouldTrackUnlikeEventsWithV1() {
+        when(featureFlags.isEnabled(Flag.NEW_ENGAGEMENTS_TRACKING)).thenReturn(true);
+        PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
+        EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
+        UIEvent event = UIEvent.fromToggleLike(false, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.EMPTY);
+
+        when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForUnlikeEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForUnlikeEvent");
+    }
+
+    @Test
+    public void shouldTrackRepostEventsWithV1() {
+        when(featureFlags.isEnabled(Flag.NEW_ENGAGEMENTS_TRACKING)).thenReturn(true);
+        PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
+        PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
+        EventContextMetadata eventContext = eventContextBuilder().build();
+        UIEvent event = UIEvent.fromToggleRepost(true, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.from(trackProperties));
+
+        when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForRepostEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForRepostEvent");
+    }
+
+    @Test
+    public void shouldTrackUnRepostEventsV1() {
+        when(featureFlags.isEnabled(Flag.NEW_ENGAGEMENTS_TRACKING)).thenReturn(true);
+        PropertySet trackProperties = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
+        PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
+        EventContextMetadata eventContext = eventContextBuilder().build();
+        UIEvent event = UIEvent.fromToggleRepost(false, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.from(trackProperties));
+
+        when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForUnRepostEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("ForUnRepostEvent");
+    }
+
+    @Test
     public void shouldTrackVisualAdCompanionImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        VisualAdImpressionEvent event = new VisualAdImpressionEvent(TestPropertySets.audioAdProperties(Urn.forTrack(123L)), Urn.forTrack(123L), Urn.forUser(456L), sourceInfo);
+        VisualAdImpressionEvent event = new VisualAdImpressionEvent(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(123L), Urn.forUser(456L), sourceInfo);
 
         when(dataBuilderv0.build(event)).thenReturn("ForVisualAdImpression");
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
@@ -257,7 +335,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackLeaveBehindImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
+        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForAudioAdImpression");
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -269,7 +347,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackLeaveBehindClickTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(TestPropertySets.leaveBehindForPlayer(), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
+        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForAudioAdClick");
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -414,5 +492,12 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         return captor.getValue().getData();
+    }
+
+    private EventContextMetadata.Builder eventContextBuilder() {
+        return EventContextMetadata.builder()
+                .contextScreen("context_screen")
+                .pageName("page_name")
+                .pageUrn(Urn.NOT_SET);
     }
 }

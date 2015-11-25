@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
@@ -18,8 +19,8 @@ import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -86,12 +87,8 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     @Override
-    public void displayScrubPosition(float scrubPosition) {
-        if (lastProgress.isEmpty()) {
-            updateCommentPosition((long) (scrubPosition * track.getDuration()));
-        } else {
-            updateCommentPosition((long) (scrubPosition * lastProgress.getDuration()));
-        }
+    public void displayScrubPosition(float actualPosition, float boundedPosition) {
+        updateCommentPosition((long) (boundedPosition * track.getFullDuration()));
     }
 
     private void updateCommentPosition(long position) {
@@ -143,9 +140,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         Urn trackUrn = track.getUrn();
         shareOperations.share(context,
                 track.getSource(),
-                playQueueManager.getScreenTag(),
-                Screen.PLAYER_MAIN.get(),
-                trackUrn,
+                getContextMetadata(trackUrn),
                 playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
     }
 
@@ -159,12 +154,20 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleRepost(wasReposted,
-                        playQueueManager.getScreenTag(),
-                        Screen.PLAYER_MAIN.get(),
                         trackUrn,
-                        trackUrn,
+                        getContextMetadata(trackUrn),
                         playQueueManager.getCurrentPromotedSourceInfo(trackUrn),
                         EntityMetadata.from(track)));
+    }
+
+    private EventContextMetadata getContextMetadata(Urn trackUrn) {
+        return EventContextMetadata.builder()
+                .contextScreen(playQueueManager.getScreenTag())
+                .pageName(Screen.PLAYER_MAIN.get())
+                .pageUrn(trackUrn)
+                .trackSourceInfo(playQueueManager.getCurrentTrackSourceInfo())
+                .isFromOverflow(true)
+                .build();
     }
 
     private void showAddToPlaylistDialog(PlayerTrackState track) {

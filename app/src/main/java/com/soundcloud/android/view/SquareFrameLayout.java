@@ -28,6 +28,7 @@ public class SquareFrameLayout extends FrameLayout {
         a.recycle();
     }
 
+    @SuppressWarnings("SuspiciousNameCombination")
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         switch (dominantMeasurement) {

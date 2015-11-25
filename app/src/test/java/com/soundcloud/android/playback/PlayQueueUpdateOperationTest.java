@@ -1,11 +1,14 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.LeaveBehindAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,26 +26,27 @@ public class PlayQueueUpdateOperationTest extends AndroidUnitTest {
 
     @Test
     public void insertAudioOperationShouldInsertAtTheGivenPosition() throws Exception {
-        new PlayQueueManager.InsertAudioOperation(1, Urn.forTrack(123L), PropertySet.create(), true).execute(playQueue);
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        new PlayQueueManager.InsertAudioOperation(1, Urn.forTrack(123L), audioAd, true).execute(playQueue);
         assertThat(playQueue.getTrackItemUrns()).containsExactly(Urn.forTrack(1L), Urn.forTrack(123L), Urn.forTrack(2L));
     }
 
     @Test
     public void insertVideoOperationShouldInsertAtTheGivenPosition() throws Exception {
-        final PropertySet videoMetaData = TestPropertySets.videoAdProperties(Urn.forTrack(123L));
-        new PlayQueueManager.InsertVideoOperation(1, videoMetaData).execute(playQueue);
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        new PlayQueueManager.InsertVideoOperation(1, videoAd).execute(playQueue);
 
         assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(Urn.forTrack(1L));
         assertThat(playQueue.getPlayQueueItem(1).isVideo()).isTrue();
-        assertThat(playQueue.getPlayQueueItem(1).getMetaData()).isEqualTo(videoMetaData);
+        assertThat(playQueue.getPlayQueueItem(1).getAdData()).isEqualTo(Optional.of(videoAd));
         assertThat(playQueue.getPlayQueueItem(2).getUrn()).isEqualTo(Urn.forTrack(2L));
     }
 
     @Test
-    public void setMetaDataOperationShouldSetMetadataForItemAtGivenPosition() throws Exception {
-        final PropertySet metadata = PropertySet.create().put(TrackProperty.DESCRIPTION, "New description");
-        new PlayQueueManager.SetMetadataOperation(1, metadata).execute(playQueue);
+    public void setMetaDataOperationShouldSetAdDataForItemAtGivenPosition() throws Exception {
+        final LeaveBehindAd leaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
+        new PlayQueueManager.SetAdDataOperation(1, Optional.<AdData>of(leaveBehindAd)).execute(playQueue);
 
-        assertThat(playQueue.getMetaData(1).get(TrackProperty.DESCRIPTION)).isEqualTo("New description");
+        assertThat(playQueue.getAdData(1)).isEqualTo(Optional.of(leaveBehindAd));
     }
 }

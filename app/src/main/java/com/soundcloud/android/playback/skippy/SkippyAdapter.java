@@ -35,12 +35,10 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
@@ -68,6 +66,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     private final EventBus eventBus;
     private final Skippy skippy;
+    private final Skippy skippyPreloader;
     private final AccountOperations accountOperations;
     private final StateChangeHandler stateHandler;
     private final ApiUrlBuilder urlBuilder;
@@ -95,7 +94,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         this.sharedPreferences = sharedPreferences;
         this.secureFileStorage = secureFileStorage;
         this.cryptoOperations = cryptoOperations;
-        this.skippy = skippyFactory.create(this);
         this.accountOperations = accountOperations;
         this.urlBuilder = urlBuilder;
         this.eventBus = eventBus;
@@ -103,15 +101,25 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         this.stateHandler = stateChangeHandler;
         this.stateHandler.setBufferUnderrunListener(bufferUnderrunListener);
         this.dateProvider = dateProvider;
+
+        skippy = skippyFactory.create(this);
+        skippyPreloader = skippyFactory.create();
     }
 
-    public boolean init(Context context) {
-        boolean initSuccess = skippy.init(context, skippyFactory.createConfiguration());
+    public boolean init() {
+        boolean initSuccess = skippy.init(skippyFactory.createConfiguration());
+        if (initSuccess) {
+            initSuccess = skippyPreloader.init(skippyFactory.createPreloaderConfiguration());
+        }
         if (initSuccess) {
             eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationSucceededEvent(
                     getInitializationErrorCount(), getAndIncrementInitilizationSuccesses()));
         }
         return initSuccess;
+    }
+
+    public void preload(Urn track) {
+        skippyPreloader.cue(buildRemoteUrl(track), 0);
     }
 
     @Override
@@ -198,16 +206,17 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         if (playType == PLAY_TYPE_OFFLINE){
             return secureFileStorage.getFileUriForOfflineTrack(currentTrackUrn).toString();
         } else {
-            Token token = accountOperations.getSoundCloudToken();
-
-            ApiUrlBuilder builder = urlBuilder.from(ApiEndpoints.HLS_STREAM, currentTrackUrn);
-
-            if (token.valid()) {
-                builder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken());
-            }
-
-            return builder.build();
+            return buildRemoteUrl(currentTrackUrn);
         }
+    }
+
+    private String buildRemoteUrl(Urn trackUrn) {
+        Token token = accountOperations.getSoundCloudToken();
+        ApiUrlBuilder builder = urlBuilder.from(ApiEndpoints.HLS_STREAM, trackUrn);
+        if (token.valid()) {
+            builder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken());
+        }
+        return builder.build();
     }
 
     @Override

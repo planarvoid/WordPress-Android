@@ -12,9 +12,7 @@ import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.robolectric.res.Attribute;
 import org.robolectric.shadows.RoboAttributeSet;
 
@@ -46,6 +44,7 @@ public class TimestampViewTest extends AndroidUnitTest {
 
     @Test
     public void updatesProgressWhenNotScrubbing() {
+        timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
         timestampView.setProgress(new PlaybackProgress(SECONDS_5, MINUTES_10));
 
         assertThat(progressView).hasText("0:05");
@@ -64,35 +63,17 @@ public class TimestampViewTest extends AndroidUnitTest {
 
     @Test
     public void setsInitialProgress() {
-        timestampView.setInitialProgress(MINUTES_10);
+        timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
 
         assertThat(progressView).hasText("0:00");
         assertThat(durationView).hasText("10:00");
     }
 
     @Test
-    public void updatesDurationWhenProgressEventDurationIsDifferent() {
-        timestampView.setInitialProgress(MINUTES_10);
+    public void updatesTimestampBasedOnBoundedScrubPosition() {
+        timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
 
-        timestampView.setProgress(new PlaybackProgress(SECONDS_5, MINUTES_11));
-
-        assertThat(durationView).hasText("11:00");
-    }
-
-    @Test
-    public void doesNotUpdateDurationIfProgressEventDurationIsInvalid() {
-        timestampView.setInitialProgress(MINUTES_10);
-
-        timestampView.setProgress(PlaybackProgress.empty());
-
-        assertThat(durationView).hasText("10:00");
-    }
-
-    @Test
-    public void updatesTimestampBasedOnScrubPosition() {
-        timestampView.setInitialProgress(MINUTES_10);
-
-        timestampView.displayScrubPosition(0.5f);
+        timestampView.displayScrubPosition(0.2f, .5f);
 
         assertThat(progressView).hasText("5:00");
         assertThat(durationView).hasText("10:00");

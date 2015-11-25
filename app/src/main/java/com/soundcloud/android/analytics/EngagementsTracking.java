@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics;
 
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
@@ -26,12 +27,11 @@ public class EngagementsTracking {
         this.userRepository = userRepository;
     }
 
-    public void likeTrackUrn(Urn trackUrn, boolean addLike, String invokerScreen, String contextScreen,
-                             String pageName, Urn pageUrn, PromotedSourceInfo promotedSourceInfo) {
+    public void likeTrackUrn(Urn trackUrn, boolean addLike, EventContextMetadata eventMetadata,
+                             PromotedSourceInfo promotedSourceInfo) {
 
         trackRepository.track(trackUrn)
-                .map(likeEventFromTrack(trackUrn, addLike, invokerScreen, contextScreen,
-                        pageName, pageUrn, promotedSourceInfo))
+                .map(likeEventFromTrack(trackUrn, addLike, eventMetadata, promotedSourceInfo))
                 .subscribe(eventBus.queue(EventQueue.TRACKING));
     }
 
@@ -42,14 +42,12 @@ public class EngagementsTracking {
     }
 
     private Func1<PropertySet, UIEvent> likeEventFromTrack(final Urn trackUrn, final boolean addLike,
-                                                           final String invokerScreen, final String contextScreen,
-                                                           final String pageName, final Urn pageUrn,
+                                                           final EventContextMetadata eventMetadata,
                                                            final PromotedSourceInfo promotedSourceInfo) {
         return new Func1<PropertySet, UIEvent>() {
             @Override
             public UIEvent call(PropertySet track) {
-                return UIEvent.fromToggleLike(addLike, invokerScreen, contextScreen, pageName,
-                        trackUrn, pageUrn, promotedSourceInfo, EntityMetadata.from(track));
+                return UIEvent.fromToggleLike(addLike, trackUrn, eventMetadata, promotedSourceInfo, EntityMetadata.from(track));
             }
         };
     }

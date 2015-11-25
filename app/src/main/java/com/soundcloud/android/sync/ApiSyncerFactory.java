@@ -3,7 +3,7 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.associations.NextFollowingOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -28,7 +28,7 @@ import javax.inject.Provider;
 @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // remove this once we use playlist syncer
 public class ApiSyncerFactory {
 
-    private final Provider<NextFollowingOperations> nextFollowingOperationsProvider;
+    private final Provider<FollowingOperations> nextFollowingOperationsProvider;
     private final Provider<AccountOperations> accountOpsProvider;
     private final Provider<NotificationManager> notificationManagerProvider;
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
@@ -42,7 +42,7 @@ public class ApiSyncerFactory {
     private final FeatureFlags featureFlags;
 
     @Inject
-    public ApiSyncerFactory(Provider<NextFollowingOperations> nextFollowingOperationsProvider,
+    public ApiSyncerFactory(Provider<FollowingOperations> nextFollowingOperationsProvider,
                             Provider<AccountOperations> accountOpsProvider,
                             Provider<NotificationManager> notificationManagerProvider,
                             Lazy<SoundStreamSyncer> lazySoundStreamSyncer,

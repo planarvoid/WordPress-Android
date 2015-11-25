@@ -49,7 +49,7 @@
   <string name="accessibility_like_action">Suka</string>
   <!--__ADS-->
   <string name="ads_advertisement">Iklan</string>
-  <string name="ads_learn_more">PELAJARI LEBIH LANJUT</string>
+  <string name="ads_call_to_action">PELAJARI LEBIH LANJUT</string>
   <string name="ads_why_ads">Mengapa ada iklan?</string>
   <string name="ads_why_ads_dialog_message">Setiap kali Anda melihat atau mendengar iklan, para artis mendapat bayaran. Iklan yang sesekali muncul membantu kami memberi dukungan kepada artis dan membuat SoundCloud tetap gratis untuk para pendengar.</string>
   <string name="ads_next_up_tracktitle_creatorname">Selanjutnya: %1$s (%2$s)</string>
@@ -95,6 +95,14 @@
   <string name="info_empty_other_message">Orang ini belum menambahkan deskripsi profil.</string>
   <string name="list_empty_you_followers_message">Anda belum punya pengikut.</string>
   <string name="list_empty_you_followers_secondary">Bagikan trek dan daftar putar favorit Anda untuk membangun komunitas</string>
+  <string name="list_empty_user_following_action">Temukan orang-orang untuk diikuti</string>
+  <string name="list_empty_you_following_message">Ikuti artis, band, dan kurator favoritmu untuk mendengarkan trek terbaru mereka.</string>
+  <string name="list_empty_you_likes_message">Sukai suara favoritmu untuk mendengarnya lagi.</string>
+  <string name="list_empty_you_sounds_message">Pos ulang audio untuk dibagikan kepada para pengikut Anda.</string>
+  <string name="empty_playlist_title">Daftar Putar Kosong</string>
+  <string name="empty_playlist_description">Belum ada trek di daftar putar ini</string>
+  <string name="empty_user_playlists_text">%1$s saat ini tidak punya daftar putar.</string>
+  <string name="list_empty_you_playlists_message">Buat Daftar Putar untuk membuat mix dari audio-audio favorit Anda.</string>
   <string name="empty_user_tracks_text">%1$s belum mengunggah\naudio publik.</string>
   <string name="empty_user_likes_text">%1$s belum\nmemilih satu suka pun.</string>
   <string name="empty_user_followings_text">%1$s belum\nmengikuti siapa-siapa.</string>

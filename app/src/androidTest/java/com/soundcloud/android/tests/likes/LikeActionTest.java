@@ -30,7 +30,7 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
                 .actionBar()
                 .clickSearchButton()
                 .actionBar()
-                .doSearch("Acceptance")
+                .doLegacySearch("Acceptance")
                 .touchTracksTab()
                 .getTracks()
                 .get(0);
@@ -59,7 +59,7 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
                 .actionBar()
                 .clickSearchButton()
                 .actionBar()
-                .doSearch("Acceptance")
+                .doLegacySearch("Acceptance")
                 .touchPlaylistsTab()
                 .getPlaylists()
                 .get(0)

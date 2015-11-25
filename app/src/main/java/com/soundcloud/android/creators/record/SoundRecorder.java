@@ -595,7 +595,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 } finally {
                     // TODO, close on destroy, playbackStream.close();
                     audioTrack.stop();
-                    audioFocusManager.abandonMusicFocus(false);
+                    audioFocusManager.abandonMusicFocus();
                 }
 
                 //noinspection ObjectEquality

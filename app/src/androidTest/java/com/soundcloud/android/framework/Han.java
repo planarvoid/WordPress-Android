@@ -13,7 +13,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Point;
-import android.support.v7.internal.view.menu.ActionMenuItemView;
+import android.support.v7.view.menu.ActionMenuItemView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
@@ -38,6 +38,7 @@ public class Han  {
     private final Solo solo;
     private final Instrumentation instrumentation;
     private Activity visibleActivity = new EmptyActivity();
+    private With busyUiIndicator;
 
     @Deprecated
     public Solo getSolo() {
@@ -50,6 +51,14 @@ public class Han  {
         viewFetcher = new ViewFetcher(this);
 
         setupActivityListener();
+    }
+
+    public void registerBusyUiIndicator(With busyUiIndicator) {
+        this.busyUiIndicator = busyUiIndicator;
+    }
+
+    public With getBusyUiIndicator() {
+        return busyUiIndicator;
     }
 
     private void setupActivityListener() {
@@ -278,6 +287,8 @@ public class Han  {
                     }
                 }
         );
+        //This is needed as it does not seem that we are waiting for UI Thread to fully finish
+        sleep(300);
     }
 
     public boolean searchText(String text, boolean onlyVisible) {

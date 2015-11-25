@@ -6,7 +6,6 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
@@ -19,12 +18,6 @@ public class CollectionsNavigationTest extends ActivityTest<MainActivity> {
 
     public CollectionsNavigationTest() {
         super(MainActivity.class);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.COLLECTIONS);
-        super.setUp();
     }
 
     private void navigateToCollections() {

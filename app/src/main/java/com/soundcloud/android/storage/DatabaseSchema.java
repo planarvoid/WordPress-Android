@@ -38,6 +38,7 @@ final class DatabaseSchema {
             "permalink VARCHAR(255)," +
             "original_content_size INTEGER," +
             "duration INTEGER," +
+            "full_duration INTEGER," +
             "state VARCHAR(50)," +
             "created_at INTEGER," +
             "genre VARCHAR(100)," +
@@ -292,6 +293,7 @@ final class DatabaseSchema {
             ",Sounds." + TableColumns.Sounds.PERMALINK + " as " + TableColumns.SoundView.PERMALINK +
             ",Sounds." + TableColumns.Sounds.CREATED_AT + " as " + TableColumns.SoundView.CREATED_AT +
             ",Sounds." + TableColumns.Sounds.DURATION + " as " + TableColumns.SoundView.DURATION +
+            ",Sounds." + TableColumns.Sounds.FULL_DURATION + " as " + TableColumns.SoundView.FULL_DURATION +
             ",Sounds." + TableColumns.Sounds.ORIGINAL_CONTENT_SIZE + " as " + TableColumns.SoundView.ORIGINAL_CONTENT_SIZE +
             ",Sounds." + TableColumns.Sounds.STATE + " as " + TableColumns.SoundView.STATE +
             ",Sounds." + TableColumns.Sounds.GENRE + " as " + TableColumns.SoundView.GENRE +

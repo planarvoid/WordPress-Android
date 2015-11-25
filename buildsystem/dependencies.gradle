@@ -3,7 +3,6 @@ allprojects {
     mavenLocal()
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
     maven { url 'https://maven.fabric.io/public' }
-    maven { url 'http://appboy.github.io/appboy-android-sdk/sdk' }
   }
 }
 
@@ -12,13 +11,12 @@ ext {
 
   // Dependency versions
   androidMultiDex = "1.0.1"
-  // we are not upgrading this until this is resolved in 23.x : https://code.google.com/p/android/issues/detail?id=78377
-  androidSupportVersion = '22.2.1'
+  androidSupportVersion = '23.1.1'
   playServicesVersion = '7.8.0'
-  androidKitVersion = '0.39'
+  androidKitVersion = '0.42'
   lightCycleVersion = '0.0.6'
   daggerVersion = '1.2.2'
-  propellerVersion = '0.52'
+  propellerVersion = '0.57'
   findBugsVersion = '3.0.0'
   networkManager = '29'
 
@@ -44,14 +42,14 @@ ext {
                                            exclude group: "com.soundcloud.lightcycle"
                                          }],
           propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
-          skippy                      : "com.soundcloud.android:skippy:4.3.3@aar",
+          skippy                      : "com.soundcloud.android:skippy:5.0.0@aar",
           soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
 
           // Analytics / tracking
           comscore                    : "com.comscore:comscore:3.1508.28",
           adjustAndroid               : "com.adjust.sdk:adjust-android:4.1.2",
           crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.2@aar",
-          appBoy                      : "com.appboy:android-sdk-ui:1.10.2",
+          appBoy                      : "com.appboy:android-sdk-ui:1.11.0",
 
           // utility libraries
           jacksonRespack              : "com.fasterxml.jackson.core:jackson-repack:15.04.14",
@@ -69,6 +67,7 @@ ext {
           butterKnife                 : "com.jakewharton:butterknife:7.0.1",
           castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.3.2-SOUNDCLOUD@aar",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
+          scrollDecorator             : 'me.everything:overscroll-decor-android:1.0.0',
 
           // Android libraries
           androidMultidex                 : "com.android.support:multidex:$androidMultiDex",
@@ -89,7 +88,7 @@ ext {
           daggerCompiler                  : "com.squareup.dagger:dagger-compiler:$daggerVersion",
           junit                           : "junit:junit:4.12",
           assertj                         : "org.assertj:assertj-core:1.7.1",
-          assertjAndroid                  : "com.squareup.assertj:assertj-android:1.0.0",
+          assertjAndroid                  : "com.squareup.assertj:assertj-android:1.1.1",
           robolectric                     : "org.robolectric:robolectric:3.0",
           robolectricSupport              : "org.robolectric:shadows-support-v4:3.0",
           mockito                         : "org.mockito:mockito-core:1.9.5",

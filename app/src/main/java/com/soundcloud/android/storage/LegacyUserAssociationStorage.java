@@ -3,18 +3,12 @@ package com.soundcloud.android.storage;
 
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -35,7 +29,6 @@ import java.util.List;
  * @see com.soundcloud.android.api.legacy.model.UserAssociation.Type
  */
 public class LegacyUserAssociationStorage {
-    private final Scheduler scheduler;
     private final ContentResolver resolver;
     private final UserAssociationDAO userAssociationDAO;
     private final UserAssociationDAO followingsDAO;
@@ -73,60 +66,13 @@ public class LegacyUserAssociationStorage {
 
     @Inject
     public LegacyUserAssociationStorage(Context context) {
-        this(ScSchedulers.HIGH_PRIO_SCHEDULER, context.getContentResolver());
+        this(context.getContentResolver());
     }
 
-    public LegacyUserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {
-        this.scheduler = scheduler;
+    public LegacyUserAssociationStorage(ContentResolver resolver) {
         this.resolver = resolver;
         userAssociationDAO = new UserAssociationDAO(this.resolver);
         followingsDAO = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, this.resolver);
-    }
-
-    /* Persists user-followings information to the database. Will create a user association,
-     * update the followers count of the target user, and commit to the database.
-     *
-     * @param user the user that is being followed
-     * @return the new association created
-     */
-    public Observable<UserAssociation> follow(final PublicApiUser user) {
-        return Observable.create(new Observable.OnSubscribe<UserAssociation>() {
-            @Override
-            public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
-                UserAssociation following = queryFollowingByTargetUserId(user.getId());
-                if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
-                    following = new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition();
-                    followingsDAO.create(following);
-
-                }
-                userAssociationObserver.onNext(following);
-                userAssociationObserver.onCompleted();
-            }
-        }).subscribeOn(scheduler);
-
-    }
-
-    /**
-     * Remove a following for the logged in user. This will create an association, remove
-     * it from the database, and update the corresponding user with the new count in local storage
-     *
-     * @param user the user whose following should be removed
-     * @return
-     */
-    public Observable<UserAssociation> unfollow(final PublicApiUser user) {
-        return Observable.create(new Observable.OnSubscribe<UserAssociation>() {
-            @Override
-            public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
-                final UserAssociation following = new UserAssociation(SoundAssociation.Type.FOLLOWING, user).markForRemoval();
-                if (userAssociationDAO.update(following)) {
-                    new UserDAO(resolver).update(user);
-                    userAssociationObserver.onNext(following);
-                    userAssociationObserver.onCompleted();
-                } else {
-                    userAssociationObserver.onError(new Exception("Update failed"));
-                }
-            }
-        }).subscribeOn(scheduler);
     }
 
     @Deprecated
@@ -222,31 +168,6 @@ public class LegacyUserAssociationStorage {
             }
         }
         return false;
-    }
-
-    public boolean deleteFollowings(Collection<UserAssociation> followings) {
-        for (UserAssociation following : followings) {
-            if (!followingsDAO.delete(following)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    //TODO: this should be a bulk insert
-    public Observable<Collection<UserAssociation>> setFollowingsAsSynced(final Collection<UserAssociation> userAssociations) {
-        return Observable.create(new Observable.OnSubscribe<Collection<UserAssociation>>() {
-            @Override
-            public void call(Subscriber<? super Collection<UserAssociation>> observer) {
-                for (UserAssociation ua : userAssociations) {
-                    ua.clearLocalSyncState();
-                }
-                // TODO: this will trigger an upsert, but we should have an explicit updateAll method
-                followingsDAO.createCollection(userAssociations);
-                observer.onNext(userAssociations);
-                observer.onCompleted();
-            }
-        });
     }
 
     @Nullable

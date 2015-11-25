@@ -72,7 +72,7 @@ public class ProfileScreen extends Screen {
     }
 
     public void scrollToBottomOfCurrentRecyclerViewAndLoadMoreItems() {
-        currentRecyclerView().scrollToBottomOfPage();
+        currentRecyclerView().scrollToBottom();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
@@ -82,13 +82,22 @@ public class ProfileScreen extends Screen {
     }
 
     public int getCurrentRecyclerViewItemCount() {
-        waiter.waitForItemCountToIncrease(currentRecyclerView().getAdapter(), 0);
         return currentRecyclerView().getItemCount();
     }
 
     public VisualPlayerElement clickFirstRepostedTrack() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        final ViewElement viewElement = scrollToItem(With.id(R.id.reposter), currentRecyclerView());
+        final ViewElement viewElement = currentRecyclerView().scrollToItem(new RecyclerViewElement.Criteria() {
+                                                                               @Override
+                                                                               public boolean isSatisfied(ViewElement viewElement) {
+                                                                                   return viewElement.isElementDisplayed(With.id(R.id.reposter));
+                                                                               }
+
+                                                                               @Override
+                                                                               public String description() {
+                                                                                   return "HasReposter";
+                                                                               }
+                                                                           }
+        );
         viewElement.click();
         VisualPlayerElement visualPlayer = new VisualPlayerElement(testDriver);
         visualPlayer.waitForExpandedPlayer();

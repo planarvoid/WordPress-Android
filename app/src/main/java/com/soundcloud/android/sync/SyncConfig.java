@@ -4,7 +4,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 public final class SyncConfig {

@@ -68,6 +68,10 @@ public abstract class Screen {
         return new ToolBarElement(testDriver);
     }
 
+    public String getActionBarTitle() {
+        return actionBar().getTitle();
+    }
+
     public GoBackOnlineDialogElement getGoBackOnlineDialog() {
         return new GoBackOnlineDialogElement(testDriver);
     }
@@ -123,10 +127,6 @@ public abstract class Screen {
             result = testDriver.findElement(with);
         }
         return result;
-    }
-
-    protected ViewElement scrollToItem(With with, RecyclerViewElement recyclerViewElement) {
-        return recyclerViewElement.scrollToItem(with);
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {

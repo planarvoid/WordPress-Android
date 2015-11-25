@@ -184,7 +184,7 @@ public class ApiPlaylist implements PropertySetSource, PlaylistRecord, PlaylistR
                 PlaylistProperty.URN.bind(urn),
                 PlaylistProperty.TITLE.bind(title),
                 PlaylistProperty.CREATED_AT.bind(createdAt),
-                PlaylistProperty.DURATION.bind(duration),
+                PlaylistProperty.PLAY_DURATION.bind(duration),
                 PlaylistProperty.PERMALINK_URL.bind(permalinkUrl),
                 PlaylistProperty.IS_PRIVATE.bind(!isPublic()),
                 PlaylistProperty.TRACK_COUNT.bind(trackCount),

@@ -90,6 +90,7 @@ class PlaylistTracksStorage {
                         Sounds.USER_ID,
                         Users.USERNAME,
                         Sounds.DURATION,
+                        Sounds.FULL_DURATION,
                         Sounds.PLAYBACK_COUNT,
                         Sounds.LIKES_COUNT,
                         Sounds.SHARING,

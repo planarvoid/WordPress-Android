@@ -1,25 +1,21 @@
 package com.soundcloud.android.screens.elements;
 
-import android.support.design.widget.TabLayout;
-import android.view.View;
-import android.widget.ImageView;
-
 import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
+import android.support.design.widget.TabLayout;
+
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class Tabs {
-    private final Han testDriver;
-    private Waiter waiter;
+    final Han testDriver;
 
     public Tabs(Han testDriver) {
         this.testDriver = testDriver;
-        waiter = new Waiter(testDriver);
+        final Waiter waiter = new Waiter(testDriver);
         waiter.waitForElement(With.classSimpleName(TabLayout.class.getSimpleName()));
         waiter.waitForElementCondition(new TabsVisibleCondition(this));
     }

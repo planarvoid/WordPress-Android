@@ -33,7 +33,7 @@ import rx.Observable;
 import javax.inject.Inject;
 import java.util.List;
 
-class SoundStreamStorage implements TimelineStorage {
+public class SoundStreamStorage implements TimelineStorage {
 
     private static final Object[] STREAM_SELECTION = new Object[]{
             SoundStreamView.SOUND_ID,
@@ -115,7 +115,8 @@ class SoundStreamStorage implements TimelineStorage {
         return propellerRx.query(query).map(new StreamItemMapper());
     }
 
-    public List<PropertySet> loadStreamItemsSince(final long timestamp, final int limit) {
+    @Override
+    public List<PropertySet> timelineItemsSince(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                 .select(STREAM_SELECTION)
                 .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
@@ -141,10 +142,10 @@ class SoundStreamStorage implements TimelineStorage {
 
             propertySet.put(PlayableProperty.URN, readSoundUrn(cursorReader));
             addTitle(cursorReader, propertySet);
-            propertySet.put(PlayableProperty.DURATION, cursorReader.getLong(SoundView.DURATION));
+            propertySet.put(PlayableProperty.PLAY_DURATION, cursorReader.getLong(SoundView.DURATION));
             propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
             propertySet.put(PlayableProperty.CREATOR_URN, Urn.forUser(cursorReader.getInt(SoundView.USER_ID)));
-            propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
+            propertySet.put(SoundStreamProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_PRIVATE,
                     Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
 

@@ -1,18 +1,19 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.java.optional.Optional;
 
 final class VideoPageData extends PlayerPageData {
 
-    VideoPageData(int positionInPlayQueue,  PropertySet properties) {
-        super(Kind.VIDEO, positionInPlayQueue, properties);
+    VideoPageData(int positionInPlayQueue, Optional<AdData> adData) {
+        super(Kind.VIDEO, positionInPlayQueue, adData);
     }
 
     @Override
     public String toString() {
         return "VideoPageData {" +
                 "positionInPlayQueue=" + positionInPlayQueue +
-                ", properties=" + properties +
+                ", properties=" + adData +
                 '}';
     }
 }

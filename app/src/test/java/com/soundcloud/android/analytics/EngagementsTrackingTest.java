@@ -7,6 +7,7 @@ import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expec
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
@@ -34,7 +35,6 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     private final TestEventBus eventBus = new TestEventBus();
 
     private EngagementsTracking engagementsTracking;
-
     @Mock private TrackRepository trackRepository;
     @Mock private UserRepository userRepository;
 
@@ -48,17 +48,15 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
         final PromotedTrackItem trackItem = PromotedTrackItem.from(PROMOTED_TRACK);
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(trackItem);
         final EntityMetadata entityMetadata = EntityMetadata.from(PROMOTED_TRACK);
+        final EventContextMetadata eventContextMetadata = getTrackContextMetadata();
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(PROMOTED_TRACK));
 
-        engagementsTracking.likeTrackUrn(TRACK_URN, true, "invoker", "context_screen", "page", TRACK_URN, promotedSourceInfo);
+        engagementsTracking.likeTrackUrn(TRACK_URN, true, eventContextMetadata, promotedSourceInfo);
 
         UIEvent expectedEvent = UIEvent.fromToggleLike(true,
-                "invoker",
-                "context_screen",
-                "page",
                 TRACK_URN,
-                TRACK_URN,
+                eventContextMetadata,
                 promotedSourceInfo,
                 entityMetadata);
 
@@ -68,17 +66,15 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     @Test
     public void testLikeTrackUrnForPlayerTrack() {
         final EntityMetadata entityMetadata = EntityMetadata.from(PLAYER_TRACK);
+        final EventContextMetadata eventContextMetadata = getTrackContextMetadata();
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(PLAYER_TRACK));
 
-        engagementsTracking.likeTrackUrn(TRACK_URN, true, "invoker", "context_screen", "page", TRACK_URN, null);
+        engagementsTracking.likeTrackUrn(TRACK_URN, true, eventContextMetadata, null);
 
         UIEvent expectedEvent = UIEvent.fromToggleLike(true,
-                "invoker",
-                "context_screen",
-                "page",
                 TRACK_URN,
-                TRACK_URN,
+                eventContextMetadata,
                 null,
                 entityMetadata);
 
@@ -88,16 +84,16 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     @Test
     public void testLikeTrackUrnForWidgetTrack() {
         final EntityMetadata entityMetadata = EntityMetadata.from(WIDGET_TRACK);
+        final EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
+                .invokerScreen("widget")
+                .contextScreen("context_screen")
+                .pageName("widget").build();
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(WIDGET_TRACK));
-
-        engagementsTracking.likeTrackUrn(TRACK_URN, true, "widget", "context_screen", "widget", Urn.NOT_SET, null);
+        engagementsTracking.likeTrackUrn(TRACK_URN, true, eventContextMetadata, null);
 
         UIEvent expectedEvent = UIEvent.fromToggleLike(true,
-                "widget",
-                "context_screen",
-                "widget",
                 TRACK_URN,
-                Urn.NOT_SET,
+                eventContextMetadata,
                 null,
                 entityMetadata);
 
@@ -119,6 +115,13 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+    }
+
+    private EventContextMetadata getTrackContextMetadata() {
+        return EventContextMetadata.builder()
+                .invokerScreen("invoker")
+                .contextScreen("context_screen")
+                .pageName("page").build();
     }
 
 }

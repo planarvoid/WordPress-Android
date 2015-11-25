@@ -19,7 +19,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 59;
+    public static final int DATABASE_VERSION = 60;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -169,6 +169,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 59:
                             success = upgradeTo59(db, oldVersion);
                             break;
+                        case 60:
+                            success = upgradeTo60(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -240,11 +243,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             migratePolicies(db);
 
             SchemaMigrationHelper.alterColumns(Table.Sounds, db);
-            SchemaMigrationHelper.recreate(Table.SoundView, db);
-            SchemaMigrationHelper.recreate(Table.SoundAssociationView, db);
-            SchemaMigrationHelper.recreate(Table.PlaylistTracksView, db);
-            SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
-            SchemaMigrationHelper.recreate(Table.ActivityView, db);
+            recreateSoundDependentViews(db);
 
             return true;
         } catch (SQLException exception) {
@@ -538,6 +537,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Adds the FULL_DURATION to the sounds table
+     */
+    private static boolean upgradeTo60(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.alterColumns(Table.Sounds, db);
+            recreateSoundDependentViews(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 60);
+        }
+        return false;
+    }
+
     private static void migratePolicies(SQLiteDatabase db) {
         final List<String> oldSoundColumns = Arrays.asList(
                 "_id", "monetizable", "policy");
@@ -554,5 +567,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
         final String message =
                 String.format(Locale.US, "error during upgrade%d (from %d)", newVersion, oldVersion);
         ErrorUtils.handleSilentException(message, exception);
+    }
+
+    private static void recreateSoundDependentViews(SQLiteDatabase db) {
+        SchemaMigrationHelper.recreate(Table.SoundView, db);
+        SchemaMigrationHelper.recreate(Table.SoundAssociationView, db);
+        SchemaMigrationHelper.recreate(Table.PlaylistTracksView, db);
+        SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
+        SchemaMigrationHelper.recreate(Table.ActivityView, db);
     }
 }

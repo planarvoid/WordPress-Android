@@ -7,10 +7,9 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.screens.search.SearchResultsScreen;
+import com.soundcloud.android.screens.search.LegacySearchResultsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class SearchNavigationTest extends ActivityTest<MainActivity> {
@@ -28,7 +27,6 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.FOLLOW_USER_SEARCH);
         super.setUp();
 
         streamScreen = new StreamScreen(solo);
@@ -42,16 +40,16 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
     @BrokenSearchTest
     public void testGoingBackFromSearchResultsReturnsToTagPage() {
-        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
+        LegacySearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doLegacySearch("clownstep");
         resultsScreen.pressBack();
         playlistTagsScreen = new PlaylistTagsScreen(solo);
         assertEquals("Tags screen should be visible", true, playlistTagsScreen.isVisible());
-        assertEquals("Search query should be empty", "", playlistTagsScreen.actionBar().getSearchQuery());
+        assertEquals("Search query should be empty", "", playlistTagsScreen.actionBar().getLegacySearchQuery());
     }
 
     @BrokenSearchTest
     public void testShouldExitSeachWhenPressingBackButton() {
-        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
+        LegacySearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doLegacySearch("clownstep");
         resultsScreen.pressBack();
         playlistTagsScreen = new PlaylistTagsScreen(solo);
         streamScreen = playlistTagsScreen.pressBack();

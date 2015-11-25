@@ -88,7 +88,7 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public long getDuration() {
-        return source.get(PlayableProperty.DURATION);
+        return source.get(PlayableProperty.PLAY_DURATION);
     }
 
     @Override

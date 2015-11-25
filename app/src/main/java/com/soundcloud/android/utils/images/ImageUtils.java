@@ -154,9 +154,7 @@ public final class ImageUtils {
 
             return (m.isIdentity()) ? bitmap : Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
 
-        } catch (IOException e) {
-            Log.e(TAG, ERROR, e);
-        } catch (OutOfMemoryError e) {
+        } catch (IOException | OutOfMemoryError e) {
             Log.e(TAG, ERROR, e);
         }
         return null;
@@ -404,7 +402,7 @@ public final class ImageUtils {
     @NonNull
     public static RoundedBitmapDrawable createCircularDrawable(Bitmap bitmap, Resources resources) {
         final RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(resources, bitmap);
-        drawable.setCornerRadius(Math.max(bitmap.getHeight(), bitmap.getWidth()) / 2.0f);
+        drawable.setCircular(true);
         return drawable;
     }
 

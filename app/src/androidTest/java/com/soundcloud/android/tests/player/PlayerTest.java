@@ -95,7 +95,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testSkippingWithNextAndPreviousChangesTrack() {
-        visualPlayerElement = streamScreen.clickFirstTrack();
+        visualPlayerElement = streamScreen.clickFirstTrackCard();
         String originalTrack = visualPlayerElement.getTrackTitle();
         visualPlayerElement.clickArtwork();
 
@@ -139,7 +139,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .actionBar()
                 .clickSearchButton()
                 .actionBar()
-                .doSearch("zzz track with description")
+                .doLegacySearch("zzz track with description")
                 .touchTracksTab()
                 .getTracks()
                 .get(0)
@@ -160,7 +160,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .actionBar()
                 .clickSearchButton()
                 .actionBar()
-                .doSearch("aaazzz track with no description")
+                .doLegacySearch("aaazzz track with no description")
                 .touchTracksTab()
                 .getTracks()
                 .get(0)
@@ -193,7 +193,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .actionBar()
                 .clickSearchButton()
                 .actionBar()
-                .doSearch("lots o' comments")
+                .doLegacySearch("lots o' comments")
                 .touchTracksTab()
                 .getTracks()
                 .get(0)
@@ -233,6 +233,6 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     private void playTrackFromStream() {
-        visualPlayerElement = streamScreen.clickFirstTrack();
+        visualPlayerElement = streamScreen.clickFirstTrackCard();
     }
 }

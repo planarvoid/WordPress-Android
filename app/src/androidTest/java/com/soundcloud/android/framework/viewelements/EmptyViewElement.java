@@ -32,6 +32,11 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
+    public boolean isElementDisplayed(With id) {
+         throw new ViewNotFoundException(selector);
+    }
+
+    @Override
     public void dragHorizontally(int n, int steps) {
         throw new ViewNotFoundException(selector);
     }
@@ -108,7 +113,7 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public int getId() {
-        throw new ViewNotFoundException(selector);
+        return 0;
     }
 
     @Override

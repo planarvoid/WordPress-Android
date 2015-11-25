@@ -3,8 +3,8 @@ package com.soundcloud.android.share;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -44,7 +44,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
 
     @Test
     public void sharePlayableStartsShareActivity() throws Exception {
-        operations.share(activityContext, PLAYLIST, SCREEN_TAG, PAGE_NAME, PAGE_URN, PROMOTED_SOURCE_INFO);
+        operations.share(activityContext, PLAYLIST, eventContext(), PROMOTED_SOURCE_INFO);
 
         Assertions.assertThat(activityContext)
                 .nextStartedIntent()
@@ -55,26 +55,26 @@ public class ShareOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shareTrackPublishesTrackingEvent() throws Exception {
-        operations.share(activityContext, TRACK, SCREEN_TAG, PAGE_NAME, PAGE_URN, null);
+        operations.share(activityContext, TRACK, eventContext(), null);
 
-        TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         Map<String, String> attributes = uiEvent.getAttributes();
 
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_SHARE);
-        assertThat(attributes.get("context")).isEqualTo(SCREEN_TAG);
+        assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN_TAG);
         assertThat(attributes.get("origin_screen")).isEqualTo(PAGE_NAME);
         assertThat(attributes.get("click_object_urn")).isEqualTo("soundcloud:tracks:123");
     }
 
     @Test
     public void sharePromotedTrackPublishesTrackingEvent() throws Exception {
-        operations.share(activityContext, PROMOTED_TRACK, SCREEN_TAG, PAGE_NAME, PAGE_URN, PROMOTED_SOURCE_INFO);
+        operations.share(activityContext, PROMOTED_TRACK, eventContext(), PROMOTED_SOURCE_INFO);
 
-        TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         Map<String, String> attributes = uiEvent.getAttributes();
 
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_SHARE);
-        assertThat(attributes.get("context")).isEqualTo(SCREEN_TAG);
+        assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN_TAG);
         assertThat(attributes.get("origin_screen")).isEqualTo(PAGE_NAME);
         assertThat(attributes.get("page_urn")).isEqualTo(PAGE_URN.toString());
         assertThat(attributes.get("click_object_urn")).isEqualTo("soundcloud:tracks:12345");
@@ -85,10 +85,17 @@ public class ShareOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSharePrivateTracks() throws Exception {
-        operations.share(activityContext, PRIVATE_TRACK, SCREEN_TAG, PAGE_NAME, PAGE_URN, PROMOTED_SOURCE_INFO);
+        operations.share(activityContext, PRIVATE_TRACK, eventContext(), PROMOTED_SOURCE_INFO);
 
         Assertions.assertThat(activityContext).hasNoNextStartedIntent();
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+    }
+
+    private EventContextMetadata eventContext() {
+        return EventContextMetadata.builder()
+                .contextScreen(SCREEN_TAG)
+                .pageName(PAGE_NAME)
+                .pageUrn(PAGE_URN).build();
     }
 
 }

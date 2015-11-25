@@ -2,24 +2,34 @@ package com.soundcloud.android.ads;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
+import com.soundcloud.java.functions.Function;
 
-public class ApiVideoSource {
-    public final String codec;
-    public final String url;
-    public final int bitRate;
-    public final int width;
-    public final int height;
+@AutoValue
+public abstract class ApiVideoSource {
+    public static Function<ApiVideoSource, VideoSource> toVideoSource = new Function<ApiVideoSource, VideoSource>() {
+        @Override
+        public VideoSource apply(ApiVideoSource apiVideoSource) {
+            return VideoSource.create(apiVideoSource);
+        }
+    };
 
     @JsonCreator
-    public ApiVideoSource(@JsonProperty("codec") String codec,
-                          @JsonProperty("url") String url,
-                          @JsonProperty("bitrate_kbps") int bitRate,
-                          @JsonProperty("width") int width,
-                          @JsonProperty("height") int height) {
-        this.codec = codec;
-        this.url = url;
-        this.bitRate = bitRate;
-        this.width = width;
-        this.height = height;
+    public static ApiVideoSource create(@JsonProperty("codec") String codec,
+                                        @JsonProperty("url") String url,
+                                        @JsonProperty("bitrate_kbps") int bitRate,
+                                        @JsonProperty("width") int width,
+                                        @JsonProperty("height") int height) {
+        return new AutoValue_ApiVideoSource(codec, url, bitRate, width, height);
     }
+
+    public abstract String getCodec();
+
+    public abstract String getUrl();
+
+    public abstract int getBitRate();
+
+    public abstract int getWidth();
+
+    public abstract int getHeight();
 }

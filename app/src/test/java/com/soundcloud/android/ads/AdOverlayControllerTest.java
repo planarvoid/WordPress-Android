@@ -1,7 +1,5 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.interstitialForPlayer;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayerWithDisplayMetaData;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -19,9 +17,7 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,7 +35,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-
 
 public class AdOverlayControllerTest extends AndroidUnitTest {
 
@@ -66,7 +61,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_PORTRAIT);
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), TestPropertySets.leaveBehindForPlayer()));
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getLeaveBehindAd(Urn.forTrack(123L))));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin_screen", true));
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(context.getResources()).thenReturn(resources);
@@ -74,7 +69,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void dismissSetsLeaveBehindVisibilityToGone() {
-        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        initializeAndShow(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
         captureImageListener().onLoadingComplete(null, null, null);
 
         controller.clear();
@@ -84,7 +79,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void leaveBehindGoneOnLeaveBehindCloseClick() {
-        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        initializeAndShow(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
         captureImageListener().onLoadingComplete(null, null, null);
 
         controller.onCloseButtonClick();
@@ -94,7 +89,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void leaveBehindIsVisibleAfterSetupWithSuccessfulImageLoad() {
-        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        initializeAndShow(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
 
         captureImageListener().onLoadingComplete(null, null, null);
 
@@ -103,7 +98,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void leaveBehindNeverBecomesVisibleIfDismissedBeforeImageLoads() {
-        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        initializeAndShow(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
 
         controller.clear();
         captureImageListener().onLoadingComplete(null, null, null);
@@ -113,14 +108,14 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void leaveBehindIsGoneAfterSetupIfImageNotLoaded() {
-        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        initializeAndShow(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
 
         expectLeaveBehindToBeGone();
     }
 
     @Test
     public void leaveBehindIsGoneIfImageLoadingFails() {
-        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        initializeAndShow(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
 
         captureImageListener().onLoadingFailed(null, null, null);
 
@@ -129,34 +124,34 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void recordsOverlayDismissal() {
-        final PropertySet properties = leaveBehindForPlayerWithDisplayMetaData();
-        controller.initialize(properties);
+        final LeaveBehindAd leaveBehind = AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L));
+        controller.initialize(leaveBehind);
         controller.show();
 
         controller.onCloseButtonClick();
 
-        assertThat(properties.getOrElse(AdOverlayProperty.META_AD_DISMISSED, false)).isTrue();
+        assertThat(leaveBehind.isMetaAdDismissed()).isTrue();
     }
 
     @Test
     public void loadsLeaveBehindImageFromModel() {
-        final PropertySet properties = leaveBehindForPlayerWithDisplayMetaData();
-        controller.initialize(properties);
+        final LeaveBehindAd leaveBehind = AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L));
+        controller.initialize(leaveBehind);
         controller.show();
-        verify(imageOperations).displayLeaveBehind(Matchers.eq(Uri.parse(properties.get(LeaveBehindProperty.IMAGE_URL))), Matchers.any(ImageView.class), Matchers.any(ImageListener.class));
+        verify(imageOperations).displayLeaveBehind(Matchers.eq(Uri.parse(leaveBehind.getImageUrl())), Matchers.any(ImageView.class), Matchers.any(ImageListener.class));
     }
 
     @Test
     public void setupOnLandscapeOrientationDoesNotDisplayLeaveBehind() {
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_LANDSCAPE);
-        controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
+        controller.initialize(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
         verify(imageOperations, Mockito.never()).displayLeaveBehind(Matchers.any(Uri.class), Matchers.any(ImageView.class), Matchers.any(ImageListener.class));
     }
 
     @Test
     public void onClickLeaveBehindImageOpensUrl() {
-        final PropertySet properties = leaveBehindForPlayerWithDisplayMetaData();
-        controller.initialize(properties);
+        final LeaveBehindAd leaveBehind = AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L));
+        controller.initialize(leaveBehind);
         controller.show();
         captureImageListener().onLoadingComplete(null, null, null);
 
@@ -169,12 +164,12 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         Intent intent = intentArgumentCaptor.getValue();
         assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo(Intent.ACTION_VIEW);
-        assertThat(intent.getData()).isEqualTo(properties.get(LeaveBehindProperty.CLICK_THROUGH_URL));
+        assertThat(intent.getData()).isEqualTo(leaveBehind.getClickthroughUrl());
     }
 
     @Test
     public void onClickLeaveBehindImageDismissesLeaveBehind() {
-        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        initializeAndShow(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
         captureImageListener().onLoadingComplete(null, null, null);
 
         controller.onImageClick();
@@ -184,7 +179,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void onClickLeaveBehindImageSendTrackingEvent() {
-        initializeAndShow(leaveBehindForPlayerWithDisplayMetaData());
+        initializeAndShow(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
         controller.show();
 
         controller.onImageClick();
@@ -200,7 +195,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void isNotVisibleReturnsTrueIfLeaveBehindImageHasNotLoaded() throws Exception {
-        controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
+        controller.initialize(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
         controller.show();
 
         assertThat(controller.isNotVisible()).isTrue();
@@ -208,7 +203,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void isNotVisibleReturnsFalseIfLeaveBehindImageHasLoaded() throws Exception {
-        controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
+        controller.initialize(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
         controller.show();
 
         captureImageListener().onLoadingComplete(null, null, null);
@@ -218,7 +213,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void isNotVisibleReturnsTrueIfInterstitialImageHasNotLoaded() throws Exception {
-        controller.initialize(interstitialForPlayer());
+        controller.initialize(AdFixtures.getInterstitialAd(Urn.forTrack(123L)));
         controller.show();
 
         assertThat(controller.isNotVisible()).isTrue();
@@ -227,7 +222,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
     @Test
     public void isNotVisibleReturnsFalseIfInterstitialImageHasLoaded() throws Exception {
         when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(true);
-        controller.initialize(interstitialForPlayer());
+        controller.initialize(AdFixtures.getInterstitialAd(Urn.forTrack(123L)));
         controller.setExpanded();
         controller.show(true);
 
@@ -238,7 +233,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
     @Test
     public void isVisibleInFullscreenReturnsFalseIfLeaveBehindImageHasLoaded() throws Exception {
-        controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
+        controller.initialize(AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L)));
         controller.show();
 
         captureImageListener().onLoadingComplete(null, null, null);
@@ -249,7 +244,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
     @Test
     public void isVisibleInFullscreenReturnsTrueIfInterstitialImageHasLoaded() throws Exception {
         when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(true);
-        controller.initialize(interstitialForPlayer());
+        controller.initialize(AdFixtures.getInterstitialAd(Urn.forTrack(123L)));
         controller.setExpanded();
         controller.show(true);
 
@@ -275,8 +270,8 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         return trackView.findViewById(R.id.leave_behind_header);
     }
 
-    private void initializeAndShow(PropertySet properties) {
-        controller.initialize(properties);
+    private void initializeAndShow(LeaveBehindAd leaveBehind) {
+        controller.initialize(leaveBehind);
         controller.show();
     }
 

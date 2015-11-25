@@ -30,8 +30,13 @@ public class VisualAdImpressionOperations {
     private final Func1<State, TrackingEvent> toTrackingEvent = new Func1<State, TrackingEvent>() {
         @Override
         public VisualAdImpressionEvent call(State state) {
-            return new VisualAdImpressionEvent(playQueueManager.getCurrentPlayQueueItem().getMetaData(), state.currentTrackUrn,
-                    accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo());
+            final PlayerAdData adData = (PlayerAdData) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
+            return new VisualAdImpressionEvent(
+                    adData,
+                    state.currentTrackUrn,
+                    accountOperations.getLoggedInUserUrn(),
+                    playQueueManager.getCurrentTrackSourceInfo()
+            );
         }
     };
 

@@ -1,30 +1,29 @@
 package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.YouScreen;
 
-import android.support.design.widget.TabLayout;
-
 public class MainTabs extends Tabs {
 
-    private final Han testDriver;
-
     private enum Tab {
-        HOME, SEARCH, COLLECTION, YOU
+        HOME, DISCOVERY, COLLECTION, YOU
     }
 
     public MainTabs(Han solo) {
         super(solo);
-        this.testDriver = solo;
     }
 
     public StreamScreen clickHome() {
         getTabAt(Tab.HOME.ordinal()).click();
         return new StreamScreen(testDriver);
+    }
+
+    public DiscoveryScreen clickDiscovery() {
+        getTabAt(Tab.DISCOVERY.ordinal()).click();
+        return new DiscoveryScreen(testDriver);
     }
 
     public CollectionsScreen clickCollections() {

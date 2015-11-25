@@ -59,7 +59,7 @@
 
     <!-- __ADS -->
     <string name="ads_advertisement">Advertisement</string>
-    <string name="ads_learn_more">LEARN MORE</string>
+    <string name="ads_call_to_action">LEARN MORE</string>
     <string name="ads_why_ads">Why ads?</string>
     <string name="ads_why_ads_dialog_message">Every time you see or hear an ad, artists get paid. Occasional ads allow us to continue to support artists and keep SoundCloud free for listeners.</string>
     <string name="ads_skip_ad">Skip ad</string>
@@ -141,7 +141,6 @@
     <string name="list_empty_user_following_action">FIND PEOPLE TO FOLLOW</string>
     <string name="empty_playlist_title">Empty playlist</string>
     <string name="empty_playlist_description">This playlist has no tracks yet.</string>
-    <string name="list_empty_liked_playlists_message">Like your favorite playlists to hear them again.</string>
 
     <string name="list_empty_you_sounds_message">Repost sounds to share them with your followers.</string>
     <string name="list_empty_you_playlists_message">Create playlists to make mixes of your favorite sounds.</string>
@@ -312,8 +311,6 @@
 
     <!-- __PLAYLISTS -->
     <string name="activity_title_playlist">Playlist</string>
-    <string name="your_playlists_tab">YOUR PLAYLISTS</string>
-    <string name="liked_playlists_tab">LIKED PLAYLISTS</string>
     <string name="playlist_load_error">Could not load this playlist</string>
     <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
     <string name="shuffle_playlist">Shuffle playlist</string>

@@ -31,18 +31,13 @@ import android.content.Intent;
 
 public class PeripheralsControllerTest extends AndroidUnitTest {
 
+    @SuppressWarnings("FieldCanBeLocal")
     private PeripheralsController controller;
-
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private Context context;
-
-    @Mock
-    private TrackRepository trackRepository;
-
-    @Captor
-    private ArgumentCaptor<Intent> captor;
+    @Mock private Context context;
+    @Mock private TrackRepository trackRepository;
+    @Captor private ArgumentCaptor<Intent> captor;
 
     @Before
     public void setUp() {
@@ -94,7 +89,7 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
         assertThat(secondBroadcast.getExtras().get("id")).isEqualTo(track.get(TrackProperty.URN).getNumericId());
         assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo(track.get(PlayableProperty.CREATOR_NAME));
         assertThat(secondBroadcast.getExtras().get("track")).isEqualTo(track.get(PlayableProperty.TITLE));
-        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.get(PlayableProperty.DURATION));
+        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.get(PlayableProperty.PLAY_DURATION));
     }
 
     @Test

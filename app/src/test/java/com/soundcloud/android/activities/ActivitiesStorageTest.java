@@ -1,8 +1,13 @@
 package com.soundcloud.android.activities;
 
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackCommentActivity;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackLikeActivity;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiUserFollowActivity;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
+import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -10,6 +15,7 @@ import org.junit.Test;
 import rx.observers.TestSubscriber;
 
 import java.util.Date;
+import java.util.List;
 
 public class ActivitiesStorageTest extends StorageIntegrationTest {
 
@@ -18,17 +24,19 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
     private ActivitiesStorage storage;
 
     private TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
-    private ApiTrackLikeActivity oldestActivity, olderActivity, newestActivity;
+    private ApiTrackCommentActivity oldestActivity;
+    private ApiTrackLikeActivity olderActivity;
+    private ApiUserFollowActivity newestActivity;
 
     @Before
     public void setUp() throws Exception {
-        storage = new ActivitiesStorage(propellerRx());
-        oldestActivity = apiTrackLikeActivity(new Date(TIMESTAMP));
+        storage = new ActivitiesStorage(propeller(), propellerRx());
+        oldestActivity = apiTrackCommentActivity(new Date(TIMESTAMP));
         olderActivity = apiTrackLikeActivity(new Date(TIMESTAMP + 1));
-        newestActivity = apiTrackLikeActivity(new Date(TIMESTAMP + 2));
-        testFixtures().insertTrackLikeActivity(oldestActivity);
+        newestActivity = apiUserFollowActivity(new Date(TIMESTAMP + 2));
+        testFixtures().insertTrackCommentActivity(oldestActivity);
         testFixtures().insertTrackLikeActivity(olderActivity);
-        testFixtures().insertTrackLikeActivity(newestActivity);
+        testFixtures().insertUserFollowActivity(newestActivity);
     }
 
     @Test
@@ -36,9 +44,23 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
         storage.timelineItems(Integer.MAX_VALUE).subscribe(subscriber);
 
         subscriber.assertValues(
-                expectedTrackLikePropertiesFor(newestActivity),
-                expectedTrackLikePropertiesFor(olderActivity),
-                expectedTrackLikePropertiesFor(oldestActivity)
+                expectedPropertiesFor(newestActivity),
+                expectedPropertiesFor(olderActivity),
+                expectedPropertiesFor(oldestActivity)
+        );
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void shouldNotReturnUnsupportedActivitiesFromLatestActivities() {
+        testFixtures().insertUnsupportedActivity();
+
+        storage.timelineItems(Integer.MAX_VALUE).subscribe(subscriber);
+
+        subscriber.assertValues(
+                expectedPropertiesFor(newestActivity),
+                expectedPropertiesFor(olderActivity),
+                expectedPropertiesFor(oldestActivity)
         );
         subscriber.assertCompleted();
     }
@@ -48,7 +70,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
         final int limit = 1;
         storage.timelineItems(limit).subscribe(subscriber);
 
-        subscriber.assertValue(expectedTrackLikePropertiesFor(newestActivity));
+        subscriber.assertValue(expectedPropertiesFor(newestActivity));
         subscriber.assertCompleted();
     }
 
@@ -57,8 +79,22 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
         storage.timelineItemsBefore(TIMESTAMP + 2, Integer.MAX_VALUE).subscribe(subscriber);
 
         subscriber.assertValues(
-                expectedTrackLikePropertiesFor(olderActivity),
-                expectedTrackLikePropertiesFor(oldestActivity)
+                expectedPropertiesFor(olderActivity),
+                expectedPropertiesFor(oldestActivity)
+        );
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void shouldNotReturnUnsupportedActivitiesFromActivitiesBeforeGivenTimestamp() {
+        testFixtures().insertUnsupportedActivity();
+
+        storage.timelineItemsBefore(Long.MAX_VALUE, Integer.MAX_VALUE).subscribe(subscriber);
+
+        subscriber.assertValues(
+                expectedPropertiesFor(newestActivity),
+                expectedPropertiesFor(olderActivity),
+                expectedPropertiesFor(oldestActivity)
         );
         subscriber.assertCompleted();
     }
@@ -68,14 +104,63 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
         final int limit = 1;
         storage.timelineItemsBefore(TIMESTAMP + 2, limit).subscribe(subscriber);
 
-        subscriber.assertValue(expectedTrackLikePropertiesFor(olderActivity));
+        subscriber.assertValue(expectedPropertiesFor(olderActivity));
         subscriber.assertCompleted();
     }
 
-    private PropertySet expectedTrackLikePropertiesFor(ApiTrackLikeActivity activity) {
+    @Test
+    public void shouldLoadActivitiesAfterGivenTimestampInReverseChronologicalOrder() {
+        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
+
+        assertThat(activities).containsExactly(
+                expectedPropertiesFor(newestActivity),
+                expectedPropertiesFor(olderActivity)
+        );
+    }
+
+    @Test
+    public void shouldLimitActivitiesSinceGivenTimestamp() {
+        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, 1);
+
+        assertThat(activities).containsExactly(expectedPropertiesFor(newestActivity));
+    }
+
+    @Test
+    public void shouldNotReturnUnsupportedActivitiesFromActivitiesSinceGivenTimestamp() {
+        testFixtures().insertUnsupportedActivity();
+
+        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
+
+        assertThat(activities).containsExactly(
+                expectedPropertiesFor(newestActivity),
+                expectedPropertiesFor(olderActivity)
+        );
+    }
+
+    private PropertySet expectedPropertiesFor(ApiUserFollowActivity activity) {
+        return PropertySet.from(
+                ActivityProperty.KIND.bind(ActivityKind.USER_FOLLOW),
+                ActivityProperty.DATE.bind(activity.getCreatedAt()),
+                ActivityProperty.USER_NAME.bind(activity.getUser().getUsername()),
+                ActivityProperty.USER_URN.bind(activity.getUserUrn())
+        );
+    }
+
+    private PropertySet expectedPropertiesFor(ApiTrackLikeActivity activity) {
         return PropertySet.from(
                 ActivityProperty.KIND.bind(ActivityKind.TRACK_LIKE),
                 ActivityProperty.DATE.bind(activity.getCreatedAt()),
+                ActivityProperty.PLAYABLE_TITLE.bind(activity.getTrack().getTitle()),
+                ActivityProperty.USER_NAME.bind(activity.getUser().getUsername()),
+                ActivityProperty.USER_URN.bind(activity.getUserUrn())
+        );
+    }
+
+    private PropertySet expectedPropertiesFor(ApiTrackCommentActivity activity) {
+        return PropertySet.from(
+                ActivityProperty.KIND.bind(ActivityKind.TRACK_COMMENT),
+                ActivityProperty.DATE.bind(activity.getCreatedAt()),
+                ActivityProperty.COMMENTED_TRACK_URN.bind(activity.getTrack().getUrn()),
                 ActivityProperty.PLAYABLE_TITLE.bind(activity.getTrack().getTitle()),
                 ActivityProperty.USER_NAME.bind(activity.getUser().getUsername()),
                 ActivityProperty.USER_URN.bind(activity.getUserUrn())

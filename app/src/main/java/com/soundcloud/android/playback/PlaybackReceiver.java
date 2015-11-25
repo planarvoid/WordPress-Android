@@ -51,6 +51,8 @@ class PlaybackReceiver extends BroadcastReceiver {
         } else if (accountOperations.isUserLoggedIn()) {
             if (Action.PLAY.equals(action)) {
                 playbackService.play(getPlaybackItem(intent));
+            } else if (Action.PRELOAD.equals(action)) {
+                playbackService.preload(intent.<Urn>getParcelableExtra(PlaybackService.ActionExtras.URN));
             } else if (Action.TOGGLE_PLAYBACK.equals(action)) {
                 playbackService.togglePlayback();
             } else if (Action.RESUME.equals(action)) {

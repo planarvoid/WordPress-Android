@@ -1,11 +1,13 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 
 public class TrackQueueItem extends PlayQueueItem {
 
@@ -17,14 +19,14 @@ public class TrackQueueItem extends PlayQueueItem {
     private final boolean shouldPersist;
 
     private TrackQueueItem(Urn trackUrn, Urn reposter, Urn relatedEntity, String source,
-                           String sourceVersion, PropertySet metaData, boolean shouldPersist) {
+                           String sourceVersion, Optional<AdData> adData, boolean shouldPersist) {
         this.trackUrn = trackUrn;
         this.reposter = reposter;
         this.relatedEntity = relatedEntity;
         this.source = source;
         this.sourceVersion = sourceVersion;
         this.shouldPersist = shouldPersist;
-        super.setMetaData(metaData);
+        super.setAdData(adData);
     }
 
     public Urn getTrackUrn() {
@@ -80,7 +82,7 @@ public class TrackQueueItem extends PlayQueueItem {
         private final Urn reposter;
         private String source = ScTextUtils.EMPTY_STRING;
         private String sourceVersion = ScTextUtils.EMPTY_STRING;
-        private PropertySet adData = PropertySet.create();
+        private Optional<AdData> adData = Optional.absent();
         private Urn relatedEntity = Urn.NOT_SET;
         private boolean shouldPersist = true;
 
@@ -104,8 +106,8 @@ public class TrackQueueItem extends PlayQueueItem {
             return this;
         }
 
-        public Builder withAdData(PropertySet adData){
-            this.adData = adData;
+        public Builder withAdData(AdData adData){
+            this.adData = Optional.of(adData);
             return this;
         }
 

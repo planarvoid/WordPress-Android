@@ -11,7 +11,6 @@ import com.soundcloud.java.collections.Lists;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
-import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -297,7 +296,7 @@ public class ScContentProvider extends ContentProvider {
                 if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
                     _columns = new String[]{Table.Likes + "." + TableColumns.Likes._TYPE, Table.Likes + "." + TableColumns.Likes._ID};
                 } else if (_columns == null) {
-                    _columns = addFakeLikeAssociationColumns(getSoundViewColumns(Table.SoundView), userId);
+                    _columns = addFakeLikeAssociationColumns(getSoundViewColumns(Table.SoundView));
                 }
 
                 _sortOrder = Table.Likes + "." + TableColumns.Likes.CREATED_AT + " DESC";
@@ -648,7 +647,7 @@ public class ScContentProvider extends ContentProvider {
     }
 
     // New likes don't have all the fields expected to load into SoundAssociation in legacy ScListFragments etc.
-    private static String[] addFakeLikeAssociationColumns(String[] columns, long userId) {
+    private static String[] addFakeLikeAssociationColumns(String[] columns) {
         final String[] arr = new String[columns.length + 3];
         final List<String> cols = Lists.newArrayList(columns);
         cols.add(Table.Likes + "." + TableColumns.Likes.CREATED_AT + " AS " + TableColumns.AssociationView.ASSOCIATION_TIMESTAMP);

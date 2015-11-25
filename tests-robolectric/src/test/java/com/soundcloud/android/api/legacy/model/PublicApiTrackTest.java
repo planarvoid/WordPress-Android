@@ -326,7 +326,7 @@ public class PublicApiTrackTest {
 
     private PropertySet assertTrackPropertiesWithoutPolicyInfo(PublicApiTrack track) {
         PropertySet propertySet = track.toPropertySet();
-        expect(propertySet.get(PlayableProperty.DURATION)).toEqual(track.duration);
+        expect(propertySet.get(PlayableProperty.PLAY_DURATION)).toEqual(track.duration);
         expect(propertySet.get(PlayableProperty.TITLE)).toEqual(track.title);
         expect(propertySet.get(PlayableProperty.URN)).toEqual(track.getUrn());
         expect(propertySet.get(PlayableProperty.CREATOR_URN)).toEqual(track.getUser().getUrn());

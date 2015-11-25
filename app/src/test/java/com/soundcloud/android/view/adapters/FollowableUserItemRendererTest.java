@@ -1,15 +1,12 @@
 package com.soundcloud.android.view.adapters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.associations.NextFollowingOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -31,10 +28,9 @@ public class FollowableUserItemRendererTest extends AndroidUnitTest {
 
     private FollowableUserItemRenderer renderer;
 
-    @Mock private FeatureFlags featureFlags;
     @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
-    @Mock private NextFollowingOperations followingOperations;
+    @Mock private FollowingOperations followingOperations;
     @Mock private EngagementsTracking engagementsTracking;
 
     private final CondensedNumberFormatter numberFormatter =
@@ -45,12 +41,10 @@ public class FollowableUserItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        renderer = new FollowableUserItemRenderer(imageOperations, numberFormatter, followingOperations, featureFlags, engagementsTracking);
+        renderer = new FollowableUserItemRenderer(imageOperations, numberFormatter, followingOperations, engagementsTracking);
 
         itemView = LayoutInflater.from(context()).inflate(R.layout.user_list_item, new FrameLayout(context()), false);
         user = ModelFixtures.create(ApiUser.class);
-
-        when(featureFlags.isEnabled(Flag.FOLLOW_USER_SEARCH)).thenReturn(true);
     }
 
     @Test

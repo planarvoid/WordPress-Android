@@ -107,13 +107,6 @@
             android:data="http://facebook.github.io/rebound" />
     </Preference>
     <Preference
-        android:summary="© Henning Dodenhof - Apache License 2.0"
-        android:title="CircleImageView">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:data="https://github.com/hdodenhof/CircleImageView" />
-    </Preference>
-    <Preference
         android:summary="This software contains code derived from code developed by The Android Open Source Project"
         android:title="AOSP">
         <intent

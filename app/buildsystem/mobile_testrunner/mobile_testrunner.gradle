@@ -15,7 +15,7 @@ buildscript {
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
-    classpath 'com.soundcloud.mobiletestrunner:client:68-8-7772760'
+    classpath 'com.soundcloud.mobiletestrunner:client:69-9-7d286c3'
   }
 }
 
@@ -30,7 +30,17 @@ task runLollipopTests << {
           "com.soundcloud.android.framework.annotation.BrokenSearchTest",
           "com.soundcloud.android.framework.annotation.StationsTest"
   ] as String[]
-  runTests("Lollipop", excludeAnnotations)
+
+  def systemProperties = [
+          "log.tag.Propeller": "DEBUG",
+          "log.tag.ApiClient": "DEBUG",
+          "log.tag.PublicApi": "DEBUG",
+          "log.tag.ApiSyncer": "DEBUG",
+          "log.tag.Timeline": "DEBUG",
+          "log.tag.SoundCloudApplication": "DEBUG"
+          ]
+
+  runTests("Lollipop", excludeAnnotations, systemProperties)
 }
 
 task runLollipopTestsRelease << {
@@ -43,30 +53,40 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.BrokenOfflineTest",
           "com.soundcloud.android.framework.annotation.BrokenSearchTest"
   ] as String[]
-  runTests("Lollipop", excludeAnnotations)
+
+  def systemProperties = [
+          "log.tag.Propeller": "DEBUG",
+          "log.tag.ApiClient": "DEBUG",
+          "log.tag.PublicApi": "DEBUG",
+          "log.tag.ApiSyncer": "DEBUG",
+          "log.tag.Timeline": "DEBUG",
+          "log.tag.SoundCloudApplication": "DEBUG"
+  ]
+
+  runTests("Lollipop", excludeAnnotations, systemProperties)
 }
 
-def runTests(label, excludeAnnotations) {
+def runTests(label, excludeAnnotations, systemProperties) {
   def factory = new TestRunnerFactory()
   def listener = new TestResultListener(new LogHandler(project, executeGet), new TestResultPrinter(), new HTMLReportBuilder(project))
 
   def testRunner = factory.create(project.ext.mobileTestRunnerUrl, project.ext.mobileTestRunnerUser, project.ext.mobileTestRunnerHost, listener)
-  testRunner.run(createExecution(label, excludeAnnotations))
+  testRunner.run(createExecution(label, excludeAnnotations, systemProperties))
 }
 
-def createSession() {
+def createSession(systemProperties) {
   def applicationPackage = new Package(project.('applicationId'), findApkPath(project.('buildType'), project.('debugVersionCode')))
   def testPackage = new Package(project.('testApplicationId'), project.('testApkPath'))
   def toolsPackages = [new Package(project.('androidNetorkManagerApplicationId'), project.('networkManagerApkPath'))] as Package[]
-  return new Session(applicationPackage, testPackage, toolsPackages)
+  return new Session(applicationPackage, testPackage, toolsPackages, systemProperties)
 }
 
 def createRunConfiguration(label, excludeAnnotations) {
   return new RunConfiguration(label, project.ext.testInstrumentationRunner, null, excludeAnnotations, null, null, null)
 }
 
-def createExecution(label, excludeAnnotations) {
-  def session = createSession()
+def createExecution(label, excludeAnnotations, systemProperties) {
+  def session = createSession(systemProperties)
   def runConfiguration = createRunConfiguration(label, excludeAnnotations)
 
   return new Execution(session, runConfiguration)

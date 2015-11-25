@@ -134,7 +134,12 @@ public class PlaySessionSource implements Parcelable {
     }
 
     public String getInitialSource() {
-        return Strings.isNotBlank(exploreVersion) ? DiscoverySource.EXPLORE.value() : ScTextUtils.EMPTY_STRING;
+        if (Strings.isNotBlank(exploreVersion)) {
+            return DiscoverySource.EXPLORE.value();
+        } else if (isFromStreamTrack()) {
+            return DiscoverySource.STREAM.value();
+        }
+        return ScTextUtils.EMPTY_STRING;
     }
 
     public String getInitialSourceVersion() {
@@ -151,6 +156,14 @@ public class PlaySessionSource implements Parcelable {
 
     public boolean isFromPromotedItem() {
         return promotedSourceInfo != null;
+    }
+
+    private boolean isFromPlaylist() {
+        return getCollectionUrn().isPlaylist();
+    }
+
+    private boolean isFromStreamTrack() {
+        return originScreen.equals(Screen.STREAM.get()) && !isFromPlaylist();
     }
 
     @Override
@@ -234,7 +247,7 @@ public class PlaySessionSource implements Parcelable {
     }
 
     public enum DiscoverySource {
-        RECOMMENDER, EXPLORE, STATIONS;
+        RECOMMENDER, EXPLORE, STATIONS, STREAM;
 
         public String value() {
             return this.toString().toLowerCase(Locale.ENGLISH);

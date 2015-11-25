@@ -29,6 +29,11 @@ public class PlayerMenuElement extends PopupMenuElement {
         return new AddCommentScreen(testDriver);
     }
 
+    public VisualPlayerElement toggleRepost() {
+        repostItem().click();
+        return new VisualPlayerElement(testDriver);
+    }
+
     public void clickStartStation() {
         startStation().click();
     }

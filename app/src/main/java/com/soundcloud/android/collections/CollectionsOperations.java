@@ -158,6 +158,7 @@ public class CollectionsOperations {
         }
     };
 
+
     public static final Func1<? super EntityStateChangedEvent, Boolean> IS_COLLECTION_CHANGE_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {

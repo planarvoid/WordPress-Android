@@ -24,15 +24,7 @@ public class TrackItemElement {
     }
 
     public boolean isPromotedTrack() {
-        return isPromotedCardItem() || isPromotedTrackListItem();
-    }
-
-    private boolean isPromotedTrackListItem() {
         return wrapped.findElement(With.id(R.id.promoted_track)).isVisible();
-    }
-
-    private boolean isPromotedCardItem() {
-        return wrapped.findElement(With.id(R.id.promoted_item)).isVisible();
     }
 
     public boolean hasPromoter() {

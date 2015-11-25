@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
@@ -77,7 +78,13 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
         controller.onMenuItemClick(share, activityContext);
 
-        verify(shareOperations).share(activityContext, track.getSource(), "screen", Screen.PLAYER_MAIN.get(), track.getUrn(), null);
+        EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
+                .contextScreen("screen")
+                .pageName(Screen.PLAYER_MAIN.get())
+                .pageUrn(track.getUrn())
+                .isFromOverflow(true)
+                .build();
+        verify(shareOperations).share(activityContext, track.getSource(), eventContextMetadata, null);
     }
 
     @Test
@@ -146,16 +153,9 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     public void displayScrubPositionSetsCommentTimeInMenu() {
         controller.setProgress(new PlaybackProgress(20000, 40000));
 
-        controller.displayScrubPosition(0.75f);
+        controller.displayScrubPosition(0.75f, 1.1f);
 
-        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:30");
-    }
-
-    @Test
-    public void displayScrubPositionSetsCommentTimeInMenuWithoutPlayback() {
-        controller.displayScrubPosition(0.5f);
-
-        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:10");
+        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:20");
     }
 
     @Test

@@ -1,10 +1,13 @@
 package com.soundcloud.android.playback.widget;
 
-import android.content.Context;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.ads.AdFunctions;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
@@ -21,16 +24,15 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.PropertySetFunctions;
 import com.soundcloud.rx.eventbus.EventBus;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import android.content.Context;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class PlayerWidgetController {
@@ -101,8 +103,11 @@ public class PlayerWidgetController {
     }
 
     private Observable<PropertySet> loadTrackWithAdMeta(TrackQueueItem currentTrackQueueItem) {
+            final PropertySet adProperties = PropertySet.from(
+                    AdProperty.IS_AUDIO_AD.bind(AdFunctions.IS_AUDIO_AD_ITEM.apply(currentTrackQueueItem))
+            );
             return trackRepository.track(currentTrackQueueItem.getTrackUrn())
-                    .map(PropertySetFunctions.mergeWith(currentTrackQueueItem.getMetaData()));
+                    .map(PropertySetFunctions.mergeWith(adProperties));
     }
 
     public void handleToggleLikeAction(final boolean addLike) {
@@ -113,14 +118,20 @@ public class PlayerWidgetController {
 
             engagementsTracking.likeTrackUrn(currentTrackUrn,
                     addLike,
-                    Screen.WIDGET.get(),
-                    playQueueManager.getScreenTag(),
-                    Screen.WIDGET.get(),
-                    Urn.NOT_SET,
+                    getEventMetadata(),
                     playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn));
         } else {
             ErrorUtils.handleSilentException(new IllegalStateException("Tried to like a track from widget with invalid playQueue item"));
         }
+    }
+
+    private EventContextMetadata getEventMetadata() {
+        return EventContextMetadata.builder()
+                .invokerScreen(Screen.WIDGET.get())
+                .contextScreen(playQueueManager.getScreenTag())
+                .pageName(Screen.WIDGET.get())
+                .pageUrn(Urn.NOT_SET)
+                .build();
     }
 
     /**

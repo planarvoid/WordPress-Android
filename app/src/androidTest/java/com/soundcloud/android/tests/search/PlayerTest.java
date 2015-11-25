@@ -12,14 +12,14 @@ import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.screens.search.SearchResultsScreen;
+import com.soundcloud.android.screens.search.LegacySearchResultsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class PlayerTest extends ActivityTest<MainActivity> {
     private StreamScreen streamScreen;
-    private SearchResultsScreen searchResultsScreen;
+    private LegacySearchResultsScreen searchResultsScreen;
     private VisualPlayerElement player;
 
     public PlayerTest() {
@@ -33,7 +33,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     @BrokenSearchTest
     public void testVisualPlayerIsAccessibleFromSearch() throws Exception {
-        streamScreen().clickFirstTrack();
+        streamScreen().clickFirstTrackCard();
         player().waitForContent();
         assertThat(player(), is(expanded()));
         player().pressBackToCollapse();
@@ -53,7 +53,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     @BrokenSearchTest
     public void testTapingATrackFromSearchOpenVisualPlayer() throws Exception {
         streamScreen().actionBar().clickSearchButton();
-        searchScreen().actionBar().doSearch("nasa");
+        searchScreen().actionBar().doLegacySearch("nasa");
         player = searchScreen().clickFirstTrackItem();
 
         assertThat(player, is(expanded()));
@@ -66,9 +66,9 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         return player;
     }
 
-    private SearchResultsScreen searchScreen() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    private LegacySearchResultsScreen searchScreen() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (searchResultsScreen == null) {
-            searchResultsScreen = new SearchResultsScreen(solo);
+            searchResultsScreen = new LegacySearchResultsScreen(solo);
         }
         return searchResultsScreen;
     }

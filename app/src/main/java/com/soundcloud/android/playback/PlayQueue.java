@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Iterables;
@@ -7,6 +10,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,15 +58,15 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return playQueueItems.get(position);
     }
 
-    public void insertTrack(int position, Urn trackUrn, PropertySet metaData, boolean shouldPersist) {
+    public void insertAudioAd(int position, Urn trackUrn, AudioAd adData, boolean shouldPersist) {
         insertPlayQueueItem(position, new TrackQueueItem.Builder(trackUrn)
-                .withAdData(metaData)
+                .withAdData(adData)
                 .persist(shouldPersist)
                 .build());
     }
 
-    public void insertVideo(int position, PropertySet metaData) {
-        insertPlayQueueItem(position, new VideoQueueItem(metaData));
+    public void insertVideo(int position, VideoAd videoAd) {
+        insertPlayQueueItem(position, new VideoQueueItem(videoAd));
     }
 
     public boolean hasPreviousItem(int position) {
@@ -136,14 +140,14 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).shouldPersist();
     }
 
-    public PropertySet getMetaData(int position) {
+    public Optional<AdData> getAdData(int position) {
         checkElementIndex(position, size());
-        return playQueueItems.get(position).getMetaData();
+        return playQueueItems.get(position).getAdData();
     }
 
-    public void setMetaData(int position, PropertySet metadata) {
+    public void setAdData(int position, Optional<AdData> adData) {
         checkElementIndex(position, size());
-        playQueueItems.get(position).setMetaData(metadata);
+        playQueueItems.get(position).setAdData(adData);
     }
 
     public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource) {
@@ -199,8 +203,6 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     private static List<PlayQueueItem> playQueueItemsFromIds(List<Urn> trackIds,
                                                              final PlaySessionSource playSessionSource) {
-
-
         return newArrayList(transform(trackIds, new Function<Urn, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Urn track) {

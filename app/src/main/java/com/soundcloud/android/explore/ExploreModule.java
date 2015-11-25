@@ -11,7 +11,6 @@ import dagger.Provides;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 ExploreTracksCategoryActivity.class,
-                ExploreFragment.class,
                 ExploreTracksFragment.class,
                 ExploreGenresFragment.class,
                 ExploreActivity.class

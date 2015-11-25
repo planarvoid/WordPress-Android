@@ -27,8 +27,6 @@ public final class Actions {
 
     // internal actions
     public static final String ACCOUNT_ADDED       = "com.soundcloud.android.action.ACCOUNT_ADDED";
-    public static final String CHANGE_PROXY_ACTION = "com.soundcloud.android.action.CHANGE_PROXY";
-    public static final String EXTRA_PROXY         = "proxy"; // proxy URL as string
 
     public static final String UPLOAD              = "com.soundcloud.android.actions.upload";
     public static final String UPLOAD_MONITOR      = "com.soundcloud.android.actions.upload.monitor";

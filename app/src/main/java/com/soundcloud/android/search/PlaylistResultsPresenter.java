@@ -38,7 +38,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
             SwipeRefreshAttacher swipeRefreshAttacher,
             RecyclerViewParallaxer parallaxer, Navigator navigator,
             EventBus eventBus) {
-        super(swipeRefreshAttacher, Options.grid(R.integer.grid_view_num_columns).build());
+        super(swipeRefreshAttacher, Options.grid(R.integer.grids_num_columns).build());
         this.operations = operations;
         this.adapter = adapter;
         this.parallaxer = parallaxer;

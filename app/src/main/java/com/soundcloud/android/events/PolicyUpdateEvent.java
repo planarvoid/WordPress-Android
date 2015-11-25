@@ -2,7 +2,6 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.Urn;
 
-import java.util.Collections;
 import java.util.List;
 
 public class PolicyUpdateEvent {

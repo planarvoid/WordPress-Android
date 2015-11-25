@@ -158,7 +158,7 @@ public class LikesStorageTest extends StorageIntegrationTest {
                 TrackProperty.CREATOR_NAME,
                 TrackProperty.LIKES_COUNT,
                 TrackProperty.PLAY_COUNT,
-                TrackProperty.DURATION,
+                TrackProperty.PLAY_DURATION,
                 TrackProperty.IS_PRIVATE
         ).put(LikeProperty.CREATED_AT, likedAt)
                 .put(PlayableProperty.IS_LIKED, true);

@@ -477,7 +477,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void onSeekCompletePublishesPlayingEventWithAdjustedPosition() {
         playUrlAndSetPrepared();
-        when(mediaPlayer.getCurrentPosition()).thenReturn((int) (duration + 1));
+        when(mediaPlayer.getCurrentPosition()).thenReturn(duration + 1);
 
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 
@@ -671,7 +671,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         reset(mediaPlayer);
         reset(mediaPlayerManager);
         reset(listener);
-        when(mediaPlayer.getDuration()).thenReturn((int) duration);
+        when(mediaPlayer.getDuration()).thenReturn(duration);
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);
         when(listener.requestAudioFocus()).thenReturn(true);
     }

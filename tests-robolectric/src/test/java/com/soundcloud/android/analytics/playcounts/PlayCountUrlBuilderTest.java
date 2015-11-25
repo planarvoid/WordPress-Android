@@ -59,9 +59,9 @@ public class PlayCountUrlBuilderTest {
         final PropertySet policyMissing = PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.CREATOR_URN.bind(Urn.forTrack(456L)),
-                PlayableProperty.DURATION.bind(1000L)
+                PlayableProperty.PLAY_DURATION.bind(1000L)
         );
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(policyMissing, Urn.forUser(1), null, 0, 1000L, "hls", "playa", "3g", false);
+        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(policyMissing, Urn.forUser(1), null, 0, 1000L, "hls", "playa", "3g", false, false);
 
         final String url = urlBuilder.buildUrl(event);
 

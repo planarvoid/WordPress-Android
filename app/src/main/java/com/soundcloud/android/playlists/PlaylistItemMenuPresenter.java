@@ -10,16 +10,16 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
@@ -49,9 +49,9 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private final ShareOperations shareOperations;
     private final ScreenProvider screenProvider;
     private final FeatureOperations featureOperations;
-    private final FeatureFlags featureFlags;
     private final OfflineContentOperations offlineContentOperations;
     private final Navigator navigator;
+    private final StreamDesignExperiment streamExperiment;
 
     private PlaylistItem playlist;
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
@@ -62,7 +62,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                                      PopupMenuWrapper.Factory popupMenuWrapperFactory,
                                      AccountOperations accountOperations, PlaylistOperations playlistOperations, LikeOperations likeOperations,
                                      RepostOperations repostOperations, ShareOperations shareOperations, ScreenProvider screenProvider,
-                                     FeatureOperations featureOperations, FeatureFlags featureFlags,
+                                     FeatureOperations featureOperations, StreamDesignExperiment streamExperiment,
                                      OfflineContentOperations offlineContentOperations, Navigator navigator) {
         this.appContext = appContext;
         this.eventBus = eventBus;
@@ -74,7 +74,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         this.shareOperations = shareOperations;
         this.screenProvider = screenProvider;
         this.featureOperations = featureOperations;
-        this.featureFlags = featureFlags;
+        this.streamExperiment = streamExperiment;
         this.offlineContentOperations = offlineContentOperations;
         this.navigator = navigator;
     }
@@ -138,16 +138,13 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         return null;
     }
 
-    private void playlistLike(boolean addLike) {
-        eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromToggleLike(addLike,
-                        ScreenElement.LIST.get(),
-                        screenProvider.getLastScreenTag(),
-                        screenProvider.getLastScreenTag(),
-                        playlist.getEntityUrn(),
-                        Urn.NOT_SET,
-                        getPromotedSourceIfExists(),
-                        EntityMetadata.from(playlist)));
+    private EventContextMetadata getEventContextMetadata() {
+        return EventContextMetadata.builder()
+                .invokerScreen(ScreenElement.LIST.get())
+                .contextScreen(screenProvider.getLastScreenTag())
+                .pageName(screenProvider.getLastScreenTag())
+                .isFromOverflow(true)
+                .build();
     }
 
     private void handleLike() {
@@ -157,7 +154,12 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(appContext, addLike));
 
-        playlistLike(addLike);
+        eventBus.publish(EventQueue.TRACKING,
+                UIEvent.fromToggleLike(addLike,
+                        playlist.getEntityUrn(),
+                        getEventContextMetadata(),
+                        getPromotedSourceIfExists(),
+                        EntityMetadata.from(playlist)));
 
         if (isUnlikingNotOwnedPlaylistInOfflineMode(addLike)) {
             fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn));
@@ -170,13 +172,18 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         repostOperations.toggleRepost(playlistUrn, addRepost)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new RepostResultSubscriber(appContext, addRepost));
+
+        eventBus.publish(EventQueue.TRACKING,
+                UIEvent.fromToggleRepost(addRepost,
+                        playlist.getEntityUrn(),
+                        getEventContextMetadata(),
+                        getPromotedSourceIfExists(),
+                        EntityMetadata.from(playlist)));
     }
 
     private void handleShare(Context context) {
         shareOperations.share(context, playlist.getSource(),
-                ScreenElement.LIST.get(),
-                screenProvider.getLastScreenTag(),
-                Urn.NOT_SET,
+                getEventContextMetadata(),
                 getPromotedSourceIfExists());
     }
 
@@ -200,7 +207,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     }
 
     private void configureAdditionalEngagementsOptions(PopupMenuWrapper menu) {
-        if (featureFlags.isEnabled(Flag.NEW_STREAM) && menuOptions.showAllEngagements()) {
+        if (streamExperiment.isCardDesign() && menuOptions.showAllEngagements()) {
             menu.setItemVisible(R.id.toggle_repost, canRepost(playlist));
             menu.setItemVisible(R.id.share, !playlist.isPrivate());
             updateRepostActionTitle(menu, playlist.isReposted());

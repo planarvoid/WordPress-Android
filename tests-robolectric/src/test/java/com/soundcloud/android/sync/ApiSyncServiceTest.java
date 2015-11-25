@@ -81,26 +81,6 @@ public class ApiSyncServiceTest {
     }
 
     @Test
-    public void shouldProvideFeedbackViaResultReceiver() throws Exception {
-        ApiSyncService svc = new ApiSyncService();
-        Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_ACTIVITIES.uri);
-
-        final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<>();
-        intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler(Looper.myLooper())) {
-            @Override
-            protected void onReceiveResult(int resultCode, Bundle resultData) {
-                received.put(resultCode, resultData);
-            }
-        });
-
-        TestHelper.addPendingHttpResponse(getClass(), "e1_activities_1_oldest.json");
-        svc.onStart(intent, 0);
-
-        expect(received.size()).toBe(1);
-        expect(received.containsKey(ApiSyncService.STATUS_SYNC_ERROR)).toBeFalse();
-    }
-
-    @Test
     public void shouldProvideFeedbackViaResultReceiverNoSyncIntent() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         Intent intent = new Intent(Intent.ACTION_SYNC, null);
@@ -165,7 +145,6 @@ public class ApiSyncServiceTest {
         );
         SyncRequest request1 = syncRequestFactory.create(intent);
         SyncRequest request2 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true));
-        SyncRequest request3 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
 
         svc.enqueueRequest(request1);
         expect(svc.pendingJobs.size()).toBe(3);
@@ -200,50 +179,10 @@ public class ApiSyncServiceTest {
     }
 
     @Test
-    public void shouldSyncThenAppend() throws Exception {
-        ApiSyncService svc = new ApiSyncService();
-        sync(svc, Content.ME_ACTIVITIES,
-                "e1_activities_1.json",
-                "e1_activities_2.json");
-
-        expect(Content.ME_ACTIVITIES).toHaveCount(17);
-        expect(Content.COMMENTS).toHaveCount(5);
-
-        append(svc, Content.ME_ACTIVITIES, "own_append.json");
-
-        expect(Content.ME_ACTIVITIES).toHaveCount(18);
-        expect(Content.COMMENTS).toHaveCount(6);
-    }
-
-    @Test
-    public void shouldStopSyncingIfAppendReturnsSameResult() throws Exception {
-        ApiSyncService svc = new ApiSyncService();
-        sync(svc, Content.ME_ACTIVITIES,
-                "e1_activities_1.json",
-                "e1_activities_2.json");
-
-        expect(Content.ME_ACTIVITIES).toHaveCount(17);
-
-        for (int i = 0; i < 3; i++)
-            append(svc, Content.ME_ACTIVITIES, "own_append.json");
-
-        expect(Content.ME_ACTIVITIES).toHaveCount(18);
-        expect(Content.COMMENTS).toHaveCount(6);
-    }
-
-    @Test
     public void shouldClearSyncStatuses() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         svc.onDestroy();
-        expect(syncStateManager.fromContent(Content.ME_SOUNDS).sync_state).toEqual(LocalCollection.SyncState.IDLE);
-    }
-
-    private void sync(ApiSyncService svc, Content content, String... fixtures) throws IOException {
-        serviceAction(svc, Intent.ACTION_SYNC, content, fixtures);
-    }
-
-    private void append(ApiSyncService svc, Content content, String... fixtures) throws IOException {
-        serviceAction(svc, ApiSyncService.ACTION_APPEND, content, fixtures);
+        expect(syncStateManager.fromContent(Content.ME_SOUNDS.uri).sync_state).toEqual(LocalCollection.SyncState.IDLE);
     }
 
     private void serviceAction(ApiSyncService svc, String action, Content content, String... fixtures) throws IOException {

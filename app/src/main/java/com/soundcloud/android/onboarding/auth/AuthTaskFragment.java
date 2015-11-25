@@ -44,7 +44,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @Inject LegacyUserStorage userStorage;
 
     public interface OnAuthResultListener {
-        void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo, boolean showFacebookSuggestions);
+        void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo);
 
         void onError(String message, boolean allowFeedback);
 
@@ -161,7 +161,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
             if (result.wasSuccess()) {
                 listener.onAuthTaskComplete(result.getUser(), result.getSignupVia(),
-                        this instanceof SignupTaskFragment, result.getShowFacebookSuggestions());
+                        this instanceof SignupTaskFragment);
             } else if (result.wasEmailTaken()) {
                 listener.onEmailTaken();
             } else if (result.wasSpam()) {

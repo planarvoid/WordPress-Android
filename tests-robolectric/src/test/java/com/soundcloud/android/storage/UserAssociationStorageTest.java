@@ -38,7 +38,6 @@ import java.util.List;
 public class UserAssociationStorageTest {
     final private static long USER_ID = 1L;
     final private static int BATCH_SIZE = 1;
-    final private static int INITIAL_FOLLOWERS_COUNT = 3;
     public static final String TOKEN = "12345";
 
     private PublicApiUser user;
@@ -49,65 +48,8 @@ public class UserAssociationStorageTest {
     public void before() {
         TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        storage = new LegacyUserAssociationStorage(Schedulers.immediate(), resolver);
+        storage = new LegacyUserAssociationStorage(resolver);
         user = new PublicApiUser(1);
-    }
-
-    @Test
-    public void shouldMarkFollowingWithoutToken() throws Exception {
-        user.followers_count = INITIAL_FOLLOWERS_COUNT;
-        expect(storage.follow(user).toBlocking().last().getUser()).toEqual(user);
-
-        UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.getId());
-        expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
-        expect(userAssociation.getToken()).toBeNull();
-    }
-
-    @Test
-    public void shouldMarkFollowingForAdditionAndUpdateFollowersCount() throws Exception {
-        user.followers_count = INITIAL_FOLLOWERS_COUNT;
-        expect(storage.follow(user).toBlocking().last().getUser()).toEqual(user);
-
-        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
-        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT + 1);
-
-        UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.getId());
-        expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
-    }
-
-    @Test
-    public void shouldFailToMarkExistingFollowingForAdditionAndNotUpdateFollowersCount() {
-        user.followers_count = INITIAL_FOLLOWERS_COUNT;
-        TestHelper.insertAsUserAssociation(user, UserAssociation.Type.FOLLOWING);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
-
-        storage.follow(user);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
-        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT);
-    }
-
-    @Test
-    public void shouldMarkFollowingForRemovalAndUpdateFollowingCount() throws Exception {
-        user.followers_count = INITIAL_FOLLOWERS_COUNT;
-        TestHelper.insertAsUserAssociation(user, UserAssociation.Type.FOLLOWING);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
-        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT);
-        storage.unfollow(user).toBlocking().last();
-
-        expect(Content.ME_FOLLOWINGS).toHaveCount(1);// should still exist but marked for removal
-        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT - 1);
-        UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.getId());
-        expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
-    }
-
-    @Test
-    public void shouldFailToMarkNonExistantFollowingForRemovalAndNotUpdateFollowerCount() {
-        user.followers_count = INITIAL_FOLLOWERS_COUNT;
-        TestHelper.insertWithDependencies(user);
-        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT);
-
-        storage.unfollow(user);
-        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT);
     }
 
     @Test
@@ -151,7 +93,7 @@ public class UserAssociationStorageTest {
         List<Long> ids = Collections.singletonList(1L);
 
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(USER_ID, ids, 0, BATCH_SIZE);
+        new LegacyUserAssociationStorage(resolver).insertInBatches(USER_ID, ids, 0, BATCH_SIZE);
         verify(resolver).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), any(ContentValues[].class));
         verifyNoMoreInteractions(resolver);
     }
@@ -161,7 +103,7 @@ public class UserAssociationStorageTest {
         List<Long> ids = asList(1L, 2L);
 
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(USER_ID, ids, 0, BATCH_SIZE);
+        new LegacyUserAssociationStorage(resolver).insertInBatches(USER_ID, ids, 0, BATCH_SIZE);
         verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), any(ContentValues[].class));
         verifyNoMoreInteractions(resolver);
     }
@@ -172,7 +114,7 @@ public class UserAssociationStorageTest {
 
         int START_POSITION = 27;
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(USER_ID, ids, START_POSITION, BATCH_SIZE);
+        new LegacyUserAssociationStorage(resolver).insertInBatches(USER_ID, ids, START_POSITION, BATCH_SIZE);
 
         ArgumentCaptor<ContentValues[]> argumentCaptor = ArgumentCaptor.forClass(ContentValues[].class);
         verify(resolver).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), argumentCaptor.capture());
@@ -190,7 +132,7 @@ public class UserAssociationStorageTest {
 
         int START_POSITION = 66;
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(Schedulers.immediate(), resolver).insertInBatches(USER_ID, ids, START_POSITION, BATCH_SIZE);
+        new LegacyUserAssociationStorage(resolver).insertInBatches(USER_ID, ids, START_POSITION, BATCH_SIZE);
 
         ArgumentCaptor<ContentValues[]> argumentCaptor = ArgumentCaptor.forClass(ContentValues[].class);
         verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), argumentCaptor.capture());
@@ -309,34 +251,6 @@ public class UserAssociationStorageTest {
         expect(storage.setFollowingAsSynced(association)).toBeTrue();
         expect(storage.getFollowingsNeedingSync().size()).toEqual(1);
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
-    }
-
-    @Test
-    public void shouldDeleteFollowingsList() throws Exception {
-        TestHelper.bulkInsertToUserAssociationsAsRemovals(ModelFixtures.create(PublicApiUser.class, 2), Content.ME_FOLLOWINGS.uri);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-        expect(storage.deleteFollowings(TestHelper.loadUserAssociations(Content.ME_FOLLOWINGS))).toBeTrue();
-        expect(Content.ME_FOLLOWINGS).toHaveCount(0);
-    }
-
-    @Test
-    public void shouldSetListOfFollowingsAsSynced() throws Exception {
-        final List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 2);
-
-        TestHelper.bulkInsertToUserAssociationsAsAdditions(users, Content.ME_FOLLOWINGS.uri);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-        UserAssociation association1 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(0).getId());
-        expect(association1.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
-        UserAssociation association2 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(1).getId());
-        expect(association2.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
-
-        storage.setFollowingsAsSynced(newArrayList(association1, association2)).toBlocking().last();
-
-        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-        association1 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(0).getId());
-        expect(association1.getLocalSyncState()).toEqual(UserAssociation.LocalState.NONE);
-        association2 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(1).getId());
-        expect(association2.getLocalSyncState()).toEqual(UserAssociation.LocalState.NONE);
     }
 
     @Test

@@ -16,6 +16,7 @@ import static com.soundcloud.android.main.Screen.SEARCH_EVERYTHING;
 
 import com.appboy.models.outgoing.AppboyProperties;
 import com.soundcloud.android.events.AttributionEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -39,9 +40,11 @@ class AppboyEventHandler {
     private static final List<AppboyAttributeName> PLAYLIST_ATTRIBUTES = Arrays.asList(PLAYLIST_TITLE, PLAYLIST_URN);
 
     private final AppboyWrapper appboy;
+    private final AppboyPlaySessionState appboyPlaySessionState;
 
-    AppboyEventHandler(AppboyWrapper appboy) {
+    AppboyEventHandler(AppboyWrapper appboy, AppboyPlaySessionState appboyPlaySessionState) {
         this.appboy = appboy;
+        this.appboyPlaySessionState = appboyPlaySessionState;
     }
 
     public void handleEvent(UIEvent event) {
@@ -86,6 +89,17 @@ class AppboyEventHandler {
     private boolean isSearchEverythingClick(SearchEvent event) {
         return CLICK_NAME_SEARCH.equals(event.get(KEY_CLICK_NAME))
                 && SEARCH_EVERYTHING.get().equals(event.get(KEY_PAGE_NAME));
+    }
+
+    public void handleEvent(PlaybackSessionEvent event) {
+        boolean sessionPlayed = appboyPlaySessionState.isSessionPlayed();
+
+        if (!sessionPlayed && event.isPlayEvent() && event.isMarketablePlay()) {
+            appboyPlaySessionState.setSessionPlayed();
+            tagEvent(AppboyEvents.PLAY, buildPlayableProperties(event));
+            appboy.requestInAppMessageRefresh();
+            appboy.requestImmediateDataFlush();
+        }
     }
 
     public void handleEvent(ScreenEvent event) {

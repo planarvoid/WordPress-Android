@@ -247,7 +247,6 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
         reset(collectionsOperations);
 
         collectionSyncedBus.onNext(SyncResult.success("syncResult", true));
-
         verify(collectionsOperations, never()).collections(any(PlaylistsOptions.class));
     }
 

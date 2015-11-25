@@ -131,6 +131,10 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(footerPlayerPredicate);
     }
 
+    private ViewElement adCTAButton() {
+        return solo.findElement(With.id(R.id.cta_button));
+    }
+
     private ViewElement whyAds() {
         return solo.findElement(With.id(R.id.why_ads));
     }
@@ -225,6 +229,10 @@ public class VisualPlayerElement extends Element {
 
     public boolean isAdPageVisible() {
         return adPage().isVisible();
+    }
+
+    public String getAdCTAButtonText() {
+        return new TextElement(adCTAButton()).getText();
     }
 
     public String getTrackTitle() {

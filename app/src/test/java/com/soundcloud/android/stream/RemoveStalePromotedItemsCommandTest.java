@@ -2,12 +2,11 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.propeller.query.Query.from;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.propeller.test.matchers.QueryMatchers;
+import com.soundcloud.propeller.test.assertions.QueryAssertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,10 +54,10 @@ public class RemoveStalePromotedItemsCommandTest extends StorageIntegrationTest 
     }
 
     private void expectPromotedTrackItemCountToBe(int count) {
-        assertThat(select(from(Table.PromotedTracks.name())), QueryMatchers.counts(count));
+        QueryAssertions.assertThat(select(from(Table.PromotedTracks.name()))).counts(count);
     }
 
     private void expectStreamItemCountToBe(int count) {
-        assertThat(select(from(Table.SoundStream.name())), QueryMatchers.counts(count));
+        QueryAssertions.assertThat(select(from(Table.SoundStream.name()))).counts(count);
     }
 }

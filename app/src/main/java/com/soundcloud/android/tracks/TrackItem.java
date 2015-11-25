@@ -64,7 +64,7 @@ public class TrackItem extends PlayableItem {
     }
 
     public long getDuration() {
-        return source.get(TrackProperty.DURATION);
+        return source.get(TrackProperty.PLAY_DURATION);
     }
 
     public OfflineState getDownloadedState() {

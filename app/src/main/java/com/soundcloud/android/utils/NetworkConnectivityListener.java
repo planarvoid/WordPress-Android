@@ -1,195 +1,53 @@
 package com.soundcloud.android.utils;
 
-import com.soundcloud.android.properties.ApplicationProperties;
-import org.jetbrains.annotations.Nullable;
+import com.soundcloud.android.events.ConnectionType;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * A wrapper for a broadcast receiver that provides network connectivity state
- * information, independent of network type (mobile, Wi-Fi, etc.).
+ * A wrapper for a broadcast receiver that provides network connectivity state to the event bus
  */
 public class NetworkConnectivityListener {
-    private static final String TAG = "ConnectivityListener";
 
-    private final Map<Handler, Integer> handlers = new HashMap<>();
-    @Nullable private Context context;
+    private static final String TAG = "NetworkListener";
 
-    private State state;
-
-    /**
-     * Network connectivity information
-     */
-    private NetworkInfo networkInfo;
-
-    /**
-     * In case of a Disconnect, the connectivity manager may have already
-     * established, or may be attempting to establish, connectivity with another
-     * network. If so, {@code otherNetworkInfo} will be non-null.
-     */
-    private NetworkInfo otherNetworkInfo;
-
+    private final Context context;
     private final ConnectivityBroadcastReceiver receiver;
+    private final NetworkConnectionHelper networkConnectionHelper;
+    private final EventBus eventBus;
 
-    public enum State {
-        UNKNOWN,
-
-        /**
-         * This state is returned if there is connectivity to any network *
-         */
-        CONNECTED,
-        /**
-         * This state is returned if there is no connectivity to any network.
-         * This is set to true under two circumstances:
-         * <ul>
-         * <li>When connectivity is lost to one network, and there is no other
-         * available network to attempt to switch to.</li>
-         * <li>When connectivity is lost to one network, and the attempt to
-         * switch to another network fails.</li>
-         */
-        NOT_CONNECTED
-    }
-
-    /**
-     * Create a new NetworkConnectivityListener.
-     */
     @Inject
-    public NetworkConnectivityListener() {
-        state = State.UNKNOWN;
+    public NetworkConnectivityListener(Context context, NetworkConnectionHelper networkConnectionHelper, EventBus eventBus) {
+        this.context = context;
+        this.networkConnectionHelper = networkConnectionHelper;
+        this.eventBus = eventBus;
         receiver = new ConnectivityBroadcastReceiver();
     }
 
-    /**
-     * This method starts listening for network connectivity state changes.
-     */
-    public NetworkConnectivityListener startListening(Context context) {
-        synchronized (this) {
-            if (this.context == null) {
-                this.context = context;
-                IntentFilter filter = new IntentFilter();
-                filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-                context.registerReceiver(receiver, filter);
-            }
-        }
-        return this;
+    public void startListening() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        context.registerReceiver(receiver, filter);
     }
 
-    /**
-     * This method stops this class from listening for network changes.
-     */
     public void stopListening() {
-        synchronized (this) {
-            if (context != null) {
-                context.unregisterReceiver(receiver);
-                context = null;
-                networkInfo = null;
-                otherNetworkInfo = null;
-            }
-        }
-    }
-
-    /**
-     * This methods registers a Handler to be called back onto with the
-     * specified what code when the network connectivity state changes.
-     *
-     * @param target The target handler.
-     * @param what   The what code to be used when posting a message to the
-     *               handler.
-     */
-    public NetworkConnectivityListener registerHandler(Handler target, int what) {
-        handlers.put(target, what);
-        return this;
-    }
-
-    /**
-     * This methods unregisters the specified Handler.
-     *
-     * @param target
-     */
-    public NetworkConnectivityListener unregisterHandler(Handler target) {
-        handlers.remove(target);
-        return this;
-    }
-
-    /**
-     * Return the NetworkInfo associated with the most recent connectivity
-     * event.
-     *
-     * @return {@code NetworkInfo} for the network that had the most recent
-     *         connectivity event.
-     */
-    public NetworkInfo getNetworkInfo() {
-        return networkInfo;
-    }
-
-    /**
-     * If the most recent connectivity event was a DISCONNECT, return any
-     * information supplied in the broadcast about an alternate network that
-     * might be available. If this returns a non-null value, then another
-     * broadcast should follow shortly indicating whether connection to the
-     * other network succeeded.
-     *
-     * @return NetworkInfo
-     */
-    public NetworkInfo getOtherNetworkInfo() {
-        return otherNetworkInfo;
-    }
-
-
-
-    public State getState() {
-        return state;
+        context.unregisterReceiver(receiver);
     }
 
     private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
-            ApplicationProperties applicationProperties = new ApplicationProperties(context.getResources());
-            String action = intent.getAction();
-
-            if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION) || NetworkConnectivityListener.this.context == null) {
-                Log.w(TAG, "onReceived() called with " + state.toString() + " and " + intent);
-                return;
-            }
-            State old = state;
-
-            boolean noConnectivity = intent.getBooleanExtra(
-                    ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-
-            state =  noConnectivity ? State.NOT_CONNECTED : State.CONNECTED;
-            networkInfo = intent
-                    .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-            otherNetworkInfo = intent
-                    .getParcelableExtra(ConnectivityManager.EXTRA_OTHER_NETWORK_INFO);
-
-            if (applicationProperties.isDevBuildRunningOnDevice()) {
-                Log.d(TAG, "onReceive(): networkInfo="
-                        + networkInfo
-                        + " otherNetworkInfo = "
-                        + (otherNetworkInfo == null ? "[none]" : otherNetworkInfo + " noConn="
-                        + noConnectivity) + " mState=" + state.toString());
-            }
-
-            // Notify any handlers.
-            for (Handler target : handlers.keySet()) {
-                target.sendMessage(Message.obtain(target, handlers.get(target),
-                        old.ordinal(),
-                        state.ordinal(),
-                        networkInfo));
-            }
+            final ConnectionType currentConnectionType = networkConnectionHelper.getCurrentConnectionType();
+            Log.d(TAG,"Connectivity change detected, current connection : " + currentConnectionType);
+            eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, currentConnectionType);
         }
     }
 }

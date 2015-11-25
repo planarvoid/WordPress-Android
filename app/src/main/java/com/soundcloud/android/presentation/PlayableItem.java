@@ -9,6 +9,7 @@ import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
+import com.soundcloud.android.stream.SoundStreamProperty;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
@@ -101,7 +102,7 @@ public abstract class PlayableItem implements StreamItem {
 
     @Override
     public Date getCreatedAt() {
-        return source.get(PlayableProperty.CREATED_AT);
+        return source.get(SoundStreamProperty.CREATED_AT);
     }
 
     public int getLikesCount() {

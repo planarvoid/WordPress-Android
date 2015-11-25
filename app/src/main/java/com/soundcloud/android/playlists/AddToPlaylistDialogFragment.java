@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
@@ -131,13 +132,14 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new TrackAddedSubscriber());
 
-        trackAddingToPlaylistEvent(trackId);
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata(), false, trackId));
     }
 
-    private void trackAddingToPlaylistEvent(long trackId) {
-        final String invokerScreen = getArguments().getString(KEY_INVOKER_SCREEN);
-        final String contextScreen = getArguments().getString(KEY_CONTEXT_SCREEN);
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(invokerScreen, contextScreen, false, trackId));
+    private EventContextMetadata getEventContextMetadata() {
+        return EventContextMetadata.builder()
+                .invokerScreen(getArguments().getString(KEY_INVOKER_SCREEN))
+                .contextScreen(getArguments().getString(KEY_CONTEXT_SCREEN))
+                .build();
     }
 
     @Override

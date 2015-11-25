@@ -243,6 +243,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     @Override
     public void onRefresh() {
+        playlistSubscription.unsubscribe();
         playlistSubscription = playlistOperations.updatedPlaylistInfo(getPlaylistUrn())
                 .observeOn(mainThread())
                 .subscribe(new RefreshSubscriber());

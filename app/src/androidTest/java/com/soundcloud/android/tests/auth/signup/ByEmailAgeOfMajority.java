@@ -9,7 +9,7 @@ import com.soundcloud.android.screens.EmailOptInScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.screens.search.SearchResultsScreen;
+import com.soundcloud.android.screens.search.LegacySearchResultsScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class ByEmailAgeOfMajority extends SignUpTest {
@@ -29,7 +29,7 @@ public class ByEmailAgeOfMajority extends SignUpTest {
 
         final StreamScreen streamScreen = optInScreen.clickNo();
         final PlaylistTagsScreen playlistTagsScreen = streamScreen.actionBar().clickSearchButton();
-        final SearchResultsScreen searchResult = playlistTagsScreen.actionBar().doSearch("annoymouse");
+        final LegacySearchResultsScreen searchResult = playlistTagsScreen.actionBar().doLegacySearch("annoymouse");
         final ProfileScreen profileScreen = searchResult.clickFirstUserItem();
         assertThat(profileScreen.areCurrentlyFollowing(), is(false));
 

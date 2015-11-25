@@ -11,18 +11,13 @@ import javax.inject.Provider;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                PlaylistsFragment.class,
                 PlaylistDetailActivity.class,
                 PlaylistDetailFragment.class,
-                PlaylistLikesFragment.class,
-                PlaylistPostsFragment.class,
                 AddToPlaylistDialogFragment.class,
                 CreatePlaylistDialogFragment.class
         }
 )
 public class PlaylistsModule {
-
-    public static final String LOAD_POSTED_PLAYLISTS = "LoadPostedPlaylists";
 
     @Provides
     public PlaylistDetailsController providePlaylistViewController(Resources resources,

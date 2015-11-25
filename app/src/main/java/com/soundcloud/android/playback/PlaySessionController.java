@@ -6,8 +6,11 @@ import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdFunctions;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -248,12 +251,12 @@ public class PlaySessionController {
     }
 
     public Observable<PlaybackResult> playNewQueue(PlayQueue playQueue, Urn initialTrack, int startPosition,
-                                                   boolean loadRelated, PlaySessionSource playSessionSource) {
+                                                   PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
             return Observable.just(PlaybackResult.error(UNSKIPPABLE));
         } else {
             return playbackStrategyProvider.get()
-                    .setNewQueue(playQueue, initialTrack, startPosition, loadRelated, playSessionSource)
+                    .setNewQueue(playQueue, initialTrack, startPosition, playSessionSource)
                     .doOnSubscribe(stopLoadingPreviousTrack)
                     .doOnNext(playCurrentTrack);
         }
@@ -262,7 +265,8 @@ public class PlaySessionController {
     private void publishSkipEventIfAudioAd() {
         if (adsOperations.isCurrentItemAudioAd()) {
             final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueueManager.getCurrentPlayQueueItem();
-            final UIEvent event = UIEvent.fromSkipAudioAdClick(trackQueueItem.getMetaData(), trackQueueItem.getTrackUrn(),
+            final AudioAd audioAd = (AudioAd) trackQueueItem.getAdData().get();
+            final UIEvent event = UIEvent.fromSkipAudioAdClick(audioAd, trackQueueItem.getTrackUrn(),
                     accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo());
             eventBus.publish(EventQueue.TRACKING, event);
         }
@@ -362,9 +366,10 @@ public class PlaySessionController {
 
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
             if (playQueueItem.isTrack() ) {
+                final boolean isAudioAd = AdFunctions.IS_AUDIO_AD_ITEM.apply(playQueueItem);
                 currentTrackSubscription = trackRepository
                         .track(playQueueItem.getUrn())
-                        .map(PropertySetFunctions.mergeInto(playQueueItem.getMetaData()))
+                        .map(PropertySetFunctions.mergeWith(PropertySet.from(AdProperty.IS_AUDIO_AD.bind(isAudioAd))))
                         .subscribe(new CurrentTrackSubscriber());
             }
         }

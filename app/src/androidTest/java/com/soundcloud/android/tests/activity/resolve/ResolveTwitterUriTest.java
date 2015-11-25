@@ -12,7 +12,7 @@ import android.net.Uri;
 
 public class ResolveTwitterUriTest extends ResolveBaseTest {
 
-    private static final String TRACK_NAME = "Tycho - From Home";
+    private static final String TRACK_NAME = "From Home";
 
     @Override
     protected Uri getUri() {

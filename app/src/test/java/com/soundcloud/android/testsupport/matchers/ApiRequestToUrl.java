@@ -8,7 +8,6 @@ import android.net.Uri;
 public class ApiRequestToUrl extends ArgumentMatcher<ApiRequest> {
 
     private final String expectedUri;
-    private ApiRequest request;
 
     public ApiRequestToUrl(String expectedUri) {
         this.expectedUri = expectedUri;
@@ -17,7 +16,7 @@ public class ApiRequestToUrl extends ArgumentMatcher<ApiRequest> {
     @Override
     public boolean matches(Object argument) {
         if (argument instanceof ApiRequest) {
-            this.request = (ApiRequest) argument;
+            ApiRequest request = (ApiRequest) argument;
             return Uri.parse(expectedUri).equals(request.getUri());
         }
         return false;

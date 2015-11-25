@@ -32,7 +32,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testVisualPlayerIsAccessible() {
-        final VisualPlayerElement player = streamScreen.clickFirstTrack();
+        final VisualPlayerElement player = streamScreen.clickFirstTrackCard();
         assertThat(player, is(expanded()));
 
         player.pressBackToCollapse();

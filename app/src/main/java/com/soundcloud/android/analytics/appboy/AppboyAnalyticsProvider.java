@@ -9,6 +9,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -27,9 +28,11 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
     private final AppboyEventHandler eventHandler;
 
     @Inject
-    public AppboyAnalyticsProvider(AppboyWrapper appboy, AccountOperations accountOperations) {
+    public AppboyAnalyticsProvider(AppboyWrapper appboy,
+                                   AccountOperations accountOperations,
+                                   AppboyPlaySessionState appboyPlaySessionState) {
         this.appboy = appboy;
-        eventHandler = new AppboyEventHandler(appboy);
+        this.eventHandler = new AppboyEventHandler(appboy, appboyPlaySessionState);
         changeUser(accountOperations.getLoggedInUserUrn());
     }
 
@@ -80,6 +83,8 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
     public void handleTrackingEvent(TrackingEvent event) {
         if (event instanceof UIEvent) {
             eventHandler.handleEvent((UIEvent) event);
+        } else if (event instanceof PlaybackSessionEvent) {
+            eventHandler.handleEvent((PlaybackSessionEvent) event);
         } else if (event instanceof ScreenEvent) {
             eventHandler.handleEvent((ScreenEvent) event);
         } else if (event instanceof SearchEvent) {

@@ -13,6 +13,8 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.waveform.WaveformData;
@@ -36,6 +38,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private static final int IS_CREATION_PENDING = 4;
 
     private static final BitSet SHOULD_CREATE_WAVEFORM = trueSet(NUM_FLAGS);
+    public static final int DEFAULT_PLAYABLE_PROPORTION = 1;
     private final BitSet createState = new BitSet(NUM_FLAGS);
 
     private final WaveformView waveformView;
@@ -61,10 +64,13 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
     private Player.PlayerState currentState = IDLE;
+    private long fullDuration;
+    private long playDuration;
 
     WaveformViewController(WaveformView waveform,
                            ProgressController.Factory animationControllerFactory,
-                           final ScrubController.Factory scrubControllerFactory) {
+                           final ScrubController.Factory scrubControllerFactory,
+                           FeatureFlags featureFlags) {
         this.waveformView = waveform;
         this.waveformWidthRatio = waveform.getWidthRatio();
         this.scrubController = scrubControllerFactory.create(waveformView.getDragViewHolder());
@@ -77,6 +83,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         leftProgressController = animationControllerFactory.create(waveformView.getLeftWaveform());
         rightProgressController = animationControllerFactory.create(waveformView.getRightWaveform());
         dragProgressController = animationControllerFactory.create(waveformView.getDragViewHolder());
+        waveformView.configureOverscroller(featureFlags.isEnabled(Flag.WAVEFORM_SPRING));
     }
 
     @Override
@@ -86,29 +93,32 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
             cancelProgressAnimations();
         }
         if (newScrubState == SCRUB_STATE_CANCELLED && currentState == PLAYING) {
-            startProgressAnimations(latestProgress);
+            startProgressAnimations();
         }
     }
 
     @Override
-    public void displayScrubPosition(float scrubPosition) {
-        leftProgressHelper.setValueFromProportion(waveformView.getLeftWaveform(), scrubPosition);
-        rightProgressHelper.setValueFromProportion(waveformView.getRightWaveform(), scrubPosition);
+    public void displayScrubPosition(float actualPosition, float boundedPosition) {
+        leftProgressHelper.setValueFromProportion(waveformView.getLeftWaveform(), actualPosition);
+        rightProgressHelper.setValueFromProportion(waveformView.getRightWaveform(), actualPosition);
         if (currentState == IDLE) {
-            leftProgressHelper.setValueFromProportion(waveformView.getLeftLine(), scrubPosition);
-            rightProgressHelper.setValueFromProportion(waveformView.getRightLine(), scrubPosition);
+            leftProgressHelper.setValueFromProportion(waveformView.getLeftLine(), actualPosition);
+            rightProgressHelper.setValueFromProportion(waveformView.getRightLine(), actualPosition);
         }
     }
 
     public void setProgress(PlaybackProgress progress) {
         latestProgress = progress;
-        if (!progress.isEmpty()) {
-            scrubController.setDuration(progress.getDuration());
-        }
         if (!suppressProgress) {
-            leftProgressController.setPlaybackProgress(progress);
-            rightProgressController.setPlaybackProgress(progress);
-            dragProgressController.setPlaybackProgress(progress);
+            setProgressInternal();
+        }
+    }
+
+    private void setProgressInternal() {
+        if (fullDuration > 0 && !latestProgress.isEmpty()) {
+            leftProgressController.setPlaybackProgress(latestProgress, fullDuration);
+            rightProgressController.setPlaybackProgress(latestProgress, fullDuration);
+            dragProgressController.setPlaybackProgress(latestProgress, fullDuration);
 
             if (currentState == IDLE) {
                 waveformView.showIdleLinesAtWaveformPositions();
@@ -119,7 +129,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     @Override
     public void onWaveformViewWidthChanged(int newWidth) {
         adjustedWidth = (int) (waveformWidthRatio * newWidth);
-        waveformView.setWaveformWidths(adjustedWidth);
+        waveformView.setWaveformWidths(adjustedWidth, getPlayableProportion(latestProgress));
 
         final int middle = newWidth / 2;
         waveformView.setWaveformTranslations(middle, 0);
@@ -160,10 +170,29 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     public void showPlayingState(PlaybackProgress progress) {
+        if (progress.isDurationValid()) {
+            waveformView.setPlayableWidth(adjustedWidth, getPlayableProportion(progress));
+        }
         currentState = PLAYING;
+        latestProgress = progress;
         showWaveform();
+
         if (!suppressProgress) {
-            startProgressAnimations(progress);
+            startProgressAnimations();
+        }
+    }
+
+    private float getPlayableProportion(PlaybackProgress progress) {
+        return Math.max(0, Math.min(1, getRawPlayableProportion(progress)));
+    }
+
+    private float getRawPlayableProportion(PlaybackProgress progress) {
+        if (progress.isDurationValid() && fullDuration > 0) {
+            return ((float) progress.getDuration()) / fullDuration;
+        } else if (playDuration > 0 && fullDuration > 0){
+            return ((float) playDuration) / fullDuration;
+        } else {
+            return DEFAULT_PLAYABLE_PROPORTION;
         }
     }
 
@@ -222,8 +251,17 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         waveformView.setVisibility(View.GONE);
     }
 
-    public void setDuration(long duration) {
-        scrubController.setDuration(duration);
+    public void setDurations(long playDuration, long fullDuration) {
+        this.playDuration = playDuration;
+        this.fullDuration = fullDuration;
+        scrubController.setFullDuration(fullDuration);
+        waveformView.setPlayableWidth(adjustedWidth, getPlayableProportion(latestProgress));
+
+        if (currentState == PLAYING) {
+            startProgressAnimations();
+        } else {
+            setProgressInternal();
+        }
     }
 
     public void onBackground() {
@@ -235,10 +273,12 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         createWaveforms(IS_FOREGROUND);
     }
 
-    private void startProgressAnimations(PlaybackProgress progress) {
-        leftProgressController.startProgressAnimation(progress);
-        rightProgressController.startProgressAnimation(progress);
-        dragProgressController.startProgressAnimation(progress);
+    private void startProgressAnimations() {
+        if (fullDuration > 0 && latestProgress != null){
+            leftProgressController.startProgressAnimation(latestProgress, fullDuration);
+            rightProgressController.startProgressAnimation(latestProgress, fullDuration);
+            dragProgressController.startProgressAnimation(latestProgress, fullDuration);
+        }
     }
 
     public void cancelProgressAnimations() {
@@ -276,17 +316,18 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     public static class Factory {
         private final ProgressController.Factory animationControllerFactory;
         private final ScrubController.Factory scrubControllerFactory;
+        private final FeatureFlags featureFlags;
 
         @Inject
         Factory(ScrubController.Factory scrubControllerFactory,
-                ProgressController.Factory animationControllerFactory) {
+                ProgressController.Factory animationControllerFactory, FeatureFlags featureFlags) {
             this.scrubControllerFactory = scrubControllerFactory;
             this.animationControllerFactory = animationControllerFactory;
+            this.featureFlags = featureFlags;
         }
 
         public WaveformViewController create(WaveformView waveformView) {
-            return new WaveformViewController(waveformView, animationControllerFactory, scrubControllerFactory
-            );
+            return new WaveformViewController(waveformView, animationControllerFactory, scrubControllerFactory, featureFlags);
         }
     }
 
@@ -295,5 +336,4 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         bitSet.set(0, numFlags);
         return bitSet;
     }
-
 }

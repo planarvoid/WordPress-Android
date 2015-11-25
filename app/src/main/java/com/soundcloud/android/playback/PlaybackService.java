@@ -6,6 +6,7 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -105,7 +106,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         // make sure there aren't any other messages coming
         delayedStopHandler.removeCallbacksAndMessages(null);
         fadeHandler.removeCallbacksAndMessages(null);
-        audioManager.abandonMusicFocus(false);
+        audioManager.abandonMusicFocus();
         unregisterReceiver(playbackReceiver);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
         instance = null;
@@ -168,7 +169,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void resetAll() {
         stop();
         currentPlaybackItem = Optional.absent();
-        audioManager.abandonMusicFocus(false); // kills lockscreen
+        audioManager.abandonMusicFocus(); // kills lockscreen
     }
 
     @Override
@@ -244,6 +245,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         fadeHandler.removeMessages(FadeHandler.FADE_IN);
     }
 
+    void preload(Urn urn) {
+        streamPlayer.preload(urn);
+    }
+
     void play(PlaybackItem playbackItem) {
         currentPlaybackItem = Optional.of(playbackItem);
         streamPlayer.play(playbackItem);
@@ -284,6 +289,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     // public service actions
     public interface Action {
         String TOGGLE_PLAYBACK = "com.soundcloud.android.playback.toggleplayback";
+        String PRELOAD = "com.soundcloud.android.playback.preload";
         String PLAY_CURRENT = "com.soundcloud.android.playback.playcurrent";
         String RESUME = "com.soundcloud.android.playback.playcurrent";
         String PAUSE = "com.soundcloud.android.playback.pause";
@@ -297,6 +303,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public interface ActionExtras {
         String POSITION = "seek_position";
         String PLAYBACK_ITEM = "playback_item";
+        String URN = "urn";
     }
 
     // broadcast notifications

@@ -2,8 +2,6 @@ package com.soundcloud.android.gcm;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.soundcloud.android.ServiceInitiator;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
@@ -20,14 +18,12 @@ public class GcmManager extends DefaultActivityLightCycle<AppCompatActivity> {
     private final GcmStorage gcmStorage;
     private final GooglePlayServicesWrapper googlePlayServices;
     private final ServiceInitiator serviceInitiator;
-    private final FeatureFlags featureFlags;
 
     @Inject
-    public GcmManager(GcmStorage gcmStorage, GooglePlayServicesWrapper googlePlayServices, ServiceInitiator serviceInitiator, FeatureFlags featureFlags) {
+    public GcmManager(GcmStorage gcmStorage, GooglePlayServicesWrapper googlePlayServices, ServiceInitiator serviceInitiator) {
         this.gcmStorage = gcmStorage;
         this.googlePlayServices = googlePlayServices;
         this.serviceInitiator = serviceInitiator;
-        this.featureFlags = featureFlags;
     }
 
     @Override

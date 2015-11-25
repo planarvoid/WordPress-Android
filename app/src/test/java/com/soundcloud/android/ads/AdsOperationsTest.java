@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
@@ -22,21 +21,18 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public class AdsOperationsTest extends AndroidUnitTest {
 
@@ -84,7 +80,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(1);
         when(playQueueManager.getCurrentPosition()).thenReturn(0);
         when(playQueueManager.getPlayQueueItemAtPosition(0))
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), TestPropertySets.audioAdProperties(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAd()).isTrue();
     }
@@ -94,7 +90,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(1);
         when(playQueueManager.getCurrentPosition()).thenReturn(0);
         when(playQueueManager.getPlayQueueItemAtPosition(0))
-                .thenReturn(TestPlayQueueItem.createVideo(TestPropertySets.videoAdProperties(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAd()).isTrue();
     }
@@ -123,7 +119,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(2);
         when(playQueueManager.getCurrentPosition()).thenReturn(0);
         when(playQueueManager.getPlayQueueItemAtPosition(1))
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), TestPropertySets.audioAdProperties(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isNextItemAd()).isTrue();
     }
@@ -133,7 +129,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(2);
         when(playQueueManager.getCurrentPosition()).thenReturn(0);
         when(playQueueManager.getPlayQueueItemAtPosition(1))
-                .thenReturn(TestPlayQueueItem.createVideo(TestPropertySets.videoAdProperties(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isNextItemAd()).isTrue();
     }
@@ -162,7 +158,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(1);
         when(playQueueManager.getCurrentPosition()).thenReturn(0);
         when(playQueueManager.getPlayQueueItemAtPosition(0))
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), TestPropertySets.audioAdProperties(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAudioAd()).isTrue();
     }
@@ -172,7 +168,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(1);
         when(playQueueManager.getCurrentPosition()).thenReturn(0);
         when(playQueueManager.getPlayQueueItemAtPosition(0))
-                .thenReturn(TestPlayQueueItem.createVideo(TestPropertySets.videoAdProperties(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAudioAd()).isFalse();
     }
@@ -200,10 +196,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
         value1.execute(playQueue);
 
         assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
-        final PropertySet expectedProperties = adsWithOnlyInterstitial.interstitialAd().get().toPropertySet();
-        expectedProperties.put(AdOverlayProperty.META_AD_DISMISSED, false);
-        expectedProperties.put(TrackProperty.URN, TRACK_URN);
-        assertThat(playQueue.getMetaData(0)).isEqualTo(expectedProperties);
+        final InterstitialAd expectedInterstitial = AdFixtures.getInterstitialAd(TRACK_URN);
+        assertThat(playQueue.getAdData(0)).isEqualTo(Optional.of(expectedInterstitial));
     }
 
     @Test
@@ -219,10 +213,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
         value1.execute(playQueue);
 
         assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
-        final PropertySet expectedProperties = ads.interstitialAd().get().toPropertySet();
-        expectedProperties.put(AdOverlayProperty.META_AD_DISMISSED, false);
-        expectedProperties.put(TrackProperty.URN, TRACK_URN);
-        assertThat(playQueue.getMetaData(0)).isEqualTo(expectedProperties);
+        final InterstitialAd expectedInterstitial = AdFixtures.getInterstitialAd(TRACK_URN);
+        assertThat(playQueue.getAdData(0)).isEqualTo(Optional.of(expectedInterstitial));
     }
 
     @Test
@@ -242,10 +234,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(adsWithOnlyAudioAd.audioAd().get().getApiTrack().getUrn());
         assertThat(playQueue.getPlayQueueItem(1).getUrn()).isEqualTo(TRACK_URN);
-        assertThat(playQueue.getMetaData(1)).isEqualTo(adsWithOnlyAudioAd.audioAd().get().getLeaveBehind()
-                .toPropertySet()
-                .put(AdOverlayProperty.META_AD_DISMISSED, false)
-                .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, adsWithOnlyAudioAd.audioAd().get().getApiTrack().getUrn()));
+        final LeaveBehindAd expectedLeaveBehind = AdFixtures.getLeaveBehindAd(adsWithOnlyAudioAd.audioAd().get().getApiTrack().getUrn());
+        assertThat(playQueue.getAdData(1)).isEqualTo(Optional.of(expectedLeaveBehind));
     }
 
     @Test
@@ -261,15 +251,13 @@ public class AdsOperationsTest extends AndroidUnitTest {
         value1.execute(playQueue);
 
         assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
-        final PropertySet expectedProperties = fullAdsForTrack.interstitialAd().get().toPropertySet();
-        expectedProperties.put(AdOverlayProperty.META_AD_DISMISSED, false);
-        expectedProperties.put(TrackProperty.URN, TRACK_URN);
-        assertThat(playQueue.getMetaData(0)).isEqualTo(expectedProperties);
+        final InterstitialAd expectedInterstitial = AdFixtures.getInterstitialAd(TRACK_URN);
+        assertThat(playQueue.getAdData(0)).isEqualTo(Optional.of(expectedInterstitial));
     }
 
     @Test
     public void applyAdIsNoOpIfNoAdsAvailable() throws Exception {
-        ApiAdsForTrack fullAdsForTrack = new ApiAdsForTrack();
+        ApiAdsForTrack fullAdsForTrack = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
         adsOperations.applyAdToTrack(TRACK_URN, fullAdsForTrack);
 
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
@@ -280,11 +268,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void insertAudioAdShouldInsertAudioAd() throws Exception {
-        final ApiAudioAd audioAdWithoutLeaveBehind = Mockito.mock(ApiAudioAd.class);
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        when(audioAdWithoutLeaveBehind.hasApiLeaveBehind()).thenReturn(false);
-        when(audioAdWithoutLeaveBehind.getApiTrack()).thenReturn(apiTrack);
-        when(audioAdWithoutLeaveBehind.toPropertySet()).thenReturn(PropertySet.create());
+        final ApiAudioAd audioAdWithoutLeaveBehind = AdFixtures.getApiAudioAdWithoutLeaveBehind();
 
         adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(audioAdWithoutLeaveBehind))));
 
@@ -319,20 +303,14 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(noInterstitial.audioAd().get().getApiTrack().getUrn());
         assertThat(playQueue.getPlayQueueItem(1).getUrn()).isEqualTo(TRACK_URN);
-        assertThat(playQueue.getMetaData(1)).isEqualTo(noInterstitial.audioAd().get().getLeaveBehind()
-                .toPropertySet()
-                .put(AdOverlayProperty.META_AD_DISMISSED, false)
-                .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, noInterstitial.audioAd().get().getApiTrack().getUrn()));
+        final LeaveBehindAd expectedLeaveBehind = AdFixtures.getLeaveBehindAd(noInterstitial.audioAd().get().getApiTrack().getUrn()) ;
+        assertThat(playQueue.getAdData(1)).isEqualTo(Optional.of(expectedLeaveBehind));
     }
 
     @Test
     public void applyAdInsertsAudioAdWithNoLeaveBehindWhenNoOtherAdIsAvailable() throws Exception {
-        final ApiAudioAd apiAudioAd = Mockito.mock(ApiAudioAd.class);
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final ApiAudioAd apiAudioAd = AdFixtures.getApiAudioAdWithoutLeaveBehind();
 
-        when(apiAudioAd.hasApiLeaveBehind()).thenReturn(false);
-        when(apiAudioAd.toPropertySet()).thenReturn(PropertySet.create());
-        when(apiAudioAd.getApiTrack()).thenReturn(apiTrack);
         adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(apiAudioAd))));
 
         ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
@@ -345,15 +323,14 @@ public class AdsOperationsTest extends AndroidUnitTest {
         value1.execute(playQueue);
         value2.execute(playQueue);
 
-        assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(apiTrack.getUrn());
+        assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(apiAudioAd.getApiTrack().getUrn());
         assertThat(playQueue.getPlayQueueItem(1).getUrn()).isEqualTo(TRACK_URN);
-        assertThat(playQueue.getMetaData(1)).isEmpty();
+        assertThat(playQueue.getAdData(1).isPresent()).isFalse();
     }
 
     public void insertVideoAdShouldInsertVideoAd() throws Exception {
-        final ApiVideoAd videoAd = Mockito.mock(ApiVideoAd.class);
-        when(videoAd.toPropertySet()).thenReturn(PropertySet.create());
         when(featureFlags.isEnabled(Flag.VIDEO_ADS)).thenReturn(true);
+        final ApiVideoAd videoAd = AdFixtures.getApiVideoAd();
 
         adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(videoAd))));
 
@@ -368,7 +345,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         value2.execute(playQueue);
 
         assertThat(playQueue.getPlayQueueItem(0).isVideo()).isTrue();
-        assertThat(playQueue.getPlayQueueItem(0).getMetaData()).isEqualTo(videoAd.toPropertySet());
+        assertThat(playQueue.getPlayQueueItem(0).getAdData()).isEqualTo(Optional.of(VideoAd.create(videoAd, TRACK_URN)));
         assertThat(playQueue.getPlayQueueItem(1).getUrn()).isEqualTo(TRACK_URN);
     }
 }

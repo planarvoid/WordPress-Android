@@ -8,6 +8,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -282,11 +283,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         if (playlistWithTracks != null) {
             eventBus.publish(EventQueue.TRACKING,
                     UIEvent.fromToggleLike(addLike,
-                            Screen.PLAYLIST_DETAILS.get(),
-                            originProvider.getScreenTag(),
-                            Screen.PLAYLIST_DETAILS.get(),
                             playlistWithTracks.getUrn(),
-                            playlistWithTracks.getUrn(),
+                            getEventContext(),
                             playSessionSourceInfo.getPromotedSourceInfo(),
                             EntityMetadata.from(playlistWithTracks)));
 
@@ -299,10 +297,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         if (playlistWithTracks != null) {
             eventBus.publish(EventQueue.TRACKING,
                     UIEvent.fromToggleRepost(isReposted,
-                            originProvider.getScreenTag(),
-                            Screen.PLAYLIST_DETAILS.get(),
                             playlistWithTracks.getUrn(),
-                            playlistWithTracks.getUrn(),
+                            getEventContext(),
                             playSessionSourceInfo.getPromotedSourceInfo(),
                             EntityMetadata.from(playlistWithTracks)));
 
@@ -316,14 +312,21 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         }
     }
 
+    private EventContextMetadata getEventContext() {
+        return EventContextMetadata.builder()
+                .contextScreen(originProvider.getScreenTag())
+                .pageName(Screen.PLAYLIST_DETAILS.get())
+                .invokerScreen(Screen.PLAYLIST_DETAILS.get())
+                .pageUrn(playlistWithTracks.getUrn())
+                .build();
+    }
+
     @Override
     public void onShare() {
         if (playlistWithTracks != null) {
             shareOperations.share(context,
                     playlistWithTracks.getSourceSet(),
-                    originProvider.getScreenTag(),
-                    Screen.PLAYLIST_DETAILS.get(),
-                    playlistWithTracks.getUrn(),
+                    getEventContext(),
                     playSessionSourceInfo.getPromotedSourceInfo());
         }
     }

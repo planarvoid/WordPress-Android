@@ -9,8 +9,6 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
-import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.ErrorUtils;
 import org.apache.http.HttpResponse;
@@ -25,7 +23,6 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -67,36 +64,6 @@ public class Activities extends CollectionHolder<Activity> {
                 '}';
     }
 
-
-    @SuppressWarnings("UnusedDeclaration")
-    public boolean olderThan(long timestamp) {
-        return !isEmpty() && collection.get(0).getCreatedAt().getTime() <= timestamp;
-    }
-
-    public boolean newerThan(long timestamp) {
-        return !isEmpty() && collection.get(0).getCreatedAt().getTime() > timestamp;
-    }
-
-    public List<PublicApiUser> getUniqueUsers() {
-        List<PublicApiUser> users = new ArrayList<>();
-        for (Activity a : this) {
-            if (a.getUser() != null && !users.contains(a.getUser())) {
-                users.add(a.getUser());
-            }
-        }
-        return users;
-    }
-
-    public List<Playable> getUniquePlayables() {
-        List<Playable> playables = new ArrayList<>();
-        for (Activity a : this) {
-            if (a.getPlayable() != null && !playables.contains(a.getPlayable())) {
-                playables.add(a.getPlayable());
-            }
-        }
-        return playables;
-    }
-
     public Activities selectType(Class<? extends Activity>... types) {
         List<Activity> activities = new ArrayList<>();
         for (Activity e : this) {
@@ -109,10 +76,6 @@ public class Activities extends CollectionHolder<Activity> {
         return new Activities(activities);
     }
 
-    public Activities trackLikes() {
-        return selectType(TrackLikeActivity.class);
-    }
-
     public Activities comments() {
         return selectType(CommentActivity.class);
     }
@@ -121,16 +84,8 @@ public class Activities extends CollectionHolder<Activity> {
         return selectType(TrackActivity.class);
     }
 
-    public Activities trackReposts() {
-        return selectType(TrackRepostActivity.class);
-    }
-
     public Activities followers() {
         return selectType(AffiliationActivity.class);
-    }
-
-    public void sort() {
-        Collections.sort(collection);
     }
 
     @NotNull
@@ -252,15 +207,6 @@ public class Activities extends CollectionHolder<Activity> {
             }
         }
         return cv;
-    }
-
-    public String getFirstAvailableAvatar() {
-        for (PublicApiUser u : getUniqueUsers()) {
-            if (u.shouldLoadIcon()) {
-                return u.avatar_url;
-            }
-        }
-        return null;
     }
 
 }

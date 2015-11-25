@@ -20,7 +20,6 @@ public final class Consts {
     // dot file to have it excluded from media scanning - also use .nomedia
     public static final File OLD_EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".cache");
     public static final File EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY = new File(FILES_PATH, "stream");
-    public static final File EXTERNAL_SKIPPY_STREAM_DIRECTORY = new File(FILES_PATH, "skippy");
 
     public static final int LIST_PAGE_SIZE = 30;
     public static final int CARD_PAGE_SIZE = 20;

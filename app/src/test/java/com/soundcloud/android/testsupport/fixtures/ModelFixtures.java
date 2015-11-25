@@ -197,6 +197,17 @@ public class ModelFixtures {
         return apiTrackLikeActivity(create(ApiTrack.class), createdAt);
     }
 
+    public static ApiTrackCommentActivity apiTrackCommentActivity(Date createdAt) {
+        final ApiComment comment = apiComment(Urn.forComment(213));
+        final ApiTrack track = create(ApiTrack.class);
+        return new ApiTrackCommentActivity(comment.getUrn().toString(), track, comment, createdAt);
+    }
+
+    public static ApiUserFollowActivity apiUserFollowActivity(Date createdAt) {
+        final ApiUser user = create(ApiUser.class);
+        return new ApiUserFollowActivity(user, createdAt);
+    }
+
     public static ApiActivityItem apiActivityWithRepostedTrack(ApiTrack track) {
         final ApiUser reposter = create(ApiUser.class);
         final ApiTrackRepostActivity trackRepost = new ApiTrackRepostActivity(track, reposter, new Date());

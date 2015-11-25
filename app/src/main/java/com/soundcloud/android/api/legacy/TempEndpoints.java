@@ -24,8 +24,4 @@ public interface TempEndpoints {
         String PLAYLIST_LIKERS     = "/e1/playlists/%d/likers";
         String PLAYLIST_REPOSTERS  = "/e1/playlists/%d/reposters";
     }
-
-    interface i1 {
-        String MY_SHORTCUTS       = "/i1/me/shortcuts";
-    }
 }
