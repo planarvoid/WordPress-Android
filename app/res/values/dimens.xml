@@ -93,13 +93,11 @@
     <dimen name="discovery_tags_padding_top_bottom">4dp</dimen>
     <dimen name="discovery_tags_margin_top_bottom">8dp</dimen>
     <dimen name="discovery_tags_separation">16dp</dimen>
-    <dimen name="discovery_cell_padding">4dp</dimen>
     <dimen name="discovery_cell_elevation">3dp</dimen>
     <dimen name="discovery_search_cell_margin_left_right">4dp</dimen>
     <dimen name="discovery_search_cell_margin_top_bottom">8dp</dimen>
     <dimen name="discovery_search_close_icon_margin">16dp</dimen>
     <dimen name="discovery_search_tabs_padding">48dp</dimen>
-    <dimen name="recommendations_cell_artwork_padding">8dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_bottom">16dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_top">6dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_left_right">14dp</dimen>
