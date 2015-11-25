@@ -58,6 +58,7 @@
     </declare-styleable>
 
     <declare-styleable name="DownloadImageView">
+        <attr name="queued" format="integer" />
         <attr name="downloaded" format="integer" />
         <attr name="downloading" format="integer" />
         <attr name="unavailable" format="integer" />

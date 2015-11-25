@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.ImageView;
 
 public class DownloadImageView extends ImageView {
+
+    private final Drawable queued;
     private final Drawable downloading;
     private final Drawable downloaded;
     private final Drawable unavailable;
@@ -21,6 +23,7 @@ public class DownloadImageView extends ImageView {
         super(context, attrs);
 
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DownloadImageView);
+        queued = a.getDrawable(R.styleable.DownloadImageView_queued);
         downloaded = a.getDrawable(R.styleable.DownloadImageView_downloaded);
         downloading = a.getDrawable(R.styleable.DownloadImageView_downloading);
         unavailable = a.getDrawable(R.styleable.DownloadImageView_unavailable);
@@ -70,7 +73,7 @@ public class DownloadImageView extends ImageView {
                 setDownloadStateResource(unavailable);
                 break;
             case REQUESTED:
-                setDownloadStateResource(downloading);
+                setDownloadStateResource(queued);
                 break;
             case DOWNLOADING:
                 animateDownloadingState();
