@@ -49,6 +49,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
         assertThat("Search results screen should be visible", resultsScreen.isVisible());
     }
 
+    @Ignore
     public void testSearchingFromSuggestionShortcutShowsSearchResults() {
         SearchResultsScreen resultsScreen = searchScreen.setSearchQuery("dubstep").clickOnCurrentSearchQuery();
 
@@ -79,6 +80,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
         assertThat("Player screen should be visible", playerScreen.isVisible());
     }
 
+    @Ignore
     public void testTappingPlaylistOnPlaylistsTabOpensPlaylistDetails() {
         PlaylistDetailsScreen playlistDetailsScreen = searchScreen
                 .setSearchQuery("clownstep")
