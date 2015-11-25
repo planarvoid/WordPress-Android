@@ -5,7 +5,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
@@ -61,7 +60,7 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
     }
 
     public void testLikeEngagementsTracking() {
-//        startEventTracking();
+        startEventTracking();
 
         StreamCardElement trackCard = streamScreen.scrollToFirstNotPromotedTrackCard();
 
@@ -72,7 +71,7 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
         trackCard.toggleLike();
         assertThat(trackCard.isLiked(), is(initLikeStatus));
 
-//        finishEventTracking(LIKE_ENGAGEMENTS_FROM_STREAM);
+        finishEventTracking(LIKE_ENGAGEMENTS_FROM_STREAM);
     }
 
     public void testLikePlayingTrackFromStream() {

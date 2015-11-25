@@ -15,7 +15,7 @@ expected_events:
     consumer_subs_plan: none
     page_name: stream:main
     user: soundcloud:users:[0-9]+
-    playhead_position: 0
+    playhead_position: [0-9]+
     track_length: '[0-9]+'
     protocol: hls
     ts: '[0-9]+'
