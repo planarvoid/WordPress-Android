@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapters;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -15,7 +16,8 @@ public class TracksRecyclerItemAdapter extends RecyclerItemAdapter<TrackItem, Tr
     private static final int TRACK_ITEM_TYPE = 0;
 
     @Inject
-    public TracksRecyclerItemAdapter() {
+    public TracksRecyclerItemAdapter(TrackItemRenderer trackItemRenderer) {
+        super(trackItemRenderer);
     }
 
     @Override

@@ -49,8 +49,8 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<RecommendationItem> list) {
-
         getTextView(itemView, R.id.recommendations_header).setVisibility(position == 1 ? View.VISIBLE : View.GONE);
+        getView(itemView, R.id.recommendation_separator).setVisibility(position == list.size() - 2 ? View.GONE : View.VISIBLE);
 
         final RecommendationItem recommendationItem = list.get(position);
         getTextView(itemView, R.id.reason).setText(getReasonText(recommendationItem));
@@ -117,6 +117,10 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
 
     private TextView getTextView(final View convertView, final int id) {
         return (TextView) convertView.findViewById(id);
+    }
+
+    private View getView(final View convertView, final int id) {
+        return convertView.findViewById(id);
     }
 
     private void loadArtwork(View itemView, RecommendationItem recommendationItem) {
