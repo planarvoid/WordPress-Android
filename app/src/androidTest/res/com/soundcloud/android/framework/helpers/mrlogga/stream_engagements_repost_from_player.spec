@@ -11,13 +11,13 @@ expected_events:
     source: stream
     client_id: 3152
     action: play
-    player_type: Skippy
+    player_type: (Skippy|MediaPlayer)
     consumer_subs_plan: none
     page_name: stream:main
     user: soundcloud:users:[0-9]+
-    playhead_position: [0-9]+
+    playhead_position: '[0-9]+'
     track_length: '[0-9]+'
-    protocol: hls
+    protocol: (hls|https)
     ts: '[0-9]+'
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
