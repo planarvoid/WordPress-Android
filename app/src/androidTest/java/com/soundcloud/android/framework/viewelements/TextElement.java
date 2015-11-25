@@ -4,9 +4,11 @@ import android.view.View;
 import android.widget.TextView;
 
 public class TextElement {
+    protected final ViewElement viewElement;
     protected final View view;
 
     public TextElement(ViewElement element) {
+        this.viewElement = element;
         this.view = element.getView();
     }
 

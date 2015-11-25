@@ -92,8 +92,8 @@ public class Han  {
         return viewFetcher.findElements(with);
     }
 
-    public void typeText(EditText editText, String text) {
-        solo.typeText(editText, text);
+    public void typeText(String text) {
+        instrumentation.sendStringSync(text);
     }
 
     public void clearEditText(EditText editText) {
