@@ -49,22 +49,22 @@
                     tools:text="Because you liked bla bla bla" />
 
                 <com.soundcloud.android.view.ParallaxImageView
-                    android:id="@+id/image"
+                    android:id="@+id/track_image"
                     style="@style/GridItemImageView"
                     android:layout_below="@id/reason" />
 
                 <com.soundcloud.android.view.JaggedTextView
                     android:id="@+id/username"
                     style="@style/BlackOverlayText.RegularSubtext"
-                    android:layout_above="@+id/title"
+                    android:layout_above="@+id/track_title"
                     android:layout_marginLeft="@dimen/recommendations_cell_track_data_padding_left_right"
                     android:layout_marginRight="@dimen/recommendations_cell_track_data_padding_left_right"
                     tools:text="HBO Boxing" />
 
                 <com.soundcloud.android.view.JaggedTextView
-                    android:id="@+id/title"
+                    android:id="@+id/track_title"
                     style="@style/BlackOverlayText.Regular"
-                    android:layout_alignBottom="@id/image"
+                    android:layout_alignBottom="@id/track_image"
                     android:layout_marginTop="@dimen/recommendations_cell_track_data_padding_top"
                     android:layout_marginBottom="@dimen/recommendations_cell_track_data_padding_bottom"
                     android:layout_marginLeft="@dimen/recommendations_cell_track_data_padding_left_right"

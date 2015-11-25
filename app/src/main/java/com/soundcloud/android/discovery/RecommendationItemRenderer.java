@@ -55,7 +55,7 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
         final RecommendationItem recommendationItem = list.get(position);
         getTextView(itemView, R.id.reason).setText(getReasonText(recommendationItem));
         getTextView(itemView, R.id.username).setText(recommendationItem.getRecommendationUserName());
-        getTextView(itemView, R.id.title).setText(recommendationItem.getRecommendationTitle());
+        getTextView(itemView, R.id.track_title).setText(recommendationItem.getRecommendationTitle());
         getTextView(itemView, R.id.view_all).setText(getViewAllText(recommendationItem));
         loadArtwork(itemView, recommendationItem);
         setClickListeners(itemView, recommendationItem);
@@ -72,7 +72,7 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
             }
         });
 
-        itemView.findViewById(R.id.image).setOnClickListener(new View.OnClickListener() {
+        itemView.findViewById(R.id.track_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final OnRecommendationClickListener clickListener = RecommendationItemRenderer.this.onRecommendationClickListener;
@@ -126,7 +126,7 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
     private void loadArtwork(View itemView, RecommendationItem recommendationItem) {
         final ApiImageSize apiImageSize = ApiImageSize.getFullImageSize(itemView.getResources());
         imageOperations.displayInAdapterView(recommendationItem.getRecommendationUrn(),
-                apiImageSize, (ImageView) itemView.findViewById(R.id.image));
+                apiImageSize, (ImageView) itemView.findViewById(R.id.track_image));
     }
 
     private String getReason(RecommendationReason recommendationReason) {
