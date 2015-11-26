@@ -26,7 +26,6 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -283,13 +282,13 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensTrackComments() {
-        PropertySet track = TestPropertySets.fromApiTrack();
+        Urn trackUrn = Urn.forTrack(123);
 
-        navigator.openTrackComments(activityContext, track);
+        navigator.openTrackComments(activityContext, trackUrn);
 
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(TrackCommentsActivity.class)
-                .containsExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, track);
+                .containsExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn);
 
     }
 }

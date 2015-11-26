@@ -2,16 +2,16 @@ package com.soundcloud.android.tracks;
 
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
@@ -21,7 +21,6 @@ import rx.Observable;
 import rx.Subscription;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -42,6 +41,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     @Inject EventBus eventBus;
     @Inject ImageOperations imageOperations;
     @Inject TrackInfoPresenter presenter;
+    @Inject Navigator navigator;
 
     private Observable<PropertySet> loadTrack;
     private Subscription subscription;
@@ -108,7 +108,10 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         @Override
         public void onNext(final PropertySet propertySet) {
             final View view = getView();
-            presenter.bind(view, propertySet, new TrackInfoCommentClickListener(TrackInfoFragment.this, eventBus, propertySet));
+            final Urn trackUrn = propertySet.get(TrackProperty.URN);
+            final TrackInfoCommentClickListener commentClickListener =
+                    new TrackInfoCommentClickListener(TrackInfoFragment.this, eventBus, trackUrn, navigator);
+            presenter.bind(view, propertySet, commentClickListener);
 
             if (propertySet.contains(TrackProperty.DESCRIPTION)){
                 presenter.bindDescription(view, propertySet);
@@ -128,7 +131,8 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
         private final WeakReference<TrackInfoFragment> trackInfoFragmentRef;
         private final EventBus eventBus;
-        private final PropertySet track;
+        private final Urn trackurn;
+        private final Navigator navigator;
 
         private final Handler collapseDelayHandler = new Handler(){
             @Override
@@ -138,10 +142,11 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             }
         };
 
-        public TrackInfoCommentClickListener(TrackInfoFragment fragment, EventBus eventBus, PropertySet track) {
+        public TrackInfoCommentClickListener(TrackInfoFragment fragment, EventBus eventBus, Urn trackurn, Navigator navigator) {
+            this.navigator = navigator;
             trackInfoFragmentRef = new WeakReference<>(fragment);
             this.eventBus = eventBus;
-            this.track = track;
+            this.trackurn = trackurn;
         }
 
         @Override
@@ -169,8 +174,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             return new DefaultSubscriber<PlayerUIEvent>() {
                 @Override
                 public void onNext(PlayerUIEvent args) {
-                    context.startActivity(new Intent(context, TrackCommentsActivity.class)
-                            .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, track));
+                    navigator.openTrackComments(context, trackurn);
                 }
             };
         }

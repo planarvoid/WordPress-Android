@@ -94,7 +94,7 @@ class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> {
             trackSubscription = trackRepository.track(trackUrn).subscribe(new DefaultSubscriber<PropertySet>() {
                 @Override
                 public void onNext(PropertySet track) {
-                    navigator.openTrackComments(view.getContext(), track);
+                    navigator.openTrackComments(view.getContext(), trackUrn);
                 }
             });
         } else {

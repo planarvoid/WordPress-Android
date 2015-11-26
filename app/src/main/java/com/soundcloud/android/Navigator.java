@@ -32,7 +32,6 @@ import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
-import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -205,9 +204,9 @@ public class Navigator {
         context.startActivity(createPlaylistDiscoveryIntent(context, playlistTag));
     }
 
-    public void openTrackComments(Context context, PropertySet track) {
+    public void openTrackComments(Context context, Urn trackUrn) {
         context.startActivity(new Intent(context, TrackCommentsActivity.class)
-                .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, track));
+                .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
     }
 
     private Intent createResolveIntent(Context context, Urn urn) {
