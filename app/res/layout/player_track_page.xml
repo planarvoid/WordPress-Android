@@ -70,8 +70,7 @@
 
         <ImageButton
             android:id="@+id/track_page_share"
-            style="@style/PlayerShareBase.PlayerShare"
-            android:visibility="gone" />
+            style="@style/PlayerShareBase.PlayerShare" />
 
         <ToggleButton
             android:id="@+id/track_page_like"
