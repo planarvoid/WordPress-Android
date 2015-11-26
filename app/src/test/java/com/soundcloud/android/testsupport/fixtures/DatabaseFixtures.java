@@ -67,6 +67,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.PERMALINK_URL, track.getPermalinkUrl());
         cv.put(TableColumns.Sounds.SHARING, track.getSharing().value());
         cv.put(TableColumns.Sounds.CREATED_AT, track.getCreatedAt().getTime());
+        cv.put(TableColumns.Sounds.DESCRIPTION, track.getDescription().orNull());
 
         insertInto(Table.Sounds, cv);
         insertPolicy(track);

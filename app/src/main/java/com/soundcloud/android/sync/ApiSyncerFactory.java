@@ -36,6 +36,7 @@ public class ApiSyncerFactory {
     private final Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
     private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
+    private final Lazy<TrackSyncer> lazyTrackSyncer;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final JsonTransformer jsonTransformer;
     private final Navigator navigator;
@@ -50,6 +51,7 @@ public class ApiSyncerFactory {
                             Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer,
                             Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer,
+                            Lazy<TrackSyncer> lazyTrackSyncer,
                             SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
                             JsonTransformer jsonTransformer, Navigator navigator, FeatureFlags featureFlags) {
         this.nextFollowingOperationsProvider = nextFollowingOperationsProvider;
@@ -60,6 +62,7 @@ public class ApiSyncerFactory {
         this.lazyPlaylistsSyncer = lazyPlaylistsSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
         this.lazyMyPostsSyncer = lazyMyPostsSyncer;
+        this.lazyTrackSyncer = lazyTrackSyncer;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.jsonTransformer = jsonTransformer;
         this.navigator = navigator;
@@ -98,6 +101,13 @@ public class ApiSyncerFactory {
 
             case ME_SOUNDS:
                 return lazyMyPostsSyncer.get();
+
+            case TRACK:
+                if (featureFlags.isEnabled(Flag.TRACK_SYNC_APIMOBILE)) {
+                    return lazyTrackSyncer.get();
+                } else {
+                    return new ApiSyncer(context, context.getContentResolver());
+                }
 
             default:
                 return new ApiSyncer(context, context.getContentResolver());

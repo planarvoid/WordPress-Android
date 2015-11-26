@@ -1,6 +1,7 @@
 package com.soundcloud.android.properties;
 
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.sync.TrackSyncer;
 
 import java.util.EnumSet;
 import java.util.Locale;
@@ -26,7 +27,8 @@ public enum Flag {
     ACTIVITIES_REFACTOR(BuildConfig.FEATURE_ACTIVITIES_REFACTOR),
     VIDEO_ADS(BuildConfig.FEATURE_VIDEO_ADS),
     PRELOAD_NEXT_TRACK(BuildConfig.FEATURE_PRELOAD_NEXT_TRACK),
-    WAVEFORM_SPRING(BuildConfig.FEATURE_WAVEFORM_SPRING);
+    WAVEFORM_SPRING(BuildConfig.FEATURE_WAVEFORM_SPRING),
+    TRACK_SYNC_APIMOBILE(BuildConfig.FEATURE_TRACK_SYNC_APIMOBILE);
 
     private final boolean value;
 

@@ -17,6 +17,7 @@ import javax.inject.Inject;
 class TrackStorage {
 
     private final PropellerRx propeller;
+    private final TrackItemMapper trackMapper = new TrackItemMapper();
 
     @Inject
     TrackStorage(PropellerRx propeller) {
@@ -25,7 +26,7 @@ class TrackStorage {
 
     Observable<PropertySet> loadTrack(Urn urn) {
         return propeller.query(buildTrackQuery(urn))
-                .map(new TrackItemMapper())
+                .map(trackMapper)
                 .firstOrDefault(PropertySet.create());
     }
 

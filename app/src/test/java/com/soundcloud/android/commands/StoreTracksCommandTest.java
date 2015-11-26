@@ -1,5 +1,6 @@
 package com.soundcloud.android.commands;
 
+import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.TableColumns.Sounds.DESCRIPTION;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
@@ -7,7 +8,6 @@ import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 import static java.util.Collections.singletonList;
 
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -46,12 +46,13 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldPersistTrackWithDescription() {
-        PublicApiTrack track = create(PublicApiTrack.class);
-        track.description = "description";
+        ApiTrack track = create(ApiTrack.class);
+        track.setDescription("description");
 
         command.call(singletonList(track));
 
         assertThat(select(from(Sounds.name())
+                .whereEq(_ID, track.getId())
                 .whereEq(DESCRIPTION, "description"))).counts(1);
 
     }

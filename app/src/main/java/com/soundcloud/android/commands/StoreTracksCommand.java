@@ -6,7 +6,6 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns.Sounds;
 import com.soundcloud.android.storage.TableColumns.TrackPolicies;
 import com.soundcloud.android.tracks.TrackRecord;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -37,9 +36,6 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
     }
 
     public static ContentValues buildTrackContentValues(TrackRecord trackRecord) {
-        if (trackRecord.getTitle() == null) {
-            ErrorUtils.handleSilentException(new IllegalStateException("Inserting a track with a NULL title: " + trackRecord.getUrn()));
-        }
         final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values();
         valuesBuilder
                 .put(Sounds._ID, trackRecord.getUrn().getNumericId())
