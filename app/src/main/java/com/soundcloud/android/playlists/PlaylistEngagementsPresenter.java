@@ -43,6 +43,7 @@ import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -95,6 +96,16 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.shareOperations = shareOperations;
     }
 
+    @VisibleForTesting
+    void bindView(View rootView) {
+        bindView(rootView, new OriginProvider() {
+            @Override
+            public String getScreenTag() {
+                return Screen.UNKNOWN.get();
+            }
+        });
+    }
+
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     void bindView(View rootView, OriginProvider originProvider) {
         this.context = rootView.getContext();
@@ -117,6 +128,11 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     public void onPause(Fragment fragment) {
         foregroundSubscription.unsubscribe();
         offlineStateSubscription.unsubscribe();
+    }
+
+    @VisibleForTesting
+    void setOriginProvider(OriginProvider originProvider) {
+        this.originProvider = originProvider;
     }
 
     void setPlaylistInfo(@NotNull final PlaylistWithTracks playlistWithTracks, PlaySessionSource playSessionSource) {
