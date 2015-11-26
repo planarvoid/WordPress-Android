@@ -119,6 +119,10 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
         return source.get(PlayableProperty.IS_PRIVATE);
     }
 
+    public boolean isCommentable() {
+        return source.getOrElse(TrackProperty.IS_COMMENTABLE, false);
+    }
+
     @Override
     public PropertySet toPropertySet() {
         return source;

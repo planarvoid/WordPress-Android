@@ -54,6 +54,7 @@ class TrackStorage {
                         TableColumns.SoundView.FULL_DURATION,
                         TableColumns.SoundView.PLAYBACK_COUNT,
                         TableColumns.SoundView.COMMENT_COUNT,
+                        TableColumns.SoundView.COMMENTABLE,
                         TableColumns.SoundView.LIKES_COUNT,
                         TableColumns.SoundView.REPOSTS_COUNT,
                         TableColumns.SoundView.WAVEFORM_URL,
