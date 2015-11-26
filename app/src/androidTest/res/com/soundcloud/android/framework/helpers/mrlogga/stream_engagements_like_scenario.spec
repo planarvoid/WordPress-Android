@@ -11,7 +11,7 @@ expected_events:
     connection_type: wifi
     click_attributes:
       overflow_menu: true
-    click_name: like::add
+    click_name: like::(add|remove)
     click_object: soundcloud:tracks:[0-9]+
     click_category: engagement
     page_name: stream:main
