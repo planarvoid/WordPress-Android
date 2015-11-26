@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:padding="16dp">
 
-    <ImageView android:id="@+id/icon"
+    <ImageView android:id="@+id/header_artwork"
                android:layout_width="@dimen/header_icon_size"
                android:layout_height="@dimen/header_icon_size"
                android:layout_marginRight="12dp"
@@ -19,7 +19,7 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_alignParentTop="true"
-              android:layout_toRightOf="@id/icon"
+              android:layout_toRightOf="@id/header_artwork"
               style="@style/Comments.Header.Text" />
 
     <TextView
@@ -27,7 +27,7 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_below="@id/username"
-              android:layout_toRightOf="@id/icon"
+              android:layout_toRightOf="@id/header_artwork"
               android:layout_marginTop="4dp"
               style="@style/Comments.Header.Text.Primary" />
 
@@ -36,7 +36,7 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_below="@id/title"
-              android:layout_toRightOf="@id/icon"
+              android:layout_toRightOf="@id/header_artwork"
               android:layout_marginTop="6dp"
               style="@style/Comments.Header.CommentsCount" />
 

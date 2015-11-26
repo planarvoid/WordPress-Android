@@ -1,32 +1,29 @@
 package com.soundcloud.android.comments;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.comments.AddCommentDialogFragment.CommentAddedSubscriber;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.app.Activity;
 import android.content.Intent;
 
-@RunWith(SoundCloudTestRunner.class)
-public class CommentAddedSubscriberTest {
+public class CommentAddedSubscriberTest extends AndroidUnitTest {
 
     CommentAddedSubscriber commentAddedSubscriber;
 
     @Mock private Activity activity;
-    private PropertySet track = TestPropertySets.expectedTrackForPlayer();
+    private Urn track = Urn.forTrack(123);
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
@@ -38,15 +35,15 @@ public class CommentAddedSubscriberTest {
     public void onUndoSendsCollapsePlayerCommand() throws Exception {
         commentAddedSubscriber.onUndo(null);
 
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isCollapse()).toBeTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isCollapse()).isTrue();
     }
 
     @Test
     public void onUndoPublishesViewCommentTrackingEvent() throws Exception {
         commentAddedSubscriber.onUndo(null);
 
-        expect(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).toEqual(UIEvent.KIND_PLAYER_CLOSE);
-        expect(eventBus.lastEventOn(EventQueue.TRACKING).getAttributes().get("method")).toEqual(UIEvent.METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_PLAYER_CLOSE);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getAttributes().get("method")).isEqualTo(UIEvent.METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT);
     }
 
     @Test
@@ -58,8 +55,8 @@ public class CommentAddedSubscriberTest {
         verify(activity).startActivity(intentArgumentCaptor.capture());
 
         final Intent value = intentArgumentCaptor.getValue();
-        expect(value.getComponent().getClassName()).toEqual(TrackCommentsActivity.class.getName());
-        expect(value.getParcelableExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK)).toBe(track);
+        assertThat(value.getComponent().getClassName()).isEqualTo(TrackCommentsActivity.class.getName());
+        assertThat(value.getParcelableExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN)).isEqualTo(track);
 
     }
 }

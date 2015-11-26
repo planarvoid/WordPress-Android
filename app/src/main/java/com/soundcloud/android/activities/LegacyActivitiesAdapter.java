@@ -141,7 +141,7 @@ public class LegacyActivitiesAdapter extends ScBaseAdapter<Activity> {
             case COMMENT:
             case USER_MENTION:
                 context.startActivity(new Intent(context, TrackCommentsActivity.class)
-                        .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, getItem(position).getPlayable().toPropertySet()));
+                        .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, getItem(position).getPlayable().getUrn()));
                 break;
 
             case TRACK_LIKE:

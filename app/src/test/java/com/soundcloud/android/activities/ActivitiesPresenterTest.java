@@ -10,6 +10,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -109,6 +110,6 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).openTrackComments(context(), track);
+        verify(navigator).openTrackComments(context(), track.get(TrackProperty.URN));
     }
 }
