@@ -6,7 +6,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.DatabaseManager;
-import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
@@ -31,7 +30,6 @@ import java.util.List;
 public class ScContentProviderTest {
     static final long USER_ID = 100L;
     ContentResolver resolver;
-    LegacyActivitiesStorage activitiesStorage;
     private DatabaseFixtures testFixtures;
     private SQLiteDatabase writableDatabase;
 
@@ -39,7 +37,6 @@ public class ScContentProviderTest {
     public void before() {
         TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        activitiesStorage = new LegacyActivitiesStorage(Robolectric.application);
         writableDatabase = DatabaseManager.getInstance(Robolectric.application).getWritableDatabase();
         testFixtures = new DatabaseFixtures(writableDatabase);
     }

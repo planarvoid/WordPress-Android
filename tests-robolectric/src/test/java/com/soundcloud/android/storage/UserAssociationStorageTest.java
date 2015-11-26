@@ -1,7 +1,6 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -14,19 +13,14 @@ import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.collections.tasks.RemoteCollectionLoaderTest;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import rx.schedulers.Schedulers;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -40,7 +34,6 @@ public class UserAssociationStorageTest {
     final private static int BATCH_SIZE = 1;
     public static final String TOKEN = "12345";
 
-    private PublicApiUser user;
     private ContentResolver resolver;
     private LegacyUserAssociationStorage storage;
 
@@ -49,7 +42,6 @@ public class UserAssociationStorageTest {
         TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
         storage = new LegacyUserAssociationStorage(resolver);
-        user = new PublicApiUser(1);
     }
 
     @Test
@@ -79,7 +71,8 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldRemoveSyncedContentForLoggedInUser() throws Exception {
-        PublicApiResource.ResourceHolder<PublicApiUser> followedUsers = TestHelper.readJson(PublicApiResource.ResourceHolder.class, RemoteCollectionLoaderTest.class, "me_followings.json");
+        PublicApiResource.ResourceHolder<PublicApiUser> followedUsers = TestHelper.readJson(PublicApiResource.ResourceHolder.class,
+                "/com/soundcloud/android/collections/tasks/me_followings.json");
         TestHelper.bulkInsertToUserAssociations(followedUsers.collection, Content.ME_FOLLOWINGS.uri);
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(50);

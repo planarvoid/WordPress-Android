@@ -2,8 +2,6 @@ package com.soundcloud.android.testsupport;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.USER_ID;
-import static com.soundcloud.android.model.Urn.forTrack;
-import static com.soundcloud.java.collections.Lists.transform;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,19 +11,15 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.api.legacy.model.behavior.Persisted;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
-import com.soundcloud.java.functions.Function;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowAccountManager;
-import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import com.xtremelabs.robolectric.shadows.ShadowNetworkInfo;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
@@ -47,11 +41,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Deprecated
 public class TestHelper {
@@ -62,20 +53,10 @@ public class TestHelper {
         return PublicApi.buildObjectMapper();
     }
 
-    public static Activities getActivities(String path) throws IOException {
-        return TestHelper.readJson(Activities.class, path);
-    }
-
     public static <T> T readJson(Class<T> klazz, String path) throws IOException {
         InputStream is = TestHelper.class.getResourceAsStream(path);
         expect(is).not.toBeNull();
         return getObjectMapper().readValue(is, klazz);
-    }
-
-    public static <T> T readJson(Class<T> modelClass, Class<?> lookupClass, String file) throws IOException {
-        InputStream is = lookupClass.getResourceAsStream(file);
-        expect(is).not.toBeNull();
-        return getObjectMapper().readValue(is, modelClass);
     }
 
     public static void addPendingHttpResponse(Class klazz, String... resources) throws IOException {
@@ -95,16 +76,6 @@ public class TestHelper {
         expect(c).not.toBeNull();
         c.moveToFirst();
         expect(c.getLong(c.getColumnIndex("_id"))).toEqual(id);
-    }
-
-    public static void assertResolverNotified(Uri... uris) {
-        ShadowContentResolver res =
-                Robolectric.shadowOf_(Robolectric.application.getContentResolver());
-        Set<Uri> _uris = new HashSet<>();
-        for (ShadowContentResolver.NotifiedUri u : res.getNotifiedUris()) {
-            _uris.add(u.uri);
-        }
-        expect(_uris).toContain(uris);
     }
 
     public static void connectedViaWifi(boolean enabled) {
@@ -281,25 +252,6 @@ public class TestHelper {
         return loadLocalContentItem(content.uri, UserAssociation.class, where);
     }
 
-    public static List<UserAssociation> loadUserAssociations(final Content content) throws Exception {
-        String where = TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
-        return loadLocalContent(content.uri, UserAssociation.class, where);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends Persisted> T reload(final T model) {
-        try {
-            Class<T> clazz = (Class<T>) model.getClass();
-            return loadLocalContent(model.toUri(), clazz).get(0);
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        }
-    }
-
-    public static void addResourceResponse(Class<?> klazz, String url, String resource) throws IOException {
-        TestHelper.addCannedResponse(klazz, url, resource);
-    }
-
     public static void setUserId(long id) {
         ShadowAccountManager shadowAccountManager = shadowOf(ShadowAccountManager.get(DefaultTestRunner.application));
         AccountOperations accountOperations = DefaultTestRunner.application.getAccountOperations();
@@ -311,12 +263,4 @@ public class TestHelper {
         accountOperations.setAccountData(USER_ID.getKey(), Long.toString(id));
     }
 
-    public static List<Urn> createTracksUrn(Long... ids) {
-        return transform(new ArrayList<>(Arrays.asList(ids)), new Function<Long, Urn>() {
-            @Override
-            public Urn apply(Long id) {
-                return forTrack(id);
-            }
-        });
-    }
 }
