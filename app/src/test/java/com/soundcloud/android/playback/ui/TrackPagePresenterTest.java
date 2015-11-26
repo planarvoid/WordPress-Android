@@ -4,7 +4,6 @@ import static com.soundcloud.android.playback.Player.Reason;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -17,7 +16,6 @@ import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.configuration.experiments.ShareButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -74,7 +72,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureFlags featureFlags;
-    @Mock private ShareButtonExperiment shareButtonExperiment;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -89,7 +86,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         ViewGroup container = new FrameLayout(context());
         presenter = new TrackPagePresenter(waveformOperations, listener, numberFormatter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
-                errorControllerFactory, castConnectionHelper, resources(), shareButtonExperiment);
+                errorControllerFactory, castConnectionHelper, resources());
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
@@ -496,17 +493,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onPageChangeShareButtonVisibilityIsResetted() throws Exception {
-        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(false);
-        populateTrackPage();
-        getHolder(trackView).likeToggle.performClick();
-
-        presenter.onPageChange(trackView);
-
-        assertThat(getHolder(trackView).shareButton).isNotVisible();
-    }
-
-    @Test
     public void onPositionSetHidesPreviousButtonForFirstTrack() {
         populateTrackPage();
 
@@ -626,51 +612,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         populateTrackPage();
         getHolder(trackView).more.performClick();
         verify(trackPageMenuController).show();
-    }
-
-    @Test
-    public void shareButtonIsInitiallyShownWhenExperimentSaysSo() {
-        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(true);
-
-        populateTrackPage();
-
-        assertThat(getHolder(trackView).shareButton).isVisible();
-    }
-
-    @Test
-    public void shareButtonIsInitiallyHiddenWhenExperimentSaysSo() {
-        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(false);
-
-        populateTrackPage();
-
-        assertThat(getHolder(trackView).shareButton).isNotVisible();
-    }
-
-    @Test
-    public void shouldShowShareButtonAfterTogglingLike() {
-        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(false);
-
-        getHolder(trackView).likeToggle.performClick();
-
-        assertThat(getHolder(trackView).shareButton).isVisible();
-    }
-
-    @Test
-    public void setCollapsedShouldResetShareButtonVisibility() {
-        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(false);
-        getHolder(trackView).likeToggle.performClick();
-
-        presenter.setCollapsed(trackView);
-
-        assertThat(getHolder(trackView).shareButton).isNotVisible();
-    }
-
-    @Test
-    public void overlayDismissalShouldNotDisplayShareButtonIfItWasntThereBefore() {
-        when(shareButtonExperiment.isVisibleOnLoad(anyBoolean())).thenReturn(false);
-
-        presenter.clearAdOverlay(trackView);
-        assertThat(getHolder(trackView).shareButton).isNotVisible();
     }
 
     @Test

@@ -7,7 +7,6 @@ import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.configuration.experiments.ShareButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -38,9 +37,6 @@ import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.Checkable;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,7 +61,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final ErrorViewController.Factory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
     private final Resources resources;
-    private final ShareButtonExperiment shareButtonExperiment;
 
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
@@ -79,8 +74,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               AdOverlayController.Factory adOverlayControllerFactory,
                               ErrorViewController.Factory errorControllerFactory,
                               CastConnectionHelper castConnectionHelper,
-                              Resources resources,
-                              ShareButtonExperiment shareButtonExperiment) {
+                              Resources resources) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
         this.numberFormatter = numberFormatter;
@@ -92,7 +86,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.errorControllerFactory = errorControllerFactory;
         this.castConnectionHelper = castConnectionHelper;
         this.resources = resources;
-        this.shareButtonExperiment = shareButtonExperiment;
     }
 
     @Override
@@ -154,8 +147,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setLikeCount(holder, trackState.getLikeCount());
         holder.likeToggle.setChecked(trackState.isUserLike());
         holder.likeToggle.setTag(trackState.getUrn());
-
-        setInitialShareButtonVisibility(holder.shareButton, trackState.isUserLike());
         holder.shareButton.setTag(trackState.getUrn());
 
         holder.footerUser.setText(trackState.getUserName());
@@ -166,16 +157,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
 
         setClickListener(this, holder.onClickViews);
-    }
-
-    private void setInitialShareButtonVisibility(View trackView) {
-        TrackPageHolder holder = getViewHolder(trackView);
-        setInitialShareButtonVisibility(holder.shareButton, isLiked(holder.likeToggle));
-    }
-
-    private void setInitialShareButtonVisibility(View shareButton, boolean isLiked) {
-        boolean isVisible = shareButtonExperiment.isVisibleOnLoad(isLiked);
-        shareButton.setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
     private void bindStationsContext(PlayerTrackState trackState, TrackPageHolder holder) {
@@ -212,7 +193,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.title.setText(ScTextUtils.EMPTY_STRING);
 
         holder.trackContext.setVisibility(View.GONE);
-        holder.shareButton.setVisibility(View.GONE);
 
         holder.likeToggle.setChecked(false);
         holder.likeToggle.setEnabled(true);
@@ -322,39 +302,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private void revealShareButton(View shareButton) {
-        Context context = shareButton.getContext();
-
-        if (!shareButton.isShown()) {
-            shareButton.setVisibility(View.VISIBLE);
-            shareButton.startAnimation(revealAnimation(context));
-        }
-    }
-
-    private Animation revealAnimation(Context context) {
-        Animation animation = AnimationUtils.makeInChildBottomAnimation(context);
-        animation.setInterpolator(new DecelerateInterpolator(2.0f));
-        return animation;
-    }
-
-    private void hideShareButton(View shareButton, boolean isLiked) {
-        Context context = shareButton.getContext();
-        boolean visibleOnLoad = shareButtonExperiment.isVisibleOnLoad(isLiked);
-
-        if(shareButton.isShown()) {
-            if(!visibleOnLoad) {
-                shareButton.setVisibility(View.GONE);
-                shareButton.startAnimation(hideAnimation(context));
-            }
-        }
-    }
-
-    private Animation hideAnimation(Context context) {
-        Animation animation = AnimationUtils.loadAnimation(context, R.anim.abc_fade_out);
-        animation.setInterpolator(new DecelerateInterpolator(2.0f));
-        return animation;
-    }
-
     private void setLikeCount(TrackPageHolder holder, int count) {
         holder.likeToggle.setText(count > 0 ? numberFormatter.format(count) : Strings.EMPTY);
     }
@@ -416,7 +363,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         TrackPageHolder holder = getViewHolder(trackView);
         holder.waveformController.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
         holder.menuController.dismiss();
-        setInitialShareButtonVisibility(trackView);
     }
 
     @Override
@@ -437,7 +383,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         onPlayerSlide(trackView, 0);
         getViewHolder(trackView).waveformController.setCollapsed();
         getViewHolder(trackView).adOverlayController.setCollapsed();
-        setInitialShareButtonVisibility(trackView);
     }
 
     @Override
@@ -607,12 +552,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             @Override
             public void onClick(View view) {
                 updateLikeStatus(view);
-
-                if (isLiked(view)) {
-                    revealShareButton(holder.shareButton);
-                } else {
-                    hideShareButton(holder.shareButton, false);
-                }
             }
         });
 
@@ -632,7 +571,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
                 if (fullscreen) {
                     AnimUtils.hideViews(holder.hideOnAdViews);
-                    holder.shareButton.setVisibility(View.GONE);
                     castConnectionHelper.removeMediaRouterButton(holder.mediaRouteButton);
                 }
             }
@@ -645,7 +583,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
                 if (fullscreen) {
                     AnimUtils.showViews(holder.hideOnAdViews);
-                    hideShareButton(holder.shareButton, isLiked(holder.likeToggle));
                     castConnectionHelper.addMediaRouterButton(holder.mediaRouteButton);
                 }
             }
@@ -716,7 +653,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
             hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
             onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
-            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp, castDeviceName);
+            hideOnAdViews = Arrays.asList(close, more, likeToggle, shareButton, title, user, timestamp, castDeviceName);
             progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
         }
 
