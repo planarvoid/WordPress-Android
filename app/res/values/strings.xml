@@ -279,7 +279,7 @@
 
     <!-- __PLAYER -->
     <string name="share">Share</string>
-    <string name="repost">Repost</string>
+    <string name="repost">Repost on SoundCloud</string>
     <string name="unpost">Unpost</string>
     <string name="comment_at_time">Comment at %s</string>
     <string name="comment_on_tracktitle">Comment on %s</string>
