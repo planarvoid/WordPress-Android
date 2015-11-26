@@ -6,6 +6,7 @@ import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.search.TabbedSearchFragment;
@@ -106,7 +107,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         setupListView(activity);
         setupViewFlipper(activity);
         setSearchListeners();
-        activateSearchView();
+        requestSearchFocus();
     }
 
     private void setupListView(Activity activity) {
@@ -133,6 +134,13 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
             actionBar.setDisplayShowTitleEnabled(false);
         }
         toolbar.addView(searchView);
+    }
+
+    private void requestSearchFocus() {
+        final PlayerUIEvent currentPlayerState = eventBus.queue(EventQueue.PLAYER_UI).toBlocking().first();
+        if (currentPlayerState.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
+            activateSearchView();
+        }
     }
 
     private void setSearchListeners() {
