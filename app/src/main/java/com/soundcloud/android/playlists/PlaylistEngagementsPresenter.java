@@ -95,15 +95,6 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.shareOperations = shareOperations;
     }
 
-    void bindView(View rootView) {
-        bindView(rootView, new OriginProvider() {
-            @Override
-            public String getScreenTag() {
-                return Screen.UNKNOWN.get();
-            }
-        });
-    }
-
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     void bindView(View rootView, OriginProvider originProvider) {
         this.context = rootView.getContext();
@@ -126,10 +117,6 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     public void onPause(Fragment fragment) {
         foregroundSubscription.unsubscribe();
         offlineStateSubscription.unsubscribe();
-    }
-
-    void setOriginProvider(OriginProvider originProvider) {
-        this.originProvider = originProvider;
     }
 
     void setPlaylistInfo(@NotNull final PlaylistWithTracks playlistWithTracks, PlaySessionSource playSessionSource) {
