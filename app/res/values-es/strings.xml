@@ -126,12 +126,12 @@
   <string name="info_empty_you_secondary">Para editar tu perfil, inicia sesión en SoundCloud en tu escritorio.</string>
   <string name="list_empty_notification_message">Aún no tienes notificaciones.</string>
   <string name="list_empty_notification_secondary">Sigue a tus artistas favoritos, bandas y podcasts para escuchar sus últimas pistas.</string>
-  <string name="list_empty_stream_action">Encuentra a gente a la que seguir.</string>
+  <string name="list_empty_stream_action">ENCUENTRA GENTE A LA QUE SEGUIR</string>
   <string name="list_empty_stream_message">Sigue a tus artistas favoritos, bandas y podcasts para escuchar sus últimas pistas.</string>
-  <string name="list_empty_user_following_action">Encuentra a gente a la que seguir.</string>
+  <string name="list_empty_user_following_action">ENCUENTRA GENTE A LA QUE SEGUIR</string>
   <string name="empty_playlist_title">Lista vacía</string>
   <string name="empty_playlist_description">Esta lista aún no tiene pistas.</string>
-  <string name="list_empty_you_sounds_message">Republica pistas para compartirlas con tus seguidores.</string>
+  <string name="list_empty_you_sounds_message">Repostea pistas para compartirlas con tus seguidores.</string>
   <string name="list_empty_you_playlists_message">Crea listas para hacer mezclas de tus pistas favoritas.</string>
   <string name="list_empty_you_likes_message">Dale un me gusta a tus pistas favoritas para escucharlas de nuevo.</string>
   <string name="list_empty_you_following_message">Sigue a tus artistas, bandas y curadores favoritos para escuchar sus últimas pistas</string>
@@ -183,7 +183,7 @@
   <string name="use_existing_image">Imagen existente</string>
   <string name="use_existing_image_error">No se puede utilizar una imagen existente</string>
   <!--__NAVIGATION-->
-  <string name="side_menu_notifications">Notificaciones</string>
+  <string name="side_menu_notifications">Actividad</string>
   <string name="side_menu_record">Grabar</string>
   <string name="side_menu_you">Tú</string>
   <string name="side_menu_settings">Configuración</string>
@@ -251,12 +251,12 @@
   <string name="like_toast_overflow_action">Guardada en tus Me gusta</string>
   <string name="unlike_toast_overflow_action">Retirada de tus Me gusta</string>
   <string name="like_error_toast_overflow_action">Estado de Me gusta no modificado</string>
-  <string name="reposted_to_followers">Republicado a tus seguidores</string>
+  <string name="reposted_to_followers">Reposteado a tus seguidores</string>
   <string name="unposted_to_followers">Sin publicar</string>
-  <string name="repost_error_toast_overflow_action">No se ha podido cambiar el estado de republicación</string>
+  <string name="repost_error_toast_overflow_action">No se ha podido cambiar el estado de repost</string>
   <!--__PLAYER-->
   <string name="share">Compartir</string>
-  <string name="repost">Republicar</string>
+  <string name="repost">Repostea</string>
   <string name="unpost">Anular la publicación</string>
   <string name="comment_at_time">Comentario en %s</string>
   <string name="comment_on_tracktitle">Comentario sobre %s</string>
@@ -456,8 +456,8 @@
   <string name="pref_notifications_stream">Stream</string>
   <string name="pref_notifications_wifi_only">Notificaciones solo con Wi-Fi</string>
   <string name="pref_notifications_wifi_only_description">Recibe notificaciones solo cuando estés conectado a través de Wi-Fi.</string>
-  <string name="pref_notifications_reposts">Republicaciones</string>
-  <string name="pref_notifications_reposts_description">Recibe notificaciones sobre republicaciones nuevas de tus pistas.</string>
+  <string name="pref_notifications_reposts">Reposts</string>
+  <string name="pref_notifications_reposts_description">Recibe notificaciones sobre reposts nuevos de tus pistas.</string>
   <string-array name="pref_notifications_frequency_entries">
     <item>Cada hora</item>
     <item>Cada 4 horas</item>
@@ -566,7 +566,7 @@
   <string name="tab_you">Más</string>
   <!--__YOU-->
   <string name="you_explore">Explorar</string>
-  <string name="you_activity">Notificaciones</string>
+  <string name="you_activity">Actividad</string>
   <string name="you_record">Grabar</string>
   <string name="you_offline_sync_settings">Configuración de sincronización sin conexión</string>
   <string name="you_notification_settings">Configuración de notificaciones</string>
@@ -624,8 +624,8 @@
   <string name="dashboard_notifications_activity_message_comment_two">Comentarios de %1$s y %2$s</string>
   <string name="dashboard_notifications_activity_message_comment_other">Comentarios de %1$s, %2$s y otros</string>
   <plurals name="dashboard_notifications_activity_ticker_repost">
-    <item quantity="one">%d republicación nueva</item>
-    <item quantity="other">%d republicaciones nuevas</item>
+    <item quantity="one">%d repost nuevo</item>
+    <item quantity="other">%d reposts nuevos</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_ticker_activity">
     <item quantity="one">%d actividad nueva</item>
@@ -652,8 +652,8 @@
     <item quantity="other">%d me gusta nuevos</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_title_repost">
-    <item quantity="one">%d republicación nueva</item>
-    <item quantity="other">%d republicaciones nuevas</item>
+    <item quantity="one">%d repost nuevo</item>
+    <item quantity="other">%d resposts nuevos</item>
   </plurals>
   <plurals name="dashboard_notifications_activity_follower">
     <item quantity="one">%d seguidor nuevo</item>
