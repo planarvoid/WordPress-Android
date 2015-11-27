@@ -9,13 +9,13 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
-public class ResolveFacebookUserWebLinkTest extends FacebookResolveBaseTest {
+public class ResolveFacebookUserPermalinkTest extends FacebookResolveBaseTest {
 
     private ProfileScreen profileScreen;
 
     @Override
     protected Uri getUri() {
-        return TestConsts.FACEBOOK_USER_URI;
+        return TestConsts.FACEBOOK_USER_PERMALINK;
     }
 
     public void testFacebookUserDeeplink() {

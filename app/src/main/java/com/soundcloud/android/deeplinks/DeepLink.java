@@ -11,10 +11,9 @@ import java.util.EnumSet;
 import java.util.regex.Pattern;
 
 public enum DeepLink {
-    HOME, STREAM, EXPLORE, USER, TRACK, PLAYLIST, SEARCH, RECORD, WEB_VIEW, OTHER;
+    HOME, STREAM, EXPLORE, SEARCH, RECORD, WEB_VIEW, ENTITY;
 
-    private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED = EnumSet.of(EXPLORE, USER, TRACK, PLAYLIST, SEARCH, RECORD);
-    private static final EnumSet<DeepLink> RESOLVE_REQUIRED = EnumSet.of(USER, TRACK, PLAYLIST);
+    private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED = EnumSet.of(EXPLORE, SEARCH, RECORD, ENTITY);
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
             Pattern.compile("^/login/reset/[0-9a-f]+$"),
@@ -30,21 +29,19 @@ public enum DeepLink {
     }
 
     public boolean requiresResolve() {
-        return RESOLVE_REQUIRED.contains(this);
+        return this == ENTITY;
     }
 
     @NonNull
     public static DeepLink fromUri(@Nullable Uri uri) {
         if (uri == null) {
             return HOME;
-        } else if (isSoundCloudUrn(uri)) {
-            return fromSoundCloudUrn(new Urn(uri.toString()));
         } else if (isSoundCloudScheme(uri)) {
             return fromSoundCloudScheme(uri);
         } else if (isWebScheme(uri)) {
             return fromWebScheme(uri);
         } else {
-            return OTHER;
+            return ENTITY;
         }
     }
 
@@ -66,22 +63,6 @@ public enum DeepLink {
             }
         }
         return false;
-    }
-
-    private static boolean isSoundCloudUrn(Uri uri) {
-        return uri.isOpaque() && Urn.isSoundCloudUrn(uri.toString());
-    }
-
-    private static DeepLink fromSoundCloudUrn(Urn urn) {
-        if (urn.isTrack()) {
-            return TRACK;
-        } else if (urn.isPlaylist()) {
-            return PLAYLIST;
-        } else if (urn.isUser()) {
-            return USER;
-        } else {
-            return OTHER;
-        }
     }
 
     private static boolean isSoundCloudScheme(Uri uri) {
@@ -110,12 +91,7 @@ public enum DeepLink {
             case "record":
                 return RECORD;
             default:
-                try {
-                    UrnResolver resolver = new UrnResolver();
-                    return fromSoundCloudUrn(resolver.toUrn(uri));
-                } catch (IllegalArgumentException e) {
-                    return OTHER;
-                }
+                return ENTITY;
         }
     }
 
@@ -150,7 +126,7 @@ public enum DeepLink {
                 if (isWebViewUrl(uri)) {
                     return WEB_VIEW;
                 } else {
-                    return OTHER;
+                    return ENTITY;
                 }
         }
     }

@@ -10,10 +10,10 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
-public class ResolveUserNomalUserUrlTest extends ResolveBaseTest {
+public class ResolveUserPermalinkTest extends ResolveBaseTest {
     @Override
     protected Uri getUri() {
-        return TestConsts.STEVE_ANGELLO_URI;
+        return TestConsts.STEVE_ANGELLO_PERMALINK;
     }
 
     public void testResolveUrl() {

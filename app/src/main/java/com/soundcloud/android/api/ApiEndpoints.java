@@ -84,13 +84,13 @@ public enum ApiEndpoints {
     LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),
     CONFIGURATION("/configuration/android"),
+    RESOLVE_ENTITY("/resolve"),
 
     // public API
     PLAY_PUBLISH("/tpub"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),
-    RESOLVE("/resolve"),
     MY_TRACK_REPOSTS("/e1/me/track_reposts/%s"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
     LEGACY_TRACKS("/tracks"),

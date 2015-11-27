@@ -4,7 +4,7 @@ import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
@@ -15,17 +15,16 @@ import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
-import android.net.Uri;
 
-public class ResolveTrackTest extends ActivityTest<ResolveActivity> {
+public class ResolveDeepLinkBeforeAndAfterLogin extends ActivityTest<ResolveActivity> {
 
-    public ResolveTrackTest() {
+    public ResolveDeepLinkBeforeAndAfterLogin() {
         super(ResolveActivity.class);
     }
 
     @Override
     protected void setUp() throws Exception {
-        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
+        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.CHE_FLUTE_TRACK_PERMALINK));
         super.setUp();
     }
 
@@ -43,12 +42,7 @@ public class ResolveTrackTest extends ActivityTest<ResolveActivity> {
         VisualPlayerElement visualPlayer = new VisualPlayerElement(solo);
         visualPlayer.waitForExpandedPlayer();
         assertThat(visualPlayer, is(expanded()));
-        assertThat(visualPlayer.getTrackTitle(), is(equalToIgnoringCase("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]")));
-    }
-
-
-    private Uri getUri() {
-        return TestConsts.CHE_FLUTE_URI;
+        assertThat(visualPlayer.getTrackTitle(), is(equalTo("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]")));
     }
 
     @Override

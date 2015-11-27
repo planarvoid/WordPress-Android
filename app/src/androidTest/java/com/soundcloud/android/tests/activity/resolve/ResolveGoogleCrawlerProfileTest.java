@@ -13,7 +13,7 @@ import android.net.Uri;
 public class ResolveGoogleCrawlerProfileTest extends ResolveGoogleCrawlerBaseTest {
     @Override
     protected Uri getUri() {
-        return TestConsts.STEVE_ANGELLO_SC_URI;
+        return TestConsts.STEVE_ANGELLO_DEEP_LINK;
     }
 
     public void testResolveUrl() {

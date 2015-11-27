@@ -10,10 +10,10 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
-public class ResolveUserSoundCloudUriTest extends ResolveBaseTest {
+public class ResolveUserDeepLinkTest extends ResolveBaseTest {
     @Override
     protected Uri getUri() {
-        return TestConsts.STEVE_ANGELLO_SC_URI;
+        return TestConsts.STEVE_ANGELLO_DEEP_LINK;
     }
 
     public void testResolveUrl() {
