@@ -83,7 +83,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("some tag");
         presenter = new PlaylistItemMenuPresenter(context, eventBus, popupMenuWrapperFactory, accountOperations,
                 playlistOperations, likeOperations, repostOperations, shareOperations, screenProvider, featureOperations,
-                streamExperiment, offlineOperations, navigator);
+                offlineOperations, navigator);
 
         presenter.show(button, playlist, menuOptions);
     }

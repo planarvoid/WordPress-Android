@@ -5,12 +5,11 @@
         android:id="@+id/add_to_likes"
         android:title="@string/btn_like" />
     <item
-        android:id="@+id/share"
-        android:title="@string/share"
-        android:visible="false" />
+        android:id="@+id/add_to_playlist"
+        android:title="@string/add_to_playlist" />
     <item
-        android:id="@+id/toggle_repost"
-        android:title="@string/repost"
+        android:id="@+id/remove_from_playlist"
+        android:title="@string/remove_from_playlist"
         android:visible="false" />
     <item
         android:id="@+id/start_station"
@@ -21,10 +20,11 @@
         android:title="@string/play_related_tracks"
         android:visible="false" />
     <item
-        android:id="@+id/add_to_playlist"
-        android:title="@string/add_to_playlist" />
+        android:id="@+id/toggle_repost"
+        android:title="@string/repost"
+        android:visible="false" />
     <item
-        android:id="@+id/remove_from_playlist"
-        android:title="@string/remove_from_playlist"
+        android:id="@+id/share"
+        android:title="@string/share"
         android:visible="false" />
 </menu>

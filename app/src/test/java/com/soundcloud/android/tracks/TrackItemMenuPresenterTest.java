@@ -3,7 +3,6 @@ package com.soundcloud.android.tracks;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,7 +76,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
         presenter = new TrackItemMenuPresenter(popupMenuWrapperFactory, trackRepository, eventBus, context,
                 likeOperations, repostOperations, playlistOperations, screenProvider, playbackInitiator, playbackToastHelper,
-                featureFlags, streamExperiment, shareOperations, dialogBuilder, startStationPresenter, accountOperations);
+                featureFlags, shareOperations, dialogBuilder, startStationPresenter, accountOperations);
     }
 
     @Test
@@ -120,27 +119,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                         .build();
         verify(shareOperations).share(context, trackItem.getSource(), eventContextMetadata, null);
     }
-
-    @Test
-    public void showsAdditionalEngagementOptionsWhenCardDesignIsEnabled() {
-        when(streamExperiment.isCardDesign()).thenReturn(true);
-
-        presenter.show(activity, view, trackItem, 0, OverflowMenuOptions.builder().showAllEngagements(true).build());
-
-        verify(popupMenuWrapper).setItemVisible(R.id.toggle_repost, true);
-        verify(popupMenuWrapper).setItemVisible(R.id.share, true);
-    }
-
-    @Test
-    public void hidesAdditionalEngagementOptionsWhenCardDesignIsDisabled() {
-        when(streamExperiment.isCardDesign()).thenReturn(false);
-
-        presenter.show(activity, view, trackItem, 0, OverflowMenuOptions.builder().showAllEngagements(true).build());
-
-        verify(popupMenuWrapper, never()).setItemVisible(R.id.toggle_repost, true);
-        verify(popupMenuWrapper, never()).setItemVisible(R.id.share, true);
-    }
-
+    
     private TrackItem createTrackItem() {
         return TrackItem.from(ModelFixtures.create(ApiTrack.class));
     }
