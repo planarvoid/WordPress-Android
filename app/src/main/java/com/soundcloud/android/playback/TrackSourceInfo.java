@@ -69,6 +69,10 @@ public class TrackSourceInfo {
         return stationsSourceInfo;
     }
 
+    public boolean hasStationsSourceInfo() {
+        return stationsSourceInfo != null;
+    }
+
     public boolean getIsUserTriggered() {
         return userTriggered;
     }
@@ -87,6 +91,10 @@ public class TrackSourceInfo {
 
     public Urn getCollectionUrn() {
         return collectionUrn;
+    }
+
+    public boolean hasCollectionUrn() {
+        return !collectionUrn.equals(Urn.NOT_SET);
     }
 
     public int getPlaylistPosition() {

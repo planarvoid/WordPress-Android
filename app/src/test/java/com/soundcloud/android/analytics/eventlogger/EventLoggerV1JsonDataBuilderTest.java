@@ -56,7 +56,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
     private static final Urn STATION_URN = Urn.forTrackStation(123L);
     private static final String CONSUMER_SUBS_PLAN = "THE HIGHEST TIER IMAGINABLE";
+    public static final Urn QUERY_URN = new Urn("soundcloud:radio:6d2547a");
     private static final String PAGE_NAME = "page_name";
+    public static final String SOURCE = "stations";
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ExperimentOperations experimentOperations;
@@ -66,8 +68,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Mock private NetworkConnectionHelper connectionHelper;
 
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
+    private final TrackSourceInfo trackSourceInfo = createTrackSourceInfo();
     private EventContextMetadata eventContextMetadata = createEventContextMetadata();
-    private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:click:urn"));
     private final EntityMetadata entityMetadata = EntityMetadata.from(PropertySet.create());
 
@@ -466,14 +468,14 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
-                        .consumerSubsPlan(CONSUMER_SUBS_PLAN)
-                        .track(TRACK_URN)
-                        .trackOwner(CREATOR_URN)
-                        .inPlaylist(false)
-                        .inLikes(false)
-                        .appVersion(APP_VERSION)
-                        .eventType("desync")
-                        .eventStage("complete")
+                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
+                .track(TRACK_URN)
+                .trackOwner(CREATOR_URN)
+                .inPlaylist(false)
+                .inLikes(false)
+                .appVersion(APP_VERSION)
+                .eventType("desync")
+                .eventStage("complete")
         );
     }
 
@@ -493,13 +495,16 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                        .clickName("share")
-                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                        .clickObject(TRACK_URN.toString())
-                        .pageName(PAGE_NAME)
-                        .experiment("exp_android_listening", 2345)
-                        .experiment("exp_android_ui", 3456)
-                        .pageUrn(TRACK_URN.toString())
+                .clickName("share")
+                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                .clickObject(TRACK_URN.toString())
+                .clickSource(SOURCE)
+                .clickSourceUrn(STATION_URN.toString())
+                .queryUrn(QUERY_URN.toString())
+                .pageName(PAGE_NAME)
+                .experiment("exp_android_listening", 2345)
+                .experiment("exp_android_ui", 3456)
+                .pageUrn(TRACK_URN.toString())
         );
     }
 
@@ -549,12 +554,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                        .clickName("repost::add")
-                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                        .clickObject(TRACK_URN.toString())
-                        .pageName(PAGE_NAME)
-                        .pageUrn(TRACK_URN.toString())
-                        .fromOverflowMenu(true)
+                .clickName("repost::add")
+                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                .clickObject(TRACK_URN.toString())
+                .pageName(PAGE_NAME)
+                .pageUrn(TRACK_URN.toString())
+                .fromOverflowMenu(true)
         );
     }
 
@@ -576,13 +581,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                        .clickName("repost::add")
-                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                        .clickObject(TRACK_URN.toString())
-                        .pageName(PAGE_NAME)
-                        .pageUrn(TRACK_URN.toString())
-                        .clickSource("stream")
-                        .fromOverflowMenu(true)
+                .clickName("repost::add")
+                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                .clickObject(TRACK_URN.toString())
+                .pageName(PAGE_NAME)
+                .pageUrn(TRACK_URN.toString())
+                .clickSource("stream")
+                .fromOverflowMenu(true)
         );
     }
 
@@ -600,11 +605,14 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
         verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", timestamp)
-                        .clickName(engagementName)
-                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                        .clickObject(TRACK_URN.toString())
-                        .pageName(PAGE_NAME)
-                        .pageUrn(TRACK_URN.toString())
+                .clickName(engagementName)
+                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                .clickObject(TRACK_URN.toString())
+                .clickSource(SOURCE)
+                .clickSourceUrn(STATION_URN.toString())
+                .queryUrn(QUERY_URN.toString())
+                .pageName(PAGE_NAME)
+                .pageUrn(TRACK_URN.toString())
         );
     }
 
@@ -622,9 +630,17 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private EventContextMetadata createEventContextMetadata() {
         return EventContextMetadata.builder()
                 .contextScreen("screen")
+                .trackSourceInfo(trackSourceInfo)
                 .pageName(PAGE_NAME)
                 .pageUrn(TRACK_URN)
                 .build();
     }
 
+    private TrackSourceInfo createTrackSourceInfo() {
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
+        trackSourceInfo.setSource(SOURCE, "0.0");
+        trackSourceInfo.setStationSourceInfo(STATION_URN, StationsSourceInfo.create(QUERY_URN));
+
+        return trackSourceInfo;
+    }
 }
