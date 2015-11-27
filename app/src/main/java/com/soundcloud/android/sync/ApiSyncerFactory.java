@@ -77,11 +77,7 @@ public class ApiSyncerFactory {
                 return lazySoundStreamSyncer.get();
 
             case ME_ACTIVITIES:
-                if (featureFlags.isEnabled(Flag.ACTIVITIES_REFACTOR)) {
-                    return lazyActivitiesSyncer.get();
-                } else {
-                    return new ApiSyncer(context, context.getContentResolver());
-                }
+                return lazyActivitiesSyncer.get();
 
             case ME_LIKES:
                 return lazyMyLikesSyncer.get();
