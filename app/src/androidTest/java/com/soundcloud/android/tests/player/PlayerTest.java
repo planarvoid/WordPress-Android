@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.player;
 
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
+import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -132,7 +133,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(profileScreen.getUserName(), is(equalTo(originalUser)));
     }
 
-    public void testPlayerShowTheTrackDescription() throws Exception {
+    public void testPlayerShowTheTrackDescription() {
         visualPlayerElement = mainNavHelper
                 .goToDiscovery()
                 .clickSearch()
@@ -148,7 +149,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertTrue(trackInfoScreen.getDescription().isVisible());
     }
 
-    public void testPlayerShowTheTrackNoDescription() throws Exception {
+    public void testPlayerShowTheTrackNoDescription() {
         visualPlayerElement = mainNavHelper
                 .goToDiscovery()
                 .clickSearch()
@@ -164,7 +165,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertTrue(trackInfoScreen.getNoDescription().isVisible());
     }
 
-    public void testPlayerTrackInfoLinksToComments() throws Exception {
+    public void testPlayerTrackInfoLinksToComments() {
         playTrackFromStream();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
@@ -176,7 +177,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(originalTitle, is(equalTo((trackCommentsScreen.getTitle()))));
     }
 
-    public void testListOfCommentsCanBePaged() throws Exception {
+    public void testListOfCommentsCanBePaged() {
         visualPlayerElement = mainNavHelper
                 .goToDiscovery()
                 .clickSearch()
@@ -195,7 +196,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(nextCommentsCount, is(greaterThan(initialCommentsCount)));
     }
 
-    public void testPlayerTrackMakeComment() throws Exception {
+    public void testPlayerTrackMakeComment() {
         playTrackFromStream();
 
         final AddCommentScreen addCommentScreen = visualPlayerElement
@@ -203,6 +204,16 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .clickComment();
 
         assertTrue(addCommentScreen.waitForDialog());
+    }
+
+    public void testShouldHideCommentingWhenTrackHasBlockedComments() {
+        visualPlayerElement = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("zzzz yowz no comments")
+                .clickFirstTrackItem();
+
+        assertThat(visualPlayerElement.clickMenu().commentItem(), is(not(visible())));
     }
 
     private void playExploreTrack() {
