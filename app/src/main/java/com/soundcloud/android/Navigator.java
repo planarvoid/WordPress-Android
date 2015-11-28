@@ -83,6 +83,14 @@ public class Navigator {
         startActivity(activity, SearchActivity.class);
     }
 
+    public void openSearch(Context context, Uri uri, Screen screen) {
+        context.startActivity(createSearchIntent(context, uri, screen));
+    }
+
+    public void openSystemSearch(Context context, Uri uri) {
+        context.startActivity(new Intent(Intent.ACTION_VIEW).setData(uri));
+    }
+
     public void openProfile(Context context, Urn user, Screen screen) {
         context.startActivity(createProfileIntent(context, user, screen));
     }
@@ -169,10 +177,6 @@ public class Navigator {
         context.startActivity(createExploreIntent(context, screen));
     }
 
-    public void openLegacySearch(Context context, Uri uri, Screen screen) {
-        context.startActivity(createSearchIntent(context, uri, screen));
-    }
-
     public void openResolveForUrn(Context context, Urn urn) {
         context.startActivity(createResolveIntent(context, urn));
     }
@@ -219,7 +223,7 @@ public class Navigator {
     }
 
     private Intent createSearchIntent(Context context, Uri uri, Screen screen) {
-        Intent intent = new Intent(context, LegacySearchActivity.class);
+        Intent intent = new Intent(context, SearchActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(uri);
         screen.addToIntent(intent);

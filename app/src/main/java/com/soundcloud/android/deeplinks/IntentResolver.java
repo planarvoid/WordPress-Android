@@ -136,12 +136,6 @@ public class IntentResolver {
         navigator.openWebView(context, uri);
     }
 
-    private boolean shouldLoadRelated(Referrer referrer) {
-        return isCrawler(referrer)
-                ? PlaybackInitiator.WITHOUT_RELATED
-                : PlaybackInitiator.WITH_RELATED;
-    }
-
     private void showHomeScreen(Context context, Referrer referrer) {
         accountOperations.clearCrawler();
         trackForegroundEvent(referrer);
@@ -155,7 +149,7 @@ public class IntentResolver {
 
     private void showSearchScreen(Context context, Uri uri, Referrer referrer) {
         trackForegroundEvent(referrer);
-        navigator.openLegacySearch(context, uri, Screen.DEEPLINK);
+        navigator.openSearch(context, uri, Screen.DEEPLINK);
     }
 
     private void showRecordScreen(Context context, Referrer referrer) {

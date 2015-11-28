@@ -5,17 +5,14 @@ import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HI
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.os.Bundle;
@@ -44,7 +41,7 @@ import android.widget.ViewFlipper;
 
 import javax.inject.Inject;
 
-class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements SearchIntentResolver.DeepLinkListener {
 
     private static final int SUGGESTIONS_VIEW_INDEX = 0;
     private static final int RESULTS_VIEW_INDEX = 1;
@@ -60,15 +57,18 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
     private FragmentManager fragmentManager;
     private InputMethodManager inputMethodManager;
 
-    private final EventBus eventBus;
+    private final SearchIntentResolver intentResolver;
+    private final SearchTracker tracker;
     private final Resources resources;
     private final SuggestionsAdapter adapter;
     private final SuggestionsHelper suggestionsHelper;
 
     @Inject
-    SearchPresenter(EventBus eventbus, Resources resources, SuggestionsAdapter adapter,
-                    SuggestionsHelperFactory suggestionsHelperFactory) {
-        this.eventBus = eventbus;
+    SearchPresenter(SearchIntentResolver intentResolver, SearchTracker tracker, Resources resources,
+                    SuggestionsAdapter adapter, SuggestionsHelperFactory suggestionsHelperFactory) {
+        this.intentResolver = intentResolver;
+        this.intentResolver.setDeepLinkListener(this);
+        this.tracker = tracker;
         this.resources = resources;
         this.adapter = adapter;
         this.suggestionsHelper = suggestionsHelperFactory.create(adapter);
@@ -81,7 +81,23 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         this.fragmentManager = activity.getSupportFragmentManager();
         this.inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         setupViews(activity);
-        trackScreenEvent();
+        if (bundle == null) {
+            intentResolver.handle(activity, activity.getIntent());
+        }
+    }
+
+    @Override
+    public void onNewIntent(AppCompatActivity activity, Intent intent) {
+        super.onNewIntent(activity, intent);
+        activity.setIntent(intent);
+        intentResolver.handle(activity, intent);
+    }
+
+    @Override
+    public void onDeepLinkExecuted(String searchQuery) {
+        searchTextView.setText(searchQuery);
+        deactivateSearchView();
+        showResultsFor(searchQuery);
     }
 
     @Override
@@ -238,10 +254,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         searchViewFlipper.setVisibility(View.INVISIBLE);
     }
 
-    private void trackScreenEvent() {
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_MAIN));
-    }
-
     private class SearchViewClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -307,7 +319,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
             hideCloseButton();
             activateSearchView();
             displaySearchView(SUGGESTIONS_VIEW_INDEX);
-            trackScreenEvent();
+            tracker.trackScreenEvent();
         }
     }
 
