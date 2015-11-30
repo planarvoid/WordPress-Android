@@ -22,7 +22,7 @@ public final class EventQueue {
     public static final Queue<ActivityLifeCycleEvent> ACTIVITY_LIFE_CYCLE = Queue.of(ActivityLifeCycleEvent.class).onError(ON_ERROR).get();
     public static final Queue<PlayerLifeCycleEvent> PLAYER_LIFE_CYCLE = Queue.of(PlayerLifeCycleEvent.class).onError(ON_ERROR).replay(PlayerLifeCycleEvent.forDestroyed()).get();
     public static final Queue<CurrentUserChangedEvent> CURRENT_USER_CHANGED = Queue.of(CurrentUserChangedEvent.class).onError(ON_ERROR).get();
-    public static final Queue<PlayerUIEvent> PLAYER_UI = Queue.of(PlayerUIEvent.class).onError(ON_ERROR).replay().get();
+    public static final Queue<PlayerUIEvent> PLAYER_UI = Queue.of(PlayerUIEvent.class).onError(ON_ERROR).replay(PlayerUIEvent.fromPlayerCollapsed()).get();
     public static final Queue<PlayerUICommand> PLAYER_COMMAND = Queue.of(PlayerUICommand.class).onError(ON_ERROR).get();
     public static final Queue<PlayQueueEvent> PLAY_QUEUE = Queue.of(PlayQueueEvent.class).onError(ON_ERROR).get();
     public static final Queue<CurrentPlayQueueItemEvent> CURRENT_PLAY_QUEUE_ITEM = Queue.of(CurrentPlayQueueItemEvent.class).onError(ON_ERROR).replay().get();

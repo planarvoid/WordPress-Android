@@ -1,8 +1,15 @@
 package com.soundcloud.android.playback.ui;
 
-import android.support.v4.view.PagerAdapter;
-import android.view.View;
-import android.view.ViewGroup;
+import static android.support.v4.view.PagerAdapter.POSITION_NONE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdData;
@@ -33,29 +40,20 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import rx.Observable;
+
+import android.support.v4.view.PagerAdapter;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.Arrays;
 import java.util.List;
-
-import rx.Observable;
-
-import static android.support.v4.view.PagerAdapter.POSITION_NONE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
@@ -290,7 +288,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         View currentTrackView = getPageView();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
-        verify(trackPagePresenter).setCollapsed(currentTrackView);
+        verify(trackPagePresenter, times(2)).setCollapsed(currentTrackView);
     }
 
     @Test
@@ -298,7 +296,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         View currentTrackView = getPageView();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
-        verify(trackPagePresenter).setCollapsed(currentTrackView);
+        verify(trackPagePresenter, times(2)).setCollapsed(currentTrackView);
     }
 
     @Test
