@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -304,6 +305,26 @@ public final class UIEvent extends TrackingEvent {
             return sourceInfo.getSource();
         } else {
             return StringUtils.EMPTY_STRING;
+        }
+    }
+
+    public Optional<Urn> getClickSourceUrn() {
+        final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
+
+        if (sourceInfo != null && sourceInfo.hasCollectionUrn()) {
+            return Optional.of(sourceInfo.getCollectionUrn());
+        } else {
+            return Optional.absent();
+        }
+    }
+
+    public Optional<Urn> getQueryUrn() {
+        final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
+
+        if (sourceInfo != null && sourceInfo.hasStationsSourceInfo()) {
+            return Optional.of(sourceInfo.getStationsSourceInfo().getQueryUrn());
+        } else {
+            return Optional.absent();
         }
     }
 

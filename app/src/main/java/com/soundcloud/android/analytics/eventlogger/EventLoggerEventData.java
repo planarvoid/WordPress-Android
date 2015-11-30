@@ -361,6 +361,11 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData clickSourceUrn(String sourceUrn) {
+        // Not supported by v0
+        return this;
+    }
+
     protected void addToPayload(String key, boolean value) {
         addToPayload(key, String.valueOf(value));
     }
