@@ -8,6 +8,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.strings.Strings;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,7 +54,13 @@ public class GcmMessageHandler {
         if (RECEIVE_MESSSAGE_ACTION.equals(intent.getAction())) {
             final String scApiKey = resources.getString(R.string.google_api_key);
             if (scApiKey.equals(intent.getStringExtra(EXTRA_FROM))) {
-                handleScMessage(context, intent.getStringExtra(EXTRA_DATA));
+                final String payload = intent.getStringExtra(EXTRA_DATA);
+                if (Strings.isBlank(payload)){
+                    ErrorUtils.handleSilentException(new IllegalArgumentException("Blank Gcm Payload : " + intent));
+                } else {
+                    handleScMessage(context, payload);
+                }
+
             }
         }
     }
