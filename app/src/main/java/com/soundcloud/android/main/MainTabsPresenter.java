@@ -119,7 +119,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private void selectItem(Screen screen) {
         int position = navigationModel.getPosition(screen);
         if (position != NavigationModel.NOT_FOUND) {
-            pager.setCurrentItem(position, true);
+            pager.setCurrentItem(position);
         }
     }
 
