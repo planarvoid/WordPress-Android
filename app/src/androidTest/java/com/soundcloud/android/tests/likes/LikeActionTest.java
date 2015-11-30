@@ -73,7 +73,7 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
         solo.goBack();
         assertThat("Stream should be visible", streamScreen, is(visible()));
 
-        final String actualTitle = mainNavHelper.goToCollections().getFirstPlaylistTitle();
+        final String actualTitle = mainNavHelper.goToCollections().getFirstPlaylist().getTitle();
 
         assertThat("The playlist we liked from the playlist detail screen should be the same as the top playlist in " +
                 "your liked playlists", expectedTitle, is(actualTitle));

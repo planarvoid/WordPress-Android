@@ -2,12 +2,11 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
-import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.screens.elements.CollectionsPlaylistOptionsDialogElement;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.StreamCardElement;
@@ -39,8 +38,8 @@ public class CollectionsScreen extends Screen {
         return collectionsView().scrollToItem(new CollectionPlaylistWithTitleCriteria(testDriver, title));
     }
 
-    public String getFirstPlaylistTitle() {
-        return scrollToFirstPlaylist().getTitle();
+    public PlaylistItemElement getFirstPlaylist() {
+        return scrollToFirstPlaylist();
     }
 
     public PlaylistDetailsScreen clickPlaylistWithTitle(String title) {
@@ -49,7 +48,18 @@ public class CollectionsScreen extends Screen {
     }
 
     public PlaylistItemElement scrollToFirstPlaylist() {
-        return new PlaylistItemElement(testDriver,collectionsView().scrollToItem(new CollectionPlaylistCriteria(testDriver)));
+        return new PlaylistItemElement(testDriver, collectionsView().scrollToItem(new CollectionPlaylistCriteria()));
+    }
+
+    public PlaylistItemElement getPlaylist(String title) {
+        final List<PlaylistItemElement> playlists = getPlaylists();
+
+        for (PlaylistItemElement playlist : playlists) {
+            if (title.equals(playlist.getTitle())) {
+                return playlist;
+            }
+        }
+        return new PlaylistItemElement(testDriver, new EmptyViewElement("Playlist with title " + title));
     }
 
     public List<PlaylistItemElement> getPlaylists() {
@@ -100,11 +110,6 @@ public class CollectionsScreen extends Screen {
 
 
     private class CollectionPlaylistCriteria implements RecyclerViewElement.Criteria {
-        private final Han testDriver;
-
-        public CollectionPlaylistCriteria(Han testDriver) {
-            this.testDriver = testDriver;
-        }
 
         @Override
         public boolean isSatisfied(ViewElement viewElement) {

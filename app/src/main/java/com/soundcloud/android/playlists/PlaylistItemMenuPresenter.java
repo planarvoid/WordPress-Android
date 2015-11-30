@@ -19,6 +19,8 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
@@ -31,6 +33,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -48,6 +52,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private final ShareOperations shareOperations;
     private final ScreenProvider screenProvider;
     private final FeatureOperations featureOperations;
+    private final FeatureFlags featureFlags;
     private final OfflineContentOperations offlineContentOperations;
     private final Navigator navigator;
 
@@ -60,7 +65,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                                      PopupMenuWrapper.Factory popupMenuWrapperFactory,
                                      AccountOperations accountOperations, PlaylistOperations playlistOperations, LikeOperations likeOperations,
                                      RepostOperations repostOperations, ShareOperations shareOperations, ScreenProvider screenProvider,
-                                     FeatureOperations featureOperations,
+                                     FeatureOperations featureOperations, FeatureFlags featureFlags,
                                      OfflineContentOperations offlineContentOperations, Navigator navigator) {
         this.appContext = appContext;
         this.eventBus = eventBus;
@@ -72,6 +77,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         this.shareOperations = shareOperations;
         this.screenProvider = screenProvider;
         this.featureOperations = featureOperations;
+        this.featureFlags = featureFlags;
         this.offlineContentOperations = offlineContentOperations;
         this.navigator = navigator;
     }
@@ -83,8 +89,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     public void show(View button, PlaylistItem playlist, OverflowMenuOptions menuOptions) {
         this.playlist = playlist;
         this.menuOptions = menuOptions;
-        final PopupMenuWrapper menu = setupMenu(button);
 
+        final PopupMenuWrapper menu = setupMenu(button);
         loadPlaylist(menu);
     }
 
@@ -117,6 +123,9 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             case R.id.make_offline_unavailable:
                 removeFromOffline();
                 return true;
+            case R.id.delete_playlist:
+                deletePlaylist(((FragmentActivity) context).getSupportFragmentManager());
+                return true;
             default:
                 return false;
         }
@@ -134,6 +143,10 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromRemoveOfflinePlaylist(
                         screenProvider.getLastScreenTag(), playlist.getEntityUrn(), getPromotedSourceIfExists()));
+    }
+
+    private void deletePlaylist(FragmentManager fragmentManager) {
+        DeletePlaylistDialogFragment.show(fragmentManager, playlist.getEntityUrn());
     }
 
     private PromotedSourceInfo getPromotedSourceIfExists() {
@@ -214,29 +227,32 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private void configureAdditionalEngagementsOptions(PopupMenuWrapper menu) {
         menu.setItemVisible(R.id.toggle_repost, canRepost(playlist));
         menu.setItemVisible(R.id.share, !playlist.isPrivate());
+        if (featureFlags.isEnabled(Flag.DELETE_PLAYLIST)) {
+            menu.setItemVisible(R.id.delete_playlist, isOwned(playlist));
+        }
         updateRepostActionTitle(menu, playlist.isReposted());
     }
 
     private boolean canRepost(PlaylistItem playlist) {
-        return !accountOperations.isLoggedInUser(playlist.getCreatorUrn()) && !playlist.isPrivate();
+        return !isOwned(playlist) && !playlist.isPrivate();
+    }
+
+    private boolean isOwned(PlaylistItem playlist) {
+        return accountOperations.isLoggedInUser(playlist.getCreatorUrn());
     }
 
     private void updateLikeActionTitle(PopupMenuWrapper menu, boolean isLiked) {
         final MenuItem item = menu.findItem(R.id.add_to_likes);
-        if (isLiked) {
-            item.setTitle(R.string.btn_unlike);
-        } else {
-            item.setTitle(R.string.btn_like);
-        }
+        item.setTitle(isLiked
+                ? R.string.btn_unlike
+                : R.string.btn_like);
     }
 
     private void updateRepostActionTitle(PopupMenuWrapper menu, boolean isReposted) {
         final MenuItem item = menu.findItem(R.id.toggle_repost);
-        if (isReposted) {
-            item.setTitle(R.string.unpost);
-        } else {
-            item.setTitle(R.string.repost);
-        }
+        item.setTitle(isReposted
+                ? R.string.unpost
+                : R.string.repost);
     }
 
     private void configureInitialOfflineOptions(PopupMenuWrapper menu) {

@@ -136,6 +136,12 @@ public class TestUser {
             "S0undCl0ud",
             "1-21686-107904111-2c69858c2bde2a",
             107904111);
+    public static final TestUser deletePlaylistUser = new TestUser(
+            "delete-playlist",
+            "delete-playlist@gmail.com",
+            "S0undCl0ud",
+            "1-21686-190901728-67e61c3565bfc2",
+            190901728);
     public static final TestUser testUser = new TestUser(
             "slawomir-smiechowy-2",
             "test26-82@wp.pl",

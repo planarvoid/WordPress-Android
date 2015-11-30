@@ -417,10 +417,18 @@ public class DatabaseAssertions {
         )).counts(1);
     }
 
-    public void assertPlaylistNotStored(ApiPlaylist playlist) {
+    public void assertPlaylistNotStored(Urn urn) {
+        assertPlaylistNotStored(urn.getNumericId());
+    }
+
+    public void assertPlaylistNotStored(long playlistId) {
         assertThat(select(from(Sounds.name())
-                .whereEq(_ID, playlist.getId())
+                .whereEq(_ID, playlistId)
                 .whereEq(_TYPE, TYPE_PLAYLIST))).counts(0);
+    }
+
+    public void assertPlaylistInserted(Urn playlist) {
+        assertPlaylistInserted(playlist.getNumericId());
     }
 
     public void assertPlaylistInserted(long playlistId) {

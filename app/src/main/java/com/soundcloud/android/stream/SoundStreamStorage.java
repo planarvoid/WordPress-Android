@@ -266,7 +266,7 @@ public class SoundStreamStorage implements TimelineStorage {
         return Query.from(Table.Likes.name(), Table.Sounds.name())
                 .joinOn(SoundStreamView.SOUND_ID, Table.Likes.field(TableColumns.Likes._ID))
                 .joinOn(SoundStreamView.SOUND_TYPE, Table.Likes.field(TableColumns.Likes._TYPE))
-                .whereNull(TableColumns.Likes.REMOVED_AT);
+                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
     }
 
     private static Query repostQuery() {

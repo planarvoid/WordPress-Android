@@ -57,17 +57,17 @@ class PlaylistTracksStorage {
     }
 
     Observable<Urn> createNewPlaylist(final String title, final boolean isPrivate, final Urn firstTrackUrn) {
-        final long createdAt = System.currentTimeMillis();
-        final long localId = -createdAt;
+        final long createdAt = dateProvider.getCurrentTime();
 
+        final Urn playlist = Urn.newLocalPlaylist();
         return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.insert(Table.Sounds, getContentValuesForPlaylistsTable(localId, createdAt, title, isPrivate)));
-                step(propeller.insert(Table.Posts, getContentValuesForPostsTable(localId, createdAt)));
-                step(propeller.insert(Table.PlaylistTracks, getContentValuesForPlaylistTrack(localId, firstTrackUrn)));
+                step(propeller.insert(Table.Sounds, getContentValuesForPlaylistsTable(playlist, createdAt, title, isPrivate)));
+                step(propeller.insert(Table.Posts, getContentValuesForPostsTable(playlist, createdAt)));
+                step(propeller.insert(Table.PlaylistTracks, getContentValuesForPlaylistTrack(playlist, firstTrackUrn)));
             }
-        }).map(returning(Urn.forLocalPlaylist(localId)));
+        }).map(returning(playlist));
     }
 
     Observable<List<AddTrackToPlaylistItem>> loadAddTrackToPlaylistItems(Urn trackUrn) {
@@ -147,7 +147,7 @@ class PlaylistTracksStorage {
                         .whereEq(PlaylistTracks.PLAYLIST_ID, Table.SoundView.field(SoundView._ID))
                         .whereEq(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
                         .whereEq(SoundView._TYPE, Sounds.TYPE_PLAYLIST))
-                .whereNull(PlaylistTracks.REMOVED_AT);
+                .whereNull(Table.PlaylistTracks.field(PlaylistTracks.REMOVED_AT));
     }
 
     private ContentValues getContentValuesForPlaylistTrack(long playlistNumericId, Urn trackUrn, int position) {
@@ -159,13 +159,13 @@ class PlaylistTracksStorage {
                 .get();
     }
 
-    private ContentValues getContentValuesForPlaylistTrack(long playlistId, Urn firstTrackUrn) {
-        return getContentValuesForPlaylistTrack(playlistId, firstTrackUrn, 0);
+    private ContentValues getContentValuesForPlaylistTrack(Urn playlist, Urn firstTrackUrn) {
+        return getContentValuesForPlaylistTrack(playlist.getNumericId(), firstTrackUrn, 0);
     }
 
-    private ContentValues getContentValuesForPlaylistsTable(long localId, long createdAt, String title, boolean isPrivate) {
+    private ContentValues getContentValuesForPlaylistsTable(Urn playlist, long createdAt, String title, boolean isPrivate) {
         return ContentValuesBuilder.values()
-                .put(Sounds._ID, localId)
+                .put(Sounds._ID, playlist.getNumericId())
                 .put(Sounds._TYPE, Sounds.TYPE_PLAYLIST)
                 .put(Sounds.TITLE, title)
                 .put(Sounds.SHARING, isPrivate ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value())
@@ -174,9 +174,9 @@ class PlaylistTracksStorage {
                 .get();
     }
 
-    private ContentValues getContentValuesForPostsTable(long localId, long createdAt) {
+    private ContentValues getContentValuesForPostsTable(Urn playlist, long createdAt) {
         return ContentValuesBuilder.values()
-                .put(Posts.TARGET_ID, localId)
+                .put(Posts.TARGET_ID, playlist.getNumericId())
                 .put(Posts.TARGET_TYPE, Sounds.TYPE_PLAYLIST)
                 .put(Posts.CREATED_AT, createdAt)
                 .put(Posts.TYPE, Posts.TYPE_POST)

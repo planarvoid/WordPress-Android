@@ -7,14 +7,19 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PostProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.rx.Pager;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -22,10 +27,10 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action0;
 import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,18 +43,22 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;
+    private TestEventBus eventBus;
 
     private Scheduler scheduler = Schedulers.immediate();
     private TestObserver<List<PropertySet>> observer;
 
     @Before
     public void setUp() throws Exception {
+        eventBus = new TestEventBus();
         operations = new PlaylistPostOperations(
                 playlistPostStorage,
                 syncInitiator,
-                scheduler, networkConnectionHelper);
+                scheduler,
+                networkConnectionHelper,
+                eventBus);
 
-        postedPlaylists = Arrays.asList(TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen());
+        postedPlaylists = Collections.singletonList(TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen());
         observer = new TestObserver<>();
 
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
@@ -165,6 +174,43 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
         operations.updatedPostedPlaylists().subscribe(observer);
 
         verify(syncInitiator).requestPlaylistSync(postedPlaylists);
+    }
+
+    @Test
+    public void removeShouldRemoveLocalPlaylist() {
+        final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
+        final Urn localPlaylist = Urn.newLocalPlaylist();
+        final ChangeResult removed = new ChangeResult(1);
+        when(playlistPostStorage.remove(localPlaylist)).thenReturn(Observable.just(removed));
+
+        operations.remove(localPlaylist).subscribe(subscriber);
+
+        subscriber.assertValue(removed);
+    }
+
+    @Test
+    public void removeShouldMarkForRemovalSyncedPlaylist() {
+        final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
+        final Urn playlist = Urn.forPlaylist(123);
+        final ChangeResult markedPendingRemoval = new ChangeResult(1);
+        when(playlistPostStorage.markPendingRemoval(playlist)).thenReturn(Observable.just(markedPendingRemoval));
+
+        operations.remove(playlist).subscribe(subscriber);
+
+        subscriber.assertValue(markedPendingRemoval);
+    }
+
+    @Test
+    public void shouldPublishEntityChangedEventAfterRemovingPlaylist() {
+        final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
+        final Urn playlist = Urn.forPlaylist(213L);
+        when(playlistPostStorage.markPendingRemoval(playlist)).thenReturn(Observable.just(new ChangeResult(1)));
+
+        operations.remove(playlist).subscribe(subscriber);
+
+        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.PLAYLIST_DELETED);
+        assertThat(event.getFirstUrn()).isEqualTo(playlist);
     }
 
     private void expectObserverOnNextEventToEqual(List<PropertySet> firstPage) {

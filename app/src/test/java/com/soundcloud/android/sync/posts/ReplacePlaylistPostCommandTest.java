@@ -32,7 +32,7 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
         assertThat(result.success()).isTrue();
 
         databaseAssertions().assertPlaylistInserted(newPlaylist);
-        databaseAssertions().assertPlaylistNotStored(oldPlaylist);
+        databaseAssertions().assertPlaylistNotStored(oldPlaylist.getId());
     }
 
     @Test

@@ -31,6 +31,7 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import java.util.Date;
 import java.util.List;
@@ -215,20 +216,7 @@ public class DatabaseFixtures {
     }
 
     public void insertPlaylist(ApiPlaylist playlist) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Sounds._ID, playlist.getId());
-        cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(TableColumns.Sounds.TITLE, playlist.getTitle());
-        cv.put(TableColumns.Sounds.USER_ID, playlist.getUser().getId());
-        cv.put(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount());
-        cv.put(TableColumns.Sounds.REPOSTS_COUNT, playlist.getStats().getRepostsCount());
-        cv.put(TableColumns.Sounds.PERMALINK_URL, playlist.getPermalinkUrl());
-        cv.put(TableColumns.Sounds.SHARING, playlist.getSharing().value());
-        cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
-        cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
-        cv.put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime());
-
-        insertInto(Table.Sounds, cv);
+        insertInto(Table.Sounds, createPlaylistContentValues(playlist));
     }
 
     public ApiTrack insertPlaylistTrack(ApiPlaylist playlist, int position) {
@@ -438,6 +426,33 @@ public class DatabaseFixtures {
         insertPlaylist(playlist);
         insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         return playlist;
+    }
+
+    public ApiPlaylist insertRemovedPlaylist(Date removedAt) {
+        ApiPlaylist playlist = insertPlaylist();
+
+        ContentValues cv = createPlaylistContentValues(playlist);
+        cv.put(TableColumns.Sounds.REMOVED_AT, removedAt.getTime());
+        insertInto(Table.Sounds, cv);
+
+        return playlist;
+    }
+
+    @NonNull
+    private ContentValues createPlaylistContentValues(ApiPlaylist playlist) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Sounds._ID, playlist.getId());
+        cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+        cv.put(TableColumns.Sounds.TITLE, playlist.getTitle());
+        cv.put(TableColumns.Sounds.USER_ID, playlist.getUser().getId());
+        cv.put(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount());
+        cv.put(TableColumns.Sounds.REPOSTS_COUNT, playlist.getStats().getRepostsCount());
+        cv.put(TableColumns.Sounds.PERMALINK_URL, playlist.getPermalinkUrl());
+        cv.put(TableColumns.Sounds.SHARING, playlist.getSharing().value());
+        cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
+        cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
+        cv.put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime());
+        return cv;
     }
 
     public ApiPlaylist insertLikedPlaylistPendingRemoval(Date unlikedDate) {

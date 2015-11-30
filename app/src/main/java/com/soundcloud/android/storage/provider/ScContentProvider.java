@@ -296,7 +296,7 @@ public class ScContentProvider extends ContentProvider {
                 _sortOrder = Table.Likes + "." + TableColumns.Likes.CREATED_AT + " DESC";
 
                 qb.appendWhere(Table.Likes + "." + TableColumns.Likes._TYPE + " = " + Table.SoundView + "." + TableColumns.SoundView._TYPE);
-                qb.appendWhere(" AND " + TableColumns.Likes.REMOVED_AT + " IS NULL");
+                qb.appendWhere(" AND " + Table.Likes.field(TableColumns.Likes.REMOVED_AT) + " IS NULL");
                 if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
                     qb.appendWhere(" AND " + TableColumns.SoundView.CACHED + "= 1");
                 }
@@ -629,12 +629,14 @@ public class ScContentProvider extends ContentProvider {
                 "EXISTS (SELECT 1 FROM " + Table.Likes + ", " + Table.Sounds.name()
                         + " WHERE " + idCol + " = " + Table.Likes.name() + "." + TableColumns.Likes._ID
                         + " AND " + typeCol + " = " + Table.Likes.name() + "." + TableColumns.Likes._TYPE
-                        + " AND " + TableColumns.Likes.REMOVED_AT + " IS NULL)"
+                        + " AND " + Table.Sounds.field(TableColumns.Sounds.REMOVED_AT) + " IS NULL"
+                        + " AND " + Table.Likes.field(TableColumns.Likes.REMOVED_AT) + " IS NULL)"
                         + " AS " + TableColumns.SoundView.USER_LIKE,
 
                 "EXISTS (SELECT 1 FROM " + Table.Posts + ", " + Table.Sounds.name()
                         + " WHERE " + idCol + " = " + TableColumns.Posts.TARGET_ID
                         + " AND " + typeCol + " = " + TableColumns.Posts.TARGET_TYPE
+                        + " AND " + Table.Sounds.field(TableColumns.Sounds.REMOVED_AT) + " IS NULL"
                         + " AND " + TableColumns.Posts.TYPE + " = '" + TableColumns.Posts.TYPE_REPOST + "')"
                         + " AS " + TableColumns.SoundView.USER_REPOST
         };
@@ -649,12 +651,14 @@ public class ScContentProvider extends ContentProvider {
                 "EXISTS (SELECT 1 FROM " + Table.Likes + ", " + Table.Sounds.name()
                         + " WHERE Sounds._id = " + Table.Likes.name() + "." + TableColumns.Likes._ID
                         + " AND Sounds._type = " + Table.Likes.name() + "." + TableColumns.Likes._TYPE
-                        + " AND " + TableColumns.Likes.REMOVED_AT + " IS NULL)"
+                        + " AND " + Table.Sounds.field(TableColumns.Sounds.REMOVED_AT) + " IS NULL"
+                        + " AND " + Table.Likes.field(TableColumns.Likes.REMOVED_AT) + " IS NULL)"
                         + " AS " + TableColumns.SoundView.USER_LIKE,
 
                 "EXISTS (SELECT 1 FROM " + Table.Posts + ", " + Table.Sounds.name()
                         + " WHERE Sounds._id = " + TableColumns.Posts.TARGET_ID
                         + " AND Sounds._type = " + TableColumns.Posts.TARGET_TYPE
+                        + " AND " + Table.Sounds.field(TableColumns.Sounds.REMOVED_AT) + " IS NULL"
                         + " AND " + TableColumns.Posts.TYPE + " = '" + TableColumns.Posts.TYPE_REPOST + "')"
                         + " AS " + TableColumns.SoundView.USER_REPOST
         };

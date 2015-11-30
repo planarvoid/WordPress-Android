@@ -21,11 +21,6 @@ public class CollectionsPlaylistOptionsTest extends ActivityTest<MainActivity> {
         super(MainActivity.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
     private void navigateToCollections() {
         collectionsScreen = mainNavHelper.goToCollections();
     }
@@ -68,19 +63,19 @@ public class CollectionsPlaylistOptionsTest extends ActivityTest<MainActivity> {
 
         collectionsScreen = mainNavHelper.goToCollections();
 
-        final String firstPlaylistTitle = collectionsScreen.getFirstPlaylistTitle();
+        final String firstPlaylistTitle = collectionsScreen.getFirstPlaylist().getTitle();
 
         collectionsScreen.clickPlaylistOptions()
                 .clickSortByTitle()
                 .clickDone();
 
-        assertThat(collectionsScreen.getFirstPlaylistTitle(), is(not(equalTo(firstPlaylistTitle))));
+        assertThat(collectionsScreen.getFirstPlaylist().getTitle(), is(not(equalTo(firstPlaylistTitle))));
 
         collectionsScreen.clickPlaylistOptions()
                 .clickSortByCreatedAt()
                 .clickDone();
 
-        assertThat(collectionsScreen.getFirstPlaylistTitle(), is(equalTo(firstPlaylistTitle)));
+        assertThat(collectionsScreen.getFirstPlaylist().getTitle(), is(equalTo(firstPlaylistTitle)));
     }
     
 }

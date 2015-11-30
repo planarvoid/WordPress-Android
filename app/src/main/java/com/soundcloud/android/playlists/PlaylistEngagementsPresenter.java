@@ -45,6 +45,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -52,6 +53,7 @@ import javax.inject.Inject;
 public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle implements PlaylistEngagementsView.OnEngagementListener {
 
     private Context context;
+    private FragmentManager fragmentManager;
     private PlaylistWithTracks playlistWithTracks;
     private OriginProvider originProvider;
     private PlaySessionSource playSessionSourceInfo = PlaySessionSource.EMPTY;
@@ -121,6 +123,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     @Override
     public void onResume(Fragment fragment) {
+        fragmentManager = fragment.getFragmentManager();
         foregroundSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber());
     }
 
@@ -128,6 +131,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     public void onPause(Fragment fragment) {
         foregroundSubscription.unsubscribe();
         offlineStateSubscription.unsubscribe();
+        fragmentManager = null;
     }
 
     @VisibleForTesting
@@ -185,15 +189,18 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     private void showPublicOptions(PlaylistWithTracks playlistWithTracks) {
         if (playlistWithTracks.isPublic()) {
-            boolean showRepost = !accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn());
-            if (showRepost) {
-                playlistEngagementsView.showPublicOptions(this.playlistWithTracks.isRepostedByUser());
-            } else {
+            if (isOwned(playlistWithTracks)) {
                 playlistEngagementsView.showPublicOptionsForYourTrack();
+            } else {
+                playlistEngagementsView.showPublicOptions(this.playlistWithTracks.isRepostedByUser());
             }
         } else {
             playlistEngagementsView.hidePublicOptions();
         }
+    }
+
+    private boolean isOwned(PlaylistWithTracks playlistWithTracks) {
+        return accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn());
     }
 
     private Func1<? super PropertySet, Boolean> isCurrentPlaylist(final PlaylistWithTracks playlistWithTracks) {
@@ -269,6 +276,11 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                     .doOnCompleted(publishAnalyticsEventForShuffle())
                     .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         }
+    }
+
+    @Override
+    public void onDeletePlaylist() {
+        DeletePlaylistDialogFragment.show(fragmentManager, playlistWithTracks.getUrn());
     }
 
     private Action0 publishAnalyticsEventForShuffle() {

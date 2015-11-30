@@ -27,7 +27,7 @@ class LoadLikesCommand extends LegacyCommand<Integer, List<PropertySet>, LoadLik
         return database.query(Query.from(Table.Likes.name())
                 .whereEq(TableColumns.Likes._TYPE, input)
                 .order(CREATED_AT, DESC)
-                .whereNull(TableColumns.Likes.REMOVED_AT))
+                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
                 .toList(new LikeMapper());
     }
 

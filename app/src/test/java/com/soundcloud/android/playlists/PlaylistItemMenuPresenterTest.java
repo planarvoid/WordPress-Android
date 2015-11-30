@@ -24,6 +24,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
@@ -40,6 +42,7 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -59,7 +62,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private StreamDesignExperiment streamExperiment;
     @Mock private Navigator navigator;
     @Mock private MenuItem menuItem;
-    @Mock private View button;
+    @Mock private FeatureFlags featureFlags;
+    private View button;
 
     private final TestEventBus eventBus = new TestEventBus();
 
@@ -69,6 +73,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
+        when(featureFlags.isEnabled(Flag.DELETE_PLAYLIST)).thenReturn(true);
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>empty());
@@ -83,15 +88,16 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("some tag");
         presenter = new PlaylistItemMenuPresenter(context, eventBus, popupMenuWrapperFactory, accountOperations,
                 playlistOperations, likeOperations, repostOperations, shareOperations, screenProvider, featureOperations,
-                offlineOperations, navigator);
+                featureFlags, offlineOperations, navigator);
 
-        presenter.show(button, playlist, menuOptions);
+        button = new View(new FragmentActivity());
     }
 
     @Test
     public void clickingOnUpsellItemNavigatesToUpgrade() {
         when(menuItem.getItemId()).thenReturn(R.id.upsell_offline_content);
 
+        presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
         verify(navigator).openUpgrade(context);
@@ -103,6 +109,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(likeOperations.toggleLike(playlist.getEntityUrn(), !playlist.isLiked())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
+        presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
         assertThat(likeObservable.hasObservers()).isTrue();
@@ -114,6 +121,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(repostOperations.toggleRepost(playlist.getEntityUrn(), !playlist.isReposted())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
+        presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
         assertThat(repostObservable.hasObservers()).isTrue();
@@ -125,6 +133,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(repostOperations.toggleRepost(playlist.getEntityUrn(), !playlist.isReposted())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
+        presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
         UIEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING, UIEvent.class);
@@ -138,6 +147,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     public void clickingOnShareItemSharesPlaylist() {
         when(menuItem.getItemId()).thenReturn(R.id.share);
 
+        presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
@@ -153,6 +163,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     public void clickingOnAddToLikesSendsTrackingEvent() {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
+        presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
         UIEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING, UIEvent.class);
@@ -168,6 +179,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(offlineOperations.makePlaylistAvailableOffline(playlist.getEntityUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
+        presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
         assertThat(offlineObservable.hasObservers()).isTrue();
@@ -177,6 +189,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     public void clickingOnMakeOfflineAvailablePublishTrackingEvent() {
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
+        presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
         TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
@@ -189,9 +202,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     public void clickingOnMakeOfflineUnavailableRemovedPlaylistFromOfflineContent() {
         final PublishSubject<Boolean> offlineObservable = PublishSubject.create();
         when(offlineOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn())).thenReturn(offlineObservable);
-
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
 
+        presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
         assertThat(offlineObservable.hasObservers()).isTrue();
@@ -201,6 +214,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     public void clickingOnMakeOfflineUnavailablePublishTrackingEvent() {
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
 
+        presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
         TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
@@ -238,6 +252,24 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.onMenuItemClick(menuItem, context);
 
         verify(offlineOperations, never()).makePlaylistUnavailableOffline(playlist.getEntityUrn());
+    }
+
+    @Test
+    public void showDeletePlaylistWhenOwnedByCurrentUser() {
+        when(accountOperations.isLoggedInUser(playlist.getCreatorUrn())).thenReturn(true);
+
+        presenter.show(button, playlist, menuOptions);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.delete_playlist, true);
+    }
+
+    @Test
+    public void doNotShowDeletePlaylistWhenNotOwnedByCurrentUser() {
+        when(accountOperations.isLoggedInUser(playlist.getCreatorUrn())).thenReturn(false);
+
+        presenter.show(button, playlist, menuOptions);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.delete_playlist, false);
     }
 
     private PlaylistItem createPlaylistItem() {

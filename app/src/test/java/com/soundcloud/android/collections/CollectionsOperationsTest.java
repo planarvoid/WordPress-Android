@@ -138,9 +138,10 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     public void onCollectionChangedWhenPlaylistCreatedEventFires() {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(Urn.forLocalPlaylist(1)));
+        final Urn localPlaylist = Urn.newLocalPlaylist();
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(localPlaylist));
 
-        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromPlaylistCreated(Urn.forLocalPlaylist(1))));
+        collectionChangedSubscriber.assertReceivedOnNext(Collections.singletonList(EntityStateChangedEvent.fromPlaylistCreated(localPlaylist)));
     }
 
     @Test
