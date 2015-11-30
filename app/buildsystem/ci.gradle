@@ -60,20 +60,22 @@ task buildBeta(dependsOn: ['clean', 'versionizeBeta', 'assembleBetaWrapper']) {
 }
 assembleBetaWrapper.mustRunAfter('versionizeBeta')
 
-task deployBeta(dependsOn: ['uploadGithubBeta', 'uploadBeta']) {
+task deployBeta(dependsOn: ['uploadGithubBeta', 'uploadBeta', 'slogBeta']) {
   description = 'Deploy Beta build to playstore and github.'
 }
 uploadBeta.mustRunAfter('uploadGithubBeta')
+slogBeta.mustRunAfter('uploadBeta')
 
 task buildFollowUpBeta(dependsOn: ['clean', 'versionizeFollowUpBeta', 'assembleBetaWrapper']) {
   description = 'Assembles follow up Beta build to Production Release for CI.'
 }
 assembleBetaWrapper.mustRunAfter('versionizeFollowUpBeta')
 
-task deployFollowUpBeta(dependsOn: ['uploadGithubFollowUpBeta', 'uploadFollowUpBeta']) {
+task deployFollowUpBeta(dependsOn: ['uploadGithubFollowUpBeta', 'uploadFollowUpBeta', 'slogFollowUpBeta']) {
   description = 'Deploy Beta build to playstore and github.'
 }
 uploadFollowUpBeta.mustRunAfter('uploadGithubFollowUpBeta')
+slogFollowUpBeta.mustRunAfter('uploadFollowUpBeta')
 
 // *********************************************************************************************************************
 // RELEASE BUILDS
@@ -94,10 +96,21 @@ task buildRelease(dependsOn: ['clean', 'versionizeRelease', 'assembleReleaseWrap
 }
 assembleReleaseWrapper.mustRunAfter('versionizeRelease')
 
-task deployRelease(dependsOn: ['uploadGithubRelease', 'rolloutOnePercent']) {
-  description = 'Deploy Release build to playstore and github.'
+task deployReleaseOnePercent(dependsOn: ['uploadGithubRelease', 'rolloutOnePercent', 'slogRolloutOnePercent']) {
+  description = 'Deploy Release build to playstore (1% rollout) and github.'
 }
 rolloutOnePercent.mustRunAfter('uploadGithubRelease')
+slogRolloutOnePercent.mustRunAfter('rolloutOnePercent')
+
+task deployReleaseFivePercent(dependsOn: ['rolloutFivePercent', 'slogRolloutFivePercent']) {
+  description = 'Deploy Release build to playstore (5% rollout).'
+}
+slogRolloutFivePercent.mustRunAfter('rolloutFivePercent')
+
+task deployReleaseRolloutFull(dependsOn: ['rolloutFull', 'slogRolloutFull']) {
+  description = 'Deploy Release build to playstore (5% rollout).'
+}
+slogRolloutFull.mustRunAfter('rolloutFull')
 
 task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_store']) {
   description = 'Assembles Release for Non Google Play Stores for CI.'
