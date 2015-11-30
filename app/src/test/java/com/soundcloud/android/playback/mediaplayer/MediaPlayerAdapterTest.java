@@ -84,7 +84,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
 
-        when(urlBuilder.buildHttpStreamUrl(trackUrn)).thenReturn(STREAM_URL);
+        when(urlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(STREAM_URL);
         when(dateProvider.getCurrentDate()).thenReturn(new Date());
 
         mediaPlayerAdapter = new MediaPlayerAdapter(context, mediaPlayerManager, playerHandler, eventBus, networkConnectionHelper, accountOperations, bufferUnderrunListener, urlBuilder, dateProvider);

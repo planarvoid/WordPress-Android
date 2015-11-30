@@ -9,7 +9,6 @@ import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 
-import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -33,7 +32,7 @@ class StreamPlayer implements PlayerListener {
     private Player.StateTransition lastStateTransition = Player.StateTransition.DEFAULT;
 
     @Inject
-    public StreamPlayer(Context context, MediaPlayerAdapter mediaPlayerAdapter,
+    public StreamPlayer(MediaPlayerAdapter mediaPlayerAdapter,
                         SkippyAdapter skippyAdapter,
                         NetworkConnectionHelper networkConnectionHelper) {
 
