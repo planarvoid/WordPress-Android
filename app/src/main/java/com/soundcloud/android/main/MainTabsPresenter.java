@@ -1,7 +1,9 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.discovery.SearchIntentResolver;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.utils.ViewUtils;
@@ -31,6 +33,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private final BaseLayoutHelper layoutHelper;
     private final MainPagerAdapter.Factory pagerAdapterFactory;
     private final EventBus eventBus;
+    private final Navigator navigator;
 
     private NavigationModel navigationModel;
 
@@ -40,11 +43,13 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     @Inject
     MainTabsPresenter(NavigationModel navigationModel, BaseLayoutHelper layoutHelper,
-                      MainPagerAdapter.Factory pagerAdapterFactory, EventBus eventBus) {
+                      MainPagerAdapter.Factory pagerAdapterFactory, EventBus eventBus,
+                      Navigator navigator) {
         this.navigationModel = navigationModel;
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
         this.eventBus = eventBus;
+        this.navigator = navigator;
     }
 
     public void setBaseLayout(AppCompatActivity activity) {
@@ -82,7 +87,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
         if (data != null) {
             resolveData(data);
         } else if (Strings.isNotBlank(action)) {
-            resolveAction(action);
+            resolveIntentFromAction(intent);
         }
     }
 
@@ -94,8 +99,8 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
         }
     }
 
-    private void resolveAction(@NonNull String action) {
-        switch (action) {
+    private void resolveIntentFromAction(@NonNull final Intent intent) {
+        switch (intent.getAction()) {
             case Actions.STREAM:
                 selectItem(Screen.STREAM);
                 break;
@@ -104,6 +109,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
                 break;
             case Actions.SEARCH:
                 selectItem(Screen.SEARCH_MAIN);
+                openSearchScreen(intent);
                 break;
             default:
                 break;
@@ -113,7 +119,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private void selectItem(Screen screen) {
         int position = navigationModel.getPosition(screen);
         if (position != NavigationModel.NOT_FOUND) {
-            pager.setCurrentItem(position);
+            pager.setCurrentItem(position, true);
         }
     }
 
@@ -166,6 +172,11 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
         return view;
     }
 
+    private void openSearchScreen(final Intent intent) {
+        final Intent searchIntent = intent.getParcelableExtra(SearchIntentResolver.EXTRA_SEARCH_INTENT);
+        navigator.openSearch(activity, searchIntent);
+    }
+
     private static TabLayout.ViewPagerOnTabSelectedListener tabSelectedListener(final ViewPager pager,
                                                                                 final MainPagerAdapter pagerAdapter) {
         return new TabLayout.ViewPagerOnTabSelectedListener(pager) {
@@ -197,14 +208,15 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
 
     @Override
-    public void onPageScrollStateChanged(int state) {}
+    public void onPageScrollStateChanged(int state) {
+    }
 
     public void trackScreen() {
         final Screen currentScreen = navigationModel.getItem(pager.getCurrentItem()).getScreen();
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(currentScreen));
     }
-
 }

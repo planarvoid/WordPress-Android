@@ -11,6 +11,7 @@ import com.soundcloud.android.discovery.DiscoveryActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.discovery.SearchIntentResolver;
 import com.soundcloud.android.discovery.SearchResultsActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
@@ -52,7 +53,7 @@ public class Navigator {
     }
 
     public void openHome(Context context) {
-        context.startActivity(new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        context.startActivity(createHomeIntent(context));
     }
 
     public void openUpgrade(Context context) {
@@ -83,8 +84,16 @@ public class Navigator {
         startActivity(activity, SearchActivity.class);
     }
 
-    public void openSearch(Context context, Uri uri, Screen screen) {
-        context.startActivity(createSearchIntent(context, uri, screen));
+    public void openSearch(Activity activity, Intent intent) {
+        activity.startActivity(intent);
+    }
+
+    public void openSearchFromDeepLink(Context context, Uri uri, Screen screen) {
+        final Intent searchIntent = createSearchIntentFromDeepLink(context, uri, screen);
+        final Intent homeIntent = createHomeIntent(context);
+        homeIntent.setAction(Actions.SEARCH);
+        homeIntent.putExtra(SearchIntentResolver.EXTRA_SEARCH_INTENT, searchIntent);
+        context.startActivity(homeIntent);
     }
 
     public void openSystemSearch(Context context, Uri uri) {
@@ -214,6 +223,10 @@ public class Navigator {
                 .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, track));
     }
 
+    private Intent createHomeIntent(Context context) {
+        return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
+
     private Intent createResolveIntent(Context context, Urn urn) {
         Intent intent = new Intent(context, ResolveActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
@@ -222,7 +235,7 @@ public class Navigator {
         return intent;
     }
 
-    private Intent createSearchIntent(Context context, Uri uri, Screen screen) {
+    private Intent createSearchIntentFromDeepLink(Context context, Uri uri, Screen screen) {
         Intent intent = new Intent(context, SearchActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(uri);
