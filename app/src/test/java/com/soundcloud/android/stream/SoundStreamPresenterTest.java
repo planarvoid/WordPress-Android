@@ -32,7 +32,6 @@ import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
-import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -65,10 +64,9 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     @Mock private StationsOperations stationsOperations;
-    @Mock private RecyclerViewParallaxer parallaxer;
     @Mock private StreamDesignExperiment streamExperiment;
     @Mock private View view;
-   
+
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
@@ -82,13 +80,13 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 swipeRefreshAttacher,
                 eventBus,
                 itemClickListenerFactory,
-                parallaxer, facebookInvitesDialogPresenter, streamExperiment);
+                facebookInvitesDialogPresenter, streamExperiment);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);
     }
 
-   @Test
+    @Test
     public void canLoadStreamItems() {
         List<StreamItem> items = Arrays.<StreamItem>asList(
                 PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack()),

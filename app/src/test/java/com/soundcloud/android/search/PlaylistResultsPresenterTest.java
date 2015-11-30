@@ -19,7 +19,6 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -42,7 +41,6 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private Navigator navigator;
     @Mock private View view;
-    @Mock private RecyclerViewParallaxer parallaxer;
     private TestEventBus eventBus = new TestEventBus();
     private ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
 
@@ -52,7 +50,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(view.getContext()).thenReturn(fragmentRule.getActivity());
         fakePlaylistResultsForTag(SEARCH_TAG);
-        presenter = new PlaylistResultsPresenter(operations, adapter, swipeRefreshAttacher, parallaxer, navigator, eventBus);
+        presenter = new PlaylistResultsPresenter(operations, adapter, swipeRefreshAttacher, navigator, eventBus);
     }
 
     private void fakePlaylistResultsForTag(String searchTag) {

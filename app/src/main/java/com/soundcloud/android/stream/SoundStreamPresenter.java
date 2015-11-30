@@ -42,7 +42,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     private final SoundStreamOperations streamOperations;
     private final SoundStreamAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
-    private final RecyclerViewParallaxer recyclerViewParallaxer;
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     private final StreamDesignExperiment streamDesignExperiment;
@@ -60,7 +59,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
                          SwipeRefreshAttacher swipeRefreshAttacher,
                          EventBus eventBus,
                          MixedItemClickListener.Factory itemClickListenerFactory,
-                         RecyclerViewParallaxer recyclerViewParallaxer,
                          FacebookInvitesDialogPresenter facebookInvitesDialogPresenter,
                          StreamDesignExperiment streamDesignExperiment) {
         super(swipeRefreshAttacher, getRecyclerOptions(streamDesignExperiment));
@@ -69,7 +67,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         this.stationsOperations = stationsOperations;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.eventBus = eventBus;
-        this.recyclerViewParallaxer = recyclerViewParallaxer;
         this.facebookInvitesDialogPresenter = facebookInvitesDialogPresenter;
         this.streamDesignExperiment = streamDesignExperiment;
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
@@ -128,7 +125,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     private void addScrollListeners() {
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         if (streamDesignExperiment.isCardDesign()) {
-            getRecyclerView().addOnScrollListener(recyclerViewParallaxer);
+            getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
         }
     }
 
