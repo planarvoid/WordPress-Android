@@ -79,7 +79,6 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     public OfflineContentUpdates call(final Collection<DownloadRequest> userExpectedContent) {
         final List<DownloadRequest> downloadable = newArrayList(MoreCollections.filter(userExpectedContent, IS_SYNCABLE));
         final Collection<DownloadRequest> creatorOptOut = MoreCollections.filter(userExpectedContent, IS_NOT_SYNCABLE);
-        final Collection<Urn> downloadableUrns = MoreCollections.transform(downloadable, TO_URN);
 
         final List<Urn> requested = getDownloadRequests();
         final List<Urn> downloaded = getDownloaded();

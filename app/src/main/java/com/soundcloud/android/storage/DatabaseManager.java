@@ -19,7 +19,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 59;
+    public static final int DATABASE_VERSION = 61;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -78,7 +78,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.TrackDownloads.TABLE.name(), db);
         dropTable(Tables.OfflineContent.TABLE.name(), db);
         dropTable(LegacyTables.RecentStations.TABLE.name(), db);
-        dropTable(Tables.Shortcuts.TABLE.name(), db);
+
         // legacy tables
         for (Table t : Table.values()) {
             SchemaMigrationHelper.drop(t, db);
@@ -169,6 +169,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 59:
                             success = upgradeTo59(db, oldVersion);
                             break;
+                        case 60:
+                            success = upgradeTo60(db, oldVersion);
+                            break;
+                        case 61:
+                            success = upgradeTo61(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -240,11 +246,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             migratePolicies(db);
 
             SchemaMigrationHelper.alterColumns(Table.Sounds, db);
-            SchemaMigrationHelper.recreate(Table.SoundView, db);
-            SchemaMigrationHelper.recreate(Table.SoundAssociationView, db);
-            SchemaMigrationHelper.recreate(Table.PlaylistTracksView, db);
-            SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
-            SchemaMigrationHelper.recreate(Table.ActivityView, db);
+            recreateSoundDependentViews(db);
 
             return true;
         } catch (SQLException exception) {
@@ -538,6 +540,37 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Adds the FULL_DURATION to the sounds table
+     */
+    private static boolean upgradeTo60(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.alterColumns(Table.Sounds, db);
+            recreateSoundDependentViews(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 60);
+        }
+        return false;
+    }
+
+    /**
+     * Adds QUERY_URN & SOURCE_URN to the PlayQueue table
+     * Adds the QUERY_URN column to the StationsPlayQueues table
+     */
+    private static boolean upgradeTo61(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable(Tables.PlayQueue.TABLE.name(), db);
+            dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
+            db.execSQL(Tables.PlayQueue.SQL);
+            db.execSQL(Tables.StationsPlayQueues.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 61);
+        }
+        return false;
+    }
+
     private static void migratePolicies(SQLiteDatabase db) {
         final List<String> oldSoundColumns = Arrays.asList(
                 "_id", "monetizable", "policy");
@@ -554,5 +587,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
         final String message =
                 String.format(Locale.US, "error during upgrade%d (from %d)", newVersion, oldVersion);
         ErrorUtils.handleSilentException(message, exception);
+    }
+
+    private static void recreateSoundDependentViews(SQLiteDatabase db) {
+        SchemaMigrationHelper.recreate(Table.SoundView, db);
+        SchemaMigrationHelper.recreate(Table.SoundAssociationView, db);
+        SchemaMigrationHelper.recreate(Table.PlaylistTracksView, db);
+        SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
+        SchemaMigrationHelper.recreate(Table.ActivityView, db);
     }
 }

@@ -1,12 +1,12 @@
 package com.soundcloud.android.events;
 
 import com.appboy.ui.support.StringUtils;
-import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -201,28 +201,28 @@ public final class UIEvent extends TrackingEvent {
                 .putPromotedItemKeys(promotedSourceInfo);
     }
 
-    public static UIEvent fromAudioAdClick(PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
+    public static UIEvent fromAudioAdClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
         return fromAudioAdCompanionDisplayClick(audioAd, audioAdTrack, user, trackSourceInfo, System.currentTimeMillis());
     }
 
-    public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
+    public static UIEvent fromSkipAudioAdClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
         return fromSkipAudioAdClick(audioAd, audioAdTrack, user, trackSourceInfo, System.currentTimeMillis());
     }
 
     @VisibleForTesting
-    public static UIEvent fromAudioAdCompanionDisplayClick(PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
+    public static UIEvent fromAudioAdCompanionDisplayClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(KIND_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
-                .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.COMPANION_URN))
-                .<UIEvent>put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString())
-                .<UIEvent>put(AdTrackingKeys.KEY_CLICK_THROUGH_URL, audioAd.get(AdProperty.CLICK_THROUGH_LINK).toString())
-                .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.get(AdProperty.AD_CLICKTHROUGH_URLS));
+                .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.getVisualAd().getAdUrn())
+                .<UIEvent>put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString())
+                .<UIEvent>put(AdTrackingKeys.KEY_CLICK_THROUGH_URL, audioAd.getVisualAd().getClickThroughUrl().toString())
+                .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.getVisualAd().getClickUrls());
     }
 
     @VisibleForTesting
-    public static UIEvent fromSkipAudioAdClick(PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
+    public static UIEvent fromSkipAudioAdClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(KIND_SKIP_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
-                .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_URN))
-                .addPromotedTrackingUrls(SKIPS, audioAd.get(AdProperty.AD_SKIP_URLS));
+                .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.getAdUrn())
+                .addPromotedTrackingUrls(SKIPS, audioAd.getSkipUrls());
     }
 
     public static UIEvent fromCreatePlaylist(EntityMetadata metadata) {
@@ -230,12 +230,12 @@ public final class UIEvent extends TrackingEvent {
                 .putPlayableMetadata(metadata);
     }
 
-    private static UIEvent withBasicAudioAdAttributes(UIEvent event, PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
+    private static UIEvent withBasicAudioAdAttributes(UIEvent event, AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
         return event
                 .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, audioAdTrack.toString())
                 .put(AdTrackingKeys.KEY_USER_URN, user.toString())
-                .put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
-                .put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString())
+                .put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.getMonetizableTrackUrn().toString())
+                .put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString())
                 .put(AdTrackingKeys.KEY_AD_TRACK_URN, audioAdTrack.toString())
                 .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
     }
@@ -305,6 +305,26 @@ public final class UIEvent extends TrackingEvent {
             return sourceInfo.getSource();
         } else {
             return StringUtils.EMPTY_STRING;
+        }
+    }
+
+    public Optional<Urn> getClickSourceUrn() {
+        final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
+
+        if (sourceInfo != null && sourceInfo.hasCollectionUrn()) {
+            return Optional.of(sourceInfo.getCollectionUrn());
+        } else {
+            return Optional.absent();
+        }
+    }
+
+    public Optional<Urn> getQueryUrn() {
+        final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
+
+        if (sourceInfo != null && sourceInfo.hasStationsSourceInfo()) {
+            return Optional.of(sourceInfo.getStationsSourceInfo().getQueryUrn());
+        } else {
+            return Optional.absent();
         }
     }
 

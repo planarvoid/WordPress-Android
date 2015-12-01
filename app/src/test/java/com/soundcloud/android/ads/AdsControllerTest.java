@@ -12,12 +12,14 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -55,7 +57,6 @@ public class AdsControllerTest extends AndroidUnitTest {
     private static final PropertySet CURRENT_MONETIZABLE_PROPERTY_SET = PropertySet.from(TrackProperty.URN.bind(CURRENT_TRACK_URN), TrackProperty.MONETIZABLE.bind(true));
     private static final PropertySet NEXT_TRACK_MONETIZABLE_PROPERTY_SET = PropertySet.from(TrackProperty.URN.bind(NEXT_TRACK_URN), TrackProperty.MONETIZABLE.bind(true));
     private static final PropertySet NEXT_TRACK_NON_MONETIZABLE_PROPERTY_SET = PropertySet.from(TrackProperty.URN.bind(NEXT_TRACK_URN), TrackProperty.MONETIZABLE.bind(false));
-
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
@@ -95,8 +96,8 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(trackRepository.track(CURRENT_TRACK_URN)).thenReturn(Observable.just(CURRENT_MONETIZABLE_PROPERTY_SET));
         when(adsOperations.ads(CURRENT_TRACK_URN)).thenReturn(Observable.just(apiAdsForTrack));
         adsController.subscribe();
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(CURRENT_TRACK_URN, apiAdsForTrack.interstitialAd().get().toPropertySet()), Urn.NOT_SET, 0));
+        final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(CURRENT_TRACK_URN, InterstitialAd.create(apiAdsForTrack.interstitialAd().get(), CURRENT_TRACK_URN));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
 
         verify(adsOperations).applyInterstitialToTrack(CURRENT_TRACK_URN, apiAdsForTrack);
     }
@@ -482,14 +483,14 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void playStateChangeEventForAudioAdEndingSetsUpLeaveBehind() throws Exception {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
-        final PropertySet monetizableProperties = PropertySet.create();
-        when(adsOperations.getMonetizableTrackMetaData()).thenReturn(monetizableProperties);
+        final LeaveBehindAd monetizableAdData = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
+        when(adsOperations.getMonetizableTrackAdData()).thenReturn(Optional.<AdData>of(monetizableAdData));
 
         adsController.subscribe();
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.complete());
 
-        assertThat(monetizableProperties.get(LeaveBehindProperty.META_AD_COMPLETED)).isTrue();
+        assertThat(monetizableAdData.isMetaAdCompleted()).isTrue();
     }
 
     @Test
@@ -518,7 +519,8 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(adsOperations.ads(NEXT_TRACK_URN)).thenReturn(Observable.just(apiAdsForTrack));
 
         adsController.subscribe();
+        final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(CURRENT_TRACK_URN, AudioAd.create(apiAdsForTrack.audioAd().get(), CURRENT_TRACK_URN));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(CURRENT_TRACK_URN, apiAdsForTrack.audioAd().get().toPropertySet()), Urn.NOT_SET, 0));
+                CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
     }
 }

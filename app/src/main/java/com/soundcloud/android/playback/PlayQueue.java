@@ -1,22 +1,27 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
+
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.java.collections.Lists.transform;
 
 public class PlayQueue implements Iterable<PlayQueueItem> {
 
@@ -54,15 +59,15 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return playQueueItems.get(position);
     }
 
-    public void insertTrack(int position, Urn trackUrn, PropertySet metaData, boolean shouldPersist) {
+    public void insertAudioAd(int position, Urn trackUrn, AudioAd adData, boolean shouldPersist) {
         insertPlayQueueItem(position, new TrackQueueItem.Builder(trackUrn)
-                .withAdData(metaData)
+                .withAdData(adData)
                 .persist(shouldPersist)
                 .build());
     }
 
-    public void insertVideo(int position, PropertySet metaData) {
-        insertPlayQueueItem(position, new VideoQueueItem(metaData));
+    public void insertVideo(int position, VideoAd videoAd) {
+        insertPlayQueueItem(position, new VideoQueueItem(videoAd));
     }
 
     public boolean hasPreviousItem(int position) {
@@ -136,14 +141,14 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).shouldPersist();
     }
 
-    public PropertySet getMetaData(int position) {
+    public Optional<AdData> getAdData(int position) {
         checkElementIndex(position, size());
-        return playQueueItems.get(position).getMetaData();
+        return playQueueItems.get(position).getAdData();
     }
 
-    public void setMetaData(int position, PropertySet metadata) {
+    public void setAdData(int position, Optional<AdData> adData) {
         checkElementIndex(position, size());
-        playQueueItems.get(position).setMetaData(metadata);
+        playQueueItems.get(position).setAdData(adData);
     }
 
     public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource) {
@@ -152,12 +157,17 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return fromTrackUrnList(shuffled, playSessionSource);
     }
 
-    public static PlayQueue fromStation(Urn stationUrn, List<Urn> tracks) {
+    public static PlayQueue fromStation(Urn stationUrn, List<StationTrack> stationTracks) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
-        for (Urn track : tracks) {
-            final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(track)
+        for (StationTrack stationTrack : stationTracks) {
+            final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(stationTrack.getTrackUrn())
                     .relatedEntity(stationUrn)
-                    .fromSource(PlaySessionSource.DiscoverySource.STATIONS.value(), DEFAULT_SOURCE_VERSION);
+                    .fromSource(
+                            PlaySessionSource.DiscoverySource.STATIONS.value(),
+                            DEFAULT_SOURCE_VERSION,
+                            stationUrn,
+                            stationTrack.getQueryUrn()
+                    );
             playQueueItems.add(builder.build());
         }
         return new PlayQueue(playQueueItems);
@@ -199,8 +209,6 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     private static List<PlayQueueItem> playQueueItemsFromIds(List<Urn> trackIds,
                                                              final PlaySessionSource playSessionSource) {
-
-
         return newArrayList(transform(trackIds, new Function<Urn, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Urn track) {

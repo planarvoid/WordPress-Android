@@ -47,18 +47,6 @@ public class PlaybackProgress {
         return position;
     }
 
-    public float getProgressProportion() {
-        if (duration == 0) {
-            return 0.0f;
-        } else {
-            return ((float) position) / duration;
-        }
-    }
-
-    public long getTimeLeft() {
-        return Math.max(duration - position, 0L);
-    }
-
     public long getTimeSinceCreation() {
         return dateProvider.getCurrentTime() - createdAt;
     }

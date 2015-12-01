@@ -20,6 +20,7 @@ public class ActivitiesFragment extends LightCycleSupportFragment implements Ref
     @Inject @LightCycle ActivitiesPresenter presenter;
 
     public ActivitiesFragment() {
+        setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 

@@ -15,7 +15,6 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,7 +24,7 @@ import rx.subjects.Subject;
 import android.app.Activity;
 
 public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
-    private final PlayQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(Urn.forTrack(123L), TestPropertySets.audioAdProperties(Urn.forTrack(123L)));
+    private final PlayQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L)));
     private final CurrentPlayQueueItemEvent CURRENT_TRACK_CHANGED_EVENT = CurrentPlayQueueItemEvent.fromPositionChanged(PLAY_QUEUE_ITEM, Urn.NOT_SET, 0);
     private final PlayerUIEvent PLAYER_EXPANDED_EVENT = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED_EVENT = PlayerUIEvent.fromPlayerCollapsed();
@@ -34,11 +33,9 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private Activity activity;
     @Mock private AdsOperations adsOperations;
-    private TestEventBus eventBus;
     private ActivityLifeCycleEvent activityResumeEvent;
     private ActivityLifeCycleEvent activityPauseEvent;
 
-    private VisualAdImpressionOperations controller;
     private TestSubscriber<Object> subscriber;
 
     private Subject<CurrentPlayQueueItemEvent, CurrentPlayQueueItemEvent> currentTrackQueue;
@@ -47,8 +44,8 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        eventBus = new TestEventBus();
-        controller = new VisualAdImpressionOperations(eventBus, playQueueManager, accountOperations, adsOperations);
+        TestEventBus eventBus = new TestEventBus();
+        VisualAdImpressionOperations controller = new VisualAdImpressionOperations(eventBus, playQueueManager, accountOperations, adsOperations);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         currentTrackQueue = eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);

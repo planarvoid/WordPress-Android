@@ -11,6 +11,7 @@ import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
@@ -28,6 +29,7 @@ import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackServiceModule;
+import com.soundcloud.android.playback.StreamPreloader;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
@@ -39,6 +41,7 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.stations.StationsController;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
@@ -47,6 +50,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -64,6 +68,8 @@ import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.File;
 
 public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
@@ -84,6 +90,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     @Inject MigrationEngine migrationEngine;
     @Inject EventBus eventBus;
+    @Inject NetworkConnectivityListener networkConnectivityListener;
     @Inject ScModelManager modelManager;
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
@@ -103,9 +110,11 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject AdIdHelper adIdHelper;
     @Inject CastSessionController castSessionController;
     @Inject StationsController stationsController;
-    @Inject FacebookSdk facebookSdk;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
     @Inject EncryptionTester encryptionTester;
+    @Inject AppboyPlaySessionState appboyPlaySessionState;
+    @Inject StreamPreloader streamPreloader;
+    @Inject @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -153,12 +162,12 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         uncaughtExceptionHandlerController.reportSystemMemoryStats();
 
-        IOUtils.createCacheDirs();
+        IOUtils.createCacheDirs(streamCacheDirectory);
 
         analyticsEngine.onAppCreated(this);
 
         // initialise skippy so it can do it's expensive one-shot ops
-        skippyFactory.create().preload(this);
+        skippyFactory.create().preload();
 
         imageOperations.initialise(this, applicationProperties);
 
@@ -167,14 +176,14 @@ public class SoundCloudApplication extends MultiDexApplication {
         setupCurrentUserAccount();
         generateDeviceKey();
 
-        playlistTagStorage.resetPopularTags();
-
+        networkConnectivityListener.startListening();
         widgetController.subscribe();
         peripheralsController.subscribe();
         playSessionController.subscribe();
         playSessionStateProvider.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();
+        appboyPlaySessionState.subscribe();
         castSessionController.startListening();
 
         if (featureFlags.isEnabled(Flag.FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB)) {
@@ -189,8 +198,12 @@ public class SoundCloudApplication extends MultiDexApplication {
             dailyUpdateScheduler.schedule();
         }
 
+        if (featureFlags.isEnabled(Flag.PRELOAD_NEXT_TRACK)) {
+            streamPreloader.subscribe();
+        }
+
         configurationFeatureController.subscribe();
-        facebookSdk.sdkInitialize(getApplicationContext());
+        FacebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();
     }
 

@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,14 +25,12 @@ public class RecommendationItemRendererTest extends AndroidUnitTest {
 
     @Mock private ImageOperations imagesOperations;
 
-    private RecommendationItem recommendationItem;
-    private PropertySet propertySet;
     private View itemView;
     private List<RecommendationItem> recommendationItems;
 
     @Before
     public void setUp() {
-        propertySet = PropertySet.from(
+        PropertySet propertySet = PropertySet.from(
                 RecommendationProperty.SEED_TRACK_URN.bind(Urn.forTrack(123)),
                 RecommendationProperty.SEED_TRACK_TITLE.bind("seed_title"),
                 RecommendationProperty.REASON.bind(RecommendationReason.LIKED),
@@ -42,10 +39,12 @@ public class RecommendationItemRendererTest extends AndroidUnitTest {
                 RecommendedTrackProperty.TITLE.bind("recommendation_title"),
                 RecommendedTrackProperty.USERNAME.bind("username")
         );
-        recommendationItem = new RecommendationItem(propertySet);
+
+        final RecommendationItem recommendationItem = new RecommendationItem(propertySet);
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
+
         itemView = layoutInflater.inflate(R.layout.recommendation_item, new FrameLayout(context()), false);
-        recommendationItems = new ArrayList(Collections.singletonList(recommendationItem));
+        recommendationItems = Collections.singletonList(recommendationItem);
         renderer = new RecommendationItemRenderer(context().getResources(), imagesOperations);
     }
 
@@ -53,7 +52,7 @@ public class RecommendationItemRendererTest extends AndroidUnitTest {
     public void shouldBindTitleToView() {
         renderer.bindItemView(0, itemView, recommendationItems);
 
-        assertThat(textView(R.id.title)).containsText("recommendation_title");
+        assertThat(textView(R.id.track_title)).containsText("recommendation_title");
     }
 
     @Test

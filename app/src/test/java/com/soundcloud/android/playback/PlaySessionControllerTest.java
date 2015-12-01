@@ -1,56 +1,5 @@
 package com.soundcloud.android.playback;
 
-import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.util.DisplayMetrics;
-
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdConstants;
-import com.soundcloud.android.ads.AdsController;
-import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.settings.SettingKey;
-import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.InjectionSupport;
-import com.soundcloud.android.testsupport.TestUrns;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.utils.DisplayMetricsStub;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Predicate;
-import com.soundcloud.rx.eventbus.TestEventBus;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.subjects.PublishSubject;
-
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -63,6 +12,57 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdsController;
+import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.settings.SettingKey;
+import com.soundcloud.android.stations.StationTrack;
+import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.InjectionSupport;
+import com.soundcloud.android.testsupport.TestUrns;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.DisplayMetricsStub;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.rx.eventbus.TestEventBus;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import rx.Observable;
+import rx.observers.TestSubscriber;
+import rx.subjects.PublishSubject;
+
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.util.DisplayMetrics;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class PlaySessionControllerTest extends AndroidUnitTest {
     private final PlayQueue recommendedPlayQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), PlaySessionSource.EMPTY);
     private final Urn LAST_URN = Urn.forTrack(987L);
@@ -70,7 +70,6 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     private PlayQueueItem trackPlayQueueItem;
     private Urn trackUrn;
     private PropertySet track;
-    private PropertySet trackWithAdMeta;
     private Bitmap bitmap;
     private DisplayMetrics displayMetrics = new DisplayMetricsStub();
     private TestEventBus eventBus = new TestEventBus();
@@ -103,8 +102,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                 sharedPreferences, networkConnectionHelper, InjectionSupport.providerOf(playbackStrategy), playbackToastHelper, accountOperations, stationsOperations);
         controller.subscribe();
 
-        track = expectedTrackForPlayer();
-        trackWithAdMeta = audioAdProperties(Urn.forTrack(123L)).merge(track);
+        track = expectedTrackForPlayer().put(AdProperty.IS_AUDIO_AD, false);
         trackUrn = track.get(TrackProperty.URN);
         trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn);
 
@@ -152,6 +150,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(previousPlayQueueItem, Urn.NOT_SET, 0));
         Mockito.reset(playbackStrategy);
+        when(playbackStrategy.playCurrent()).thenReturn(Observable.<Void>just(null));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(newPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playbackStrategy).playCurrent();
@@ -161,9 +160,9 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void playQueueTrackChangeWhenCastingDoesNotPlayTrackWhenCurrentTrackStaysTheSame() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
+
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         Mockito.reset(playbackStrategy);
-
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playbackStrategy, never()).playCurrent();
@@ -193,10 +192,11 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(imageOperations.artwork(trackUrn, ApiImageSize.T500)).thenReturn(Observable.just(bitmap));
 
         InOrder inOrder = Mockito.inOrder(audioManager);
-        trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn, audioAdProperties(Urn.forTrack(123L)));
+        trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn, AdFixtures.getAudioAd(Urn.forTrack(123L)));
+        track.put(AdProperty.IS_AUDIO_AD, true);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
-        inOrder.verify(audioManager).onTrackChanged(eq(trackWithAdMeta), eq(((Bitmap) null)));
-        inOrder.verify(audioManager).onTrackChanged(eq(trackWithAdMeta), any(Bitmap.class));
+        inOrder.verify(audioManager).onTrackChanged(eq(track), eq(((Bitmap) null)));
+        inOrder.verify(audioManager).onTrackChanged(eq(track), any(Bitmap.class));
     }
 
     @Test
@@ -348,7 +348,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void appendsStationsTracksWhenAtTheEndOfAStationsPlayQueue() {
         final Urn station = Urn.forTrackStation(123L);
-        final PlayQueue playQueue = PlayQueue.fromStation(station, Collections.singletonList(trackUrn));
+        final PlayQueue playQueue = PlayQueue.fromStation(station, Collections.singletonList(StationTrack.create(trackUrn, Urn.NOT_SET)));
         final int queueSize = PlaySessionController.RECOMMENDED_LOAD_TOLERANCE;
 
         when(playQueueManager.getQueueSize()).thenReturn(queueSize);
@@ -512,7 +512,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentWhenEmptyCallsLoadsQueueBeforePlayingCurrentOnPlaybackStrategy() {
-        final PublishSubject<PlayQueue> subject = PublishSubject.<PlayQueue>create();
+        final PublishSubject<PlayQueue> subject = PublishSubject.create();
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
         when(playQueueManager.loadPlayQueueAsync()).thenReturn(subject);
 
@@ -767,7 +767,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(track), playSessionSource);
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.just(PlaybackResult.success()));
 
-        controller.playNewQueue(playQueue, track, 0, false, playSessionSource)
+        controller.playNewQueue(playQueue, track, 0, playSessionSource)
                 .subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
@@ -780,7 +780,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         Urn track = Urn.forTrack(123L);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, false, PlaySessionSource.EMPTY)
+        controller.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
                 .subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
@@ -796,7 +796,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, false, PlaySessionSource.EMPTY)
+        controller.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
                 .subscribe(subscriber);
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
@@ -817,7 +817,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
 
-        controller.playNewQueue(playQueue, track, 0, false, playSessionSource).subscribe(new TestSubscriber<PlaybackResult>());
+        controller.playNewQueue(playQueue, track, 0, playSessionSource).subscribe(new TestSubscriber<PlaybackResult>());
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
     }
@@ -848,7 +848,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.just(PlaybackResult.success()));
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(playQueue, track, 0, false, playSessionSource)
+        controller.playNewQueue(playQueue, track, 0, playSessionSource)
                 .subscribe(subscriber);
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
@@ -856,7 +856,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void reloadPlayQueueIfEmptyDoesNotReloadQueueIfQueueNotEmpty() {
-        final PublishSubject<PlayQueue> subject = PublishSubject.<PlayQueue>create();
+        final PublishSubject<PlayQueue> subject = PublishSubject.create();
         when(playQueueManager.loadPlayQueueAsync()).thenReturn(subject);
 
         controller.reloadQueueAndShowPlayerIfEmpty();
@@ -866,7 +866,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void reloadPlayQueueReloadsIfQueueEmpty() {
-        final PublishSubject<PlayQueue> subject = PublishSubject.<PlayQueue>create();
+        final PublishSubject<PlayQueue> subject = PublishSubject.create();
         when(playQueueManager.loadPlayQueueAsync()).thenReturn(subject);
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
 
@@ -877,13 +877,13 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     private void setupSetNewQueue(Urn track, PlaySessionSource playSessionSource, PlayQueue playQueue, Observable<PlaybackResult> result) {
-        when(playbackStrategy.setNewQueue(playQueue, track, 0, false, playSessionSource))
+        when(playbackStrategy.setNewQueue(playQueue, track, 0, playSessionSource))
                 .thenReturn(result);
     }
 
     private void setupAdInProgress(long currentProgress) {
         final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000);
-        final PropertySet adData = TestPropertySets.audioAdProperties(Urn.forTrack(456L));
+        final AudioAd adData = AdFixtures.getAudioAd(Urn.forTrack(456L));
         final PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), adData);
 
         when(playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack()).thenReturn(progress);

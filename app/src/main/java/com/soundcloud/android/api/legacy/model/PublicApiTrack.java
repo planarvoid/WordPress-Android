@@ -209,6 +209,10 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         this.stream_url = streamUrl;
     }
 
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
     @Override
     public boolean isSyncable() {
         return false;
@@ -331,6 +335,11 @@ public class PublicApiTrack extends Playable implements TrackRecord {
 
     @Override
     public long getDuration() {
+        return duration;
+    }
+
+    @Override
+    public long getFullDuration() {
         return duration;
     }
 
@@ -587,6 +596,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         apiTrack.setArtworkUrl(artwork_url);
         apiTrack.setCommentable(commentable);
         apiTrack.setDuration(duration);
+        apiTrack.setFullDuration(duration);
         apiTrack.setGenre(genre);
         apiTrack.setMonetizable(isMonetizable());
         apiTrack.setPermalinkUrl(permalink_url);

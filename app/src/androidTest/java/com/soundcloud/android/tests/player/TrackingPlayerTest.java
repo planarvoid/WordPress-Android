@@ -39,7 +39,7 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
         startEventTracking();
 
         final VisualPlayerElement playerElement =
-                streamScreen.clickFirstNotPromotedTrack();
+                streamScreen.clickFirstNotPromotedTrackCard();
 
         assertThat(playerElement, is(visible()));
         assertThat(playerElement, is(playing()));

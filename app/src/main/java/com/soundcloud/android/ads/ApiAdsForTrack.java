@@ -1,16 +1,21 @@
 package com.soundcloud.android.ads;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.VisibleForTesting;
 
 import java.util.List;
+import java.util.Map;
 
 class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> {
 
-    public ApiAdsForTrack() {
-        // for deserialization
+    public ApiAdsForTrack(@JsonProperty("collection") List<ApiAdWrapper> collection,
+                          @JsonProperty("_links") Map<String, Link> links,
+                          @JsonProperty("query_urn") String queryUrn) {
+        super(collection, links, queryUrn);
     }
 
     @VisibleForTesting

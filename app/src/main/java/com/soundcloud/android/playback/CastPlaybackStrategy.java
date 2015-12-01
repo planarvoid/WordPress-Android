@@ -37,7 +37,6 @@ public class CastPlaybackStrategy implements PlaybackStrategy {
     public Observable<PlaybackResult> setNewQueue(final PlayQueue playQueue,
                                                   Urn initialTrackUrn,
                                                   int initialTrackPosition,
-                                                  boolean loadRelated,
                                                   PlaySessionSource playSessionSource) {
         // TODO: Should eventually refactor to use the playQueue instead of a list of Urn
         return castPlayer.setNewQueue(playQueue.getTrackItemUrns(), initialTrackUrn, playSessionSource);

@@ -6,6 +6,9 @@
     <string name="dev_drawer_category_actions_key">actions</string>
     <string name="dev_drawer_category_actions_title">Actions</string>
 
+    <string name="dev_drawer_action_get_oauth_token_to_clipboard_key">get_oauth_token</string>
+    <string name="dev_drawer_action_get_oauth_token_to_clipboard_title">Get OAuth Token</string>
+
     <string name="dev_drawer_action_kill_app_key">kill_process</string>
     <string name="dev_drawer_action_kill_app_title">Kill Process</string>
 
@@ -15,19 +18,13 @@
     <string name="dev_drawer_action_policy_sync_key">policy_sync</string>
     <string name="dev_drawer_action_policy_sync_title">Force sync policies</string>
 
-    <string name="dev_drawer_action_clear_notifications_key">clear_notifications</string>
-    <string name="dev_drawer_action_clear_notifications_title">Clear Notifications</string>
-
-    <string name="dev_drawer_action_rewind_notifications_key">rewind_notifications</string>
-    <string name="dev_drawer_action_rewind_notifications_title">Rewind Notifications</string>
-
-    <string name="dev_drawer_action_sync_now_key">sync_now</string>
-    <string name="dev_drawer_action_sync_now_title">Sync Now</string>
-
     <string name="dev_drawer_action_crash_key">crash</string>
     <string name="dev_drawer_action_crash_title">Crash the app</string>
 
     <string name="dev_drawer_flush_eventlogger_instantly_key">dev.flushEventloggerInstantly</string>
     <string name="dev_drawer_flush_eventlogger_instantly_title">Flush Eventlogger Instantly</string>
+
+    <string name="dev_oauth_token_copied">OAuth token copied to clipboard</string>
+
 
 </resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+            android:key="@string/key_notifications_wifi_only"
+            android:title="@string/pref_notifications_wifi_only"
+            android:summary="@string/pref_notifications_wifi_only_description"
+            android:defaultValue="false" />
+    <ListPreference
+            android:key="@string/key_notifications_frequency"
+            android:title="@string/pref_notifications_frequency"
+            android:summary="@string/pref_notifications_frequency_description"
+            android:defaultValue="14400000"
+            android:entries="@array/pref_notifications_frequency_entries"
+            android:entryValues="@array/pref_notifications_frequency_values"/>
+    <PreferenceCategory android:title="@string/pref_notifications_stream">
+        <SwitchPreference
+                android:key="@string/key_notifications_incoming"
+                android:title="@string/pref_notifications_incoming"
+                android:summary="@string/pref_notifications_incoming_description"
+                android:defaultValue="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_notifications_activity">
+        <SwitchPreference
+                android:key="@string/key_notifications_favoritings"
+                android:title="@string/pref_notifications_likes"
+                android:summary="@string/pref_notifications_likes_description"
+                android:defaultValue="true" />
+
+        <SwitchPreference
+                android:key="@string/key_notifications_comments"
+                android:title="@string/pref_notifications_comments"
+                android:summary="@string/pref_notifications_comments_description"
+                android:defaultValue="true" />
+
+        <SwitchPreference
+                android:key="@string/key_notifications_reposts"
+                android:title="@string/pref_notifications_reposts"
+                android:summary="@string/pref_notifications_reposts_description"
+                android:defaultValue="true" />
+
+        <SwitchPreference
+                android:key="@string/key_notifications_followers"
+                android:title="@string/pref_notifications_followers"
+                android:summary="@string/pref_notifications_followers_description"
+                android:defaultValue="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -4,7 +4,6 @@ import static com.soundcloud.android.settings.SettingKey.CLEAR_CACHE;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.settings.ClearCacheDialog;
-import com.soundcloud.android.settings.SettingsFragment;
 
 import android.os.Bundle;
 import android.preference.Preference;

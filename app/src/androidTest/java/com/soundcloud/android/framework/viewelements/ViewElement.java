@@ -3,6 +3,7 @@ package com.soundcloud.android.framework.viewelements;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
+import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.Tabs;
 
@@ -65,4 +66,6 @@ public abstract class ViewElement {
     /* package */ abstract Han getTestDriver();
 
     abstract public List<ViewElement> getChildren();
+
+    public abstract boolean isElementDisplayed(With id);
 }

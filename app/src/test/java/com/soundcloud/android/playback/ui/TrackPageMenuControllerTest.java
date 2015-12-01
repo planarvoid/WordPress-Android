@@ -22,6 +22,7 @@ import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -153,16 +154,9 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     public void displayScrubPositionSetsCommentTimeInMenu() {
         controller.setProgress(new PlaybackProgress(20000, 40000));
 
-        controller.displayScrubPosition(0.75f);
+        controller.displayScrubPosition(0.75f, 1.1f);
 
-        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:30");
-    }
-
-    @Test
-    public void displayScrubPositionSetsCommentTimeInMenuWithoutPlayback() {
-        controller.displayScrubPosition(0.5f);
-
-        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:10");
+        verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:20");
     }
 
     @Test
@@ -177,6 +171,17 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.show();
 
         verify(popupMenuWrapper, never()).show();
+    }
+
+    @Test
+    public void shouldHideCommentOptionWhenTrackIsNotCommentable() {
+        verify(popupMenuWrapper).setItemVisible(R.id.comment, true);
+
+        final PropertySet notCommentable = TestPropertySets.expectedTrackForPlayer().put(TrackProperty.IS_COMMENTABLE, false);
+        track = new PlayerTrackState(notCommentable, false, false, null);
+        controller.setTrack(track);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.comment, false);
     }
 
     private MenuItem mockMenuItem(int menuteItemId) {

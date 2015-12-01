@@ -272,7 +272,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
                 PlayableProperty.URN.bind(Urn.forTrack(recommendedTrack.getId())),
                 PlayableProperty.TITLE.bind(recommendedTrack.getTitle()),
                 PlayableProperty.CREATOR_NAME.bind(recommendedTrack.getUserName()),
-                PlayableProperty.DURATION.bind(recommendedTrack.getDuration()),
+                PlayableProperty.PLAY_DURATION.bind(recommendedTrack.getDuration()),
                 TrackProperty.PLAY_COUNT.bind(recommendedTrack.getPlaybackCount()),
                 PlayableProperty.LIKES_COUNT.bind(recommendedTrack.getLikesCount()),
                 PlayableProperty.CREATED_AT.bind(recommendedTrack.getCreatedAt())

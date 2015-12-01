@@ -43,6 +43,7 @@ import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -95,6 +96,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.shareOperations = shareOperations;
     }
 
+    @VisibleForTesting
     void bindView(View rootView) {
         bindView(rootView, new OriginProvider() {
             @Override
@@ -128,6 +130,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         offlineStateSubscription.unsubscribe();
     }
 
+    @VisibleForTesting
     void setOriginProvider(OriginProvider originProvider) {
         this.originProvider = originProvider;
     }

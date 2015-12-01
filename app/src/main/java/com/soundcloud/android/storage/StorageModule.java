@@ -1,5 +1,6 @@
 package com.soundcloud.android.storage;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
@@ -15,10 +16,12 @@ import android.database.sqlite.SQLiteDatabase;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.io.File;
 
 @Module(complete = false, library = true)
 public class StorageModule {
 
+    public static final String STREAM_CACHE_DIRECTORY = "StreamCacheDirectory";
     public static final String PLAYLIST_TAGS = "PlaylistTags";
     public static final String DEVICE_MANAGEMENT = "DeviceManagement";
     public static final String PAYMENTS = "Payments";
@@ -50,6 +53,12 @@ public class StorageModule {
     private static final String PREFS_COLLECTIONS = "collections";
     private static final String PREFS_STATIONS = "stations";
     private static final String PREFS_SYNCER = "syncer";
+
+    @Provides
+    @Named(STREAM_CACHE_DIRECTORY)
+    public File provideStreamCacheDirectory() {
+        return new File(Consts.FILES_PATH, "skippy");
+    }
 
     @Provides
     public ContentResolver provideContentResolver(SoundCloudApplication application) {

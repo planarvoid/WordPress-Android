@@ -6,6 +6,7 @@ import butterknife.OnClick;
 import com.soundcloud.android.R;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.SpannableString;
 import android.view.View;
 import android.widget.ImageView;
@@ -31,9 +32,10 @@ public class StreamItemViewHolder {
     @Bind(R.id.play_count) TextView playCount;
     @Bind(R.id.playlist_duration) TextView duration;
     @Bind(R.id.toggle_like) ToggleButton likeButton;
-    @Bind(R.id.toggle_repost) ToggleButton repostButton;
     @Bind(R.id.now_playing) View nowPlaying;
     @Bind(R.id.overflow_button) View overflowButton;
+
+    @Nullable @Bind(R.id.toggle_repost) ToggleButton repostButton;
 
     private OverflowListener overflowListener;
     private CardEngagementClickListener clickListener;
@@ -49,7 +51,8 @@ public class StreamItemViewHolder {
         }
     }
 
-    @OnClick(R.id.toggle_repost)
+    // yes this @nullable annotation here is required
+    @Nullable @OnClick(R.id.toggle_repost)
     public void repost() {
         if (clickListener != null) {
             clickListener.onRepostClick(repostButton);
@@ -111,7 +114,10 @@ public class StreamItemViewHolder {
         playCount.setVisibility(View.GONE);
         nowPlaying.setVisibility(View.GONE);
         duration.setVisibility(View.GONE);
-        repostButton.setVisibility(View.GONE);
+
+        if (repostButton != null) {
+            repostButton.setVisibility(View.GONE);
+        }
     }
 
     public void showPlayCount(String countString) {
@@ -139,10 +145,13 @@ public class StreamItemViewHolder {
     }
 
     public void showRepostStats(String repostsCount, boolean isUserReposted) {
-        repostButton.setTextOn(repostsCount);
-        repostButton.setTextOff(repostsCount);
-        repostButton.setChecked(isUserReposted);
-        repostButton.setVisibility(View.VISIBLE);
+        // in some designs repost button is missing
+        if (repostButton != null) {
+            repostButton.setTextOn(repostsCount);
+            repostButton.setTextOff(repostsCount);
+            repostButton.setChecked(isUserReposted);
+            repostButton.setVisibility(View.VISIBLE);
+        }
     }
 
     public void setCreatedAt(String formattedTime) {
@@ -201,4 +210,5 @@ public class StreamItemViewHolder {
 
         void onRepostClick(View repostButton);
     }
+
 }

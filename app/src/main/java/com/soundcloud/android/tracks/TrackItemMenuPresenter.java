@@ -8,9 +8,9 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
@@ -67,7 +67,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private FragmentActivity activity;
     private TrackItem track;
     private PromotedSourceInfo promotedSourceInfo;
-    private OverflowMenuOptions menuOptions;
     private Urn pageUrn;
     private int positionInAdapter;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
@@ -133,7 +132,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         this.removeTrackListener = removeTrackListener;
         this.promotedSourceInfo = promotedSourceInfo;
         this.pageUrn = pageUrn;
-        this.menuOptions = menuOptions;
         loadTrack(setupMenu(button));
     }
 
@@ -156,10 +154,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     }
 
     private void configureAdditionalEngagementsOptions(PopupMenuWrapper menu) {
-        if (featureFlags.isEnabled(Flag.NEW_STREAM) && menuOptions.showAllEngagements()) {
-            menu.setItemVisible(R.id.toggle_repost, canRepost(track));
-            menu.setItemVisible(R.id.share, !track.isPrivate());
-        }
+        menu.setItemVisible(R.id.toggle_repost, canRepost(track));
+        menu.setItemVisible(R.id.share, !track.isPrivate());
     }
 
     private boolean canRepost(TrackItem track) {

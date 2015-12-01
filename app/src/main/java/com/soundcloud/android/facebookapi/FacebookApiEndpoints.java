@@ -2,7 +2,7 @@ package com.soundcloud.android.facebookapi;
 
 
 public enum FacebookApiEndpoints {
-    ME_FRIEND_PICTURES("/me/friends", "picture.type(normal)");
+    ME_FRIEND_PICTURES("/me/friends", "picture.width(100).height(100)");
 
     private final String path;
     private final String fields;

@@ -67,7 +67,7 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
     }
 
     @Override
-    public void displayScrubPosition(float scrubPosition) {
+    public void displayScrubPosition(float actualPosition, float boundedPosition) {
         // no-op
     }
 

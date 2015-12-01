@@ -36,5 +36,4 @@ public class SyncModule {
     TimelineSyncStorage activitiesSyncStorage(@Named(StorageModule.ACTIVITIES_SYNC) SharedPreferences preferences) {
         return new TimelineSyncStorage(preferences);
     }
-
 }

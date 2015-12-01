@@ -1,9 +1,12 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AdFunctions;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.ads.LeaveBehindProperty;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.OverlayAdData;
+import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -12,7 +15,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
@@ -62,14 +65,19 @@ class AdPageListener extends PageListener {
 
     public void onClickThrough() {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
-        final PropertySet audioAd = currentPlayQueueItem.getMetaData();
-        final Urn trackUrn = currentPlayQueueItem.getUrn();
+        final PlayerAdData playerAdData = (PlayerAdData) currentPlayQueueItem.getAdData().get();
+        final Optional<AdData> monetizableAdData = adsOperations.getMonetizableTrackAdData();
 
-        Uri uri = audioAd.get(AdProperty.CLICK_THROUGH_LINK);
-        startActivity(uri);
+        startActivity(playerAdData.getVisualAd().getClickThroughUrl());
 
-        adsOperations.getMonetizableTrackMetaData().put(LeaveBehindProperty.META_AD_CLICKED, true);
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAudioAdClick(audioAd, trackUrn, accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo()));
+        if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
+            ((OverlayAdData) monetizableAdData.get()).setMetaAdClicked();
+        }
+
+        if (AdFunctions.IS_AUDIO_AD_ITEM.apply(currentPlayQueueItem)) {
+            final Urn trackUrn = currentPlayQueueItem.getUrn();
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromAudioAdClick((AudioAd) playerAdData, trackUrn, accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo()));
+        }
     }
 
     public void onAboutAds(Context context) {

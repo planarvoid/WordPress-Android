@@ -1,11 +1,13 @@
 package com.soundcloud.android.tests;
 
+import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.observers.ToastObserver;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
@@ -16,6 +18,7 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.widget.ProgressBar;
 
 /**
  * Base class for activity tests. Sets up robotium (via {@link com.soundcloud.android.framework.Han} and handles
@@ -44,13 +47,13 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     @Override
     protected void setUp() throws Exception {
         solo = new Han(getInstrumentation());
+        solo.registerBusyUiIndicator(With.classSimpleName(ProgressBar.class.getSimpleName().toString()));
         solo.setup();
         waiter = new Waiter(solo);
 
         AccountAssistant.logOut(getInstrumentation());
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
 
-        observeToasts();
         networkManagerClient = new NetworkManagerClient(getInstrumentation().getContext());
 
         testCaseName = String.format("%s.%s", getClass().getName(), getName());
@@ -62,7 +65,9 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
         beforeStartActivity();
         logIn();
+        observeToasts();
         getActivity();
+
 
         mainNavHelper = new MainNavigationHelper(solo);
 

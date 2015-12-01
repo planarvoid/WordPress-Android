@@ -87,18 +87,16 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     @Override
-    public void displayScrubPosition(float scrubPosition) {
-        if (lastProgress.isEmpty()) {
-            updateCommentPosition((long) (scrubPosition * track.getDuration()));
-        } else {
-            updateCommentPosition((long) (scrubPosition * lastProgress.getDuration()));
-        }
+    public void displayScrubPosition(float actualPosition, float boundedPosition) {
+        updateCommentPosition((long) (boundedPosition * track.getFullDuration()));
     }
 
     private void updateCommentPosition(long position) {
         commentPosition = position;
-        final String timestamp = ScTextUtils.formatTimestamp(position, TimeUnit.MILLISECONDS);
-        popupMenuWrapper.setItemText(R.id.comment, String.format(commentAtUnformatted, timestamp));
+        if (track.isCommentable()) {
+            final String timestamp = ScTextUtils.formatTimestamp(position, TimeUnit.MILLISECONDS);
+            popupMenuWrapper.setItemText(R.id.comment, String.format(commentAtUnformatted, timestamp));
+        }
     }
 
     private void setupMenu() {
@@ -184,6 +182,11 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         this.track = track;
         setIsUserRepost(track.isUserRepost());
         setMenuPrivacy(track.isPrivate());
+        setCommentsVisibility(track.isCommentable());
+    }
+
+    private void setCommentsVisibility(boolean isCommentable) {
+        popupMenuWrapper.setItemVisible(R.id.comment, isCommentable);
         updateCommentPosition(lastProgress.getPosition());
     }
 

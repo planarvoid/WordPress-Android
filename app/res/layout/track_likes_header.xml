@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout android:id="@+id/track_likes_header"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    app:layout_scrollFlags="scroll">
+
+    <View style="@style/Divider.Background" />
+
+    <View style="@style/Divider.Section" />
+
+    <LinearLayout
+        style="@style/TrackLikesHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_collapseMode="none"
+        app:layout_scrollFlags="scroll"
+        tools:showIn="@layout/track_likes_fragment">
+
+        <include layout="@layout/downloadable_header" />
+
+        <ImageButton
+            android:id="@+id/shuffle_btn"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/btn_min_height"
+            android:layout_marginLeft="@dimen/likes_shuffle_button_margin_left"
+            android:contentDescription="@string/btn_shuffle"
+            android:enabled="false"
+            android:minWidth="0dp"
+            android:paddingLeft="@dimen/likes_shuffle_button_padding"
+            android:paddingRight="@dimen/likes_shuffle_button_padding"
+            android:src="@drawable/ic_shuffle" />
+
+    </LinearLayout>
+
+    <View style="@style/Divider.Section" />
+
+</LinearLayout>

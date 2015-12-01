@@ -23,6 +23,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
     private ApiUser user;
     private boolean commentable;
     private long duration = Consts.NOT_SET;
+    private long fullDuration = Consts.NOT_SET;
     private String streamUrl;
     private String waveformUrl;
     private List<String> userTags;
@@ -30,6 +31,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
     private String artworkUrl;
     private String permalinkUrl;
     private Sharing sharing = Sharing.UNDEFINED;
+    private Optional<String> description = Optional.absent();
     private ApiTrackStats stats;
 
     private boolean monetizable;
@@ -100,8 +102,17 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
         return duration;
     }
 
+    public long getFullDuration() {
+        return fullDuration;
+    }
+
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    @JsonProperty("full_duration")
+    public void setFullDuration(long fullDuration) {
+        this.fullDuration = fullDuration;
     }
 
     public String getStreamUrl() {
@@ -246,7 +257,11 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
 
     @Override
     public Optional<String> getDescription() {
-        return Optional.absent(); // api-mobile doesn't return track descriptions yet
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = Optional.fromNullable(description);
     }
 
     @JsonProperty("syncable")
@@ -289,6 +304,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
                 .add("user", user)
                 .add("commentable", commentable)
                 .add("duration", duration)
+                .add("fullDuration", fullDuration)
                 .add("streamUrl", streamUrl)
                 .add("waveformUrl", waveformUrl)
                 .add("userTags", userTags)
@@ -308,7 +324,8 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
                 TrackProperty.URN.bind(getUrn()),
                 TrackProperty.TITLE.bind(getTitle()),
                 TrackProperty.CREATED_AT.bind(getCreatedAt()),
-                TrackProperty.DURATION.bind(getDuration()),
+                TrackProperty.PLAY_DURATION.bind(getDuration()),
+                TrackProperty.FULL_DURATION.bind(getFullDuration()),
                 TrackProperty.IS_PRIVATE.bind(isPrivate()),
                 TrackProperty.WAVEFORM_URL.bind(getWaveformUrl()),
                 TrackProperty.PERMALINK_URL.bind(getPermalinkUrl()),

@@ -1,64 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
+<FrameLayout
     android:id="@+id/playlist_list_item"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:foreground="?android:selectableItemBackground">
 
-    <View style="@style/Divider.Section" />
-    <View style="@style/Divider.Background" />
-    <View style="@style/Divider.Section" />
+    <LinearLayout
+        style="@style/Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
-    <include layout="@layout/stream_item_header" />
+        <include layout="@layout/stream_item_header" />
 
-    <RelativeLayout style="@style/Stream.Card">
+        <RelativeLayout style="@style/Stream.Card">
 
-        <com.soundcloud.android.view.ParallaxImageView
-            android:id="@id/image"
-            style="@style/Stream.Image.Playlist" />
+            <com.soundcloud.android.view.ParallaxImageView
+                android:id="@id/image"
+                style="@style/Stream.Image.Playlist" />
 
-        <com.soundcloud.android.view.JaggedTextView
-            android:id="@id/creator"
-            style="@style/Stream.ArtistText"
-            android:layout_alignTop="@id/image"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="16dp"
-            tools:text="Artist" />
+            <com.soundcloud.android.view.JaggedTextView
+                android:id="@id/creator"
+                style="@style/Stream.ArtistText"
+                android:layout_alignTop="@id/image"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="16dp"
+                tools:text="Artist" />
 
-        <com.soundcloud.android.view.JaggedTextView
-            android:id="@id/title"
-            style="@style/Stream.TitleText"
-            android:layout_below="@id/creator"
-            tools:text="Playlist Title"/>
+            <com.soundcloud.android.view.JaggedTextView
+                android:id="@id/title"
+                style="@style/Stream.TitleText"
+                android:layout_below="@id/creator"
+                tools:text="Playlist Title" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/image"
-            android:layout_marginBottom="16dp"
-            android:layout_marginLeft="12dp"
-            android:background="@drawable/circle_playlist_tracks_bg"
-            android:gravity="center"
-            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/image"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/circle_playlist_tracks_bg"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/track_count"
-                style="@style/Stream.PlaylistTracks.Count"
-                tools:text="12" />
+                <TextView
+                    android:id="@+id/track_count"
+                    style="@style/Stream.PlaylistTracks.Count"
+                    tools:text="12" />
 
-            <TextView
-                android:id="@+id/tracks_text"
-                style="@style/Stream.PlaylistTracks.Text"
-                tools:text="TRACKS" />
+                <TextView
+                    android:id="@+id/tracks_text"
+                    style="@style/Stream.PlaylistTracks.Text"
+                    tools:text="TRACKS" />
 
-        </LinearLayout>
+            </LinearLayout>
 
-    </RelativeLayout>
+        </RelativeLayout>
 
-    <include layout="@layout/stream_item_footer" />
+        <include layout="@layout/stream_item_footer" />
 
-</LinearLayout>
+    </LinearLayout>
 
+</FrameLayout>

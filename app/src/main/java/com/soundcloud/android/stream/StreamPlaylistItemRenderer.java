@@ -88,6 +88,6 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     private OverflowMenuOptions getOverflowMenuOptions() {
-        return OverflowMenuOptions.builder().showAllEngagements(true).build();
+        return OverflowMenuOptions.builder().build();
     }
 }

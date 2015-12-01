@@ -16,6 +16,8 @@ public interface TrackRecord  {
 
     long getDuration();
 
+    long getFullDuration();
+
     String getWaveformUrl();
 
     String getStreamUrl();

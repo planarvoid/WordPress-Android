@@ -1,15 +1,17 @@
 package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationFixtures;
+import com.soundcloud.android.stations.StationRecord;
+import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -19,13 +21,11 @@ import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
-import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
@@ -57,6 +57,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Sounds.USER_ID, track.getUser().getUrn().getNumericId());
         cv.put(TableColumns.Sounds.DURATION, track.getDuration());
+        cv.put(TableColumns.Sounds.FULL_DURATION, track.getFullDuration());
         cv.put(TableColumns.Sounds.WAVEFORM_URL, track.getWaveformUrl());
         cv.put(TableColumns.Sounds.STREAM_URL, track.getStreamUrl());
         cv.put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount());
@@ -66,6 +67,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.PERMALINK_URL, track.getPermalinkUrl());
         cv.put(TableColumns.Sounds.SHARING, track.getSharing().value());
         cv.put(TableColumns.Sounds.CREATED_AT, track.getCreatedAt().getTime());
+        cv.put(TableColumns.Sounds.DESCRIPTION, track.getDescription().orNull());
 
         insertInto(Table.Sounds, cv);
         insertPolicy(track);
@@ -349,10 +351,10 @@ public class DatabaseFixtures {
     }
 
     private void insertStationPlayQueue(ApiStation station) {
-        final List<? extends TrackRecord> playQueue = station.getTrackRecords();
+        final List<StationTrack> stationTracks = station.getTracks();
 
-        for (int i = 0; i < playQueue.size(); i++) {
-            final TrackRecord track = playQueue.get(i);
+        for (int i = 0; i < stationTracks.size(); i++) {
+            final StationTrack track = stationTracks.get(i);
             insertInto(StationsPlayQueues.TABLE, getTrackContentValues(i, station, track));
         }
     }
@@ -365,12 +367,13 @@ public class DatabaseFixtures {
                 .put(Stations.PERMALINK, station.getPermalink());
     }
 
-    private ContentValues getTrackContentValues(int position, StationRecord stationInfo, TrackRecord track) {
+    private ContentValues getTrackContentValues(int position, StationRecord stationInfo, StationTrack track) {
         final ContentValuesBuilder trackContentValues = ContentValuesBuilder.values();
         
         trackContentValues.put(StationsPlayQueues.POSITION, position);
         trackContentValues.put(StationsPlayQueues.STATION_URN, stationInfo.getUrn().toString());
-        trackContentValues.put(StationsPlayQueues.TRACK_URN, track.getUrn().toString());
+        trackContentValues.put(StationsPlayQueues.TRACK_URN, track.getTrackUrn().toString());
+        trackContentValues.put(StationsPlayQueues.QUERY_URN, track.getQueryUrn().toString());
 
         return trackContentValues.get();
     }

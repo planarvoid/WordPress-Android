@@ -25,7 +25,7 @@ public class ResolveGoogleCrawlerTrackTest extends ResolveGoogleCrawlerBaseTest 
         assertThat(new StreamScreen(solo), is(visible()));
         playerScreen.waitForExpandedPlayer();
         assertThat(playerScreen, is(expanded()));
-        assertThat(playerScreen.getTrackTitle(), is(equalToIgnoringCase("Tycho - From Home")));
+        assertThat(playerScreen.getTrackTitle(), is(equalToIgnoringCase("From Home")));
     }
 
     public void testIsCrawlerUser() {

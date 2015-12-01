@@ -49,6 +49,7 @@ apply from: "${buildSrcDir}/build_variants.gradle"
 apply from: "${buildSrcDir}/feature_flags.gradle"
 apply from: "${buildSrcDir}/app_properties.gradle"
 apply from: "${buildSrcDir}/versionizer.gradle"
+apply from: "${buildSrcDir}/slackbot.gradle"
 apply from: "${buildSrcDir}/static_analysis.gradle"
 apply from: "${buildSrcDir}/apublisher.gradle"
 apply from: "${buildSrcDir}/git.gradle"
@@ -175,6 +176,7 @@ dependencies {
   compile libraries.rxJava
   compile libraries.rxJavaAsyncUtil // remove when getting rid of LegacyCommand
   compile libraries.universalImageLoader
+  compile libraries.scrollDecorator
   compile libraries.facebookRebound
   compile(libraries.facebookAndroidSdk) {
       // see https://github.com/mente/facebook-api-android-aar/issues/11
@@ -200,7 +202,7 @@ dependencies {
 
   /* Unit tests */
   testCompile unitTestLibraries.junit
-
+  testCompile unitTestLibraries.assertj
   testCompile unitTestLibraries.assertjAndroid
   testCompile unitTestLibraries.androidSupportAnnotations
   testCompile unitTestLibraries.mockito

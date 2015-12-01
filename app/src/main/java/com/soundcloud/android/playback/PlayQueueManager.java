@@ -5,6 +5,10 @@ import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AdFunctions;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -12,17 +16,16 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Pair;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 
 import android.support.annotation.VisibleForTesting;
@@ -120,7 +123,7 @@ public class PlayQueueManager implements OriginProvider {
         if (position >= 0 && position < getQueueSize()) {
             return playQueue.getPlayQueueItem(position);
         } else {
-            return new PlayQueueItem.Empty();
+            return PlayQueueItem.EMPTY;
         }
     }
 
@@ -254,29 +257,19 @@ public class PlayQueueManager implements OriginProvider {
     public Observable<PlayQueue> loadPlayQueueAsync() {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
-        Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
-        if (playQueueObservable != null) {
-            return playQueueObservable
-                    .doOnSubscribe(new Action0() {
-                        @Override
-                        public void call() {
-                            // return so player can have the resume information while load is in progress
-                            setLastPlayedTrackAndPosition(
-                                    Urn.forTrack(playQueueOperations.getLastStoredPlayingTrackId()),
-                                    playQueueOperations.getLastStoredSeekPosition());
-                        }
-                    })
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(new Action1<PlayQueue>() {
-                        @Override
-                        public void call(PlayQueue savedQueue) {
-                            currentPosition = playQueueOperations.getLastStoredPlayPosition();
-                            setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
-                        }
-                    });
-        } else {
-            return Observable.empty();
-        }
+        return playQueueOperations.getLastStoredPlayQueue()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(new Action1<PlayQueue>() {
+                    @Override
+                    public void call(PlayQueue savedQueue) {
+                        setLastPlayedTrackAndPosition(
+                                Urn.forTrack(playQueueOperations.getLastStoredPlayingTrackId()),
+                                playQueueOperations.getLastStoredSeekPosition());
+
+                        currentPosition = playQueueOperations.getLastStoredPlayPosition();
+                        setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
+                    }
+                });
     }
 
     private void setLastPlayedTrackAndPosition(Urn urn, long lastStoredSeekPosition) {
@@ -321,7 +314,7 @@ public class PlayQueueManager implements OriginProvider {
             trackSourceInfo.setReposter(trackQueueItem.getReposter());
         }
 
-        if (playSessionSource.isFromQuery()) {
+        if (playSessionSource.isFromSearchQuery()) {
             trackSourceInfo.setSearchQuerySourceInfo(playSessionSource.getSearchQuerySourceInfo());
         }
 
@@ -330,7 +323,11 @@ public class PlayQueueManager implements OriginProvider {
         }
 
         if (playSessionSource.isFromStations()) {
-            trackSourceInfo.setOriginStation(playSessionSource.getCollectionUrn());
+            TrackQueueItem trackQueueItem = (TrackQueueItem) currentPlayQueueItem;
+            trackSourceInfo.setStationSourceInfo(
+                    playSessionSource.getCollectionUrn(),
+                    StationsSourceInfo.create(trackQueueItem.getQueryUrn())
+            );
         }
 
         final Urn collectionUrn = playSessionSource.getCollectionUrn();
@@ -385,16 +382,16 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     @VisibleForTesting
-    public void removeItemsWithMetaData(Predicate<PropertySet> predicate) {
-        removeItemsWithMetaData(predicate, PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
+    public void removeAds() {
+        removeAds(PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
     }
 
-    public void removeItemsWithMetaData(Predicate<PropertySet> predicate, PlayQueueEvent updateEvent) {
+    public void removeAds(PlayQueueEvent updateEvent) {
         boolean queueUpdated = false;
         int i = 0;
         for (final Iterator<PlayQueueItem> iterator = playQueue.iterator(); iterator.hasNext(); ) {
             final PlayQueueItem item = iterator.next();
-            if (predicate.apply(item.getMetaData())) {
+            if (AdFunctions.IS_PLAYER_AD_ITEM.apply(item)) {
                 iterator.remove();
                 queueUpdated = true;
                 if (i <= currentPosition) {
@@ -410,10 +407,10 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public List<PlayQueueItem> filterQueueItemsWithMetadata(Predicate<PropertySet> predicate) {
+    public List<PlayQueueItem> filterAdQueueItems() {
         List<PlayQueueItem> matchingQueueItems = new ArrayList<>();
         for (PlayQueueItem playQueueItem : playQueue) {
-            if (predicate.apply(playQueueItem.getMetaData())) {
+            if (!AdFunctions.IS_PLAYER_AD_ITEM.apply(playQueueItem)) {
                 matchingQueueItems.add(playQueueItem);
             }
         }
@@ -459,51 +456,51 @@ public class PlayQueueManager implements OriginProvider {
 
         private final int position;
         private final Urn trackUrn;
-        private final PropertySet metaData;
+        private final AudioAd audioAd;
         private final boolean shouldPersist;
 
-        public InsertAudioOperation(int position, Urn trackUrn, PropertySet metaData, boolean shouldPersist) {
+        public InsertAudioOperation(int position, Urn trackUrn, AudioAd audioAd, boolean shouldPersist) {
             this.position = position;
             this.trackUrn = trackUrn;
-            this.metaData = metaData;
+            this.audioAd = audioAd;
             this.shouldPersist = shouldPersist;
         }
 
         @Override
         public void execute(PlayQueue playQueue) {
-            playQueue.insertTrack(position, trackUrn, metaData, shouldPersist);
+            playQueue.insertAudioAd(position, trackUrn, audioAd, shouldPersist);
         }
     }
 
     public static class InsertVideoOperation implements QueueUpdateOperation {
 
         private final int position;
-        private final PropertySet metaData;
+        private final VideoAd videoAd;
 
-        public InsertVideoOperation(int position, PropertySet metaData) {
+        public InsertVideoOperation(int position, VideoAd videoAd) {
             this.position = position;
-            this.metaData = metaData;
+            this.videoAd = videoAd;
         }
 
         @Override
         public void execute(PlayQueue playQueue) {
-            playQueue.insertVideo(position, metaData);
+            playQueue.insertVideo(position, videoAd);
         }
     }
 
-    public static class SetMetadataOperation implements QueueUpdateOperation {
+    public static class SetAdDataOperation implements QueueUpdateOperation {
 
         private final int position;
-        private final PropertySet metadata;
+        private final Optional<AdData> adData;
 
-        public SetMetadataOperation(int position, PropertySet metadata) {
+        public SetAdDataOperation(int position, Optional<AdData> adData) {
             this.position = position;
-            this.metadata = metadata;
+            this.adData = adData;
         }
 
         @Override
         public void execute(PlayQueue playQueue) {
-            playQueue.setMetaData(position, metadata);
+            playQueue.setAdData(position, adData);
         }
     }
 }

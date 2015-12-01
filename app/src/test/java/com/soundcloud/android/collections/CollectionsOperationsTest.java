@@ -4,7 +4,9 @@ import static com.soundcloud.android.collections.CollectionsOperations.PLAYLIST_
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.stations.StationRecord;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
@@ -18,12 +20,15 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.stations.StationsSyncRequestFactory;
+import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -58,10 +63,15 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     private PropertySet postedPlaylist2;
     private PropertySet likedPlaylist1;
     private PropertySet likedPlaylist2;
+    private TestEventBus eventBus;
+    private TestSubscriber<EntityStateChangedEvent> collectionChangedSubscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
-        operations = new CollectionsOperations(Schedulers.immediate(),
+        eventBus = new TestEventBus();
+        operations = new CollectionsOperations(
+                eventBus,
+                Schedulers.immediate(),
                 syncStateStorage,
                 playlistPostStorage,
                 playlistLikeStorage,
@@ -86,6 +96,51 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
 
         final Observable<List<PropertySet>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylist1, likedPlaylist2));
         when(playlistLikeStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(likedPlaylists);
+    }
+
+    @Test
+    public void onCollectionChangedWhenTrackLikeEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(1), true, 1));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forTrack(1), true, 1)));
+    }
+
+    @Test
+    public void onCollectionChangedWhenTrackUnlikeEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(1), false, 1));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forTrack(1), false, 1)));
+    }
+
+    @Test
+    public void onCollectionChangedWhenPlaylistLikeEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), true, 1));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), true, 1)));
+    }
+
+    @Test
+    public void onCollectionChangedWhenPlaylistUnlikeEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), false, 1));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), false, 1)));
+    }
+
+    @Test
+    public void onCollectionChangedWhenPlaylistCreatedEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(Urn.forLocalPlaylist(1)));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromPlaylistCreated(Urn.forLocalPlaylist(1))));
     }
 
     @Test
@@ -260,6 +315,39 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
                 PlaylistItem.from(likedPlaylist1),
                 PlaylistItem.from(postedPlaylist1)
         ));
+    }
+
+    @Test
+    public void onCollectionSyncedShouldSendAnEventWhenPlaylistSynced() {
+        final TestSubscriber<SyncResult> subscriber = new TestSubscriber<>();
+        operations.onCollectionSynced().subscribe(subscriber);
+
+        final SyncResult syncResult = SyncResult.success(SyncActions.SYNC_PLAYLISTS, true);
+        eventBus.publish(EventQueue.SYNC_RESULT, syncResult);
+
+        subscriber.assertValue(syncResult);
+    }
+
+    @Test
+    public void onCollectionSyncedShouldSendAnEventWhenStations() {
+        final TestSubscriber<SyncResult> subscriber = new TestSubscriber<>();
+        operations.onCollectionSynced().subscribe(subscriber);
+
+        final SyncResult syncResult = SyncResult.success(StationsSyncRequestFactory.Actions.SYNC_STATIONS, true);
+        eventBus.publish(EventQueue.SYNC_RESULT, syncResult);
+
+        subscriber.assertValue(syncResult);
+    }
+
+    @Test
+    public void onCollectionSyncedShouldNotSendAnEventWhenNoChange() {
+        final TestSubscriber<SyncResult> subscriber = new TestSubscriber<>();
+        operations.onCollectionSynced().subscribe(subscriber);
+
+        final SyncResult syncResult = SyncResult.success(SyncActions.SYNC_PLAYLISTS, false);
+        eventBus.publish(EventQueue.SYNC_RESULT, syncResult);
+
+        subscriber.assertNoValues();
     }
 
     private PropertySet getPostedPlaylist(Urn urn, Date postedAt, String title) {

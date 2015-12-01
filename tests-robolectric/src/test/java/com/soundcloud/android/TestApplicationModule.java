@@ -4,7 +4,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.facebook.FacebookSdk;
-import com.google.android.gms.gcm.GcmReceiver;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
@@ -57,8 +56,10 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
+import android.telephony.TelephonyManager;
 
 import javax.inject.Named;
+import java.io.File;
 
 // Purely needed to shut up Dagger, since all tests that use DefaultTestRunner go through
 // Application#onCreate so injection has to be set up.
@@ -245,6 +246,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(StorageModule.STREAM_CACHE_DIRECTORY)
+    public File provideStreamCacheDirectory() {
+        return mock(File.class);
+    }
+
+    @Provides
     public CastSessionController provideCastSessionReconnector() {
         return mock(CastSessionController.class);
     }
@@ -314,6 +321,11 @@ public class TestApplicationModule {
     @Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER)
     PostsSyncer provideMyPlaylistPostsSyncer() {
         return mock(PostsSyncer.class);
+    }
+
+    @Provides
+    TelephonyManager provideTelephonyManager() {
+        return mock(TelephonyManager.class);
     }
 
     @Provides

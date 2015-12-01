@@ -136,7 +136,7 @@ public class PlaySessionSource implements Parcelable {
     public String getInitialSource() {
         if (Strings.isNotBlank(exploreVersion)) {
             return DiscoverySource.EXPLORE.value();
-        } else if (isFromStream()) {
+        } else if (isFromStreamTrack()) {
             return DiscoverySource.STREAM.value();
         }
         return ScTextUtils.EMPTY_STRING;
@@ -146,7 +146,7 @@ public class PlaySessionSource implements Parcelable {
         return Strings.isNotBlank(exploreVersion) ? exploreVersion : ScTextUtils.EMPTY_STRING;
     }
 
-    public boolean isFromQuery() {
+    public boolean isFromSearchQuery() {
         return searchQuerySourceInfo != null;
     }
 
@@ -158,8 +158,12 @@ public class PlaySessionSource implements Parcelable {
         return promotedSourceInfo != null;
     }
 
-    private boolean isFromStream() {
-        return originScreen.equals(Screen.STREAM.get());
+    private boolean isFromPlaylist() {
+        return getCollectionUrn().isPlaylist();
+    }
+
+    private boolean isFromStreamTrack() {
+        return originScreen.equals(Screen.STREAM.get()) && !isFromPlaylist();
     }
 
     @Override

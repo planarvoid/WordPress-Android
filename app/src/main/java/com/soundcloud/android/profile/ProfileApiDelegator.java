@@ -5,8 +5,6 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import dagger.Lazy;
 import rx.Observable;
 
@@ -16,29 +14,22 @@ public class ProfileApiDelegator implements ProfileApi {
 
     private final Lazy<ProfileApiPublic> profileApiPublic;
     private final Lazy<ProfileApiMobile> profileApiMobile;
-    private final FeatureFlags featureFlags;
 
     @Inject
     public ProfileApiDelegator(Lazy<ProfileApiPublic> profileApiPublic,
-                               Lazy<ProfileApiMobile> profileApiMobile,
-                               FeatureFlags featureFlags) {
+                               Lazy<ProfileApiMobile> profileApiMobile) {
         this.profileApiPublic = profileApiPublic;
         this.profileApiMobile = profileApiMobile;
-        this.featureFlags = featureFlags;
     }
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userPosts(Urn user) {
-        return featureFlags.isEnabled(Flag.PROFILE_API_MOBILE)
-                ? profileApiMobile.get().userPosts(user)
-                : profileApiPublic.get().userPosts(user);
+        return profileApiMobile.get().userPosts(user);
     }
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userPosts(String nextPageLink) {
-        return featureFlags.isEnabled(Flag.PROFILE_API_MOBILE)
-                ? profileApiMobile.get().userPosts(nextPageLink)
-                : profileApiPublic.get().userPosts(nextPageLink);
+        return profileApiMobile.get().userPosts(nextPageLink);
     }
 
     @Override
@@ -53,16 +44,12 @@ public class ProfileApiDelegator implements ProfileApi {
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userLikes(Urn user) {
-        return featureFlags.isEnabled(Flag.PROFILE_API_MOBILE)
-                ? profileApiMobile.get().userLikes(user)
-                : profileApiPublic.get().userLikes(user);
+        return profileApiMobile.get().userLikes(user);
     }
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userLikes(String nextPageLink) {
-        return featureFlags.isEnabled(Flag.PROFILE_API_MOBILE)
-                ? profileApiMobile.get().userLikes(nextPageLink)
-                : profileApiPublic.get().userLikes(nextPageLink);
+        return profileApiMobile.get().userLikes(nextPageLink);
     }
 
     @Override

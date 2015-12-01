@@ -3,12 +3,9 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -34,9 +31,8 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     }
 
     @Override
-    public boolean shouldDisplayOverlay(PropertySet data, boolean isExpanded, boolean isPortrait, boolean isForeground) {
-        return isExpanded && isForeground && !data.getOrElse(AdOverlayProperty.META_AD_DISMISSED, false)
-                && resources.getBoolean(R.bool.allow_interstitials);
+    public boolean shouldDisplayOverlay(OverlayAdData data, boolean isExpanded, boolean isPortrait, boolean isForeground) {
+        return isExpanded && isForeground && !data.isMetaAdDismissed() && resources.getBoolean(R.bool.allow_interstitials);
     }
 
     @Override
@@ -45,7 +41,7 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     }
 
     @Override
-    public void onAdVisible(PlayQueueItem playQueueItem, PropertySet data, TrackSourceInfo trackSourceInfo) {
+    public void onAdVisible(PlayQueueItem playQueueItem, OverlayAdData data, TrackSourceInfo trackSourceInfo) {
         super.onAdVisible(playQueueItem, data, trackSourceInfo);
         interstitialImageHolder.setVisibility(View.VISIBLE);
         previewContainer.setVisibility(View.VISIBLE);
@@ -59,14 +55,14 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     }
 
     @Override
-    public void bind(PropertySet data) {
+    public void bind(OverlayAdData data) {
         super.bind(data);
         final ApiImageSize listItemImageSize = ApiImageSize.getListItemImageSize(previewImage.getResources());
-        imageOperations.displayWithPlaceholder(data.get(TrackProperty.URN), listItemImageSize, previewImage);
+        imageOperations.displayWithPlaceholder(data.getMonetizableTrackUrn(), listItemImageSize, previewImage);
 
-        if (data.contains(TrackProperty.TITLE) && data.contains(TrackProperty.CREATOR_NAME)){
-            final String nowPlayingTitle = data.get(TrackProperty.TITLE);
-            final String nowPlayingCreator = data.get(TrackProperty.CREATOR_NAME);
+        if (data.getMonetizableTitle() != null && data.getMonetizableCreator() != null){
+            final String nowPlayingTitle = data.getMonetizableTitle();
+            final String nowPlayingCreator = data.getMonetizableCreator();
             nowPlayingTitleView.setText(resources.getString(R.string.ads_now_playing_tracktitle_username, nowPlayingTitle, nowPlayingCreator));
         } else {
             nowPlayingTitleView.setText(R.string.ads_now_playing);
@@ -75,6 +71,5 @@ public class InterstitialPresenter extends AdOverlayPresenter {
             // has an audio ad, then an interstitial when the same playlist is started over
             ErrorUtils.handleSilentException(new IllegalStateException("Interstitial missing track data: " + data));
         }
-
     }
 }

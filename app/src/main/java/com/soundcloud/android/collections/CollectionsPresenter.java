@@ -3,19 +3,15 @@ package com.soundcloud.android.collections;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
-import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -70,37 +66,47 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                 }
             };
 
+    private final Func1<SyncResult, Boolean> isNotRefreshing = new Func1<SyncResult, Boolean>() {
+        @Override
+        public Boolean call(SyncResult syncResult) {
+            return !swipeRefreshAttacher.isRefreshing();
+        }
+    };
+
+    private final SwipeRefreshAttacher swipeRefreshAttacher;
     private final CollectionsOperations collectionsOperations;
-    private final PlaylistLikeOperations likeOperations;
     private final CollectionsOptionsStorage collectionsOptionsStorage;
     private final CollectionsAdapter adapter;
     private final CollectionsPlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
-    private final FeatureFlags featureFlags;
 
-    private CompositeSubscription eventSubscriptions;
+    private CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private PlaylistsOptions currentOptions;
+
+    private final Action1<MyCollections> clearOnNext = new Action1<MyCollections>() {
+        @Override
+        public void call(MyCollections myCollections) {
+            adapter.clear();
+        }
+    };
 
     @Inject
     CollectionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                          CollectionsOperations collectionsOperations,
-                         PlaylistLikeOperations likeOperations,
                          CollectionsOptionsStorage collectionsOptionsStorage,
                          CollectionsAdapter adapter,
                          CollectionsPlaylistOptionsPresenter optionsPresenter,
                          Resources resources,
-                         EventBus eventBus,
-                         FeatureFlags featureFlags) {
+                         EventBus eventBus) {
         super(swipeRefreshAttacher, Options.defaults());
+        this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.collectionsOperations = collectionsOperations;
-        this.likeOperations = likeOperations;
         this.collectionsOptionsStorage = collectionsOptionsStorage;
         this.adapter = adapter;
         this.optionsPresenter = optionsPresenter;
         this.resources = resources;
         this.eventBus = eventBus;
-        this.featureFlags = featureFlags;
         adapter.setListener(this);
         adapter.setOnboardingListener(this);
         currentOptions = collectionsOptionsStorage.getLastOrDefault();
@@ -110,17 +116,6 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     public void onCreate(Fragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
-
-        eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
-                eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
-                likeOperations.onPlaylistLiked()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RefreshCollectionsSubscriber()),
-                likeOperations.onPlaylistUnliked()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RemoveEntityListSubscriber(adapter))
-        );
     }
 
     @Override
@@ -128,7 +123,7 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         super.onViewCreated(fragment, view, savedInstanceState);
 
         RecyclerView recyclerView = getRecyclerView();
-        final int spanCount = resources.getInteger(R.integer.stations_grid_span_count);
+        final int spanCount = resources.getInteger(R.integer.collection_grid_span_count);
         final GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), spanCount);
         layoutManager.setSpanSizeLookup(createSpanSizeLookup(spanCount));
         recyclerView.setLayoutManager(layoutManager);
@@ -160,8 +155,13 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     }
 
     private void refreshCollections() {
-        adapter.clear();
-        retryWith(onBuildBinding(null));
+        final Observable<MyCollections> source = collectionsOperations
+                .collections(currentOptions)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(clearOnNext);
+        retryWith(CollectionBinding
+                .from(source, toCollectionsItems)
+                .withAdapter(adapter).build());
     }
 
     @Override
@@ -182,16 +182,16 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
 
     @Override
     protected CollectionBinding<CollectionsItem> onBuildBinding(Bundle bundle) {
-        final Observable<MyCollections> collections = collectionsOperations.collections(currentOptions);
-        return CollectionBinding.from(collections.doOnNext(new OnNextErrorAction()), toCollectionsItems)
+        final Observable<MyCollections> collections = collectionsOperations.collections(currentOptions).observeOn(AndroidSchedulers.mainThread());
+        return CollectionBinding.from(collections.doOnNext(new OnCollectionLoadedAction()), toCollectionsItems)
                 .withAdapter(adapter)
                 .build();
     }
 
     @Override
     protected CollectionBinding<CollectionsItem> onRefreshBinding() {
-        final Observable<MyCollections> collections = collectionsOperations.updatedCollections(currentOptions);
-        return CollectionBinding.from(collections.doOnError(new OnErrorAction()), toCollectionsItems)
+        final Observable<MyCollections> collections = collectionsOperations.updatedCollections(currentOptions).observeOn(AndroidSchedulers.mainThread());
+        return CollectionBinding.from(collections.doOnError(new OnErrorAction()).doOnNext(clearOnNext), toCollectionsItems)
                 .withAdapter(adapter)
                 .build();
     }
@@ -211,9 +211,9 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         adapter.notifyItemRemoved(position);
     }
 
-    private class RefreshCollectionsSubscriber extends DefaultSubscriber<PropertySet> {
+    private class RefreshCollectionsSubscriber extends DefaultSubscriber<Object> {
         @Override
-        public void onNext(PropertySet ignored) {
+        public void onNext(Object ignored) {
             refreshCollections();
         }
     }
@@ -225,13 +225,29 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         }
     }
 
-    private class OnNextErrorAction implements Action1<MyCollections> {
+    private class OnCollectionLoadedAction implements Action1<MyCollections> {
         @Override
         public void call(MyCollections myCollections) {
+            adapter.clear();
+            subscribeForUpdates();
             if (myCollections.hasError()) {
                 showError();
             }
         }
+    }
+
+    private void subscribeForUpdates() {
+        eventSubscriptions.unsubscribe();
+        eventSubscriptions = new CompositeSubscription(
+                eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
+                collectionsOperations.onCollectionSynced()
+                        .filter(isNotRefreshing)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RefreshCollectionsSubscriber()),
+                collectionsOperations.onCollectionChanged()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RefreshCollectionsSubscriber())
+        );
     }
 
     private void showError() {

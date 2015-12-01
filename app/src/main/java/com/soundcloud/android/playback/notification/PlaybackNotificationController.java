@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.notification;
 
+import com.soundcloud.android.ads.AdFunctions;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.EntityProperty;
@@ -144,8 +146,9 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
 
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            final TrackQueueItem trackQueueItem = (TrackQueueItem) event.getCurrentPlayQueueItem();
-            PropertySet trackData = trackQueueItem.getMetaData().put(EntityProperty.URN, trackQueueItem.getTrackUrn());
+            final TrackQueueItem trackItem = (TrackQueueItem) event.getCurrentPlayQueueItem();
+            final PropertySet trackData = PropertySet.from(EntityProperty.URN.bind(trackItem.getTrackUrn()))
+                    .put(AdProperty.IS_AUDIO_AD, AdFunctions.IS_AUDIO_AD_ITEM.apply(trackItem));
             strategy.setTrack(playbackService, trackData);
         }
     }

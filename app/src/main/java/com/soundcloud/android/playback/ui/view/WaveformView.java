@@ -6,8 +6,10 @@ import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.FixedWidthView;
-import com.soundcloud.android.view.ListenableHorizontalScrollView;
+import com.soundcloud.android.view.WaveformScrollView;
 import com.soundcloud.android.waveform.WaveformData;
+import me.everything.android.ui.overscroll.HorizontalOverScrollBounceEffectDecorator;
+import me.everything.android.ui.overscroll.adapters.HorizontalScrollViewOverScrollDecorAdapter;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
@@ -26,6 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 public class WaveformView extends FrameLayout {
+    private static final int TWENTY_PERCENT_OF_255 = 51;
 
     private static final int DEFAULT_BAR_WIDTH_DP = 2;
     private static final int DEFAULT_BAR_SPACE_DP = 1;
@@ -35,6 +38,8 @@ public class WaveformView extends FrameLayout {
 
     private static final double SPRING_TENSION = 180.0D;
     private static final double SPRING_FRICTION = 10.0D;
+    private static final float OVERSCROLL_TOUCH_DRAG_RATIO_FWD = 2.0f;
+    private static final float OVERSCROLL_DECELERATE_FACTOR = -1f;
 
     private final int barWidth;
     private final int spaceWidth;
@@ -43,17 +48,19 @@ public class WaveformView extends FrameLayout {
     private final Paint progressBelowPaint;
     private final Paint unplayedAbovePaint;
     private final Paint unplayedBelowPaint;
-    private final int progressColor;
+    private final Paint unplayableAbovePaint;
+    private final Paint unplayableBelowPaint;
     private final int unplayedColor;
     private final float waveformWidthRatio;
 
     private final WaveformCanvas leftWaveform;
     private final WaveformCanvas rightWaveform;
+
     private final ImageView leftLine;
     private final ImageView rightLine;
 
     private final FixedWidthView dragView;
-    private final ListenableHorizontalScrollView dragViewHolder;
+    private final WaveformScrollView dragViewHolder;
 
     private final SpringSystem springSystem = SpringSystem.create();
     private Spring springY;
@@ -72,6 +79,7 @@ public class WaveformView extends FrameLayout {
             dragView.requestLayout();
         }
     };
+    private final int progressAboveEnd;
 
     public interface OnWidthChangedListener {
         void onWaveformViewWidthChanged(int newWidth);
@@ -84,7 +92,7 @@ public class WaveformView extends FrameLayout {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WaveformView);
         final int progressAboveStart = a.getColor(R.styleable.WaveformView_progressAboveStart, Color.WHITE);
-        final int progressAboveEnd = a.getColor(R.styleable.WaveformView_progressAboveEnd, Color.WHITE);
+        progressAboveEnd = a.getColor(R.styleable.WaveformView_progressAboveEnd, Color.WHITE);
         final int progressBelow = a.getColor(R.styleable.WaveformView_progressBelow, Color.WHITE);
         final int unplayedAbove = a.getColor(R.styleable.WaveformView_unplayedAbove, Color.WHITE);
         final int unplayedBelow = a.getColor(R.styleable.WaveformView_unplayedBelow, Color.WHITE);
@@ -94,7 +102,6 @@ public class WaveformView extends FrameLayout {
         baseline = a.getDimensionPixelSize(R.styleable.WaveformView_baseline, (int) (DEFAULT_BASELINE_DP * density));
         a.recycle();
 
-        progressColor = progressAboveEnd;
         unplayedColor = unplayedAbove;
 
         progressAbovePaint = new Paint();
@@ -110,6 +117,12 @@ public class WaveformView extends FrameLayout {
         unplayedBelowPaint = new Paint();
         unplayedBelowPaint.setColor(unplayedBelow);
 
+        unplayableAbovePaint = new Paint(unplayedAbovePaint);
+        unplayableAbovePaint.setAlpha(TWENTY_PERCENT_OF_255);
+
+        unplayableBelowPaint = new Paint(unplayedBelowPaint);
+        unplayableBelowPaint.setAlpha(TWENTY_PERCENT_OF_255);
+
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.player_progress_layout, this);
 
@@ -117,8 +130,7 @@ public class WaveformView extends FrameLayout {
         rightWaveform = (WaveformCanvas) findViewById(R.id.waveform_right);
 
         dragView = (FixedWidthView) findViewById(R.id.drag_view);
-        dragViewHolder = (ListenableHorizontalScrollView) findViewById(R.id.drag_view_holder);
-        dragViewHolder.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        dragViewHolder = (WaveformScrollView) findViewById(R.id.drag_view_holder);
 
         leftWaveform.setScaleY(0);
         rightWaveform.setScaleY(0);
@@ -130,15 +142,27 @@ public class WaveformView extends FrameLayout {
         leftLine = (ImageView) findViewById(R.id.line_left);
         rightLine = (ImageView) findViewById(R.id.line_right);
 
-        leftLine.setImageDrawable(createLoadingDrawable(progressColor));
-        rightLine.setImageDrawable(createLoadingDrawable(unplayedColor));
+        leftLine.setImageDrawable(createLoadingDrawable(progressAboveEnd, unplayableAbovePaint));
+        rightLine.setImageDrawable(createLoadingDrawable(unplayedAbove, unplayableBelowPaint));
+    }
+
+    void configureOverscroller(boolean useSpringOverscroll) {
+        if (useSpringOverscroll){
+            new HorizontalOverScrollBounceEffectDecorator(new HorizontalScrollViewOverScrollDecorAdapter(dragViewHolder),
+                    OVERSCROLL_TOUCH_DRAG_RATIO_FWD,
+                    HorizontalOverScrollBounceEffectDecorator.DEFAULT_TOUCH_DRAG_MOVE_RATIO_BCK,
+                    OVERSCROLL_DECELERATE_FACTOR
+            );
+        } else {
+            setOverScrollMode(OVER_SCROLL_NEVER);
+        }
     }
 
     public void setOnWidthChangedListener(OnWidthChangedListener onWidthChangedListener) {
         this.onWidthChangedListener = onWidthChangedListener;
     }
 
-    public ListenableHorizontalScrollView getDragViewHolder() {
+    public WaveformScrollView getDragViewHolder() {
         return dragViewHolder;
     }
 
@@ -235,13 +259,20 @@ public class WaveformView extends FrameLayout {
         return objectAnimator;
     }
 
-    void setWaveformWidths(int waveformWidth) {
+    void setWaveformWidths(int waveformWidth, float playableProportion) {
         leftWaveform.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
         leftLine.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
         rightWaveform.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
         rightLine.setLayoutParams(new FrameLayout.LayoutParams(waveformWidth, ViewGroup.LayoutParams.MATCH_PARENT));
-        dragView.setWidth(waveformWidth + getWidth());
+        setPlayableWidth(waveformWidth, playableProportion);
+    }
 
+    public void setPlayableWidth(int waveformWidth, float playableProportion) {
+        dragView.setWidth((int) (waveformWidth * playableProportion + getWidth()));
+        leftWaveform.setUnplayableFromPosition(playableProportion);
+        leftLine.setImageDrawable(createLoadingDrawable(progressAboveEnd, unplayableAbovePaint, playableProportion));
+        rightWaveform.setUnplayableFromPosition(playableProportion);
+        rightLine.setImageDrawable(createLoadingDrawable(unplayedColor, unplayableBelowPaint, playableProportion));
         post(layoutWaveformsRunnable);
     }
 
@@ -253,8 +284,12 @@ public class WaveformView extends FrameLayout {
         }
     }
 
-    private Drawable createLoadingDrawable(int color) {
-        return new ProgressLineDrawable(color, baseline, spaceWidth);
+    private Drawable createLoadingDrawable(int color, Paint unPlayablePaint) {
+        return createLoadingDrawable(color, unPlayablePaint, 1);
+    }
+
+    private Drawable createLoadingDrawable(int color, Paint unPlayablePaint, float playableProportion) {
+        return new ProgressLineDrawable(color, unPlayablePaint, baseline, spaceWidth, playableProportion);
     }
 
 
@@ -262,8 +297,10 @@ public class WaveformView extends FrameLayout {
         double totalSamples = adjustedWidth / (barWidth + spaceWidth);
 
         WaveformData scaled = waveformData.scale(totalSamples);
-        leftWaveform.initialize(scaled, progressAbovePaint, progressBelowPaint, barWidth, spaceWidth, baseline);
-        rightWaveform.initialize(scaled, unplayedAbovePaint, unplayedBelowPaint, barWidth, spaceWidth, baseline);
+        leftWaveform.initialize(scaled, progressAbovePaint, progressBelowPaint,
+                unplayableAbovePaint, unplayableBelowPaint, barWidth, spaceWidth, baseline);
+        rightWaveform.initialize(scaled, unplayedAbovePaint, unplayedBelowPaint,
+                unplayableAbovePaint, unplayableBelowPaint, barWidth, spaceWidth, baseline);
         dragViewHolder.setAreaWidth(adjustedWidth);
     }
 }

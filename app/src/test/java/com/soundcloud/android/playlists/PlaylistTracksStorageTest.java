@@ -147,8 +147,10 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))
                 .subscribe(testSubscriber);
 
-        long playlistId = testSubscriber.getOnNextEvents().get(0).getNumericId();
-        databaseAssertions().assertPlaylistInserted(playlistId, "title", true);
+        final Urn urn = testSubscriber.getOnNextEvents().get(0);
+        assertThat(urn.isPlaylist()).isTrue();
+        assertThat(Urn.isLocalUrn(urn.toString())).isTrue();
+        databaseAssertions().assertPlaylistInserted(urn.getNumericId(), "title", true);
     }
 
     @Test
@@ -229,7 +231,8 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         return PropertySet.from(
                 TrackProperty.URN.bind(apiTrack.getUrn()),
                 TrackProperty.TITLE.bind(apiTrack.getTitle()),
-                TrackProperty.DURATION.bind(apiTrack.getDuration()),
+                TrackProperty.PLAY_DURATION.bind(apiTrack.getDuration()),
+                TrackProperty.FULL_DURATION.bind(apiTrack.getFullDuration()),
                 TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
                 TrackProperty.LIKES_COUNT.bind(apiTrack.getStats().getLikesCount()),
                 TrackProperty.IS_PRIVATE.bind(apiTrack.isPrivate()),

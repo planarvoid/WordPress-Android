@@ -12,7 +12,7 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.associations.NextFollowingOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
@@ -28,7 +28,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.schedulers.Schedulers;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -52,30 +51,28 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
     private static final String REQUEST_NO_BACKOFF = "0";
 
     private final LegacyUserAssociationStorage legacyUserAssociationStorage;
-    private final NextFollowingOperations nextFollowingOperations;
+    private final FollowingOperations followingOperations;
     private final NotificationManager notificationManager;
     private final JsonTransformer jsonTransformer;
     private final Navigator navigator;
 
-    private int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
-
     public MyFollowingsSyncer(Context context, AccountOperations accountOperations,
-                              NextFollowingOperations nextFollowingOperations,
+                              FollowingOperations followingOperations,
                               NotificationManager notificationManager,
                               JsonTransformer jsonTransformer, Navigator navigator) {
         this(context, context.getContentResolver(),
-                new LegacyUserAssociationStorage(Schedulers.immediate(), context.getContentResolver()),
-                accountOperations, nextFollowingOperations, notificationManager, jsonTransformer, navigator);
+                new LegacyUserAssociationStorage(context.getContentResolver()),
+                accountOperations, followingOperations, notificationManager, jsonTransformer, navigator);
     }
 
     @VisibleForTesting
     protected MyFollowingsSyncer(Context context, ContentResolver resolver, LegacyUserAssociationStorage legacyUserAssociationStorage,
                                  AccountOperations accountOperations,
-                                 NextFollowingOperations nextFollowingOperations, NotificationManager notificationManager, JsonTransformer jsonTransformer,
+                                 FollowingOperations followingOperations, NotificationManager notificationManager, JsonTransformer jsonTransformer,
                                  Navigator navigator) {
         super(context, resolver, accountOperations);
         this.legacyUserAssociationStorage = legacyUserAssociationStorage;
-        this.nextFollowingOperations = nextFollowingOperations;
+        this.followingOperations = followingOperations;
         this.notificationManager = notificationManager;
         this.jsonTransformer = jsonTransformer;
         this.navigator = navigator;
@@ -118,8 +115,8 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         itemDeletions.removeAll(remote);
         legacyUserAssociationStorage.deleteAssociations(Content.ME_FOLLOWINGS.uri, itemDeletions);
 
-        int startPosition = 1;
-        int added = 0;
+        int startPosition;
+        int added;
 
         // load the first page of items to get proper last_seen ordering
         // parse and add first items
@@ -140,6 +137,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         startPosition = resources.size();
 
         log("Added " + added + " new items for this endpoint");
+        int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
         legacyUserAssociationStorage.insertInBatches(userId, remote, startPosition, bulkInsertBatchSize);
         result.success = true;
         return result;
@@ -193,7 +191,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
     private void forbiddenUserPushHandler(UserAssociation userAssociation, FollowErrors errors) {
         Notification notification = getForbiddenNotification(userAssociation, errors);
         notificationManager.notify(userAssociation.getUser().getUrn().toString(), NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID, notification);
-        DefaultSubscriber.fireAndForget(nextFollowingOperations.toggleFollowing(userAssociation.getUser().getUrn(), false));
+        DefaultSubscriber.fireAndForget(followingOperations.toggleFollowing(userAssociation.getUser().getUrn(), false));
     }
 
     private Notification getForbiddenNotification(UserAssociation userAssociation, FollowErrors errors) {

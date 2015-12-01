@@ -23,6 +23,7 @@ import android.os.StatFs;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import javax.inject.Inject;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -40,11 +41,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public final class IOUtils {
+public class IOUtils {
 
     private static final int BUFFER_SIZE = 8192;
 
-    private IOUtils() {}
+    @Inject
+    public IOUtils() {}
 
     @NotNull
     public static File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
@@ -60,6 +62,11 @@ public final class IOUtils {
         return files == null ? new File[0] : files;
     }
 
+    public long dirSize(File... directories) {
+        return getDirSize(directories);
+    }
+
+    @Deprecated // use dirSize()
     public static long getDirSize(File... directories) {
         long result = 0;
         for (File dir : directories) {
@@ -301,12 +308,12 @@ public final class IOUtils {
         }
     }
 
-    public static void createCacheDirs() {
+    public static void createCacheDirs(File streamCacheDirectory) {
         if (isSDCardAvailable()) {
             // create external storage directory
             mkdirs(Consts.EXTERNAL_STORAGE_DIRECTORY);
             mkdirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY);
-            mkdirs(Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY);
+            mkdirs(streamCacheDirectory);
 
             // ignore all media below files
             nomedia(Consts.FILES_PATH);

@@ -8,6 +8,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
@@ -267,6 +268,21 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         verify(timelineSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
     }
 
+    @Test
+    public void softRefreshWithNextPageUrlClearsTableSoWeDontCreateDataGaps() throws Exception {
+        when(timelineSyncStorage.getFuturePageUrl()).thenReturn(FUTURE_URL);
+        when(timelineSyncStorage.getNextPageUrl()).thenReturn(NEXT_URL);
+
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
+                .thenReturn(itemsWithNextLink());
+
+        timelineSyncer.syncContent(CONTENT_URI, null);
+
+        verify(replaceCommand).call(iterableArgumentCaptor.capture());
+        verifyZeroInteractions(insertCommand);
+        assertThat(iterableArgumentCaptor.getValue()).containsExactly(streamItem1, streamItem2);
+    }
+
     private ModelCollection<?> itemsWithoutLinks() {
         return new ModelCollection<>(Arrays.asList(streamItem1, streamItem2));
     }
@@ -276,19 +292,15 @@ public class TimelineSyncerTest extends AndroidUnitTest {
     }
 
     private ModelCollection<?> itemsWithNextLink(String nextUrl) {
-        final ModelCollection<?> items = itemsWithoutLinks();
         final HashMap<String, Link> links = new HashMap<>();
         links.put(ModelCollection.NEXT_LINK_REL, new Link(nextUrl));
-        items.setLinks(links);
-        return items;
+        return new ModelCollection<>(Arrays.asList(streamItem1, streamItem2), links);
     }
 
     private ModelCollection<?> itemsWithFutureLink() {
-        final ModelCollection<?> refreshedStream = itemsWithoutLinks();
         final HashMap<String, Link> links = new HashMap<>();
         links.put(TimelineSyncer.FUTURE_LINK_REL, new Link(FUTURE_URL));
-        refreshedStream.setLinks(links);
-        return refreshedStream;
+        return new ModelCollection<>(Arrays.asList(streamItem1, streamItem2), links);
     }
 
 }

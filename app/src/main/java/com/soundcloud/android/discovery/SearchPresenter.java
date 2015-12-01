@@ -21,6 +21,7 @@ import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -33,6 +34,7 @@ import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -46,6 +48,8 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private static final int SUGGESTIONS_VIEW_INDEX = 0;
     private static final int RESULTS_VIEW_INDEX = 1;
+
+    private static final String CURRENT_DISPLAYING_VIEW_KEY = "currentDisplayingView";
 
     private EditText searchTextView;
     private ImageView searchCloseView;
@@ -62,7 +66,8 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
     private final SuggestionsHelper suggestionsHelper;
 
     @Inject
-    SearchPresenter(EventBus eventbus, Resources resources, SuggestionsAdapter adapter, SuggestionsHelperFactory suggestionsHelperFactory) {
+    SearchPresenter(EventBus eventbus, Resources resources, SuggestionsAdapter adapter,
+                    SuggestionsHelperFactory suggestionsHelperFactory) {
         this.eventBus = eventbus;
         this.resources = resources;
         this.adapter = adapter;
@@ -80,11 +85,23 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
     }
 
     @Override
+    public void onSaveInstanceState(AppCompatActivity activity, Bundle bundle) {
+        bundle.putInt(CURRENT_DISPLAYING_VIEW_KEY, searchViewFlipper.getDisplayedChild());
+        super.onSaveInstanceState(activity, bundle);
+    }
+
+    @Override
+    public void onRestoreInstanceState(AppCompatActivity activity, Bundle bundle) {
+        super.onRestoreInstanceState(activity, bundle);
+        displaySearchView(bundle.getInt(CURRENT_DISPLAYING_VIEW_KEY));
+    }
+
+    @Override
     public void onDestroy(AppCompatActivity activity) {
         this.inputMethodManager = null;
     }
 
-    private void setupViews(Activity activity) {
+    private void setupViews(AppCompatActivity activity) {
         setupToolbar(activity);
         setupListView(activity);
         setupViewFlipper(activity);
@@ -103,14 +120,18 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         searchViewFlipper.setOutAnimation(AnimationUtils.loadAnimation(activity, R.anim.activity_open_exit));
     }
 
-    private void setupToolbar(Activity activity) {
+    private void setupToolbar(AppCompatActivity activity) {
         final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
         final ViewGroup searchView = (ViewGroup) ((LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.search_text_view, toolbar, false);
+        final ActionBar actionBar = activity.getSupportActionBar();
         toolbarElevation = activity.findViewById(R.id.legacy_elevation);
         searchTextView = (EditText) searchView.findViewById(R.id.search_text);
         searchCloseView = (ImageView) searchView.findViewById(R.id.search_close);
+        if (actionBar != null) {
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
         toolbar.addView(searchView);
     }
 
@@ -119,6 +140,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         searchTextView.setOnClickListener(new SearchViewClickListener());
         searchTextView.setOnEditorActionListener(new SearchActionListener());
         searchListView.setOnItemClickListener(new SearchResultClickListener());
+        searchListView.setOnScrollListener(new SuggestionsScrollListener());
         searchCloseView.setOnClickListener(new SearchCloseClickListener());
     }
 
@@ -153,9 +175,11 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private void displaySearchView(int searchViewIndex) {
         setElevation(searchViewIndex);
-
         if (searchViewFlipper.getDisplayedChild() != searchViewIndex) {
             searchViewFlipper.setDisplayedChild(searchViewIndex);
+        }
+        if (searchViewIndex == RESULTS_VIEW_INDEX) {
+            hideKeyboard();
         }
     }
 
@@ -171,7 +195,10 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private void showResultsFor(String query) {
         final TabbedSearchFragment searchResults = TabbedSearchFragment.newInstance(query);
-        fragmentManager.beginTransaction().replace(R.id.search_results_container, searchResults).commit();
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.search_results_container, searchResults, TabbedSearchFragment.TAG)
+                .commit();
         displaySearchView(RESULTS_VIEW_INDEX);
     }
 
@@ -281,6 +308,19 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
             activateSearchView();
             displaySearchView(SUGGESTIONS_VIEW_INDEX);
             trackScreenEvent();
+        }
+    }
+
+    private class SuggestionsScrollListener implements AbsListView.OnScrollListener {
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+            if (scrollState == SCROLL_STATE_TOUCH_SCROLL) {
+                hideKeyboard();
+            }
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         }
     }
 

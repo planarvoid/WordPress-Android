@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.gcm.GcmRegistrationService;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackService;
 
@@ -45,6 +46,13 @@ public class ServiceInitiator {
 
     public void play(PlaybackItem playbackItem) {
         startPlayback(playbackItem, PlaybackService.Action.PLAY);
+    }
+
+    public void preload(Urn trackUrn) {
+        Intent intent = new Intent(context, PlaybackService.class);
+        intent.setAction(PlaybackService.Action.PRELOAD);
+        intent.putExtra(PlaybackService.ActionExtras.URN, trackUrn);
+        context.startService(intent);
     }
 
     private void startPlayback(PlaybackItem playbackItem, String action) {

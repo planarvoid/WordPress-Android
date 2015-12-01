@@ -6,8 +6,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.propeller.test.IntegrationTest;
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,8 +78,8 @@ public class ShortcutsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void returnsLimitedItemsFromStorage() {
-        final ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date());
-        final ApiPlaylist apiPlaylist = testFixtures().insertLikedPlaylist(new Date());
+        testFixtures().insertLikedTrack(new Date());
+        testFixtures().insertLikedPlaylist(new Date());
         final ApiUser apiUser = testFixtures().insertUser();
         testFixtures().insertFollowing(apiUser.getUrn());
 
@@ -94,8 +92,8 @@ public class ShortcutsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void returnsOnlyMatchedItemFromStorage() {
-        final ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date());
-        final ApiPlaylist apiPlaylist = testFixtures().insertLikedPlaylist(new Date());
+        testFixtures().insertLikedTrack(new Date());
+        testFixtures().insertLikedPlaylist(new Date());
         final ApiUser apiUser = testFixtures().insertUser();
         testFixtures().insertFollowing(apiUser.getUrn());
 

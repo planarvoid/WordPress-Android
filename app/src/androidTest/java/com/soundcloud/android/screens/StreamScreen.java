@@ -4,14 +4,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.framework.viewelements.ViewNotFoundException;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
-import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.PlaylistItemOverflowMenu;
 import com.soundcloud.android.screens.elements.StreamCardElement;
-import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.java.collections.Lists;
@@ -27,12 +24,11 @@ public class StreamScreen extends Screen {
     }
 
     public int getItemCount() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return streamList().getItemCount();
     }
 
     public StreamScreen scrollToBottomOfPage() {
-        streamList().scrollToBottomOfPage();
+        streamList().scrollToBottom();
         return this;
     }
 
@@ -42,81 +38,59 @@ public class StreamScreen extends Screen {
         return new UpgradeScreen(testDriver);
     }
 
-    public PlaylistDetailsScreen clickFirstNotPromotedPlaylist() {
-        int tries = 0;
-        while (tries < MAX_SCROLLS_TO_FIND_ITEM) {
-            scrollToItem(With.id(R.id.playlist_list_item), streamList());
-            for (PlaylistItemElement playlistItemElement : getPlaylists()) {
-                if (!playlistItemElement.isPromotedPlaylist()) {
-                    return playlistItemElement.click();
-                }
-            }
-            testDriver.scrollToBottom();
-            tries++;
-        }
-        throw new ViewNotFoundException("Unable to find non-promoted playlist");
+    public StreamCardElement scrollToFirstNotPromotedPlaylist() {
+        return new StreamCardElement(testDriver, streamList().scrollToItem(new NotPromotedPlaylistCriteria(testDriver)));
     }
 
-    public StreamCardElement firstTrackCard() {
-        return getTrackCard(0);
+    public PlaylistDetailsScreen scrollToFirstNotPromotedPlaylistAndClickIt() {
+        scrollToFirstNotPromotedPlaylist().click();
+        return new PlaylistDetailsScreen(testDriver);
     }
 
-    @Override
-    protected Class getActivity() {
-        return ACTIVITY;
+    public StreamCardElement scrollToFirstTrack() {
+        return new StreamCardElement(testDriver, streamList().scrollToItem(new TrackCriteria(testDriver)));
     }
 
-    public StreamCardElement getTrackCard(int index) {
-        return trackCardElements().get(index);
+    public VisualPlayerElement clickFirstTrackCard() {
+        scrollToFirstTrack().click();
+        return new VisualPlayerElement(testDriver);
     }
 
-    public TrackItemElement getTrack(int index) {
-        return trackItemElements().get(index);
+    public VisualPlayerElement clickFirstNotPromotedTrackCard() {
+        return scrollToFirstNotPromotedTrackCard().click();
     }
 
-    public VisualPlayerElement clickFirstTrack() {
-        return clickTrack(0);
+    public StreamCardElement scrollToFirstNotPromotedTrackCard() {
+        return new StreamCardElement(testDriver, streamList().scrollToItem(new NotPromotedTrackCriteria(testDriver)));
     }
 
-    public VisualPlayerElement clickFirstNotPromotedTrack() {
-        if (isFirstTrackPromoted()) {
-            return clickTrack(1);
-        } else {
-            return clickFirstTrack();
-        }
+    public StreamCardElement scrollToFirstPlaylistTrackCard() {
+        return new StreamCardElement(testDriver,  streamList().scrollToItem(new PlaylistCriteria(testDriver)));
+    }
+
+    public StreamCardElement scrollToFirstRepostedTrack() {
+        return new StreamCardElement(testDriver, streamList().scrollToItem(new RepostedTrackCriteria(testDriver)));
     }
 
     public VisualPlayerElement clickFirstRepostedTrack() {
-        final ViewElement viewElement = scrollToItem(With.id(R.id.reposter), streamList());
-        viewElement.click();
-        VisualPlayerElement player = new VisualPlayerElement(testDriver);
-        player.waitForExpandedPlayer();
-        return player;
+        return scrollToFirstRepostedTrack().click();
     }
 
-    public VisualPlayerElement clickTrack(int index) {
-        getTrack(index).click();
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
-        visualPlayerElement.waitForExpandedPlayer();
-        return visualPlayerElement;
+    public TrackItemMenuElement clickFirstTrackCardOverflowButton() {
+        return scrollToFirstTrack().clickOverflowButton();
     }
 
-    public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        getTrack(0).clickOverflowButton();
-        return new TrackItemMenuElement(testDriver);
+    public boolean isFirstTrackCardPromoted() {
+        return scrollToFirstTrack().isPromotedTrack();
+    }
+
+    public boolean isPromotedTrackCardWithPromoter() {
+        return scrollToFirstTrack().hasPromoter();
     }
 
     public PlaylistItemOverflowMenu clickFirstPlaylistOverflowButton() {
-        getPlaylist(0).clickOverflow();
+        scrollToFirstPlaylistTrackCard().clickOverflowButton();
         return new PlaylistItemOverflowMenu(testDriver);
-    }
-
-    public boolean isFirstTrackPromoted() {
-        return getTrack(0).isPromotedTrack();
-    }
-
-    public boolean isPromotedTrackWithPromoter() {
-        return getTrack(0).hasPromoter();
     }
 
     public FacebookInvitesItemElement getFirstFacebookInvitesNotification() {
@@ -130,38 +104,19 @@ public class StreamScreen extends Screen {
                 toFacebookInvitesItemElement);
     }
 
-    private PlaylistItemElement getPlaylist(int index) {
-        scrollToItem(With.id(R.id.playlist_list_item), streamList());
-        return getPlaylists().get(index);
+    @Override
+    protected Class getActivity() {
+        return ACTIVITY;
     }
 
     private RecyclerViewElement streamList() {
         return testDriver.findElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
     }
 
-    private List<StreamCardElement> trackCardElements() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        scrollToItem(With.id(R.id.track_list_item), streamList());
-        return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackCardElements);
-    }
-
-    private List<TrackItemElement> trackItemElements() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        scrollToItem(With.id(R.id.track_list_item), streamList());
-        return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackItemElement);
-    }
-
     private final Function<ViewElement, StreamCardElement> toTrackCardElements = new Function<ViewElement, StreamCardElement>() {
         @Override
         public StreamCardElement apply(ViewElement viewElement) {
-            return new StreamCardElement(testDriver);
-        }
-    };
-
-    private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
-        @Override
-        public TrackItemElement apply(ViewElement viewElement) {
-            return new TrackItemElement(testDriver, viewElement);
+            return new StreamCardElement(testDriver, viewElement);
         }
     };
 
@@ -172,4 +127,101 @@ public class StreamScreen extends Screen {
         }
     };
 
+    private abstract class StreamCardsCriteria {
+        protected final Han testDriver;
+
+        public StreamCardsCriteria(Han testDriver) {
+            this.testDriver = testDriver;
+        }
+
+        protected StreamCardElement streamCardElement(ViewElement view) {
+            return new StreamCardElement(testDriver, view);
+        }
+
+    }
+
+    private class NotPromotedTrackCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
+
+        public NotPromotedTrackCriteria(Han testDriver) {
+            super(testDriver);
+        }
+
+        @Override
+        public boolean isSatisfied(ViewElement viewElement) {
+            return streamCardElement(viewElement).isTrack() && !streamCardElement(viewElement).isPromotedTrack();
+        }
+
+        @Override
+        public String description() {
+            return "IsTrack, isNotPromoted";
+        }
+    }
+
+    private class NotPromotedPlaylistCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
+
+        public NotPromotedPlaylistCriteria(Han testDriver) {
+            super(testDriver);
+        }
+
+        @Override
+        public boolean isSatisfied(ViewElement viewElement) {
+            return streamCardElement(viewElement).isPlaylist() && !streamCardElement(viewElement).isPromotedTrack();
+        }
+
+        @Override
+        public String description() {
+            return "IsPlaylist, isNotPromoted";
+        }
+    }
+
+    private class PlaylistCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
+
+        public PlaylistCriteria(Han testDriver) {
+            super(testDriver);
+        }
+
+        @Override
+        public boolean isSatisfied(ViewElement viewElement) {
+            return streamCardElement(viewElement).isPlaylist();
+        }
+
+        @Override
+        public String description() {
+            return "IsPlaylist";
+        }
+    }
+
+    private class TrackCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
+
+        public TrackCriteria(Han testDriver) {
+            super(testDriver);
+        }
+
+        @Override
+        public boolean isSatisfied(ViewElement viewElement) {
+            return streamCardElement(viewElement).isTrack();
+        }
+
+        @Override
+        public String description() {
+            return "IsTrack";
+        }
+    }
+
+    private class RepostedTrackCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
+
+        public RepostedTrackCriteria(Han testDriver) {
+            super(testDriver);
+        }
+
+        @Override
+        public boolean isSatisfied(ViewElement viewElement) {
+            return streamCardElement(viewElement).isTrack() && streamCardElement(viewElement).hasReposter();
+        }
+
+        @Override
+        public String description() {
+            return "IsTrack, HasReposter";
+        }
+    }
 }

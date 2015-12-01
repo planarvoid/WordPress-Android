@@ -36,7 +36,7 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH, Flag.COLLECTIONS);
+        setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH);
 
         collectionsScreen = mainNavHelper.goToCollections();
     }

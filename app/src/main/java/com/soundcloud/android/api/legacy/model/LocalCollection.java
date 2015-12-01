@@ -1,12 +1,10 @@
 package com.soundcloud.android.api.legacy.model;
 
-import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.api.legacy.model.behavior.Persisted;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.SyncConfig;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentValues;
@@ -154,31 +152,6 @@ public class LocalCollection implements Identifiable, Persisted {
 
     @Override
     public void putDependencyValues(@NotNull BulkInsertMap destination) {
-    }
-
-    public boolean shouldAutoRefresh() {
-        return isIdle() && getId() > 0 && isSyncDue();
-    }
-
-    public boolean isSyncDue() {
-        Content c = Content.match(getUri());
-
-        // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
-        if (c == null || last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) {
-            return false;
-        }
-
-        // do not auto refresh users when the list opens, because users are always changing
-        if (c.isUserBased()) {
-            return last_sync_success <= 0;
-        }
-
-        final long staleTime = (PublicApiTrack.class.equals(c.modelType)) ? SyncConfig.TRACK_STALE_TIME :
-                (PublicApiPlaylist.class.equals(c.modelType)) ? SyncConfig.PLAYLIST_STALE_TIME :
-                        (Activity.class.equals(c.modelType)) ? SyncConfig.ACTIVITY_STALE_TIME :
-                                SyncConfig.DEFAULT_STALE_TIME;
-
-        return System.currentTimeMillis() - last_sync_success > staleTime;
     }
 
     public boolean hasNotBeenRegistered() {

@@ -102,7 +102,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         items.add(0, PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(12345L)),
                 PromotedItemProperty.AD_URN.bind("adswizz:ad:123"),
-                PlayableProperty.CREATED_AT.bind(new Date(ignoredDate))));
+                SoundStreamProperty.CREATED_AT.bind(new Date(ignoredDate))));
 
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
 
@@ -353,6 +353,6 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     protected PropertySet createTimelineItem(long timestamp) {
         return PropertySet.from(
                 PlayableProperty.URN.bind(ModelFixtures.create(ApiTrack.class).getUrn()),
-                PlayableProperty.CREATED_AT.bind(new Date(timestamp)));
+                SoundStreamProperty.CREATED_AT.bind(new Date(timestamp)));
     }
 }

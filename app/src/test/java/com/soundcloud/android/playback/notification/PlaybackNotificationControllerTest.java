@@ -7,6 +7,8 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import com.soundcloud.android.ads.AdFunctions;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -139,7 +141,8 @@ public class PlaybackNotificationControllerTest extends AndroidUnitTest {
 
     private PropertySet getTrackMetadata(CurrentPlayQueueItemEvent event) {
         final TrackQueueItem playQueueItem = (TrackQueueItem) event.getCurrentPlayQueueItem();
-        return playQueueItem.getMetaData().put(EntityProperty.URN, playQueueItem.getTrackUrn());
+        final boolean isAd = AdFunctions.IS_AUDIO_AD_ITEM.apply(event.getCurrentPlayQueueItem());
+        return PropertySet.from(AdProperty.IS_AUDIO_AD.bind(isAd)).put(EntityProperty.URN, playQueueItem.getTrackUrn());
     }
 
 }

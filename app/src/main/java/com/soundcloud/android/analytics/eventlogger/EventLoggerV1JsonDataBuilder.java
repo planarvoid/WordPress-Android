@@ -19,6 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 
@@ -146,6 +147,17 @@ public class EventLoggerV1JsonDataBuilder {
                 .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                 .clickSource(event.getClickSource());
 
+        final Optional<Urn> sourceUrn = event.getClickSourceUrn();
+        final Optional<Urn> queryUrn = event.getQueryUrn();
+
+        if (sourceUrn.isPresent() && !sourceUrn.get().equals(Urn.NOT_SET)) {
+            eventData.clickSourceUrn(sourceUrn.get().toString());
+        }
+
+        if (queryUrn.isPresent()) {
+            eventData.queryUrn(queryUrn.get().toString());
+        }
+
         if (!event.get(AdTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
             eventData.pageUrn(event.get(AdTrackingKeys.KEY_PAGE_URN));
         }
@@ -204,7 +216,12 @@ public class EventLoggerV1JsonDataBuilder {
         }
 
         if (trackSourceInfo.isFromStation()) {
-            data.queryUrn(trackSourceInfo.getCollectionUrn().toString());
+            // When updating it, please update V0 too. Your friend.
+            data.sourceUrn(trackSourceInfo.getCollectionUrn().toString());
+
+            if (!trackSourceInfo.getStationsSourceInfo().getQueryUrn().equals(Urn.NOT_SET)) {
+                data.queryUrn(trackSourceInfo.getStationsSourceInfo().getQueryUrn().toString());
+            }
         }
 
         return data;

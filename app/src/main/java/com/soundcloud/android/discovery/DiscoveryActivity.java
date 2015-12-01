@@ -35,4 +35,12 @@ public class DiscoveryActivity extends ScActivity {
     protected void setActivityContentView() {
         baseLayoutHelper.setBaseLayout(this);
     }
+
+    @Override
+    public void onBackPressed() {
+        if (!playerController.handleBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+
 }

@@ -8,8 +8,6 @@ import com.soundcloud.android.api.legacy.model.behavior.Persisted;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
-import android.content.Intent;
-
 import java.util.List;
 
 @JsonTypeInfo(

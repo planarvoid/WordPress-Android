@@ -7,32 +7,33 @@
     android:orientation="vertical">
 
     <View
-        android:layout_height="16dp"
         android:layout_width="match_parent"
+        android:layout_height="16dp"
         android:background="@color/page_background"
         android:clickable="false"
         android:focusable="false" />
 
-    <View style="@style/Divider.Section"/>
+    <View style="@style/Divider.Section" />
 
     <com.soundcloud.android.collections.CollectionPreviewView
         android:id="@+id/collection_likes_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        soundcloud:collectionTitle="@string/collections_your_liked_tracks"
-        soundcloud:collectionIcon="@drawable/ic_collection_likes" />
+        soundcloud:collectionIcon="@drawable/ic_collection_likes"
+        soundcloud:collectionTitle="@string/collections_your_liked_tracks" />
 
 
     <com.soundcloud.android.collections.CollectionPreviewView
         android:id="@+id/collection_recent_stations_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         soundcloud:collectionIcon="@drawable/ic_collection_stations"
         soundcloud:collectionTitle="@string/stations_collection_title_recent_stations" />
 
     <View
-        android:layout_height="16dp"
         android:layout_width="match_parent"
+        android:layout_height="16dp"
         android:background="@color/page_background"
         android:clickable="false"
         android:focusable="false" />

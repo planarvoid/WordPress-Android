@@ -374,7 +374,7 @@ public class OnboardActivity extends FragmentActivity
 
             @Override
             protected void onPostExecute(AuthTaskResult result) {
-                onAuthTaskComplete(user, SignupVia.API, false, false);
+                onAuthTaskComplete(user, SignupVia.API, false);
             }
         }.execute();
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.skippedUserInfo());
@@ -569,7 +569,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @Override
-    public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean wasApiSignupTask, boolean showFacebookSuggestions) {
+    public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean wasApiSignupTask) {
         log(INFO, ONBOARDING_TAG, "auth task complete, via: " + via + ", was api signup task: " + wasApiSignupTask);
 
         if (wasApiSignupTask) {
@@ -683,7 +683,7 @@ public class OnboardActivity extends FragmentActivity
         final int resultCode = activityResult.resultCode;
         final Intent intent = activityResult.intent;
 
-        if (facebookSdk.isFacebookRequestCode(requestCode)){
+        if (FacebookSdk.isFacebookRequestCode(requestCode)){
             facebookCallbackManager.onActivityResult(requestCode, resultCode, intent);
         }
 

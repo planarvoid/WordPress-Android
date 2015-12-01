@@ -1,0 +1,92 @@
+import groovy.json.JsonOutput
+
+def beta_annotation = "android-beta"
+def release_annotation = "android-release"
+
+task slogBeta {
+  doLast {
+    sendMessage(basicText("beta", project.('ext').betaVersionCode, beta_annotation))
+  }
+}
+
+task slogFollowUpBeta {
+  doLast {
+    sendMessage(basicText("(follow-up) beta", project.('ext').followUpBetaVersionCode, beta_annotation))
+  }
+}
+
+task slogRolloutOnePercent {
+  doLast {
+    sendMessage(basicText("1% rollout", project.('ext').releaseVersionCode, release_annotation))
+  }
+}
+
+task slogRolloutFivePercent {
+  doLast {
+    sendMessage(basicText("5% rollout", project.('ext').releaseVersionCode, release_annotation))
+  }
+}
+
+task slogRolloutFull {
+  doLast {
+    sendMessage(basicText("100% rollout", project.('ext').releaseVersionCode, release_annotation))
+  }
+}
+
+def basicText(track, versionCode, prometheus_annotation) {
+  def repoUrl = "https://github.com/soundcloud/SoundCloud-Android"
+  def ciUrl = "http://mobile-jenkins.int.s-cloud.net/view/Android_Listeners_Release/"
+  def commit = project.('ext').pipelineVersion.split("-")[1]
+  def commitUrl = "$repoUrl/commit/$commit"
+
+  new String ("slog: Deployed <$repoUrl|SoundCloud-Android> " +
+          "versionCode $versionCode " +
+          "to *$track* " +
+          "(commit <$commitUrl|$commit> " +
+          "via pipeline #<$ciUrl|${project.('ext').pipelineVersion}>) " +
+          "#$prometheus_annotation")
+}
+
+def basicPayload(String text) {
+  new Payload(channel:"#android", username: "ci-bot", text: text, icon_emoji: ":ship:")
+}
+
+def sendMessage(String text) {
+  def payload = JsonOutput.toJson(basicPayload(text))
+  def cmd = ['curl', '-X', 'POST', '--data-urlencode', "payload=$payload", getUrl()]
+  executeCmd(cmd, "Failed to send slackbot message via $cmd")
+}
+
+def getUrl() {
+  def url = ''
+  def propertiesFile = file('/home/mobile/installs/webhook.properties')
+  if (propertiesFile.exists() && propertiesFile.canRead()) {
+    def releaseProperties = new Properties()
+    releaseProperties.load(new FileInputStream(propertiesFile))
+    url = releaseProperties.getProperty('url')
+  }
+  url
+}
+
+def executeCmd(cmd, errorMessage) {
+  def p = cmd.execute()
+  OutputStream standardOut = new ByteArrayOutputStream()
+  OutputStream standardError = new ByteArrayOutputStream()
+  p.waitForProcessOutput(standardOut, standardError)
+
+  def exitValue = p.exitValue()
+  if (exitValue != 0) {
+    System.err.println(new String(standardError.toByteArray()))
+    throw new Exception("$errorMessage: ($cmd) exitValue: $exitValue")
+  }
+
+  System.out.println(new String(standardOut.toByteArray()))
+}
+
+class Payload {
+  String channel
+  String username
+  String text
+  String icon_emoji
+}
+

@@ -117,11 +117,6 @@ public class EmptyViewBuilder {
         return this;
     }
 
-    public EmptyViewBuilder withMessageText(@Nullable int messageId) {
-        this.messageText = messageText;
-        return this;
-    }
-
     public EmptyViewBuilder withSecondaryText(@Nullable String secondaryText) {
         this.secondaryText = secondaryText;
         return this;

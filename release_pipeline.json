@@ -9,7 +9,7 @@
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ],
-              "cmd": "ln -s /home/mobile/installs/client_secrets.json app/client_secrets.json \nBUILD_TYPE=releaseNoProguard ./gradlew buildReleaseNoProguard",
+              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew buildReleaseNoProguard",
               "plugins": {
                 "androidLint": {
                   "failedTotalHigh": 0,
@@ -124,7 +124,7 @@
       "jobs": [
         {
           "build_beta_apk": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json app/client_secrets.json \nBUILD_TYPE=beta ./gradlew buildBeta",
+            "cmd": "BUILD_TYPE=beta ./gradlew buildBeta",
             "artifacts": [
               "app/build/outputs/apk/soundcloud*.apk"
             ]
@@ -132,7 +132,7 @@
         },
         {
           "deploy_beta": {
-            "cmd": "bundle install \n./gradlew deployBeta versionizeFollowUpBeta commitVersionBump",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployBeta versionizeFollowUpBeta commitVersionBump",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -151,7 +151,7 @@
         [
           {
             "build_release_apk": {
-              "cmd": "ln -s /home/mobile/installs/client_secrets.json app/client_secrets.json \nBUILD_TYPE=release ./gradlew buildRelease",
+              "cmd": "BUILD_TYPE=release ./gradlew buildRelease",
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ]
@@ -159,7 +159,7 @@
           },
           {
             "build_follow_up_beta_apk": {
-              "cmd": "ln -s /home/mobile/installs/client_secrets.json app/client_secrets.json \nBUILD_TYPE=beta ./gradlew buildFollowUpBeta",
+              "cmd": "BUILD_TYPE=beta ./gradlew buildFollowUpBeta",
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ]
@@ -168,7 +168,7 @@
         ],
         {
           "rollout_release_1_percent": {
-            "cmd": "bundle install \n./gradlew deployRelease deployFollowUpBeta",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseOnePercent deployFollowUpBeta",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -178,7 +178,7 @@
         },
         {
           "rollout_release_5_percent": {
-            "cmd": "bundle install \n./gradlew rolloutFivePercent",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseFivePercent",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -188,7 +188,7 @@
         },
         {
           "rollout_release_100_percent": {
-            "cmd": "bundle install \n./gradlew rolloutFull",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseRolloutFull",
             "manual": true,
             "localBranch": true,
             "artifacts": [

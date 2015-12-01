@@ -48,9 +48,9 @@
     <style name="You.VersionText">
         <item name="android:paddingTop">32dp</item>
         <item name="android:paddingBottom">32dp</item>
-        <item name="android:gravity">center</item>
+        <item name="android:gravity">center|top</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:textAppearance">@style/TextAppearance.You.Version</item>
         <item name="android:background">@color/page_background</item>
     </style>

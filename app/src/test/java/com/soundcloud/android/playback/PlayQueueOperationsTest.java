@@ -39,6 +39,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 
 public class PlayQueueOperationsTest extends AndroidUnitTest {
@@ -88,7 +89,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadAPreviouslyStoredPlayQueue() throws Exception {
-        PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(1L))
+        PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(123L))
                 .fromSource("source1", "version1")
                 .build();
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
@@ -103,8 +104,42 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateQueueFromItemsObservable() throws Exception {
+    public void shouldOnlyReturnPlayQueueIfPlayQueueContainsTheLastStoredPlayingTrack() throws Exception {
+        TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
+
+        PlayQueueItem playQueueItem1 = new TrackQueueItem.Builder(Urn.forTrack(1L))
+                .fromSource("source1", "version1")
+                .build();
+        PlayQueueItem playQueueItem2 = new TrackQueueItem.Builder(Urn.forTrack(2L))
+                .fromSource("source2", "version2")
+                .build();
+
+        Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1, playQueueItem2));
+
+        when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
+
+        playQueueOperations.getLastStoredPlayQueue().subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents()).isEmpty();
+        assertThat(subscriber.getOnCompletedEvents()).hasSize(1);
+    }
+
+    @Test
+    public void shouldReturnEmptyObservableIfStoredPlayQueueIsEmpty() throws Exception {
+        final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
+
+        when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
+        when(playQueueStorage.loadAsync()).thenReturn(Observable.<PlayQueueItem>empty());
+        playQueueOperations.getLastStoredPlayQueue().subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents()).isEmpty();
+        assertThat(subscriber.getOnCompletedEvents()).hasSize(1);
+    }
+
+    @Test
+    public void shouldCreateQueueFromItemsObservable() throws Exception {
+        when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(1L);
 
         PlayQueueItem playQueueItem1 = new TrackQueueItem.Builder(Urn.forTrack(1L))
                 .fromSource("source1", "version1")
@@ -121,10 +156,10 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldReturnNullWhenReloadingWithNoValidStoredLastTrack() throws Exception {
+    public void shouldReturnEmptyObservableWhenReloadingWithNoValidStoredLastTrack() throws Exception {
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(-1L);
         verifyZeroInteractions(playQueueStorage);
-        assertThat(playQueueOperations.getLastStoredPlayQueue()).isNull();
+        assertThat(playQueueOperations.getLastStoredPlayQueue()).isEqualTo(Observable.empty());
     }
 
     @Test
@@ -196,7 +231,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getRelatedTracksPlayQueueShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(new RecommendedTracksCollection()));
+                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(), "version")));
 
         TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
         playQueueOperations.relatedTracksPlayQueue(Urn.forTrack(123), false).subscribe(testSubscriber);
@@ -207,7 +242,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getRelatedTracksPlayQueueWithSeedTrackShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(new RecommendedTracksCollection()));
+                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(), "version")));
 
         TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
         playQueueOperations.relatedTracksPlayQueueWithSeedTrack(Urn.forTrack(123)).subscribe(testSubscriber);
@@ -217,8 +252,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
-        RecommendedTracksCollection collection = createCollection(
-                ModelFixtures.create(ApiTrack.class));
+        RecommendedTracksCollection collection = createCollection(ModelFixtures.create(ApiTrack.class));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
                 .thenReturn(Observable.just(collection));
 
@@ -228,9 +262,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     }
 
     private RecommendedTracksCollection createCollection(ApiTrack... suggestions) {
-        final RecommendedTracksCollection collection = new RecommendedTracksCollection();
-        collection.setCollection(Arrays.asList(suggestions));
-        return collection;
+        return new RecommendedTracksCollection(Arrays.asList(suggestions), "version");
     }
 
 }

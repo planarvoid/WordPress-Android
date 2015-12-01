@@ -7,7 +7,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.associations.NextFollowingOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -36,7 +36,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
 
     private final MyProfileOperations profileOperations;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
-    private final NextFollowingOperations followingOperations;
+    private final FollowingOperations followingOperations;
 
     private final Func1<List<PropertySet>, List<UserItem>> pageTransformer = new Func1<List<PropertySet>, List<UserItem>>() {
         @Override
@@ -60,7 +60,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
     MyFollowingsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                           ImagePauseOnScrollListener imagePauseOnScrollListener,
                           UserRecyclerItemAdapter adapter,
-                          MyProfileOperations profileOperations, NextFollowingOperations followingOperations, Navigator navigator) {
+                          MyProfileOperations profileOperations, FollowingOperations followingOperations, Navigator navigator) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;

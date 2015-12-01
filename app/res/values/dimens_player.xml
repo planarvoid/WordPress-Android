@@ -29,9 +29,10 @@
     <dimen name="track_info_interior_padding_bottom">8dp</dimen>
     <dimen name="track_info_interior_padding_horizontal">20dp</dimen>
 
-    <!-- audio ad -->
-    <dimen name="ad_learn_more_bottom">96dp</dimen>
-    <dimen name="ad_learn_more_height">40dp</dimen>
+    <!-- ads -->
+    <dimen name="ad_cta_button_bottom_margin">96dp</dimen>
+    <dimen name="ad_cta_button_video_bottom_margin">72.5dp</dimen>
+    <dimen name="ad_cta_button_height">40dp</dimen>
 
     <!-- ad overlays -->
     <dimen name="ad_overlay_padding">6dp</dimen>

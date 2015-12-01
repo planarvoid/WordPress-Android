@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.functions.Function;
@@ -18,20 +17,23 @@ import java.util.List;
 
 public final class ApiStation implements StationRecord {
 
-    private static final Function<TrackRecord, Urn> TO_URN = new Function<TrackRecord, Urn>() {
+    private final Function<TrackRecord, StationTrack> TO_STATION_TRACK = new Function<TrackRecord, StationTrack>() {
         @Override
-        public Urn apply(TrackRecord track) {
-            return track.getUrn();
+        public StationTrack apply(TrackRecord track) {
+            return StationTrack.create(track.getUrn(), queryUrn);
         }
     };
 
     private final ApiStationMetadata metadata;
     private final List<? extends TrackRecord> tracks;
+    private final Urn queryUrn;
 
     @JsonCreator
-    public ApiStation(@JsonProperty("station") ApiStationMetadata metadata, @JsonProperty("tracks") ModelCollection<ApiTrack> tracks) {
+    public ApiStation(@JsonProperty("station") ApiStationMetadata metadata,
+                      @JsonProperty("tracks") ModelCollection<ApiTrack> tracks) {
         this.metadata = metadata;
         this.tracks = tracks.getCollection();
+        this.queryUrn = tracks.getQueryUrn().or(Urn.NOT_SET);
     }
 
     @VisibleForTesting
@@ -40,8 +42,8 @@ public final class ApiStation implements StationRecord {
     }
 
     @Override
-    public List<Urn> getTracks() {
-        return transform(tracks, TO_URN);
+    public List<StationTrack> getTracks() {
+        return transform(tracks, TO_STATION_TRACK);
     }
 
     public List<? extends TrackRecord> getTrackRecords() {

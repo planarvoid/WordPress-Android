@@ -1,39 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+<FrameLayout
     android:id="@+id/track_list_item"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:foreground="?android:selectableItemBackground">
 
-    <View style="@style/Divider.Section" />
-    <View style="@style/Divider.Background" />
-    <View style="@style/Divider.Section" />
+    <LinearLayout
+        style="@style/Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
-    <include layout="@layout/stream_item_header" />
+        <include layout="@layout/stream_item_header" />
 
-    <RelativeLayout style="@style/Stream.Card">
+        <RelativeLayout style="@style/Stream.Card">
 
-        <com.soundcloud.android.view.ParallaxImageView
-            android:id="@+id/image"
-            style="@style/Stream.Image.Track" />
+            <com.soundcloud.android.view.ParallaxImageView
+                android:id="@+id/image"
+                style="@style/Stream.Image.Track" />
 
-        <com.soundcloud.android.view.JaggedTextView
-            android:id="@id/creator"
-            style="@style/Stream.ArtistText"
-            android:layout_above="@id/title"
-            tools:text="Artist" />
+            <com.soundcloud.android.view.JaggedTextView
+                android:id="@id/creator"
+                style="@style/Stream.ArtistText"
+                android:layout_above="@id/title"
+                tools:text="Artist" />
 
-        <com.soundcloud.android.view.JaggedTextView
-            android:id="@id/title"
-            style="@style/Stream.TitleText"
-            android:layout_alignBottom="@id/image"
-            tools:text="Track title" />
-    </RelativeLayout>
+            <com.soundcloud.android.view.JaggedTextView
+                android:id="@id/title"
+                style="@style/Stream.TitleText"
+                android:layout_alignBottom="@id/image"
+                tools:text="Track title" />
+        </RelativeLayout>
 
-    <include layout="@layout/stream_item_footer" />
-
-</LinearLayout>
+        <include layout="@layout/stream_item_footer" />
+    </LinearLayout>
+</FrameLayout>
 

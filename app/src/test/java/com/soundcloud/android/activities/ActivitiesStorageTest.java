@@ -3,6 +3,7 @@ package com.soundcloud.android.activities;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackCommentActivity;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackLikeActivity;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiUserFollowActivity;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
@@ -14,6 +15,7 @@ import org.junit.Test;
 import rx.observers.TestSubscriber;
 
 import java.util.Date;
+import java.util.List;
 
 public class ActivitiesStorageTest extends StorageIntegrationTest {
 
@@ -28,7 +30,7 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new ActivitiesStorage(propellerRx());
+        storage = new ActivitiesStorage(propeller(), propellerRx());
         oldestActivity = apiTrackCommentActivity(new Date(TIMESTAMP));
         olderActivity = apiTrackLikeActivity(new Date(TIMESTAMP + 1));
         newestActivity = apiUserFollowActivity(new Date(TIMESTAMP + 2));
@@ -104,6 +106,35 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
 
         subscriber.assertValue(expectedPropertiesFor(olderActivity));
         subscriber.assertCompleted();
+    }
+
+    @Test
+    public void shouldLoadActivitiesAfterGivenTimestampInReverseChronologicalOrder() {
+        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
+
+        assertThat(activities).containsExactly(
+                expectedPropertiesFor(newestActivity),
+                expectedPropertiesFor(olderActivity)
+        );
+    }
+
+    @Test
+    public void shouldLimitActivitiesSinceGivenTimestamp() {
+        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, 1);
+
+        assertThat(activities).containsExactly(expectedPropertiesFor(newestActivity));
+    }
+
+    @Test
+    public void shouldNotReturnUnsupportedActivitiesFromActivitiesSinceGivenTimestamp() {
+        testFixtures().insertUnsupportedActivity();
+
+        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
+
+        assertThat(activities).containsExactly(
+                expectedPropertiesFor(newestActivity),
+                expectedPropertiesFor(olderActivity)
+        );
     }
 
     private PropertySet expectedPropertiesFor(ApiUserFollowActivity activity) {

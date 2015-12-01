@@ -121,7 +121,6 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     public Observable<PlaybackResult> setNewQueue(final PlayQueue playQueue,
                                                   final Urn initialTrackUrn,
                                                   final int initialTrackPosition,
-                                                  final boolean loadRelated,
                                                   final PlaySessionSource playSessionSource) {
         return Observable
                 .create(new Observable.OnSubscribe<PlaybackResult>() {

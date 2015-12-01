@@ -17,7 +17,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.associations.NextFollowingOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -52,7 +52,7 @@ public class MyFollowingsSyncerTest {
     @Mock private AccountOperations accountOperations;
     @Mock private UserAssociation userAssociation;
     @Mock private PublicApiUser user;
-    @Mock private NextFollowingOperations nextFollowingOperations;
+    @Mock private FollowingOperations followingOperations;
     @Mock private ApiResponse apiResponse;
     @Mock private NotificationManager notificationManager;
     @Mock private JsonTransformer jsonTransformer;
@@ -62,7 +62,7 @@ public class MyFollowingsSyncerTest {
     public void before() {
         TestHelper.setUserId(133201L);
         userAssociationSyncer = new MyFollowingsSyncer(Robolectric.application,
-                resolver, userAssociationStorage, accountOperations, nextFollowingOperations,
+                resolver, userAssociationStorage, accountOperations, followingOperations,
                 notificationManager, jsonTransformer, navigator);
         when(userAssociation.getUser()).thenReturn(user);
         when(userAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
@@ -255,7 +255,7 @@ public class MyFollowingsSyncerTest {
 
     private ApiSyncResult sync() throws IOException {
         MyFollowingsSyncer syncer = new MyFollowingsSyncer(
-                Robolectric.application, accountOperations, nextFollowingOperations, notificationManager, jsonTransformer,
+                Robolectric.application, accountOperations, followingOperations, notificationManager, jsonTransformer,
                 navigator);
         return syncer.syncContent(Content.ME_FOLLOWINGS.uri, Intent.ACTION_SYNC);
     }

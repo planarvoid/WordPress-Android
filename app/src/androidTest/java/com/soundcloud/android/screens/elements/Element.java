@@ -21,6 +21,10 @@ public abstract class Element {
         return getRootViewElement().isVisible();
     }
 
+    public boolean isFullyVisible() {
+        return getRootViewElement().isFullyVisible();
+    }
+
     public ViewElement getRootViewElement() {
         return solo.findElement(matcher);
     }

@@ -2,7 +2,6 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
-import static com.soundcloud.android.testsupport.TestHelper.assertResolverNotified;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static java.util.Collections.singleton;
 import static org.mockito.Matchers.argThat;
@@ -13,10 +12,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
@@ -39,7 +36,6 @@ import java.io.IOException;
 public class ApiSyncerTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
-    LegacyActivitiesStorage activitiesStorage;
     long startTime;
 
     @Mock private EventBus eventBus;
@@ -55,7 +51,6 @@ public class ApiSyncerTest {
 
         resolver = DefaultTestRunner.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
-        activitiesStorage = new LegacyActivitiesStorage();
         startTime = System.currentTimeMillis();
     }
 
@@ -69,43 +64,6 @@ public class ApiSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(startTime);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
-    }
-
-    @Test
-    public void shouldSyncActivities() throws Exception {
-        ApiSyncResult result = sync(Content.ME_ACTIVITIES.uri,
-                "e1_activities_1.json",
-                "e1_activities_2.json");
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(startTime);
-
-
-        expect(Content.ME_ACTIVITIES).toHaveCount(17);
-        expect(Content.COMMENTS).toHaveCount(5);
-
-        Activities own = activitiesStorage.getCollectionSince(Content.ME_ACTIVITIES.uri, -1);
-        expect(own.size()).toEqual(17);
-
-        assertResolverNotified(Content.TRACKS.uri,
-                Content.USERS.uri,
-                Content.COMMENTS.uri,
-                Content.ME_ACTIVITIES.uri);
-    }
-
-    @Test
-    public void shouldSyncSecondTimeWithCorrectRequest() throws Exception {
-        ApiSyncResult result = sync(Content.ME_ACTIVITIES.uri,
-                "e1_activities_1.json",
-                "e1_activities_2.json");
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(startTime);
-
-        TestHelper.addResourceResponse(getClass(),
-                "/e1/me/activities?uuid%5Bto%5D=3d22f400-0699-11e2-919a-b494be7979e7&limit=100", "empty_collection.json");
-
-        result = sync(Content.ME_ACTIVITIES.uri);
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(startTime);
     }
 
     @Test
@@ -142,15 +100,6 @@ public class ApiSyncerTest {
         expect(result.synced_at).toBeGreaterThan(startTime);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.USERS).toHaveCount(3);
-    }
-
-    @Test
-    public void shouldSetSyncResultData() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "e1_activities_1_oldest.json");
-        ApiSyncResult result = sync(Content.ME_ACTIVITIES.uri);
-        expect(result.change).toEqual(ApiSyncResult.CHANGED);
-        expect(result.new_size).toEqual(7);
-        expect(result.synced_at).toBeGreaterThan(startTime);
     }
 
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {

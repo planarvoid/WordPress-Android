@@ -60,6 +60,7 @@ public class LikedTrackStorage {
                         TableColumns.Sounds.TITLE,
                         TableColumns.Users.USERNAME,
                         TableColumns.Sounds.DURATION,
+                        TableColumns.Sounds.FULL_DURATION,
                         TableColumns.Sounds.PLAYBACK_COUNT,
                         TableColumns.Sounds.LIKES_COUNT,
                         TableColumns.Sounds.SHARING,

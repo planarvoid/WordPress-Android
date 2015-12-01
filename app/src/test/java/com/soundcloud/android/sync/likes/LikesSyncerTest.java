@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -308,8 +307,6 @@ public class LikesSyncerTest extends AndroidUnitTest {
     public void shouldNotHaveWrittenAdditionsIfResolvingAdditionsFails() throws Exception {
         withLocalTrackLikes();
         withRemoteTrackLikes(trackLike);
-        final ModelCollection<ApiTrack> tracks = new ModelCollection<>();
-        tracks.setCollection(ModelFixtures.create(ApiTrack.class, 2));
         when(fetchLikedResources.call()).thenThrow(new IOException());
 
         try {

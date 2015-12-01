@@ -59,7 +59,7 @@
 
     <!-- __ADS -->
     <string name="ads_advertisement">Advertisement</string>
-    <string name="ads_learn_more">LEARN MORE</string>
+    <string name="ads_call_to_action">LEARN MORE</string>
     <string name="ads_why_ads">Why ads?</string>
     <string name="ads_why_ads_dialog_message">Every time you see or hear an ad, artists get paid. Occasional ads allow us to continue to support artists and keep SoundCloud free for listeners.</string>
     <string name="ads_skip_ad">Skip ad</string>
@@ -136,12 +136,11 @@
     <string name="info_empty_you_secondary">To edit your profile, sign in to SoundCloud on your desktop.</string>
     <string name="list_empty_notification_message">You don\'t have any notifications yet.</string>
     <string name="list_empty_notification_secondary">Follow your favorite artists, bands and podcasts to hear their latest tracks.</string>
-    <string name="list_empty_stream_action">Find people to follow.</string>
+    <string name="list_empty_stream_action">FIND PEOPLE TO FOLLOW</string>
     <string name="list_empty_stream_message">Follow your favorite artists, bands and podcasts to hear their latest tracks.</string>
-    <string name="list_empty_user_following_action">Find people to follow.</string>
+    <string name="list_empty_user_following_action">FIND PEOPLE TO FOLLOW</string>
     <string name="empty_playlist_title">Empty playlist</string>
     <string name="empty_playlist_description">This playlist has no tracks yet.</string>
-    <string name="list_empty_liked_playlists_message">Like your favorite playlists to hear them again.</string>
 
     <string name="list_empty_you_sounds_message">Repost sounds to share them with your followers.</string>
     <string name="list_empty_you_playlists_message">Create playlists to make mixes of your favorite sounds.</string>
@@ -202,7 +201,7 @@
     <string name="use_existing_image_error">Could not use existing image</string>
 
     <!-- __NAVIGATION -->
-    <string name="side_menu_notifications">Notifications</string>
+    <string name="side_menu_notifications">Activity</string>
     <string name="side_menu_record">Record</string>
     <string name="side_menu_you">You</string>
     <string name="side_menu_settings">Settings</string>
@@ -280,7 +279,7 @@
 
     <!-- __PLAYER -->
     <string name="share">Share</string>
-    <string name="repost">Repost</string>
+    <string name="repost">Repost on SoundCloud</string>
     <string name="unpost">Unpost</string>
     <string name="comment_at_time">Comment at %s</string>
     <string name="comment_on_tracktitle">Comment on %s</string>
@@ -312,8 +311,6 @@
 
     <!-- __PLAYLISTS -->
     <string name="activity_title_playlist">Playlist</string>
-    <string name="your_playlists_tab">YOUR PLAYLISTS</string>
-    <string name="liked_playlists_tab">LIKED PLAYLISTS</string>
     <string name="playlist_load_error">Could not load this playlist</string>
     <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
     <string name="shuffle_playlist">Shuffle playlist</string>
@@ -620,7 +617,7 @@
 
     <!-- __YOU -->
     <string name="you_explore">Explore</string>
-    <string name="you_activity">Notifications</string>
+    <string name="you_activity">Activity</string>
     <string name="you_record">Record</string>
     <string name="you_offline_sync_settings">Offline Sync Settings</string>
     <string name="you_notification_settings">Notification Settings</string>

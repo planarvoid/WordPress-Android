@@ -7,7 +7,6 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 
-import android.net.Uri;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;

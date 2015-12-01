@@ -1,14 +1,25 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.collections.PropertySet;
-
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.optional.Optional;
+
 public abstract class PlayQueueItem {
+
+    public static final Function<PlayQueueItem, Long> TO_ID = new Function<PlayQueueItem, Long>() {
+        public Long apply(PlayQueueItem playQueueItem) {
+            return playQueueItem.getUrnOrNotSet().getNumericId();
+        }
+    };
+
+    public static final PlayQueueItem EMPTY = new Empty();
+
     enum Kind {EMPTY, TRACK, VIDEO}
 
-    private PropertySet metaData;
+    private Optional<AdData> adData;
 
     public boolean isTrack() {
         return this.getKind() == Kind.TRACK;
@@ -31,19 +42,23 @@ public abstract class PlayQueueItem {
         return this.isTrack() ? getUrn() : Urn.NOT_SET;
     }
 
-    public PropertySet getMetaData() {
-        return metaData;
+    public Optional<AdData> getAdData() {
+        return adData;
     }
 
-    public void setMetaData(PropertySet metaData) {
-        this.metaData = metaData;
+    public void setAdData(Optional<AdData> adData) {
+        this.adData = adData;
     }
 
     public abstract boolean shouldPersist();
 
     public abstract Kind getKind();
 
-    public static class Empty extends PlayQueueItem {
+    private static class Empty extends PlayQueueItem {
+        public Empty() {
+            super.setAdData(Optional.<AdData>absent());
+        }
+
         @Override
         public boolean shouldPersist() {
             return false;

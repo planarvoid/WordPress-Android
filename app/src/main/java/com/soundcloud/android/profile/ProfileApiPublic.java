@@ -5,20 +5,9 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
-import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistLike;
-import com.soundcloud.android.api.model.ApiPlaylistPost;
-import com.soundcloud.android.api.model.ApiPlaylistRepost;
-import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiTrackLike;
-import com.soundcloud.android.api.model.ApiTrackPost;
-import com.soundcloud.android.api.model.ApiTrackRepost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.PropertySetSource;
@@ -35,48 +24,6 @@ import java.util.List;
 public class ProfileApiPublic implements ProfileApi {
 
     private final ApiClientRx apiClientRx;
-
-    private static final Func1<SoundAssociationHolder, ModelCollection<PropertySetSource>> SOUND_ASSOCIATIONS_TO_POSTS_COLLECTION = new Func1<SoundAssociationHolder, ModelCollection<PropertySetSource>>() {
-        @Override
-        public ModelCollection<PropertySetSource> call(SoundAssociationHolder postsHolder) {
-
-            List<PropertySetSource> posts = new ArrayList<>(postsHolder.size());
-            for (SoundAssociation soundAssociation : postsHolder){
-                final Playable playable = soundAssociation.getPlayable();
-                if (playable instanceof PublicApiTrack){
-                    final ApiTrack apiTrack = ((PublicApiTrack) playable).toApiMobileTrack();
-                    posts.add(soundAssociation.isRepost() ?
-                            new ApiTrackRepost(apiTrack, soundAssociation.created_at) :
-                            new ApiTrackPost(apiTrack));
-
-                } else {
-                    final ApiPlaylist apiPlaylist = ((PublicApiPlaylist) playable).toApiMobilePlaylist();
-                    posts.add(soundAssociation.isRepost() ?
-                            new ApiPlaylistRepost(apiPlaylist, soundAssociation.created_at) :
-                            new ApiPlaylistPost(apiPlaylist));
-                }
-            }
-            return new ModelCollection<>(posts, postsHolder.getNextHref());
-        }
-    };
-
-    private static final Func1<SoundAssociationHolder, ModelCollection<PropertySetSource>> SOUND_ASSOCIATIONS_TO_LIKES_COLLECTION = new Func1<SoundAssociationHolder, ModelCollection<PropertySetSource>>() {
-        @Override
-        public ModelCollection<PropertySetSource> call(SoundAssociationHolder likesHolder) {
-
-            List<PropertySetSource> likes = new ArrayList<>(likesHolder.size());
-            for (SoundAssociation soundAssociation : likesHolder){
-                final Playable playable = soundAssociation.getPlayable();
-                if (playable instanceof PublicApiTrack){
-                    likes.add(new ApiTrackLike(((PublicApiTrack) playable).toApiMobileTrack(), soundAssociation.created_at));
-
-                } else {
-                    likes.add(new ApiPlaylistLike(((PublicApiPlaylist) playable).toApiMobilePlaylist(), soundAssociation.created_at));
-                }
-            }
-            return new ModelCollection<>(likes, likesHolder.getNextHref());
-        }
-    };
 
     private static final Func1<CollectionHolder<PublicApiPlaylist>, ModelCollection<ApiPlaylist>> PLAYLISTS_TO_COLLECTION = new Func1<CollectionHolder<PublicApiPlaylist>, ModelCollection<ApiPlaylist>>() {
         @Override
@@ -107,22 +54,22 @@ public class ProfileApiPublic implements ProfileApi {
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userPosts(Urn user) {
-        return getPostsCollection(ApiEndpoints.LEGACY_USER_SOUNDS.path(user.getNumericId()));
+        throw new UnsupportedOperationException("User posts are no longer supported via Public API");
     }
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userPosts(String pageLink) {
-        return getPostsCollection(pageLink);
+        throw new UnsupportedOperationException("User posts are no longer supported via Public API");
     }
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userLikes(Urn user) {
-        return getLikesCollection(ApiEndpoints.LEGACY_USER_LIKES.path(user.getNumericId()));
+        throw new UnsupportedOperationException("User likes are no longer supported via Public API");
     }
 
     @Override
     public Observable<ModelCollection<PropertySetSource>> userLikes(String pageLink) {
-        return getLikesCollection(pageLink);
+        throw new UnsupportedOperationException("User likes are no longer supported via Public API");
     }
 
     @Override
@@ -153,30 +100,6 @@ public class ProfileApiPublic implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowers(String pageLink) {
         return getUsers(pageLink);
-    }
-
-    @NotNull
-    private Observable<ModelCollection<PropertySetSource>> getPostsCollection(String path) {
-        final ApiRequest request = ApiRequest.get(path)
-                .forPublicApi()
-                .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
-                .build();
-
-        return apiClientRx.mappedResponse(request, SoundAssociationHolder.class)
-                .map(SOUND_ASSOCIATIONS_TO_POSTS_COLLECTION);
-    }
-
-    @NotNull
-    private Observable<ModelCollection<PropertySetSource>> getLikesCollection(String path) {
-        final ApiRequest request = ApiRequest.get(path)
-                .forPublicApi()
-                .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
-                .build();
-
-        return apiClientRx.mappedResponse(request, SoundAssociationHolder.class)
-                .map(SOUND_ASSOCIATIONS_TO_LIKES_COLLECTION);
     }
 
     @NotNull

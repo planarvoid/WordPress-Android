@@ -4,7 +4,8 @@ import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.ads.OverlayAdData;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.experiments.ShareButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -142,12 +143,13 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.artworkController.loadArtwork(trackState.getUrn(), trackState.isCurrentTrack(),
                 trackState.getViewVisibilityProvider());
 
-        holder.timestamp.setInitialProgress(trackState.getDuration());
+        holder.timestamp.setInitialProgress(trackState.getPlayableDuration(), trackState.getFullDuration());
         holder.menuController.setTrack(trackState);
         holder.waveformController.setWaveform(waveformOperations.waveformDataFor(trackState.getUrn(),
                 trackState.getWaveformUrl()), trackState.isForeground());
 
-        holder.waveformController.setDuration(trackState.getDuration());
+        holder.artworkController.setFullDuration(trackState.getFullDuration());
+        holder.waveformController.setDurations(trackState.getPlayableDuration(), trackState.getFullDuration());
 
         setLikeCount(holder, trackState.getLikeCount());
         holder.likeToggle.setChecked(trackState.isUserLike());
@@ -192,8 +194,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         getViewHolder(view).castDeviceName.setText(deviceName);
     }
 
-    public void setAdOverlay(View view, PropertySet track) {
-        getViewHolder(view).adOverlayController.initialize(track);
+    public void setAdOverlay(View view, OverlayAdData adData) {
+        getViewHolder(view).adOverlayController.initialize(adData);
     }
 
     public void clearAdOverlay(View view) {
@@ -523,7 +525,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             }
 
             @Override
-            public void displayScrubPosition(float scrubPosition) {
+            public void displayScrubPosition(float actualPosition, float boundedPosition) {
                 // no-op
             }
         };

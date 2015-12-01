@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -43,6 +45,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private TrackSourceInfo trackSourceInfo;
     @Mock private AdsOperations adsOperations;
+    @Mock private AppboyPlaySessionState appboyPlaySessionState;
 
     @Before
     public void setUp() throws Exception {
@@ -55,7 +58,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
 
         analyticsController = new PlaybackSessionAnalyticsController(
-                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations);
+                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, appboyPlaySessionState);
     }
 
     @Test
@@ -112,7 +115,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangeEventForPlayingAudioAdPublishesAdSpecificPlayEvent() throws Exception {
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
@@ -123,13 +126,13 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         assertThat(playbackSessionEvent.isStopEvent()).isFalse();
         // ad specific properties
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AD_URN));
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
     }
 
     @Test
     public void stateChangeEventForFinishPlayingAudioAdPublishesAdSpecificStopEvent() throws Exception {
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
         when(playQueueManager.hasNextItem()).thenReturn(true);
@@ -143,14 +146,14 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         assertThat(playbackSessionEvent.hasTrackFinished()).isTrue();
         // ad specific properties
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AD_URN));
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
     }
 
     @Test
     public void stateChangeEventForPlayingAudioAdOnPromotedContentDoesntHavePromotedInfo() throws Exception {
         final Urn promoter = Urn.forUser(83L);
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
         final PlaySessionSource source = new PlaySessionSource("stream");
         source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", TRACK_URN, Optional.of(promoter), Arrays.asList("url")));
 
@@ -163,8 +166,8 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         // ad specific properties
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AD_URN));
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
         assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
     }
 
@@ -275,7 +278,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishStopEventWithAdDataWhenUserSkipsBetweenTracksManually() {
-        final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
         final Urn nextTrack = Urn.forTrack(456L);
         when(trackRepository.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack, CREATOR_URN)));
 
@@ -292,7 +295,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(events.get(1)).isInstanceOf(PlaybackSessionEvent.class);
         assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
         assertThat(((PlaybackSessionEvent) events.get(1)).getTrackUrn()).isEqualTo(TRACK_URN);
-        assertThat(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.get(AdProperty.AD_URN));
+        assertThat(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn());
     }
 
     protected Player.StateTransition publishPlayingEvent() {

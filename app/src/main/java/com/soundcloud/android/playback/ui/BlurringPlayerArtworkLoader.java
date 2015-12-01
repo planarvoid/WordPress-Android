@@ -4,6 +4,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import rx.Scheduler;
 import rx.Subscription;
@@ -62,11 +63,15 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
             final ImageView imageView = imageOverlayRef.get();
 
             if (imageView != null) {
-                if (viewVisibilityProvider.isCurrentlyVisible(imageView)) {
+                if (viewVisibilityProvider != null && viewVisibilityProvider.isCurrentlyVisible(imageView)) {
                     final TransitionDrawable transitionDrawable = ImageUtils.createTransitionDrawable(null, new BitmapDrawable(bitmap));
                     imageView.setImageDrawable(transitionDrawable);
                     transitionDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
                 } else {
+                    // we are being extremely defensive around a release bug. Remove this and null check if it does not appear
+                    if (viewVisibilityProvider == null) {
+                        ErrorUtils.handleSilentException(new IllegalStateException("View Visibility Provider null in Blurring artwork loader"));
+                    }
                     imageView.setImageBitmap(bitmap);
                 }
             }

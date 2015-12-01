@@ -161,7 +161,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private View createTabViewFor(@DrawableRes int icon) {
         ImageView view = new ImageView(activity);
         view.setImageResource(icon);
-        int tabPadding = (int) view.getContext().getResources().getDimension(R.dimen.main_tab_padding);
+        int tabPadding = (int) view.getContext().getResources().getDimension(R.dimen.fixed_tab_padding);
         view.setPadding(tabPadding, 0, tabPadding, 0);
         return view;
     }

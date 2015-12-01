@@ -61,7 +61,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         setupResource(PublicApiPlaylist.class);
         setupReferrer(Referrer.OTHER);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
-        when(playbackInitiator.startPlayback(any(PublicApiTrack.class), any(Screen.class), any(boolean.class))).thenReturn(Observable.<PlaybackResult>empty());
+        when(playbackInitiator.startPlayback(any(PublicApiTrack.class), any(Screen.class))).thenReturn(Observable.<PlaybackResult>empty());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verify(playbackInitiator).startPlayback((PublicApiTrack) resource, Screen.DEEPLINK, PlaybackInitiator.WITH_RELATED);
+        verify(playbackInitiator).startPlayback((PublicApiTrack) resource, Screen.DEEPLINK);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verify(playbackInitiator).startPlayback((PublicApiTrack) resource, Screen.DEEPLINK, PlaybackInitiator.WITHOUT_RELATED);
+        verify(playbackInitiator).startPlayback((PublicApiTrack) resource, Screen.DEEPLINK);
     }
 
     @Test

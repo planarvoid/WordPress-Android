@@ -13,11 +13,14 @@
     <style name="Stream.Card.Header">
         <item name="android:paddingBottom">16dp</item>
         <item name="android:paddingTop">16dp</item>
+        <item name="android:minHeight">@dimen/stream_header_min_height</item>
     </style>
 
-    <style name="Stream.Card.Footer" />
+    <style name="Stream.Card.Footer">
+        <item name="android:minHeight">56dp</item>
+    </style>
 
-    <style name="Stream.Image" parent="GridItemImageView"/>
+    <style name="Stream.Image" parent="GridItemImageView" />
 
     <style name="Stream.Image.Track" parent="Stream.Image">
         <item name="ariv_aspectRatio">.50</item>
@@ -65,6 +68,8 @@
 
     <style name="Stream.PrimaryHeaderText" parent="ListItemText.PrimaryText">
         <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:lineSpacingMultiplier">1.0</item>
     </style>
 
     <style name="Stream.SecondaryHeaderText" parent="ListItemText.SecondaryText">
@@ -77,10 +82,10 @@
     </style>
 
     <style name="Stream.StatsItem" parent="ListItemText">
-        <item name="android:paddingTop">20dp</item>
-        <item name="android:paddingBottom">20dp</item>
+        <item name="android:layout_alignParentLeft">true</item>
         <item name="android:layout_centerVertical">true</item>
         <item name="android:drawablePadding">8dp</item>
+        <item name="android:maxLines">1</item>
     </style>
 
     <style name="Stream.ToggleButton" parent="ListItemText">

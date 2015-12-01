@@ -49,6 +49,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Mock private StreamItemViewHolder itemView;
     @Mock private View view;
 
+    private Date createdAtStream = new Date();
     private StreamCardViewPresenter presenter;
 
     @Before
@@ -199,35 +200,43 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistItem postedPlaylist() {
-        return PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+        final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
+        playlist.put(SoundStreamProperty.CREATED_AT, createdAtStream);
+
+        return PlaylistItem.from(playlist);
+    }
+
+    private PlaylistItem repostedPlaylist() {
+        final PlaylistItem playlistItem = postedPlaylist();
+        playlistItem.update(PropertySet.from(
+                PostProperty.REPOSTER.bind("reposter"),
+                PostProperty.REPOSTER_URN.bind(Urn.forUser(123L))
+        ));
+        return playlistItem;
+    }
+
+    private TrackItem postedTrack() {
+        final PropertySet track = ModelFixtures.create(ApiTrack.class).toPropertySet();
+        track.put(SoundStreamProperty.CREATED_AT, createdAtStream);
+
+        return TrackItem.from(track);
+    }
+
+    private TrackItem repostedTrack() {
+        final TrackItem trackItem = postedTrack();
+        trackItem.update(PropertySet.from(
+                PostProperty.REPOSTER.bind("reposter"),
+                PostProperty.REPOSTER_URN.bind(Urn.forUser(123L))
+        ));
+        return trackItem;
     }
 
     private String repostedString() {
         return resources().getString(R.string.stream_reposted_action);
     }
 
-    private PlaylistItem repostedPlaylist() {
-        final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-        playlist.put(PostProperty.REPOSTER, "reposter");
-        playlist.put(PostProperty.REPOSTER_URN, Urn.forUser(123L));
-
-        return PlaylistItem.from(playlist);
-    }
-
     private String formattedDate(Date createdAt) {
         return ScTextUtils.formatTimeElapsedSince(resources(), createdAt.getTime(), true);
-    }
-
-    private TrackItem repostedTrack() {
-        final PropertySet track = ModelFixtures.create(ApiTrack.class).toPropertySet();
-        track.put(PostProperty.REPOSTER, "reposter");
-        track.put(PostProperty.REPOSTER_URN, Urn.forUser(123L));
-
-        return TrackItem.from(track);
-    }
-
-    private TrackItem postedTrack() {
-        return TrackItem.from(ModelFixtures.create(ApiTrack.class));
     }
 
 }

@@ -59,7 +59,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     public void onToggleUnlikedTrackLikesViaLikesOperations() {
         when(likeOperations.toggleLike(TRACK_URN, true)).thenReturn(Observable.<PropertySet>empty());
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, PropertySet.create()));
+                .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
 
         listener.onToggleLike(true, TRACK_URN);
 
@@ -70,7 +70,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     public void onToggleLikedTrackLikesViaUnlikesOperations() {
         when(likeOperations.toggleLike(TRACK_URN, false)).thenReturn(Observable.<PropertySet>empty());
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, PropertySet.create()));
+                .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
 
         listener.onToggleLike(false, TRACK_URN);
 
@@ -81,7 +81,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     public void onToggleLikeEmitsLikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, PropertySet.create()));
+                .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
         when(likeOperations.toggleLike(TRACK_URN, true)).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
@@ -100,7 +100,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     public void onToggleLikeEmitsUnlikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, PropertySet.create()));
+                .thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
         when(likeOperations.toggleLike(TRACK_URN, false)).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(false, TRACK_URN);

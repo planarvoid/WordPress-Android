@@ -1,5 +1,7 @@
 package com.soundcloud.android.comments;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.events.EventQueue;
@@ -19,6 +21,7 @@ import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,11 +37,17 @@ public class TrackCommentsActivity extends ScActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject ImageOperations imageOperations;
 
+    @Bind(R.id.title) TextView title;
+    @Bind(R.id.username) TextView username;
+    @Bind(R.id.comments_count) TextView count;
+    @Bind(R.id.date) TextView date;
+
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
         final PropertySet commentedTrack = getIntent().getParcelableExtra(EXTRA_COMMENTED_TRACK);
+        ButterKnife.bind(this);
         bindTrackHeaderView(commentedTrack);
 
         if (bundle == null) {
@@ -48,16 +57,31 @@ public class TrackCommentsActivity extends ScActivity {
 
     private void attachCommentsFragment(PropertySet commentedTrack) {
         final Urn trackUrn = commentedTrack.get(TrackProperty.URN);
-        final Fragment fragment= CommentsFragment.create(trackUrn);
+        final Fragment fragment = CommentsFragment.create(trackUrn);
         getSupportFragmentManager().beginTransaction().add(R.id.comments_fragment, fragment).commit();
     }
 
     private void bindTrackHeaderView(PropertySet commentedTrack) {
-        ((TextView) findViewById(R.id.title)).setText(commentedTrack.get(PlayableProperty.TITLE));
-        ((TextView) findViewById(R.id.username)).setText(commentedTrack.get(PlayableProperty.CREATOR_NAME));
-        ((TextView) findViewById(R.id.comments_count)).setText(String.valueOf(commentedTrack.get(TrackProperty.COMMENTS_COUNT)));
+        title.setText(commentedTrack.get(PlayableProperty.TITLE));
+        username.setText(commentedTrack.get(PlayableProperty.CREATOR_NAME));
+        setCount(commentedTrack);
         setDate(commentedTrack);
         setIcon(commentedTrack);
+    }
+
+    public void setCount(PropertySet commentedTrack) {
+        final int numberOfComments = commentedTrack.get(TrackProperty.COMMENTS_COUNT);
+        if (numberOfComments > 0) {
+            count.setVisibility(View.VISIBLE);
+            count.setText(String.valueOf(numberOfComments));
+        } else {
+            count.setVisibility(View.GONE);
+        }
+    }
+
+    private void setDate(PropertySet commentedTrack) {
+        final long timestamp = commentedTrack.get(PlayableProperty.CREATED_AT).getTime();
+        date.setText(ScTextUtils.formatTimeElapsedSince(getResources(), timestamp, true));
     }
 
     private void setIcon(PropertySet commentedTrack) {
@@ -65,11 +89,6 @@ public class TrackCommentsActivity extends ScActivity {
                 commentedTrack.get(TrackProperty.URN),
                 ApiImageSize.getListItemImageSize(getResources()),
                 (ImageView) findViewById(R.id.icon));
-    }
-
-    private void setDate(PropertySet commentedTrack) {
-        final long timestamp = commentedTrack.get(PlayableProperty.CREATED_AT).getTime();
-        ((TextView) findViewById(R.id.date)).setText(ScTextUtils.formatTimeElapsedSince(getResources(), timestamp, true));
     }
 
     @Override
@@ -82,6 +101,13 @@ public class TrackCommentsActivity extends ScActivity {
         super.onResume();
         if (shouldTrackScreen()) {
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(getCurrentScreen()));
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!playerController.handleBackPressed()) {
+            super.onBackPressed();
         }
     }
 

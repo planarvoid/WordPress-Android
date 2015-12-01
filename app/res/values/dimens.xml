@@ -47,13 +47,6 @@
     <dimen name="signup_label_padding">4dp</dimen>
     <dimen name="signup_done_drawable_padding">7dp</dimen>
 
-    <dimen name="grid_view_spacing_inside_horizontal">16dp</dimen>
-    <dimen name="grid_view_spacing_inside_vertical">16dp</dimen>
-    <dimen name="gridview_padding_left_right">16dp</dimen>
-    <dimen name="gridview_padding_top_bottom">10dp</dimen>
-    <dimen name="gridview_loading_height">180dp</dimen>
-    <dimen name="grid_item_padding">10dp</dimen>
-
     <dimen name="playlist_header_height">120dp</dimen>
     <dimen name="playlist_header_padding">16dp</dimen>
     <dimen name="playlist_overflow_button_margin_left">12dp</dimen>
@@ -100,22 +93,21 @@
     <dimen name="discovery_tags_padding_top_bottom">4dp</dimen>
     <dimen name="discovery_tags_margin_top_bottom">8dp</dimen>
     <dimen name="discovery_tags_separation">16dp</dimen>
-    <dimen name="discovery_cell_padding">4dp</dimen>
     <dimen name="discovery_cell_elevation">3dp</dimen>
     <dimen name="discovery_search_cell_margin_left_right">4dp</dimen>
     <dimen name="discovery_search_cell_margin_top_bottom">8dp</dimen>
     <dimen name="discovery_search_close_icon_margin">16dp</dimen>
     <dimen name="discovery_search_tabs_padding">48dp</dimen>
-    <dimen name="recommendations_cell_artwork_padding">8dp</dimen>
-    <dimen name="recommendations_cell_track_data_padding_top_bottom">6dp</dimen>
+    <dimen name="recommendations_cell_track_data_padding_bottom">16dp</dimen>
+    <dimen name="recommendations_cell_track_data_padding_top">6dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_left_right">14dp</dimen>
     <dimen name="recommendations_cell_text_padding">16dp</dimen>
     <dimen name="recommendations_cell_text_view_all_height">48dp</dimen>
     <dimen name="recommendations_cell_text_view_all_padding">1dp</dimen>
     <dimen name="recommendations_cell_image_view_all_padding">6dp</dimen>
-    <dimen name="recommendations_cell_text_recommended_height">40dp</dimen>
+    <dimen name="recommendations_cell_text_recommended_height">48dp</dimen>
     <dimen name="recommendations_cell_text_recommended_padding_top">8dp</dimen>
-    <dimen name="recommendations_cell_text_recommended_padding_bottom">4dp</dimen>
+    <dimen name="recommendations_cell_text_recommended_padding_bottom">8dp</dimen>
     <dimen name="recommendations_cell_text_recommended_margin">4dp</dimen>
 
     <!-- Record -->
@@ -133,11 +125,11 @@
     <!-- Toolbar -->
     <dimen name="toolbar_elevation">4dp</dimen>
     <dimen name="toolbar_title_left_margin">72dp</dimen>
-    <dimen name="main_tab_padding">0dp</dimen>
+    <dimen name="fixed_tab_padding">4dp</dimen>
 
     <!-- Profile -->
     <dimen name="profile_image_dimen">104dp</dimen>
-    <dimen name="profile_tabs_padding">40dp</dimen>
+    <dimen name="profile_tabs_padding">38dp</dimen>
 
     <!-- Widget -->
     <dimen name="widget_player_width">272dp</dimen>
@@ -151,11 +143,23 @@
 
     <!-- Search -->
     <dimen name="search_link_height">48dp</dimen>
-    <dimen name="search_link_holder_padding_horizontal">8dp</dimen>
     <dimen name="search_link_padding_horizontal">16dp</dimen>
     <dimen name="search_link_padding_vertical">12dp</dimen>
     <dimen name="search_suggestion_item_height">56dp</dimen>
     <dimen name="search_suggestion_icon_dimension">33dp</dimen>
     <dimen name="search_suggestion_type_dimension">25dp</dimen>
+
+    <!-- Card grids -->
+    <dimen name="grids_padding_left_right">0dp</dimen>
+    <dimen name="grids_padding_top_bottom">8dp</dimen>
+
+    <dimen name="grid_view_spacing_inside_horizontal">16dp</dimen>
+    <dimen name="grid_view_spacing_inside_vertical">16dp</dimen>
+    <dimen name="grid_view_loading_height">180dp</dimen>
+    <dimen name="grid_item_padding">10dp</dimen>
+
+    <!-- Explore -->
+    <dimen name="explore_padding_left_right">0dp</dimen>
+    <dimen name="explore_padding_top_bottom">16dp</dimen>
 
 </resources>

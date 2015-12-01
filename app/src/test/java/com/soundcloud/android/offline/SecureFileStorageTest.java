@@ -142,8 +142,8 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void calculateCorrectFileSizeBasedOnTrackDurationMp3WithBitRate128Stereo() {
-        long fileSizeFor1SecondTrackDuration = storage.calculateFileSizeInBytes(1000);
-        long fileSizeFor1MinuteTrackDuration = storage.calculateFileSizeInBytes(1000 * 60);
+        long fileSizeFor1SecondTrackDuration = SecureFileStorage.calculateFileSizeInBytes(1000);
+        long fileSizeFor1MinuteTrackDuration = SecureFileStorage.calculateFileSizeInBytes(1000 * 60);
 
         assertThat(fileSizeFor1SecondTrackDuration).isEqualTo(16384L);   //16 KB
         assertThat(fileSizeFor1MinuteTrackDuration).isEqualTo(983040L);  //960 KB

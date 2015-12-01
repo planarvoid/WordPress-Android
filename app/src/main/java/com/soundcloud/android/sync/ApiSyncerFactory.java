@@ -3,7 +3,7 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.associations.NextFollowingOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -28,7 +28,7 @@ import javax.inject.Provider;
 @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // remove this once we use playlist syncer
 public class ApiSyncerFactory {
 
-    private final Provider<NextFollowingOperations> nextFollowingOperationsProvider;
+    private final Provider<FollowingOperations> nextFollowingOperationsProvider;
     private final Provider<AccountOperations> accountOpsProvider;
     private final Provider<NotificationManager> notificationManagerProvider;
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
@@ -36,13 +36,14 @@ public class ApiSyncerFactory {
     private final Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
     private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
+    private final Lazy<TrackSyncer> lazyTrackSyncer;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final JsonTransformer jsonTransformer;
     private final Navigator navigator;
     private final FeatureFlags featureFlags;
 
     @Inject
-    public ApiSyncerFactory(Provider<NextFollowingOperations> nextFollowingOperationsProvider,
+    public ApiSyncerFactory(Provider<FollowingOperations> nextFollowingOperationsProvider,
                             Provider<AccountOperations> accountOpsProvider,
                             Provider<NotificationManager> notificationManagerProvider,
                             Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
@@ -50,6 +51,7 @@ public class ApiSyncerFactory {
                             Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer,
                             Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer,
+                            Lazy<TrackSyncer> lazyTrackSyncer,
                             SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
                             JsonTransformer jsonTransformer, Navigator navigator, FeatureFlags featureFlags) {
         this.nextFollowingOperationsProvider = nextFollowingOperationsProvider;
@@ -60,6 +62,7 @@ public class ApiSyncerFactory {
         this.lazyPlaylistsSyncer = lazyPlaylistsSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
         this.lazyMyPostsSyncer = lazyMyPostsSyncer;
+        this.lazyTrackSyncer = lazyTrackSyncer;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.jsonTransformer = jsonTransformer;
         this.navigator = navigator;
@@ -74,11 +77,7 @@ public class ApiSyncerFactory {
                 return lazySoundStreamSyncer.get();
 
             case ME_ACTIVITIES:
-                if (featureFlags.isEnabled(Flag.ACTIVITIES_REFACTOR)) {
-                    return lazyActivitiesSyncer.get();
-                } else {
-                    return new ApiSyncer(context, context.getContentResolver());
-                }
+                return lazyActivitiesSyncer.get();
 
             case ME_LIKES:
                 return lazyMyLikesSyncer.get();
@@ -98,6 +97,13 @@ public class ApiSyncerFactory {
 
             case ME_SOUNDS:
                 return lazyMyPostsSyncer.get();
+
+            case TRACK:
+                if (featureFlags.isEnabled(Flag.TRACK_SYNC_APIMOBILE)) {
+                    return lazyTrackSyncer.get();
+                } else {
+                    return new ApiSyncer(context, context.getContentResolver());
+                }
 
             default:
                 return new ApiSyncer(context, context.getContentResolver());

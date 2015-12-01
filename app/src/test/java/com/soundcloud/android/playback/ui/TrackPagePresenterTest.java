@@ -11,9 +11,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.ads.LeaveBehindAd;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.experiments.ShareButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -31,7 +33,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
-import com.soundcloud.java.collections.PropertySet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,8 @@ import java.util.Locale;
 
 public class TrackPagePresenterTest extends AndroidUnitTest {
 
-    private static final int DURATION = 20000;
+    private static final int PLAY_DURATION = 20000;
+    private static final int FULL_DURATION = 30000;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private WaveformOperations waveformOperations;
@@ -80,12 +82,11 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     private TrackPagePresenter presenter;
     private View trackView;
-    private ViewGroup container;
     private TestDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
-        container = new FrameLayout(context());
+        ViewGroup container = new FrameLayout(context());
         presenter = new TrackPagePresenter(waveformOperations, listener, numberFormatter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
                 errorControllerFactory, castConnectionHelper, resources(), shareButtonExperiment);
@@ -102,7 +103,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void bindItemViewSetsDurationOnWaveformController()  {
         populateTrackPage();
-        verify(waveformViewController).setDuration(DURATION);
+        verify(waveformViewController).setDurations(PLAY_DURATION, FULL_DURATION);
     }
 
     @Test
@@ -547,12 +548,12 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setLeaveBehindInitializesLeaveBehindController() throws Exception {
-        final PropertySet track = TestPropertySets.leaveBehindForPlayer();
+        final LeaveBehindAd leaveBehind = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
         populateTrackPage();
 
-        presenter.setAdOverlay(trackView, track);
+        presenter.setAdOverlay(trackView, leaveBehind);
 
-        verify(adOverlayController).initialize(track);
+        verify(adOverlayController).initialize(leaveBehind);
     }
 
     @Test

@@ -49,8 +49,8 @@
     <string name="offline_update_in_progress">Syncing your tracks</string>
     <string name="offline_likes_dialog_title">Make your Likes available offline</string>
     <string name="offline_likes_dialog_message">This will keep your current and future Likes available offline so you can listen without an Internet or data connection.</string>
-    <string name="make_offline_available">Make available offline</string>
-    <string name="make_offline_unavailable">Remove from offline listening</string>
+    <string name="make_offline_available">Save offline</string>
+    <string name="make_offline_unavailable">Remove from offline</string>
     <string name="offline_dialog_go_online_continue">Continue</string>
     <string name="offline_dialog_go_online_error_title">Your subscription can not be verified</string>
     <string name="offline_dialog_go_online_error_content">Because this device has been offline for more than 30 days, we have not been able to verify your subscription. Please go online to reconnect this device to your subscription and reenable your offline content. </string>

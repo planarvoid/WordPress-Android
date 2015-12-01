@@ -56,11 +56,11 @@ public class GenderPickerDialogFragment extends DialogFragment {
         }
     }
 
-    public static interface Callback {
+    public interface Callback {
         void onGenderSelected(GenderOption gender);
     }
 
-    public static interface CallbackProvider {
+    public interface CallbackProvider {
         Callback getGenderPickerCallback();
     }
 }

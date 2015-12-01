@@ -1,7 +1,5 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayer;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.leaveBehindForPlayerWithDisplayMetaData;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -14,8 +12,6 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -24,9 +20,9 @@ import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
 
-public class LeaveBehindPresenterTest extends AndroidUnitTest{
+public class LeaveBehindPresenterTest extends AndroidUnitTest {
 
-    private PropertySet properties;
+    private LeaveBehindAd leaveBehind;
     private LeaveBehindPresenter presenter;
     AdOverlayPresenter adOverlayPresenter;
 
@@ -54,48 +50,49 @@ public class LeaveBehindPresenterTest extends AndroidUnitTest{
 
     @Test
     public void createsLeaveBehindPresenterFromLeaveBehindPropertySet() throws Exception {
-        adOverlayPresenter = AdOverlayPresenter.create(TestPropertySets.leaveBehindForPlayer(), trackView, listener, eventBus, resources(), imageOperations);
+        adOverlayPresenter = AdOverlayPresenter.create(AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)), trackView, listener, eventBus, resources(), imageOperations);
         assertThat(adOverlayPresenter).isInstanceOf(LeaveBehindPresenter.class);
     }
 
     @Test
     public void shouldNotShowLeaveBehindWhenAdWasClicked() {
-        properties = leaveBehindForPlayer().put(LeaveBehindProperty.META_AD_CLICKED, true);
+        leaveBehind = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
+        leaveBehind.setMetaAdClicked();
 
-        assertThat(presenter.shouldDisplayOverlay(properties, true, true, true)).isFalse();
+        assertThat(presenter.shouldDisplayOverlay(leaveBehind, true, true, true)).isFalse();
     }
 
     @Test
     public void shouldNotShowLeaveBehindWhenAdWasNotCompleted() {
-        properties = leaveBehindForPlayer().put(LeaveBehindProperty.META_AD_COMPLETED, false);
+        leaveBehind = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
 
-        assertThat(presenter.shouldDisplayOverlay(properties, true, true, true)).isFalse();
+        assertThat(presenter.shouldDisplayOverlay(leaveBehind, true, true, true)).isFalse();
     }
 
     @Test
     public void shouldNotShowTheLeaveBehindIfAlreadyShown() {
-        properties = leaveBehindForPlayerWithDisplayMetaData().put(LeaveBehindProperty.META_AD_COMPLETED, false);
+        leaveBehind = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
 
-        assertThat(presenter.shouldDisplayOverlay(properties, true, true, true)).isFalse();
+        assertThat(presenter.shouldDisplayOverlay(leaveBehind, true, true, true)).isFalse();
     }
 
     @Test
     public void showsLeaveBehindWhenAdWasCompletedAndNotClicked() {
-        properties = leaveBehindForPlayerWithDisplayMetaData();
+        leaveBehind = AdFixtures.getLeaveBehindAdWithDisplayMetaData(Urn.forTrack(123L));
 
-        assertThat(presenter.shouldDisplayOverlay(properties, true, true, true)).isTrue();
+        assertThat(presenter.shouldDisplayOverlay(leaveBehind, true, true, true)).isTrue();
     }
 
     @Test
     public void sendAnEventWhenVisible() {
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("screen", false);
-        final PropertySet adMetaData = TestPropertySets.leaveBehindForPlayer();
-        presenter.onAdVisible(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), adMetaData, trackSourceInfo);
+        final LeaveBehindAd leaveBehind = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
+        presenter.onAdVisible(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), leaveBehind, trackSourceInfo);
 
         assertThat(eventBus.eventsOn(EventQueue.AD_OVERLAY)).hasSize(1);
         final AdOverlayEvent adOverlayEvent = eventBus.lastEventOn(EventQueue.AD_OVERLAY);
         assertThat(adOverlayEvent.getKind()).isEqualTo(AdOverlayEvent.SHOWN);
-        assertThat(adOverlayEvent.getAdMetaData()).isEqualTo(adMetaData);
+        assertThat(adOverlayEvent.getAdData()).isEqualTo(leaveBehind);
         assertThat(adOverlayEvent.getTrackSourceInfo()).isEqualTo(trackSourceInfo);
     }
 

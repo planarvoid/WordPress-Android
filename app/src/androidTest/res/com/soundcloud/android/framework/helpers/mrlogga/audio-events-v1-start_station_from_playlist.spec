@@ -1,6 +1,4 @@
 --- !ruby/object:MrLoggerLogger::ResultSpec
-whitelisted_events:
-- audio
 expected_events:
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -14,6 +12,7 @@ expected_events:
     player_type: (MediaPlayer|Skippy)
     consumer_subs_plan: none
     page_name: playlists:main
+    source_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
     user: soundcloud:users:161646357
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
@@ -22,7 +21,6 @@ expected_events:
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
-    query_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
     local_storage_playback: false
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
@@ -37,6 +35,55 @@ expected_events:
     player_type: (MediaPlayer|Skippy)
     consumer_subs_plan: none
     page_name: playlists:main
+    source_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
+    user: soundcloud:users:161646357
+    playhead_position: '[0-9]+'
+    track_length: '[0-9]+'
+    protocol: (https|hls)
+    ts: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
+    connection_type: wifi
+    reason: skip
+    trigger: manual
+    local_storage_playback: false
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    track_owner: soundcloud:users:[0-9]+
+    source: stations
+    client_id: 3152
+    source_version: default
+    action: play
+    player_type: (MediaPlayer|Skippy)
+    consumer_subs_plan: none
+    page_name: playlists:main
+    source_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
+    user: soundcloud:users:161646357
+    playhead_position: '[0-9]+'
+    track_length: '[0-9]+'
+    protocol: (https|hls)
+    ts: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
+    connection_type: wifi
+    trigger: manual
+    query_urn: soundcloud:radio:(\w|-)+
+    local_storage_playback: false
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    track_owner: soundcloud:users:[0-9]+
+    source: stations
+    client_id: 3152
+    source_version: default
+    action: pause
+    player_type: (MediaPlayer|Skippy)
+    consumer_subs_plan: none
+    page_name: playlists:main
+    source_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
     user: soundcloud:users:161646357
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
@@ -46,6 +93,7 @@ expected_events:
     connection_type: wifi
     reason: pause
     trigger: manual
-    query_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
+    query_urn: soundcloud:radio:(\w|-)+
     local_storage_playback: false
   version: '1'
+whitelisted_events: audio

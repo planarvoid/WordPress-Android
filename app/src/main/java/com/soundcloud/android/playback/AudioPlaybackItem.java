@@ -11,7 +11,7 @@ import android.os.Parcelable;
 public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
 
     public static AudioPlaybackItem create(PropertySet track, long startPosition, PlaybackType playbackType) {
-        return new AutoParcel_AudioPlaybackItem(track.get(TrackProperty.URN), startPosition, track.get(TrackProperty.DURATION), playbackType);
+        return new AutoParcel_AudioPlaybackItem(track.get(TrackProperty.URN), startPosition, track.get(TrackProperty.PLAY_DURATION), playbackType);
     }
 
     public static AudioPlaybackItem create(PropertySet track, long startPosition) {

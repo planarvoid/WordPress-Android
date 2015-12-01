@@ -1,41 +1,5 @@
 package com.soundcloud.android.playback;
 
-import android.content.SharedPreferences;
-
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.PostProperty;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueueManager.QueueUpdateOperation;
-import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.TestUrns;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Predicate;
-import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
-import com.tobedevoured.modelcitizen.CreateModelException;
-
-import org.jetbrains.annotations.Nullable;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import rx.Observable;
-import rx.observers.TestSubscriber;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
@@ -48,6 +12,43 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.PostProperty;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager.QueueUpdateOperation;
+import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.stations.StationTrack;
+import com.soundcloud.android.stations.StationsSourceInfo;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TestUrns;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.TestEventBus;
+import com.tobedevoured.modelcitizen.CreateModelException;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import rx.Observable;
+import rx.observers.TestSubscriber;
+
+import android.content.SharedPreferences;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class PlayQueueManagerTest extends AndroidUnitTest {
 
@@ -418,6 +419,19 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldReturnTrackSourceInfoWithStationsSourceInfoIfSet() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final Urn queryUrn = new Urn("soundcloud:radio:123-456");
+        StationTrack stationTrack = StationTrack.create(Urn.forTrack(123L), queryUrn);
+        List<StationTrack> tracks = Collections.singletonList(stationTrack);
+
+        playQueueManager.setNewPlayQueue(PlayQueue.fromStation(stationUrn, tracks), PlaySessionSource.forStation(Screen.PLAYLIST_DETAILS, stationUrn));
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+
+        assertThat(trackSourceInfo.getStationsSourceInfo()).isEqualTo(StationsSourceInfo.create(queryUrn));
+    }
+
+    @Test
     public void shouldReturnTrackSourceInfoWithoutQuerySourceInfoIfNotSet() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource, 1);
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
@@ -494,8 +508,9 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void saveProgressUpdatesSavePositionWithoutNonPersistentTracks() throws CreateModelException {
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(3L));
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource, 1);
-        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertAudioOperation(2, Urn.forTrack(2L), PropertySet.create(), false));
+        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertAudioOperation(2, Urn.forTrack(2L), audioAd, false));
         playQueueManager.setPosition(3);
 
         playQueueManager.saveCurrentProgress(12L);
@@ -508,8 +523,9 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPersistentTrack() throws CreateModelException {
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(3L));
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource, 1);
-        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertAudioOperation(2, Urn.forTrack(1L), PropertySet.create(), false));
+        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertAudioOperation(2, Urn.forTrack(1L), audioAd, false));
         playQueueManager.setPosition(2);
 
         playQueueManager.saveCurrentProgress(12L);
@@ -734,18 +750,12 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-      public void clearElementsThatMatchesThePredicate() throws CreateModelException {
+      public void clearAdsFromPlayQueue() throws CreateModelException {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource);
-        final PropertySet metaDataToRemove = PropertySet.create();
-        playQueue.insertTrack(1, Urn.forTrack(123L), metaDataToRemove, true);
+        playQueue.insertAudioAd(1, Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L)), true);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 3);
 
-        playQueueManager.removeItemsWithMetaData(new Predicate<PropertySet>() {
-            @Override
-            public boolean apply(@Nullable PropertySet input) {
-                return input == metaDataToRemove;
-            }
-        });
+        playQueueManager.removeAds();
 
         assertThat(playQueueManager.getQueueSize()).isEqualTo(3);
         assertThat(playQueueManager.getPlayQueueItemAtPosition(0)).isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(1L)));
@@ -753,49 +763,38 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void publishesQueueChangeEventWhenPredicateIsTrue() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource);
+    public void publishesQueueChangeEventWhenAdsCleared() throws CreateModelException {
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource);
+        playQueue.insertAudioAd(1, Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L)), true);
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 3);
 
-        playQueueManager.removeItemsWithMetaData(new Predicate<PropertySet>() {
-            @Override
-            public boolean apply(@Nullable PropertySet input) {
-                return true;
-            }
-        }, PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
+        playQueueManager.removeAds(PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.AUDIO_AD_REMOVED);
     }
 
     @Test
-    public void publishesQueueChangeEventWhenPredicateIsFalse() throws CreateModelException {
+    public void publishesQueueChangeEventEvenWhenNoAdsCleared() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource);
         final PlayQueueEvent lastEvent = eventBus.lastEventOn(EventQueue.PLAY_QUEUE);
-        playQueueManager.removeItemsWithMetaData(new Predicate<PropertySet>() {
-            @Override
-            public boolean apply(@Nullable PropertySet input) {
-                return false;
-            }
-        });
+
+        playQueueManager.removeAds();
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE)).isSameAs(lastEvent);
     }
 
     @Test
-    public void filtersItemsWithMetadata() {
+    public void filtersAdItems() {
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(123L, 456L), playlistSessionSource);
-        final PropertySet metaDataToSelect = PropertySet.create();
-        final Urn expectedSelectedTrackUrn = Urn.forTrack(789L);
-        playQueue.insertTrack(1, expectedSelectedTrackUrn, metaDataToSelect, true);
+        playQueue.insertAudioAd(1, Urn.forTrack(789), AdFixtures.getAudioAd(Urn.forTrack(789L)), true);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 0);
 
-        List<PlayQueueItem> playQueueItems = playQueueManager.filterQueueItemsWithMetadata(new Predicate<PropertySet>() {
-            @Override
-            public boolean apply(@Nullable PropertySet input) {
-                return input == metaDataToSelect;
-            }
-        });
+        List<PlayQueueItem> playQueueItems = playQueueManager.filterAdQueueItems();
 
-        assertThat(playQueueItems).containsExactly(TestPlayQueueItem.createTrack(expectedSelectedTrackUrn));
+        assertThat(playQueueItems).containsExactly(
+                TestPlayQueueItem.createTrack(Urn.forTrack(123L)),
+                TestPlayQueueItem.createTrack(Urn.forTrack(456L))
+        );
     }
 
     @Test
@@ -832,7 +831,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldHaveNoLastPositionWhenPlaybackOperationsHasReturnsNoObservable() {
+    public void shouldHaveNoLastPositionWhenPlaybackOperationsReturnsEmptyObservable() {
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
         playQueueManager.loadPlayQueueAsync();
         assertThat(playQueueManager.getLastSavedPosition()).isEqualTo(Consts.NOT_SET);
     }
@@ -852,7 +852,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetPlayProgressInfoWhenReloadingPlayQueue() {
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(PlayQueue.empty()));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
 

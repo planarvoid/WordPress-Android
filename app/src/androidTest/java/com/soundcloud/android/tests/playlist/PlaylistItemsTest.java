@@ -33,10 +33,10 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
     @BrokenScrollingTest
     public void testAddTrackToPlaylistFromStream() {
         StreamScreen streamScreen = new StreamScreen(solo);
-        String trackAddedTitle = streamScreen.getTrack(0).getTitle();
+        String trackAddedTitle = streamScreen.scrollToFirstTrack().trackTitle();
 
         streamScreen
-                .clickFirstTrackOverflowButton()
+                .clickFirstTrackCardOverflowButton()
                 .clickAddToPlaylist()
                 .clickCreateNewPlaylist()
                 .enterTitle(playlist)
@@ -48,9 +48,9 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
     @BrokenScrollingTest
     public void testAddTrackToPlaylistFromPlayer() {
         StreamScreen streamScreen = new StreamScreen(solo);
-        String trackAddedTitle = streamScreen.getTrack(0).getTitle();
+        String trackAddedTitle = streamScreen.scrollToFirstTrack().trackTitle();
 
-        VisualPlayerElement player = streamScreen.clickTrack(0);
+        VisualPlayerElement player = streamScreen.clickFirstTrackCard();
         player.clickMenu()
                 .clickAddToPlaylist()
                 .clickCreateNewPlaylist()

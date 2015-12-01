@@ -38,11 +38,22 @@ public class PlaylistDiscoveryActivity extends ScActivity {
 
     private void createFragmentForPlaylistDiscovery(String playlistTag) {
         Fragment fragment = PlaylistResultsFragment.create(playlistTag);
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container, fragment, PlaylistResultsFragment.TAG)
+                .commit();
     }
 
     @Override
     protected void setActivityContentView() {
         baseLayoutHelper.setBaseLayout(this);
     }
+
+    @Override
+    public void onBackPressed() {
+        if (!playerController.handleBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+
 }

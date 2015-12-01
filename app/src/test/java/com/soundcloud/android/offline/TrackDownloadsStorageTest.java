@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -11,7 +9,6 @@ import com.soundcloud.propeller.PropellerWriteException;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 
 import java.util.Arrays;
@@ -69,7 +66,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void doesNotLoadCreatorOptOutLikeThatWasPreviouslyDownloaded() {
-        insertOfflineLikeCreatorOptOut(100);
+        insertOfflineLikeCreatorOptOut();
 
         storage.likesUrns().subscribe(listSubscriber);
 
@@ -98,8 +95,8 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void getLikedOfflineStateReturnsUnavailableAllTracksWereCreatorOptOut() {
-        insertOfflineLikeCreatorOptOut(200);
-        insertOfflineLikeCreatorOptOut(300);
+        insertOfflineLikeCreatorOptOut();
+        insertOfflineLikeCreatorOptOut();
 
         storage.getLikesOfflineState().subscribe(offlineStateSubscriber);
 
@@ -109,7 +106,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
     @Test
     public void getLikedOfflineStateReturnsDownloadedEventWhenSomeTracksWereCreatorOptOut() {
         insertOfflineLikeDownloadCompleted(100);
-        insertOfflineLikeCreatorOptOut(300);
+        insertOfflineLikeCreatorOptOut();
 
         storage.getLikesOfflineState().subscribe(offlineStateSubscriber);
 
@@ -191,30 +188,13 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
         databaseAssertions().assertTrackIsUnavailable(TRACK_1, dateProvider.getCurrentTime());
     }
 
-    private void insertCompletedDownload(long policyUpdate) {
-        final ApiTrack track = insertTrackWithPolicy(policyUpdate);
-        testFixtures().insertCompletedTrackDownload(track.getUrn(), System.currentTimeMillis(), System.currentTimeMillis());
-    }
-
-    private ApiTrack insertTrackWithPolicy(long policyUpdate) {
-        final ApiTrack track = testFixtures().insertTrack();
-        testFixtures().insertPolicyAllow(track.getUrn(), policyUpdate);
-        return track;
-    }
-
     private Urn insertOfflinePlaylistTrack(Urn playlist, int position) {
         final ApiTrack track = testFixtures().insertPlaylistTrack(playlist, position);
         testFixtures().insertCompletedTrackDownload(track.getUrn(), 0, 100);
         return track.getUrn();
     }
 
-    private Urn insertOfflinePlaylistTrackPendingDownload(Urn playlist, int position) {
-        final ApiTrack track = testFixtures().insertPlaylistTrack(playlist, position);
-        testFixtures().insertTrackPendingDownload(track.getUrn(), 100);
-        return track.getUrn();
-    }
-
-    private Urn insertOfflineLikeCreatorOptOut(long likedAt) {
+    private Urn insertOfflineLikeCreatorOptOut() {
         final ApiTrack track = testFixtures().insertLikedTrack(new Date(100));
         testFixtures().insertCompletedTrackDownload(track.getUrn(), 100, 200);
         testFixtures().insertUnavailableTrackDownload(track.getUrn(), 300);

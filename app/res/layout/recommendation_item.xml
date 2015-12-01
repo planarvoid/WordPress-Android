@@ -1,79 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:auto="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/discovery_cell_padding"
-    android:paddingRight="@dimen/discovery_cell_padding"
     android:orientation="vertical">
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/recommendations_header"
         style="@style/Recommendation.RecommendedForYouText"
         android:layout_width="match_parent"
+        android:layout_height="@dimen/recommendations_cell_text_recommended_height"
         android:layout_marginLeft="@dimen/recommendations_cell_text_recommended_margin"
         android:layout_marginRight="@dimen/recommendations_cell_text_recommended_margin"
-        android:layout_height="@dimen/recommendations_cell_text_recommended_height"
-        android:paddingTop="@dimen/recommendations_cell_text_recommended_padding_top"
+        android:gravity="center_vertical"
         android:paddingBottom="@dimen/recommendations_cell_text_recommended_padding_bottom"
         android:paddingLeft="@dimen/recommendations_cell_text_padding"
         android:paddingRight="@dimen/recommendations_cell_text_padding"
-        android:gravity="center_vertical"
+        android:paddingTop="@dimen/recommendations_cell_text_recommended_padding_top"
+        android:text="@string/recommendation_seeds_header"
         android:visibility="gone"
-        android:text="@string/recommendation_seeds_header" />
+        tools:text="Recommended for you" />
 
-    <android.support.v7.widget.CardView
+    <RelativeLayout
+        style="@style/Card"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        auto:cardElevation="@dimen/discovery_cell_elevation"
-        auto:cardUseCompatPadding="true">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:ignore="UselessParent">
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/recommendations_cell_text_padding"
+                android:paddingRight="@dimen/recommendations_cell_text_padding"
+                tools:ignore="UselessParent">
 
                 <TextView
                     android:id="@+id/reason"
                     style="@style/Recommendation.ReasonText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/default_list_item_padding"
                     android:paddingBottom="@dimen/default_list_item_padding"
-                    android:paddingLeft="@dimen/recommendations_cell_text_padding"
-                    android:paddingRight="@dimen/recommendations_cell_text_padding" />
+                    android:paddingRight="@dimen/recommendations_cell_text_padding"
+                    android:paddingTop="@dimen/default_list_item_padding"
+                    android:layout_marginLeft="@dimen/recommendations_cell_text_recommended_margin"
+                    tools:text="Because you liked bla bla bla" />
 
-                <com.soundcloud.android.view.CardFullImageView
-                    android:id="@+id/image"
+                <com.soundcloud.android.view.ParallaxImageView
+                    android:id="@+id/track_image"
                     style="@style/GridItemImageView"
-                    android:layout_below="@id/reason"
-                    android:layout_marginBottom="@dimen/recommendations_cell_artwork_padding"
-                    android:layout_marginLeft="@dimen/recommendations_cell_artwork_padding"
-                    android:layout_marginRight="@dimen/recommendations_cell_artwork_padding"/>
+                    android:layout_below="@id/reason" />
 
                 <com.soundcloud.android.view.JaggedTextView
                     android:id="@+id/username"
                     style="@style/BlackOverlayText.RegularSubtext"
-                    android:layout_above="@+id/title"
-                    android:layout_marginLeft="@dimen/recommendations_cell_track_data_padding_left_right"
-                    android:layout_marginRight="@dimen/recommendations_cell_track_data_padding_left_right" />
-
-                <com.soundcloud.android.view.JaggedTextView
-                    android:id="@+id/title"
-                    style="@style/BlackOverlayText.Regular"
+                    android:layout_above="@+id/track_title"
                     android:layout_marginLeft="@dimen/recommendations_cell_track_data_padding_left_right"
                     android:layout_marginRight="@dimen/recommendations_cell_track_data_padding_left_right"
-                    android:layout_marginBottom="@dimen/recommendations_cell_track_data_padding_top_bottom"
-                    android:layout_marginTop="@dimen/recommendations_cell_track_data_padding_top_bottom"
-                    android:layout_alignBottom="@id/image" />
+                    tools:text="HBO Boxing" />
+
+                <com.soundcloud.android.view.JaggedTextView
+                    android:id="@+id/track_title"
+                    style="@style/BlackOverlayText.Regular"
+                    android:layout_alignBottom="@id/track_image"
+                    android:layout_marginTop="@dimen/recommendations_cell_track_data_padding_top"
+                    android:layout_marginBottom="@dimen/recommendations_cell_track_data_padding_bottom"
+                    android:layout_marginLeft="@dimen/recommendations_cell_track_data_padding_left_right"
+                    android:layout_marginRight="@dimen/recommendations_cell_track_data_padding_left_right"
+                    tools:text="Track title" />
 
             </RelativeLayout>
-
-            <View style="@style/Divider.Section" />
 
             <RelativeLayout
                 android:id="@+id/view_all_container"
@@ -89,14 +89,15 @@
                     android:layout_height="@dimen/recommendations_cell_text_view_all_height"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:paddingBottom="@dimen/recommendations_cell_text_view_all_padding"/>
+                    android:paddingBottom="@dimen/recommendations_cell_text_view_all_padding"
+                    tools:text="View All" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:gravity="center"
                     android:layout_toRightOf="@id/view_all"
+                    android:gravity="center"
                     android:paddingLeft="@dimen/recommendations_cell_image_view_all_padding"
                     android:paddingRight="@dimen/recommendations_cell_image_view_all_padding"
                     android:src="@drawable/chevron_333" />
@@ -105,6 +106,10 @@
 
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/recommendation_separator"
+        style="@style/Divider.Background" />
 
 </LinearLayout>

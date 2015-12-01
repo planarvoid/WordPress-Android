@@ -46,15 +46,15 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     public boolean isReposted() {
-        return getElementText(likeItem()).equals("Unpost");
+        return getElementText(repostItem()).equals("Unpost");
     }
 
     private ViewElement likeItem() {
-        return findElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
+        return container().findElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
     }
 
     private ViewElement repostItem() {
-        return findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
+        return container().findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
     }
 
     private void clickItemWithText(String text) {

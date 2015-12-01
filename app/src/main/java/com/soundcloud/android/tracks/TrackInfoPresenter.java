@@ -69,7 +69,7 @@ public class TrackInfoPresenter {
     }
 
     private void bindPrivateOrStats(View view, PropertySet propertySet) {
-        if (propertySet.get(PlayableProperty.IS_PRIVATE)){
+        if (propertySet.get(PlayableProperty.IS_PRIVATE)) {
             hideView(view, R.id.stats_holder);
             showView(view, R.id.private_indicator);
         } else {
@@ -79,9 +79,10 @@ public class TrackInfoPresenter {
         }
     }
 
-    private void bindComments(View view, final PropertySet propertySet, final CommentClickListener commentClickListener) {
-        int commentsCount = propertySet.get(TrackProperty.COMMENTS_COUNT);
-        if (commentsCount > 0){
+    private void bindComments(View view, final PropertySet track, final CommentClickListener commentClickListener) {
+        final boolean isCommentable = track.getOrElse(TrackProperty.IS_COMMENTABLE, false);
+        final int commentsCount = track.get(TrackProperty.COMMENTS_COUNT);
+        if (isCommentable && commentsCount > 0) {
             String comments = resources.getQuantityString(R.plurals.trackinfo_comments, commentsCount, commentsCount);
             setTextAndShow(view, R.id.comments, comments);
             showView(view, R.id.comments_divider);
@@ -118,7 +119,7 @@ public class TrackInfoPresenter {
 
         final boolean showDivider1 = (showPlays && showLikes) || (showPlays && showReposts);
         view.findViewById(R.id.divider1).setVisibility(showDivider1 ? View.VISIBLE : View.GONE);
-        view.findViewById(R.id.divider2).setVisibility((showLikes && showReposts)? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.divider2).setVisibility((showLikes && showReposts) ? View.VISIBLE : View.GONE);
     }
 
     private void setStat(View view, int id, Integer count) {

@@ -21,7 +21,6 @@ import rx.exceptions.OnErrorThrowable;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -53,20 +52,20 @@ class ResolveOperations {
             @Override
             public void call(Subscriber<? super PublicApiResource> subscriber) {
                 Uri uri = followClickTrackingUrl(originalUri);
-                PublicApiResource resolvedResource = resolveUri(uri);
-                if (resolvedResource != null) {
+                try {
+                    PublicApiResource resolvedResource = resolveUri(uri);
                     storeResource(resolvedResource);
                     subscriber.onNext(resolvedResource);
                     subscriber.onCompleted();
-                } else {
+                } catch (ApiRequestException | IOException | ApiMapperException e) {
                     subscriber.onError(new OnErrorThrowable.OnNextValue(uri));
                 }
             }
         }).subscribeOn(scheduler);
     }
 
-    @Nullable
-    private PublicApiResource resolveUri(@NonNull Uri uri) {
+    private PublicApiResource resolveUri(@NonNull Uri uri)
+            throws ApiRequestException, IOException, ApiMapperException {
         Urn urn = resolveUrn(uri);
 
         if (Urn.NOT_SET.equals(urn)) {
@@ -76,19 +75,15 @@ class ResolveOperations {
         }
     }
 
-    @Nullable
-    private PublicApiResource resolveResource(@NonNull String url) {
-        try {
-            // Note: OkHttp will follow redirects as needed
-            ApiRequest request = ApiRequest.get(ApiEndpoints.RESOLVE.path())
-                    .forPublicApi()
-                    .addQueryParam("url", url)
-                    .build();
+    private PublicApiResource resolveResource(@NonNull String url)
+            throws ApiRequestException, IOException, ApiMapperException {
+        // Note: OkHttp will follow redirects as needed
+        ApiRequest request = ApiRequest.get(ApiEndpoints.RESOLVE.path())
+                .forPublicApi()
+                .addQueryParam("url", url)
+                .build();
 
-            return apiClient.fetchMappedResponse(request, PublicApiResource.class);
-        } catch (IOException | ApiMapperException | ApiRequestException e) {
-            return null;
-        }
+        return apiClient.fetchMappedResponse(request, PublicApiResource.class);
     }
 
     @NonNull

@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.ads.AdFunctions;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -101,8 +103,11 @@ public class PlayerWidgetController {
     }
 
     private Observable<PropertySet> loadTrackWithAdMeta(TrackQueueItem currentTrackQueueItem) {
+            final PropertySet adProperties = PropertySet.from(
+                    AdProperty.IS_AUDIO_AD.bind(AdFunctions.IS_AUDIO_AD_ITEM.apply(currentTrackQueueItem))
+            );
             return trackRepository.track(currentTrackQueueItem.getTrackUrn())
-                    .map(PropertySetFunctions.mergeWith(currentTrackQueueItem.getMetaData()));
+                    .map(PropertySetFunctions.mergeWith(adProperties));
     }
 
     public void handleToggleLikeAction(final boolean addLike) {

@@ -20,6 +20,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
 
     private static final String COLON = ":";
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
+    public static final String LOCAL_SCHEME = "local";
     public static final Urn NOT_SET = new Urn(SOUNDCLOUD_SCHEME + COLON + "unknown", Consts.NOT_SET);
 
     private static final String SOUNDS_TYPE = "sounds";
@@ -33,6 +34,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     private static final String TRACK_PATTERN = SOUNDCLOUD_SCHEME + COLON + TRACKS_TYPE + NUMERIC_ID_PATTERN;
     private static final String LEGACY_TRACK_PATTERN = SOUNDCLOUD_SCHEME + COLON + SOUNDS_TYPE + NUMERIC_ID_PATTERN;
     private static final String PLAYLIST_PATTERN = SOUNDCLOUD_SCHEME + COLON + PLAYLISTS_TYPE + NUMERIC_ID_PATTERN;
+    private static final String LOCAL_PLAYLIST_PATTERN = LOCAL_SCHEME + COLON + PLAYLISTS_TYPE + NUMERIC_ID_PATTERN;
     private static final String USER_PATTERN = SOUNDCLOUD_SCHEME + COLON + USERS_TYPE + NUMERIC_ID_PATTERN;
     private static final String COMMENT_PATTERN = SOUNDCLOUD_SCHEME + COLON + COMMENTS_TYPE + NUMERIC_ID_PATTERN;
     private static final String STATION_PATTERN = SOUNDCLOUD_SCHEME + COLON + "[\\w-]+-stations:.*";
@@ -61,6 +63,10 @@ public final class Urn implements Parcelable, Comparable<Urn> {
                 || urnString.matches(STATION_PATTERN);
     }
 
+    public static boolean isLocalUrn(String urnString) {
+        return urnString.matches(LOCAL_PLAYLIST_PATTERN);
+    }
+
     @NotNull
     public static Urn forTrack(long id) {
         return new Urn(SOUNDCLOUD_SCHEME + COLON + TRACKS_TYPE, id);
@@ -69,6 +75,11 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     @NotNull
     public static Urn forPlaylist(long id) {
         return new Urn(SOUNDCLOUD_SCHEME + COLON + PLAYLISTS_TYPE, id);
+    }
+
+    @NotNull
+    public static Urn forLocalPlaylist(long id) {
+        return new Urn(LOCAL_SCHEME + COLON + PLAYLISTS_TYPE, id);
     }
 
     @NotNull
@@ -107,7 +118,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     }
 
     public boolean isPlaylist() {
-        return content.matches(PLAYLIST_PATTERN);
+        return content.matches(PLAYLIST_PATTERN) || content.matches(LOCAL_PLAYLIST_PATTERN);
     }
 
     public boolean isUser() {
@@ -124,7 +135,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
 
     private long parseNumericId() {
         final Matcher matcher = Pattern.compile(NUMERIC_ID_PATTERN).matcher(content);
-        if (isSoundCloudUrn(content) && matcher.find()) {
+        if ((isSoundCloudUrn(content) || isLocalUrn(content)) && matcher.find()) {
             return Long.parseLong(matcher.group(1));
         }
         return Consts.NOT_SET;

@@ -9,9 +9,10 @@ import static org.hamcrest.Matchers.not;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.elements.PlaylistItemOverflowMenu;
+import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -35,23 +36,9 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
         streamUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testClickingToggleRepostPlaylistFromOverflowMenu() {
-        PlaylistItemOverflowMenu playlistItemOverflowMenu =
-                streamScreen.clickFirstPlaylistOverflowButton();
-
-        boolean reposted = playlistItemOverflowMenu.isReposted();
-        playlistItemOverflowMenu.toggleRepost();
-
-        assertThat(streamScreen, is(visible()));
-
-        final String repostToastMessage = getRepostToastMessage(reposted);
-        assertTrue("Did not observe a toast with a message: " + repostToastMessage,
-                waiter.expectToastWithText(toastObserver, repostToastMessage));
-    }
-
     public void testClickingToggleRepostFromOverflowMenu() {
         TrackItemMenuElement trackItemMenuElement =
-                streamScreen.clickFirstTrackOverflowButton();
+                streamScreen.clickFirstTrackCardOverflowButton();
 
         boolean reposted = trackItemMenuElement.isReposted();
         trackItemMenuElement.toggleRepost();
@@ -64,12 +51,13 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingToggleRepostFromCard() {
-        boolean reposted = streamScreen.firstTrackCard().isReposted();
+        StreamCardElement track = streamScreen.scrollToFirstTrack();
+        boolean reposted = track.isReposted();
 
-        streamScreen.firstTrackCard().toggleRepost();
+        track.toggleRepost();
 
         assertThat(streamScreen, is(visible()));
-        assertThat(streamScreen.firstTrackCard().isReposted(), is(not(reposted)));
+        assertThat(track.isReposted(), is(not(reposted)));
 
         final String repostToastMessage = getRepostToastMessage(reposted);
         assertTrue("Did not observe a toast with a message: " + repostToastMessage,
@@ -77,12 +65,13 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingToggleLikeFromCard() {
-        boolean liked = streamScreen.firstTrackCard().isLiked();
+        StreamCardElement track = streamScreen.scrollToFirstTrack();
+        boolean liked = track.isLiked();
 
-        streamScreen.firstTrackCard().toggleLike();
+        track.toggleLike();
 
         assertThat(streamScreen, is(visible()));
-        assertThat(streamScreen.firstTrackCard().isLiked(), is(not(liked)));
+        assertThat(track.isLiked(), is(not(liked)));
 
         final String likeToastMessage = getLikeToastMessage(liked);
         assertTrue("Did not observe a toast with a message: " + likeToastMessage,
@@ -90,15 +79,23 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingUserAvatarGoesToUserProfile() {
-        ProfileScreen profileScreen = streamScreen.firstTrackCard().clickUserAvatar();
+        ProfileScreen profileScreen = streamScreen.scrollToFirstNotPromotedTrackCard().clickUserAvatar();
 
         assertThat(profileScreen, is(visible()));
     }
 
     public void testClickingArtistNameGoToArtistProfile() {
-        ProfileScreen profileScreen = streamScreen.firstTrackCard().clickArtistName();
+        ProfileScreen profileScreen = streamScreen.scrollToFirstNotPromotedTrackCard().clickArtistName();
 
         assertThat(profileScreen, is(visible()));
+    }
+
+    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
+        final AddToPlaylistScreen addToPlaylistScreen = streamScreen
+                .clickFirstTrackCardOverflowButton()
+                .clickAddToPlaylist();
+
+        assertThat(addToPlaylistScreen, is(visible()));
     }
 
     private String getRepostToastMessage(boolean reposted) {

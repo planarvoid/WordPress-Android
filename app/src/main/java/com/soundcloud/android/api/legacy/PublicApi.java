@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -81,10 +80,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.preference.PreferenceManager;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
@@ -217,17 +213,6 @@ public class PublicApi {
         }
         setTokenListener(new SoundCloudTokenListener(accountOperations));
         userAgent = deviceHelper.getUserAgent();
-        final IntentFilter filter = new IntentFilter();
-        filter.addAction(Actions.CHANGE_PROXY_ACTION);
-        context.registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                final String proxy = intent.getStringExtra(Actions.EXTRA_PROXY);
-                Log.d(TAG, "proxy changed: " + proxy);
-                setProxy(proxy == null ? null : URI.create(proxy));
-            }
-        }, filter);
-
         if (applicationProperties.shouldEnableNetworkProxy()) {
             //The only place this const is used us here? Do we even set this at all?
             final String proxy =
@@ -591,9 +576,7 @@ public class PublicApi {
             } else {
                 error = Http.getJSON(response).getString("error");
             }
-        } catch (IOException ignored) {
-            error = ignored.getMessage();
-        } catch (JSONException ignored) {
+        } catch (IOException | JSONException ignored) {
             error = ignored.getMessage();
         }
         throw status == HttpStatus.SC_UNAUTHORIZED ?

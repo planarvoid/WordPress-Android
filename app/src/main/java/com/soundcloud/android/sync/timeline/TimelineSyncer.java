@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync.timeline;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -11,8 +10,8 @@ import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStrategy;
-import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +32,8 @@ import java.util.Map;
 public class TimelineSyncer<TimelineModel> implements SyncStrategy {
 
     static final String FUTURE_LINK_REL = "future";
+    private static final String TAG = "Timeline";
+    private static final int LIMIT = 100;
 
     private final ApiEndpoints endpoint;
     private final Uri contentUri;
@@ -59,7 +60,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
     @NotNull
     @Override
     public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
-        Log.d(this, "Syncing " + uri + "; action=" + action);
+        log("Syncing with action=" + action);
 
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
             return append();
@@ -85,20 +86,16 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
     private ApiSyncResult refresh() throws Exception {
         final ApiRequest.Builder requestBuilder =
                 ApiRequest.get(endpoint.path())
-                        .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.LIST_PAGE_SIZE))
+                        .addQueryParam(ApiRequest.Param.PAGE_SIZE, LIMIT)
                         .forPrivateApi(1);
 
-        final String locale = LocaleProvider.getFormattedLocale();
-        if (!locale.isEmpty()) {
-            requestBuilder.addQueryParam(ApiRequest.Param.LOCALE, locale);
-        }
-
-        ModelCollection<TimelineModel> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(),
+        ModelCollection<TimelineModel> items = apiClient.fetchMappedResponse(requestBuilder.build(),
                 collectionTypeToken);
-        replaceItemsCommand.call(streamItems.getCollection());
-        timelineSyncStorage.storeNextPageUrl(streamItems.getNextLink());
+        log("New items: " + items.getCollection().size());
+        replaceItemsCommand.call(items.getCollection());
+        timelineSyncStorage.storeNextPageUrl(items.getNextLink());
 
-        final Map<String, Link> links = streamItems.getLinks();
+        final Map<String, Link> links = items.getLinks();
         if (links.containsKey(FUTURE_LINK_REL)) {
             timelineSyncStorage.storeFuturePageUrl(links.get(FUTURE_LINK_REL));
         }
@@ -108,50 +105,61 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
 
     private ApiSyncResult append() throws Exception {
         if (timelineSyncStorage.hasNextPageUrl()) {
-
             final String nextPageUrl = timelineSyncStorage.getNextPageUrl();
-            Log.d(this, "Building request from stored next link " + nextPageUrl);
+            log("Building request from stored next link " + nextPageUrl);
 
             final ApiRequest.Builder requestBuilder = ApiRequest.get(nextPageUrl).forPrivateApi(1);
 
-            ModelCollection<TimelineModel> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(),
+            ModelCollection<TimelineModel> items = apiClient.fetchMappedResponse(requestBuilder.build(),
                     collectionTypeToken);
-            timelineSyncStorage.storeNextPageUrl(streamItems.getNextLink());
+            log("New items: " + items.getCollection().size());
+            timelineSyncStorage.storeNextPageUrl(items.getNextLink());
 
-            if (streamItems.getCollection().isEmpty()) {
+            if (items.getCollection().isEmpty()) {
                 return ApiSyncResult.fromSuccessWithoutChange(contentUri);
-
             } else {
-                storeItemsCommand.call(streamItems.getCollection());
+                storeItemsCommand.call(items.getCollection());
                 return ApiSyncResult.fromSuccessfulChange(contentUri);
             }
-
         } else {
-
-            Log.d(this, "No next link found. Aborting append.");
+            log("No next link found. Aborting append.");
             return ApiSyncResult.fromSuccessWithoutChange(contentUri);
         }
     }
 
     private ApiSyncResult prepend() throws Exception {
-        final String previousPageUrl = timelineSyncStorage.getFuturePageUrl();
-        Log.d(this, "Building request from stored future link " + previousPageUrl);
+        final String futurePageUrl = timelineSyncStorage.getFuturePageUrl();
+        log("Building request from stored future link " + futurePageUrl);
 
-        final ApiRequest.Builder requestBuilder = ApiRequest.get(previousPageUrl).forPrivateApi(1);
+        final ApiRequest.Builder requestBuilder = ApiRequest.get(futurePageUrl).forPrivateApi(1);
 
         ModelCollection<TimelineModel> items = apiClient.fetchMappedResponse(requestBuilder.build(),
                 collectionTypeToken);
+        log("New items: " + items.getCollection().size());
         final Map<String, Link> links = items.getLinks();
         if (links.containsKey(FUTURE_LINK_REL)) {
             timelineSyncStorage.storeFuturePageUrl(links.get(FUTURE_LINK_REL));
+        }
+        final Command<Iterable<TimelineModel>, ?> insertCommand;
+        final Optional<Link> nextLink = items.getNextLink();
+        if (nextLink.isPresent()) {
+            // if there is a next page of items even when we exhaust our request limit, it
+            // means we're at risk creating a gap in the timeline between what has been
+            // synced before and what we retrieved, so simply wipe out old data here.
+            insertCommand = replaceItemsCommand;
+        } else {
+            insertCommand = storeItemsCommand;
         }
 
         if (items.getCollection().isEmpty()) {
             return ApiSyncResult.fromSuccessWithoutChange(contentUri);
         } else {
-            storeItemsCommand.call(items.getCollection());
+            insertCommand.call(items.getCollection());
             return ApiSyncResult.fromSuccessfulChange(contentUri);
         }
     }
 
+    private void log(String message) {
+        Log.d(TAG, "[" + contentUri.getPath() + "] " + message);
+    }
 }

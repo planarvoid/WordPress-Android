@@ -5,11 +5,11 @@ import com.soundcloud.android.framework.ViewFetcher;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
+import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.Tabs;
 
 import android.graphics.Rect;
-import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Display;
@@ -48,6 +48,11 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     @Override
+    public boolean isElementDisplayed(With matcher) {
+        return viewFetcher.isElementDisplayed(matcher);
+    }
+
+    @Override
     public void dragHorizontally(int n, int steps) {
         int[] xy = getLocation();
         testDriver.drag(Math.max(xy[0], 0),
@@ -70,27 +75,31 @@ public final class DefaultViewElement extends ViewElement {
                 throw new ViewNotVisibleException();
             }
         }
+        Log.i("CLICKEVENT", String.format("View rect: %s", getRect().flattenToString()));
         Log.i("CLICKEVENT", String.format("Clicking at: %s", getClickPoint()));
-        if(isFullyVisible()) {
-            testDriver.clickOnView(view);
-        } else {
-            testDriver.clickOnScreen(getVisibleRect().exactCenterX(), getVisibleRect().exactCenterY()) ;
-        }
+        testDriver.clickOnScreen(getVisibleRect().exactCenterX(), getVisibleRect().exactCenterY()) ;
     }
 
     private String getClickPoint() {
-        return String.format("%.02f, %.02f", view.getX() + view.getWidth()/2, view.getY() + view.getHeight()/2);
+        return String.format("%d, %d", getVisibleRect().centerX(), getVisibleRect().centerY());
+    }
+
+    private Rect getVisibleRect(){
+        Rect visibleRect = new Rect();
+        if(view.getGlobalVisibleRect(visibleRect) == true) {
+            if(visibleRect.intersect(getRect())){
+                return visibleRect;
+            }
+            return getRect();
+        }
+        return new Rect();
     }
 
     @Override
     public boolean isFullyVisible() {
-        return getVisibleRect().contains(getLocation()[0], getLocation()[1], getLocation()[0] + view.getWidth(), getLocation()[1]+ view.getHeight());
-    }
-
-    private Rect getVisibleRect(){
         Rect viewRect = getRect();
-        boolean intersect = viewRect.intersect(getScreenRect());
-        return viewRect;
+        Log.i("CLICKEVENT", String.format("View rect: %s", getRect().flattenToString()));
+        return getVisibleRect().contains(viewRect.left, viewRect.top, viewRect.right, viewRect.bottom);
     }
 
     private Rect getScreenRect() {
@@ -108,7 +117,7 @@ public final class DefaultViewElement extends ViewElement {
 
     @Override
     public boolean isVisible() {
-        return isShown() && hasVisibility() && hasDimensions() && isOnScreen();
+        return !getVisibleRect().isEmpty() && isShown() && hasVisibility() && hasDimensions() && isOnScreen();
     }
 
     @Override
@@ -207,10 +216,7 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     private boolean isOnScreen() {
-        return getLocation()[0] >= 0 &&
-                getLocation()[0] <= getScreenWidth() &&
-                getLocation()[1] >= 0 &&
-                getLocation()[1] <= getScreenHeight();
+        return getRect().intersect(getScreenRect());
     }
 
     private int[] getLocation() {

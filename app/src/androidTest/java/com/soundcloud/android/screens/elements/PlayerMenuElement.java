@@ -25,8 +25,13 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     public AddCommentScreen clickComment() {
-        comment().click();
+        commentItem().click();
         return new AddCommentScreen(testDriver);
+    }
+
+    public VisualPlayerElement toggleRepost() {
+        repostItem().click();
+        return new VisualPlayerElement(testDriver);
     }
 
     public void clickStartStation() {
@@ -45,8 +50,8 @@ public class PlayerMenuElement extends PopupMenuElement {
         return getRootMenuElements().get(2);
     }
 
-    private ViewElement comment() {
-        return getRootMenuElements().get(3);
+    public ViewElement commentItem() {
+        return container().findElement(With.textContaining("Comment"));
     }
 
     private ViewElement startStation() {

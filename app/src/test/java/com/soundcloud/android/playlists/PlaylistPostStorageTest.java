@@ -21,8 +21,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.observers.TestSubscriber;
 
-import android.support.annotation.NonNull;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -100,10 +98,21 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldIncludeLikeStatus() throws Exception {
+    public void shouldIncludeLikedStatus() throws Exception {
         playlist1 = createPlaylistPostAt(POSTED_DATE_1);
         testFixtures().insertLike(new ApiLike(playlist1.get(PlaylistProperty.URN), new Date()));
         playlist1.put(PlayableProperty.IS_LIKED, true);
+
+        storage.loadPostedPlaylists(1, Long.MAX_VALUE).subscribe(subscriber);
+
+        subscriber.assertValue(Collections.singletonList(playlist1));
+    }
+
+
+    @Test
+    public void shouldIncludeUnlikedStatus() throws Exception {
+        playlist1 = createPlaylistPostAt(POSTED_DATE_1);
+        playlist1.put(PlayableProperty.IS_LIKED, false);
 
         storage.loadPostedPlaylists(1, Long.MAX_VALUE).subscribe(subscriber);
 

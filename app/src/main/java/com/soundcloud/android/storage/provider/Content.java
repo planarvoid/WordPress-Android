@@ -1,6 +1,5 @@
 package com.soundcloud.android.storage.provider;
 
-
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.LIKE;
@@ -18,12 +17,9 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModel;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
-import com.soundcloud.android.api.legacy.model.activities.Activity;
-import com.soundcloud.android.search.suggestions.Shortcut;
 import com.soundcloud.android.storage.Table;
 import org.jetbrains.annotations.Nullable;
 
-import android.app.SearchManager;
 import android.content.UriMatcher;
 import android.net.Uri;
 import android.util.SparseArray;
@@ -52,9 +48,8 @@ public enum Content {
     ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 132, SoundAssociation.class, -1, Table.Posts),
 
     // the ids of the following entries should not be changed, they are referenced in th db
-    ME_SOUND_STREAM("me/stream", TempEndpoints.e1.MY_STREAM, 140, Activity.class, -1, Table.Activities),
-    ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.Activities),
-    ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.Activities),
+    ME_SOUND_STREAM("me/stream", null, 140, null, -1, null),
+    ME_ACTIVITIES("me/activities/all/own", null, 142, null, -1, null),
 
     SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, PublicApiUser.class, -1, null),
 
@@ -155,10 +150,6 @@ public enum Content {
         return id < SYNCABLE_CEILING && id > 0;
     }
 
-    public boolean isActivitiesItem() {
-        return table == Table.Activities || table == Table.ActivityView;
-    }
-
     public Uri.Builder buildUpon() {
         return uri.buildUpon();
     }
@@ -247,10 +238,5 @@ public enum Content {
 
     public boolean isUserBased() {
         return PublicApiUser.class.equals(modelType) || UserAssociation.class.equals(modelType);
-    }
-
-    @Nullable
-    public Class<? extends ScModel> getModelType() {
-        return modelType;
     }
 }

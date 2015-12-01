@@ -1,12 +1,9 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.api.legacy.model.activities.Activities;
-import com.soundcloud.android.storage.LegacyActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.stream.SoundStreamSyncOperations;
+import com.soundcloud.android.sync.stream.SoundStreamNotifier;
+import com.soundcloud.android.sync.activities.ActivitiesNotifier;
 import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
@@ -22,20 +19,29 @@ import javax.inject.Inject;
  * notifications if necessary.
  */
 class SyncServiceResultReceiver extends ResultReceiver {
-    private final SoundStreamSyncOperations soundStreamSyncOperations;
+    private final SoundStreamNotifier soundStreamNotifier;
+    private final ActivitiesNotifier activitiesNotifier;
     private final SyncStateManager syncStateManager;
+    private final ContentStats contentStats;
     private final SyncResult result;
     private final Context context;
     private final OnResultListener listener;
 
 
-    private SyncServiceResultReceiver(Context context, SoundStreamSyncOperations soundStreamSyncOperations, SyncStateManager syncStateManager,
-                                      SyncResult result, OnResultListener listener) {
+    private SyncServiceResultReceiver(Context context,
+                                      SoundStreamNotifier soundStreamNotifier,
+                                      ActivitiesNotifier activitiesNotifier,
+                                      SyncStateManager syncStateManager,
+                                      ContentStats contentStats,
+                                      SyncResult result,
+                                      OnResultListener listener) {
         super(new Handler());
+        this.activitiesNotifier = activitiesNotifier;
         this.syncStateManager = syncStateManager;
+        this.contentStats = contentStats;
         this.result = result;
         this.context = context;
-        this.soundStreamSyncOperations = soundStreamSyncOperations;
+        this.soundStreamNotifier = soundStreamNotifier;
         this.listener = listener;
     }
 
@@ -75,14 +81,13 @@ class SyncServiceResultReceiver extends ResultReceiver {
     }
 
     private void createSystemNotification() {
-        final LegacyActivitiesStorage activitiesStorage = new LegacyActivitiesStorage();
         final long frequency = SyncConfig.getNotificationsFrequency(context);
-        final long delta = System.currentTimeMillis() - ContentStats.getLastNotified(context, Content.ME_SOUND_STREAM);
+        final long delta = System.currentTimeMillis() - contentStats.getLastNotified(Content.ME_SOUND_STREAM);
 
         // deliver incoming sounds, if the user has enabled this
         if (SyncConfig.isIncomingEnabled(context)) {
             if (delta > frequency) {
-                soundStreamSyncOperations.createNotificationForUnseenItems();
+                soundStreamNotifier.notifyUnseenItems();
             } else {
                 Log.d(SyncAdapterService.TAG, "skipping stream notification, delta " + delta + " < frequency=" + frequency);
             }
@@ -90,69 +95,8 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
         // deliver incoming activities, if the user has enabled this
         if (SyncConfig.isActivitySyncEnabled(context)) {
-            final long lastOwnSeen = ContentStats.getLastSeen(context, Content.ME_ACTIVITIES);
-            Activities activities = activitiesStorage.getCollectionSince(Content.ME_ACTIVITIES.uri, lastOwnSeen);
-            maybeNotifyActivity(context, activities);
+            activitiesNotifier.notifyUnseenItems(context);
         }
-
-    }
-
-
-
-    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    private boolean maybeNotifyActivity(Context context, Activities activities) {
-        if (!activities.isEmpty()) {
-
-            final Activities likes = getLikeNotifications(context, activities);
-            final Activities comments = getCommentNotifications(context, activities);
-            final Activities reposts = getRepostNotifications(context, activities);
-            final Activities followers = getFollowersNotifications(context, activities);
-            final Activities activitiesToNotify = Activities.EMPTY.merge(likes, comments, reposts, followers);
-
-            if (activitiesToNotify.isEmpty()) {
-                return false;
-            }
-
-            activitiesToNotify.sort();
-
-            if (activitiesToNotify.newerThan(ContentStats.getLastNotifiedItem(context, Content.ME_ACTIVITIES))) {
-                final NotificationMessage msg = new NotificationMessage
-                        .Builder(context.getResources())
-                        .setAllActivitiesToNotify(activitiesToNotify)
-                        .setLikes(likes)
-                        .setComments(comments)
-                        .setReposts(reposts)
-                        .setFollowers(followers)
-                        .build();
-                NotificationMessage.showDashboardNotification(context, msg.ticker, msg.title, msg.message,
-                        NotificationMessage.createNotificationIntent(Actions.ACTIVITY),
-                        NotificationConstants.DASHBOARD_NOTIFY_ACTIVITIES_ID,
-                        activitiesToNotify.getFirstAvailableAvatar());
-
-                ContentStats.setLastNotifiedItem(context, Content.ME_ACTIVITIES, activitiesToNotify.getTimestamp());
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    private Activities getFollowersNotifications(Context context, Activities activities) {
-        return SyncConfig.isNewFollowerNotificationsEnabled(context) ? activities.followers() : Activities.EMPTY;
-    }
-
-    private Activities getRepostNotifications(Context context, Activities activities) {
-        return SyncConfig.isRepostNotificationsEnabled(context) ? activities.trackReposts() : Activities.EMPTY;
-    }
-
-    private Activities getCommentNotifications(Context context, Activities activities) {
-        return SyncConfig.isCommentNotificationsEnabled(context) ? activities.comments() : Activities.EMPTY;
-    }
-
-    private Activities getLikeNotifications(Context context, Activities activities) {
-        return SyncConfig.isLikeNotificationEnabled(context) ? activities.trackLikes() : Activities.EMPTY;
     }
 
     public interface OnResultListener {
@@ -161,18 +105,25 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
     public static class Factory {
         private final Context context;
-        private final SoundStreamSyncOperations soundStreamSyncOps;
+        private final SoundStreamNotifier streamNotifier;
+        private final ActivitiesNotifier activitiesNotifier;
         private final SyncStateManager syncStateManager;
+        private final ContentStats contentStats;
 
         @Inject
-        public Factory(Context context, SoundStreamSyncOperations soundStreamSyncOps, SyncStateManager syncStateManager) {
+        public Factory(Context context, SoundStreamNotifier streamNotifier,
+                       ActivitiesNotifier activitiesNotifier, SyncStateManager syncStateManager,
+                       ContentStats contentStats) {
             this.context = context;
-            this.soundStreamSyncOps = soundStreamSyncOps;
+            this.streamNotifier = streamNotifier;
+            this.activitiesNotifier = activitiesNotifier;
             this.syncStateManager = syncStateManager;
+            this.contentStats = contentStats;
         }
 
-        public SyncServiceResultReceiver create(SyncResult result, OnResultListener listener){
-            return new SyncServiceResultReceiver(context, soundStreamSyncOps, syncStateManager, result, listener);
+        public SyncServiceResultReceiver create(SyncResult result, OnResultListener listener) {
+            return new SyncServiceResultReceiver(context, streamNotifier, activitiesNotifier,
+                    syncStateManager, contentStats, result, listener);
         }
     }
 }

@@ -11,7 +11,6 @@ import com.soundcloud.java.collections.Lists;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
-import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -116,12 +115,6 @@ public class ScContentProvider extends ContentProvider {
                 upsert(content.table, db, values);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
-
-            case COMMENTS:
-            case ME_SOUND_STREAM:
-            case ME_ACTIVITIES:
-                table = content.table;
-                break;
 
             case ME_SOUNDS:
                 table = Table.Posts;
@@ -297,7 +290,7 @@ public class ScContentProvider extends ContentProvider {
                 if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
                     _columns = new String[]{Table.Likes + "." + TableColumns.Likes._TYPE, Table.Likes + "." + TableColumns.Likes._ID};
                 } else if (_columns == null) {
-                    _columns = addFakeLikeAssociationColumns(getSoundViewColumns(Table.SoundView), userId);
+                    _columns = addFakeLikeAssociationColumns(getSoundViewColumns(Table.SoundView));
                 }
 
                 _sortOrder = Table.Likes + "." + TableColumns.Likes.CREATED_AT + " DESC";
@@ -416,28 +409,6 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(TableColumns.TrackMetadata.USER_ID + " = " + userId);
                 break;
 
-            case ME_SOUND_STREAM:
-                if (_columns == null) {
-                    _columns = getSoundViewColumns(Table.ActivityView,
-                            TableColumns.ActivityView.SOUND_ID, TableColumns.ActivityView.SOUND_TYPE);
-                }
-                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
-                    qb.appendWhere(TableColumns.SoundView.CACHED + "= 1 AND ");
-                }
-
-            case ME_ALL_ACTIVITIES:
-            case ME_ACTIVITIES:
-                qb.setTables(Table.ActivityView.name());
-                if (content != Content.ME_ALL_ACTIVITIES) {
-                    // filter out playlist
-                    qb.appendWhere(TableColumns.ActivityView.CONTENT_ID + "=" + content.id + " ");
-                }
-                _sortOrder = makeActivitiesSort(uri, sortOrder);
-                break;
-            case COMMENTS:
-                qb.setTables(content.table.name());
-                break;
-
             case UNKNOWN:
             default:
                 throw new IllegalArgumentException("No query available for: " + uri);
@@ -490,8 +461,6 @@ public class ScContentProvider extends ContentProvider {
             case USER_ASSOCIATIONS:
             case ME_SOUNDS:
             case ME_PLAYLISTS:
-            case ME_SOUND_STREAM:
-            case ME_ACTIVITIES:
             case ME_LIKES:
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
@@ -571,7 +540,6 @@ public class ScContentProvider extends ContentProvider {
         switch (content) {
             case COLLECTIONS:
             case PLAYLISTS:
-            case ME_ALL_ACTIVITIES:
             case ME_SOUNDS:
                 break;
 
@@ -583,12 +551,6 @@ public class ScContentProvider extends ContentProvider {
 
             case PLAYLIST_TRACKS:
                 where = (!TextUtils.isEmpty(where) ? where + " AND " : "") + TableColumns.PlaylistTracks.PLAYLIST_ID + "=" + uri.getPathSegments().get(1);
-                break;
-
-            case ME_ACTIVITIES:
-            case ME_SOUND_STREAM:
-                where = TableColumns.Activities.CONTENT_ID + "= ?";
-                whereArgs = new String[]{String.valueOf(content.id)};
                 break;
 
             case ME_PLAYLISTS:
@@ -648,7 +610,7 @@ public class ScContentProvider extends ContentProvider {
     }
 
     // New likes don't have all the fields expected to load into SoundAssociation in legacy ScListFragments etc.
-    private static String[] addFakeLikeAssociationColumns(String[] columns, long userId) {
+    private static String[] addFakeLikeAssociationColumns(String[] columns) {
         final String[] arr = new String[columns.length + 3];
         final List<String> cols = Lists.newArrayList(columns);
         cols.add(Table.Likes + "." + TableColumns.Likes.CREATED_AT + " AS " + TableColumns.AssociationView.ASSOCIATION_TIMESTAMP);

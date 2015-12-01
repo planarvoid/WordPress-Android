@@ -1,13 +1,16 @@
 package com.soundcloud.android.facebookinvites;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
+import rx.Scheduler;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -17,30 +20,37 @@ public class FacebookInvitesOperations {
     public static final long DISMISS_INTERVAL_MS = TimeUnit.DAYS.toMillis(60); // 60 days after 2nd dismiss
     public static final int SHOW_AFTER_OPENS_COUNT = 5;
     public static final int REST_AFTER_DISMISS_COUNT = 2;
+    private static final Observable<Optional<FacebookInvitesItem>> NO_INVITES =
+            Observable.just(Optional.<FacebookInvitesItem>absent());
 
     private final FacebookInvitesStorage facebookInvitesStorage;
     private final FacebookApiHelper facebookApiHelper;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final FacebookApi facebookApi;
+    private final Scheduler scheduler;
 
     @Inject
     public FacebookInvitesOperations(FacebookInvitesStorage facebookInvitesStorage,
                                      FacebookApi facebookApi,
                                      FacebookApiHelper facebookApiHelper,
-                                     NetworkConnectionHelper networkConnectionHelper) {
+                                     NetworkConnectionHelper networkConnectionHelper,
+                                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.facebookInvitesStorage = facebookInvitesStorage;
         this.facebookApi = facebookApi;
         this.facebookApiHelper = facebookApiHelper;
         this.networkConnectionHelper = networkConnectionHelper;
+        this.scheduler = scheduler;
     }
 
     public Observable<Optional<FacebookInvitesItem>> loadWithPictures() {
         if (canShow()) {
             return facebookApi
                     .friendPictureUrls()
-                    .map(buildItemWithPictureUrls());
+                    .subscribeOn(scheduler)
+                    .map(buildItemWithPictureUrls())
+                    .onErrorResumeNext(NO_INVITES);
         } else {
-            return Observable.just(Optional.<FacebookInvitesItem>absent());
+            return NO_INVITES;
         }
     }
 

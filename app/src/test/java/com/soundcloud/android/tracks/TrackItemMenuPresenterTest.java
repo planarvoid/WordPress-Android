@@ -12,6 +12,7 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -48,6 +49,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock PlaybackInitiator playbackInitiator;
     @Mock PlaybackToastHelper playbackToastHelper;
     @Mock FeatureFlags featureFlags;
+    @Mock StreamDesignExperiment streamExperiment;
     @Mock StartStationPresenter startStationPresenter;
     @Mock Context context;
     @Mock FragmentActivity activity;
@@ -73,10 +75,8 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("screen");
 
         presenter = new TrackItemMenuPresenter(popupMenuWrapperFactory, trackRepository, eventBus, context,
-                likeOperations, repostOperations, playlistOperations, screenProvider, playbackInitiator,
-                playbackToastHelper, featureFlags, shareOperations, dialogBuilder, startStationPresenter, accountOperations);
-
-        presenter.show(activity, view, trackItem, 0);
+                likeOperations, repostOperations, playlistOperations, screenProvider, playbackInitiator, playbackToastHelper,
+                featureFlags, shareOperations, dialogBuilder, startStationPresenter, accountOperations);
     }
 
     @Test
@@ -85,6 +85,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(likeOperations.toggleLike(trackItem.getEntityUrn(), !trackItem.isLiked())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
+        presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
         assertThat(likeObservable.hasObservers()).isTrue();
@@ -96,6 +97,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(repostOperations.toggleRepost(trackItem.getEntityUrn(), !trackItem.isReposted())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
+        presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
         assertThat(repostObservable.hasObservers()).isTrue();
@@ -105,6 +107,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     public void clickingOnShareItemSharesTrack() {
         when(menuItem.getItemId()).thenReturn(R.id.share);
 
+        presenter.show(activity, view, trackItem, 0);
         presenter.onMenuItemClick(menuItem, context);
 
         EventContextMetadata eventContextMetadata =
@@ -116,7 +119,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                         .build();
         verify(shareOperations).share(context, trackItem.getSource(), eventContextMetadata, null);
     }
-
+    
     private TrackItem createTrackItem() {
         return TrackItem.from(ModelFixtures.create(ApiTrack.class));
     }

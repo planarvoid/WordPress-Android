@@ -2,7 +2,6 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
@@ -24,7 +23,11 @@ public class StationFixtures {
     }
 
     public static ApiStation getApiStation(Urn station, int size) {
-        final ModelCollection<ApiTrack> tracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class, size));
+        final ModelCollection<ApiTrack> tracks = new ModelCollection<>(
+                ModelFixtures.create(ApiTrack.class, size),
+                null,
+                "soundcloud:radio:123123123"
+        );
         return new ApiStation(getApiStationMetadata(station), tracks);
     }
 
@@ -97,14 +100,14 @@ public class StationFixtures {
     }
 
     private static ModelCollection<ApiStationMetadata> createStationsCollection(List<Urn> stations) {
-        final ModelCollection<ApiStationMetadata> collection = new ModelCollection<>();
-        List<ApiStationMetadata> stationsCollection = new ArrayList<>();
+        final List<ApiStationMetadata> stationsCollection = new ArrayList<>();
 
         for (Urn station : stations) {
             stationsCollection.add(getApiStation(station).getMetadata());
         }
-
-        collection.setCollection(stationsCollection);
-        return collection;
+        return new ModelCollection<>(
+                stationsCollection,
+                null,
+                "soundcloud:radio:123123123");
     }
 }

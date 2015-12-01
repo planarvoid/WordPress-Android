@@ -10,10 +10,6 @@ import java.util.List;
 import java.util.Locale;
 
 public enum ApiEndpoints {
-    // onboarding
-    SUGGESTED_USER_CATEGORIES("/suggestions/users/categories"),
-    SUGGESTED_USER_FACEBOOK_CATEGORIES("/suggestions/users/social/facebook"),
-
     // explore
     EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/popular/music"),
     EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/popular/audio"),
@@ -61,6 +57,10 @@ public enum ApiEndpoints {
     USER_POSTED_PLAYLISTS("/users/%s/posted_playlists"),
     USER_LIKES("/users/%s/liked_tracks_and_playlists"),
 
+    // tracks
+    TRACKS("/tracks/%s"),
+    TRACKS_FETCH("/tracks/fetch"),
+
     // playlist
     PLAYLISTS_CREATE("/playlists"),
     PLAYLISTS_FETCH("/playlists/fetch"),
@@ -83,7 +83,6 @@ public enum ApiEndpoints {
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),
-    TRACKS_FETCH("/tracks/fetch"),
     CONFIGURATION("/configuration/android"),
 
     // public API
@@ -94,15 +93,12 @@ public enum ApiEndpoints {
     RESOLVE("/resolve"),
     MY_TRACK_REPOSTS("/e1/me/track_reposts/%s"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
-    BULK_FOLLOW_USERS("/me/suggested/users"),
     LEGACY_TRACKS("/tracks"),
     LEGACY_TRACK("/tracks/%s"),
     LEGACY_USERS("/users"),
     LEGACY_USER("/users/%s"),
     TRACK_COMMENTS("/tracks/%s/comments"),
 
-    LEGACY_USER_SOUNDS("/e1/users/%s/sounds"),
-    LEGACY_USER_LIKES("/e1/users/%s/likes"),
     LEGACY_USER_PLAYLISTS("/users/%s/playlists"),
     LEGACY_USER_FOLLOWINGS("/users/%s/followings"),
     LEGACY_USER_FOLLOWERS("/users/%s/followers"),

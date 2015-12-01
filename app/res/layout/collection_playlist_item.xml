@@ -35,25 +35,50 @@
         <TextView
             android:id="@+id/title"
             style="@style/Collections.ItemTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/artwork"
-            android:layout_marginRight="16dp"/>
+            android:layout_toLeftOf="@+id/like_indicator"
+            android:layout_marginRight="4dp" />
 
         <TextView
             android:id="@+id/creator"
             style="@style/Collections.Creator"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/title"
-            android:layout_marginRight="16dp"/>
+            android:layout_toLeftOf="@+id/overflow_button"
+            android:layout_marginRight="4dp" />
 
+        <ImageView
+            android:id="@+id/private_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artwork"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="4dp"
+            android:src="@drawable/ic_playlist_private" />
+
+        <ImageView
+            android:id="@+id/like_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artwork"
+            android:layout_toLeftOf="@id/private_indicator"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="4dp"
+            android:src="@drawable/ic_playlist_like" />
+
+        <ImageView android:id="@+id/overflow_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="1dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/ic_playlist_menu"
+            android:background="?android:attr/selectableItemBackground" />
     </RelativeLayout>
-
-    <ImageView android:id="@+id/overflow_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/ListItemOverflowButton"
-        android:layout_gravity="bottom|end"/>
 
 </FrameLayout>

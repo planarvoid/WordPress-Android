@@ -1,19 +1,19 @@
 package com.soundcloud.android.commands;
 
+import static android.provider.BaseColumns._ID;
+import static com.soundcloud.android.storage.Table.Sounds;
+import static com.soundcloud.android.storage.TableColumns.Sounds.DESCRIPTION;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static com.soundcloud.propeller.query.Query.from;
-import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
+import static java.util.Collections.singletonList;
 
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 public class StoreTracksCommandTest extends StorageIntegrationTest {
@@ -38,21 +38,22 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
         final ApiTrack track = testFixtures().insertTrack();
         track.setTitle("new title");
 
-        command.call(Collections.singletonList(track));
+        command.call(singletonList(track));
 
-        assertThat(select(from(Table.Sounds.name())), counts(1));
+        assertThat(select(from(Sounds.name()))).counts(1);
         databaseAssertions().assertTrackInserted(track);
     }
 
     @Test
     public void shouldPersistTrackWithDescription() {
-        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
-        track.description = "description";
+        ApiTrack track = create(ApiTrack.class);
+        track.setDescription("description");
 
-        command.call(Collections.singletonList(track));
+        command.call(singletonList(track));
 
-        assertThat(select(from(Table.Sounds.name())
-                .whereEq(TableColumns.Sounds.DESCRIPTION, "description")), counts(1));
+        assertThat(select(from(Sounds.name())
+                .whereEq(_ID, track.getId())
+                .whereEq(DESCRIPTION, "description"))).counts(1);
 
     }
 }

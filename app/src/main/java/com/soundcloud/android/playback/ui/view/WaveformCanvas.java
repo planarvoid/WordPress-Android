@@ -12,9 +12,14 @@ import android.view.TextureView;
 
 public class WaveformCanvas extends TextureView implements TextureView.SurfaceTextureListener {
     private WaveformData waveformData;
-    private Paint abovePaint, belowPaint;
+    private Paint abovePaint;
+    private Paint belowPaint;
+    private Paint unplayableAbovePaint;
+    private Paint unplayableBelowPaint;
     private int barWidth, spaceWidth, baseline;
     private boolean surfaceAvailable = false;
+
+    private float unplayableFromPosition = 1.0f;
 
     public WaveformCanvas(Context context) {
         this(context, null);
@@ -30,13 +35,20 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
         setOpaque(false);
     }
 
-    public void initialize(WaveformData waveformData, Paint abovePaint, Paint belowPaint, int barWidth, int spaceWidth, int baseline) {
+    public void initialize(WaveformData waveformData, Paint abovePaint, Paint belowPaint, Paint unplayableAbovePaint, Paint unplayableBelowPaint, int barWidth, int spaceWidth, int baseline) {
         this.waveformData = waveformData;
         this.abovePaint = abovePaint;
         this.belowPaint = belowPaint;
         this.barWidth = barWidth;
         this.spaceWidth = spaceWidth;
         this.baseline = baseline;
+        this.unplayableAbovePaint = unplayableAbovePaint;
+        this.unplayableBelowPaint = unplayableBelowPaint;
+        drawCanvas();
+    }
+
+    public void setUnplayableFromPosition(float unplayableFromPosition) {
+        this.unplayableFromPosition = unplayableFromPosition;
         drawCanvas();
     }
 
@@ -78,9 +90,17 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
             int x = 0;
             float y;
 
-            for (int bar = 0; bar < waveformData.samples.length; bar++) {
+            final int length = waveformData.samples.length;
+            final int playableBars = (int) (length * unplayableFromPosition);
+            for (int bar = 0; bar < playableBars; bar++) {
                 y = Math.max(spaceWidth, waveformData.samples[bar]);
                 drawBar(canvas, x, y, abovePaint, belowPaint);
+                x += w;
+            }
+
+            for (int bar = playableBars; bar < length; bar++) {
+                y = Math.max(spaceWidth, waveformData.samples[bar]);
+                drawBar(canvas, x, y, unplayableAbovePaint, unplayableBelowPaint);
                 x += w;
             }
         }

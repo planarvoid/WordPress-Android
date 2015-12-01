@@ -1,11 +1,13 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 
 public class TrackQueueItem extends PlayQueueItem {
 
@@ -14,17 +16,21 @@ public class TrackQueueItem extends PlayQueueItem {
     private final Urn relatedEntity;
     private final String source;
     private final String sourceVersion;
+    private final Urn sourceUrn;
+    private final Urn queryUrn;
     private final boolean shouldPersist;
 
     private TrackQueueItem(Urn trackUrn, Urn reposter, Urn relatedEntity, String source,
-                           String sourceVersion, PropertySet metaData, boolean shouldPersist) {
+                           String sourceVersion, Optional<AdData> adData, boolean shouldPersist, Urn sourceUrn, Urn queryUrn) {
         this.trackUrn = trackUrn;
         this.reposter = reposter;
         this.relatedEntity = relatedEntity;
         this.source = source;
         this.sourceVersion = sourceVersion;
         this.shouldPersist = shouldPersist;
-        super.setMetaData(metaData);
+        this.queryUrn = queryUrn;
+        this.sourceUrn = sourceUrn;
+        super.setAdData(adData);
     }
 
     public Urn getTrackUrn() {
@@ -41,6 +47,14 @@ public class TrackQueueItem extends PlayQueueItem {
 
     public String getSourceVersion() {
         return sourceVersion;
+    }
+
+    public Urn getSourceUrn() {
+        return sourceUrn;
+    }
+
+    public Urn getQueryUrn() {
+        return queryUrn;
     }
 
     public Urn getRelatedEntity() {
@@ -80,8 +94,10 @@ public class TrackQueueItem extends PlayQueueItem {
         private final Urn reposter;
         private String source = ScTextUtils.EMPTY_STRING;
         private String sourceVersion = ScTextUtils.EMPTY_STRING;
-        private PropertySet adData = PropertySet.create();
+        private Optional<AdData> adData = Optional.absent();
         private Urn relatedEntity = Urn.NOT_SET;
+        private Urn sourceUrn = Urn.NOT_SET;
+        private Urn queryUrn = Urn.NOT_SET;
         private boolean shouldPersist = true;
 
         public Builder(Urn track) {
@@ -104,8 +120,16 @@ public class TrackQueueItem extends PlayQueueItem {
             return this;
         }
 
-        public Builder withAdData(PropertySet adData){
-            this.adData = adData;
+        public Builder fromSource(String source, String sourceVersion, Urn sourceUrn, Urn queryUrn) {
+            this.source = source;
+            this.sourceVersion = sourceVersion;
+            this.sourceUrn = sourceUrn;
+            this.queryUrn = queryUrn;
+            return this;
+        }
+
+        public Builder withAdData(AdData adData){
+            this.adData = Optional.of(adData);
             return this;
         }
 
@@ -120,7 +144,7 @@ public class TrackQueueItem extends PlayQueueItem {
         }
 
         public TrackQueueItem build(){
-            return new TrackQueueItem(track, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist);
+            return new TrackQueueItem(track, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist, sourceUrn, queryUrn);
         }
     }
 }

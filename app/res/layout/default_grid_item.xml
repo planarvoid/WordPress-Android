@@ -1,44 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:sc="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/gridview_padding_top_bottom"
-                android:paddingLeft="@dimen/gridview_padding_left_right"
-                android:paddingRight="@dimen/gridview_padding_left_right">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sc="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?android:selectableItemBackground">
 
-    <com.soundcloud.android.view.ParallaxImageView android:id="@+id/image"
-                                                   sc:focalPoint=".45"
-                                                   style="@style/GridItemImageView" />
+    <RelativeLayout
+        style="@style/Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="20dp"
+        tools:ignore="UselessParent">
 
-    <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
-                                                android:layout_above="@+id/title"
-                                                android:layout_marginLeft="@dimen/grid_item_padding"
-                                                style="@style/BlackOverlayText.RegularSubtext" />
+        <com.soundcloud.android.view.ParallaxImageView
+            android:id="@+id/image"
+            style="@style/GridItemImageView"
+            sc:focalPoint=".45" />
 
-    <com.soundcloud.android.view.JaggedTextView android:id="@+id/title"
-                                                android:layout_marginLeft="@dimen/grid_item_padding"
-                                                android:layout_marginRight="@dimen/grid_item_padding"
-                                                android:layout_marginBottom="@dimen/grid_item_padding"
-                                                android:layout_marginTop="4dp"
-                                                android:layout_alignBottom="@id/image"
-                                                style="@style/BlackOverlayText.Regular" />
+        <com.soundcloud.android.view.JaggedTextView
+            android:id="@+id/username"
+            style="@style/BlackOverlayText.RegularSubtext"
+            android:layout_above="@+id/title"
+            android:layout_marginLeft="@dimen/grid_item_padding"
+            tools:text="Awesome artist" />
 
-    <RelativeLayout android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/image"
-                    android:clickable="true"
-                    android:focusable="false">
+        <com.soundcloud.android.view.JaggedTextView
+            android:id="@+id/title"
+            style="@style/BlackOverlayText.Regular"
+            android:layout_alignBottom="@id/image"
+            android:layout_marginBottom="@dimen/grid_item_padding"
+            android:layout_marginLeft="@dimen/grid_item_padding"
+            android:layout_marginRight="@dimen/grid_item_padding"
+            android:layout_marginTop="4dp"
+            tools:text="Track title" />
 
-        <TextView android:id="@+id/tag"
-                  android:layout_toLeftOf="@+id/extra_info"
-                  style="@style/GridItemTag" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/image"
+            android:clickable="true"
+            android:focusable="false">
 
-        <TextView android:id="@id/extra_info"
-                  style="@style/GridItemExtra" />
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/tag"
+                style="@style/GridItemTag"
+                android:layout_toLeftOf="@+id/extra_info"
+                tools:text="#tag1, #tag2" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@id/extra_info"
+                style="@style/GridItemExtra"
+                tools:text="25 tracks" />
+
+        </RelativeLayout>
 
     </RelativeLayout>
 
-</RelativeLayout>
-
+</FrameLayout>
