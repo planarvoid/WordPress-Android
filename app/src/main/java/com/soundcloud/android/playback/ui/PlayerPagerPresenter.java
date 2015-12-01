@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.OverlayAdData;
@@ -65,6 +66,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private final AudioAdPresenter audioAdPresenter;
     private final VideoAdPresenter videoAdPresenter;
     private final CastConnectionHelper castConnectionHelper;
+    private final AdsOperations adOperations;
     private final EventBus eventBus;
     private final StationsOperations stationsOperations;
     private final TrackPageRecycler trackPageRecycler;
@@ -117,6 +119,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
                          AudioAdPresenter audioAdPresenter,
                          VideoAdPresenter videoAdPresenter,
                          CastConnectionHelper castConnectionHelper,
+                         AdsOperations adOperations,
                          EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
@@ -125,6 +128,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         this.audioAdPresenter = audioAdPresenter;
         this.videoAdPresenter = videoAdPresenter;
         this.castConnectionHelper = castConnectionHelper;
+        this.adOperations = adOperations;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
 
@@ -282,6 +286,15 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     public boolean isTrackView(Object object) {
         return trackPagePresenter.accept((View) object);
+    }
+
+    private int getPagerAdViewPosition() {
+        for (int i = 0; i < currentData.size(); i++) {
+            if (currentData.get(i).isAdPage() && adOperations.isCurrentItemAd()) {
+                return i;
+            }
+        }
+        return PagerAdapter.POSITION_NONE;
     }
 
     @Override
@@ -566,7 +579,11 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
         @Override
         public int getItemPosition(Object object) {
-            return POSITION_NONE;
+            if (isTrackView(object)) {
+                return POSITION_NONE;
+            } else {
+                return getPagerAdViewPosition();
+            }
         }
 
         @Override
@@ -579,10 +596,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             View view;
             switch (getItemViewType(position)) {
                 case TYPE_AUDIO_AD_VIEW:
-                    view = instantiateAdView(audioAdPresenter, container, position);
-                    break;
                 case TYPE_VIDEO_AD_VIEW:
-                    view = instantiateAdView(videoAdPresenter, container, position);
+                    view = instantiateAdView(container, position);
                     break;
                 default:
                     view = instantiateTrackView(position);
@@ -614,13 +629,17 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             return view;
         }
 
-        private View instantiateAdView(PlayerPagePresenter presenter, ViewGroup container, int position) {
+        private View instantiateAdView(ViewGroup container, int position) {
             final PlayerPageData playerPageData = currentData.get(position);
 
             if (playerPageData.isTrackPage() && audioAdView == null) {
-                audioAdView = presenter.createItemView(container, skipListener);
+                audioAdView = audioAdPresenter.createItemView(container, skipListener);
             } else if (playerPageData.isVideoPage() && videoAdView == null) {
-                videoAdView = presenter.createItemView(container, skipListener);
+                videoAdView = videoAdPresenter.createItemView(container, skipListener);
+            } else if (playerPageData.isTrackPage()){
+                audioAdPresenter.clearItemView(audioAdView);
+            } else {
+                videoAdPresenter.clearItemView(videoAdView);
             }
 
             return bindView(position, playerPageData.isTrackPage() ? audioAdView : videoAdView);
