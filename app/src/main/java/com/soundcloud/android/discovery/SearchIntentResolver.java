@@ -80,8 +80,6 @@ public class SearchIntentResolver {
     }
 
     private void searchFromDeepLink(String query) {
-        if (listener != null) {
-            listener.onDeepLinkExecuted(query.trim());
-        }
+        listener.onDeepLinkExecuted(query.trim());
     }
 }
