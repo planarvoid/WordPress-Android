@@ -45,6 +45,8 @@ public class Navigator {
     private static final int NO_FLAGS = 0;
     private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
+    public final static String EXTRA_SEARCH_INTENT = "search_intent";
+
     private final FeatureFlags featureFlags;
 
     public Navigator(FeatureFlags featureFlags) {
@@ -52,7 +54,7 @@ public class Navigator {
     }
 
     public void openHome(Context context) {
-        context.startActivity(new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        context.startActivity(createHomeIntent(context));
     }
 
     public void openUpgrade(Context context) {
@@ -81,6 +83,22 @@ public class Navigator {
 
     public void openSearch(Activity activity) {
         startActivity(activity, SearchActivity.class);
+    }
+
+    public void openSearch(Activity activity, Intent searchIntent) {
+        activity.startActivity(searchIntent);
+    }
+
+    public void openSearch(Context context, Uri uri, Screen screen) {
+        final Intent searchIntent = createSearchIntentFromDeepLink(context, uri, screen);
+        final Intent homeIntent = createHomeIntent(context);
+        homeIntent.setAction(Actions.SEARCH);
+        homeIntent.putExtra(EXTRA_SEARCH_INTENT, searchIntent);
+        context.startActivity(homeIntent);
+    }
+
+    public void openUri(Context context, Uri uri) {
+        context.startActivity(new Intent(Intent.ACTION_VIEW).setData(uri));
     }
 
     public void openProfile(Context context, Urn user, Screen screen) {
@@ -169,10 +187,6 @@ public class Navigator {
         context.startActivity(createExploreIntent(context, screen));
     }
 
-    public void openLegacySearch(Context context, Uri uri, Screen screen) {
-        context.startActivity(createSearchIntent(context, uri, screen));
-    }
-
     public void openResolveForUrn(Context context, Urn urn) {
         context.startActivity(createResolveIntent(context, urn));
     }
@@ -210,6 +224,10 @@ public class Navigator {
                 .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, track));
     }
 
+    private Intent createHomeIntent(Context context) {
+        return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
+
     private Intent createResolveIntent(Context context, Urn urn) {
         Intent intent = new Intent(context, ResolveActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
@@ -218,8 +236,8 @@ public class Navigator {
         return intent;
     }
 
-    private Intent createSearchIntent(Context context, Uri uri, Screen screen) {
-        Intent intent = new Intent(context, LegacySearchActivity.class);
+    private Intent createSearchIntentFromDeepLink(Context context, Uri uri, Screen screen) {
+        Intent intent = new Intent(context, SearchActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(uri);
         screen.addToIntent(intent);

@@ -66,6 +66,7 @@
             </intent-filter>
         </activity>
 
+        <meta-data android:name="android.app.default_searchable" android:value=".search.MainActivity"/>
         <activity android:launchMode="singleTop" android:name=".main.MainActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.STREAM"/>
@@ -97,7 +98,7 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="android.app.default_searchable" android:value=".search.MainActivity"/>
+
         <activity android:label="@string/title_search" android:name=".search.LegacySearchActivity"/> <!-- Legacy standalone search -->
 
         <activity android:name=".search.PlayFromVoiceSearchActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
