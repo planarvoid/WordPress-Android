@@ -148,6 +148,10 @@ public class SoundCloudApplication extends MultiDexApplication {
         // reroute to a static field for legacy code
         sModelManager = modelManager;
 
+        bootApplication();
+    }
+
+    protected void bootApplication() {
         migrationEngine.migrate();
 
         Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildType());

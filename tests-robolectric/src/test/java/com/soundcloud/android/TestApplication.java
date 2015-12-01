@@ -26,8 +26,7 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
+    protected void bootApplication() {
         oldCloudApi = PublicApi.getInstance(this);
     }
 
