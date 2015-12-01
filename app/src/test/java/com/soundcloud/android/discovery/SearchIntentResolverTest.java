@@ -26,8 +26,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        intentResolver = new SearchIntentResolver(navigator, tracker);
-        intentResolver.setDeepLinkListener(listener);
+        intentResolver = new SearchIntentResolver(listener, navigator, tracker);
         intent = new Intent();
     }
 
@@ -68,7 +67,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
 
         intentResolver.handle(context(), intent);
 
-        verify(navigator).openSystemSearch(context(), uri);
+        verify(navigator).openUri(context(), uri);
     }
 
     @Test

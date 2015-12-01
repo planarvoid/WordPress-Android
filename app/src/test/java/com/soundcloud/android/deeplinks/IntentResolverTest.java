@@ -167,7 +167,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openSearchFromDeepLink(context, uri, Screen.DEEPLINK);
+        verify(navigator).openSearch(context, uri, Screen.DEEPLINK);
     }
 
     @Test
@@ -177,7 +177,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openSearchFromDeepLink(context, uri, Screen.DEEPLINK);
+        verify(navigator).openSearch(context, uri, Screen.DEEPLINK);
     }
 
     @Test
@@ -200,7 +200,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         verify(accountOperations).loginCrawlerUser();
         verifyTrackingEvent(Referrer.GOOGLE_CRAWLER);
-        verify(navigator).openSearchFromDeepLink(context, uri, Screen.DEEPLINK);
+        verify(navigator).openSearch(context, uri, Screen.DEEPLINK);
     }
 
     @Test

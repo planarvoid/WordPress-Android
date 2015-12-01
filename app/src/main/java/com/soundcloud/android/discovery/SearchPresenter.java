@@ -12,7 +12,6 @@ import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.os.Bundle;
@@ -64,10 +63,9 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     private final SuggestionsHelper suggestionsHelper;
 
     @Inject
-    SearchPresenter(SearchIntentResolver intentResolver, SearchTracker tracker, Resources resources,
+    SearchPresenter(SearchIntentResolverFactory intentResolverFactory, SearchTracker tracker, Resources resources,
                     SuggestionsAdapter adapter, SuggestionsHelperFactory suggestionsHelperFactory) {
-        this.intentResolver = intentResolver;
-        this.intentResolver.setDeepLinkListener(this);
+        this.intentResolver = intentResolverFactory.create(this);
         this.tracker = tracker;
         this.resources = resources;
         this.adapter = adapter;
@@ -84,13 +82,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
         if (bundle == null) {
             intentResolver.handle(activity, activity.getIntent());
         }
-    }
-
-    @Override
-    public void onNewIntent(AppCompatActivity activity, Intent intent) {
-        super.onNewIntent(activity, intent);
-        activity.setIntent(intent);
-        intentResolver.handle(activity, intent);
     }
 
     @Override

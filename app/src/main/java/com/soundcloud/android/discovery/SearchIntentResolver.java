@@ -1,11 +1,12 @@
 package com.soundcloud.android.discovery;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.strings.Strings;
 
 import android.app.SearchManager;
@@ -13,8 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
-import javax.inject.Inject;
-
+@AutoFactory(allowSubclasses = true)
 public class SearchIntentResolver {
 
     interface DeepLinkListener {
@@ -30,35 +30,32 @@ public class SearchIntentResolver {
     private static final String INTENT_URL_QUERY_PARAM = "q";
     private static final String INTENT_URI_SEARCH_PATH = "/search";
 
+    private final DeepLinkListener listener;
     private final Navigator navigator;
     private final SearchTracker tracker;
 
-    private DeepLinkListener deepLinkListener;
-
-    @Inject
-    SearchIntentResolver(Navigator navigator, SearchTracker tracker) {
+    SearchIntentResolver(DeepLinkListener listener, @Provided Navigator navigator, @Provided SearchTracker tracker) {
+        this.listener = listener;
         this.navigator = navigator;
         this.tracker = tracker;
     }
 
     void handle(Context context, Intent intent) {
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())
-                || ACTION_PLAY_FROM_SEARCH.equals(intent.getAction())
-                || Actions.PERFORM_SEARCH.equals(intent.getAction())) {
+        if (isInterceptedSearchAction(intent)) {
             searchFromDeepLink(intent.getStringExtra(SearchManager.QUERY));
         } else if (isInterceptedSearchUrl(intent)) {
             searchFromDeepLink(intent.getData().getQueryParameter(INTENT_URL_QUERY_PARAM));
-        } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
-                && !intent.getData().getPath().equals(INTENT_URI_SEARCH_PATH)) {
+        } else if (isInterceptedUri(intent)) {
             handleUri(context, intent);
         } else {
             tracker.trackScreenEvent();
         }
     }
 
-    void setDeepLinkListener(DeepLinkListener deepLinkListener) {
-        Preconditions.checkNotNull(deepLinkListener);
-        this.deepLinkListener = deepLinkListener;
+    private boolean isInterceptedSearchAction(Intent intent) {
+        return Intent.ACTION_SEARCH.equals(intent.getAction())
+                || ACTION_PLAY_FROM_SEARCH.equals(intent.getAction())
+                || Actions.PERFORM_SEARCH.equals(intent.getAction());
     }
 
     private boolean isInterceptedSearchUrl(Intent intent) {
@@ -68,18 +65,23 @@ public class SearchIntentResolver {
                 && Strings.isNotBlank(uri.getQueryParameter(INTENT_URL_QUERY_PARAM));
     }
 
+    private boolean isInterceptedUri(Intent intent) {
+        return Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
+                && !intent.getData().getPath().equals(INTENT_URI_SEARCH_PATH);
+    }
+
     private void handleUri(Context context, Intent intent) {
         final Content content = Content.match(intent.getData());
         if (content == Content.SEARCH_ITEM) {
             searchFromDeepLink(Uri.decode(intent.getData().getLastPathSegment()));
         } else if (content != Content.UNKNOWN) {
-            navigator.openSystemSearch(context, intent.getData());
+            navigator.openUri(context, intent.getData());
         }
     }
 
     private void searchFromDeepLink(String query) {
-        if (deepLinkListener != null) {
-            deepLinkListener.onDeepLinkExecuted(query.trim());
+        if (listener != null) {
+            listener.onDeepLinkExecuted(query.trim());
         }
     }
 }

@@ -84,11 +84,11 @@ public class Navigator {
         startActivity(activity, SearchActivity.class);
     }
 
-    public void openSearch(Activity activity, Intent intent) {
-        activity.startActivity(intent);
+    public void openSearch(Activity activity, Intent searchIntent) {
+        activity.startActivity(searchIntent);
     }
 
-    public void openSearchFromDeepLink(Context context, Uri uri, Screen screen) {
+    public void openSearch(Context context, Uri uri, Screen screen) {
         final Intent searchIntent = createSearchIntentFromDeepLink(context, uri, screen);
         final Intent homeIntent = createHomeIntent(context);
         homeIntent.setAction(Actions.SEARCH);
@@ -96,7 +96,7 @@ public class Navigator {
         context.startActivity(homeIntent);
     }
 
-    public void openSystemSearch(Context context, Uri uri) {
+    public void openUri(Context context, Uri uri) {
         context.startActivity(new Intent(Intent.ACTION_VIEW).setData(uri));
     }
 
