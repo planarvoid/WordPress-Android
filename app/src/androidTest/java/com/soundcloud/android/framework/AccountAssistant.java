@@ -40,15 +40,16 @@ public final class AccountAssistant {
     private static final Lock lock = new ReentrantLock();
     private static final Condition accountDataCleaned = lock.newCondition();
 
-    protected static Token getToken(Context context, PublicApi apiWrapper, String username, String password) throws IOException {
-        final Token token = apiWrapper.login(username, password);
+    protected static Token setToken(Context context, Token token) throws IOException {
         final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
         application.getAccountOperations().updateToken(token);
         return token;
     }
 
     static boolean addAccountAndEnableSync(Context context, Token token, PublicApiUser user) {
-        return SoundCloudApplication.fromContext(context).addUserAccountAndEnableSync(user, token, SignupVia.NONE);
+        final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
+        application.getAccountOperations().updateToken(token);
+        return application.addUserAccountAndEnableSync(user, token, SignupVia.NONE);
     }
 
     // Dirty workaround :
@@ -77,6 +78,10 @@ public final class AccountAssistant {
 
     public static boolean logOut(Context context) throws Exception {
         Log.i(TAG, "Logging out");
+        for (Account account : getAccounts(context)) {
+            AccountManager.get(context).removeAccount(account, null, null).getResult(3, TimeUnit.SECONDS);
+        }
+
         Account account = getAccount(context);
         if (account == null) {
             return false;
@@ -115,7 +120,7 @@ public final class AccountAssistant {
         return subscription;
     }
 
-    public static void waitForAccountDataCleanup(Subscription subscription) throws Exception{
+    public static void waitForAccountDataCleanup(Subscription subscription) throws Exception {
         lock.lock();
         // wait for the data cleanup action
         try {
@@ -137,6 +142,11 @@ public final class AccountAssistant {
         } else {
             throw new AssertionError("More than one account found");
         }
+    }
+
+    private static Account[] getAccounts(Context context) {
+        AccountManager am = AccountManager.get(context);
+        return am.getAccountsByType(context.getString(R.string.account_type));
     }
 
     static PublicApiUser getLoggedInUser(PublicApi apiWrapper) throws IOException {
