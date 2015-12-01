@@ -5,6 +5,8 @@ import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HI
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.java.strings.Strings;
@@ -113,7 +115,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
         setupListView(activity);
         setupViewFlipper(activity);
         setSearchListeners();
-        activateSearchView();
+        requestSearchFocus();
     }
 
     private void setupListView(Activity activity) {
@@ -140,6 +142,13 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
             actionBar.setDisplayShowTitleEnabled(false);
         }
         toolbar.addView(searchView);
+    }
+
+    private void requestSearchFocus() {
+        final PlayerUIEvent currentPlayerState = eventBus.queue(EventQueue.PLAYER_UI).toBlocking().first();
+        if (currentPlayerState.getKind() == PlayerUIEvent.PLAYER_COLLAPSED) {
+            activateSearchView();
+        }
     }
 
     private void setSearchListeners() {

@@ -130,9 +130,9 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     }
 
     @Override
-    public void onDestroy(Fragment fragment) {
+    public void onDestroyView(Fragment fragment) {
         eventSubscriptions.unsubscribe();
-        super.onDestroy(fragment);
+        super.onDestroyView(fragment);
     }
 
     @Override

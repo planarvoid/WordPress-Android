@@ -21,10 +21,10 @@ import javax.inject.Inject;
 
 public class SearchActivity extends ScActivity {
 
-    @Inject BaseLayoutHelper layoutHelper;
-
     @Inject @LightCycle SearchPresenter presenter;
     @Inject @LightCycle PlayerController playerController;
+
+    @Inject BaseLayoutHelper layoutHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

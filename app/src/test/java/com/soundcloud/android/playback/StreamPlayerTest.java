@@ -22,12 +22,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.content.Context;
-
 public class StreamPlayerTest extends AndroidUnitTest {
 
     private StreamPlayer streamPlayerWrapper;
-    @Mock private Context context;
     @Mock private MediaPlayerAdapter mediaPlayerAdapter;
     @Mock private SkippyAdapter skippyAdapter;
     @Mock private Player.PlayerListener playerListener;
@@ -50,7 +47,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlayer(context, mediaPlayerAdapter, skippyAdapter, networkConnectionHelper);
+        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, skippyAdapter, networkConnectionHelper);
         streamPlayerWrapper.setListener(playerListener);
     }
 

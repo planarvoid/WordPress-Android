@@ -35,9 +35,9 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
     }
 
     public void testPostsLoadNextPage() {
-        int postItemsBefore = profileScreen.getCurrentRecyclerViewItemCount();
-        profileScreen.scrollToBottomOfCurrentRecyclerViewAndLoadMoreItems();
-        assertThat(postItemsBefore, is(lessThan(profileScreen.getCurrentRecyclerViewItemCount())));
+        int postItemsBefore = profileScreen.currentItemCount();
+        profileScreen.scrollToBottomAndLoadMoreItems();
+        assertThat(postItemsBefore, is(lessThan(profileScreen.currentItemCount())));
     }
 
     public void testPostsTrackClickStartsPlayer() {
@@ -57,9 +57,9 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         profileScreen.touchPlaylistsTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        int playlistItemsBefore = profileScreen.getCurrentRecyclerViewItemCount();
-        profileScreen.scrollToBottomOfCurrentRecyclerViewAndLoadMoreItems();
-        assertThat(playlistItemsBefore, is(lessThan(profileScreen.getCurrentRecyclerViewItemCount())));
+        int playlistItemsBefore = profileScreen.currentItemCount();
+        profileScreen.scrollToBottomAndLoadMoreItems();
+        assertThat(playlistItemsBefore, is(lessThan(profileScreen.currentItemCount())));
     }
 
     public void testPlaylistClickOpensPlaylistPage() {
@@ -78,9 +78,9 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         profileScreen.touchLikesTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        int likesBefore = profileScreen.getCurrentRecyclerViewItemCount();
-        profileScreen.scrollToBottomOfCurrentRecyclerViewAndLoadMoreItems();
-        assertThat(likesBefore, is(lessThan(profileScreen.getCurrentRecyclerViewItemCount())));
+        int likesBefore = profileScreen.currentItemCount();
+        profileScreen.scrollToBottomAndLoadMoreItems();
+        assertThat(likesBefore, is(lessThan(profileScreen.currentItemCount())));
     }
 
     public void testLikedPlaylistClickOpensPlaylistPage() {
@@ -113,8 +113,8 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         profileScreen.touchFollowingsTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        int followingsBefore = profileScreen.getCurrentRecyclerViewItemCount();
-        profileScreen.scrollToBottomOfCurrentRecyclerViewAndLoadMoreItems();
-        assertThat(followingsBefore, is(lessThan(profileScreen.getCurrentRecyclerViewItemCount())));
+        int followingsBefore = profileScreen.currentItemCount();
+        profileScreen.scrollToBottomAndLoadMoreItems();
+        assertThat(followingsBefore, is(lessThan(profileScreen.currentItemCount())));
     }
 }

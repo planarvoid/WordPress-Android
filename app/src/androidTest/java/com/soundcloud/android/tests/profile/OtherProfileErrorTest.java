@@ -1,6 +1,9 @@
 package com.soundcloud.android.tests.profile;
 
 import static com.soundcloud.android.framework.TestUser.profileEntryUser;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -37,6 +40,6 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
         networkManagerClient.switchWifiOn();
         profileScreen.pullToRefresh();
 
-        assertTrue(profileScreen.playTrack(0).isVisible());
+        assertThat(profileScreen.currentItemCount(), is(greaterThan(0)));
     }
 }

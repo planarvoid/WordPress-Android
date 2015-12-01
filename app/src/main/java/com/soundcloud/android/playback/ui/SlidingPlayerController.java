@@ -128,7 +128,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     public void onResume(AppCompatActivity activity) {
         if (playQueueManager.isQueueEmpty()) {
             hide();
-            notifyCurrentState();
         } else {
             restorePlayerState();
         }
@@ -140,16 +139,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         showPanelIfNeeded();
         if (expandOnResume) {
             restoreExpanded();
-        } else {
-            notifyCurrentState();
-        }
-    }
-
-    private void notifyCurrentState() {
-        if (slidingPanel.isPanelExpanded()) {
-            notifyExpandedState();
-        } else {
-            notifyCollapsedState();
         }
     }
 

@@ -27,7 +27,6 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
 
     private final PlaylistDiscoveryOperations operations;
     private final PlaylistResultsAdapter adapter;
-    private final RecyclerViewParallaxer parallaxer;
     private final Navigator navigator;
     private final EventBus eventBus;
 
@@ -36,12 +35,11 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
             PlaylistDiscoveryOperations operations,
             PlaylistResultsAdapter adapter,
             SwipeRefreshAttacher swipeRefreshAttacher,
-            RecyclerViewParallaxer parallaxer, Navigator navigator,
+            Navigator navigator,
             EventBus eventBus) {
         super(swipeRefreshAttacher, Options.grid(R.integer.grids_num_columns).build());
         this.operations = operations;
         this.adapter = adapter;
-        this.parallaxer = parallaxer;
         this.navigator = navigator;
         this.eventBus = eventBus;
     }
@@ -57,7 +55,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
     protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onCreateCollectionView(fragment, view, savedInstanceState);
         new EmptyViewBuilder().configureForSearch(getEmptyView());
-        getRecyclerView().addOnScrollListener(parallaxer);
+        getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
     }
 
     @Override

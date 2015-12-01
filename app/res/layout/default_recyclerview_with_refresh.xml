@@ -8,22 +8,6 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@id/ak_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"
-            android:headerDividersEnabled="false" />
-
-        <com.soundcloud.android.view.EmptyView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </RelativeLayout>
-
+    <include layout="@layout/recyclerview_with_emptyview" />
 
 </com.soundcloud.android.view.MultiSwipeRefreshLayout>

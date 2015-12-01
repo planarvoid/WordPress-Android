@@ -12,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,10 +24,6 @@ public class RecyclerViewParallaxer extends RecyclerView.OnScrollListener {
 
     private final Map<ViewGroup, Iterable<View>> parallaxViewMap = new HashMap<>();
     private final Map<ViewGroup, Iterable<ParallaxImageView>> parallaxBgImageViewMap = new HashMap<>();
-
-    @Inject
-    public RecyclerViewParallaxer() {
-    }
 
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {

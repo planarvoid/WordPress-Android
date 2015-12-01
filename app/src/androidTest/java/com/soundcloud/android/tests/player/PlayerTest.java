@@ -165,8 +165,8 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertTrue(trackInfoScreen.getNoDescription().isVisible());
     }
 
-    public void testPlayerTrackInfoLinksToComments() {
-        playTrackFromStream();
+    public void testPlayerTrackInfoLinksToComments() throws Exception {
+        playExploreTrack();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
         TrackCommentsScreen trackCommentsScreen = visualPlayerElement

@@ -111,7 +111,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         prepareStartTimeMs = dateProvider.getCurrentDate().getTime();
 
         try {
-            currentStreamUrl = urlBuilder.buildHttpStreamUrl(track);
+            currentStreamUrl = urlBuilder.buildHttpsStreamUrl(track);
             mediaPlayer.setDataSource(currentStreamUrl);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {

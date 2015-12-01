@@ -159,6 +159,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         final Observable<PurchaseStatus> status = Observable.just(PurchaseStatus.NONE);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(status);
+        when(paymentOperations.queryProduct()).thenReturn(Observable.<ProductStatus>never());
 
         controller.onCreate(activity, null);
 
@@ -257,6 +258,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void queriesProductDetailsWhenPurchaseStatusIsNone() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
+        when(paymentOperations.queryProduct()).thenReturn(Observable.<ProductStatus>never());
 
         controller.onCreate(activity, null);
 

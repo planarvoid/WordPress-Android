@@ -13,11 +13,15 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -29,44 +33,48 @@ import javax.inject.Inject;
 
 public class TrackCommentsActivity extends ScActivity {
 
-    public static final String EXTRA_COMMENTED_TRACK = "extra";
+    public static final String EXTRA_COMMENTED_TRACK_URN = "extra";
 
     @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject ImageOperations imageOperations;
+    @Inject TrackRepository trackRepository;
 
     @Bind(R.id.title) TextView title;
     @Bind(R.id.username) TextView username;
     @Bind(R.id.comments_count) TextView count;
     @Bind(R.id.date) TextView date;
+    @Bind(R.id.header_artwork) ImageView artwork;
+
+    private Subscription trackSubscription;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        final PropertySet commentedTrack = getIntent().getParcelableExtra(EXTRA_COMMENTED_TRACK);
         ButterKnife.bind(this);
-        bindTrackHeaderView(commentedTrack);
+
+        final Urn trackUrn = getIntent().getParcelableExtra(EXTRA_COMMENTED_TRACK_URN);
+        trackSubscription = trackRepository.track(trackUrn)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new TrackSubscriber());
 
         if (bundle == null) {
-            attachCommentsFragment(commentedTrack);
+            attachCommentsFragment(trackUrn);
         }
     }
 
-    private void attachCommentsFragment(PropertySet commentedTrack) {
-        final Urn trackUrn = commentedTrack.get(TrackProperty.URN);
-        final Fragment fragment = CommentsFragment.create(trackUrn);
-        getSupportFragmentManager().beginTransaction().add(R.id.comments_fragment, fragment).commit();
+    @Override
+    protected void onDestroy() {
+        trackSubscription.unsubscribe();
+        super.onDestroy();
     }
 
-    private void bindTrackHeaderView(PropertySet commentedTrack) {
-        title.setText(commentedTrack.get(PlayableProperty.TITLE));
-        username.setText(commentedTrack.get(PlayableProperty.CREATOR_NAME));
-        setCount(commentedTrack);
-        setDate(commentedTrack);
-        setIcon(commentedTrack);
+    private void attachCommentsFragment(Urn trackUrn) {
+        final Fragment fragment = CommentsFragment.create(trackUrn);
+        getSupportFragmentManager().beginTransaction().add(R.id.comments_fragment, fragment).commit();
     }
 
     public void setCount(PropertySet commentedTrack) {
@@ -88,7 +96,7 @@ public class TrackCommentsActivity extends ScActivity {
         imageOperations.displayWithPlaceholder(
                 commentedTrack.get(TrackProperty.URN),
                 ApiImageSize.getListItemImageSize(getResources()),
-                (ImageView) findViewById(R.id.icon));
+                artwork);
     }
 
     @Override
@@ -115,4 +123,14 @@ public class TrackCommentsActivity extends ScActivity {
         return Screen.PLAYER_COMMENTS;
     }
 
+    private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
+        @Override
+        public void onNext(PropertySet track) {
+            title.setText(track.get(PlayableProperty.TITLE));
+            username.setText(track.get(PlayableProperty.CREATOR_NAME));
+            setCount(track);
+            setDate(track);
+            setIcon(track);
+        }
+    }
 }

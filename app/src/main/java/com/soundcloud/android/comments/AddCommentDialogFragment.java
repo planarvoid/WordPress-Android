@@ -108,7 +108,7 @@ public class AddCommentDialogFragment extends DialogFragment {
         final FragmentActivity activity = (FragmentActivity) getActivity();
         subscription = commentsOperations.addComment(trackUrn, commentText, position)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CommentAddedSubscriber(activity, track, eventBus));
+                .subscribe(new CommentAddedSubscriber(activity, trackUrn, eventBus));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(getEventContextMetadata(),
                 trackUrn.getNumericId(), EntityMetadata.from(track)));
@@ -123,12 +123,12 @@ public class AddCommentDialogFragment extends DialogFragment {
             implements UndoBarController.UndoListener {
 
         private final Activity activity;
-        private final PropertySet track;
+        private final Urn trackUrn;
         private final EventBus eventBus;
 
-        CommentAddedSubscriber(Activity activity, PropertySet track, EventBus eventBus) {
+        CommentAddedSubscriber(Activity activity, Urn trackUrn, EventBus eventBus) {
             this.activity = activity;
-            this.track = track;
+            this.trackUrn = trackUrn;
             this.eventBus = eventBus;
         }
 
@@ -171,7 +171,7 @@ public class AddCommentDialogFragment extends DialogFragment {
                 @Override
                 public void onNext(PlayerUIEvent args) {
                     context.startActivity(new Intent(context, TrackCommentsActivity.class)
-                            .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK, track));
+                            .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
                 }
             };
         }

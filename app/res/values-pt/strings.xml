@@ -126,9 +126,9 @@
   <string name="info_empty_you_secondary">Para editar seu perfil, faça login na SoundCloud no seu computador.</string>
   <string name="list_empty_notification_message">Você ainda não tem notificações.</string>
   <string name="list_empty_notification_secondary">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes.</string>
-  <string name="list_empty_stream_action">Encontre pessoas para seguir.</string>
+  <string name="list_empty_stream_action">ENCONTRE PESSOAS PARA SEGUIR</string>
   <string name="list_empty_stream_message">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes.</string>
-  <string name="list_empty_user_following_action">Encontre pessoas para seguir.</string>
+  <string name="list_empty_user_following_action">ENCONTRE PESSOAS PARA SEGUIR</string>
   <string name="empty_playlist_title">Playlist vazia</string>
   <string name="empty_playlist_description">Esta playlist ainda não tem faixas.</string>
   <string name="list_empty_you_sounds_message">Republique os sons para compartilhá-los com seus seguidores.</string>
@@ -183,7 +183,7 @@
   <string name="use_existing_image">Imagem existente</string>
   <string name="use_existing_image_error">Não foi possível usar uma imagem existente</string>
   <!--__NAVIGATION-->
-  <string name="side_menu_notifications">Notificações</string>
+  <string name="side_menu_notifications">Atividade</string>
   <string name="side_menu_record">Gravar</string>
   <string name="side_menu_you">Você</string>
   <string name="side_menu_settings">Configurações</string>
@@ -567,7 +567,7 @@
   <string name="tab_you">Mais</string>
   <!--__YOU-->
   <string name="you_explore">Explorar</string>
-  <string name="you_activity">Notificações</string>
+  <string name="you_activity">Atividade</string>
   <string name="you_record">Gravar</string>
   <string name="you_offline_sync_settings">Configurações de sincronização off-line</string>
   <string name="you_notification_settings">Configurações de notificação</string>

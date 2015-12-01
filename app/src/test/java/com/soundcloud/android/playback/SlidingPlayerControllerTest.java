@@ -190,18 +190,6 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void sendsCollapsedEventWhenRestoringCollapsedState() {
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(EXTRA_EXPAND_PLAYER, false);
-
-        controller.onCreate(activity, bundle);
-        controller.onResume(activity);
-
-        PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        assertThat(uiEvent.getKind()).isEqualTo(PlayerUIEvent.PLAYER_COLLAPSED);
-    }
-
-    @Test
     public void emitsClosePlayerFromSlideWhenCollapsedAfterDragging() {
         touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
         touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
@@ -234,37 +222,6 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         assertThat(uiEvent.getKind()).isEqualTo(PlayerUIEvent.PLAYER_EXPANDED);
-    }
-
-    @Test
-    public void sendsExpandedPlayerEventWhenResumingToExpandedPlayer() {
-        when(slidingPanel.isPanelExpanded()).thenReturn(true);
-
-        controller.onResume(activity);
-
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        assertThat(event.getKind()).isEqualTo(PlayerUIEvent.PLAYER_EXPANDED);
-    }
-
-    @Test
-    public void sendsCollapsedPlayerEventWhenResumingToCollapsedPlayer() {
-        when(slidingPanel.isPanelExpanded()).thenReturn(false);
-
-        controller.onResume(activity);
-
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        assertThat(event.getKind()).isEqualTo(PlayerUIEvent.PLAYER_COLLAPSED);
-    }
-
-    @Test
-    public void sendsCollapsedPlayerEventWhenResumingAndPlayQueueIsEmpty() {
-        when(slidingPanel.isPanelExpanded()).thenReturn(false);
-        when(playQueueManager.isQueueEmpty()).thenReturn(true);
-
-        controller.onResume(activity);
-
-        PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
-        assertThat(event.getKind()).isEqualTo(PlayerUIEvent.PLAYER_COLLAPSED);
     }
 
     @Test

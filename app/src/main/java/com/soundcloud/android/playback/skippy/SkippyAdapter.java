@@ -119,7 +119,12 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     public void preload(Urn track) {
-        skippyPreloader.cue(buildRemoteUrl(track), 0);
+        try {
+            skippyPreloader.cue(buildRemoteUrl(track), 0);
+        } catch (UnsatisfiedLinkError e) {
+            // #4454. Remove in upcoming release as instances drop
+            ErrorUtils.handleSilentException(e);
+        }
     }
 
     @Override
