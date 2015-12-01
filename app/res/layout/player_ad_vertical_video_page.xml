@@ -73,7 +73,7 @@
                     android:id="@+id/preview_artwork_overlay"
                     style="@style/PreviewArtworkOverlay"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"/>
         </FrameLayout>
 
         <com.soundcloud.android.view.CustomFontTextView
@@ -87,6 +87,7 @@
 
     <include layout="@layout/player_play_controls"/>
     <Button android:id="@+id/video_pause_control"
-            style="@style/AdVideoPause"/>
+            style="@style/AdVideoPause"
+            android:visibility="invisible"/>
 
 </RelativeLayout>
