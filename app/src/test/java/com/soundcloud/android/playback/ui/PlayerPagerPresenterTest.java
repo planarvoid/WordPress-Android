@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.InterstitialAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -72,6 +73,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private AudioAdPresenter audioAdPresenter;
     @Mock private VideoAdPresenter videoAdPresenter;
     @Mock private CastConnectionHelper castConnectionHelper;
+    @Mock private AdsOperations adOperations;
     @Mock private StationsOperations stationsOperations;
 
     @Mock private PlayerTrackPager playerTrackPager;
@@ -118,6 +120,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                 audioAdPresenter,
                 videoAdPresenter,
                 castConnectionHelper,
+                adOperations,
                 eventBus
         );
 
@@ -471,8 +474,28 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getItemPositionReturnsNoneForCustomRecycling() {
+    public void getItemPositionReturnsNoneForCustomRecyclingOfTrackViews() {
         assertThat(adapter.getItemPosition(getPageView())).isSameAs(POSITION_NONE);
+    }
+
+    @Test
+    public void getItemPositionReturnsAdViewIndexIfCurrentAd() {
+        when(adOperations.isCurrentItemAd()).thenReturn(true);
+
+        presenter.onResume(playerFragment);
+        setupAudioAd();
+
+        assertThat(adapter.getItemPosition(getAudioAdPageView())).isEqualTo(0);
+    }
+
+    @Test
+    public void getItemPositionReturnsNoneIfNotCurrentAd() {
+        when(adOperations.isCurrentItemAd()).thenReturn(false);
+
+        presenter.onResume(playerFragment);
+        setupAudioAd();
+
+        assertThat(adapter.getItemPosition(getAudioAdPageView())).isSameAs(POSITION_NONE);
     }
 
     @Test
