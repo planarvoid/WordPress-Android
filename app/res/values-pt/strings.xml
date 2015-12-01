@@ -45,7 +45,6 @@
   <string name="loading_related_tracks">Carregando faixas relacionadas...</string>
   <string name="following_zero">Seguido por você</string>
   <!--__ACCESSIBILITY-->
-  <string name="accessibility_search">Pesquisar na SoundCloud</string>
   <string name="accessibility_stats_user_liked">Curtido por você</string>
   <string name="accessibility_like_action">Curtir</string>
   <plurals name="accessibility_stats_likes">
@@ -189,7 +188,6 @@
   <string name="side_menu_settings">Configurações</string>
   <string name="side_menu_profile">Perfil</string>
   <string name="side_menu_explore">Explorar</string>
-  <string name="title_search">Pesquisar</string>
   <string name="title_settings">Configurações</string>
   <string name="title_feedback">Enviar relatório de erros</string>
   <!--__ONBOARDING-->
@@ -392,7 +390,6 @@
   <string name="search_empty_subtext">Verifique a ortografia ou tente uma pesquisa diferente</string>
   <string name="search_for_query">Pesquisar \'%s\'</string>
   <!--__DISCOVERY-->
-  <string name="activity_title_discovery">Pesquisar</string>
   <string name="activity_title_recommendations">Recomendado para você</string>
   <!--@Todo from l10n: what is filled in here?-->
   <string name="recommendation_view_all">Exibir todas as %1$d</string>

@@ -1,7 +1,6 @@
 package com.soundcloud.android.properties;
 
 import com.soundcloud.android.BuildConfig;
-import com.soundcloud.android.sync.TrackSyncer;
 
 import java.util.EnumSet;
 import java.util.Locale;
@@ -19,7 +18,6 @@ public enum Flag {
     KILL_CONCURRENT_STREAMING(BuildConfig.FEATURE_KILL_CONCURRENT_STREAMING),
     FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB(BuildConfig.FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB),
     DAILY_POLICY_UPDATES(BuildConfig.FEATURE_DAILY_POLICY_UPDATES),
-    DISCOVERY(BuildConfig.FEATURE_DISCOVERY),
     DISCOVERY_RECOMMENDATIONS(BuildConfig.FEATURE_DISCOVERY_RECOMMENDATIONS),
     DISCOVERY_CHARTS(BuildConfig.FEATURE_DISCOVERY_CHARTS),
     NEW_STREAM(BuildConfig.FEATURE_NEW_STREAM),

@@ -3,8 +3,6 @@ package com.soundcloud.android.actionbar;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -64,10 +62,6 @@ public class ActionBarHelper extends DefaultActivityLightCycle<AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(final AppCompatActivity activity, MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_search:
-                navigator.openDiscovery(activity);
-                eventBus.publish(EventQueue.TRACKING, UIEvent.fromSearchAction());
-                return true;
             case R.id.action_settings:
                 navigator.openSettings(activity);
                 return true;

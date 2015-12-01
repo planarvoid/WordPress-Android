@@ -7,11 +7,9 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.discovery.DiscoveryActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.discovery.SearchResultsActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -24,9 +22,6 @@ import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.search.LegacySearchActivity;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
@@ -46,12 +41,6 @@ public class Navigator {
 
     public final static String EXTRA_SEARCH_INTENT = "search_intent";
 
-    private final FeatureFlags featureFlags;
-
-    public Navigator(FeatureFlags featureFlags) {
-        this.featureFlags = featureFlags;
-    }
-
     public void openHome(Context context) {
         context.startActivity(createHomeIntent(context));
     }
@@ -70,14 +59,6 @@ public class Navigator {
 
     public void openProfile(Context context, Urn user) {
         context.startActivity(createProfileIntent(context, user));
-    }
-
-    public void openDiscovery(Context activityContext) {
-        if (featureFlags.isEnabled(Flag.DISCOVERY)) {
-            startActivity(activityContext, DiscoveryActivity.class);
-        } else {
-            startActivity(activityContext, LegacySearchActivity.class);
-        }
     }
 
     public void openSearch(Activity activity) {
@@ -297,11 +278,6 @@ public class Navigator {
     private Intent createRecommendationIntent(Context context, long localSeedId) {
         return new Intent(context, RecommendedTracksActivity.class)
                 .putExtra(RecommendedTracksActivity.EXTRA_LOCAL_SEED_ID, localSeedId);
-    }
-
-    private Intent createSearchResultsIntent(Context context, String searchQuery) {
-        return new Intent(context, SearchResultsActivity.class)
-                .putExtra(SearchResultsActivity.EXTRA_SEARCH_QUERY, searchQuery);
     }
 
     private Intent createPlaylistDiscoveryIntent(Context context, String playListTag) {

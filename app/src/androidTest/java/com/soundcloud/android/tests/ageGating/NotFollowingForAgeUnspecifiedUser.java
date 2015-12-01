@@ -6,13 +6,9 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class NotFollowingForAgeUnspecifiedUser extends ActivityTest<LauncherActivity> {
-
-    private PlaylistTagsScreen playlistTagsScreen;
 
     public NotFollowingForAgeUnspecifiedUser() {
         super(LauncherActivity.class);
@@ -24,22 +20,16 @@ public class NotFollowingForAgeUnspecifiedUser extends ActivityTest<LauncherActi
         defaultUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        playlistTagsScreen = new StreamScreen(solo).actionBar().clickSearchButton();
-    }
-
     // *** Disabling until Github Issue #2877 is fixed ***
     public void ignore_testUsersWithUnspecifiedAgeAreNotAbleToFollowAgeGatedUsers() {
-        ProfileScreen annoyMouseUserScreen = playlistTagsScreen
-                .actionBar()
-                .doLegacySearch("annoymouse")
+        ProfileScreen annoyMouseUserScreen = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("annoymouse")
                 .clickFirstUserItem()
                 .clickFollowToggle();
 
         assertThat(annoyMouseUserScreen.areCurrentlyFollowing(), is(false));
     }
-
 }
 

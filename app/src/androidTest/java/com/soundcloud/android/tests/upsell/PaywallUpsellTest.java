@@ -13,7 +13,7 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
-import com.soundcloud.android.screens.search.LegacySearchResultsScreen;
+import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 
 public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
     private static final String MIDTIER_TEST_SCENARIO = "midtier-tracking-test";
@@ -70,10 +70,10 @@ public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void ignore_testClickingOnMidTierTrackInSearchEverythingOpensUpsell() {
-        final LegacySearchResultsScreen searchResultsScreen = streamScreen.actionBar()
-                .clickSearchButton()
-                .actionBar()
-                .doLegacySearch("idon'tgetit muff");
+        final SearchResultsScreen searchResultsScreen = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("idon'tgetit muff");
 
         final UpgradeScreen upgradeScreen = searchResultsScreen.clickMidTierTrackForUpgrade("Muff");
 
@@ -81,13 +81,13 @@ public class PaywallUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void ignore_testClickingOnMidTierTrackInSearchTracksOpensUpsell() {
-        final LegacySearchResultsScreen searchResultsScreen = streamScreen.actionBar()
-                .clickSearchButton()
-                .actionBar()
-                .doLegacySearch("idon'tgetit muff");
+        final SearchResultsScreen searchResultsScreen = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("idon'tgetit muff");
 
         final UpgradeScreen upgradeScreen = searchResultsScreen
-                .touchTracksTab()
+                .goToTracksTab()
                 .clickMidTierTrackForUpgrade("Muff");
 
         assertUpgradeScreenVisible(upgradeScreen);

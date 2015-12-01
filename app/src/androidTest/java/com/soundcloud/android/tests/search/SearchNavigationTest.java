@@ -5,16 +5,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.search.PlaylistTagsScreen;
-import com.soundcloud.android.screens.search.LegacySearchResultsScreen;
+import com.soundcloud.android.screens.discovery.DiscoveryScreen;
+import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class SearchNavigationTest extends ActivityTest<MainActivity> {
-    private StreamScreen streamScreen;
-    private PlaylistTagsScreen playlistTagsScreen;
+
+    private DiscoveryScreen discoveryScreen;
 
     public SearchNavigationTest() {
         super(MainActivity.class);
@@ -29,30 +27,17 @@ public class SearchNavigationTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
 
-        streamScreen = new StreamScreen(solo);
-        playlistTagsScreen = streamScreen.actionBar().clickSearchButton();
+        discoveryScreen = mainNavHelper.goToDiscovery();
     }
 
-    @BrokenSearchTest
-    public void testShouldOpenSearchPageWhenClickingOnSearchIcon() {
-        assertThat(playlistTagsScreen, is(visible()));
+    public void testShouldOpenDiscoveryTappingOnSearchIcon() {
+        assertThat(discoveryScreen, is(visible()));
     }
 
-    @BrokenSearchTest
-    public void testGoingBackFromSearchResultsReturnsToTagPage() {
-        LegacySearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doLegacySearch("clownstep");
-        resultsScreen.pressBack();
-        playlistTagsScreen = new PlaylistTagsScreen(solo);
-        assertEquals("Tags screen should be visible", true, playlistTagsScreen.isVisible());
-        assertEquals("Search query should be empty", "", playlistTagsScreen.actionBar().getLegacySearchQuery());
-    }
+    public void testGoingBackFromSearchResultsReturnsToDiscoveryScreen() {
+        final SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch("clownstep");
+        final DiscoveryScreen discoveryScreen = resultsScreen.goBack();
 
-    @BrokenSearchTest
-    public void testShouldExitSeachWhenPressingBackButton() {
-        LegacySearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doLegacySearch("clownstep");
-        resultsScreen.pressBack();
-        playlistTagsScreen = new PlaylistTagsScreen(solo);
-        streamScreen = playlistTagsScreen.pressBack();
-        assertEquals("Main screen should be visible", true, streamScreen.isVisible());
+        assertThat("Tags screen should be visible", discoveryScreen, is(visible()));
     }
 }

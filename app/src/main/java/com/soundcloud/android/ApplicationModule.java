@@ -21,7 +21,6 @@ import com.soundcloud.android.image.ImageProcessorJB;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.NavigationModel;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.you.YouNavigationTarget;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
 import com.soundcloud.android.playback.DefaultPlaybackStrategy;
@@ -37,7 +36,6 @@ import com.soundcloud.android.playback.notification.NotificationBuilder;
 import com.soundcloud.android.playback.notification.RichNotificationBuilder;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.search.DiscoveryNavigationTarget;
 import com.soundcloud.android.storage.StorageModule;
@@ -46,6 +44,7 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.waveform.WaveformData;
+import com.soundcloud.android.you.YouNavigationTarget;
 import com.soundcloud.rx.eventbus.DefaultEventBus;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
@@ -304,11 +303,11 @@ public class ApplicationModule {
     }
 
     @Provides
-    public Navigator provideNavigator(FeatureFlags featureFlags) {
+    public Navigator provideNavigator() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new SmoothNavigator(featureFlags);
+            return new SmoothNavigator();
         } else {
-            return new Navigator(featureFlags);
+            return new Navigator();
         }
     }
 }
