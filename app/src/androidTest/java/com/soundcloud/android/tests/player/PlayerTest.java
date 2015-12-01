@@ -176,7 +176,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlayerTrackInfoLinksToComments() throws Exception {
-        playTrackFromStream();
+        playExploreTrack();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
         TrackCommentsScreen trackCommentsScreen = visualPlayerElement

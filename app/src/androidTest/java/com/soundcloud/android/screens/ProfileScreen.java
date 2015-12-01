@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.Tabs;
+import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -42,10 +43,9 @@ public class ProfileScreen extends Screen {
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver
-                .findElements(With.id(R.id.overflow_button))
-                .get(0).click();
-        return new TrackItemMenuElement(testDriver);
+
+        return new TrackItemElement(testDriver, testDriver.findElement(With.id(R.id.track_list_item)))
+                .clickOverflowButton();
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistWithTracks() {
