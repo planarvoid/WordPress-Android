@@ -58,7 +58,7 @@ public class ShareOperations {
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject, title));
         shareIntent.putExtra(Intent.EXTRA_TEXT, buildShareText(context, playable));
 
-        return shareIntent;
+        return Intent.createChooser(shareIntent, context.getString(R.string.share));
     }
 
     private String buildShareText(Context context, PropertySet playable) {
