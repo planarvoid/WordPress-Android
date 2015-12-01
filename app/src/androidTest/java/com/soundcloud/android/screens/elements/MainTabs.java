@@ -31,8 +31,7 @@ public class MainTabs extends Tabs {
         return new CollectionsScreen(testDriver);
     }
 
-    public YouScreen clickYou(){
-        getTabAt(Tab.YOU.ordinal()).click();
+    public YouScreen clickYou() {
         getTabAt(Tab.YOU.ordinal()).click();
         return new YouScreen(testDriver);
     }
