@@ -234,6 +234,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void onStateTransitionToAdvanceItemIfTrackEndedWithNotFoundErrorAndNotUserTriggeredWithConnection() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(playQueueManager.autoNextItem()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, trackUrn));
         verify(playQueueManager).autoNextItem();
         verify(playbackStrategy).playCurrent();
@@ -257,6 +258,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void onStateTransitionToAdvanceItemIfTrackEndedWithForbiddenErrorAndNotUserTriggeredWithConnection() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(playQueueManager.autoNextItem()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, trackUrn));
         verify(playQueueManager).autoNextItem();
         verify(playbackStrategy).playCurrent();

@@ -137,6 +137,27 @@ public class PlaySessionController {
         }
     };
 
+    private final Action1<StateTransition> updateAudioManager = new Action1<StateTransition>() {
+        @Override
+        public void call(StateTransition stateTransition) {
+            audioManager.setPlaybackState(stateTransition.playSessionIsActive());
+        }
+    };
+
+    private final Func1<StateTransition, Boolean> shouldAdvanceTracks = new Func1<StateTransition, Boolean>() {
+        @Override
+        public Boolean call(StateTransition stateTransition) {
+            return stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete()
+                    && (stateTransition.trackEnded() || unrecoverableErrorDuringAutoplay(stateTransition));
+        }
+    };
+    private final Action1<StateTransition> reconfigureUpcomingAd = new Action1<StateTransition>() {
+        @Override
+        public void call(StateTransition stateTransition) {
+            adsController.reconfigureAdForNextTrack();
+        }
+    };
+
     @Inject
     public PlaySessionController(Resources resources,
                                  EventBus eventBus,
@@ -175,9 +196,15 @@ public class PlaySessionController {
     }
 
     public void subscribe() {
-        eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackSubscriber());
         eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
+
+        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                .filter(PlayStateFunctions.IS_NOT_DEFAULT_STATE)
+                .doOnNext(updateAudioManager)
+                .filter(shouldAdvanceTracks)
+                .doOnNext(reconfigureUpcomingAd)
+                .subscribe(new AdvanceTrackSubscriber());
     }
 
     public void reloadQueueAndShowPlayerIfEmpty() {
@@ -281,40 +308,13 @@ public class PlaySessionController {
         subscription = playCurrentObservable.subscribe(new DefaultSubscriber<Void>());
     }
 
-    private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
+    private class AdvanceTrackSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
         public void onNext(StateTransition stateTransition) {
-            if (!StateTransition.DEFAULT.equals(stateTransition)) {
-                audioManager.setPlaybackState(stateTransition.playSessionIsActive());
-                skipOnTrackFinishOrUnplayable(stateTransition);
-            }
-        }
-    }
-
-    private void skipOnTrackFinishOrUnplayable(StateTransition stateTransition) {
-
-        if (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete()
-                && (stateTransition.trackEnded() || unrecoverableErrorDuringAutoplay(stateTransition))) {
-            logInvalidSkipping(stateTransition);
-
-            adsController.reconfigureAdForNextTrack();
-
-            tryToSkipTrack(stateTransition);
-            if (!stateTransition.playSessionIsActive()) {
+            if (!playQueueManager.autoNextItem()) {
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
+            } else if (!stateTransition.playSessionIsActive()) {
                 playCurrent();
-            }
-        }
-    }
-
-    private void logInvalidSkipping(StateTransition stateTransition) {
-        final PlaybackProgress progress = stateTransition.getProgress();
-        if (stateTransition.trackEnded()) {
-            if (Math.abs(progress.getDuration() - progress.getPosition()) > SKIP_REPORT_TOLERANCE) {
-                ErrorUtils.handleSilentException(stateTransition.toString(), new IllegalStateException("Track ended prematurely"));
-            }
-        } else {
-            if (progress.getPosition() > 0) {
-                ErrorUtils.handleSilentException(stateTransition.toString(), new IllegalStateException("Skipping on track error too late"));
             }
         }
     }
@@ -324,12 +324,6 @@ public class PlaySessionController {
         return stateTransition.wasError() && !stateTransition.wasGeneralFailure() &&
                 currentTrackSourceInfo != null && !currentTrackSourceInfo.getIsUserTriggered()
                 && connectionHelper.isNetworkConnected();
-    }
-
-    private void tryToSkipTrack(StateTransition stateTransition) {
-        if (!playQueueManager.autoNextItem()) {
-            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
-        }
     }
 
     private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
