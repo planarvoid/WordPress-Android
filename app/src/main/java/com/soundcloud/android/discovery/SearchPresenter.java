@@ -11,6 +11,7 @@ import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Activity;
 import android.content.Context;
@@ -48,6 +49,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     private static final int RESULTS_VIEW_INDEX = 1;
 
     private static final String CURRENT_DISPLAYING_VIEW_KEY = "currentDisplayingView";
+    private final EventBus eventBus;
 
     private EditText searchTextView;
     private ImageView searchCloseView;
@@ -65,14 +67,19 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     private final SuggestionsHelper suggestionsHelper;
 
     @Inject
-    SearchPresenter(SearchIntentResolverFactory intentResolverFactory, SearchTracker tracker, Resources resources,
-                    SuggestionsAdapter adapter, SuggestionsHelperFactory suggestionsHelperFactory) {
+    SearchPresenter(SearchIntentResolverFactory intentResolverFactory,
+                    SearchTracker tracker,
+                    Resources resources,
+                    SuggestionsAdapter adapter,
+                    SuggestionsHelperFactory suggestionsHelperFactory,
+                    EventBus eventBus) {
         this.intentResolver = intentResolverFactory.create(this);
         this.tracker = tracker;
         this.resources = resources;
         this.adapter = adapter;
         this.suggestionsHelper = suggestionsHelperFactory.create(adapter);
         this.adapter.registerDataSetObserver(new SuggestionsVisibilityController());
+        this.eventBus = eventBus;
     }
 
     @Override
