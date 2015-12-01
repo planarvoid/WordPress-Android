@@ -3,7 +3,6 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.discovery.SearchIntentResolver;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.utils.ViewUtils;
@@ -173,7 +172,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     private void openSearchScreen(final Intent intent) {
-        final Intent searchIntent = intent.getParcelableExtra(SearchIntentResolver.EXTRA_SEARCH_INTENT);
+        final Intent searchIntent = intent.getParcelableExtra(Navigator.EXTRA_SEARCH_INTENT);
         navigator.openSearch(activity, searchIntent);
     }
 

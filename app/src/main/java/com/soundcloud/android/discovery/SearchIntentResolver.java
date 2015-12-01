@@ -15,13 +15,11 @@ import android.content.Intent;
 import android.net.Uri;
 
 @AutoFactory(allowSubclasses = true)
-public class SearchIntentResolver {
+class SearchIntentResolver {
 
     interface DeepLinkListener {
         void onDeepLinkExecuted(String searchQuery);
     }
-
-    public final static String EXTRA_SEARCH_INTENT = "search_intent";
 
     @VisibleForTesting
     static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";

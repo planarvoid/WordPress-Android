@@ -11,7 +11,6 @@ import com.soundcloud.android.discovery.DiscoveryActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.discovery.SearchIntentResolver;
 import com.soundcloud.android.discovery.SearchResultsActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
@@ -45,6 +44,8 @@ public class Navigator {
 
     private static final int NO_FLAGS = 0;
     private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK;
+
+    public final static String EXTRA_SEARCH_INTENT = "search_intent";
 
     private final FeatureFlags featureFlags;
 
@@ -92,7 +93,7 @@ public class Navigator {
         final Intent searchIntent = createSearchIntentFromDeepLink(context, uri, screen);
         final Intent homeIntent = createHomeIntent(context);
         homeIntent.setAction(Actions.SEARCH);
-        homeIntent.putExtra(SearchIntentResolver.EXTRA_SEARCH_INTENT, searchIntent);
+        homeIntent.putExtra(EXTRA_SEARCH_INTENT, searchIntent);
         context.startActivity(homeIntent);
     }
 
