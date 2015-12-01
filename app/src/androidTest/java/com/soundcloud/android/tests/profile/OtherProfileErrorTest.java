@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.profile;
 
 import static com.soundcloud.android.framework.TestUser.profileEntryUser;
 
+import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -31,6 +32,7 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
         profileScreen.getUsers().get(0).click();
     }
 
+    @BrokenScrollingTest
     public void testConnectionErrorAndRetryInPosts() {
         assertTrue(profileScreen.emptyConnectionErrorMessage().isVisible());
 
