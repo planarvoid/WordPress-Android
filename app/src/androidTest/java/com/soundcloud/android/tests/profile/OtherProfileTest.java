@@ -37,10 +37,10 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void disabled_testPostsLoadNextPage() {
-        int postItemsBefore = profileScreen.getCurrentListItemCount();
-        profileScreen.scrollToBottomOfCurrentListAndLoadMoreItems();
-        assertThat(postItemsBefore, is(lessThan(profileScreen.getCurrentListItemCount())));
+    public void testPostsLoadNextPage() {
+        int postItemsBefore = profileScreen.currentItemCount();
+        profileScreen.scrollToBottomAndLoadMoreItems();
+        assertThat(postItemsBefore, is(lessThan(profileScreen.currentItemCount())));
     }
 
     public void testPostsTrackClickStartsPlayer() {

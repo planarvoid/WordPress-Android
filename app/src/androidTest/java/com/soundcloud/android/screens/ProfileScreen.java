@@ -11,12 +11,10 @@ import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.Tabs;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
-import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.java.strings.Strings;
 
 import android.support.v7.widget.RecyclerView;
-import android.widget.ListView;
 
 import java.util.List;
 
@@ -66,22 +64,12 @@ public class ProfileScreen extends Screen {
         return getTracks().get(0).getTitle();
     }
 
-    public void scrollToBottomOfCurrentListAndLoadMoreItems() {
-        testDriver.scrollToBottom(currentList());
-        waiter.waitForContentAndRetryIfLoadingFailed();
-    }
-
-    public void scrollToBottomOfCurrentRecyclerViewAndLoadMoreItems() {
+    public void scrollToBottomAndLoadMoreItems() {
         currentRecyclerView().scrollToBottom();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public int getCurrentListItemCount() {
-        waiter.waitForItemCountToIncrease(currentList().getAdapter(), 0);
-        return currentList().getAdapter().getCount();
-    }
-
-    public int getCurrentRecyclerViewItemCount() {
+    public int currentItemCount() {
         return currentRecyclerView().getItemCount();
     }
 
@@ -104,17 +92,8 @@ public class ProfileScreen extends Screen {
         return visualPlayer;
     }
 
-    private ListView currentList() {
-        return (ListView) getViewPager().getCurrentPage(ListView.class);
-    }
-
     private RecyclerViewElement currentRecyclerView() {
         return new RecyclerViewElement(testDriver.findElement(With.className(RecyclerView.class)), testDriver);
-    }
-
-    private ViewPagerElement getViewPager() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return new ViewPagerElement(testDriver);
     }
 
     public TextElement description() {
