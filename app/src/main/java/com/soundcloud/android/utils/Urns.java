@@ -1,8 +1,12 @@
 package com.soundcloud.android.utils;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.strings.Strings;
+import org.jetbrains.annotations.Nullable;
+
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +38,17 @@ public final class Urns {
             idStrings.add(String.valueOf(urn.getNumericId()));
         }
         return Strings.joinOn(delimiter).join(idStrings);
+    }
+
+    @NonNull
+    public static List<Long> toIds(List urns) {
+        return Lists.transform(urns, new Function<Urn, Long>() {
+            @Nullable
+            @Override
+            public Long apply(Urn input) {
+                return input.getNumericId();
+            }
+        });
     }
 
     private Urns() {

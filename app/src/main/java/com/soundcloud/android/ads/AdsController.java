@@ -1,6 +1,6 @@
 package com.soundcloud.android.ads;
 
-import android.util.Log;
+import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
@@ -18,15 +18,6 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
@@ -34,7 +25,14 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
-import static com.soundcloud.android.utils.Log.ADS_TAG;
+import android.util.Log;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class AdsController {
@@ -110,10 +108,15 @@ public class AdsController {
                 skipFailedAdSubscription.unsubscribe();
             } else if (stateTransition.wasError() && adsOperations.isCurrentItemAudioAd()) {
                 skipFailedAdSubscription.unsubscribe();
-                playQueueManager.autoNextItem();
+                skipAd();
             }
         }
     };
+
+    private void skipAd() {
+        // this will always successfully advance as the monetizable track is next
+        playQueueManager.advanceToNextPlayableTrack().subscribe(new DefaultSubscriber<Boolean>());
+    }
 
     @Inject
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
@@ -324,7 +327,7 @@ public class AdsController {
                                         state.getProgress(),
                                         FAILED_AD_WAIT_SECS);
                             eventBus.publish(EventQueue.TRACKING, event);
-                            playQueueManager.autoNextItem();
+                            skipAd();
                         }
                     });
         }
