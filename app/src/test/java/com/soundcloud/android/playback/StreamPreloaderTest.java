@@ -36,6 +36,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
     private final TestEventBus eventBus = new TestEventBus();
     private final Urn nextTrackUrn = Urn.forTrack(123L);
+    private PropertySet track = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn));
 
     @Before
     public void setUp() throws Exception {
@@ -43,7 +44,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
                 offlinePlaybackOperations, serviceInitiator, streamCacheConfig);
         preloader.subscribe();
 
-        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(PropertySet.from(TrackProperty.URN.bind(nextTrackUrn))));
+        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(track));
     }
 
     @Test
@@ -71,6 +72,18 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.TWO_G);
 
         verify(serviceInitiator).preload(nextTrackUrn);
+    }
+
+    @Test
+    public void doesNotPreloadWhenNextTrackIsOffline() {
+        when(offlinePlaybackOperations.shouldPlayOffline(track)).thenReturn(true);
+        setupValidNextTrack();
+        setupValidSpaceRemaining();
+
+        firePlayQueueItemChanged();
+        publishValidPlaybackConditions();
+
+        verify(serviceInitiator, never()).preload(any(Urn.class));
     }
 
     @Test
