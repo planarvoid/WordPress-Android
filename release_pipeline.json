@@ -92,13 +92,17 @@
               }
             }
           },
-          {
-            "testdroid_smoke_tests": {
-              "cmd": "cp app/build/outputs/apk/soundcloud-android-*releaseNoProguard*.apk app/build/outputs/apk/soundcloud-android-testdroid.apk",
-              "artifacts": [
-                "app/build/outputs/apk/soundcloud*.apk"
-              ]
+          { "testdroid_smoke_tests": {
+            "cmd": "cp app/build/outputs/apk/soundcloud-android-*releaseNoProguard.apk app/build/outputs/apk/soundcloud-android-testdroid.apk",
+            "plugins": {
+              "testdroid": {
+                "appPath": "app/build/outputs/apk/soundcloud-android-testdroid.apk",
+                "deviceGroupId": "493",
+                "projectId": "290191428",
+                "notificationEmail": "android-dev@soundcloud.com"
+              }
             }
+          }
           }
         ]
       ],
@@ -167,7 +171,7 @@
           }
         ],
         {
-          "rollout_release_1_percent": {
+          "rollout_release_1_percent_and_followup_beta": {
             "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseOnePercent deployFollowUpBeta",
             "manual": true,
             "localBranch": true,
