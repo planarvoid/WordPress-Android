@@ -92,17 +92,18 @@
               }
             }
           },
-          { "testdroid_smoke_tests": {
-            "cmd": "cp app/build/outputs/apk/soundcloud-android-*releaseNoProguard.apk app/build/outputs/apk/soundcloud-android-testdroid.apk",
-            "plugins": {
-              "testdroid": {
-                "appPath": "app/build/outputs/apk/soundcloud-android-testdroid.apk",
-                "deviceGroupId": "493",
-                "projectId": "290191428",
-                "notificationEmail": "android-dev@soundcloud.com"
+          {
+            "testdroid_smoke_tests": {
+              "cmd": "cp app/build/outputs/apk/soundcloud-android-*releaseNoProguard.apk app/build/outputs/apk/soundcloud-android-testdroid.apk",
+              "plugins": {
+                "testdroid": {
+                  "appPath": "app/build/outputs/apk/soundcloud-android-testdroid.apk",
+                  "deviceGroupId": "493",
+                  "projectId": "290191428",
+                  "notificationEmail": "android-dev@soundcloud.com"
+                }
               }
             }
-          }
           }
         ]
       ],
