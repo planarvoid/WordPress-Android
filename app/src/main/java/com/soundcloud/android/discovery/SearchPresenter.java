@@ -6,14 +6,19 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.utils.KeyboardHelper;
+import com.soundcloud.android.utils.TransitionUtils;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.DataSetObserver;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
@@ -28,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -84,6 +90,8 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.window = activity.getWindow();
         this.fragmentManager = activity.getSupportFragmentManager();
+        setupBackground(activity);
+        setupTransitionAnimation(window);
         setupViews(activity);
         if (bundle == null) {
             intentResolver.handle(activity, activity.getIntent());
@@ -107,6 +115,11 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     public void onRestoreInstanceState(AppCompatActivity activity, Bundle bundle) {
         super.onRestoreInstanceState(activity, bundle);
         displaySearchView(bundle.getInt(CURRENT_DISPLAYING_VIEW_KEY));
+    }
+
+    private void setupTransitionAnimation(Window window) {
+        TransitionUtils.setChangeBoundsEnterTransition(window, TransitionUtils.ENTER_DURATION, new DecelerateInterpolator());
+        TransitionUtils.setChangeBoundsExitTransition(window, TransitionUtils.EXIT_DURATION, new DecelerateInterpolator());
     }
 
     private void setupViews(AppCompatActivity activity) {
@@ -249,6 +262,33 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
 
     private void hideKeyboard() {
         keyboardHelper.hide(window, searchTextView);
+    }
+
+    private void setupBackground(final AppCompatActivity activity) {
+        activity.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        activity.findViewById(R.id.search_screen_bg).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss(activity);
+            }
+        });
+    }
+
+    void dismiss(final AppCompatActivity activity) {
+        if (TransitionUtils.transitionsSupported()) {
+            ((ViewGroup) activity.findViewById(R.id.toolbar_id)).getChildAt(1)
+                    .animate()
+                    .alpha(0)
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            activity.supportFinishAfterTransition();
+                        }
+                    }).start();
+        } else {
+            activity.supportFinishAfterTransition();
+        }
     }
 
     private class SearchViewClickListener implements View.OnClickListener {
