@@ -6,13 +6,9 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
-
-    private PlaylistTagsScreen playlistTagsScreen;
 
     public FollowingAgeGatedUser() {
         super(LauncherActivity.class);
@@ -23,19 +19,14 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
         over21user.logIn(getInstrumentation().getTargetContext());
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        playlistTagsScreen = new StreamScreen(solo).actionBar().clickSearchButton();
-    }
-
     // *** Disable until we come up with a way to prevent syncing of certain events ***
     // This test is failing periodically because the unfollow action at the end of the test does not always get
     // synced, thus the next time this test is run, the user is still listed as being followed.
     public void ignore_testAbove21UsersAreAbleToFollowAgeGatedUsers() {
-        ProfileScreen annoyMouseUserScreen = playlistTagsScreen
-                .actionBar()
-                .doLegacySearch("annoymouse")
+        ProfileScreen annoyMouseUserScreen = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("annoymouse")
                 .clickFirstUserItem()
                 .clickFollowToggle();
 
@@ -43,5 +34,4 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
 
         annoyMouseUserScreen.clickFollowToggle();
     }
-
 }

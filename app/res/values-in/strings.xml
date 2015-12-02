@@ -44,7 +44,6 @@
   <string name="loading_related_tracks">Memuat lagu-lagu yang terkait...</string>
   <string name="following_zero">Diikuti oleh Anda</string>
   <!--__ACCESSIBILITY-->
-  <string name="accessibility_search">Telusuri SoundCloud</string>
   <string name="accessibility_stats_user_liked">Disukai oleh Anda</string>
   <string name="accessibility_like_action">Suka</string>
   <!--__ADS-->
@@ -144,7 +143,6 @@
   <string name="side_menu_settings">Pengaturan</string>
   <string name="side_menu_profile">Profil</string>
   <string name="side_menu_explore">Jelajahi</string>
-  <string name="title_search">Penelusuran</string>
   <string name="title_settings">Pengaturan</string>
   <string name="title_feedback">Kirim laporan bug</string>
   <!--__ONBOARDING-->
@@ -305,7 +303,6 @@
   <string name="search_empty_subtext">Periksa ejaan atau coba pencarian lainnya</string>
   <string name="search_for_query">Telusuri \'%s\'</string>
   <!--__DISCOVERY-->
-  <string name="activity_title_discovery">Cari</string>
   <string name="activity_title_recommendations">Rekomendasi untuk Anda</string>
   <!--@Todo from l10n: what is filled in here?-->
   <string name="recommendation_view_all">Lihat semua %1$d</string>

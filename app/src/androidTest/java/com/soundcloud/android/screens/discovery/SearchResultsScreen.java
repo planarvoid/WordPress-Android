@@ -8,8 +8,9 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.SearchTabs;
-import com.soundcloud.android.screens.elements.UserItemElement;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
@@ -45,11 +46,6 @@ public class SearchResultsScreen extends Screen {
         return new ProfileScreen(testDriver);
     }
 
-    public UserItemElement getFirstUser() {
-        scrollListToItem(With.id(com.soundcloud.android.R.id.user_list_item));
-        return getUsers().get(0);
-    }
-
     public int getResultItemCount() {
         final RecyclerViewElement recyclerViewElement = resultsList();
         waiter.waitForItemCountToIncrease(recyclerViewElement.getAdapter(), 0);
@@ -66,10 +62,6 @@ public class SearchResultsScreen extends Screen {
         return this;
     }
 
-    public SearchResultsScreen goToAllTab() {
-        return searchTabs.goToAllTab();
-    }
-
     public SearchResultsScreen goToTracksTab() {
         return searchTabs.goToTracksTab();
     }
@@ -80,6 +72,21 @@ public class SearchResultsScreen extends Screen {
 
     public SearchResultsScreen goToPeopleTab() {
         return searchTabs.goToPeopleTab();
+    }
+
+    public TrackItemMenuElement clickFirstTrackOverflowButton() {
+        testDriver.findElements(With.id(R.id.overflow_button)).get(0).click();
+        return new TrackItemMenuElement(testDriver);
+    }
+
+    public DiscoveryScreen goBack() {
+        testDriver.goBack();
+        return new DiscoveryScreen(testDriver);
+    }
+
+    public UpgradeScreen clickMidTierTrackForUpgrade(String name) {
+        testDriver.findElement(With.textContaining(name)).click();
+        return new UpgradeScreen(testDriver);
     }
 
     private ViewPagerElement getViewPager() {

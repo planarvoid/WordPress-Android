@@ -5,16 +5,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
-import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class ItemOverflowTest extends ActivityTest<MainActivity> {
-
-    private PlaylistTagsScreen playlistTagsScreen;
 
     public ItemOverflowTest() {
         super(MainActivity.class);
@@ -25,20 +20,12 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
         TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
-        playlistTagsScreen = new StreamScreen(solo)
-                .actionBar()
-                .clickSearchButton();
-    }
-
-    @BrokenSearchTest
     public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
-        playlistTagsScreen.actionBar()
-                .doLegacySearch("clownstep")
-                .touchTracksTab()
+        mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("clownstep")
+                .goToTracksTab()
                 .clickFirstTrackOverflowButton()
                 .clickAddToPlaylist();
 

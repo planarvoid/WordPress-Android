@@ -49,7 +49,6 @@
     <string name="following_zero">Followed by you</string>
 
     <!-- __ACCESSIBILITY -->
-    <string name="accessibility_search">Search SoundCloud</string>
     <string name="accessibility_stats_user_liked">Liked by you</string>
     <string name="accessibility_like_action">Like</string>
     <plurals name="accessibility_stats_likes">
@@ -207,7 +206,6 @@
     <string name="side_menu_settings">Settings</string>
     <string name="side_menu_profile">Profile</string>
     <string name="side_menu_explore">Explore</string>
-    <string name="title_search">Search</string>
     <string name="title_settings">Settings</string>
     <string name="title_feedback">Send bug report</string>
 
@@ -428,7 +426,6 @@
     <string name="search_for_query">Search for \'%s\'</string>
 
     <!-- __DISCOVERY -->
-    <string name="activity_title_discovery">Search</string>
     <string name="activity_title_recommendations">Recommended for you</string>
     <!-- @Todo from l10n: what is filled in here? -->
     <string name="recommendation_view_all">View all %1$d</string>

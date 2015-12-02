@@ -98,9 +98,6 @@
             </intent-filter>
         </activity>
 
-
-        <activity android:label="@string/title_search" android:name=".search.LegacySearchActivity"/> <!-- Legacy standalone search -->
-
         <activity android:name=".search.PlayFromVoiceSearchActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
             <intent-filter android:priority="1">
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
@@ -268,10 +265,8 @@
         <activity android:label="@string/upgrade_page_title" android:name=".payments.UpgradeActivity"/>
 
         <!-- discovery -->
-        <activity android:label="@string/activity_title_discovery" android:name=".discovery.DiscoveryActivity"/>
         <activity android:label="@string/activity_title_recommendations" android:name=".discovery.RecommendedTracksActivity"/>
         <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".discovery.SearchActivity" android:theme="@style/Theme.SoundCloud.Search"/>
-        <activity android:label="@string/discovery_search_title" android:name=".discovery.SearchResultsActivity"/>
         <activity android:label="@string/discovery_search_title" android:name=".discovery.PlaylistDiscoveryActivity"/>
 
         <!-- stations -->

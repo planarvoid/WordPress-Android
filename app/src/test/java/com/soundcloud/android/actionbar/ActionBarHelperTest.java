@@ -47,17 +47,6 @@ public class ActionBarHelperTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPublishSearchUIEventOnSearchActionClick() {
-        when(item.getItemId()).thenReturn(R.id.action_search);
-
-        actionBarHelper.onOptionsItemSelected(activity, item);
-
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-        assertThat(uiEvent.getAttributes().get("page")).isEqualTo("search");
-    }
-
-    @Test
     public void showsFeedbackDialogOnFeedbackItemSelected() {
         when(item.getItemId()).thenReturn(R.id.action_feedback);
 
