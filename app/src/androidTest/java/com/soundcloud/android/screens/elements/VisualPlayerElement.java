@@ -57,7 +57,6 @@ public class VisualPlayerElement extends Element {
 
     public void waitForTheExpandedPlayerToPlayNextTrack() {
         waiter.waitForElementCondition(new TrackChangedCondition(getTrackTitle()));
-        assertTrue(isExpandedPlayerPlaying());
     }
 
     public VisualPlayerElement unlike() {
