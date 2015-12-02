@@ -27,11 +27,11 @@ public class RecyclerViewElement {
 
     public ViewElement getItemAt(int position) {
         int childCount = recyclerView.getChildCount();
-        for(int i = 0; i < childCount; i++) {
+        for (int i = 0; i < childCount; i++) {
             View view = recyclerView.getChildAt(i);
-            if(recyclerView.getChildAdapterPosition(view) == position) {
+            if (recyclerView.getChildAdapterPosition(view) == position) {
                 DefaultViewElement viewElement = new DefaultViewElement(view, testDriver);
-                if(viewElement.isFullyVisible()) {
+                if (viewElement.isFullyVisible()) {
                     return viewElement;
                 }
             }
@@ -47,20 +47,20 @@ public class RecyclerViewElement {
     public ViewElement scrollToItem(Criteria criteria) {
         int itemCount = getItemCount();
         Log.i("RecyclerView", String.format("Has %d items", itemCount));
-        for(int i = 0; i < itemCount; i++) {
+        for (int i = 0; i < itemCount; i++) {
             scrollToItemAt(i);
             scrollViewToBeFullyVisible(i, itemCount);
-            if(criteria.isSatisfied(getItemAt(i))) {
+            if (criteria.isSatisfied(getItemAt(i))) {
                 Log.i("RecyclerView", String.format("View matching criteria: %s found", criteria.description()));
                 return getItemAt(i);
             }
             Log.i("RecyclerView", String.format("View matching criteria: %s not found", criteria.description()));
         }
-        return new EmptyViewElement("Item With Criteria not found");
+        return new EmptyViewElement("Couldn't find list element matching " + criteria.description());
     }
 
     private void scrollViewToBeFullyVisible(int position, int boundary) {
-        while(!getItemAt(position).isFullyVisible() && position < boundary) {
+        while (!getItemAt(position).isFullyVisible() && position < boundary) {
             scrollToItemAt(position++);
         }
     }
