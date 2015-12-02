@@ -27,11 +27,15 @@ public class RecyclerViewElement {
 
     public ViewElement getItemAt(int position) {
         int childCount = recyclerView.getChildCount();
+        Log.i("RecyclerViewElement", "child count: " + childCount);
         for (int i = 0; i < childCount; i++) {
             View view = recyclerView.getChildAt(i);
+            Log.i("RecyclerViewElement", "view at position " + i + ": " + view);
             if (recyclerView.getChildAdapterPosition(view) == position) {
+                Log.i("RecyclerViewElement", "found item at position " + i);
                 DefaultViewElement viewElement = new DefaultViewElement(view, testDriver);
                 if (viewElement.isFullyVisible()) {
+                    Log.i("RecyclerViewElement", "element was fully visible");
                     return viewElement;
                 }
             }
