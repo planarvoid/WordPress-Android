@@ -48,11 +48,11 @@ public class RecyclerViewElement {
         int itemCount = getItemCount();
         Log.i("RecyclerView", String.format("Has %d items", itemCount));
         for (int i = 0; i < itemCount; i++) {
-            scrollToItemAt(i);
+            ViewElement listItem = scrollToItemAt(i);
             scrollViewToBeFullyVisible(i, itemCount);
-            if (criteria.isSatisfied(getItemAt(i))) {
+            if (criteria.isSatisfied(listItem)) {
                 Log.i("RecyclerView", String.format("View matching criteria: %s found", criteria.description()));
-                return getItemAt(i);
+                return listItem;
             }
             Log.i("RecyclerView", String.format("View matching criteria: %s not found", criteria.description()));
         }
