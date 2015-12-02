@@ -74,6 +74,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
         assertThat("Profile screen should be visible", profileScreen.isVisible());
     }
 
+    @Ignore
     public void testTappingUserOnPeopleTabOpensProfile() {
         ProfileScreen profileScreen = searchScreen.doSearch("emptyuser").goToPeopleTab().clickFirstUserItem();
 
