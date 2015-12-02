@@ -3,6 +3,7 @@ package com.soundcloud.android.policies;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -24,6 +25,7 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -76,7 +78,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
         controller.onResume(null);
 
-        verify(goOnlinePresenter, never()).show(anyLong());
+        verify(goOnlinePresenter, never()).show(any(Activity.class), anyLong());
         verify(policySettingsStorage, never()).getLastPolicyCheckTime();
     }
 
@@ -86,7 +88,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
         controller.onResume(null);
 
         verify(policySettingsStorage, never()).setLastPolicyCheckTime(any(Long.class));
-        verify(goOnlinePresenter, never()).show(anyLong());
+        verify(goOnlinePresenter, never()).show(any(Activity.class), anyLong());
         verifyZeroInteractions(connectionHelper, offlineContentOperations);
     }
 
@@ -112,7 +114,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
         controller.onResume(null);
 
-        verify(goOnlinePresenter).show(online27DaysAgo);
+        verify(goOnlinePresenter).show(null, online27DaysAgo);
     }
 
     @Test

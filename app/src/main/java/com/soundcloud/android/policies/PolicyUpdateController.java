@@ -55,14 +55,13 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
     @Override
     public void onResume(AppCompatActivity activity) {
         if (featureOperations.isOfflineContentEnabled()) {
-            goBackOnlineDialogPresenter.bindActivity(activity);
 
             if (shouldCheckPolicyUpdates()) {
                 subscription.unsubscribe();
                 subscription = policyOperations
                         .getMostRecentPolicyUpdateTimestamp()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new ShouldNotifyUserSubscriber());
+                        .subscribe(new ShouldNotifyUserSubscriber(activity));
             }
         }
     }
@@ -81,10 +80,17 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
     }
 
     private class ShouldNotifyUserSubscriber extends DefaultSubscriber<Long> {
+
+        private AppCompatActivity activity;
+
+        ShouldNotifyUserSubscriber(AppCompatActivity activity) {
+            this.activity = activity;
+        }
+
         @Override
         public void onNext(Long lastPolicyUpdate) {
             if (shouldNotifyUser(lastPolicyUpdate)) {
-                goBackOnlineDialogPresenter.show(lastPolicyUpdate);
+                goBackOnlineDialogPresenter.show(activity, lastPolicyUpdate);
 
                 if (shouldDeleteOfflineContent(lastPolicyUpdate)) {
                     Log.d(TAG, "No policy update in last 30 days");
