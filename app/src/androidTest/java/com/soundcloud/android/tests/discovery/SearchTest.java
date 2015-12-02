@@ -69,7 +69,13 @@ public class SearchTest extends ActivityTest<MainActivity> {
     }
 
     public void testTappingUserOnAllTabOpensProfile() {
-        ProfileScreen profileScreen = searchScreen.doSearch("clownstep").clickFirstUserItem();
+        ProfileScreen profileScreen = searchScreen.doSearch("emptyuser").clickFirstUserItem();
+
+        assertThat("Profile screen should be visible", profileScreen.isVisible());
+    }
+
+    public void testTappingUserOnPeopleTabOpensProfile() {
+        ProfileScreen profileScreen = searchScreen.doSearch("emptyuser").goToPeopleTab().clickFirstUserItem();
 
         assertThat("Profile screen should be visible", profileScreen.isVisible());
     }
@@ -89,12 +95,6 @@ public class SearchTest extends ActivityTest<MainActivity> {
                 .clickFirstPlaylistItem();
 
         assertThat("Playlist screen should be visible", playlistDetailsScreen.isVisible());
-    }
-
-    public void testTappingUserOnPeopleTabOpensProfile() {
-        ProfileScreen profileScreen = searchScreen.doSearch("clownstep").goToPeopleTab().clickFirstUserItem();
-
-        assertThat("Profile screen should be visible", profileScreen.isVisible());
     }
 
     public void testOrderOfDisplayededTabs() {

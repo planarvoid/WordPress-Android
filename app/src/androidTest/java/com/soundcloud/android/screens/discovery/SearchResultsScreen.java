@@ -9,7 +9,6 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SearchTabs;
-import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
@@ -29,25 +28,20 @@ public class SearchResultsScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstTrackItem() {
-        testDriver.findElement(With.id(R.id.track_list_item)).click();
+        scrollListToItem(With.id(com.soundcloud.android.R.id.track_list_item)).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistItem() {
-        testDriver.findElement(With.id(R.id.playlist_list_item)).click();
+        scrollListToItem(With.id(R.id.playlist_list_item)).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
     public ProfileScreen clickFirstUserItem() {
-        testDriver.findElement(With.id(R.id.user_list_item)).click();
+        scrollListToItem(With.id(com.soundcloud.android.R.id.user_list_item)).click();
         return new ProfileScreen(testDriver);
-    }
-
-    public UserItemElement getFirstUser() {
-        scrollListToItem(With.id(com.soundcloud.android.R.id.user_list_item));
-        return getUsers().get(0);
     }
 
     public int getResultItemCount() {
@@ -64,10 +58,6 @@ public class SearchResultsScreen extends Screen {
         resultsList().scrollToBottom();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
-    }
-
-    public SearchResultsScreen goToAllTab() {
-        return searchTabs.goToAllTab();
     }
 
     public SearchResultsScreen goToTracksTab() {
