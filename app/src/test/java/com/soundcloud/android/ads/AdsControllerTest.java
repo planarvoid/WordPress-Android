@@ -398,14 +398,15 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         adsController.subscribe();
 
-        final StateTransition stateTransition = new StateTransition(PlayerState.BUFFERING, Reason.NONE, new Urn("provider:ad:345"), 12, 1200);
+        final Urn trackUrn = Urn.forTrack(123L);
+        final StateTransition stateTransition = new StateTransition(PlayerState.BUFFERING, Reason.NONE, trackUrn, 12, 1200);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
 
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         final AudioAdFailedToBufferEvent event = (AudioAdFailedToBufferEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
-        assertThat(event.getAttributes().get(AdTrackingKeys.KEY_AD_URN)).isEqualTo("provider:ad:345");
+        assertThat(event.getAttributes().get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(trackUrn.toString());
         assertThat(event.getAttributes().get(AudioAdFailedToBufferEvent.PLAYBACK_POSITION)).isEqualTo("12");
         assertThat(event.getAttributes().get(AudioAdFailedToBufferEvent.WAIT_PERIOD)).isEqualTo("6");
     }

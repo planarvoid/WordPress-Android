@@ -42,7 +42,7 @@ public class PlayPublisher {
             new Func1<Player.StateTransition, Boolean>() {
                 @Override
                 public Boolean call(Player.StateTransition stateTransition) {
-                    return stateTransition.isForTrack() && stateTransition.isPlayerPlaying();
+                    return !stateTransition.getUrn().isAd() && stateTransition.isPlayerPlaying();
                 }
             };
 
@@ -83,7 +83,7 @@ public class PlayPublisher {
         return new Payload(resources.getString(R.string.gcm_gateway_id),
                 gcmStorage.getToken(),
                 dateProvider.getCurrentTime(),
-                stateTransition.getTrackUrn());
+                stateTransition.getUrn());
     }
 
     private static class ResponseLogger extends DefaultSubscriber<ApiResponse> {

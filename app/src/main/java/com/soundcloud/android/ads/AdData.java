@@ -7,7 +7,7 @@ public abstract class AdData {
     private String monetizableTitle;
     private String monetizableCreator;
 
-    public abstract String getAdUrn();
+    public abstract Urn getAdUrn();
 
     public Urn getMonetizableTrackUrn() {
         return monetizableTrackUrn;

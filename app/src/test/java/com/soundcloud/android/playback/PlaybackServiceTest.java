@@ -37,7 +37,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     private static final long START_POSITION = 123L;
     private PlaybackService playbackService;
     private PlaybackItem playbackItem = AudioPlaybackItem.create(TestPropertySets.fromApiTrack(), START_POSITION);
-    private Urn track = playbackItem.getTrackUrn();
+    private Urn track = playbackItem.getUrn();
     private TestEventBus eventBus = new TestEventBus();
     private TestDateProvider dateProvider = new TestDateProvider();
 
@@ -194,7 +194,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void onPlaystateChangedDoesNotPublishStateTransitionWithDifferentUrnThanCurrent() {
-        when(stateTransition.getTrackUrn()).thenReturn(track);
+        when(stateTransition.getUrn()).thenReturn(track);
 
         playbackService.onPlaystateChanged(stateTransition);
 
@@ -216,7 +216,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void doesNotForwardPlayerStateTransitionToAnalyticsControllerWithDifferentUrnThenCurrent() {
-        when(stateTransition.getTrackUrn()).thenReturn(track);
+        when(stateTransition.getUrn()).thenReturn(track);
 
         playbackService.onPlaystateChanged(stateTransition);
 
@@ -232,8 +232,8 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onProgressEvent(123L, 456L);
 
         PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
-        assertThat(broadcasted.isForTrack()).isTrue();
-        assertThat(broadcasted.getTrackUrn()).isEqualTo(Optional.of(track));
+        assertThat(broadcasted.getUrn().isTrack()).isTrue();
+        assertThat(broadcasted.getUrn()).isEqualTo(track);
         assertThat(broadcasted.getPlaybackProgress().getPosition()).isEqualTo(123L);
         assertThat(broadcasted.getPlaybackProgress().getDuration()).isEqualTo(456L);
     }
@@ -248,8 +248,8 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onProgressEvent(123L, 456L);
 
         PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
-        assertThat(broadcasted.isForVideo()).isTrue();
-        assertThat(broadcasted.getVideoAdUrn()).isEqualTo(Optional.of("dfp:ads:905"));
+        assertThat(broadcasted.getUrn().isAd()).isTrue();
+        assertThat(broadcasted.getUrn()).isEqualTo(Urn.forAd("dfp", "905"));
         assertThat(broadcasted.getPlaybackProgress().getPosition()).isEqualTo(123L);
         assertThat(broadcasted.getPlaybackProgress().getDuration()).isEqualTo(456L);
     }

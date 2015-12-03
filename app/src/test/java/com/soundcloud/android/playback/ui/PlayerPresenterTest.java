@@ -211,7 +211,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         Mockito.reset(viewPager);
 
         final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS, 1L);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.forTrack(playbackProgress, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(playbackProgress, Urn.NOT_SET));
 
         verifyZeroInteractions(viewPager);
     }

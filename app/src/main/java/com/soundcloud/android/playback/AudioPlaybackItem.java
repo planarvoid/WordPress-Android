@@ -28,7 +28,7 @@ public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
     }
 
     @Override
-    public abstract Urn getTrackUrn();
+    public abstract Urn getUrn();
 
     @Override
     public abstract long getStartPosition();

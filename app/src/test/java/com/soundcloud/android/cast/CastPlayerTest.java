@@ -345,7 +345,7 @@ public class CastPlayerTest extends AndroidUnitTest {
         final Player.StateTransition stateTransition = captureLastStateTransition();
         assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.IDLE);
         assertThat(stateTransition.getReason()).isSameAs(Player.Reason.ERROR_FAILED);
-        assertThat(stateTransition.getTrackUrn()).isSameAs(TRACK_URN1);
+        assertThat(stateTransition.getUrn()).isSameAs(TRACK_URN1);
     }
 
     @Test
@@ -404,7 +404,7 @@ public class CastPlayerTest extends AndroidUnitTest {
         final Player.StateTransition stateTransition = captureLastStateTransition();
         assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.IDLE);
         assertThat(stateTransition.getReason()).isSameAs(Player.Reason.ERROR_FAILED);
-        assertThat(stateTransition.getTrackUrn()).isSameAs(TRACK_URN1);
+        assertThat(stateTransition.getUrn()).isSameAs(TRACK_URN1);
     }
 
     @Test
@@ -475,6 +475,6 @@ public class CastPlayerTest extends AndroidUnitTest {
         final Player.StateTransition stateTransition = captureLastStateTransition();
         assertThat(stateTransition.getNewState()).isSameAs(newState);
         assertThat(stateTransition.getReason()).isSameAs(reason);
-        assertThat(stateTransition.getTrackUrn()).isEqualTo(trackUrn);
+        assertThat(stateTransition.getUrn()).isEqualTo(trackUrn);
     }
 }

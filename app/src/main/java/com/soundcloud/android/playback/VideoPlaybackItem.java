@@ -18,14 +18,10 @@ public abstract class VideoPlaybackItem implements PlaybackItem, Parcelable {
         return new AutoParcel_VideoPlaybackItem(adData.getAdUrn(), adData.getVideoSources(), 0, PlaybackType.VIDEO_DEFAULT, Consts.NOT_SET);
     }
 
-    public abstract String getAdUrn();
+    @Override
+    public abstract Urn getUrn();
 
     public abstract List<VideoSource> getSources();
-
-    @Override
-    public Urn getTrackUrn() {
-       throw new IllegalAccessError("Getting URN from video playback item");
-    }
 
     @Override
     public abstract long getStartPosition();

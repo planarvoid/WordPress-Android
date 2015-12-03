@@ -46,7 +46,7 @@ public class UrnTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldValidateUnknownUrnAsLocalUrn() {
+    public void shouldNotValidateUnknownUrnAsLocalUrn() {
         assertThat(Urn.isLocalUrn("unknown:playlists:1")).isFalse();
     }
 
@@ -110,6 +110,13 @@ public class UrnTest extends AndroidUnitTest {
         assertThat(urn.isLocal()).isFalse();
     }
 
+    @Test
+    public void shouldParseAdUrns() throws Exception {
+        final Urn urn = new Urn("dfp:ads:123-321");
+        assertThat(urn.isAd()).isTrue();
+        assertThat(urn.getNumericId()).isEqualTo(-1L);
+    }
+
     // This is still up for debate, but right now we represent NOT_SET Urns with numeric part -1
     @Test
     public void shouldAllowUrnsWithNegativeOneIds() {
@@ -167,6 +174,12 @@ public class UrnTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldBuildAdUrns() {
+        final Urn urn = Urn.forAd("dfp", "123");
+        assertThat(urn).isEqualTo(new Urn("dfp:ads:123"));
+    }
+
+    @Test
     public void isStationShouldMatchStationUrns() {
         Urn trackStationUrn = new Urn("soundcloud:track-stations:1");
         Urn curatorStationUrn = new Urn("soundcloud:curator-stations:1");
@@ -184,6 +197,18 @@ public class UrnTest extends AndroidUnitTest {
 
         assertThat(playlistUrn.isStation()).isFalse();
         assertThat(trackUrn.isStation()).isFalse();
+    }
+
+    @Test
+    public void isAdShouldNotMatchOtherUrns() {
+        final Urn playlistUrn = Urn.forPlaylist(1);
+        final Urn trackUrn = Urn.forTrack(1);
+        final Urn trackStationUrn = new Urn("soundcloud:track-stations:1");
+
+        assertThat(playlistUrn.isAd()).isFalse();
+        assertThat(trackUrn.isAd()).isFalse();
+        assertThat(trackStationUrn.isAd()).isFalse();
+        assertThat(Urn.NOT_SET.isAd()).isFalse();
     }
 
     @Test

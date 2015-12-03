@@ -1028,7 +1028,7 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AUDIO_AD_CLICK);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getVisualAd().getAdUrn());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getVisualAd().getAdUrn().toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(audioAd.getVisualAd().getClickThroughUrl().toString());
@@ -1042,7 +1042,7 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());

@@ -106,7 +106,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     // Audio ad
     public PlaybackSessionEvent withAudioAd(AudioAd audioAd) {
         put(AdTrackingKeys.KEY_USER_URN, get(KEY_LOGGED_IN_USER_URN));
-        put(AdTrackingKeys.KEY_AD_URN, audioAd.getAdUrn());
+        put(AdTrackingKeys.KEY_AD_URN, audioAd.getAdUrn().toString());
         put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_AUDIO_AD);
         put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.getMonetizableTrackUrn().toString());
         put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString());

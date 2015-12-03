@@ -142,7 +142,7 @@ public class PlaybackNotificationControllerTest extends AndroidUnitTest {
     private PropertySet getTrackMetadata(CurrentPlayQueueItemEvent event) {
         final TrackQueueItem playQueueItem = (TrackQueueItem) event.getCurrentPlayQueueItem();
         final boolean isAd = AdFunctions.IS_AUDIO_AD_ITEM.apply(event.getCurrentPlayQueueItem());
-        return PropertySet.from(AdProperty.IS_AUDIO_AD.bind(isAd)).put(EntityProperty.URN, playQueueItem.getTrackUrn());
+        return PropertySet.from(AdProperty.IS_AUDIO_AD.bind(isAd)).put(EntityProperty.URN, playQueueItem.getUrn());
     }
 
 }

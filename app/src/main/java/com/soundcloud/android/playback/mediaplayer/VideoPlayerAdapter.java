@@ -323,7 +323,7 @@ public class VideoPlayerAdapter implements Player, SurfaceHolder.Callback, Media
         }
 
         if (playerListener != null && videoPlaybackItem != null) {
-            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), videoPlaybackItem.getAdUrn(), progress, duration, currentDateProvider);
+            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), videoPlaybackItem.getUrn(), progress, duration, currentDateProvider);
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, PlaybackProtocol.HTTPS.getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.VIDEO_PLAYER.getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");

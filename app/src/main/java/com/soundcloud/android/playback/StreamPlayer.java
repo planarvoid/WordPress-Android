@@ -78,13 +78,13 @@ class StreamPlayer implements PlayerListener {
 
         switch(playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
-                currentPlayer.play(playbackItem.getTrackUrn(), playbackItem.getStartPosition());
+                currentPlayer.play(playbackItem.getUrn(), playbackItem.getStartPosition());
                 break;
             case AUDIO_OFFLINE:
-                currentPlayer.playOffline(playbackItem.getTrackUrn(), playbackItem.getStartPosition());
+                currentPlayer.playOffline(playbackItem.getUrn(), playbackItem.getStartPosition());
                 break;
             case AUDIO_UNINTERRUPTED:
-                currentPlayer.playUninterrupted(playbackItem.getTrackUrn());
+                currentPlayer.playUninterrupted(playbackItem.getUrn());
                 break;
             case VIDEO_DEFAULT:
                 currentPlayer.playVideo((VideoPlaybackItem) playbackItem);
@@ -150,7 +150,7 @@ class StreamPlayer implements PlayerListener {
         if (shouldFallbackToMediaPlayer(stateTransition)) {
             final long progress = skippyPlayerDelegate.getProgress();
             configureNextPlayerToUse(mediaPlayerDelegate);
-            mediaPlayerDelegate.play(lastTrackPlayed.getTrackUrn(), progress);
+            mediaPlayerDelegate.play(lastTrackPlayed.getUrn(), progress);
         } else {
             checkNotNull(playerListener, "Stream Player Listener is unexpectedly null when passing state");
             lastStateTransition = stateTransition;

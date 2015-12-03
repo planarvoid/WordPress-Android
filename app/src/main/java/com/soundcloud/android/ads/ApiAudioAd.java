@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 class ApiAudioAd {
 
-    private final String urn;
+    private final Urn urn;
     private final ApiTrack apiTrack;
 
     private final ApiCompanionAd visualAd;
@@ -23,7 +24,7 @@ class ApiAudioAd {
     public final List<String> trackingSkipUrls;
 
     @JsonCreator
-    public ApiAudioAd(@JsonProperty("urn") String urn,
+    public ApiAudioAd(@JsonProperty("urn") Urn urn,
                       @JsonProperty("track") ApiTrack apiTrack,
                       @JsonProperty("_embedded") RelatedResources relatedResources,
                       @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
@@ -33,7 +34,7 @@ class ApiAudioAd {
     }
 
     @VisibleForTesting
-    public ApiAudioAd(String urn, ApiTrack apiTrack, ApiCompanionAd visualAd, ApiLeaveBehind leaveBehind, List<String> trackingImpressionUrls,
+    public ApiAudioAd(Urn urn, ApiTrack apiTrack, ApiCompanionAd visualAd, ApiLeaveBehind leaveBehind, List<String> trackingImpressionUrls,
                       List<String> trackingFinishUrls, List<String> trackingSkipUrls) {
         this.urn = urn;
         this.apiTrack = apiTrack;
@@ -44,7 +45,7 @@ class ApiAudioAd {
         this.trackingSkipUrls = trackingSkipUrls;
     }
 
-    public String getUrn() {
+    public Urn getUrn() {
         return urn;
     }
 

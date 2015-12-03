@@ -303,7 +303,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
-                .adUrn(audioAd.getAdUrn())
+                .adUrn(audioAd.getAdUrn().toString())
                 .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                 .monetizationType("audio_ad"));
     }
@@ -338,7 +338,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
-                .adUrn(audioAd.getAdUrn())
+                .adUrn(audioAd.getAdUrn().toString())
                 .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                 .monetizationType("audio_ad")
                 .queryUrn("some:search:urn")

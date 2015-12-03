@@ -35,7 +35,7 @@ public class TrackQueueItem extends PlayQueueItem {
         super.setAdData(adData);
     }
 
-    public Urn getTrackUrn() {
+    public Urn getUrn() {
         return trackUrn;
     }
 

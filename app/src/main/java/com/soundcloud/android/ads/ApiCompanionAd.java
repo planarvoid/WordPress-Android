@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
@@ -14,7 +15,7 @@ class ApiCompanionAd extends ApiBaseAdVisual {
     public final Optional<String> ctaButtonText;
 
     @JsonCreator
-    public ApiCompanionAd(@JsonProperty("urn") String urn,
+    public ApiCompanionAd(@JsonProperty("urn") Urn urn,
                           @JsonProperty("image_url") String imageUrl,
                           @JsonProperty("clickthrough_url") String clickthroughUrl,
                           @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,

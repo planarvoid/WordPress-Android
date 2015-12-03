@@ -178,7 +178,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     private void insertTrackQueueItem(TrackQueueItem trackQueueItem) {
         ContentValues cv = new ContentValues();
-        cv.put(Tables.PlayQueue.TRACK_ID.name(), trackQueueItem.getTrackUrn().getNumericId());
+        cv.put(Tables.PlayQueue.TRACK_ID.name(), trackQueueItem.getUrn().getNumericId());
         cv.put(Tables.PlayQueue.SOURCE.name(), trackQueueItem.getSource());
         cv.put(Tables.PlayQueue.SOURCE_VERSION.name(), trackQueueItem.getSourceVersion());
         cv.put(Tables.PlayQueue.SOURCE_URN.name(), trackQueueItem.getSourceUrn().toString());

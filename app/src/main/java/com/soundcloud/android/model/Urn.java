@@ -29,6 +29,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     private static final String USERS_TYPE = "users";
     private static final String COMMENTS_TYPE = "comments";
     private static final String TRACK_STATION_TYPE = "track-stations";
+    private static final String ADS_TYPE = "ads";
 
     private static final String NUMERIC_ID_PATTERN = ":(-?\\d+)";
     private static final String TRACK_PATTERN = SOUNDCLOUD_SCHEME + COLON + TRACKS_TYPE + NUMERIC_ID_PATTERN;
@@ -38,6 +39,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     private static final String USER_PATTERN = SOUNDCLOUD_SCHEME + COLON + USERS_TYPE + NUMERIC_ID_PATTERN;
     private static final String COMMENT_PATTERN = SOUNDCLOUD_SCHEME + COLON + COMMENTS_TYPE + NUMERIC_ID_PATTERN;
     private static final String STATION_PATTERN = SOUNDCLOUD_SCHEME + COLON + "[\\w-]+-stations:.*";
+    private static final String ADS_PATTERN = "[\\w]+" + COLON + ADS_TYPE + COLON + ".*";
 
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
         @Override
@@ -102,6 +104,11 @@ public final class Urn implements Parcelable, Comparable<Urn> {
         return new Urn(SOUNDCLOUD_SCHEME + COLON + TRACK_STATION_TYPE, trackID);
     }
 
+    @NotNull
+    public static Urn forAd(String scheme, String id) {
+        return new Urn(scheme + COLON + ADS_TYPE + COLON + id);
+    }
+
     public Urn(String content) {
         this.content = content.replaceFirst("soundcloud:sounds:", "soundcloud:tracks:");
         // since we access this part so frequently, we're pre-caching it for faster access later on
@@ -135,6 +142,10 @@ public final class Urn implements Parcelable, Comparable<Urn> {
 
     public boolean isStation() {
         return content.matches(STATION_PATTERN);
+    }
+
+    public boolean isAd() {
+        return content.matches(ADS_PATTERN);
     }
 
     public long getNumericId() {

@@ -31,7 +31,7 @@ public final class AdOverlayTrackingEvent extends TrackingEvent {
         put(AdTrackingKeys.KEY_AD_ARTWORK_URL, adData.getImageUrl());
         put(AdTrackingKeys.KEY_CLICK_THROUGH_URL, adData.getClickthroughUrl().toString());
         put(AdTrackingKeys.KEY_ORIGIN_SCREEN, getNonNullOriginScreenValue(trackSourceInfo));
-        put(AdTrackingKeys.KEY_AD_URN, adData.getAdUrn());
+        put(AdTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString());
 
         if (adData instanceof LeaveBehindAd) {
             put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_AUDIO_AD);

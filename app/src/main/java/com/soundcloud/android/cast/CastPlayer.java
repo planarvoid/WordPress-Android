@@ -121,7 +121,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     public void pullProgress() {
         try {
             final PlaybackProgress playbackProgress = new PlaybackProgress(castManager.getCurrentMediaPosition(), castManager.getMediaDuration());
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.forTrack(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
             Log.e(CastOperations.TAG, "Unable to report progress", e);
         }

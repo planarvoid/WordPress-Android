@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.objects.MoreObjects;
-import com.soundcloud.java.optional.Optional;
 
 import android.content.Intent;
 import android.support.annotation.VisibleForTesting;
@@ -49,70 +48,39 @@ public interface Player {
         private final PlayerState newState;
         private final Reason reason;
         private final PlaybackProgress progress;
-        private final Optional<Urn> trackUrn;
-        private final Optional<String> videoAdUrn;
+        private final Urn itemUrn;
 
         // used to pass various additional meta data with the event, often for tracking/analytics
         private final SparseArray<String> extraAttributes = new SparseArray<>(2);
 
         public static final StateTransition DEFAULT = new StateTransition(PlayerState.IDLE, Reason.NONE, Urn.NOT_SET);
 
-        public StateTransition(PlayerState newState, Reason reason, Urn trackUrn) {
-            this(newState, reason, trackUrn, 0, 0);
+        public StateTransition(PlayerState newState, Reason reason, Urn itemUrn) {
+            this(newState, reason, itemUrn, 0, 0);
         }
 
-        public StateTransition(PlayerState newState, Reason reason, Urn trackUrn, long currentProgress, long duration) {
-            this(newState, reason, trackUrn, currentProgress, duration, new CurrentDateProvider());
+        public StateTransition(PlayerState newState, Reason reason, Urn itemUrn, long currentProgress, long duration) {
+            this(newState, reason, itemUrn, currentProgress, duration, new CurrentDateProvider());
         }
 
-        public StateTransition(PlayerState newState, Reason reason, String videoAdUrn,
-                               long currentProgress, long duration, CurrentDateProvider dateProvider) {
-            this(newState, reason, Optional.<Urn>absent(), Optional.of(videoAdUrn), currentProgress, duration, dateProvider);
-        }
-
-        public StateTransition(PlayerState newState, Reason reason, Urn trackUrn,
-                               long currentProgress, long duration, CurrentDateProvider dateProvider) {
-            this(newState, reason, Optional.of(trackUrn), Optional.<String>absent(), currentProgress, duration, dateProvider);
-        }
-
-        private StateTransition(PlayerState newState,
-                                Reason reason,
-                                Optional<Urn> trackUrn,
-                                Optional<String> videoAdUrn,
-                                long currentProgress,
-                                long duration,
-                                CurrentDateProvider dateProvider) {
-            checkArgument(trackUrn.isPresent() ^ videoAdUrn.isPresent(), "State transition needs to have either a track or video ad URN");
+        public StateTransition(PlayerState newState,
+                        Reason reason,
+                        Urn itemUrn,
+                        long currentProgress,
+                        long duration,
+                        CurrentDateProvider dateProvider) {
             this.newState = newState;
             this.reason = reason;
-            this.trackUrn = trackUrn;
-            this.videoAdUrn = videoAdUrn;
+            this.itemUrn = itemUrn;
             this.progress = new PlaybackProgress(currentProgress, duration, dateProvider);
         }
 
-        public boolean isForTrack() {
-            return this.trackUrn.isPresent();
+        public Urn getUrn() {
+            return itemUrn;
         }
 
-        public boolean isForTrack(Urn trackUrn) {
-            return isForTrack() && getTrackUrn().equals(trackUrn);
-        }
-
-        public boolean isForVideo() {
-            return this.videoAdUrn.isPresent();
-        }
-
-        public boolean isForPlaybackItem(PlaybackItem playbackItem) {
-            return ((playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT && isForVideo()) ||
-                    (playbackItem.getPlaybackType() != PlaybackType.VIDEO_DEFAULT && isForTrack(playbackItem.getTrackUrn())));
-        }
-
-        public Urn getTrackUrn() {
-            return trackUrn.get();
-        }
-
-        public String getVideoAdUrn() {
-            return videoAdUrn.get();
+        public boolean isForUrn(Urn urn) {
+            return getUrn().equals(urn);
         }
 
         public PlayerState getNewState() {
@@ -182,7 +150,7 @@ public interface Player {
         public void addToIntent(Intent intent) {
             newState.addToIntent(intent);
             reason.addToIntent(intent);
-            intent.putExtra(TRACK_URN_EXTRA, getTrackUrn());
+            intent.putExtra(TRACK_URN_EXTRA, getUrn());
             intent.putExtra(PROGRESS_EXTRA, progress.getPosition());
             intent.putExtra(DURATION_EXTRA, progress.getDuration());
         }
@@ -198,8 +166,7 @@ public interface Player {
                 return MoreObjects.equal(newState, that.newState)
                         && MoreObjects.equal(reason, that.reason)
                         && MoreObjects.equal(progress, that.progress)
-                        && MoreObjects.equal(trackUrn, that.trackUrn)
-                        && MoreObjects.equal(videoAdUrn, that.videoAdUrn);
+                        && MoreObjects.equal(itemUrn, that.itemUrn);
             }
         }
 
@@ -208,8 +175,7 @@ public interface Player {
             int result = newState.hashCode();
             result = 31 * result + reason.hashCode();
             result = 31 * result + progress.hashCode();
-            result = 31 * result + trackUrn.hashCode();
-            result = 31 * result + videoAdUrn.hashCode();
+            result = 31 * result + itemUrn.hashCode();
             return result;
         }
 
@@ -220,8 +186,7 @@ public interface Player {
                     ", reason=" + reason +
                     ", currentProgress=" + progress.getPosition() +
                     ", duration=" + progress.getDuration() +
-                    ", trackUrn=" + trackUrn +
-                    ", videoAdUrn=" + videoAdUrn +
+                    ", itemUrn=" + itemUrn +
                     ", extraAttributes=" + extraAttributes +
                     '}';
         }

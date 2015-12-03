@@ -172,7 +172,7 @@ public class AdsController {
 
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .doOnNext(unsubscribeFailedAdSkip)
-                .filter(PlayerFunctions.IS_FOR_TRACK)
+                .filter(PlayerFunctions.IS_NOT_VIDEO_AD)
                 .filter(isBufferingAudioAd)
                 .subscribe(new SkipFailedAdSubscriber());
 
@@ -320,7 +320,7 @@ public class AdsController {
                             Log.i(ADS_TAG, "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
                             final AudioAdFailedToBufferEvent event =
                                     new AudioAdFailedToBufferEvent(
-                                        state.getTrackUrn(),
+                                        state.getUrn(),
                                         state.getProgress(),
                                         FAILED_AD_WAIT_SECS);
                             eventBus.publish(EventQueue.TRACKING, event);

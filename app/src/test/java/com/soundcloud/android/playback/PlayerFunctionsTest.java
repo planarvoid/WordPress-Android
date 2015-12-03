@@ -13,24 +13,34 @@ public class PlayerFunctionsTest extends AndroidUnitTest {
     final Urn trackUrn = Urn.forTrack(123L);
 
     @Test
-    public void isForTrackShouldReturnTrueForTrackStateTransitions() {
+    public void isNotVideoAdShouldReturnTrueForTrackStateTransitions() {
         final Player.StateTransition state = new Player.StateTransition(
                 Player.PlayerState.BUFFERING,
                 Player.Reason.NONE,
                 trackUrn
         );
-        assertThat(PlayerFunctions.IS_FOR_TRACK.call(state)).isTrue();
+        assertThat(PlayerFunctions.IS_NOT_VIDEO_AD.call(state)).isTrue();
     }
 
     @Test
-    public void isForTrackShouldReturnFalseForVideoStateTransitions() {
+    public void isNotVideoAdShouldReturnTrueForUrnNotSetStateTransitions() {
         final Player.StateTransition state = new Player.StateTransition(
                 Player.PlayerState.BUFFERING,
                 Player.Reason.NONE,
-                "dfp-video-ad",
+                Urn.NOT_SET
+        );
+        assertThat(PlayerFunctions.IS_NOT_VIDEO_AD.call(state)).isTrue();
+    }
+
+    @Test
+    public void isNotTrackShouldReturnFalseForVideoStateTransitions() {
+        final Player.StateTransition state = new Player.StateTransition(
+                Player.PlayerState.BUFFERING,
+                Player.Reason.NONE,
+                Urn.forAd("dfp", "123"),
                 0, 0,
                 new TestDateProvider()
         );
-        assertThat(PlayerFunctions.IS_FOR_TRACK.call(state)).isFalse();
+        assertThat(PlayerFunctions.IS_NOT_VIDEO_AD.call(state)).isFalse();
     }
 }

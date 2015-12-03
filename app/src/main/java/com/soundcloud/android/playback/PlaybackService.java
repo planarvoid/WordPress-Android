@@ -177,18 +177,16 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         Log.d(TAG, "Received new playState " + stateTransition);
 
         // TODO : Fix threading in Skippy so we can never receive delayed messages
-        if (currentPlaybackItem.isPresent()) {
-            if (stateTransition.isForPlaybackItem(currentPlaybackItem.get())) {
-                if (!stateTransition.isPlaying()) {
-                    onIdleState();
-                }
-
-                // Temporarily until event logging is handled for video ads
-                if (currentPlaybackItem.get().getPlaybackType() != PlaybackType.VIDEO_DEFAULT) {
-                    analyticsController.onStateTransition(stateTransition);
-                }
-                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
+        if (currentPlaybackItem.isPresent() && currentPlaybackItem.get().getUrn().equals(stateTransition.getUrn())) {
+            if (!stateTransition.isPlaying()) {
+                onIdleState();
             }
+
+            // Temporarily until event logging is handled for video ads
+            if (currentPlaybackItem.get().getPlaybackType() != PlaybackType.VIDEO_DEFAULT) {
+                analyticsController.onStateTransition(stateTransition);
+            }
+            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
         }
     }
 
@@ -197,15 +195,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         if (currentPlaybackItem.isPresent()) {
             final PlaybackItem playbackItem = currentPlaybackItem.get();
             final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
-            final PlaybackProgressEvent progressEvent;
-
-            if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT) {
-                progressEvent = PlaybackProgressEvent.forVideo(playbackProgress, ((VideoPlaybackItem) playbackItem).getAdUrn());
-            } else {
-                progressEvent = PlaybackProgressEvent.forTrack(playbackProgress, currentPlaybackItem.get().getTrackUrn());
-            }
-
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, progressEvent);
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(playbackProgress, playbackItem.getUrn()));
         }
     }
 

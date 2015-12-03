@@ -140,7 +140,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         assertThat(playbackSessionEvent.isStopEvent()).isFalse();
         // ad specific properties
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
         assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
     }
 
@@ -163,7 +163,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         assertThat(playbackSessionEvent.hasTrackFinished()).isTrue();
         // ad specific properties
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
         assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
     }
 
@@ -183,7 +183,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         // ad specific properties
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn());
+        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
         assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
         assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
     }
@@ -278,7 +278,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(events.get(1)).isInstanceOf(PlaybackSessionEvent.class);
         assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
         assertThat(((PlaybackSessionEvent) events.get(1)).getTrackUrn()).isEqualTo(TRACK_URN);
-        assertThat(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn());
+        assertThat(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
     }
 
     protected Player.StateTransition publishPlayingEvent() {

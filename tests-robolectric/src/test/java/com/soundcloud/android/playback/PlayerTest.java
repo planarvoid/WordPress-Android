@@ -24,12 +24,12 @@ public class PlayerTest {
     @Test
     public void isForTrackIsFalseWithDifferentTrackUrn() throws Exception {
         final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, Urn.forTrack(2L));
-        expect(stateTransition.isForTrack(Urn.forTrack(1L))).toBeFalse();
+        expect(stateTransition.isForUrn(Urn.forTrack(1L))).toBeFalse();
     }
 
     @Test
     public void isForTrackIsTrueWithSameTrackUrn() throws Exception {
         final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, Urn.forTrack(1L));
-        expect(stateTransition.isForTrack(Urn.forTrack(1L))).toBeTrue();
+        expect(stateTransition.isForUrn(Urn.forTrack(1L))).toBeTrue();
     }
 }

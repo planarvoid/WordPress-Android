@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 @AutoValue
 public abstract class ApiVideoAd {
     @JsonCreator
-    public static ApiVideoAd create(@JsonProperty("urn") String adUrn,
+    public static ApiVideoAd create(@JsonProperty("urn") Urn adUrn,
                                     @JsonProperty("video_sources") List<ApiVideoSource> videoSources,
                                     @JsonProperty("video_tracking") ApiVideoTracking videoTracking,
                                     @JsonProperty("visual_ad") ApiCompanionAd visualAd) {
@@ -22,7 +23,7 @@ public abstract class ApiVideoAd {
         );
     }
 
-    public abstract String getAdUrn();
+    public abstract Urn getAdUrn();
 
     public abstract List<ApiVideoSource> getVideoSources();
 

@@ -61,7 +61,7 @@ public class AdFixtures {
 
     static ApiCompanionAd getApiCompanionAdWithCustomCTA(String ctaText) {
         return new ApiCompanionAd(
-                "ad:urn:746",
+                Urn.forAd("dfp", "746"),
                 "http://image.visualad.com",
                 "http://clickthrough.visualad.com",
                 Arrays.asList("comp_impression1", "comp_impression2"),
@@ -73,7 +73,7 @@ public class AdFixtures {
 
     static ApiInterstitial getApiInterstitial() {
         return new ApiInterstitial(
-                "adswizz:35",
+                Urn.forAd("dfp", "35"),
                 "http://image.visualad.com",
                 "http://clickthrough.visualad.com",
                 Arrays.asList("interstitial_impression1", "intersitial_impression2"),
@@ -83,7 +83,7 @@ public class AdFixtures {
 
     static ApiLeaveBehind getApiLeaveBehind() {
         return new ApiLeaveBehind(
-                "adswizz:35",
+                Urn.forAd("dfp", "35"),
                 "http://image.visualad.com",
                 "http://clickthrough.visualad.com",
                 Arrays.asList("leave_impression1", "leave_impression2"),
@@ -97,7 +97,7 @@ public class AdFixtures {
 
     static ApiAudioAd getApiAudioAdWithCompanion(ApiCompanionAd companion) {
         return new ApiAudioAd(
-                "adswizz:ads:869",
+                Urn.forAd("dfp", "869"),
                 ModelFixtures.create(ApiTrack.class),
                 companion,
                 getApiLeaveBehind(),
@@ -109,7 +109,7 @@ public class AdFixtures {
 
     static ApiAudioAd getApiAudioAdWithoutLeaveBehind() {
         return new ApiAudioAd(
-                "adswizz:ads:869",
+                Urn.forAd("dfp", "869"),
                 ModelFixtures.create(ApiTrack.class),
                 getApiCompanionAd(),
                 null,
@@ -147,7 +147,7 @@ public class AdFixtures {
 
     public static ApiVideoAd getApiVideoAd() {
         return ApiVideoAd.create(
-                "dfp:ads:905",
+                Urn.forAd("dfp", "905"),
                 Collections.singletonList(getApiVideoSource()),
                 getApiVideoAdTracking(),
                 getApiCompanionAd()
