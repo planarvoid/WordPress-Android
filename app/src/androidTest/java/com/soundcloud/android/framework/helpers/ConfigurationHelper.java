@@ -8,12 +8,15 @@ import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.facebookinvites.FacebookInvitesStorage;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +54,6 @@ public class ConfigurationHelper {
     }
 
     public static void resetOfflineSyncState(Context context) {
-        disableOfflineContent(context);
         new OfflineContentHelper().clearOfflineContent(context);
     }
 
@@ -74,12 +76,11 @@ public class ConfigurationHelper {
         featureStorage.update(feature);
 
         featureStorage.getUpdates(name)
+                .filter(RxUtils.IS_FALSE)
                 .doOnNext(new Action1<Boolean>() {
                     @Override
                     public void call(Boolean enabled) {
-                        if (!enabled) {
-                            featureStorage.update(feature);
-                        }
+                        featureStorage.update(feature);
                     }
                 })
                 .subscribe();
@@ -92,12 +93,11 @@ public class ConfigurationHelper {
         featureStorage.update(feature);
 
         featureStorage.getUpdates(name)
+                .filter(RxUtils.IS_TRUE)
                 .doOnNext(new Action1<Boolean>() {
                     @Override
                     public void call(Boolean enabled) {
-                        if (enabled) {
-                            featureStorage.update(feature);
-                        }
+                        featureStorage.update(feature);
                     }
                 })
                 .subscribe();
