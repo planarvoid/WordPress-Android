@@ -119,10 +119,10 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
                 context, getPreviousDate(27, TimeUnit.DAYS).getTime());
 
         final GoBackOnlineDialogElement goBackOnlineDialog = startMainActivity().getGoBackOnlineDialog();
-        assertThat(goBackOnlineDialog, visible());
+        assertThat(goBackOnlineDialog, is(visible()));
 
         goBackOnlineDialog.clickContinue();
-        assertThat(goBackOnlineDialog, not(visible()));
+        assertThat(goBackOnlineDialog, is(not(visible())));
     }
 
     public void testDoesNotDisplayGoBackOnlineWhenOfflineContentDisabled() {
