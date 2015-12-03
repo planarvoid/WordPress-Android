@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback;
 
+import static android.media.RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK;
+
 import com.soundcloud.java.collections.PropertySet;
 
 import android.app.PendingIntent;
@@ -56,10 +58,8 @@ public class RemoteAudioManager extends FallbackRemoteAudioManager {
                 .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, trackViewModel.getCreatorName())
                 .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, trackViewModel.getDuration());
 
-        if (artwork != null && !artwork.isRecycled()) {
-            metadataEditor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, artwork);
-        }
-
+        final Bitmap bitmap = artwork != null && !artwork.isRecycled() ? artwork : null;
+        metadataEditor.putBitmap(BITMAP_KEY_ARTWORK, bitmap);
         metadataEditor.apply();
     }
 
