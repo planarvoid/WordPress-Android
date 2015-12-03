@@ -154,6 +154,9 @@
     <string name="empty_user_followings_text">%1$s isn\'t\nfollowing anyone yet.</string>
     <string name="empty_user_followers_text">%1$s isn\'t\nbeing followed by anyone yet.</string>
 
+    <string name="empty_you_sounds_message">You haven\'t uploaded any sounds yet.</string>
+    <string name="empty_user_sounds_message">This user hasn\'t uploaded any public sounds yet.</string>
+
     <!-- new profile -->
     <string name="new_empty_user_posts_message">This user hasn\'t uploaded\nany public sounds yet.</string>
     <string name="new_empty_user_playlists_message">This user currently has no playlists.</string>
@@ -342,6 +345,7 @@
     <string name="tab_title_user_playlists">PLAYLISTS</string>
     <string name="tab_title_user_followers">FOLLOWERS</string>
     <string name="tab_title_user_followings">FOLLOWING</string>
+    <string name="tab_title_user_sounds">SOUNDS</string>
     <!-- @Todo from l10n: can we get rid of these Discogs and Myspace strings? -->
    <string name="discogs">Discogs</string>
    <string name="myspace">Myspace</string>
