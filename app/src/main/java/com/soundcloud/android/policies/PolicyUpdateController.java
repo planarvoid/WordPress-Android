@@ -68,8 +68,9 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
-        super.onDestroy(activity);
         subscription.unsubscribe();
+
+        super.onDestroy(activity);
     }
 
     private boolean shouldCheckPolicyUpdates() {
