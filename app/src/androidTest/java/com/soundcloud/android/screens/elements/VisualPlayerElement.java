@@ -176,6 +176,11 @@ public class VisualPlayerElement extends Element {
                 && waiter.waitForElementCondition(new TextChangedCondition(progress()));
     }
 
+    public boolean isExpandedPlayerPaused() {
+        return waitForExpandedPlayer().isExpanded() && playButton().isVisible();
+    }
+
+
     public void tapFooter() {
         footerPlayer().click();
         waitForExpandedPlayer();

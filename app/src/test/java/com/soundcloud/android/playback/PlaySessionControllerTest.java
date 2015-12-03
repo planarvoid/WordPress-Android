@@ -131,6 +131,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playQueueTrackChangedHandlerCallsPlayCurrentAndPausesIfNextTrackBlocked() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        when(playbackStrategy.playCurrent()).thenReturn(Observable.<Void>error(new BlockedTrackException(trackUrn)));
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+
+        verify(playbackStrategy).pause();
+    }
+
+    @Test
     public void playQueueTrackChangedHandlerDoesNotCallPlayCurrentIfPlaySessionIsNotActive() {
         final Player.StateTransition lastTransition = Mockito.mock(Player.StateTransition.class);
         when(lastTransition.playSessionIsActive()).thenReturn(false);

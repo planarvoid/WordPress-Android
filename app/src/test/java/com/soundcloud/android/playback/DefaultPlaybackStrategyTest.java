@@ -2,7 +2,9 @@ package com.soundcloud.android.playback;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -119,7 +121,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
         verify(serviceInitiator).play(AudioPlaybackItem.create(track, 123L));
-        playCurrentSubscriber.assertValueCount(1);
+        playCurrentSubscriber.assertCompleted();
     }
 
     @Test
@@ -133,7 +135,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
         verify(serviceInitiator).play(AudioPlaybackItem.forOffline(offlineTrack, 123L));
-        playCurrentSubscriber.assertValueCount(1);
+        playCurrentSubscriber.assertCompleted();
     }
 
     @Test
@@ -146,7 +148,21 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
         verify(serviceInitiator).play(AudioPlaybackItem.forAudioAd(track));
-        playCurrentSubscriber.assertValueCount(1);
+        playCurrentSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void playCurrentReturnsErrorOnBlockedTrack() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        final PropertySet track = onlineTrack();
+        track.put(TrackProperty.BLOCKED, true);
+        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
+
+        defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
+
+        verify(serviceInitiator, never()).play(any(PlaybackItem.class));
+        playCurrentSubscriber.assertError(BlockedTrackException.class);
     }
 
     private PropertySet onlineTrack() {
@@ -154,7 +170,6 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.PLAY_DURATION.bind(123L),
                 OfflineProperty.OFFLINE_STATE.bind(OfflineState.NO_OFFLINE)
-
         );
     }
 

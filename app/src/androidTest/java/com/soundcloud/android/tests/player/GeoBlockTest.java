@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.BlockedTrackTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 @BlockedTrackTest
@@ -39,19 +40,29 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
     }
 
     public void testSwipeForwardToBlockedTrackShowsGeoError() throws Exception {
-        final String errorReason = playlistScreen.clickFirstTrack()
+        final VisualPlayerElement visualPlayerElement = playlistScreen.clickFirstTrack()
                 .waitForExpandedPlayer()
-                .swipeNext()
-                .errorReason();
+                .swipeNext();
 
-        assertThat(errorReason, is("Not available yet in your country"));
+        assertThat(visualPlayerElement.errorReason(), is("Not available yet in your country"));
+        assertThat(visualPlayerElement.swipePrevious().isExpandedPlayerPaused(), is(true));
     }
 
     public void testSwipeBackToBlockedTrackShowsGeoError() throws Exception {
-        final String errorReason = playlistScreen.clickFirstTrack()
-                .waitForExpandedPlayer()
+        final VisualPlayerElement visualPlayerElement = playlistScreen.clickFirstTrack()
                 .waitForTheExpandedPlayerToPlayNextTrack()
-                .swipePrevious()
+                .swipePrevious();
+
+
+        assertThat(visualPlayerElement.errorReason(), is("Not available yet in your country"));
+        assertThat(visualPlayerElement.swipeNext().isExpandedPlayerPaused(), is(true));
+    }
+
+    public void testPlayGeoBlockedTrackShowsError() {
+        // this should eventually be clickFirstBlockedTrack() when the UI is there
+        final String errorReason = playlistScreen.scrollToPosition(1)
+                .clickTrack(1)
+                .waitForExpandedPlayer()
                 .errorReason();
 
         assertThat(errorReason, is("Not available yet in your country"));

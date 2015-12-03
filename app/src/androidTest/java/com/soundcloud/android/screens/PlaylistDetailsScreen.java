@@ -146,7 +146,7 @@ public class PlaylistDetailsScreen extends Screen {
         return testDriver.findElement(With.id(R.id.toggle_like));
     }
 
-    private VisualPlayerElement clickTrack(int trackIndex) {
+    public VisualPlayerElement clickTrack(int trackIndex) {
         return trackItemElements()
                 .get(trackIndex)
                 .click();

@@ -29,6 +29,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.PropertySetFunctions;
@@ -55,6 +56,8 @@ import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class PlaySessionController {
+
+    private static final String TAG = "PlaySessionController";
 
     @VisibleForTesting
     static final int RECOMMENDED_LOAD_TOLERANCE = 5;
@@ -319,7 +322,7 @@ public class PlaySessionController {
                 ? playQueueManager.loadPlayQueueAsync().flatMap(toPlayCurrent)
                 : playbackStrategyProvider.get().playCurrent();
 
-        subscription = playCurrentObservable.subscribe(new DefaultSubscriber<Void>());
+        subscription = playCurrentObservable.subscribe(new PlayCurrentSubscriber());
     }
 
     private class AdvanceTrackSubscriber extends DefaultSubscriber<AdvanceTrackResult> {
@@ -521,6 +524,20 @@ public class PlaySessionController {
         private AdvanceTrackResult(StateTransition stateTransition, boolean success) {
             this.stateTransition = stateTransition;
             this.success = success;
+        }
+    }
+
+    private class PlayCurrentSubscriber extends DefaultSubscriber<Void> {
+        @Override
+        public void onError(Throwable e) {
+            if (e instanceof BlockedTrackException) {
+                pause();
+                final BlockedTrackException blockedTrackException = (BlockedTrackException) e;
+                Log.d(TAG, "Not playing blocked track : " + blockedTrackException.getTrackUrn());
+            } else {
+                super.onError(e);
+            }
+
         }
     }
 }

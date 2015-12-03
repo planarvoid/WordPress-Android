@@ -6,18 +6,15 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
-
-import android.support.annotation.NonNull;
 
 public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
@@ -49,6 +46,25 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                 return Observable.empty();
             } else {
                 return playCurrent();
+            }
+        }
+    };
+
+    private final Func1<PropertySet, Observable<Void>> playPlayableTrack = new Func1<PropertySet, Observable<Void>>() {
+        @Override
+        public Observable<Void> call(PropertySet track) {
+            final Urn trackUrn = track.get(TrackProperty.URN);
+            if (track.getOrElse(TrackProperty.BLOCKED, false)) {
+                return Observable.error(new BlockedTrackException(trackUrn));
+            } else {
+                if (adsOperations.isCurrentItemAudioAd()) {
+                    serviceInitiator.play(AudioPlaybackItem.forAudioAd(track));
+                } else if (offlinePlaybackOperations.shouldPlayOffline(track)) {
+                    serviceInitiator.play(AudioPlaybackItem.forOffline(track, getPosition(trackUrn)));
+                } else {
+                    serviceInitiator.play(AudioPlaybackItem.create(track, getPosition(trackUrn)));
+                }
+                return Observable.empty();
             }
         }
     };
@@ -90,27 +106,10 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     public Observable<Void> playCurrent() {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
-            final Urn trackUrn = currentPlayQueueItem.getUrn();
-            return trackRepository.track(trackUrn).doOnNext(play(trackUrn)).map(RxUtils.TO_VOID);
+            return trackRepository.track(currentPlayQueueItem.getUrn()).flatMap(playPlayableTrack);
         } else {
-            return Observable.just(null);
+            return Observable.empty();
         }
-    }
-
-    @NonNull
-    private Action1<PropertySet> play(final Urn urn) {
-        return new Action1<PropertySet>() {
-            @Override
-            public void call(PropertySet track) {
-                if (adsOperations.isCurrentItemAudioAd()) {
-                    serviceInitiator.play(AudioPlaybackItem.forAudioAd(track));
-                } else if (offlinePlaybackOperations.shouldPlayOffline(track)) {
-                    serviceInitiator.play(AudioPlaybackItem.forOffline(track, getPosition(urn)));
-                } else {
-                    serviceInitiator.play(AudioPlaybackItem.create(track, getPosition(urn)));
-                }
-            }
-        };
     }
 
     private long getPosition(Urn urn) {
