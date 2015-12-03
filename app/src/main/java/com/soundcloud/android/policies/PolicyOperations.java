@@ -14,6 +14,7 @@ import javax.inject.Named;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class PolicyOperations {
@@ -38,18 +39,25 @@ public class PolicyOperations {
     private final LoadPolicyUpdateTimeCommand loadPolicyUpdateTimeCommand;
     private final LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand;
     private final Scheduler scheduler;
+    private final PolicyStorage policyStorage;
 
     @Inject
     PolicyOperations(FetchPoliciesCommand fetchPoliciesCommand,
                      StorePoliciesCommand storePoliciesCommand,
                      LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand,
                      LoadPolicyUpdateTimeCommand loadPolicyUpdateTimeCommand,
-                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                     PolicyStorage policyStorage) {
         this.scheduler = scheduler;
         this.fetchPoliciesCommand = fetchPoliciesCommand;
         this.storePoliciesCommand = storePoliciesCommand;
         this.loadPolicyUpdateTimeCommand = loadPolicyUpdateTimeCommand;
         this.loadTracksForPolicyUpdateCommand = loadTracksForPolicyUpdateCommand;
+        this.policyStorage = policyStorage;
+    }
+
+    public Observable<Map<Urn,Boolean>> blockedStati(List urns) {
+        return policyStorage.loadBlockedStati(urns).subscribeOn(scheduler);
     }
 
     public Observable<Void> updatePolicies(Collection<Urn> urns) {

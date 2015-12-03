@@ -117,7 +117,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
         Log.d(CastOperations.TAG, String.format("Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d", remoteCurrentUrn, remoteTrackList.size()));
         if (playQueueManager.hasSameTrackList(remoteTrackList)) {
             Log.d(CastOperations.TAG, "Has the same tracklist, setting remotePosition");
-            playQueueManager.setPosition(remotePosition);
+            playQueueManager.setPosition(remotePosition, true);
             if (videoCastManager.getPlaybackStatus() == MediaStatus.PLAYER_STATE_PLAYING) {
                 castPlayer.playCurrent();
             }

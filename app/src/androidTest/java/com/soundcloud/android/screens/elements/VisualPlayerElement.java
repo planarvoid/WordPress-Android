@@ -55,8 +55,9 @@ public class VisualPlayerElement extends Element {
         return interstitial().isVisible();
     }
 
-    public void waitForTheExpandedPlayerToPlayNextTrack() {
+    public VisualPlayerElement waitForTheExpandedPlayerToPlayNextTrack() {
         waiter.waitForElementCondition(new TrackChangedCondition(getTrackTitle()));
+        return this;
     }
 
     public VisualPlayerElement unlike() {

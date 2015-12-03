@@ -49,6 +49,13 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiTrack insertBlockedTrack() {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setBlocked(true);
+        insertTrack(track);
+        return track;
+    }
+
     public void insertTrack(ApiTrack track) {
         insertUser(track.getUser());
         ContentValues cv = new ContentValues();

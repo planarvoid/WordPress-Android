@@ -11,7 +11,6 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -20,6 +19,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
@@ -151,10 +151,23 @@ public class PlaySessionController {
                     && (stateTransition.trackEnded() || unrecoverableErrorDuringAutoplay(stateTransition));
         }
     };
+
     private final Action1<StateTransition> reconfigureUpcomingAd = new Action1<StateTransition>() {
         @Override
         public void call(StateTransition stateTransition) {
             adsController.reconfigureAdForNextTrack();
+        }
+    };
+
+    private final Func1<StateTransition, Observable<AdvanceTrackResult>> tryToAdvanceTrack = new Func1<StateTransition, Observable<AdvanceTrackResult>>() {
+        @Override
+        public Observable<AdvanceTrackResult> call(final StateTransition stateTransition) {
+            return playQueueManager.advanceToNextPlayableTrack().map(new Func1<Boolean, AdvanceTrackResult>() {
+                @Override
+                public AdvanceTrackResult call(Boolean success) {
+                    return new AdvanceTrackResult(stateTransition, success);
+                }
+            });
         }
     };
 
@@ -204,6 +217,7 @@ public class PlaySessionController {
                 .doOnNext(updateAudioManager)
                 .filter(shouldAdvanceTracks)
                 .doOnNext(reconfigureUpcomingAd)
+                .flatMap(tryToAdvanceTrack)
                 .subscribe(new AdvanceTrackSubscriber());
     }
 
@@ -273,7 +287,7 @@ public class PlaySessionController {
     public void setPlayQueuePosition(int position) {
         if (position != playQueueManager.getCurrentPosition()) {
             publishSkipEventIfAudioAd();
-            playQueueManager.setPosition(position);
+            playQueueManager.setPosition(position, true);
         }
     }
 
@@ -308,12 +322,12 @@ public class PlaySessionController {
         subscription = playCurrentObservable.subscribe(new DefaultSubscriber<Void>());
     }
 
-    private class AdvanceTrackSubscriber extends DefaultSubscriber<StateTransition> {
+    private class AdvanceTrackSubscriber extends DefaultSubscriber<AdvanceTrackResult> {
         @Override
-        public void onNext(StateTransition stateTransition) {
-            if (!playQueueManager.autoNextItem()) {
-                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
-            } else if (!stateTransition.playSessionIsActive()) {
+        public void onNext(AdvanceTrackResult result) {
+            if (!result.success) {
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(result.stateTransition.getTrackUrn()));
+            } else if (!result.stateTransition.playSessionIsActive()) {
                 playCurrent();
             }
         }
@@ -359,7 +373,7 @@ public class PlaySessionController {
             currentTrackSubscription.unsubscribe();
 
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
-            if (playQueueItem.isTrack() ) {
+            if (playQueueItem.isTrack()) {
                 final boolean isAudioAd = AdFunctions.IS_AUDIO_AD_ITEM.apply(playQueueItem);
                 currentTrackSubscription = trackRepository
                         .track(playQueueItem.getUrn())
@@ -496,6 +510,17 @@ public class PlaySessionController {
             } else {
                 super.onError(e);
             }
+        }
+    }
+
+    private static class AdvanceTrackResult {
+
+        private final StateTransition stateTransition;
+        private final boolean success;
+
+        private AdvanceTrackResult(StateTransition stateTransition, boolean success) {
+            this.stateTransition = stateTransition;
+            this.success = success;
         }
     }
 }
