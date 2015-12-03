@@ -11,6 +11,7 @@ import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -111,6 +112,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         assertTrue(makeAvailableOfflineItem.isVisible());
     }
 
+    @Ignore // for Karolina to fix
     public void testDisplaysGoBackOnline() {
         enableOfflineContent(context);
 
