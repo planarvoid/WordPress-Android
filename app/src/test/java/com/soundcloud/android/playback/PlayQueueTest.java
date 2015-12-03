@@ -20,7 +20,6 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class PlayQueueTest extends AndroidUnitTest {
@@ -75,15 +74,6 @@ public class PlayQueueTest extends AndroidUnitTest {
                 TRACK_QUEUE_ITEM_2.getSource(),
                 TRACK_QUEUE_ITEM_2.getSourceVersion());
         assertVideoQueueItem(playQueue.getPlayQueueItem(5), VIDEO_QUEUE_ITEM.getAdData());
-    }
-
-    @Test
-    public void returnsAllUrnsFromPosition() {
-        playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
-        playQueue.addAllPlayQueueItems(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, VIDEO_QUEUE_ITEM));
-
-        assertThat(playQueue.getItemUrnsFromPosition(3))
-                .isEqualTo(Arrays.asList(TRACK_QUEUE_ITEM_1.getUrn(), TRACK_QUEUE_ITEM_2.getUrn(), Urn.NOT_SET));
     }
 
     @Test

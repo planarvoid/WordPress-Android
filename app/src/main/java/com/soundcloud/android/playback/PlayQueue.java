@@ -139,7 +139,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public List<Urn> getItemUrnsFromPosition(int position) {
         final List<Urn> itemUrns = new ArrayList<>(Math.max(0, size() - position));
-        for (int i = position; i < playQueueItems.size(); i++) {
+        for (int i = position, size = playQueueItems.size(); i < size; i++) {
             final PlayQueueItem item = getPlayQueueItem(i);
             if (item.isTrack()){
                 itemUrns.add(item.getUrn());

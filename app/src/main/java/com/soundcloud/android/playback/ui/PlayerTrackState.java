@@ -84,6 +84,10 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
         return source.getOrElse(PlayableProperty.CREATOR_URN, Urn.NOT_SET);
     }
 
+    public boolean isBlocked() {
+        return source.getOrElse(TrackProperty.BLOCKED, false);
+    }
+
     long getPlayableDuration() {
         return source.get(TrackProperty.PLAY_DURATION);
     }

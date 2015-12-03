@@ -6,14 +6,13 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.BlockedTrackTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 @BlockedTrackTest
 public class GeoBlockTest extends ActivityTest<MainActivity> {
 
-    private CollectionsScreen collectionsScreen;
+    private PlaylistDetailsScreen playlistScreen;
 
     public GeoBlockTest() {
         super(MainActivity.class);
@@ -28,14 +27,33 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
 
-        collectionsScreen = mainNavHelper.goToCollections();
+        playlistScreen = mainNavHelper.goToCollections().clickPlaylistWithTitle("Geoblock Test");
     }
 
     public void testSkipsBlockedTracks() throws Exception {
-        final PlaylistDetailsScreen playlistScreen = collectionsScreen.clickPlaylistWithTitle("Geoblock Test");
         final String title = playlistScreen.clickFirstTrack()
+                .waitForExpandedPlayer()
                 .waitForTheExpandedPlayerToPlayNextTrack()
                 .getTrackTitle();
         assertThat(title, is("Post - Geoblock"));
+    }
+
+    public void testSwipeForwardToBlockedTrackShowsGeoError() throws Exception {
+        final String errorReason = playlistScreen.clickFirstTrack()
+                .waitForExpandedPlayer()
+                .swipeNext()
+                .errorReason();
+
+        assertThat(errorReason, is("Not available yet in your country"));
+    }
+
+    public void testSwipeBackToBlockedTrackShowsGeoError() throws Exception {
+        final String errorReason = playlistScreen.clickFirstTrack()
+                .waitForExpandedPlayer()
+                .waitForTheExpandedPlayerToPlayNextTrack()
+                .swipePrevious()
+                .errorReason();
+
+        assertThat(errorReason, is("Not available yet in your country"));
     }
 }
