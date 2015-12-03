@@ -98,7 +98,7 @@
               "plugins": {
                 "testdroid": {
                   "appPath": "app/build/outputs/apk/soundcloud-android-testdroid.apk",
-                  "deviceGroupId": "493",
+                  "deviceGroupId": "2269",
                   "projectId": "29091428",
                   "notificationEmail": "android-dev@soundcloud.com"
                 }
