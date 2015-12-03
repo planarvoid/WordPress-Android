@@ -44,7 +44,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
 
     public void testGoingBackFromPlayingTrackFromSearchResultCollapsesThePlayer() {
         SearchResultsScreen resultsScreen = searchScreen.doSearch("track");
-        VisualPlayerElement playerElement = resultsScreen.clickFirstTrackItem().pressBackToCollapse();
+        VisualPlayerElement playerElement = resultsScreen.findAndClickFirstTrackItem().pressBackToCollapse();
 
         assertThat("Player is collapsed", playerElement.isCollapsed());
         assertThat("Search results screen should be visible", resultsScreen, is(visible()));
@@ -58,19 +58,26 @@ public class SearchTest extends ActivityTest<MainActivity> {
     }
 
     public void testTappingTrackOnAllTabOpensPlayer() {
-        VisualPlayerElement playerScreen = searchScreen.doSearch("track").clickFirstTrackItem();
+        VisualPlayerElement playerScreen = searchScreen.doSearch("track").findAndClickFirstTrackItem();
 
         assertThat("Player screen should be visible", playerScreen.isVisible());
     }
 
     public void testTappingPlaylistOnAllTabOpensPlaylistDetails() {
-        PlaylistDetailsScreen playlistScreen = searchScreen.doSearch("track playlist").clickFirstPlaylistItem();
+        PlaylistDetailsScreen playlistScreen = searchScreen.doSearch("track playlist").findAndClickFirstPlaylistItem();
 
         assertThat("Playlist screen should be visible", playlistScreen, is(visible()));
     }
 
     public void testTappingUserOnAllTabOpensProfile() {
-        ProfileScreen profileScreen = searchScreen.doSearch("clownstep").clickFirstUserItem();
+        ProfileScreen profileScreen = searchScreen.doSearch("emptyuser").findAndClickFirstUserItem();
+
+        assertThat("Profile screen should be visible", profileScreen.isVisible());
+    }
+
+    @Ignore
+    public void testTappingUserOnPeopleTabOpensProfile() {
+        ProfileScreen profileScreen = searchScreen.doSearch("emptyuser").goToPeopleTab().clickFirstUserItem();
 
         assertThat("Profile screen should be visible", profileScreen, is(visible()));
     }
@@ -81,21 +88,13 @@ public class SearchTest extends ActivityTest<MainActivity> {
         assertThat("Player screen should be visible", playerScreen.isVisible());
     }
 
-    @Ignore
     public void testTappingPlaylistOnPlaylistsTabOpensPlaylistDetails() {
         PlaylistDetailsScreen playlistDetailsScreen = searchScreen
-                .setSearchQuery("clownstep")
-                .clickOnCurrentSearchQuery()
+                .doSearch("clownstep")
                 .goToPlaylistsTab()
                 .clickFirstPlaylistItem();
 
         assertThat("Playlist screen should be visible", playlistDetailsScreen, is(visible()));
-    }
-
-    public void testTappingUserOnPeopleTabOpensProfile() {
-        ProfileScreen profileScreen = searchScreen.doSearch("clownstep").goToPeopleTab().clickFirstUserItem();
-
-        assertThat("Profile screen should be visible", profileScreen, is(visible()));
     }
 
     public void testOrderOfDisplayededTabs() {

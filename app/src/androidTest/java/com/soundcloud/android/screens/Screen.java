@@ -4,7 +4,6 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.framework.viewelements.ViewNotFoundException;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.elements.EmptyViewElement;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
@@ -15,6 +14,8 @@ import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
+
+import android.support.v7.widget.RecyclerView;
 
 import java.util.List;
 
@@ -43,15 +44,15 @@ public abstract class Screen {
         testDriver.swipeLeft();
     }
 
-    public EmptyViewElement emptyView(){
-       return new EmptyViewElement(testDriver, With.className(EmptyView.class.getName()));
+    public EmptyViewElement emptyView() {
+        return new EmptyViewElement(testDriver, With.className(EmptyView.class.getName()));
     }
 
-    public ViewElement errorView(){
+    public ViewElement errorView() {
         return testDriver.findElement(With.id(com.soundcloud.android.R.id.ak_error_view));
     }
 
-    public ViewElement emptyConnectionErrorMessage(){
+    public ViewElement emptyConnectionErrorMessage() {
         return emptyView().emptyConnectionErrorMessage();
     }
 
@@ -103,30 +104,20 @@ public abstract class Screen {
         );
     }
 
-    public UserItemElement scrollToUserWithUsername(String username) {
-        int tries = 0;
-        while (tries < 10) {
-            scrollListToItem(With.id(com.soundcloud.android.R.id.user_list_item));
-            for (UserItemElement user : getUsers()) {
-                if (user.getUsername().equals(username)) {
-                    return user;
-                }
+    protected ViewElement scrollListToItem(final With with) {
+        RecyclerViewElement recyclerView = testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
+        return recyclerView.scrollToItem(new RecyclerViewElement.Criteria() {
+            @Override
+            public boolean isSatisfied(ViewElement viewElement) {
+                return !(viewElement.findElement(with)
+                        instanceof com.soundcloud.android.framework.viewelements.EmptyViewElement);
             }
-            testDriver.scrollToBottom();
-            tries++;
-        }
-        throw new ViewNotFoundException("Unable to find user with username " + username);
-    }
 
-    protected ViewElement scrollListToItem(With with) {
-        ViewElement result = testDriver.findElement(with);
-        while (result instanceof com.soundcloud.android.framework.viewelements.EmptyViewElement) {
-            if (!testDriver.scrollDown()) {
-                return new com.soundcloud.android.framework.viewelements.EmptyViewElement("Unable to scroll to item; item not in list");
+            @Override
+            public String description() {
+                return with.getSelector();
             }
-            result = testDriver.findElement(with);
-        }
-        return result;
+        });
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {

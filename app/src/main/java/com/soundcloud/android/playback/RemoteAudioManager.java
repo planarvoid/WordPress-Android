@@ -56,7 +56,7 @@ public class RemoteAudioManager extends FallbackRemoteAudioManager {
                 .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, trackViewModel.getCreatorName())
                 .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, trackViewModel.getDuration());
 
-        if (artwork != null) {
+        if (artwork != null && !artwork.isRecycled()) {
             metadataEditor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, artwork);
         }
 

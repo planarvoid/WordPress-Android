@@ -1,14 +1,15 @@
 package com.soundcloud.android.framework.viewelements;
 
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.utils.Log;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 
 public class RecyclerViewElement {
 
+    private static final String TAG = "RecyclerView";
     protected final Han testDriver;
     private final RecyclerView recyclerView;
 
@@ -27,11 +28,15 @@ public class RecyclerViewElement {
 
     public ViewElement getItemAt(int position) {
         int childCount = recyclerView.getChildCount();
-        for(int i = 0; i < childCount; i++) {
+        Log.i(TAG, "child count: " + childCount);
+        for (int i = 0; i < childCount; i++) {
             View view = recyclerView.getChildAt(i);
-            if(recyclerView.getChildAdapterPosition(view) == position) {
+            Log.i(TAG, "view at position " + i + ": " + view);
+            if (recyclerView.getChildAdapterPosition(view) == position) {
+                Log.i(TAG, "found item at position " + i);
                 DefaultViewElement viewElement = new DefaultViewElement(view, testDriver);
-                if(viewElement.isVisible()) {
+                if (viewElement.isVisible()) {
+                    Log.i(TAG, "element was visible");
                     return viewElement;
                 }
             }
@@ -46,22 +51,21 @@ public class RecyclerViewElement {
 
     public ViewElement scrollToItem(Criteria criteria) {
         int itemCount = getItemCount();
-        Log.i("RecyclerView", String.format("Has %d items", itemCount));
-        for(int i = 0; i < itemCount; i++) {
-            scrollToItemAt(i);
+        Log.i(TAG, String.format("Has %d items", itemCount));
+        for (int i = 0; i < itemCount; i++) {
+            ViewElement listItem = scrollToItemAt(i);
             scrollViewToBeFullyVisible(i, itemCount);
-            if(criteria.isSatisfied(getItemAt(i))) {
-                Log.i("RecyclerView", String.format("View matching criteria: %s found", criteria.description()));
-                return getItemAt(i);
+            if (criteria.isSatisfied(listItem)) {
+                Log.i(TAG, String.format("View matching criteria: %s found", criteria.description()));
+                return listItem;
             }
-            Log.i("RecyclerView", String.format("View matching criteria: %s not found", criteria.description()));
+            Log.i(TAG, String.format("View matching criteria: %s not found", criteria.description()));
         }
-        return new EmptyViewElement("Item With Criteria not found");
+        return new EmptyViewElement("Couldn't find list element matching " + criteria.description());
     }
 
     private void scrollViewToBeFullyVisible(int position, int boundary) {
-        while(!getItemAt(position).isFullyVisible() && position < boundary) {
-            ViewElement view = getItemAt(position);
+        while (!getItemAt(position).isFullyVisible() && position < boundary) {
             scrollToItemAt(position++);
         }
     }
