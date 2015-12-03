@@ -12,8 +12,8 @@ import android.view.animation.Interpolator;
 @SuppressLint("NewApi")
 public class TransitionUtils {
 
-    public static int ENTER_DURATION = 500;
-    public static int EXIT_DURATION = 200;
+    public static final int ENTER_DURATION = 500;
+    public static final int EXIT_DURATION = 200;
 
     public static void setChangeBoundsEnterTransition(Window window, int duration, Interpolator interpolator) {
         if (transitionsSupported()) {
