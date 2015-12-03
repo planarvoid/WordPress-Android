@@ -2,8 +2,6 @@ package com.soundcloud.android.policies;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,8 +37,8 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        dailyUpdateService = new DailyUpdateService(policyOperations, policySettingsStorage, configurationManager,
-                adIdHelper, dateProvider, eventBus);
+        dailyUpdateService = new DailyUpdateService(policyOperations, policySettingsStorage,
+                configurationManager, adIdHelper, eventBus);
     }
 
     @Test
@@ -53,22 +52,11 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void storesLastPolicyUpdateTimeAfterSucessfulPolicyUpdate() {
-        when(dateProvider.getCurrentTime()).thenReturn(1000L);
-        when(policyOperations.updateTrackPolicies()).thenReturn(tracks);
-
-        dailyUpdateService.onHandleIntent(startIntent());
-
-        verify(policySettingsStorage).setPolicyUpdateTime(dateProvider.getCurrentTime());
-    }
-
-    @Test
-    public void doesNotStoreNotSendEventsWhenPolicyUpdateFailed() {
+    public void doesNotSendEventsWhenPolicyUpdateFailed() {
         when(policyOperations.updateTrackPolicies()).thenReturn(Collections.<Urn>emptyList());
 
         dailyUpdateService.onHandleIntent(startIntent());
 
-        verify(policySettingsStorage, never()).setPolicyUpdateTime(anyLong());
         eventBus.verifyNoEventsOn(EventQueue.POLICY_UPDATES);
     }
 

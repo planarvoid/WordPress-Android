@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.likes;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenOfflineTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
@@ -11,7 +10,6 @@ import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
-@BrokenOfflineTest
 public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
     private TrackLikesScreen likesScreen;

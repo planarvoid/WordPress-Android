@@ -4,8 +4,8 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enabl
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenOfflineTest;
 import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
+import com.soundcloud.android.framework.annotation.Issue;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
@@ -13,7 +13,6 @@ import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
-@BrokenOfflineTest
 public class OfflinePlaylistPostsTest extends ActivityTest<MainActivity> {
 
     public OfflinePlaylistPostsTest() {
@@ -35,6 +34,7 @@ public class OfflinePlaylistPostsTest extends ActivityTest<MainActivity> {
     }
 
     @BrokenScrollingTest
+    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/4441")
     public void testDownloadsPlaylistWhenMadeAvailableOffline() {
         final CollectionsScreen playlistsScreen = mainNavHelper.goToCollections()
                 .getPlaylists()
