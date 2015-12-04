@@ -14,6 +14,7 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -61,7 +62,7 @@ public class PlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void addAllPlayQueueItemsShouldAppendToPlayQueue() {
-        playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
+        playQueue = TestPlayQueue.fromUrns(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
         playQueue.addAllPlayQueueItems(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, VIDEO_QUEUE_ITEM));
 
         assertThat(playQueue.size()).isEqualTo(6);

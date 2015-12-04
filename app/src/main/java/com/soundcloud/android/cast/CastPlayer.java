@@ -36,6 +36,7 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collections;
 import java.util.List;
 
 @Singleton
@@ -226,7 +227,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
 
     private void setNewPlayQueue(LocalPlayQueue localPlayQueue, PlaySessionSource playSessionSource) {
         playQueueManager.setNewPlayQueue(
-                PlayQueue.fromTrackUrnList(localPlayQueue.playQueueTrackUrns, playSessionSource),
+                PlayQueue.fromTrackUrnList(localPlayQueue.playQueueTrackUrns, playSessionSource, Collections.<Urn, Boolean>emptyMap()),
                 playSessionSource, correctInitialPositionLegacy(localPlayQueue.playQueueTrackUrns, 0, localPlayQueue.currentTrackUrn)
         );
     }
