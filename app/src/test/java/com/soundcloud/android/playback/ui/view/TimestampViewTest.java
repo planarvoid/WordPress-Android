@@ -70,13 +70,13 @@ public class TimestampViewTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updatesTimestampBasedOnBoundedScrubPosition() {
-        timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
+    public void updatesTimestampBasedOnBoundedScrubPositionRoundedUpToNearestSecond() {
+        timestampView.setInitialProgress(MINUTES_11, 112832);
 
-        timestampView.displayScrubPosition(0.2f, .5f);
+        timestampView.displayScrubPosition(0.2f, .26296297f);
 
-        assertThat(progressView).hasText("5:00");
-        assertThat(durationView).hasText("10:00");
+        assertThat(progressView).hasText("0:30");
+        assertThat(durationView).hasText("1:52");
     }
 
 }
