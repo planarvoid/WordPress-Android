@@ -52,7 +52,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         trackView.setOverflowListener(new StreamItemViewHolder.OverflowListener() {
             @Override
             public void onOverflow(View view) {
-                menuPresenter.show((FragmentActivity) view.getContext(), view, track, position, getOverflowMenuOptions());
+                menuPresenter.show((FragmentActivity) view.getContext(), view, track, position);
             }
         });
     }

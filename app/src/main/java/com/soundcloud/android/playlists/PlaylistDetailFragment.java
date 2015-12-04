@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissingException;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
@@ -41,6 +42,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.annotation.SuppressLint;
@@ -68,6 +70,14 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
     public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
+
+    private final Func1<EntityStateChangedEvent, Boolean> IS_CURRENT_PLAYLIST_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.getKind() == EntityStateChangedEvent.PLAYLIST_DELETED
+                    && event.getFirstUrn().equals(getPlaylistUrn());
+        }
+    };
 
     @Inject PlaylistDetailsController.Provider controllerProvider;
     @Inject PlaylistOperations playlistOperations;
@@ -259,6 +269,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                         .filter(EntityStateChangedEvent.IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(trackAddedToPlaylist));
+
+        eventSubscription.add(eventBus
+                .queue(ENTITY_STATE_CHANGED)
+                .filter(IS_CURRENT_PLAYLIST_DELETED)
+                .subscribe(new GoBackSubscriber()));
     }
 
     @Override
@@ -460,6 +475,17 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
             super.onError(e);
             if (e instanceof IllegalStateException) {
                 playToggle.setChecked(false);
+            }
+        }
+    }
+
+    private class GoBackSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+        @Override
+        public void onNext(EntityStateChangedEvent args) {
+            // This actually go back in the stack because the fragment is tied up
+            // to PlaylistDetailActivity.
+            if (isAdded()) {
+                getActivity().finish();
             }
         }
     }

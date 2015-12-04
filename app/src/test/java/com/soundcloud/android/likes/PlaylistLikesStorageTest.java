@@ -27,9 +27,9 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
 
     private PlaylistLikesStorage playlistLikesStorage;
 
-    private PropertySet playlist1PropertySet;
-    private PropertySet playlist2PropertySet;
     private ApiPlaylist playlist1;
+    private ApiPlaylist playlist2;
+
     private TestSubscriber<List<PropertySet>> testListSubscriber;
     private TestSubscriber<PropertySet> testSubscriber;
 
@@ -41,8 +41,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage = new PlaylistLikesStorage(propellerRx());
 
         playlist1 = testFixtures().insertLikedPlaylist(LIKED_DATE_1);
-        playlist1PropertySet = playlist1.toPropertySet();
-        playlist2PropertySet = testFixtures().insertLikedPlaylist(LIKED_DATE_2).toPropertySet();
+        playlist2 = testFixtures().insertLikedPlaylist(LIKED_DATE_2);
     }
 
     @Test
@@ -50,8 +49,8 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListSubscriber);
 
         final List<PropertySet> propertySets = newArrayList(
-                expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2),
-                expectedLikedPlaylistFor(playlist1PropertySet, LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2),
+                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
 
         assertThat(testListSubscriber.getOnNextEvents()).containsExactly(propertySets);
     }
@@ -61,7 +60,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE).subscribe(testListSubscriber);
 
         final List<PropertySet> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2));
+                expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2));
 
         testListSubscriber.assertValue(propertySets);
     }
@@ -71,7 +70,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(1, LIKED_DATE_2.getTime()).subscribe(testListSubscriber);
 
         final List<PropertySet> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist1PropertySet, LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist1.toPropertySet(), LIKED_DATE_1));
 
         testListSubscriber.assertValue(propertySets);
     }
@@ -85,7 +84,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListSubscriber);
 
         final List<PropertySet> propertySets = newArrayList(
-                expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2),
+                expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2),
                 expectedLikedPlaylistWithOfflineState(playlist1, LIKED_DATE_1, OfflineState.REQUESTED));
 
         testListSubscriber.assertValue(propertySets);
@@ -100,7 +99,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
         playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListSubscriber);
 
         final List<PropertySet> propertySets = newArrayList(
-                expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2),
+                expectedLikedPlaylistFor(playlist2.toPropertySet(), LIKED_DATE_2),
                 expectedLikedPlaylistWithOfflineState(playlist1, LIKED_DATE_1, OfflineState.DOWNLOADED));
 
         testListSubscriber.assertValue(propertySets);

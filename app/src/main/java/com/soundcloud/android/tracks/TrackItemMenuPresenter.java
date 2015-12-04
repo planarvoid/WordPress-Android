@@ -110,22 +110,17 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         this.accountOperations = accountOperations;
     }
 
-    public void show(FragmentActivity activity, View button, TrackItem track, int position, OverflowMenuOptions options) {
+    public void show(FragmentActivity activity, View button, TrackItem track, int position) {
         if (track instanceof PromotedTrackItem) {
             show(activity, button, track, position, Urn.NOT_SET, null,
-                    PromotedSourceInfo.fromItem((PromotedTrackItem) track), options);
+                    PromotedSourceInfo.fromItem((PromotedTrackItem) track));
         } else {
-            show(activity, button, track, position, Urn.NOT_SET, null, null, options);
+            show(activity, button, track, position, Urn.NOT_SET, null, null);
         }
     }
 
-    public void show(FragmentActivity activity, View button, TrackItem track, int position) {
-        show(activity, button, track, position, OverflowMenuOptions.builder().build());
-    }
-
     public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter, Urn pageUrn,
-                     RemoveTrackListener removeTrackListener, PromotedSourceInfo promotedSourceInfo,
-                     OverflowMenuOptions menuOptions) {
+                     RemoveTrackListener removeTrackListener, PromotedSourceInfo promotedSourceInfo) {
         this.activity = activity;
         this.track = track;
         this.positionInAdapter = positionInAdapter;

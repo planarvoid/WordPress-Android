@@ -67,6 +67,7 @@ final class DatabaseSchema {
             "track_count INTEGER DEFAULT -1," +
             "playlist_type VARCHAR(255)," +
             "user_id INTEGER," +
+            "removed_at INTEGER DEFAULT NULL," +
             "DESCRIPTION TEXT," +
             "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
             ");";
@@ -346,7 +347,8 @@ final class DatabaseSchema {
             " LEFT OUTER JOIN TrackPolicies ON(" +
             "   Sounds." + TableColumns.Sounds._ID + " = " + "TrackPolicies." + TableColumns.TrackPolicies.TRACK_ID + ")" +
             " LEFT OUTER JOIN TrackMetadata ON(" +
-            "   TrackMetadata." + TableColumns.TrackMetadata._ID + " = " + "Sounds." + TableColumns.SoundView._ID + ")";
+            "   TrackMetadata." + TableColumns.TrackMetadata._ID + " = " + "Sounds." + TableColumns.SoundView._ID + ")" +
+            " WHERE " + "Sounds." + TableColumns.Sounds.REMOVED_AT + " IS NULL";
 
     /**
      * A view which combines soundassociation with sounds

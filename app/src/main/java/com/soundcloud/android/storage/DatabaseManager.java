@@ -19,7 +19,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 62;
+    public static final int DATABASE_VERSION = 63;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -177,6 +177,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 62:
                             success = upgradeTo62(db, oldVersion);
+                            break;
+                        case 63:
+                            success = upgradeTo63(db, oldVersion);
                             break;
                         default:
                             break;
@@ -587,6 +590,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
         return false;
     }
+
+    /**
+     * Adds REMOVED_AT to the Sounds table
+     */
+    private static boolean upgradeTo63(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.alterColumns(Table.Sounds, db);
+            recreateSoundDependentViews(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 63);
+        }
+        return false;
+    }
+
 
     private static void migratePolicies(SQLiteDatabase db) {
         final List<String> oldSoundColumns = Arrays.asList(

@@ -41,7 +41,7 @@ public class LoadPlaylistLikedStatuses extends Command<Iterable<PropertySet>, Ma
         final Query isLiked = Query.from(Table.Likes.name())
                 .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID, Table.Likes.name() + "." + TableColumns.Likes._ID)
                 .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereNull(TableColumns.Likes.REMOVED_AT);
+                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
 
         return Query.from(Table.SoundView.name())
                 .select(TableColumns.SoundView._ID, exists(isLiked).as(COLUMN_IS_LIKED))

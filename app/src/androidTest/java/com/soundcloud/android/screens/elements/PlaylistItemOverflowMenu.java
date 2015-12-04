@@ -4,7 +4,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.ConfirmDeletePlaylistScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 
 public class PlaylistItemOverflowMenu extends PopupMenuElement {
@@ -21,6 +23,11 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
     public UpgradeScreen clickUpsell() {
         getMakeAvailableOfflineItem().click();
         return new UpgradeScreen(testDriver);
+    }
+
+    public ConfirmDeletePlaylistScreen clickDelete() {
+        getDeletePlaylistItem().click();
+        return new ConfirmDeletePlaylistScreen(testDriver, MainActivity.class);
     }
 
     public void toggleLike() {
@@ -49,5 +56,9 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
 
     public ViewElement getMakeAvailableOfflineItem() {
         return findElement(With.text(testDriver.getString(R.string.make_offline_available)));
+    }
+
+    public ViewElement getDeletePlaylistItem() {
+        return findElement(With.text(testDriver.getString(R.string.delete_playlist)));
     }
 }

@@ -66,8 +66,8 @@ public class PlaylistStorage {
 
     private Where hasLocalTracks() {
         return filter()
-                .whereNotNull(TableColumns.PlaylistTracks.ADDED_AT)
-                .orWhereNotNull(TableColumns.PlaylistTracks.REMOVED_AT);
+                .whereNotNull(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.ADDED_AT))
+                .orWhereNotNull(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT));
     }
 
     private Where isNotLocal() {
@@ -143,7 +143,7 @@ public class PlaylistStorage {
                 .innerJoin(Table.Sounds.name(), joinConditions)
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), playlistUrn.getNumericId())
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereNull(TableColumns.Likes.REMOVED_AT);
+                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
     }
 
     private Query repostQuery(Urn playlistUrn) {

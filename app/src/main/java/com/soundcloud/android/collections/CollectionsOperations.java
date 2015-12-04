@@ -165,6 +165,7 @@ public class CollectionsOperations {
             switch (event.getKind()) {
                 case EntityStateChangedEvent.LIKE:
                 case EntityStateChangedEvent.PLAYLIST_CREATED:
+                case EntityStateChangedEvent.PLAYLIST_DELETED:
                     return true;
                 default:
                     return false;
@@ -200,7 +201,8 @@ public class CollectionsOperations {
     }
 
     public Observable<EntityStateChangedEvent> onCollectionChanged() {
-        return eventBus.queue(ENTITY_STATE_CHANGED)
+        return eventBus
+                .queue(ENTITY_STATE_CHANGED)
                 .filter(IS_COLLECTION_CHANGE_FILTER);
     }
 

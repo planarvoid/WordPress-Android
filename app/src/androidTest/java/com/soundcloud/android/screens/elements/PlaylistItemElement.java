@@ -16,8 +16,12 @@ public class PlaylistItemElement {
         this.wrapped = wrapped;
     }
 
+    public boolean isVisible() {
+        return wrapped.isVisible();
+    }
+
     public String getTitle() {
-        return getText(wrapped.findElement(With.id(R.id.list_item_subheader)));
+        return getText(wrapped.findElement(With.id(R.id.title)));
     }
 
     public String getTrackCount() {

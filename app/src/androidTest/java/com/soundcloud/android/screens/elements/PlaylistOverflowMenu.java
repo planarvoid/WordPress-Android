@@ -4,6 +4,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.screens.ConfirmDeletePlaylistScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 
@@ -29,6 +31,11 @@ public class PlaylistOverflowMenu extends PopupMenuElement {
 
     public ViewElement getMakeAvailableOfflineItem() {
         return findElement(With.text(testDriver.getString(R.string.make_offline_available)));
+    }
+
+    public ConfirmDeletePlaylistScreen clickDelete() {
+        findElement(With.text(testDriver.getString(R.string.delete_playlist))).click();
+        return new ConfirmDeletePlaylistScreen(testDriver, PlaylistDetailActivity.class);
     }
 
     private ViewElement shuffleItem() {

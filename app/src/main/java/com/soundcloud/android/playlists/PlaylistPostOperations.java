@@ -5,13 +5,18 @@ import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PostProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.Pager.PagingFunction;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -32,6 +37,7 @@ class PlaylistPostOperations {
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final NetworkConnectionHelper networkConnectionHelper;
+    private final EventBus eventBus;
 
     private final PagingFunction<List<PropertySet>> postedPlaylistsPager = new PagingFunction<List<PropertySet>>() {
         @Override
@@ -66,11 +72,13 @@ class PlaylistPostOperations {
     PlaylistPostOperations(PlaylistPostStorage playlistPostStorage,
                            SyncInitiator syncInitiator,
                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                           NetworkConnectionHelper networkConnectionHelper) {
+                           NetworkConnectionHelper networkConnectionHelper,
+                           EventBus eventBus) {
         this.playlistPostStorage = playlistPostStorage;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
         this.networkConnectionHelper = networkConnectionHelper;
+        this.eventBus = eventBus;
     }
 
     Observable<List<PropertySet>> postedPlaylists() {
@@ -84,6 +92,19 @@ class PlaylistPostOperations {
 
     PagingFunction<List<PropertySet>> pagingFunction() {
         return postedPlaylistsPager;
+    }
+
+    Observable<ChangeResult> remove(final Urn urn) {
+        final Observable<ChangeResult> remove = urn.isLocal()
+                ? playlistPostStorage.remove(urn)
+                : playlistPostStorage.markPendingRemoval(urn);
+        return remove
+                .doOnNext(publishPlaylistDeletedEvent(urn))
+                .subscribeOn(scheduler);
+    }
+
+    private Action1<ChangeResult> publishPlaylistDeletedEvent(final Urn urn) {
+        return eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistDeleted(urn));
     }
 
     private Observable<List<PropertySet>> postedPlaylists(long beforeTime) {

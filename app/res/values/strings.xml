@@ -314,6 +314,7 @@
     <string name="shuffle_playlist">Shuffle playlist</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="remove_from_playlist">Remove from playlist</string>
+    <string name="delete_playlist">Delete playlist</string>
 
     <!-- __PLAYLIST CREATION -->
     <string name="add_track_to_playlist">Add to playlist...</string>
@@ -511,11 +512,12 @@
     <string name="recent_stations_empty_view_heading">Start a station to hear a series of similar tracks. It’s just like radio.</string>
     <string name="recent_stations_empty_view_message">Just tap the three dots next to any track to get started.</string>
 
-
     <!-- __COLLECTION -->
     <string name="collections_with_stations_onboarding_title">Your likes. Your playlists. Your stations.\nAll in one place.</string>
     <string name="collections_without_stations_onboarding_title">Your likes. Your playlists.\nAll in one place.</string>
     <string name="collections_onboarding_description">Welcome to your new collection, a single destination for your sounds.</string>
+    <string name="dialog_playlist_delete_title">Delete playlist?</string>
+    <string name="dialog_playlist_delete_message">This will permanently delete this playlist. Are you sure you want to continue?</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>

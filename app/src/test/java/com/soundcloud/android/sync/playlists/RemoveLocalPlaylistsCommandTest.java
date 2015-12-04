@@ -22,6 +22,6 @@ public class RemoveLocalPlaylistsCommandTest extends StorageIntegrationTest {
         command.call(null);
 
         databaseAssertions().assertPlaylistInserted(remotePlaylist.getId());
-        databaseAssertions().assertPlaylistNotStored(localPlaylist);
+        databaseAssertions().assertPlaylistNotStored(localPlaylist.getId());
     }
 }

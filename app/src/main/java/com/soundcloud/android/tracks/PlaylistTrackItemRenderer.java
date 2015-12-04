@@ -43,6 +43,6 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
     @Override
     protected void showTrackItemMenu(View button, TrackItem track, int position) {
         trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, track, position, pageUrn,
-                removeTrackListener, promotedSourceInfo, OverflowMenuOptions.builder().build());
+                removeTrackListener, promotedSourceInfo);
     }
 }

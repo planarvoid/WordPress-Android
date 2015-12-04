@@ -83,7 +83,7 @@ class TrackStorage {
                 .innerJoin(Table.Sounds.name(), joinConditions)
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), trackUrn.getNumericId())
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
-                .whereNull(TableColumns.Likes.REMOVED_AT);
+                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
     }
 
     private Query repostQuery(Urn trackUrn) {

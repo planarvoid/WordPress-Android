@@ -39,7 +39,7 @@ public class LoadLikedTrackUrnsCommand extends LegacyCommand<Object, List<Urn>, 
                 .innerJoin(Table.Sounds.name(), whereTrackDataExists)
                 .whereEq("Likes." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .order("Likes." + CREATED_AT, DESC)
-                .whereNull(TableColumns.Likes.REMOVED_AT))
+                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
                 .toList(new TrackUrnMapper());
     }
 }
