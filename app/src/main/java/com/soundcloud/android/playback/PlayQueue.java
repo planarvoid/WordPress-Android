@@ -11,6 +11,7 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationTrack;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class PlayQueue implements Iterable<PlayQueueItem> {
 
@@ -39,11 +41,21 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public static PlayQueue fromTrackUrnList(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
-        return new PlayQueue(playQueueItemsFromIds(trackUrns, playSessionSource));
+        return fromTrackUrnList(trackUrns, playSessionSource, Collections.<Urn, Boolean>emptyMap());
+    }
+
+    public static PlayQueue fromTrackUrnList(List<Urn> trackUrns, PlaySessionSource playSessionSource,
+                                             Map<Urn, Boolean> blockedTracksMap) {
+        return new PlayQueue(playQueueItemsFromIds(trackUrns, playSessionSource, blockedTracksMap));
     }
 
     public static PlayQueue fromTrackList(List<PropertySet> tracks, PlaySessionSource playSessionSource) {
-        return new PlayQueue(playQueueItemsFromTracks(tracks, playSessionSource));
+        return new PlayQueue(playQueueItemsFromTracks(tracks, playSessionSource, Collections.<Urn, Boolean>emptyMap()));
+    }
+
+    public static PlayQueue fromTrackList(List<PropertySet> tracks, PlaySessionSource playSessionSource,
+                                          Map<Urn, Boolean> blockedTracksMap) {
+        return new PlayQueue(playQueueItemsFromTracks(tracks, playSessionSource, blockedTracksMap));
     }
 
     public PlayQueue copy() {
@@ -137,32 +149,6 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return trackItemUrns;
     }
 
-    public List<Urn> getItemUrnsFromPosition(int position) {
-        final List<Urn> itemUrns = new ArrayList<>(Math.max(0, size() - position));
-        for (int i = position, size = playQueueItems.size(); i < size; i++) {
-            final PlayQueueItem item = getPlayQueueItem(i);
-            if (item.isTrack()){
-                itemUrns.add(item.getUrn());
-            } else {
-                itemUrns.add(Urn.NOT_SET);
-            }
-        }
-        return itemUrns;
-    }
-
-    public List<Urn> getItemUrnsToPosition(int position) {
-        final List<Urn> itemUrns = new ArrayList<>(Math.max(0, position));
-        for (int i = 0, size = position; i < size; i++) {
-            final PlayQueueItem item = getPlayQueueItem(i);
-            if (item.isTrack()){
-                itemUrns.add(item.getUrn());
-            } else {
-                itemUrns.add(Urn.NOT_SET);
-            }
-        }
-        return itemUrns;
-    }
-
     public boolean shouldPersistItemAt(int position) {
         return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).shouldPersist();
     }
@@ -177,10 +163,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         playQueueItems.get(position).setAdData(adData);
     }
 
-    public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource) {
+    public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracksMap) {
         List<Urn> shuffled = newArrayList(tracks);
         Collections.shuffle(shuffled);
-        return fromTrackUrnList(shuffled, playSessionSource);
+        return fromTrackUrnList(shuffled, playSessionSource, blockedTracksMap);
     }
 
     public static PlayQueue fromStation(Urn stationUrn, List<StationTrack> stationTracks) {
@@ -234,23 +220,29 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     private static List<PlayQueueItem> playQueueItemsFromIds(List<Urn> trackIds,
-                                                             final PlaySessionSource playSessionSource) {
+                                                             final PlaySessionSource playSessionSource,
+                                                             final Map<Urn, Boolean> blockedTracksMap) {
         return newArrayList(transform(trackIds, new Function<Urn, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Urn track) {
                 return new TrackQueueItem.Builder(track)
                         .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                        .blocked(Boolean.TRUE.equals(blockedTracksMap.get(track)))
                         .build();
             }
         }));
     }
 
-    private static List<PlayQueueItem> playQueueItemsFromTracks(List<PropertySet> trackIds, final PlaySessionSource playSessionSource) {
+    private static List<PlayQueueItem> playQueueItemsFromTracks(List<PropertySet> trackIds,
+                                                                final PlaySessionSource playSessionSource,
+                                                                final Map<Urn, Boolean> blockedTracksMap) {
         return newArrayList(transform(trackIds, new Function<PropertySet, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(PropertySet track) {
                 return new TrackQueueItem.Builder(track)
-                        .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion()).build();
+                        .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                        .blocked(Boolean.TRUE.equals(blockedTracksMap.get(track.get(TrackProperty.URN))))
+                        .build();
             }
         }));
     }

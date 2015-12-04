@@ -108,15 +108,10 @@ public class AdsController {
                 skipFailedAdSubscription.unsubscribe();
             } else if (stateTransition.wasError() && adsOperations.isCurrentItemAudioAd()) {
                 skipFailedAdSubscription.unsubscribe();
-                skipAd();
+                playQueueManager.moveToNextPlayableItem(false);
             }
         }
     };
-
-    private void skipAd() {
-        // this will always successfully advance as the monetizable track is next
-        playQueueManager.moveToNextPlayableItem(false).subscribe(new DefaultSubscriber<Boolean>());
-    }
 
     @Inject
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
@@ -327,7 +322,7 @@ public class AdsController {
                                         state.getProgress(),
                                         FAILED_AD_WAIT_SECS);
                             eventBus.publish(EventQueue.TRACKING, event);
-                            skipAd();
+                            playQueueManager.moveToNextPlayableItem(false);
                         }
                     });
         }

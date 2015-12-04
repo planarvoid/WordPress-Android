@@ -11,6 +11,10 @@ public class TestPlayQueueItem {
         return new TrackQueueItem.Builder(itemUrn).build();
     }
 
+    public static TrackQueueItem createBlockedTrack(Urn itemUrn) {
+        return new TrackQueueItem.Builder(itemUrn).blocked(true).build();
+    }
+
     public static TrackQueueItem createTrack(Urn itemUrn, AdData adData) {
         return new TrackQueueItem.Builder(itemUrn).withAdData(adData).build();
     }

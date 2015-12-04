@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.TestUrns.createTrackUrns;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -15,6 +16,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -34,7 +36,9 @@ import rx.Observable;
 import rx.observers.TestObserver;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class PlaybackInitiatorTest extends AndroidUnitTest {
@@ -53,6 +57,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlayQueueOperations playQueueOperations;
     @Mock private PlaySessionController playSessionController;
+    @Mock private PolicyOperations policyOperations;
 
     @Captor private ArgumentCaptor<PlayQueue> playQueueTracksCaptor;
 
@@ -65,11 +70,13 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator = new PlaybackInitiator(
                 playQueueManager,
                 playQueueOperations,
-                playSessionController);
+                playSessionController,
+                policyOperations);
 
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1));
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
+        when(policyOperations.blockedStati(anyList())).thenReturn(Observable.just(Collections.<Urn,Boolean>emptyMap()));
 
         observer = new TestObserver<>();
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, new Urn("soundcloud:tracks:1"));
@@ -81,6 +88,17 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
         verify(playSessionController).playNewQueue(createPlayQueueFromUrns(playSessionSource, TRACK1), TRACK1, 0, playSessionSource);
+    }
+
+    @Test
+     public void playTrackPlaysNewQueueFromInitialTrackWithBlockedStatus() {
+        when(policyOperations.blockedStati(Arrays.asList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
+
+        playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
+
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        final PlayQueue playQueueFromUrns = createPlayQueueFromUrns(playSessionSource, Collections.singletonMap(TRACK1, true), TRACK1);
+        verify(playSessionController).playNewQueue(playQueueFromUrns, TRACK1, 0, playSessionSource);
     }
 
     @Test
@@ -111,6 +129,16 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
         verify(playSessionController).playNewQueue(createPlayQueue(playSessionSource, track), TRACK1, 0, playSessionSource);
+    }
+
+    @Test
+    public void playPostsPlaysNewQueueFromInitialTrackWithBlockedStatus() {
+        when(policyOperations.blockedStati(Arrays.asList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
+        final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
+        playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
+
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        verify(playSessionController).playNewQueue(createPlayQueue(playSessionSource, Collections.singletonMap(TRACK1, true), track), TRACK1, 0, playSessionSource);
     }
 
     @Test
@@ -390,7 +418,15 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         return PlayQueue.fromTrackUrnList(Arrays.asList(trackUrns), playSessionSource);
     }
 
+    private PlayQueue createPlayQueueFromUrns(PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracksMap, Urn... trackUrns) {
+        return PlayQueue.fromTrackUrnList(Arrays.asList(trackUrns), playSessionSource, blockedTracksMap);
+    }
+
     private PlayQueue createPlayQueue(PlaySessionSource playSessionSource, PropertySet... tracks) {
         return PlayQueue.fromTrackList(Arrays.asList(tracks), playSessionSource);
+    }
+
+    private PlayQueue createPlayQueue(PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracksMap, PropertySet... tracks) {
+        return PlayQueue.fromTrackList(Arrays.asList(tracks), playSessionSource, blockedTracksMap);
     }
 }

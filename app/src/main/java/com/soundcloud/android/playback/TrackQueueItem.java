@@ -19,9 +19,10 @@ public class TrackQueueItem extends PlayQueueItem {
     private final Urn sourceUrn;
     private final Urn queryUrn;
     private final boolean shouldPersist;
+    private final boolean blocked;
 
     private TrackQueueItem(Urn trackUrn, Urn reposter, Urn relatedEntity, String source,
-                           String sourceVersion, Optional<AdData> adData, boolean shouldPersist, Urn sourceUrn, Urn queryUrn) {
+                           String sourceVersion, Optional<AdData> adData, boolean shouldPersist, Urn sourceUrn, Urn queryUrn, boolean blocked) {
         this.trackUrn = trackUrn;
         this.reposter = reposter;
         this.relatedEntity = relatedEntity;
@@ -30,6 +31,7 @@ public class TrackQueueItem extends PlayQueueItem {
         this.shouldPersist = shouldPersist;
         this.queryUrn = queryUrn;
         this.sourceUrn = sourceUrn;
+        this.blocked = blocked;
         super.setAdData(adData);
     }
 
@@ -65,6 +67,10 @@ public class TrackQueueItem extends PlayQueueItem {
         return shouldPersist;
     }
 
+    public boolean isBlocked() {
+        return blocked;
+    }
+
     @Override
     public Kind getKind() {
         return Kind.TRACK;
@@ -81,7 +87,8 @@ public class TrackQueueItem extends PlayQueueItem {
 
         TrackQueueItem that = (TrackQueueItem) o;
         return MoreObjects.equal(trackUrn, that.trackUrn) && MoreObjects.equal(source, that.source)
-                && MoreObjects.equal(sourceVersion, that.sourceVersion) && getKind() == that.getKind();
+                && MoreObjects.equal(sourceVersion, that.sourceVersion) && getKind() == that.getKind()
+                && MoreObjects.equal(blocked, that.blocked);
     }
 
     @Override
@@ -92,6 +99,7 @@ public class TrackQueueItem extends PlayQueueItem {
     public static class Builder {
         private final Urn track;
         private final Urn reposter;
+        private boolean blocked;
         private String source = ScTextUtils.EMPTY_STRING;
         private String sourceVersion = ScTextUtils.EMPTY_STRING;
         private Optional<AdData> adData = Optional.absent();
@@ -133,6 +141,11 @@ public class TrackQueueItem extends PlayQueueItem {
             return this;
         }
 
+        public Builder blocked(boolean blocked) {
+            this.blocked = blocked;
+            return this;
+        }
+
         public Builder persist(boolean shouldPersist) {
             this.shouldPersist = shouldPersist;
             return this;
@@ -144,7 +157,7 @@ public class TrackQueueItem extends PlayQueueItem {
         }
 
         public TrackQueueItem build(){
-            return new TrackQueueItem(track, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist, sourceUrn, queryUrn);
+            return new TrackQueueItem(track, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist, sourceUrn, queryUrn, blocked);
         }
     }
 }
