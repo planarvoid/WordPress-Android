@@ -583,7 +583,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(policyOperations.blockedStati(Arrays.asList(Urn.forTrack(2L), Urn.forTrack(3L))))
                 .thenReturn(Observable.just(Collections.singletonMap(Urn.forTrack(2L), false)));
 
-        playQueueManager.advanceToNextPlayableTrack().toBlocking().single(); // set to auto trigger
+        playQueueManager.moveToNextPlayableItem(false).toBlocking().single(); // set to auto trigger
 
         assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isFalse();
 
@@ -600,7 +600,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(policyOperations.blockedStati(Arrays.asList(Urn.forTrack(2L), Urn.forTrack(3L))))
                 .thenReturn(Observable.just(Collections.singletonMap(Urn.forTrack(2L), false)));
 
-        playQueueManager.advanceToNextPlayableTrack().toBlocking().single(); // set to auto trigger
+        playQueueManager.moveToNextPlayableItem(false).toBlocking().single(); // set to auto trigger
 
         assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isFalse();
 
@@ -610,129 +610,55 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPublishItemChangeEventOnPreviousItem() {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 5);
-        when(playQueue.size()).thenReturn(6);
-        when(playQueue.hasPreviousItem(5)).thenReturn(true);
-        when(playQueue.getPlayQueueItem(4)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
-
-        playQueueManager.moveToPreviousItem();
-
-        assertThat(eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem()).isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
-    }
-
-    @Test
-    public void shouldMoveToPreviousItem() {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 5);
-        when(playQueue.size()).thenReturn(6);
-        when(playQueue.hasPreviousItem(5)).thenReturn(true);
-        when(playQueue.getPlayQueueItem(4)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L)));
-
-        playQueueManager.moveToPreviousItem();
-
-        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(4);
-    }
-
-    @Test
-    public void shouldNotPublishItemChangeWhenCallingPreviousOnFirstItem() {
-        when(playQueue.hasPreviousItem(0)).thenReturn(false);
-
-        playQueueManager.moveToPreviousItem();
-
-        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).isEmpty();
-    }
-
-    @Test
-    public void shouldNotMoveToPreviousItemIfAtHeadOfQueue() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource);
-
-        playQueueManager.moveToPreviousItem();
-
-        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(0);
-    }
-
-    @Test
-    public void moveToPreviousShouldResultInManualTrigger() {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 5);
-        when(playQueue.isEmpty()).thenReturn(false);
-        when(playQueue.size()).thenReturn(6);
-        when(playQueue.hasPreviousItem(5)).thenReturn(true);
-        when(playQueue.getPlayQueueItem(4)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L)));
-
-        playQueueManager.moveToPreviousItem();
-
-        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isTrue();
-    }
-
-    @Test
-    public void shouldPublishItemChangeEventOnNextItem() {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        when(playQueue.size()).thenReturn(2);
-        when(playQueue.hasNextItem(0)).thenReturn(true);
-        when(playQueue.getPlayQueueItem(1)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
-
-        playQueueManager.nextItem();
-
-        assertThat(eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem()).isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
-    }
-
-    @Test
-    public void shouldToNextItemSetUserTriggeredFlagToTrue() {
-        when(playQueue.isEmpty()).thenReturn(false);
-        when(playQueue.size()).thenReturn(2);
-        when(playQueue.hasNextItem(0)).thenReturn(true);
-        when(playQueue.getPlayQueueItem(1)) .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L)));
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-
-        playQueueManager.nextItem();
-
-        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isTrue();
-    }
-
-    @Test
-    public void shouldAutoNextItemSetUserTriggeredFlagToFalse() {
+    public void moveToNextPlayableItemSetsUserTriggeredFlagToFalse() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
                 TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);
 
         when(policyOperations.blockedStati(Arrays.asList(Urn.forTrack(2L), Urn.forTrack(3L))))
                 .thenReturn(Observable.just(Collections.singletonMap(Urn.forTrack(2L), false)));
 
-        playQueueManager.advanceToNextPlayableTrack().toBlocking().single(); // set to auto trigger
+        playQueueManager.moveToNextPlayableItem(false).toBlocking().single();
 
         assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isFalse();
     }
 
     @Test
-    public void shouldSuccessfullyMoveToNextItem() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource);
+    public void moveToNextPlayableItemSetsUserTriggeredFlagToTrue() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource);
 
-        assertThat(playQueueManager.nextItem()).isTrue();
-        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
+        when(policyOperations.blockedStati(Arrays.asList(Urn.forTrack(2L), Urn.forTrack(3L))))
+                .thenReturn(Observable.just(Collections.singletonMap(Urn.forTrack(2L), false)));
+
+        playQueueManager.moveToNextPlayableItem(true).toBlocking().single();
+
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isTrue();
     }
 
     @Test
-    public void shouldNotMoveToNextItemIfAtEndOfQueue() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playlistSessionSource), playlistSessionSource, 1);
+    public void moveToPreviousPreviousPlayableItemSetsUserTriggeredFlagToFalse() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource, 2);
 
-        assertThat(playQueueManager.nextItem()).isFalse();
-        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
+        when(policyOperations.blockedStati(Arrays.asList(Urn.forTrack(1L), Urn.forTrack(2L))))
+                .thenReturn(Observable.just(Collections.singletonMap(Urn.forTrack(2L), false)));
+
+        playQueueManager.moveToPreviousPlayableItem(false).toBlocking().single();
+
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isFalse();
     }
 
     @Test
-    public void nextItemReturnsFalseIfNoNextItem() {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        when(playQueue.hasNextItem(0)).thenReturn(false);
-        assertThat(playQueueManager.nextItem()).isFalse();
-    }
+    public void moveToPreviousPlayableItemSetsUserTriggeredFlagToTrue() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L), playlistSessionSource), playlistSessionSource, 2);
 
-    @Test
-    public void nextItemReturnsTrueIfHasNextItem() {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        when(playQueue.size()).thenReturn(2);
-        when(playQueue.hasNextItem(0)).thenReturn(true);
-        when(playQueue.getPlayQueueItem(1)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L)));
+        when(policyOperations.blockedStati(Arrays.asList(Urn.forTrack(1L), Urn.forTrack(2L))))
+                .thenReturn(Observable.just(Collections.singletonMap(Urn.forTrack(2L), false)));
 
-        assertThat(playQueueManager.nextItem()).isTrue();
+        playQueueManager.moveToPreviousPlayableItem(true).toBlocking().single();
+
+        assertThat(playQueueManager.getCurrentTrackSourceInfo().getIsUserTriggered()).isTrue();
     }
 
     @Test
@@ -813,7 +739,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void autoNextItemGoesToNextUnblockedItem() {
+    public void moveToNextPlayableItemGoesToNextUnblockedItem() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
                 TestUrns.createTrackUrns(1L, 2L, 3L, 4L), playlistSessionSource), playlistSessionSource);
 
@@ -826,14 +752,16 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                 .thenReturn(Observable.just(value));
 
         final TestObserver<Boolean> observer = new TestObserver<>();
-        playQueueManager.advanceToNextPlayableTrack().subscribe(observer);
+        playQueueManager.moveToNextPlayableItem(false).subscribe(observer);
         observer.assertReceivedOnNext(Arrays.asList(true));
 
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
+        assertThat(eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem())
+                .isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
     }
 
     @Test
-    public void autoNextItemGoesToLastItemIfAllBlocked() {
+    public void moveToNextPlayableItemGoesToLastItemIfAllBlocked() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
                 TestUrns.createTrackUrns(1L, 2L, 3L, 4L), playlistSessionSource), playlistSessionSource);
 
@@ -846,18 +774,76 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                 .thenReturn(Observable.just(value));
 
         final TestObserver<Boolean> observer = new TestObserver<>();
-        playQueueManager.advanceToNextPlayableTrack().subscribe(observer);
+        playQueueManager.moveToNextPlayableItem(false).subscribe(observer);
         observer.assertReceivedOnNext(Arrays.asList(true));
 
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(3);
+        assertThat(eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem())
+                .isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(4L)));
     }
 
     @Test
-    public void autoNextReturnsFalseIfNoNextItem() {
+    public void moveToNextPlayableItemReturnsFalseIfNoNextItem() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
                 TestUrns.createTrackUrns(1L), playlistSessionSource), playlistSessionSource);
         final TestObserver<Boolean> observer = new TestObserver<>();
-        playQueueManager.advanceToNextPlayableTrack().subscribe(observer);
+        playQueueManager.moveToNextPlayableItem(false).subscribe(observer);
+
+        observer.assertReceivedOnNext(Arrays.asList(false));
+
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(0);
+    }
+
+    @Test
+    public void moveToPreviousPlayableItemGoesToPreviousUnblockedItem() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 4L), playlistSessionSource), playlistSessionSource, 3);
+
+        final Map<Urn, Boolean> value = new HashMap<>();
+        value.put(Urn.forTrack(1L), true);
+        value.put(Urn.forTrack(2L), false);
+        value.put(Urn.forTrack(3L), false);
+
+        when(policyOperations.blockedStati(Arrays.asList(Urn.forTrack(1L), Urn.forTrack(2L), Urn.forTrack(3L))))
+                .thenReturn(Observable.just(value));
+
+        final TestObserver<Boolean> observer = new TestObserver<>();
+        playQueueManager.moveToPreviousPlayableItem(false).subscribe(observer);
+        observer.assertReceivedOnNext(Arrays.asList(true));
+
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
+        assertThat(eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem())
+                .isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
+    }
+
+    @Test
+    public void moveToPreviousPlayableItemGoesToFirstItemIfAllBlocked() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 4L), playlistSessionSource), playlistSessionSource, 3);
+
+        final Map<Urn, Boolean> value = new HashMap<>();
+        value.put(Urn.forTrack(1L), true);
+        value.put(Urn.forTrack(2L), true);
+        value.put(Urn.forTrack(3L), true);
+
+        when(policyOperations.blockedStati(Arrays.asList(Urn.forTrack(1L), Urn.forTrack(2L), Urn.forTrack(3L))))
+                .thenReturn(Observable.just(value));
+
+        final TestObserver<Boolean> observer = new TestObserver<>();
+        playQueueManager.moveToPreviousPlayableItem(false).subscribe(observer);
+        observer.assertReceivedOnNext(Arrays.asList(true));
+
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(0);
+        assertThat(eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem())
+                .isEqualTo(TestPlayQueueItem.createTrack(Urn.forTrack(1L)));
+    }
+
+    @Test
+    public void moveToPreviousPlayableItemReturnsFalseIfNoPreviousItem() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L), playlistSessionSource), playlistSessionSource);
+        final TestObserver<Boolean> observer = new TestObserver<>();
+        playQueueManager.moveToPreviousPlayableItem(false).subscribe(observer);
 
         observer.assertReceivedOnNext(Arrays.asList(false));
 
@@ -872,12 +858,10 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotPublishItemChangeWhenCallingNextOnLastItem() {
-        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L), playlistSessionSource), playlistSessionSource);
-        final CurrentPlayQueueItemEvent lastEvent = eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
-        playQueueManager.nextItem();
-
-        assertThat(eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM)).isSameAs(lastEvent);
+    public void hasPreviousItemReturnsHasPreviousItemFromCurrentPlayQueue() {
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
+        when(playQueue.hasPreviousItem(0)).thenReturn(true);
+        assertThat(playQueueManager.hasPreviousItem()).isTrue();
     }
 
     @Test

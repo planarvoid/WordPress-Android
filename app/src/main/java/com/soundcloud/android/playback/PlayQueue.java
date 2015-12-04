@@ -150,6 +150,19 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return itemUrns;
     }
 
+    public List<Urn> getItemUrnsToPosition(int position) {
+        final List<Urn> itemUrns = new ArrayList<>(Math.max(0, position));
+        for (int i = 0, size = position; i < size; i++) {
+            final PlayQueueItem item = getPlayQueueItem(i);
+            if (item.isTrack()){
+                itemUrns.add(item.getUrn());
+            } else {
+                itemUrns.add(Urn.NOT_SET);
+            }
+        }
+        return itemUrns;
+    }
+
     public boolean shouldPersistItemAt(int position) {
         return position >= 0 && position < playQueueItems.size() && playQueueItems.get(position).shouldPersist();
     }

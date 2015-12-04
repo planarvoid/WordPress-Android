@@ -115,7 +115,7 @@ public class AdsController {
 
     private void skipAd() {
         // this will always successfully advance as the monetizable track is next
-        playQueueManager.advanceToNextPlayableTrack().subscribe(new DefaultSubscriber<Boolean>());
+        playQueueManager.moveToNextPlayableItem(false).subscribe(new DefaultSubscriber<Boolean>());
     }
 
     @Inject

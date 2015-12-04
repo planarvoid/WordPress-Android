@@ -77,7 +77,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(CURRENT_TRACK_URN));
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(NEXT_TRACK_URN));
-        when(playQueueManager.advanceToNextPlayableTrack()).thenReturn(advanceSubject);
+        when(playQueueManager.moveToNextPlayableItem(false)).thenReturn(advanceSubject);
 
         adsController = new AdsController(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
                 playQueueManager, trackRepository, scheduler);

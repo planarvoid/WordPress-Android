@@ -184,46 +184,31 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public void moveToPreviousItem() {
-        if (playQueue.hasPreviousItem(currentPosition)) {
-            currentPosition--;
-            currentItemIsUserTriggered = true;
-            publishPositionUpdate();
-        }
-    }
-
-    public boolean nextItem() {
-        if (playQueue.hasNextItem(currentPosition)) {
-            currentPosition++;
-            currentItemIsUserTriggered = true;
-            publishPositionUpdate();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public boolean hasNextItem() {
         return playQueue.hasNextItem(currentPosition);
+    }
+
+    public boolean hasPreviousItem() {
+        return playQueue.hasPreviousItem(currentPosition);
     }
 
     public List<Urn> getCurrentQueueTrackUrns() {
         return playQueue.getTrackItemUrns();
     }
 
-    public Observable<Boolean> advanceToNextPlayableTrack() {
-        if (playQueue.hasNextItem(currentPosition)) {
+    public Observable<Boolean> moveToNextPlayableItem(boolean userTriggered) {
+        if (hasNextItem()) {
             final List<Urn> remainingUrns = playQueue.getItemUrnsFromPosition(currentPosition + 1);
             return policyOperations.blockedStati(remainingUrns)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .map(advanceToNext(remainingUrns));
+                    .map(moveToNextUnblockedItem(remainingUrns, userTriggered));
         } else {
             return Observable.just(false);
         }
     }
 
     @NonNull
-    private Func1<Map<Urn, Boolean>, Boolean> advanceToNext(final List<Urn> remainingUrns) {
+    private Func1<Map<Urn, Boolean>, Boolean> moveToNextUnblockedItem(final List<Urn> remainingUrns, final boolean userTriggered) {
         return new Func1<Map<Urn, Boolean>, Boolean>() {
             @Override
             public Boolean call(Map<Urn, Boolean> urnBooleanMap) {
@@ -232,18 +217,54 @@ public class PlayQueueManager implements OriginProvider {
                     final int nextPosition = firstNotSetOrUnblocked == Consts.NOT_SET
                             ? getQueueSize() - 1 // last track
                             : currentPosition + firstNotSetOrUnblocked + 1; // next playable track
-                    setPosition(nextPosition, false);
+                    setPosition(nextPosition, userTriggered);
                     return true;
                 } else {
                     return false;
                 }
-
             }
         };
     }
 
     private static int getFirstNotSetOrUnblocked(Map<Urn, Boolean> urnBooleanMap, List<Urn> remainingUrns) {
         for (int i = 0, size = remainingUrns.size(); i < size; i++) {
+            final Urn urn = remainingUrns.get(i);
+            if (Urn.NOT_SET.equals(urn) || Boolean.FALSE.equals(urnBooleanMap.get(urn))) {
+                return i;
+            }
+        }
+        return Consts.NOT_SET;
+    }
+
+    public Observable<Boolean> moveToPreviousPlayableItem(boolean userTriggered) {
+        if (hasPreviousItem()) {
+            final List<Urn> previousUrns = playQueue.getItemUrnsToPosition(currentPosition);
+            return policyOperations.blockedStati(previousUrns)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .map(moveToPreviousUnblockedItem(previousUrns, userTriggered));
+        } else {
+            return Observable.just(false);
+        }
+    }
+
+    @NonNull
+    private Func1<Map<Urn, Boolean>, Boolean> moveToPreviousUnblockedItem(final List<Urn> remainingUrns, final boolean userTriggered) {
+        return new Func1<Map<Urn, Boolean>, Boolean>() {
+            @Override
+            public Boolean call(Map<Urn, Boolean> urnBooleanMap) {
+                if (hasPreviousItem()) {
+                    final int lastNotSetOrUnblocked = getLastNotSetOrUnblocked(urnBooleanMap, remainingUrns);
+                    setPosition(lastNotSetOrUnblocked == Consts.NOT_SET ? 0 : lastNotSetOrUnblocked, userTriggered);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+    }
+
+    private static int getLastNotSetOrUnblocked(Map<Urn, Boolean> urnBooleanMap, List<Urn> remainingUrns) {
+        for (int i = remainingUrns.size() - 1; i >= 0; i--) {
             final Urn urn = remainingUrns.get(i);
             if (Urn.NOT_SET.equals(urn) || Boolean.FALSE.equals(urnBooleanMap.get(urn))) {
                 return i;
