@@ -23,6 +23,7 @@ def FEATURE_TRACK_SYNC_APIMOBILE = "FEATURE_TRACK_SYNC_APIMOBILE"
 def FEATURE_DISCOVERY_RECOMMENDATIONS = "FEATURE_DISCOVERY_RECOMMENDATIONS"
 def FEATURE_DISCOVERY_CHARTS = "FEATURE_DISCOVERY_CHARTS"
 def FEATURE_DELETE_PLAYLIST = "FEATURE_DELETE_PLAYLIST"
+def FEATURE_PROFILE_NEW_TABS = "FEATURE_PROFILE_NEW_TABS"
 
 android {
   buildTypes {
@@ -48,6 +49,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, FALSE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
     }
 
     beta {
@@ -72,6 +74,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, FALSE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, FALSE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
     }
 
     debug {
@@ -96,6 +99,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
     }
 
     end2end {
@@ -105,6 +109,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
       buildConfigField BOOLEAN, FEATURE_NEW_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
+      buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, TRUE
       buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, TRUE
 
       //Feature flags disabled
@@ -120,6 +125,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, FALSE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
     }
 
     release {
@@ -145,6 +151,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, FALSE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, FALSE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
     }
 
     releaseNoProguard {
@@ -169,6 +176,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, FALSE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, FALSE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
     }
 
     release_non_play_store {
@@ -193,6 +201,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, FALSE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, FALSE
+      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
     }
   }
 }
