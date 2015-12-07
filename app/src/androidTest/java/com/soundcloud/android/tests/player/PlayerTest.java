@@ -189,6 +189,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     public void testPlayerTrackMakeComment() {
         playTrackFromStream();
+        visualPlayerElement.playForFiveSeconds();
 
         final AddCommentScreen addCommentScreen = visualPlayerElement
                 .clickMenu()
