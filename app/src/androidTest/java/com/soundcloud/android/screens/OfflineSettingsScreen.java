@@ -19,6 +19,7 @@ public class OfflineSettingsScreen extends Screen {
     }
 
     public UpgradeScreen clickSubscribe() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.clickOnText(R.string.pref_subscription_buy_title);
         return new UpgradeScreen(testDriver);
     }
