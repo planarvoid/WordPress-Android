@@ -113,7 +113,6 @@ public class SignUpBasicsScreen extends Screen {
     public void closeSpamDialog() {
         final String dialogTitle = testDriver.getString(R.string.authentication_blocked_title);
         final ViewElement blockedDialog = testDriver.findElement(With.text(dialogTitle));
-        assertTrue(blockedDialog.isVisible());
         testDriver.findElement(With.text(testDriver.getString(R.string.contact_support))).click();
     }
 
