@@ -79,20 +79,20 @@
     <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
     <string name="authentication_error_invalid_email">Please enter a valid email address.</string>
     <string name="authentication_error_generic">Oops! An unexpected error occurred. Please try again.</string>
-    <string name="authentication_error_no_connection_message">There\'s a problem with your data connection. Check your network settings.</string>
+    <string name="authentication_error_no_connection_message">There’s a problem with your data connection. Check your network settings.</string>
     <string name="authentication_error_password_too_short">Your password must be at least 6 characters long.</string>
     <string name="authentication_error_age_not_valid">You must be at least 13 years old.</string>
     <string name="authentication_error_title">Error</string>
     <string name="authentication_log_in">Sign in</string>
     <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
-    <string name="authentication_login_error_password_message">We couldn\'t sign you in. Sure you have the right email and password?</string>
+    <string name="authentication_login_error_password_message">We couldn’t sign you in. Sure you have the right email and password?</string>
     <string name="authentication_login_progress_message">Signing you in</string>
-    <string name="authentication_recover_password_failure">We can\'t recover your password right now. Try again soon.</string>
+    <string name="authentication_recover_password_failure">We can’t recover your password right now. Try again soon.</string>
     <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
     <string name="authentication_recover_password_success">Check your email for instructions about how to change your password.</string>
     <string name="authentication_recover_progress_message">Requesting password reset</string>
     <string name="authentication_sign_up">Create an account</string>
-    <string name="authentication_signup_error_message">Something doesn\'t sound right. Try signing up at SoundCloud.com.</string>
+    <string name="authentication_signup_error_message">Something doesn’t sound right. Try signing up at SoundCloud.com.</string>
     <string name="authentication_signup_facebook_email_required">To create an account, we need your permission for Facebook to share your email with us.</string>
 
     <!-- @Todo from l10n: can we get rid of this instance? We already have "terms_of_use" -->
@@ -101,23 +101,23 @@
     <string name="authentication_your_password">Your password</string>
     <string name="authentication_clear_image">Hold to clear image</string>
     <string name="dialog_select_google_account">Select a Google account to use to sign in.</string>
-    <string name="authentication_login_error_message">We couldn\'t sign you in. Please try again.</string>
+    <string name="authentication_login_error_message">We couldn’t sign you in. Please try again.</string>
     <string name="authentication_no_google_accounts">Set up a Google account first.</string>
     <string name="authentication_log_in_with_google">Sign in with Google</string>
-    <string name="error_google_sign_in_failed">We couldn\'t sign you in with Google+. To activate your Google+ account and try again, go to plus.google.com.</string>
+    <string name="error_google_sign_in_failed">We couldn’t sign you in with Google+. To activate your Google+ account and try again, go to plus.google.com.</string>
     <string name="auth_disclaimer_title">One more step</string>
     <string name="auth_disclaimer_message">By selecting \"Continue\", you agree to the Terms of use and Privacy policy of SoundCloud.</string>
     <string name="facebook_authentication_failed_message">Try again soon or sign in using your email address and password.</string>
-    <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link to change your password. If you still need help, visit our Help Center.</string>
+    <string name="authentication_recover_password_msg">Enter your email address and we’ll send you a link to change your password. If you still need help, visit our Help Center.</string>
     <string name="authentication_recover_password_visit_our_Help_Center">Visit our Help Center</string>
     <string name="authentication_recover_password_send">Send</string>
-    <string name="authentication_blocked_title">We couldn\'t create an account for you</string>
+    <string name="authentication_blocked_title">We couldn’t create an account for you</string>
     <string name="authentication_blocked_message">Our robots think this sign-up looks too much like spam. If you think this is a mistake, contact SoundCloud support.</string>
-    <!-- @Todo from l10n: we don't have sign-in on mobi anymore. Also unclear if this is still used? -->
-    <string name="authentication_captcha_message">We\'re having some trouble signing you in. Sign in through our mobile website and before signing in again.</string>
+    <!-- @Todo from l10n: we don’t have sign-in on mobi anymore. Also unclear if this is still used? -->
+    <string name="authentication_captcha_message">We’re having some trouble signing you in. Sign in through our mobile website and before signing in again.</string>
     <string name="authentication_email_taken_message">That email address is already associated with an account. Enter a different email address or try signing in.</string>
     <string name="authentication_email_invalid_message">The domain you have entered seems to not be capable of receiving emails. Did you spell it correctly?</string>
-    <string name="authentication_email_other_error_message">Sorry we couldn\'t create an account for you with the details you provided.</string>
+    <string name="authentication_email_other_error_message">Sorry we couldn’t create an account for you with the details you provided.</string>
 
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Please sign in to open this link.</string>
@@ -130,10 +130,10 @@
     <string name="optin_no">No, thank you</string>
 
     <!-- __EMPTY STATES -->
-    <string name="info_empty_other_message">This person hasn\'t added a profile description yet.</string>
+    <string name="info_empty_other_message">This person hasn’t added a profile description yet.</string>
     <string name="info_empty_you_message">Your profile is empty.</string>
     <string name="info_empty_you_secondary">To edit your profile, sign in to SoundCloud on your desktop.</string>
-    <string name="list_empty_notification_message">You don\'t have any notifications yet.</string>
+    <string name="list_empty_notification_message">You don’t have any notifications yet.</string>
     <string name="list_empty_notification_secondary">Follow your favorite artists, bands and podcasts to hear their latest tracks.</string>
     <string name="list_empty_stream_action">FIND PEOPLE TO FOLLOW</string>
     <string name="list_empty_stream_message">Follow your favorite artists, bands and podcasts to hear their latest tracks.</string>
@@ -145,36 +145,36 @@
     <string name="list_empty_you_playlists_message">Create playlists to make mixes of your favorite sounds.</string>
     <string name="list_empty_you_likes_message">Like your favorite sounds to hear them again.</string>
     <string name="list_empty_you_following_message">Follow your favorite artists, bands and curators to hear their latest tracks.</string>
-    <string name="list_empty_you_followers_message">You don\'t have any followers yet.</string>
+    <string name="list_empty_you_followers_message">You don’t have any followers yet.</string>
     <string name="list_empty_you_followers_secondary">Share your favorite tracks and playlists to build your community</string>
 
-    <string name="empty_user_tracks_text">%1$s hasn\'t uploaded\nany public sounds yet.</string>
+    <string name="empty_user_tracks_text">%1$s hasn’t uploaded\nany public sounds yet.</string>
     <string name="empty_user_playlists_text">%1$s currently has no playlists.</string>
-    <string name="empty_user_likes_text">%1$s hasn\'t\nchosen any likes yet.</string>
-    <string name="empty_user_followings_text">%1$s isn\'t\nfollowing anyone yet.</string>
-    <string name="empty_user_followers_text">%1$s isn\'t\nbeing followed by anyone yet.</string>
+    <string name="empty_user_likes_text">%1$s hasn’t\nchosen any likes yet.</string>
+    <string name="empty_user_followings_text">%1$s isn’t\nfollowing anyone yet.</string>
+    <string name="empty_user_followers_text">%1$s isn’t\nbeing followed by anyone yet.</string>
 
-    <string name="empty_you_sounds_message">You haven\'t uploaded any sounds yet.</string>
-    <string name="empty_user_sounds_message">This user hasn\'t uploaded any public sounds yet.</string>
+    <string name="empty_you_sounds_message">You haven’t uploaded any sounds yet.</string>
+    <string name="empty_user_sounds_message">This user hasn’t uploaded any public sounds yet.</string>
 
     <!-- new profile -->
-    <string name="new_empty_user_posts_message">This user hasn\'t uploaded\nany public sounds yet.</string>
+    <string name="new_empty_user_posts_message">This user hasn’t uploaded\nany public sounds yet.</string>
     <string name="new_empty_user_playlists_message">This user currently has no playlists.</string>
-    <string name="new_empty_user_likes_text">This user hasn\'t chosen any likes yet.</string>
-    <!-- @Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\'t followed by anyone yet." -->
-    <string name="new_empty_user_followers_text">This user isn\'t being followed by anyone yet.</string>
-    <string name="new_empty_user_followings_text">This user isn\'t following anyone yet.</string>
+    <string name="new_empty_user_likes_text">This user hasn’t chosen any likes yet.</string>
+    <!-- @Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\’t followed by anyone yet." -->
+    <string name="new_empty_user_followers_text">This user isn’t being followed by anyone yet.</string>
+    <string name="new_empty_user_followings_text">This user isn’t following anyone yet.</string>
 
     <!-- __ERRORS -->
     <!-- @Todo from l10n: move these error messages to other categories -->
-    <string name="error_unauthorized_message">We\'re having a problem with your account. Sign back in to SoundCloud to continue using the app.</string>
+    <string name="error_unauthorized_message">We’re having a problem with your account. Sign back in to SoundCloud to continue using the app.</string>
     <string name="error_unauthorized_title">Account error</string>
     <string name="error_loading_url">There was a problem loading that URL.</string>
     <string name="crop_image_error">There was an error cropping your image.</string>
     <string name="error_server_problems_message">There was a problem processing your request. Please try again soon.</string>
     <string name="connection_list_error">There seems to be a connection problem. Please try again soon.</string>
     <!-- signup scope was revoked on server side -->
-    <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nTry updating the app or sign up at SoundCloud.com.</string>
+    <string name="signup_scope_revoked">Oops! We couldn’t sign you up\nTry updating the app or sign up at SoundCloud.com.</string>
 
     <string name="follow_blocked_title">Follow blocked</string>
     <string name="follow_blocked_content_username">%s has blocked you.</string>
@@ -184,7 +184,7 @@
     <string name="follow_age_restricted_content_long_age_username">Sorry, only users %1$s years and older are allowed to follow %2$s.</string>
     <string name="follow_age_unknown_title">Please verify your age</string>
     <string name="follow_age_unknown_content_username">Enter age to follow %s.</string>
-    <string name="follow_age_unknown_content_long_username">To follow %s, confirm you\'re of the required age.</string>
+    <string name="follow_age_unknown_content_long_username">To follow %s, confirm you’re of the required age.</string>
 
     <!-- __EXPLORE -->
     <string name="explore_genres">GENRES</string>
@@ -227,7 +227,7 @@
     <string name="ok_got_it">OK, got it</string>
 
     <!-- __TOUR -->
-    <string name="tour_title_1">Hear the world\'s sounds</string>
+    <string name="tour_title_1">Hear the world’s sounds</string>
     <string name="tour_text_1">Explore the largest community\nof artists, bands, podcasters and\ncreators of music &amp; audio</string>
     <string name="tour_title_2">Discover</string>
     <string name="tour_text_2">All kinds of new and\nunique music &amp; audio</string>
@@ -407,11 +407,11 @@
     <string name="uploader_event_cancelling">Cancelling</string>
     <string name="cloud_upload_clear_artwork">Hold to clear artwork</string>
     <string name="cloud_uploader_notification_error_message_tracktitle">There was an error uploading %s</string>
-    <string name="cloud_uploader_notification_error_ticker">Upload Error</string>
-    <string name="cloud_uploader_notification_error_title">Upload Error</string>
+    <string name="cloud_uploader_notification_error_ticker">Upload error</string>
+    <string name="cloud_uploader_notification_error_title">Upload error</string>
     <string name="cloud_uploader_notification_tracktitle_has_been_uploaded">%s has been uploaded</string>
-    <string name="cloud_uploader_notification_finished_ticker">Upload Finished</string>
-    <string name="cloud_uploader_notification_finished_title">Upload Finished</string>
+    <string name="cloud_uploader_notification_finished_ticker">Upload finished</string>
+    <string name="cloud_uploader_notification_finished_title">Upload finished</string>
     <string name="dialog_cancel_upload_message">Cancel upload?</string>
     <string name="sc_upload_private">\u00A0Private</string>
     <string name="sc_upload_public">\u00A0Public</string>
@@ -460,7 +460,7 @@
     <string name="pref_analytics">Analytics</string>
     <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app, which helps us improve the app. For details, refer to our Privacy policy.</string>
     <string name="pref_crashlogs">Crashlogs</string>
-    <string name="pref_crashlogs_desc">Enabling crash logs helps us improve the app significantly. We don\'t collect any personal data. For details, refer to our Privacy policy.</string>
+    <string name="pref_crashlogs_desc">Enabling crash logs helps us improve the app significantly. We don’t collect any personal data. For details, refer to our Privacy policy.</string>
     <string name="playback_error_logging">Playback error logging : %s</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
@@ -608,7 +608,7 @@
     <string name="collections_options_dialog_sort_by_creation">Recency</string>
     <string name="collections_options_dialog_sort_by_title">Title</string>
     <string name="collections_empty_playlists">Your liked or created playlists will show up here.</string>
-    <string name="collections_filters_active_message">Not all your Playlists are being shown. Clear filters to see them all.</string>
+    <string name="collections_filters_active_message">Not all your playlists are being shown. Clear filters to see them all.</string>
     <string name="collections_remove_filters">Clear filters</string>
     <string name="collections_loading_error">There was a problem loading your collection.\nTry again later</string>
 
@@ -620,16 +620,16 @@
 
     <!-- __YOU -->
     <string name="you_explore">Explore</string>
-    <string name="you_activity">Activity</string>
+    <string name="you_activity">Noticitions</string>
     <string name="you_record">Record</string>
-    <string name="you_offline_sync_settings">Offline Sync Settings</string>
-    <string name="you_notification_settings">Notification Settings</string>
-    <string name="you_basic_settings">Basic Settings</string>
-    <string name="you_report_bug">Report Bug</string>
-    <string name="you_help_center">Help Center</string>
+    <string name="you_offline_sync_settings">Offline sync settings</string>
+    <string name="you_notification_settings">Notification settings</string>
+    <string name="you_basic_settings">Basic settings</string>
+    <string name="you_report_bug">Report bug</string>
+    <string name="you_help_center">Help center</string>
     <string name="you_legal">Legal</string>
     <string name="you_sign_out">Sign out</string>
-    <string name="you_view_public_profile">View Public Profile</string>
+    <string name="you_view_public_profile">View public profile</string>
     <string name="you_app_version">App Version %s</string>
 
     <!-- __OFFLINE_SYNC -->
