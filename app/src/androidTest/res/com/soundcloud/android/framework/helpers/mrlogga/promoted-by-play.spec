@@ -39,6 +39,6 @@ expected_events:
     track_owner: soundcloud:users:[0-9]+
     promoted_by: soundcloud:users:[0-9]+
     consumer_subs_plan: none
-    playhead_position: '0'
+    playhead_position: '[0-9]+'
     local_storage_playback: 'false'
   version: '0'
