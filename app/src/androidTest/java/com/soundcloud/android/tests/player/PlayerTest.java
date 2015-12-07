@@ -165,8 +165,12 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertTrue(trackInfoScreen.getNoDescription().isVisible());
     }
 
-    public void testPlayerTrackInfoLinksToComments() throws Exception {
-        playExploreTrack();
+    public void testListOfCommentsCanBePaged() {
+        visualPlayerElement = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("lots o' comments")
+                .clickFirstTrackItem();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
         TrackCommentsScreen trackCommentsScreen = visualPlayerElement
@@ -175,19 +179,6 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .clickComments();
 
         assertThat(originalTitle, is(equalTo((trackCommentsScreen.getTitle()))));
-    }
-
-    public void testListOfCommentsCanBePaged() {
-        visualPlayerElement = mainNavHelper
-                .goToDiscovery()
-                .clickSearch()
-                .doSearch("lots o' comments")
-                .clickFirstTrackItem();
-
-        TrackCommentsScreen trackCommentsScreen = visualPlayerElement
-                .clickMenu()
-                .clickInfo()
-                .clickComments();
 
         int initialCommentsCount = trackCommentsScreen.getCommentsCount();
         trackCommentsScreen.scrollToBottomOfComments();
