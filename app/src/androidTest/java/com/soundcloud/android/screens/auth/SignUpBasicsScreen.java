@@ -1,7 +1,5 @@
 package com.soundcloud.android.screens.auth;
 
-import static junit.framework.Assert.assertTrue;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.EditTextElement;
@@ -10,6 +8,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.EmailOptInScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.elements.SignUpSpamDialogElement;
 
 public class SignUpBasicsScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -49,7 +48,7 @@ public class SignUpBasicsScreen extends Screen {
         return testDriver.findElement(With.id(R.id.btn_skip));
     }
 
-    private ViewElement acceptTermsButton() {
+    public ViewElement acceptTermsButton() {
         return testDriver.findElement(With.id(R.id.btn_accept_terms));
     }
 
@@ -110,10 +109,9 @@ public class SignUpBasicsScreen extends Screen {
         return this;
     }
 
-    public void closeSpamDialog() {
-        final String dialogTitle = testDriver.getString(R.string.authentication_blocked_title);
-        final ViewElement blockedDialog = testDriver.findElement(With.text(dialogTitle));
-        testDriver.findElement(With.text(testDriver.getString(R.string.contact_support))).click();
+    public SignUpSpamDialogElement clickAcceptTermsOpensSpamDialog() {
+        acceptTermsButton().click();
+        return new SignUpSpamDialogElement(testDriver);
     }
 
     public EmailOptInScreen skipSignUpDetails() {
