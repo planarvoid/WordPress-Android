@@ -1,7 +1,5 @@
 package com.soundcloud.android.screens.elements;
 
-import static junit.framework.Assert.assertTrue;
-
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
@@ -315,8 +313,14 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
-    public void waitForAdOverlayToLoad() {
-        waiter.waitFiveSeconds();
+    public VisualPlayerElement waitForInterstitialToLoad() {
+        waiter.waitForElement(R.id.interstitial);
+        return this;
+    }
+
+    public VisualPlayerElement waitForLeaveBehindToLoad() {
+        waiter.waitForElement(R.id.leave_behind);
+        return this;
     }
 
     public void waitForPlayButton() {

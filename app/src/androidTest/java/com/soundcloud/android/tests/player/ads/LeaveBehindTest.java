@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.player.ads;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.tests.TestConsts;
 
@@ -16,7 +18,7 @@ public class LeaveBehindTest extends AdBaseTest {
     public void testFinishAdShouldShowLeaveBehind() {
         swipeToAd();
         playerElement.waitForAdToBeDone();
-        playerElement.waitForAdOverlayToLoad();
-        assertTrue(playerElement.isLeaveBehindVisible());
+        playerElement.waitForLeaveBehindToLoad();
+        assertThat("Should display leave behind", playerElement.isLeaveBehindVisible());
     }
 }
