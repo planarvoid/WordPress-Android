@@ -44,7 +44,7 @@ public class SignUpBasicsScreen extends Screen {
         return testDriver.findElement(With.id(R.id.btn_signup));
     }
 
-    private ViewElement skipButton() {
+    public ViewElement skipButton() {
         return testDriver.findElement(With.id(R.id.btn_skip));
     }
 
@@ -100,6 +100,7 @@ public class SignUpBasicsScreen extends Screen {
 
     public SignUpBasicsScreen signup() {
         doneButton().click();
+        waiter.waitForElement(R.id.btn_accept_terms);
         return this;
     }
 

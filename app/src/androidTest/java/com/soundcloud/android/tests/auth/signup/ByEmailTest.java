@@ -17,17 +17,21 @@ public class ByEmailTest extends SignUpTest {
     }
 
     public void testUserSuccess() throws Exception {
-        EmailOptInScreen optInScreen = homeScreen
+        signUpBasicsScreen = homeScreen
                 .clickSignUpButton()
                 .clickByEmailButton()
                 .typeEmail(generateEmail())
                 .typePassword("password123")
                 .typeAge(21)
                 .chooseGender("Custom")
-                .typeCustomGender("Genderqueer")
-                .signup()
-                .acceptTerms()
-                .skipSignUpDetails();
+                .typeCustomGender("Genderqueer");
+
+        assertTrue(signUpBasicsScreen.isDoneButtonEnabled());
+        signUpBasicsScreen.signup();
+        assertTrue(signUpBasicsScreen.acceptTermsButton().isVisible());
+        signUpBasicsScreen.acceptTerms();
+        assertTrue(signUpBasicsScreen.skipButton().isVisible());
+        EmailOptInScreen optInScreen = signUpBasicsScreen.skipSignUpDetails();
 
         assertThat(optInScreen, is(visible()));
 
