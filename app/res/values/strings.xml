@@ -630,7 +630,7 @@
     <string name="you_legal">Legal</string>
     <string name="you_sign_out">Sign out</string>
     <string name="you_view_public_profile">View public profile</string>
-    <string name="you_app_version">App Version %s</string>
+    <string name="you_app_version">App version %s</string>
 
     <!-- __OFFLINE_SYNC -->
     <plurals name="downloading_track_of_tracks">
