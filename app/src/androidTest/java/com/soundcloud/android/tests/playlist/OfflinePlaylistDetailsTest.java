@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.playlist;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
@@ -38,7 +39,7 @@ public class OfflinePlaylistDetailsTest extends ActivityTest<MainActivity> {
                 .clickMakeAvailableOffline();
 
         final DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
-        assertTrue("Playlist should be requested or downloading ",
+        assertThat("Playlist should be requested or downloading ",
                 downloadElement.isRequested() || downloadElement.isDownloading() || downloadElement.isDownloaded());
     }
 }
