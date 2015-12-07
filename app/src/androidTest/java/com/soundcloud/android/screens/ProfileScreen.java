@@ -7,11 +7,13 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.screens.elements.PlaylistItemElement;
+import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.Tabs;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.strings.Strings;
 
 import android.support.v7.widget.RecyclerView;
@@ -48,15 +50,34 @@ public class ProfileScreen extends Screen {
 
     public PlaylistDetailsScreen clickFirstPlaylistWithTracks() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        final List<PlaylistItemElement> playlists = getPlaylists();
-        for (PlaylistItemElement playlistItemElement : playlists){
-            final String trackCount = playlistItemElement.getTrackCount();
+        final List<PlaylistElement> playlists = getPlaylists();
+        for (PlaylistElement playlistElement : playlists){
+            final String trackCount = playlistElement.getTrackCount();
             if (Strings.isNotBlank(trackCount) && !trackCount.equalsIgnoreCase("0 tracks")) {
-                return playlistItemElement.click();
+                return playlistElement.click();
             }
         }
         throw new IllegalStateException("Could not find playlist with a valid track count");
     }
+
+    public List<PlaylistElement> getPlaylists() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
+    }
+
+    protected List<PlaylistElement> getPlaylists(int withId) {
+        return Lists.transform(
+                testDriver.findElements(With.id(withId)),
+                toPlaylistItemElement
+        );
+    }
+
+    private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = new Function<ViewElement, PlaylistElement>() {
+        @Override
+        public PlaylistElement apply(ViewElement viewElement) {
+            return PlaylistElement.forListItem(testDriver, viewElement);
+        }
+    };
 
     public String getFirstTrackTitle() {
         pullToRefresh();

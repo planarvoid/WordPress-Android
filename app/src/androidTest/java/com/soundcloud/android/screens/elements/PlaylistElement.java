@@ -7,13 +7,24 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 
-public class PlaylistItemElement {
+public class PlaylistElement {
+
     private final Han testDriver;
     private final ViewElement wrapped;
+    private final int titleId;
 
-    public PlaylistItemElement(Han testDriver, ViewElement wrapped) {
+    private PlaylistElement(Han testDriver, ViewElement wrapped, int titleId) {
         this.testDriver = testDriver;
         this.wrapped = wrapped;
+        this.titleId = titleId;
+    }
+
+    public static PlaylistElement forListItem(Han testDriver, ViewElement wrapped) {
+        return new PlaylistElement(testDriver, wrapped, R.id.list_item_subheader);
+    }
+
+    public static PlaylistElement forCard(Han testDriver, ViewElement wrapped) {
+        return new PlaylistElement(testDriver, wrapped, R.id.title);
     }
 
     public boolean isVisible() {
@@ -21,7 +32,7 @@ public class PlaylistItemElement {
     }
 
     public String getTitle() {
-        return getText(wrapped.findElement(With.id(R.id.title)));
+        return getText(wrapped.findElement(With.id(titleId)));
     }
 
     public String getTrackCount() {

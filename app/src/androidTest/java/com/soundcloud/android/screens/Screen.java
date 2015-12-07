@@ -7,7 +7,6 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.elements.EmptyViewElement;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
-import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
@@ -85,18 +84,6 @@ public abstract class Screen {
         );
     }
 
-    public List<PlaylistItemElement> getPlaylists() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
-    }
-
-    protected List<PlaylistItemElement> getPlaylists(int withId) {
-        return Lists.transform(
-                testDriver.findElements(With.id(withId)),
-                toPlaylistItemElement
-        );
-    }
-
     public List<UserItemElement> getUsers() {
         return Lists.transform(
                 testDriver.findElements(With.id(com.soundcloud.android.R.id.user_list_item)),
@@ -124,13 +111,6 @@ public abstract class Screen {
         @Override
         public TrackItemElement apply(ViewElement viewElement) {
             return new TrackItemElement(testDriver, viewElement);
-        }
-    };
-
-    private final Function<ViewElement, PlaylistItemElement> toPlaylistItemElement = new Function<ViewElement, PlaylistItemElement>() {
-        @Override
-        public PlaylistItemElement apply(ViewElement viewElement) {
-            return new PlaylistItemElement(testDriver, viewElement);
         }
     };
 

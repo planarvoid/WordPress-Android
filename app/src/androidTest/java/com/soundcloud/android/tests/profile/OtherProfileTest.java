@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.elements.PlaylistItemElement;
+import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
@@ -48,7 +48,7 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
     }
 
     public void testPostsPlaylistClickOpensPlaylistPage() {
-        final PlaylistItemElement expectedPlaylist = profileScreen
+        final PlaylistElement expectedPlaylist = profileScreen
                 .getPlaylists()
                 .get(0);
 

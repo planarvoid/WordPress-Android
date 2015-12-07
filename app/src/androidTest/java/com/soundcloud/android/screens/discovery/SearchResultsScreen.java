@@ -4,17 +4,23 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.UpgradeScreen;
+import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.SearchTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
 
 import android.support.v7.widget.RecyclerView;
+
+import java.util.List;
 
 public class SearchResultsScreen extends Screen {
 
@@ -108,6 +114,25 @@ public class SearchResultsScreen extends Screen {
         testDriver.findElement(With.textContaining(name)).click();
         return new UpgradeScreen(testDriver);
     }
+
+    public List<PlaylistElement> getPlaylists() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
+    }
+
+    protected List<PlaylistElement> getPlaylists(int withId) {
+        return Lists.transform(
+                testDriver.findElements(With.id(withId)),
+                toPlaylistItemElement
+        );
+    }
+
+    private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = new Function<ViewElement, PlaylistElement>() {
+        @Override
+        public PlaylistElement apply(ViewElement viewElement) {
+            return PlaylistElement.forListItem(testDriver, viewElement);
+        }
+    };
 
     private ViewPagerElement getViewPager() {
         return new ViewPagerElement(testDriver);
