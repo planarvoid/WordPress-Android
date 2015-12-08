@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -78,24 +79,28 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         return (PlayerFragment) activity.getSupportFragmentManager().findFragmentById(R.id.player_root);
     }
 
+    private boolean isExpanded() {
+        return slidingPanel.getPanelState() == PanelState.EXPANDED;
+    }
+
+    private boolean isHidden() {
+        return slidingPanel.getPanelState() == PanelState.HIDDEN;
+    }
+
     private void expand() {
-        slidingPanel.expandPanel();
+        slidingPanel.setPanelState(PanelState.EXPANDED);
     }
 
     private void collapse() {
-        slidingPanel.collapsePanel();
-    }
-
-    private void show() {
-        slidingPanel.showPanel();
+        slidingPanel.setPanelState(PanelState.COLLAPSED);
     }
 
     private void hide() {
-        slidingPanel.hidePanel();
+        slidingPanel.setPanelState(PanelState.HIDDEN);
     }
 
     public boolean handleBackPressed() {
-        if (slidingPanel.isPanelExpanded()) {
+        if (isExpanded()) {
             collapse();
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON));
             return true;
@@ -136,7 +141,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     private void restorePlayerState() {
-        showPanelIfNeeded();
+        showPanelAsCollapsedIfNeeded();
         if (expandOnResume) {
             restoreExpanded();
         }
@@ -148,9 +153,9 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         notifyExpandedState();
     }
 
-    private void showPanelIfNeeded() {
-        if (slidingPanel.isPanelHidden()) {
-            show();
+    private void showPanelAsCollapsedIfNeeded() {
+        if (isHidden()) {
+            collapse();
         }
     }
 
@@ -161,7 +166,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     @Override
     public void onSaveInstanceState(AppCompatActivity activity, Bundle bundle) {
-        bundle.putBoolean(EXTRA_EXPAND_PLAYER, slidingPanel.isPanelExpanded());
+        bundle.putBoolean(EXTRA_EXPAND_PLAYER, isExpanded());
     }
 
     @Override
@@ -177,8 +182,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
                 expand();
             } else if (event.isCollapse()) {
                 collapse();
-            } else if (event.isShow()) {
-                show();
             }
         }
     }
@@ -198,7 +201,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     @Override
     public void onPanelCollapsed(View panel) {
         setStatusBarColor(collapsedStatusColor);
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        notifyCollapsedState();
         trackPlayerSlide(UIEvent.fromPlayerClose(UIEvent.METHOD_SLIDE));
     }
 

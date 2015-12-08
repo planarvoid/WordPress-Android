@@ -18,10 +18,4 @@ public class PlayerUICommandTest {
         assertThat(event.isCollapse()).isTrue();
     }
 
-    @Test
-    public void createsEventForShowPlayer() {
-        PlayerUICommand event = PlayerUICommand.showPlayer();
-        assertThat(event.isShow()).isTrue();
-    }
-
 }

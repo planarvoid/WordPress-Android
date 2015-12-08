@@ -21,7 +21,8 @@ public class ShowPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
     @Override
     public void onNext(PlaybackResult result) {
         if (result.isSuccess()) {
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+            // Show the player in it's collapsed state
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
         } else {
             playbackToastHelper.showToastOnPlaybackError(result.getErrorReason());
         }

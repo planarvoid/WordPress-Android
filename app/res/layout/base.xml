@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    sothree:dragView="@+id/player_layout"
-    sothree:panelHeight="@dimen/player_footer">
+    sothree:umanoDragView="@+id/player_layout"
+    sothree:umanoPanelHeight="@dimen/player_footer">
 
     <RelativeLayout
         android:layout_width="match_parent"

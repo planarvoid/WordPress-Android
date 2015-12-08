@@ -1,23 +1,23 @@
 package com.soundcloud.android.playback;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
-import static org.mockito.Mockito.verify;
-
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ShowPlayerSubscriberTest {
-    private ShowPlayerSubscriber subscriber;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
-    private TestEventBus eventBus;
+public class ShowPlayerSubscriberTest extends AndroidUnitTest {
+
     @Mock private PlaybackToastHelper playbackToastHelper;
+
+    private ShowPlayerSubscriber subscriber;
+    private TestEventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
@@ -26,10 +26,10 @@ public class ShowPlayerSubscriberTest {
     }
 
     @Test
-    public void showsPlayerOnSuccessfulPlaybackResult() {
+    public void showsPlayerAsCollapsedOnSuccessfulPlaybackResult() {
         subscriber.onNext(PlaybackResult.success());
 
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).toBeTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isCollapse()).isTrue();
     }
 
     @Test
@@ -40,5 +40,4 @@ public class ShowPlayerSubscriberTest {
 
         verify(playbackToastHelper).showToastOnPlaybackError(errorResult.getErrorReason());
     }
-
 }

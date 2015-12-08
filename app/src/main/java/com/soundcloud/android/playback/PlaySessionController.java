@@ -126,10 +126,10 @@ public class PlaySessionController {
         }
     };
 
-    private final Action1<PlayQueue> showPlayer = new Action1<PlayQueue>() {
+    private final Action1<PlayQueue> showPlayerAsCollapsed = new Action1<PlayQueue>() {
         @Override
         public void call(PlayQueue ignore) {
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
         }
     };
 
@@ -208,7 +208,7 @@ public class PlaySessionController {
         if (playQueueManager.isQueueEmpty()) {
             subscription.unsubscribe();
             subscription = playQueueManager.loadPlayQueueAsync()
-                    .doOnNext(showPlayer)
+                    .doOnNext(showPlayerAsCollapsed)
                     .subscribe(new DefaultSubscriber<PlayQueue>());
         }
     }
