@@ -188,7 +188,12 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlayerTrackMakeComment() {
-        playTrackFromStream();
+        visualPlayerElement = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("lots o' comments")
+                .clickFirstTrackItem();
+
         visualPlayerElement.playForFiveSeconds();
 
         final AddCommentScreen addCommentScreen = visualPlayerElement
