@@ -14,13 +14,13 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class PlayQueueTest extends AndroidUnitTest {
@@ -62,7 +62,7 @@ public class PlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void addAllPlayQueueItemsShouldAppendToPlayQueue() {
-        playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
+        playQueue = TestPlayQueue.fromUrns(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
         playQueue.addAllPlayQueueItems(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, VIDEO_QUEUE_ITEM));
 
         assertThat(playQueue.size()).isEqualTo(6);
@@ -75,15 +75,6 @@ public class PlayQueueTest extends AndroidUnitTest {
                 TRACK_QUEUE_ITEM_2.getSource(),
                 TRACK_QUEUE_ITEM_2.getSourceVersion());
         assertVideoQueueItem(playQueue.getPlayQueueItem(5), VIDEO_QUEUE_ITEM.getAdData());
-    }
-
-    @Test
-    public void returnsAllUrnsFromPosition() {
-        playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L, 3L), playSessionSource);
-        playQueue.addAllPlayQueueItems(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, VIDEO_QUEUE_ITEM));
-
-        assertThat(playQueue.getItemUrnsFromPosition(3))
-                .isEqualTo(Arrays.asList(TRACK_QUEUE_ITEM_1.getUrn(), TRACK_QUEUE_ITEM_2.getUrn(), Urn.NOT_SET));
     }
 
     @Test

@@ -27,7 +27,7 @@ public abstract class AdBaseTest extends ResolveBaseTest {
     protected void playAdPlaylist() {
         playlistDetailsScreen = new PlaylistDetailsScreen(solo);
         playerElement = playlistDetailsScreen.clickFirstTrack();
-        assertTrue("Player did not expand", playerElement.waitForExpandedPlayer());
+        assertTrue("Player did not expand", playerElement.waitForExpandedPlayer().isExpanded());
         assertSwipeToNextTrack(playerElement);
         assertTrue("Playback did not play", waiter.waitForPlaybackToBePlaying());
         playerElement.waitForAdToBeFetched();

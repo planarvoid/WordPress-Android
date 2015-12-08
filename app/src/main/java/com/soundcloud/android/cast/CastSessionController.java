@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Singleton
@@ -123,9 +124,8 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
             }
         } else {
             Log.d(CastOperations.TAG, "Does not have the same tracklist, updating locally");
-            final PlayQueue playQueue = PlayQueue.fromTrackUrnList(
-                    remoteTrackList.isEmpty() ? Arrays.asList(remoteCurrentUrn) : remoteTrackList,
-                    PlaySessionSource.EMPTY);
+            List<Urn> trackUrns = remoteTrackList.isEmpty() ? Arrays.asList(remoteCurrentUrn) : remoteTrackList;
+            final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns, PlaySessionSource.EMPTY, Collections.<Urn, Boolean>emptyMap());
             playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.EMPTY, remotePosition);
             castPlayer.playCurrent();
         }

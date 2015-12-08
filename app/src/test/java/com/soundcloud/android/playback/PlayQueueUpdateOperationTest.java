@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
@@ -8,12 +10,10 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.java.optional.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class PlayQueueUpdateOperationTest extends AndroidUnitTest {
     private PlayQueue playQueue;
@@ -21,7 +21,7 @@ public class PlayQueueUpdateOperationTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         PlaySessionSource playSessionSource = new PlaySessionSource("origin");
-        playQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), playSessionSource);
+        playQueue = TestPlayQueue.fromUrns(TestUrns.createTrackUrns(1L, 2L), playSessionSource);
     }
 
     @Test

@@ -3,16 +3,20 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.Player;
 
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewStub;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
 
 class ErrorViewController {
+
+    enum ErrorState {
+        FAILED, BLOCKED, UNPLAYABLE
+    }
 
     private final View trackView;
     private final TrackPageHolder holder;
@@ -20,7 +24,7 @@ class ErrorViewController {
 
     private View errorLayout;
 
-    @Nullable private Player.Reason currentError;
+    @Nullable private ErrorState currentError;
 
     public ErrorViewController(View trackView) {
         this.trackView = trackView;
@@ -32,29 +36,49 @@ class ErrorViewController {
         return currentError != null;
     }
 
-    public void showError(Player.Reason reason) {
-        this.currentError = reason;
+    public void showError(ErrorState error) {
+        this.currentError = error;
         holder.waveformController.hide();
         setGone(holder.hideOnErrorViews);
 
         setupErrorLayout();
-        setMessageFromReason(reason);
+
+        final TextView message = (TextView) errorLayout.findViewById(R.id.playback_error_reason);
+        message.setText(getMessageFromError(error));
+
+        final ImageView errorImage = (ImageView) errorLayout.findViewById(R.id.playback_error_image);
+        errorImage.setImageResource(getImageFromError(error));
+
     }
 
     private void setupErrorLayout() {
         errorLayout = trackView.findViewById(R.id.track_page_error);
         if (errorLayout == null) {
             errorLayout = errorStub.inflate();
+
         } else {
             errorLayout.setVisibility(View.VISIBLE);
         }
     }
 
-    private void setMessageFromReason(Player.Reason reason) {
-        final TextView message = (TextView) errorLayout.findViewById(R.id.playback_error_reason);
-        message.setText(reason == Player.Reason.ERROR_FAILED
-                ? R.string.playback_error_connection
-                : R.string.playback_error_unable_to_play);
+    private int getMessageFromError(ErrorState error) {
+        switch (error) {
+            case FAILED:
+                return R.string.playback_error_connection;
+            case BLOCKED:
+                return R.string.playback_error_blocked;
+            default:
+                return R.string.playback_error_unable_to_play;
+        }
+    }
+
+    private int getImageFromError(ErrorState error) {
+        switch (error) {
+            case BLOCKED:
+                return R.drawable.player_error_geoblock;
+            default:
+                return R.drawable.player_error;
+        }
     }
 
     public void hideError() {
@@ -64,6 +88,12 @@ class ErrorViewController {
 
             errorLayout.setVisibility(View.GONE);
             currentError = null;
+        }
+    }
+
+    public void hideNonBlockedErrors() {
+        if (currentError != ErrorState.BLOCKED) {
+            hideError();
         }
     }
 

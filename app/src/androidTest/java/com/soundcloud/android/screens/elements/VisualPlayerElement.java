@@ -170,11 +170,16 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isExpandedPlayerPlaying() {
-        return waitForExpandedPlayer()
+        return waitForExpandedPlayer().isExpanded()
                 && !playButton().isVisible()
                 && progress().isVisible()
                 && waiter.waitForElementCondition(new TextChangedCondition(progress()));
     }
+
+    public boolean isExpandedPlayerPaused() {
+        return waitForExpandedPlayer().isExpanded() && playButton().isVisible();
+    }
+
 
     public void tapFooter() {
         footerPlayer().click();
@@ -208,16 +213,18 @@ public class VisualPlayerElement extends Element {
         waiter.waitForPlayerPage();
     }
 
-    public void swipeNext() {
+    public VisualPlayerElement swipeNext() {
         waitForContent();
         solo.swipeLeft();
         waiter.waitForPlayerPage();
+        return this;
     }
 
-    public void swipePrevious() {
+    public VisualPlayerElement swipePrevious() {
         waitForContent();
         solo.swipeRight();
         waiter.waitForPlayerPage();
+        return this;
     }
 
     public WhyAdsScreen clickWhyAds() {
@@ -270,8 +277,9 @@ public class VisualPlayerElement extends Element {
         });
     }
 
-    public boolean waitForExpandedPlayer() {
-        return waiter.waitForElementCondition(IS_EXPANDED_CONDITION);
+    public VisualPlayerElement waitForExpandedPlayer() {
+        waiter.waitForElementCondition(IS_EXPANDED_CONDITION);
+        return this;
     }
 
     private int getFullScreenHeight() {
@@ -331,6 +339,11 @@ public class VisualPlayerElement extends Element {
         return waiter.waitForElement(R.id.player_ad_page);
     }
 
+    public VisualPlayerElement waitForExpandedPlayerToStartPlaying() {
+        waiter.waitForElementToBeInvisible(With.id(R.id.player_play));
+        return this;
+    }
+
     public boolean waitForPlayState() {
         if (isExpanded()) {
             return waiter.waitForElementToBeInvisible(With.id(R.id.player_play));
@@ -369,6 +382,14 @@ public class VisualPlayerElement extends Element {
 
     public boolean isCenteredAd() {
        return centeredAdArtwork().isVisible();
+    }
+
+    public String errorReason() {
+        return errorReasonElement().getText();
+    }
+
+    private TextElement errorReasonElement() {
+        return new TextElement(solo.findElement(With.id(R.id.playback_error_reason)));
     }
 
     public void clickCenteredAdArtwork() {
@@ -438,7 +459,7 @@ public class VisualPlayerElement extends Element {
 
         @Override
         public boolean isSatisfied() {
-            return !trackTitle().equals(original);
+            return !trackTitle().getText().equals(original);
         }
     }
 }

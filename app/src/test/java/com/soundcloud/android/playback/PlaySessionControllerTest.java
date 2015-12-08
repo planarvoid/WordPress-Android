@@ -35,6 +35,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.TestUrns;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -64,7 +65,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class PlaySessionControllerTest extends AndroidUnitTest {
-    private final PlayQueue recommendedPlayQueue = PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L, 2L), PlaySessionSource.EMPTY);
+    private final PlayQueue recommendedPlayQueue = TestPlayQueue.fromUrns(TestUrns.createTrackUrns(1L, 2L), PlaySessionSource.EMPTY);
     private final Urn LAST_URN = Urn.forTrack(987L);
 
     private PlayQueueItem trackPlayQueueItem;
@@ -92,7 +93,6 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private StationsOperations stationsOperations;
 
     private PlaySessionController controller;
-    private PublishSubject<Boolean> advanceSubject = PublishSubject.create();
 
     @Before
     public void setUp() throws Exception {
@@ -118,7 +118,6 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(playbackStrategy.playCurrent()).thenReturn(Observable.<Void>just(null));
-        when(playQueueManager.advanceToNextPlayableTrack()).thenReturn(advanceSubject);
     }
 
     @Test
@@ -128,6 +127,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playbackStrategy).playCurrent();
+    }
+
+    @Test
+    public void playQueueTrackChangedHandlerCallsPlayCurrentAndPausesIfNextTrackBlocked() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        when(playbackStrategy.playCurrent()).thenReturn(Observable.<Void>error(new BlockedTrackException(trackUrn)));
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+
+        verify(playbackStrategy).pause();
     }
 
     @Test
@@ -222,22 +231,23 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, trackUrn));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, trackUrn));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, trackUrn));
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
     @Test
     public void onStateTransitionDoesNotAdvanceItemIfTrackEndedWithNotFoundErrorAndNotUserTriggeredWithNoConnection() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, trackUrn));
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
     @Test
     public void onStateTransitionToAdvanceItemIfTrackEndedWithNotFoundErrorAndNotUserTriggeredWithConnection() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(playQueueManager.autoMoveToNextPlayableItem()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, trackUrn));
-        advanceSubject.onNext(true);
+        verify(playQueueManager).autoMoveToNextPlayableItem();
         verify(playbackStrategy).playCurrent();
     }
 
@@ -245,22 +255,23 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void onStateTransitionDoesNotTryToAdvanceItemIfTrackEndedWithNotFoundErrorAndUserTriggered() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), true));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, trackUrn));
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
     @Test
     public void onStateTransitionDoesNotTryToAdvanceItemIfTrackEndedWithForbiddenErrorAndNotUserTriggeredAndNoInternet() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, trackUrn));
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
     @Test
     public void onStateTransitionToAdvanceItemIfTrackEndedWithForbiddenErrorAndNotUserTriggeredWithConnection() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(playQueueManager.autoMoveToNextPlayableItem()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, trackUrn));
-        advanceSubject.onNext(true);
+        verify(playQueueManager).autoMoveToNextPlayableItem();
         verify(playbackStrategy).playCurrent();
     }
 
@@ -268,22 +279,21 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void onStateTransitionDoesNotTryToAdvanceItemIfTrackEndedWithForbiddenErrorAndUserTriggered() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), true));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, trackUrn));
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
     @Test
     public void onStateTransitionDoesNotTryToAdvanceItemIfTrackEndedWithFailedErrorAndNotUserTriggered() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(), false));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, trackUrn));
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
     @Test
     public void onStateTransitionTriesToAdvanceItemIfTrackEndedWhileCasting() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, trackUrn));
-        assertThat(advanceSubject.hasObservers()).isTrue();
-        advanceSubject.onNext(false);
+        verify(playQueueManager).autoMoveToNextPlayableItem();
         verify(playbackStrategy, never()).playCurrent();
     }
 
@@ -295,17 +305,15 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionDoesNotOpenCurrentTrackAfterFailingToAdvancePlayQueue() throws Exception {
+        when(playQueueManager.moveToNextPlayableItem()).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, trackUrn));
-        assertThat(advanceSubject.hasObservers()).isTrue();
-        advanceSubject.onNext(false);
         verifyZeroInteractions(playbackStrategy);
     }
 
     @Test
     public void onStateTransitionPublishesPlayQueueCompleteEventAfterFailingToAdvancePlayQueue() throws Exception {
+        when(playQueueManager.moveToNextPlayableItem()).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, trackUrn));
-        assertThat(advanceSubject.hasObservers()).isTrue();
-        advanceSubject.onNext(false);
         final List<Player.StateTransition> stateTransitionEvents = eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
         assertThat(Iterables.filter(stateTransitionEvents, new Predicate<Player.StateTransition>() {
             @Override
@@ -440,7 +448,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void appendsRecommendedTracksConsecutivelyIfResultsAreReceivedFirstTime() {
-        final Observable<PlayQueue> first = Observable.just(PlayQueue.fromTrackUrnList(TestUrns.createTrackUrns(1L), PlaySessionSource.EMPTY));
+        final Observable<PlayQueue> first = Observable.just(TestPlayQueue.fromUrns(TestUrns.createTrackUrns(1L), PlaySessionSource.EMPTY));
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true)).thenReturn(first, Observable.just(recommendedPlayQueue));
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
@@ -566,7 +574,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         controller.previousTrack();
 
-        verify(playQueueManager).moveToPreviousItem();
+        verify(playQueueManager).moveToPreviousPlayableItem();
     }
 
     @Test
@@ -576,7 +584,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         controller.previousTrack();
 
-        verify(playQueueManager).moveToPreviousItem();
+        verify(playQueueManager).moveToPreviousPlayableItem();
     }
 
     @Test
@@ -606,7 +614,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         controller.previousTrack();
 
-        verify(playQueueManager).moveToPreviousItem();
+        verify(playQueueManager).moveToPreviousPlayableItem();
     }
 
     @Test
@@ -615,7 +623,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         controller.previousTrack();
 
-        verify(playQueueManager, never()).moveToPreviousItem();
+        verify(playQueueManager, never()).moveToPreviousPlayableItem();
     }
 
     @Test
@@ -637,7 +645,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
         inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAudioAd();
-        inOrder.verify(playQueueManager).moveToPreviousItem();
+        inOrder.verify(playQueueManager).moveToPreviousPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
@@ -675,7 +683,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void nextTrackCallsNextItemOnPlayQueueManager() {
         controller.nextTrack();
 
-        verify(playQueueManager).nextItem();
+        verify(playQueueManager).moveToNextPlayableItem();
     }
 
     @Test
@@ -684,7 +692,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         controller.nextTrack();
 
-        verify(playQueueManager).nextItem();
+        verify(playQueueManager).moveToNextPlayableItem();
     }
 
     @Test
@@ -693,7 +701,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         controller.nextTrack();
 
-        verify(playQueueManager, never()).nextItem();
+        verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
     @Test
@@ -705,7 +713,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
         inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAudioAd();
-        inOrder.verify(playQueueManager).nextItem();
+        inOrder.verify(playQueueManager).moveToNextPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
@@ -769,7 +777,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.ACTIVITIES);
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(track), playSessionSource);
+        final PlayQueue playQueue = TestPlayQueue.fromUrns(Arrays.asList(track), playSessionSource);
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.just(PlaybackResult.success()));
 
         controller.playNewQueue(playQueue, track, 0, playSessionSource)
@@ -785,7 +793,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         Urn track = Urn.forTrack(123L);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
+        controller.playNewQueue(TestPlayQueue.fromUrns(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
                 .subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
@@ -801,7 +809,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(PlayQueue.fromTrackUrnList(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
+        controller.playNewQueue(TestPlayQueue.fromUrns(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
                 .subscribe(subscriber);
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
@@ -815,7 +823,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.ACTIVITIES);
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(track), playSessionSource);
+        final PlayQueue playQueue = TestPlayQueue.fromUrns(Arrays.asList(track), playSessionSource);
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.<PlaybackResult>never());
 
         controller.playCurrent();
@@ -849,7 +857,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.ACTIVITIES);
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(track), playSessionSource);
+        final PlayQueue playQueue = TestPlayQueue.fromUrns(Arrays.asList(track), playSessionSource);
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.just(PlaybackResult.success()));
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();

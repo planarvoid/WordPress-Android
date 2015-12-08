@@ -60,7 +60,9 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsBlockedTrack() throws Exception {
-        final ApiTrack apiTrack = testFixtures().insertBlockedTrack();
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        apiTrack.setBlocked(true);
+        testFixtures().insertTrack(apiTrack);
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 

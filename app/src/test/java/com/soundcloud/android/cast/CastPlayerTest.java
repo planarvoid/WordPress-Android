@@ -33,6 +33,7 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.json.JSONObject;
@@ -301,7 +302,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.reloadCurrentQueue().subscribe(observer);
 
-        verify(playQueueManager).setNewPlayQueue(PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN1), PlaySessionSource.EMPTY), PlaySessionSource.EMPTY, 0);
+        final PlayQueue playQueue = TestPlayQueue.fromUrns(Arrays.asList(TRACK_URN1), PlaySessionSource.EMPTY);
+        verify(playQueueManager).setNewPlayQueue(playQueue, PlaySessionSource.EMPTY, 0);
     }
 
     @Test

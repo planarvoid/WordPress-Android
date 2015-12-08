@@ -109,4 +109,8 @@
 
     <!-- __STREAMING -->
     <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
+
+    <!-- __PLAYER -->
+    <string name="playback_error_blocked">Not available yet in your country</string>
+
 </resources>

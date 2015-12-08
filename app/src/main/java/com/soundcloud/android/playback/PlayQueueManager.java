@@ -27,9 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.functions.Func1;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -37,7 +35,6 @@ import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 @Singleton
 public class PlayQueueManager implements OriginProvider {
@@ -184,68 +181,72 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public void moveToPreviousItem() {
-        if (playQueue.hasPreviousItem(currentPosition)) {
-            currentPosition--;
-            currentItemIsUserTriggered = true;
-            publishPositionUpdate();
-        }
-    }
-
-    public boolean nextItem() {
-        if (playQueue.hasNextItem(currentPosition)) {
-            currentPosition++;
-            currentItemIsUserTriggered = true;
-            publishPositionUpdate();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public boolean hasNextItem() {
         return playQueue.hasNextItem(currentPosition);
+    }
+
+    public boolean hasPreviousItem() {
+        return playQueue.hasPreviousItem(currentPosition);
     }
 
     public List<Urn> getCurrentQueueTrackUrns() {
         return playQueue.getTrackItemUrns();
     }
 
-    public Observable<Boolean> advanceToNextPlayableTrack() {
-        if (playQueue.hasNextItem(currentPosition)) {
-            final List<Urn> remainingUrns = playQueue.getItemUrnsFromPosition(currentPosition + 1);
-            return policyOperations.blockedStati(remainingUrns)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .map(advanceToNext(remainingUrns));
+    public boolean moveToNextPlayableItem() {
+        return moveToNextPlayableItemInternal(true);
+    }
+
+    public boolean autoMoveToNextPlayableItem() {
+        return moveToNextPlayableItemInternal(false);
+    }
+
+    private boolean moveToNextPlayableItemInternal(boolean userTriggered) {
+        if (hasNextItem()) {
+            final int nextPlayableItem = getNextPlayableItem();
+            final int newPosition = nextPlayableItem == Consts.NOT_SET
+                    ? getQueueSize() - 1 // last track
+                    : nextPlayableItem; // next playable track
+            setPosition(newPosition, userTriggered);
+            return true;
         } else {
-            return Observable.just(false);
+            return false;
         }
     }
 
-    @NonNull
-    private Func1<Map<Urn, Boolean>, Boolean> advanceToNext(final List<Urn> remainingUrns) {
-        return new Func1<Map<Urn, Boolean>, Boolean>() {
-            @Override
-            public Boolean call(Map<Urn, Boolean> urnBooleanMap) {
-                if (hasNextItem()) {
-                    final int firstNotSetOrUnblocked = getFirstNotSetOrUnblocked(urnBooleanMap, remainingUrns);
-                    final int nextPosition = firstNotSetOrUnblocked == Consts.NOT_SET
-                            ? getQueueSize() - 1 // last track
-                            : currentPosition + firstNotSetOrUnblocked + 1; // next playable track
-                    setPosition(nextPosition, false);
-                    return true;
-                } else {
-                    return false;
-                }
-
+    private int getNextPlayableItem() {
+        for (int i = currentPosition + 1, size = getQueueSize(); i < size; i++) {
+            if (isPlayableAtPosition(i)) {
+                return i;
             }
-        };
+        }
+        return Consts.NOT_SET;
     }
 
-    private static int getFirstNotSetOrUnblocked(Map<Urn, Boolean> urnBooleanMap, List<Urn> remainingUrns) {
-        for (int i = 0, size = remainingUrns.size(); i < size; i++) {
-            final Urn urn = remainingUrns.get(i);
-            if (Urn.NOT_SET.equals(urn) || Boolean.FALSE.equals(urnBooleanMap.get(urn))) {
+    private boolean isPlayableAtPosition(int i) {
+        final PlayQueueItem playQueueItem = playQueue.getPlayQueueItem(i);
+        if (playQueueItem.isVideo() || !((TrackQueueItem) playQueueItem).isBlocked()) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean moveToPreviousPlayableItem() {
+        if (hasPreviousItem()) {
+            final int previousPlayable = getPreviousPlayableItem();
+            final int newPosition = previousPlayable == Consts.NOT_SET
+                    ? 0 // first track
+                    : previousPlayable; // next playable track
+            setPosition(newPosition, true);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private int getPreviousPlayableItem() {
+        for (int i = currentPosition - 1; i > 0; i--) {
+            if (isPlayableAtPosition(i)) {
                 return i;
             }
         }

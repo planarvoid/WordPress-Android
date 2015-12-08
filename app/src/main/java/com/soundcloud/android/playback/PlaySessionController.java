@@ -29,6 +29,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.PropertySetFunctions;
@@ -55,6 +56,8 @@ import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class PlaySessionController {
+
+    private static final String TAG = "PlaySessionController";
 
     @VisibleForTesting
     static final int RECOMMENDED_LOAD_TOLERANCE = 5;
@@ -104,10 +107,10 @@ public class PlaySessionController {
 
     private Subscription currentTrackSubscription = RxUtils.invalidSubscription();
     private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     private PropertySet currentPlayQueueTrack; // the track that is currently set in the queue
     private boolean stopContinuousPlayback; // killswitch. If the api returns no tracks, stop asking for them
-    private Subscription subscription = RxUtils.invalidSubscription();
 
     private final Action0 stopLoadingPreviousTrack = new Action0() {
         @Override
@@ -159,18 +162,6 @@ public class PlaySessionController {
         }
     };
 
-    private final Func1<StateTransition, Observable<AdvanceTrackResult>> tryToAdvanceTrack = new Func1<StateTransition, Observable<AdvanceTrackResult>>() {
-        @Override
-        public Observable<AdvanceTrackResult> call(final StateTransition stateTransition) {
-            return playQueueManager.advanceToNextPlayableTrack().map(new Func1<Boolean, AdvanceTrackResult>() {
-                @Override
-                public AdvanceTrackResult call(Boolean success) {
-                    return new AdvanceTrackResult(stateTransition, success);
-                }
-            });
-        }
-    };
-
     @Inject
     public PlaySessionController(Resources resources,
                                  EventBus eventBus,
@@ -217,7 +208,6 @@ public class PlaySessionController {
                 .doOnNext(updateAudioManager)
                 .filter(shouldAdvanceTracks)
                 .doOnNext(reconfigureUpcomingAd)
-                .flatMap(tryToAdvanceTrack)
                 .subscribe(new AdvanceTrackSubscriber());
     }
 
@@ -265,7 +255,7 @@ public class PlaySessionController {
                 seek(SEEK_POSITION_RESET);
             } else {
                 publishSkipEventIfAudioAd();
-                playQueueManager.moveToPreviousItem();
+                playQueueManager.moveToPreviousPlayableItem();
             }
         }
     }
@@ -275,7 +265,7 @@ public class PlaySessionController {
             playbackToastHelper.showUnskippableAdToast();
         } else {
             publishSkipEventIfAudioAd();
-            playQueueManager.nextItem();
+            playQueueManager.moveToNextPlayableItem();
         }
     }
 
@@ -319,15 +309,15 @@ public class PlaySessionController {
                 ? playQueueManager.loadPlayQueueAsync().flatMap(toPlayCurrent)
                 : playbackStrategyProvider.get().playCurrent();
 
-        subscription = playCurrentObservable.subscribe(new DefaultSubscriber<Void>());
+        subscription = playCurrentObservable.subscribe(new PlayCurrentSubscriber());
     }
 
-    private class AdvanceTrackSubscriber extends DefaultSubscriber<AdvanceTrackResult> {
+    private class AdvanceTrackSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
-        public void onNext(AdvanceTrackResult result) {
-            if (!result.success) {
-                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(result.stateTransition.getTrackUrn()));
-            } else if (!result.stateTransition.playSessionIsActive()) {
+        public void onNext(StateTransition stateTransition) {
+            if (!playQueueManager.autoMoveToNextPlayableItem()) {
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
+            } else if (!stateTransition.playSessionIsActive()) {
                 playCurrent();
             }
         }
@@ -513,14 +503,15 @@ public class PlaySessionController {
         }
     }
 
-    private static class AdvanceTrackResult {
-
-        private final StateTransition stateTransition;
-        private final boolean success;
-
-        private AdvanceTrackResult(StateTransition stateTransition, boolean success) {
-            this.stateTransition = stateTransition;
-            this.success = success;
+    private class PlayCurrentSubscriber extends DefaultSubscriber<Void> {
+        @Override
+        public void onError(Throwable e) {
+            if (e instanceof BlockedTrackException) {
+                pause();
+                Log.e(TAG, "Not playing blocked track", e);
+            } else {
+                super.onError(e);
+            }
         }
     }
 }

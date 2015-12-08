@@ -4,6 +4,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +59,8 @@ public class CastPlaybackStrategyTest {
         Urn track = Urn.forTrack(123L);
         List<Urn> tracks = Arrays.asList(track);
 
-        strategy.setNewQueue(PlayQueue.fromTrackUrnList(tracks, PlaySessionSource.EMPTY), track, 3, PlaySessionSource.EMPTY);
+        final PlayQueue playQueue = TestPlayQueue.fromUrns(tracks, PlaySessionSource.EMPTY);
+        strategy.setNewQueue(playQueue, track, 3, PlaySessionSource.EMPTY);
 
         verify(castPlayer).setNewQueue(tracks, track, PlaySessionSource.EMPTY);
     }

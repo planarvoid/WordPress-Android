@@ -21,6 +21,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -30,6 +31,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.schedulers.Schedulers;
+
+import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -192,7 +195,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = createPlayQueue();
         value1.execute(playQueue);
 
         assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
@@ -209,7 +212,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = createPlayQueue();
         value1.execute(playQueue);
 
         assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
@@ -228,7 +231,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
         final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = createPlayQueue();
         value1.execute(playQueue);
         value2.execute(playQueue);
 
@@ -247,7 +250,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = createPlayQueue();
         value1.execute(playQueue);
 
         assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
@@ -260,7 +263,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         ApiAdsForTrack fullAdsForTrack = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
         adsOperations.applyAdToTrack(TRACK_URN, fullAdsForTrack);
 
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = createPlayQueue();
 
         verify(playQueueManager, never()).performPlayQueueUpdateOperations(any(PlayQueueManager.QueueUpdateOperation.class));
         assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
@@ -278,7 +281,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
         final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = createPlayQueue();
         value1.execute(playQueue);
         value2.execute(playQueue);
 
@@ -297,7 +300,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
         final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = createPlayQueue();
         value1.execute(playQueue);
         value2.execute(playQueue);
 
@@ -319,7 +322,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
         final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = createPlayQueue();
         value1.execute(playQueue);
         value2.execute(playQueue);
 
@@ -340,12 +343,17 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
         final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(Arrays.asList(TRACK_URN), playSessionSource);
+        final PlayQueue playQueue = createPlayQueue();
         value1.execute(playQueue);
         value2.execute(playQueue);
 
         assertThat(playQueue.getPlayQueueItem(0).isVideo()).isTrue();
         assertThat(playQueue.getPlayQueueItem(0).getAdData()).isEqualTo(Optional.of(VideoAd.create(videoAd, TRACK_URN)));
         assertThat(playQueue.getPlayQueueItem(1).getUrn()).isEqualTo(TRACK_URN);
+    }
+
+    @NonNull
+    private PlayQueue createPlayQueue() {
+        return TestPlayQueue.fromUrns(playSessionSource, TRACK_URN);
     }
 }

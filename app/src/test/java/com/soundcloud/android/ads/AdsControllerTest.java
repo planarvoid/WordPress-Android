@@ -67,7 +67,6 @@ public class AdsControllerTest extends AndroidUnitTest {
     private TestScheduler scheduler = Schedulers.test();
     private ApiAdsForTrack apiAdsForTrack;
     private AdsController adsController;
-    private PublishSubject<Boolean> advanceSubject = PublishSubject.create();
 
     @Before
     public void setUp() throws Exception {
@@ -77,7 +76,6 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(CURRENT_TRACK_URN));
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(NEXT_TRACK_URN));
-        when(playQueueManager.advanceToNextPlayableTrack()).thenReturn(advanceSubject);
 
         adsController = new AdsController(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
                 playQueueManager, trackRepository, scheduler);
@@ -390,9 +388,9 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
 
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
-        assertThat(advanceSubject.hasObservers()).isTrue();
+        verify(playQueueManager).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -420,7 +418,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
 
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -432,7 +430,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -444,7 +442,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.idle());
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -457,7 +455,7 @@ public class AdsControllerTest extends AndroidUnitTest {
                 CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(CURRENT_TRACK_URN), Urn.NOT_SET, 0));
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -467,7 +465,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(Reason.ERROR_FAILED));
 
-        assertThat(advanceSubject.hasObservers()).isTrue();
+        verify(playQueueManager).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -477,7 +475,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(Reason.ERROR_FAILED));
 
-        assertThat(advanceSubject.hasObservers()).isFalse();
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
