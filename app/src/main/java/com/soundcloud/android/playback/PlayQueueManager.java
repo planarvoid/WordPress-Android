@@ -193,7 +193,15 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.getTrackItemUrns();
     }
 
-    public boolean moveToNextPlayableItem(boolean userTriggered) {
+    public boolean moveToNextPlayableItem() {
+        return moveToNextPlayableItemInternal(true);
+    }
+
+    public boolean autoMoveToNextPlayableItem() {
+        return moveToNextPlayableItemInternal(false);
+    }
+
+    private boolean moveToNextPlayableItemInternal(boolean userTriggered) {
         if (hasNextItem()) {
             final int nextPlayableItem = getNextPlayableItem();
             final int newPosition = nextPlayableItem == Consts.NOT_SET
@@ -217,19 +225,19 @@ public class PlayQueueManager implements OriginProvider {
 
     private boolean isPlayableAtPosition(int i) {
         final PlayQueueItem playQueueItem = playQueue.getPlayQueueItem(i);
-        if (!playQueueItem.isTrack() || !((TrackQueueItem) playQueueItem).isBlocked()) {
+        if (playQueueItem.isVideo() || !((TrackQueueItem) playQueueItem).isBlocked()) {
             return true;
         }
         return false;
     }
 
-    public boolean moveToPreviousPlayableItem(boolean userTriggered) {
+    public boolean moveToPreviousPlayableItem() {
         if (hasPreviousItem()) {
             final int previousPlayable = getPreviousPlayableItem();
             final int newPosition = previousPlayable == Consts.NOT_SET
                     ? 0 // first track
                     : previousPlayable; // next playable track
-            setPosition(newPosition, userTriggered);
+            setPosition(newPosition, true);
             return true;
         } else {
             return false;

@@ -255,7 +255,7 @@ public class PlaySessionController {
                 seek(SEEK_POSITION_RESET);
             } else {
                 publishSkipEventIfAudioAd();
-                playQueueManager.moveToPreviousPlayableItem(true);
+                playQueueManager.moveToPreviousPlayableItem();
             }
         }
     }
@@ -265,7 +265,7 @@ public class PlaySessionController {
             playbackToastHelper.showUnskippableAdToast();
         } else {
             publishSkipEventIfAudioAd();
-            playQueueManager.moveToNextPlayableItem(true);
+            playQueueManager.moveToNextPlayableItem();
         }
     }
 
@@ -315,7 +315,7 @@ public class PlaySessionController {
     private class AdvanceTrackSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
         public void onNext(StateTransition stateTransition) {
-            if (!playQueueManager.moveToNextPlayableItem(false)) {
+            if (!playQueueManager.autoMoveToNextPlayableItem()) {
                 eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
             } else if (!stateTransition.playSessionIsActive()) {
                 playCurrent();

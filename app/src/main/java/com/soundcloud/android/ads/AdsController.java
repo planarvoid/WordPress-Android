@@ -108,7 +108,7 @@ public class AdsController {
                 skipFailedAdSubscription.unsubscribe();
             } else if (stateTransition.wasError() && adsOperations.isCurrentItemAudioAd()) {
                 skipFailedAdSubscription.unsubscribe();
-                playQueueManager.moveToNextPlayableItem(false);
+                playQueueManager.autoMoveToNextPlayableItem();
             }
         }
     };
@@ -322,7 +322,7 @@ public class AdsController {
                                         state.getProgress(),
                                         FAILED_AD_WAIT_SECS);
                             eventBus.publish(EventQueue.TRACKING, event);
-                            playQueueManager.moveToNextPlayableItem(false);
+                            playQueueManager.autoMoveToNextPlayableItem();
                         }
                     });
         }

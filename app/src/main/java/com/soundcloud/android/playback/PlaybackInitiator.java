@@ -196,14 +196,19 @@ public class PlaybackInitiator {
                 if (urns.isEmpty()) {
                     return Observable.just(PlayQueue.empty());
                 } else {
-                    return policyOperations.blockedStati(urns).flatMap(new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
-                        @Override
-                        public Observable<PlayQueue> call(Map<Urn, Boolean> urnBooleanMap) {
-                            return Observable.just(PlayQueue.fromTrackUrnList(urns, playSessionSource, urnBooleanMap));
-                        }
-                    });
+                    return policyOperations.blockedStati(urns)
+                            .flatMap(urnsToPlayQueueWithBlockedStati(urns, playSessionSource));
                 }
+            }
+        };
+    }
 
+    @NonNull
+    private Func1<Map<Urn, Boolean>, Observable<PlayQueue>> urnsToPlayQueueWithBlockedStati(final List<Urn> urns, final PlaySessionSource playSessionSource) {
+        return new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
+            @Override
+            public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracks) {
+                return Observable.just(PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedTracks));
             }
         };
     }

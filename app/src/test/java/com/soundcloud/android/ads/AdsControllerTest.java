@@ -5,7 +5,6 @@ import static com.soundcloud.android.playback.Player.Reason;
 import static com.soundcloud.android.playback.Player.StateTransition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -389,9 +388,9 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
 
-        verify(playQueueManager, never()).moveToNextPlayableItem(anyBoolean());
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
-        verify(playQueueManager).moveToNextPlayableItem(anyBoolean());
+        verify(playQueueManager).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -419,7 +418,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
 
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
-        verify(playQueueManager, never()).moveToNextPlayableItem(anyBoolean());
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -431,7 +430,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
-        verify(playQueueManager, never()).moveToNextPlayableItem(anyBoolean());
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -443,7 +442,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.idle());
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
-        verify(playQueueManager, never()).moveToNextPlayableItem(anyBoolean());
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -456,7 +455,7 @@ public class AdsControllerTest extends AndroidUnitTest {
                 CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(CURRENT_TRACK_URN), Urn.NOT_SET, 0));
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
-        verify(playQueueManager, never()).moveToNextPlayableItem(anyBoolean());
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -466,7 +465,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(Reason.ERROR_FAILED));
 
-        verify(playQueueManager).moveToNextPlayableItem(anyBoolean());
+        verify(playQueueManager).autoMoveToNextPlayableItem();
     }
 
     @Test
@@ -476,7 +475,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(Reason.ERROR_FAILED));
 
-        verify(playQueueManager, never()).moveToNextPlayableItem(anyBoolean());
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
