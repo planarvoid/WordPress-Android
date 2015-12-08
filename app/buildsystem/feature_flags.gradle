@@ -39,6 +39,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, TRUE
       buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, TRUE
       buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
+      buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -48,7 +49,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
-      buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, FALSE
       buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
     }
 
@@ -61,6 +61,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_ENGAGEMENTS_TRACKING, TRUE
       buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
       buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, TRUE
+      buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -74,6 +75,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, FALSE
+      buildConfigField BOOLEAN, FEATURE_TRACK_SYNC_APIMOBILE, FALSE
       buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
     }
 

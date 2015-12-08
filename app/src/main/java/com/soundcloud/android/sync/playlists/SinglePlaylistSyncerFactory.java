@@ -2,6 +2,7 @@ package com.soundcloud.android.sync.playlists;
 
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.RemovePlaylistCommand;
 
 import javax.inject.Inject;
 
@@ -37,7 +38,7 @@ public class SinglePlaylistSyncerFactory {
     public SinglePlaylistSyncer create(Urn playlistUrn){
         return new SinglePlaylistSyncer(
                 fetchPlaylistWithTracks.with(playlistUrn),
-                removePlaylist.with(playlistUrn),
+                removePlaylist,
                 loadUnpushedTracksForPlaylist.with(playlistUrn),
                 pushPlaylistAdditions.with(playlistUrn),
                 pushPlaylistRemovals.with(playlistUrn),

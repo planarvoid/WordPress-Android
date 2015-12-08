@@ -7,16 +7,21 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
+import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -48,12 +53,23 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     @Mock private LoadLocalPlaylistsCommand loadLocalPlaylists;
     @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     @Mock private ReplacePlaylistPostCommand replacePlaylist;
+    @Mock private LoadPlaylistPendingRemovalCommand loadPlaylistPendingRemovalCommand;
+    @Mock private RemovePlaylistCommand removePlaylistCommand;
     @Mock private ApiClient apiClient;
     @Mock private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
-        syncer = new MyPlaylistsSyncer(postsSyncer, loadLocalPlaylists, loadPlaylistTrackUrns, replacePlaylist, apiClient, eventBus);
+        syncer = new MyPlaylistsSyncer(
+                postsSyncer,
+                loadLocalPlaylists,
+                loadPlaylistTrackUrns,
+                replacePlaylist,
+                loadPlaylistPendingRemovalCommand,
+                removePlaylistCommand,
+                apiClient,
+                eventBus
+        );
     }
 
     @Test
@@ -116,6 +132,41 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         syncer.syncContent(URI, null);
 
         verify(postsSyncer).call(Collections.singletonList(newPlaylist.getUrn()));
+    }
+
+    @Test
+    public void deleteLocallyPendingRemovalOnSuccess() throws Exception {
+        Urn playlist = setupPlaylistRemoval(TestApiResponses.ok());
+
+        syncer.syncContent(URI, null);
+
+        verify(removePlaylistCommand).call(playlist);
+    }
+
+    @Test
+    public void deleteLocallyPendingRemovalIfNotFound() throws Exception {
+        Urn playlist = setupPlaylistRemoval(TestApiResponses.status(404));
+
+        syncer.syncContent(URI, null);
+
+        verify(removePlaylistCommand).call(playlist);
+    }
+
+    @Test
+    public void doNotDeleteLocallyPendingRemovalIfRequestFailed() throws Exception {
+        setupPlaylistRemoval(TestApiResponses.networkError());
+
+        syncer.syncContent(URI, null);
+
+        verifyZeroInteractions(removePlaylistCommand);
+    }
+
+    private Urn setupPlaylistRemoval(ApiResponse status) {
+        final Urn playlist = Urn.forPlaylist(123L);
+        when(loadPlaylistPendingRemovalCommand.call(null)).thenReturn(Collections.singletonList(playlist));
+        when(apiClient.fetchResponse(argThat(isApiRequestTo("DELETE", ApiEndpoints.PLAYLISTS_DELETE.path(playlist)))))
+                .thenReturn(status);
+        return playlist;
     }
 
     private ApiPlaylist setupNewPlaylistCreation() throws Exception {

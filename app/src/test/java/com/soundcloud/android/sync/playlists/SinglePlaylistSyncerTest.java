@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.playlists;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -13,7 +14,8 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistTrackProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.playlists.RemovePlaylistCommand;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.collections.PropertySet;
@@ -21,17 +23,13 @@ import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SinglePlaylistSyncerTest {
-
-    private SinglePlaylistSyncer singlePlaylistSyncer;
+public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     @Mock private LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
     @Mock private PushPlaylistAdditionsCommand pushPlaylistAdditions;
@@ -44,6 +42,8 @@ public class SinglePlaylistSyncerTest {
     @Mock private WriteResult writeResult;
     @Mock private ApiRequest apiRequest;
 
+    private SinglePlaylistSyncer singlePlaylistSyncer;
+
     @Before
     public void setUp() throws Exception {
         singlePlaylistSyncer = new SinglePlaylistSyncer(fetchPlaylistWithTracks, removePlaylist, loadPlaylistTracks, pushPlaylistAdditions,
@@ -53,7 +53,6 @@ public class SinglePlaylistSyncerTest {
         when(storePlaylistCommand.call()).thenReturn(writeResult);
     }
 
-
     @Test
     public void removesNotFoundPlaylist() throws Exception {
         doThrow(ApiRequestException.notFound(apiRequest, null)).when(fetchPlaylistWithTracks).call();
@@ -61,7 +60,7 @@ public class SinglePlaylistSyncerTest {
         singlePlaylistSyncer.call();
 
         verify(storePlaylistCommand, never()).call();
-        verify(removePlaylist).call();
+        verify(removePlaylist).call(any(Urn.class));
     }
 
     @Test
@@ -71,7 +70,7 @@ public class SinglePlaylistSyncerTest {
         singlePlaylistSyncer.call();
 
         verify(storePlaylistCommand, never()).call();
-        verify(removePlaylist).call();
+        verify(removePlaylist).call(any(Urn.class));
     }
 
     @Test
@@ -183,12 +182,12 @@ public class SinglePlaylistSyncerTest {
 
     private void verifyPlaylistStored(ApiPlaylist apiPlaylist) throws PropellerWriteException {
         verify(storePlaylistCommand).call();
-        expect(storePlaylistCommand.getInput()).toBe(apiPlaylist);
+        assertThat(storePlaylistCommand.getInput()).isSameAs(apiPlaylist);
     }
 
     private void verifyPlaylistTrackStored(Urn... urns) throws PropellerWriteException {
         verify(replacePlaylistTracks).call();
-        expect(replacePlaylistTracks.getInput()).toContainExactly(urns);
+        assertThat(replacePlaylistTracks.getInput()).containsExactly(urns);
     }
 
     private void verifyTracksStored(ApiTrack... apiTrack) throws PropellerWriteException {
@@ -196,24 +195,24 @@ public class SinglePlaylistSyncerTest {
     }
 
     private void verifyNoRemoteAdditions() {
-        expect(pushPlaylistAdditions.getInput()).toBeEmpty();
+        assertThat(pushPlaylistAdditions.getInput()).isEmpty();
     }
 
     private void verifyNoRemoteRemovals() {
-        expect(pushPlaylistRemovals.getInput()).toBeEmpty();
+        assertThat(pushPlaylistRemovals.getInput()).isEmpty();
     }
 
     private void verifyRemoteAddition(Urn... urns) {
-        expect(pushPlaylistAdditions.getInput()).toContainExactly(urns);
+        assertThat(pushPlaylistAdditions.getInput()).containsExactly(urns);
     }
 
     private void verifyRemoteRemoval(Urn... urns) {
-        expect(pushPlaylistRemovals.getInput()).toContainExactly(urns);
+        assertThat(pushPlaylistRemovals.getInput()).containsExactly(urns);
     }
 
     private void verifyEmptyTrackListStored() throws PropellerWriteException {
         verify(replacePlaylistTracks).call();
-        expect(replacePlaylistTracks.getInput()).toBeEmpty();
+        assertThat(replacePlaylistTracks.getInput()).isEmpty();
     }
 
     private void verifyNoTracksStored() throws PropellerWriteException {

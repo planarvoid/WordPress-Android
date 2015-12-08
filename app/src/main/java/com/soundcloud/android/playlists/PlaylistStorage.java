@@ -43,11 +43,12 @@ public class PlaylistStorage {
         this.accountOperations = accountOperations;
     }
 
-    public boolean hasLocalPlaylists() {
+    public boolean hasLocalChanges() {
         final QueryResult queryResult = propeller.query(apply(exists(from(Table.Sounds.name())
-                .select(TableColumns.SoundView._ID)
+                .select(TableColumns.SoundView._ID, TableColumns.Sounds.REMOVED_AT)
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereLt(TableColumns.Sounds._ID, 0)).as("has_local_playlists")));
+                .whereLt(TableColumns.Sounds._ID, 0)).as("has_local_playlists")
+                .orWhereNotNull(TableColumns.Sounds.REMOVED_AT)));
         return queryResult.first(Boolean.class);
     }
 
@@ -101,7 +102,7 @@ public class PlaylistStorage {
                         exists(pendingPlaylistTracksUrns(playlistUrn)).as(PostedPlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST),
                         exists(hasOfflineTracks(playlistUrn)).as(PostedPlaylistMapper.HAS_OFFLINE_TRACKS),
                         exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE)
-                        )
+                )
                 .whereEq(TableColumns.SoundView._ID, playlistUrn.getNumericId())
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                 .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)

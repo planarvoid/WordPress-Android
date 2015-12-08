@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.playlists;
+package com.soundcloud.android.playlists;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.Sounds;
@@ -13,7 +13,7 @@ import com.soundcloud.propeller.query.Query;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RemovePlaylistCommandTest  extends StorageIntegrationTest {
+public class RemovePlaylistCommandTest extends StorageIntegrationTest {
 
     private RemovePlaylistCommand command;
 
@@ -27,7 +27,7 @@ public class RemovePlaylistCommandTest  extends StorageIntegrationTest {
         testFixtures().insertPlaylist();
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
 
-        command.with(playlist.getUrn()).call();
+        command.call(playlist.getUrn());
 
         final Query query = from(Sounds.name())
                 .whereEq(_ID, playlist.getId())

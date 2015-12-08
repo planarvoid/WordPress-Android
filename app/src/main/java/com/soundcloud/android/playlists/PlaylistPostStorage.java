@@ -37,11 +37,13 @@ public class PlaylistPostStorage {
 
     private final PropellerRx propellerRx;
     private final CurrentDateProvider dateProvider;
+    private final RemovePlaylistCommand removePlaylistCommand;
 
     @Inject
-    public PlaylistPostStorage(PropellerRx propellerRx, CurrentDateProvider dateProvider) {
+    public PlaylistPostStorage(PropellerRx propellerRx, CurrentDateProvider dateProvider, RemovePlaylistCommand removePlaylistCommand) {
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
+        this.removePlaylistCommand = removePlaylistCommand;
     }
 
     public Observable<List<PropertySet>> loadPostedPlaylists(int limit, long fromTimestamp) {
@@ -88,12 +90,7 @@ public class PlaylistPostStorage {
     }
 
     Observable<ChangeResult> remove(Urn urn) {
-        return propellerRx.delete(
-                Sounds.name(),
-                filter()
-                        .whereEq(TableColumns.Sounds._ID, urn.getNumericId())
-                        .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-        );
+        return removePlaylistCommand.toObservable(urn);
     }
 
     static Query likeQuery() {

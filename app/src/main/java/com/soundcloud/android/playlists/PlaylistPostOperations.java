@@ -10,6 +10,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
@@ -68,6 +69,13 @@ class PlaylistPostOperations {
         }
     };
 
+    private final Action1<ChangeResult> requestSystemSync = new Action1<ChangeResult>() {
+        @Override
+        public void call(ChangeResult changeResult) {
+            syncInitiator.requestSystemSync();
+        }
+    };
+
     @Inject
     PlaylistPostOperations(PlaylistPostStorage playlistPostStorage,
                            SyncInitiator syncInitiator,
@@ -86,20 +94,25 @@ class PlaylistPostOperations {
     }
 
     Observable<List<PropertySet>> updatedPostedPlaylists() {
-        return syncInitiator.refreshMyPlaylists()
-                .flatMap(loadInitialPlaylistPosts);
+        return sync().flatMap(loadInitialPlaylistPosts);
+    }
+
+    Observable<Boolean> sync() {
+        return syncInitiator.refreshMyPlaylists();
     }
 
     PagingFunction<List<PropertySet>> pagingFunction() {
         return postedPlaylistsPager;
     }
 
-    Observable<ChangeResult> remove(final Urn urn) {
+    Observable<Void> remove(final Urn urn) {
         final Observable<ChangeResult> remove = urn.isLocal()
                 ? playlistPostStorage.remove(urn)
                 : playlistPostStorage.markPendingRemoval(urn);
         return remove
                 .doOnNext(publishPlaylistDeletedEvent(urn))
+                .doOnNext(requestSystemSync)
+                .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
 

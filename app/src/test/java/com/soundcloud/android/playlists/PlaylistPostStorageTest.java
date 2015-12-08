@@ -39,12 +39,13 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     private TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
 
     @Mock private AccountOperations accountOperations;
+    @Mock private RemovePlaylistCommand removePlaylistCommand;
 
     @Before
     public void setUp() throws Exception {
         user = testFixtures().insertUser();
 
-        storage = new PlaylistPostStorage(propellerRx(), new TestDateProvider());
+        storage = new PlaylistPostStorage(propellerRx(), new TestDateProvider(), removePlaylistCommand);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(user.getUrn());
     }
@@ -69,15 +70,6 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
         databaseAssertions().assertPlaylistInserted(playlist1.get(PlaylistProperty.URN));
         subscriber.assertValue(Collections.singletonList(playlist2));
-    }
-
-    @Test
-    public void removeShouldDeletePlaylist() {
-        final PropertySet playlist = createPlaylistPostAt(POSTED_DATE_1);
-
-        storage.remove(playlist.get(PlaylistProperty.URN)).subscribe();
-
-        databaseAssertions().assertPlaylistNotStored(playlist.get(PlaylistProperty.URN));
     }
 
     @Test
