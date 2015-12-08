@@ -77,7 +77,7 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
     public void testLikePlayingTrackFromStream() {
         startEventTracking();
 
-        VisualPlayerElement visualPlayerElement = streamScreen.scrollToFirstNotPromotedTrackCard().click();
+        VisualPlayerElement visualPlayerElement = streamScreen.scrollToFirstRepostedTrack().click();
         assertTrue(visualPlayerElement.isExpandedPlayerPlaying());
 
         ViewElement likeButton = visualPlayerElement.likeButton();
@@ -93,7 +93,7 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
     public void testRepostPlayingTrackFromStream() {
         startEventTracking();
 
-        VisualPlayerElement visualPlayerElement = streamScreen.scrollToFirstNotPromotedTrackCard().click();
+        VisualPlayerElement visualPlayerElement = streamScreen.scrollToFirstRepostedTrack().click();
         assertTrue(visualPlayerElement.isExpandedPlayerPlaying());
 
         // toggle
