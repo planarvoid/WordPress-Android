@@ -125,7 +125,6 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     public void setProgress(PlaybackProgress progress) {
         if (!isScrubbing) {
             progressText.setText(format(progress.getPosition()));
-            durationText.setText(format(duration));
         }
     }
 
@@ -164,7 +163,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
 
     @Override
     public void displayScrubPosition(float actualPosition, float boundedPosition) {
-        long scrubTime = (long) (boundedPosition * duration);
+        long scrubTime = (long) (boundedPosition * duration) + 500; // +500 to achieve rounding
         progressText.setText(format(Math.min(playableDuration, scrubTime)));
         selectiveInvalidate(false);
     }
