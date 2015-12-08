@@ -30,7 +30,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.Player.PlayerState;
 import com.soundcloud.android.playback.Player.Reason;
@@ -68,7 +67,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     private static final Urn MONETIZABLE_TRACK_URN = Urn.forTrack(456L);
 
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private PlaybackService playbackService;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private TrackRepository trackRepository;
     @Mock private TrackPagePresenter trackPagePresenter;
@@ -115,7 +113,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         eventBus = new TestEventBus();
         presenter = new PlayerPagerPresenter(playQueueManager,
-                playbackService,
                 playSessionStateProvider,
                 trackRepository,
                 stationsOperations,

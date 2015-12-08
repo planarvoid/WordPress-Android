@@ -201,8 +201,4 @@ class StreamPlayer implements PlayerListener {
     private boolean isUsingSkippyPlayer() {
         return currentPlayer == skippyPlayerDelegate;
     }
-
-    public void setVideoView(SurfaceHolder videoHolder) {
-        videoHolder.addCallback(videoPlayerDelegate);
-    }
 }

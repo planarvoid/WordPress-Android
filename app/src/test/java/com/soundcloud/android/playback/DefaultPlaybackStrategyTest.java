@@ -180,7 +180,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
         verify(serviceInitiator).play(VideoPlaybackItem.create(videoAdData));
-        playCurrentSubscriber.assertValueCount(1);
+        playCurrentSubscriber.assertCompleted();
     }
 
     private PropertySet onlineTrack() {

@@ -62,7 +62,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private static final int TRACK_CACHE_SIZE = 10;
 
     private final PlayQueueManager playQueueManager;
-    private final PlaybackService playbackService;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final TrackRepository trackRepository;
     private final TrackPagePresenter trackPagePresenter;
@@ -122,7 +121,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     @Inject
     PlayerPagerPresenter(PlayQueueManager playQueueManager,
-                         PlaybackService playbackService,
                          PlaySessionStateProvider playSessionStateProvider,
                          TrackRepository trackRepository,
                          StationsOperations stationsOperations, TrackPagePresenter trackPagePresenter,
@@ -132,7 +130,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
                          AdsOperations adOperations,
                          EventBus eventBus) {
         this.playQueueManager = playQueueManager;
-        this.playbackService = playbackService;
         this.trackRepository = trackRepository;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -622,8 +619,10 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             View view;
             switch (getItemViewType(position)) {
                 case TYPE_AUDIO_AD_VIEW:
+                    view = instantiateAdView(audioAdView, audioAdPresenter, container, position);
+                    break;
                 case TYPE_VIDEO_AD_VIEW:
-                    view = instantiateAdView(container, position);
+                    view = instantiateAdView(videoAdView, videoAdPresenter, container, position);
                     break;
                 default:
                     view = instantiateTrackView(position);
@@ -655,21 +654,13 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             return view;
         }
 
-        private View instantiateAdView(ViewGroup container, int position) {
-            final PlayerPageData playerPageData = currentData.get(position);
-
-            if (playerPageData.isTrackPage() && audioAdView == null) {
-                audioAdView = audioAdPresenter.createItemView(container, skipListener);
-            } else if (playerPageData.isVideoPage() && videoAdView == null) {
-                videoAdView = videoAdPresenter.createItemView(container, skipListener);
-                playbackService.setVideoHolder(videoAdPresenter.getVideoViewHolder(videoAdView));
-            } else if (playerPageData.isTrackPage()){
-                audioAdPresenter.clearItemView(audioAdView);
+        private View instantiateAdView(View adView, AdPagePresenter presenter, ViewGroup container, int position) {
+            if (adView == null) {
+                adView = presenter.createItemView(container, skipListener);
             } else {
-                videoAdPresenter.clearItemView(videoAdView);
+                presenter.clearItemView(adView);
             }
-
-            return bindView(position, playerPageData.isTrackPage() ? audioAdView : videoAdView);
+            return bindView(position, adView);
         }
 
         @Override

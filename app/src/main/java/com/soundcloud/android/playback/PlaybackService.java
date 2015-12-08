@@ -296,10 +296,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStopped());
     }
 
-    public void setVideoHolder(SurfaceHolder videoHolder) {
-        streamPlayer.setVideoView(videoHolder);
-    }
-
     private enum FocusLossState {
         NONE, TRANSIENT, LOST
     }

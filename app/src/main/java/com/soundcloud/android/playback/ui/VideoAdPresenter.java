@@ -1,13 +1,12 @@
 package com.soundcloud.android.playback.ui;
 
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.mediaplayer.VideoPlayerAdapter;
 import com.soundcloud.java.collections.Iterables;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -22,21 +21,21 @@ import javax.inject.Inject;
 
 class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
+    private final VideoPlayerAdapter videoPlayerAdapter;
     private final ImageOperations imageOperations;
     private final AdPageListener listener;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final Resources resources;
-    private final Context context;
 
     @Inject
-    public VideoAdPresenter(ImageOperations imageOperations, AdPageListener listener,
-                            PlayerOverlayController.Factory playerOverlayControllerFactory,
-                            Resources resources, Context context) {
+    public VideoAdPresenter(VideoPlayerAdapter videoPlayerAdapter, ImageOperations imageOperations,
+                            AdPageListener listener, PlayerOverlayController.Factory playerOverlayControllerFactory,
+                            Resources resources) {
+        this.videoPlayerAdapter = videoPlayerAdapter;
         this.imageOperations = imageOperations;
         this.listener = listener;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.resources = resources;
-        this.context = context;
     }
 
     @Override
@@ -73,6 +72,7 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
         final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_vertical_video_page, container, false);
         final Holder holder = new Holder(adView, playerOverlayControllerFactory);
         adView.setTag(holder);
+        setVideoViewHolder(holder);
         resetSkipButton(holder, resources);
         return adView;
     }
@@ -91,9 +91,9 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
         setClickListener(this, holder.onClickViews);
     }
 
-    public SurfaceHolder getVideoViewHolder(View view) {
-        final Holder holder = getViewHolder(view);
-        return holder.videoSurfaceView.getHolder();
+    public void setVideoViewHolder(Holder holder) {
+        final SurfaceHolder surfaceHolder = holder.videoSurfaceView.getHolder();
+        surfaceHolder.addCallback(videoPlayerAdapter);
     }
 
     @Override
