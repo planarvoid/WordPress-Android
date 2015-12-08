@@ -55,6 +55,7 @@ import static com.soundcloud.android.storage.TableColumns.TrackPolicies.BLOCKED;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.MONETIZABLE;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.MONETIZATION_MODEL;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.POLICY;
+import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SNIPPED;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SUB_HIGH_TIER;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SUB_MID_TIER;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SYNCABLE;
@@ -307,6 +308,7 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.TrackPolicies.TRACK_ID, track.getId())
                 .whereEq(MONETIZABLE, track.isMonetizable())
                 .whereEq(BLOCKED, track.isBlocked())
+                .whereEq(SNIPPED, track.isSnipped())
                 .whereEq(SYNCABLE, track.isSyncable())
                 .whereEq(POLICY, track.getPolicy());
 

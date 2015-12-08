@@ -14,6 +14,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.ads.LeaveBehindAd;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -28,9 +29,11 @@ import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
+import com.soundcloud.java.collections.PropertySet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +56,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private WaveformOperations waveformOperations;
+    @Mock private FeatureOperations featureOperations;
     @Mock private TrackPageListener listener;
     @Mock private WaveformViewController.Factory waveformFactory;
     @Mock private WaveformViewController waveformViewController;
@@ -84,7 +88,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         ViewGroup container = new FrameLayout(context());
-        presenter = new TrackPagePresenter(waveformOperations, listener, numberFormatter, waveformFactory,
+        presenter = new TrackPagePresenter(waveformOperations, featureOperations, listener, numberFormatter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
                 errorControllerFactory, castConnectionHelper, resources());
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
@@ -98,7 +102,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindItemViewSetsDurationOnWaveformController()  {
+    public void bindItemViewSetsDurationOnWaveformController() {
         populateTrackPage();
         verify(waveformViewController).setDurations(PLAY_DURATION, FULL_DURATION);
     }
@@ -117,8 +121,29 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindItemViewLoadsStationsContext()  {
-        final PlayerTrackState trackState = new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(), true, true,viewVisibilityProvider);
+    public void bindItemViewOnSnippetShowsSnippedAndUpsell() {
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        final PropertySet source = TestPropertySets.expectedTrackForPlayer();
+        source.put(TrackProperty.SNIPPED, true);
+        final PlayerTrackState trackState = new PlayerTrackState(source, true, true, viewVisibilityProvider);
+
+        presenter.bindItemView(trackView, trackState);
+
+        assertThat(getHolder(trackView).previewIndicator).isVisible();
+        assertThat(getHolder(trackView).upsellButton).isVisible();
+    }
+
+    @Test
+    public void clearItemViewHidesSnippedAndUpsell() {
+        presenter.clearItemView(trackView);
+
+        assertThat(getHolder(trackView).previewIndicator).isGone();
+        assertThat(getHolder(trackView).upsellButton).isGone();
+    }
+
+    @Test
+    public void bindItemViewLoadsStationsContext() {
+        final PlayerTrackState trackState = new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(), true, true, viewVisibilityProvider);
         final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
         trackState.setStation(station);
 
@@ -128,7 +153,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindItemViewClearsStationsContextIfTrackIsNotFromStation()  {
+    public void bindItemViewClearsStationsContextIfTrackIsNotFromStation() {
         populateTrackPage();
 
         assertThat(getHolder(trackView).trackContext).isNotVisible();

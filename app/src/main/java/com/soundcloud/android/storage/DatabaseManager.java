@@ -19,7 +19,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 63;
+    public static final int DATABASE_VERSION = 64;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -180,6 +180,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 63:
                             success = upgradeTo63(db, oldVersion);
+                            break;
+                        case 64:
+                            success = upgradeTo64(db, oldVersion);
                             break;
                         default:
                             break;
@@ -583,7 +586,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static boolean upgradeTo62(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.alterColumns(Table.TrackPolicies, db);
-            recreateSoundDependentViews(db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 62);
@@ -601,6 +603,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 63);
+        }
+        return false;
+    }
+
+
+    /*
+     * Adds the SNIPPED to the track policy table
+     */
+    private static boolean upgradeTo64(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.alterColumns(Table.TrackPolicies, db);
+            recreateSoundDependentViews(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 64);
         }
         return false;
     }

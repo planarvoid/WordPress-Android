@@ -26,7 +26,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsTrack() throws Exception {
+    public void loadsTrack() {
         ApiTrack apiTrack = testFixtures().insertTrack();
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
@@ -35,7 +35,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsDownloadedTrack() throws Exception {
+    public void loadsDownloadedTrack() {
         ApiTrack apiTrack = testFixtures().insertTrack();
         testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 0, 1000L);
 
@@ -47,7 +47,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsPendingRemovalTrack() throws Exception {
+    public void loadsPendingRemovalTrack() {
         ApiTrack apiTrack = testFixtures().insertTrack();
         testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 2000L);
 
@@ -59,7 +59,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsBlockedTrack() throws Exception {
+    public void loadsBlockedTrack() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         apiTrack.setBlocked(true);
         testFixtures().insertTrack(apiTrack);
@@ -70,7 +70,18 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void doesntCrashOnNullWaveforms() throws Exception {
+    public void loadsSnippedTrack() {
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        apiTrack.setSnipped(true);
+        testFixtures().insertTrack(apiTrack);
+
+        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
+
+        assertThat(track).isEqualTo(TestPropertySets.fromApiTrack(apiTrack));
+    }
+
+    @Test
+    public void doesntCrashOnNullWaveforms() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         apiTrack.setWaveformUrl(null);
         testFixtures().insertTrack(apiTrack);
@@ -79,7 +90,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadLikedTrack() throws Exception {
+    public void loadLikedTrack() {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date());
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
@@ -88,7 +99,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadUnlikedTrack() throws Exception {
+    public void loadUnlikedTrack() {
         ApiTrack apiTrack = testFixtures().insertTrack();
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
@@ -97,14 +108,14 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldReturnEmptyPropertySetIfTrackNotFound() throws Exception {
+    public void shouldReturnEmptyPropertySetIfTrackNotFound() {
         PropertySet track = storage.loadTrack(Urn.forTrack(123)).toBlocking().single();
 
         assertThat(track).isEqualTo(PropertySet.create());
     }
 
     @Test
-    public void descriptionByUrnEmitsInsertedDescription() throws Exception {
+    public void descriptionByUrnEmitsInsertedDescription() {
         final Urn trackUrn = Urn.forTrack(123);
         testFixtures().insertDescription(trackUrn, "description123");
 

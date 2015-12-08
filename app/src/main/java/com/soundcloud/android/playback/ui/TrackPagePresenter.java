@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -51,6 +52,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private static final int SCRUB_TRANSITION_ALPHA_DURATION = 100;
 
     private final WaveformOperations waveformOperations;
+    private final FeatureOperations featureOperations;
     private final TrackPageListener listener;
     private final CondensedNumberFormatter numberFormatter;
     private final WaveformViewController.Factory waveformControllerFactory;
@@ -65,7 +67,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
-    public TrackPagePresenter(WaveformOperations waveformOperations, TrackPageListener listener,
+    public TrackPagePresenter(WaveformOperations waveformOperations,
+                              FeatureOperations featureOperations,
+                              TrackPageListener listener,
                               CondensedNumberFormatter numberFormatter,
                               WaveformViewController.Factory waveformControllerFactory,
                               PlayerArtworkController.Factory artworkControllerFactory,
@@ -76,6 +80,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               CastConnectionHelper castConnectionHelper,
                               Resources resources) {
         this.waveformOperations = waveformOperations;
+        this.featureOperations = featureOperations;
         this.listener = listener;
         this.numberFormatter = numberFormatter;
         this.waveformControllerFactory = waveformControllerFactory;
@@ -109,6 +114,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 final Context activityContext = view.getContext();
                 final Urn userUrn = (Urn) view.getTag();
                 listener.onGotoUser(activityContext, userUrn);
+                break;
+            case R.id.upsell_button:
+                listener.onUpsell(view.getContext());
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID: "
@@ -155,6 +163,11 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final boolean blocked = trackState.isBlocked();
         holder.playButton.setEnabled(!blocked);
         holder.artworkView.setEnabled(!blocked);
+
+        if (featureOperations.upsellMidTier()) {
+            holder.previewIndicator.setVisibility(trackState.isSnipped() ? View.VISIBLE : View.GONE);
+            holder.upsellButton.setVisibility(trackState.isSnipped() ? View.VISIBLE : View.GONE);
+        }
 
         if (blocked) {
             holder.errorViewController.showError(ErrorViewController.ErrorState.BLOCKED);
@@ -213,6 +226,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         holder.timestamp.setVisibility(View.GONE);
         holder.errorViewController.hideError();
+
+        holder.previewIndicator.setVisibility(View.GONE);
+        holder.upsellButton.setVisibility(View.GONE);
+
         return view;
     }
 
@@ -519,6 +536,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.playButton = trackView.findViewById(R.id.player_play);
         holder.profileLink = trackView.findViewById(R.id.profile_link);
         holder.shareButton = trackView.findViewById(R.id.track_page_share);
+        holder.upsellButton = trackView.findViewById(R.id.upsell_button);
+        holder.previewIndicator = trackView.findViewById(R.id.preview_indicator);
 
         // set initial media route button state
         holder.mediaRouteButton = (MediaRouteButton) trackView.findViewById(R.id.media_route_button);
@@ -624,6 +643,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         View previousButton;
         View playButton;
         View closeIndicator;
+        View previewIndicator;
+        View upsellButton;
         View profileLink;
         View playControlsHolder;
         View interstitialHolder;
@@ -662,7 +683,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         public void populateViewSets() {
             List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose);
             List<View> hideOnError = Arrays.asList(playButton, more, likeToggle, timestamp, shareButton);
-            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, profileLink);
+            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, profileLink, previewIndicator, upsellButton);
 
             fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder);
             fullScreenAdViews = Arrays.asList(interstitialHolder);

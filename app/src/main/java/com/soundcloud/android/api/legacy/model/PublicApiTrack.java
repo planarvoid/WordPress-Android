@@ -380,6 +380,11 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         return policy != null && policy.equalsIgnoreCase(API_BLOCK_VALUE);
     }
 
+    @Override
+    public boolean isSnipped() {
+        return false;
+    }
+
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();

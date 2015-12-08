@@ -112,5 +112,8 @@
 
     <!-- __PLAYER -->
     <string name="playback_error_blocked">Not available yet in your country</string>
+    <string name="playback_preview_indicator">preview</string>
+    <string name="playback_upsell_button">Unlock full track</string>
+
 
 </resources>

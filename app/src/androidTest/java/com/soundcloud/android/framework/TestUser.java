@@ -268,6 +268,12 @@ public class TestUser {
             "s0undcl0ud_HT2016",
             "1-21686-190276054-5b745361a448ac",
             190276054);
+    public static final TestUser freeMonetizedUser = new TestUser(
+            "Monetizeable",
+            "sc.ht.android.monetized.free@gmail.com",
+            "s0undcl0ud_HT2016",
+            "1-21686-190275390-352784f263ea42",
+            190275390);
 
     // not used directly in a test, but user info is kept here for documentation
     public static final TestUser adUser = new TestUser("scandroidad1", "scandroidtestad1@gmail.com", "scandtest", "");

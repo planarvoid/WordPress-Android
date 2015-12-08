@@ -57,6 +57,13 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiTrack insertSnippedTrack() {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setSnipped(true);
+        insertTrack(track);
+        return track;
+    }
+
     public void insertTrack(ApiTrack track) {
         insertUser(track.getUser());
         ContentValues cv = new ContentValues();
@@ -167,6 +174,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.TrackPolicies.POLICY, track.getPolicy());
         cv.put(TableColumns.TrackPolicies.MONETIZABLE, track.isMonetizable());
         cv.put(TableColumns.TrackPolicies.BLOCKED, track.isBlocked());
+        cv.put(TableColumns.TrackPolicies.SNIPPED, track.isSnipped());
         cv.put(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable());
         cv.put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 

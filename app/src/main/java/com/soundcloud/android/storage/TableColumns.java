@@ -117,6 +117,7 @@ public final class TableColumns {
         public static final String TRACK_ID = "track_id";
         public static final String MONETIZABLE = "monetizable";
         public static final String BLOCKED = "blocked";
+        public static final String SNIPPED = "snipped";
         public static final String SUB_MID_TIER = "sub_mid_tier";
         public static final String SUB_HIGH_TIER = "sub_high_tier";
         public static final String POLICY = "policy";
@@ -125,7 +126,7 @@ public final class TableColumns {
         public static final String LAST_UPDATED = "last_updated";
 
         public static final String[] ALL_FIELDS = new String[] {
-                TRACK_ID, MONETIZABLE, BLOCKED, SUB_MID_TIER, SUB_HIGH_TIER, POLICY, MONETIZATION_MODEL, SYNCABLE, LAST_UPDATED
+                TRACK_ID, MONETIZABLE, BLOCKED, SNIPPED, SUB_MID_TIER, SUB_HIGH_TIER, POLICY, MONETIZATION_MODEL, SYNCABLE, LAST_UPDATED
         };
     }
 
@@ -341,6 +342,7 @@ public final class TableColumns {
 
         public static final String POLICIES_MONETIZABLE = "sound_policies_monetizable";
         public static final String POLICIES_BLOCKED = "sound_policies_blocked";
+        public static final String POLICIES_SNIPPED = "sound_policies_snipped";
         public static final String POLICIES_POLICY = "sound_policies_policy";
         public static final String POLICIES_SYNCABLE = "sound_policies_syncable";
         public static final String POLICIES_MONETIZATION_MODEL = "sound_policies_monetization_model";
@@ -363,7 +365,7 @@ public final class TableColumns {
         public static final String CACHED = "sound_cached";
 
         public static final String[] ALL_VIEW_FIELDS = {
-                POLICIES_MONETIZABLE, POLICIES_BLOCKED, POLICIES_POLICY, POLICIES_SYNCABLE,
+                POLICIES_MONETIZABLE, POLICIES_BLOCKED, POLICIES_SNIPPED, POLICIES_POLICY, POLICIES_SYNCABLE,
                 USER_ID, USERNAME, USER_PERMALINK, USER_AVATAR_URL, USER_LIKE, USER_REPOST, USER_PLAY_COUNT,
                 OFFLINE_DOWNLOADED_AT, OFFLINE_REMOVED_AT, CACHED
         };

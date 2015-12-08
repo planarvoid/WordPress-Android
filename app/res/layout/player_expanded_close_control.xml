@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/player_close"
-        android:layout_width="match_parent"
+<RelativeLayout
+    android:id="@+id/player_close"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <View
+        android:id="@+id/player_close_indicator"
+        style="@style/PlayerClose"
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@+id/preview_indicator"
+        style="@style/PreviewIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="20dp"
+        android:layout_toRightOf="@id/player_close_indicator" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/upsell_button"
+        style="@style/Upsell"
+        android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:paddingTop="8dp"
-        android:paddingLeft="20dp">
+        android:layout_alignParentRight="true" />
 
-    <View style="@style/PlayerClose"
-          android:id="@+id/player_close_indicator"/>
 
-</FrameLayout>
+</RelativeLayout>

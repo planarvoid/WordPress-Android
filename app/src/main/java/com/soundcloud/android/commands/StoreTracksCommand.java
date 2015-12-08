@@ -66,6 +66,7 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
                 .put(TrackPolicies.TRACK_ID, trackRecord.getUrn().getNumericId())
                 .put(TrackPolicies.MONETIZABLE, trackRecord.isMonetizable())
                 .put(TrackPolicies.BLOCKED, trackRecord.isBlocked())
+                .put(TrackPolicies.SNIPPED, trackRecord.isSnipped())
                 .put(TrackPolicies.POLICY, trackRecord.getPolicy())
                 .put(TrackPolicies.SYNCABLE, trackRecord.isSyncable())
                 .put(TrackPolicies.LAST_UPDATED, System.currentTimeMillis());

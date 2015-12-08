@@ -38,6 +38,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
     private String policy;
     private boolean syncable;
     private boolean blocked;
+    private boolean snipped;
 
     private Optional<String> monetizationModel = Optional.absent();
     private Optional<Boolean> subMidTier = Optional.absent();
@@ -200,6 +201,15 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
         return blocked;
     }
 
+    @JsonProperty("snipped")
+    public void setSnipped(boolean snipped) {
+        this.snipped = snipped;
+    }
+
+    public boolean isSnipped() {
+        return snipped;
+    }
+
     @JsonProperty("blocked")
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
@@ -342,6 +352,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
                 TrackProperty.PERMALINK_URL.bind(getPermalinkUrl()),
                 TrackProperty.MONETIZABLE.bind(isMonetizable()),
                 TrackProperty.BLOCKED.bind(isBlocked()),
+                TrackProperty.SNIPPED.bind(isBlocked()),
                 TrackProperty.SYNCABLE.bind(isSyncable()),
                 TrackProperty.POLICY.bind(getPolicy()),
                 TrackProperty.PLAY_COUNT.bind(getStats().getPlaybackCount()),
