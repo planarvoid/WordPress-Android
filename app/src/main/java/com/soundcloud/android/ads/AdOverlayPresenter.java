@@ -8,7 +8,6 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.View;
@@ -77,18 +76,6 @@ public abstract class AdOverlayPresenter {
         void onAdImageLoaded();
         void onImageClick();
         void onCloseButtonClick();
-    }
-
-    public static AdOverlayPresenter create(OverlayAdData data, View trackView, Listener listener, EventBus eventBus, Resources resources, ImageOperations imageOperations) {
-        if (isInterstitial(data)) {
-            return new InterstitialPresenter(trackView, listener, eventBus, imageOperations, resources);
-        } else {
-            return new LeaveBehindPresenter(trackView, listener, eventBus, imageOperations);
-        }
-    }
-
-    private static boolean isInterstitial(OverlayAdData data) {
-        return data instanceof InterstitialAd;
     }
 
     protected AdOverlayPresenter(View trackView, int overlayId, int overlayStubId, int adImageId, int adClickId, int headerId, final Listener listener, ImageOperations imageOperations, EventBus eventBus) {

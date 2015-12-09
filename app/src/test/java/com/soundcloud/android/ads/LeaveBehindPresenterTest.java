@@ -24,7 +24,6 @@ public class LeaveBehindPresenterTest extends AndroidUnitTest {
 
     private LeaveBehindAd leaveBehind;
     private LeaveBehindPresenter presenter;
-    AdOverlayPresenter adOverlayPresenter;
 
     @Mock AdOverlayPresenter.Listener listener;
     @Mock View trackView;
@@ -46,12 +45,6 @@ public class LeaveBehindPresenterTest extends AndroidUnitTest {
         when(overlay.findViewById(R.id.leave_behind_image_holder)).thenReturn(imageViewHolder);
 
         presenter = new LeaveBehindPresenter(trackView, listener, eventBus, imageOperations);
-    }
-
-    @Test
-    public void createsLeaveBehindPresenterFromLeaveBehindPropertySet() throws Exception {
-        adOverlayPresenter = AdOverlayPresenter.create(AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)), trackView, listener, eventBus, resources(), imageOperations);
-        assertThat(adOverlayPresenter).isInstanceOf(LeaveBehindPresenter.class);
     }
 
     @Test

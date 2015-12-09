@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
+import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -59,7 +60,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackPageMenuController.Factory trackMenuControllerFactory;
-    private final AdOverlayController.Factory adOverlayControllerFactory;
+    private final AdOverlayControllerFactory adOverlayControllerFactory;
     private final ErrorViewController.Factory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
     private final Resources resources;
@@ -75,7 +76,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackPageMenuController.Factory trackMenuControllerFactory,
-                              AdOverlayController.Factory adOverlayControllerFactory,
+                              AdOverlayControllerFactory adOverlayControllerFactory,
                               ErrorViewController.Factory errorControllerFactory,
                               CastConnectionHelper castConnectionHelper,
                               Resources resources) {
