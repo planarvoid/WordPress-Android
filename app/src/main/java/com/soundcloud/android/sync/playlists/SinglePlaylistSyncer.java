@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistTrackProperty;
+import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.java.collections.PropertySet;
 
 import java.util.ArrayList;
@@ -54,13 +55,13 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         try {
             apiPlaylistWithTracks = fetchPlaylistWithTracks.call();
         } catch (ApiRequestException exception) {
-            handleRemotePlaylistException(exception);
+            handleRemotePlaylistException(fetchPlaylistWithTracks.getInput(), exception);
             return true;
         }
 
         final Set<Urn> remoteTracks = createRemoteTracklist(apiPlaylistWithTracks);
 
-        //populate local sets
+        // populate local sets
         final Set<Urn> localCleanTracks = new TreeSet<>();
         final Set<Urn> localAdditions = new TreeSet<>();
         final Set<Urn> localRemovals = new TreeSet<>();
@@ -84,11 +85,11 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         return true;
     }
 
-    private void handleRemotePlaylistException(ApiRequestException exception) throws Exception {
+    private void handleRemotePlaylistException(Urn urn, ApiRequestException exception) throws Exception {
         switch (exception.reason()) {
             case NOT_FOUND:
             case NOT_ALLOWED:
-                removePlaylist.call();
+                removePlaylist.call(urn);
                 break;
             default:
                 throw exception;

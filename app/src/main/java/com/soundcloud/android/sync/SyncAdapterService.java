@@ -210,7 +210,7 @@ public class SyncAdapterService extends Service {
         }
 
         // see if there are any local playlists that need to be pushed
-        if (playlistStorage.hasLocalPlaylists()) {
+        if (playlistStorage.hasLocalChanges()) {
             urisToSync.add(Content.ME_PLAYLISTS.uri);
         }
 

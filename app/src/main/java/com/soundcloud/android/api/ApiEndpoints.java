@@ -63,6 +63,7 @@ public enum ApiEndpoints {
 
     // playlist
     PLAYLISTS_CREATE("/playlists"),
+    PLAYLISTS_DELETE("/playlists/%s"),
     PLAYLISTS_FETCH("/playlists/fetch"),
     PLAYLIST_WITH_TRACKS("/playlists/%s/info"),
     PLAYLIST_ADD_TRACK("/playlists/%s/tracks"),

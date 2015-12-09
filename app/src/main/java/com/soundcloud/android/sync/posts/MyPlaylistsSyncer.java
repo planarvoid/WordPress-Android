@@ -3,16 +3,20 @@ package com.soundcloud.android.sync.posts;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.SyncStrategy;
 import com.soundcloud.android.utils.Urns;
+import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +41,8 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     private final LoadLocalPlaylistsCommand loadLocalPlaylists;
     private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand;
     private final ReplacePlaylistPostCommand replacePlaylist;
+    private final LoadPlaylistPendingRemovalCommand loadPlaylistPendingRemovalCommand;
+    private final RemovePlaylistCommand removePlaylistCommand;
     private final ApiClient apiClient;
     private final EventBus eventBus;
 
@@ -44,12 +50,17 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     public MyPlaylistsSyncer(@Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER) PostsSyncer postsSyncer,
                              LoadLocalPlaylistsCommand loadLocalPlaylists,
                              LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand,
-                             ReplacePlaylistPostCommand replacePlaylist, ApiClient apiClient,
+                             ReplacePlaylistPostCommand replacePlaylist,
+                             LoadPlaylistPendingRemovalCommand loadPlaylistPendingRemovalCommand,
+                             RemovePlaylistCommand removePlaylistCommand,
+                             ApiClient apiClient,
                              EventBus eventBus) {
         this.postsSyncer = postsSyncer;
         this.loadLocalPlaylists = loadLocalPlaylists;
         this.loadPlaylistTrackUrnsCommand = loadPlaylistTrackUrnsCommand;
         this.replacePlaylist = replacePlaylist;
+        this.loadPlaylistPendingRemovalCommand = loadPlaylistPendingRemovalCommand;
+        this.removePlaylistCommand = removePlaylistCommand;
         this.apiClient = apiClient;
         this.eventBus = eventBus;
     }
@@ -57,9 +68,27 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     @NotNull
     @Override
     public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
+        syncPendingRemovals();
         return postsSyncer.call(pushLocalPlaylists())
                 ? ApiSyncResult.fromSuccessfulChange(uri)
                 : ApiSyncResult.fromSuccessWithoutChange(uri);
+    }
+
+    private void syncPendingRemovals() {
+        final List<Urn> removeUrns = loadPlaylistPendingRemovalCommand.call(null);
+        for (Urn urn : removeUrns) {
+            final ApiResponse response = apiClient.fetchResponse(ApiRequest.delete(ApiEndpoints.PLAYLISTS_DELETE.path(urn))
+                    .forPrivateApi(1)
+                    .build());
+            if (response.isSuccess() || isErrorIgnored(response)) {
+                removePlaylistCommand.call(urn);
+            }
+        }
+    }
+
+    private boolean isErrorIgnored(ApiResponse response) {
+        return response.getStatusCode() >= HttpStatus.BAD_REQUEST
+                && response.getStatusCode() < HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
     private List<Urn> pushLocalPlaylists() throws Exception {

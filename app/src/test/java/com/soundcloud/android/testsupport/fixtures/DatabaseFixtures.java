@@ -428,11 +428,11 @@ public class DatabaseFixtures {
         return playlist;
     }
 
-    public ApiPlaylist insertRemovedPlaylist(Date removedAt) {
+    public ApiPlaylist insertPlaylistPendingRemoval() {
         ApiPlaylist playlist = insertPlaylist();
 
         ContentValues cv = createPlaylistContentValues(playlist);
-        cv.put(TableColumns.Sounds.REMOVED_AT, removedAt.getTime());
+        cv.put(TableColumns.Sounds.REMOVED_AT, System.currentTimeMillis());
         insertInto(Table.Sounds, cv);
 
         return playlist;

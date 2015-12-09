@@ -34,17 +34,24 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void hasLocalPlaylistsIsFalseWithNoPlaylists() {
+    public void hasLocalChangesIsFalseWithNoPlaylists() {
         testFixtures().insertPlaylist();
 
-        assertThat(storage.hasLocalPlaylists()).isFalse();
+        assertThat(storage.hasLocalChanges()).isFalse();
     }
 
     @Test
-    public void hasLocalPlaylistsIsTrueWithLocalPlaylist() {
+    public void hasLocalChangesIsTrueWithLocalPlaylist() {
         testFixtures().insertLocalPlaylist();
 
-        assertThat(storage.hasLocalPlaylists()).isTrue();
+        assertThat(storage.hasLocalChanges()).isTrue();
+    }
+
+    @Test
+    public void hasLocalChangesIsTrueWhenPlaylistMarkedForRemoval() {
+        testFixtures().insertPlaylistPendingRemoval();
+
+        assertThat(storage.hasLocalChanges()).isTrue();
     }
 
     @Test

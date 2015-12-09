@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-
 import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.soundcloud.android.ApplicationModule;
@@ -10,10 +9,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.Pager.PagingFunction;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -68,6 +68,13 @@ class PlaylistPostOperations {
         }
     };
 
+    private final Action1<WriteResult> requestSystemSync = new Action1<WriteResult>() {
+        @Override
+        public void call(WriteResult changeResult) {
+            syncInitiator.requestSystemSync();
+        }
+    };
+
     @Inject
     PlaylistPostOperations(PlaylistPostStorage playlistPostStorage,
                            SyncInitiator syncInitiator,
@@ -86,24 +93,29 @@ class PlaylistPostOperations {
     }
 
     Observable<List<PropertySet>> updatedPostedPlaylists() {
-        return syncInitiator.refreshMyPlaylists()
-                .flatMap(loadInitialPlaylistPosts);
+        return sync().flatMap(loadInitialPlaylistPosts);
+    }
+
+    Observable<Boolean> sync() {
+        return syncInitiator.refreshMyPlaylists();
     }
 
     PagingFunction<List<PropertySet>> pagingFunction() {
         return postedPlaylistsPager;
     }
 
-    Observable<ChangeResult> remove(final Urn urn) {
-        final Observable<ChangeResult> remove = urn.isLocal()
+    Observable<Void> remove(final Urn urn) {
+        final Observable<? extends WriteResult> remove = urn.isLocal()
                 ? playlistPostStorage.remove(urn)
                 : playlistPostStorage.markPendingRemoval(urn);
         return remove
                 .doOnNext(publishPlaylistDeletedEvent(urn))
+                .doOnNext(requestSystemSync)
+                .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
 
-    private Action1<ChangeResult> publishPlaylistDeletedEvent(final Urn urn) {
+    private Action1<WriteResult> publishPlaylistDeletedEvent(final Urn urn) {
         return eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistDeleted(urn));
     }
 
