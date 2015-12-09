@@ -17,7 +17,9 @@
 
         <include layout="@layout/stream_item_header" />
 
-        <RelativeLayout style="@style/Stream.Card">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <com.soundcloud.android.view.ParallaxImageView
                 android:id="@+id/image"
@@ -25,18 +27,18 @@
 
             <com.soundcloud.android.view.JaggedTextView
                 android:id="@id/creator"
-                style="@style/Stream.ArtistText"
+                style="@style/Cards.ArtistText"
                 android:layout_above="@id/title"
                 tools:text="Artist" />
 
             <com.soundcloud.android.view.JaggedTextView
                 android:id="@id/title"
-                style="@style/Stream.TitleText"
+                style="@style/Cards.TitleText"
                 android:layout_alignBottom="@id/image"
                 tools:text="Track title" />
         </RelativeLayout>
 
-        <include layout="@layout/stream_item_footer" />
+        <include layout="@layout/default_card_footer" />
     </LinearLayout>
 </FrameLayout>
 

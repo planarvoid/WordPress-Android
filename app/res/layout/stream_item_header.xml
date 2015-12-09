@@ -1,6 +1,6 @@
 <RelativeLayout
     android:id="@+id/header_container"
-    style="@style/Stream.Card.Header"
+    style="@style/Stream.Header"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -12,30 +12,30 @@
         android:layout_centerVertical="true"
         android:layout_marginRight="6dp"
         android:scaleType="centerCrop"
-        android:visibility="gone"
+        android:visibility="visible"
         app:cbiv_borderColor="@color/user_image_border_color"
         app:cbiv_borderWidth="@dimen/user_image_border_width"/>
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/header_text"
-        style="@style/Stream.PrimaryHeaderText"
+        style="@style/Cards.PrimaryHeaderText"
         android:layout_alignTop="@id/user_image"
         android:layout_toRightOf="@id/user_image"
-        android:visibility="gone"
+        android:visibility="visible"
         tools:text="User" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/reposter"
-        style="@style/Stream.PrimaryHeaderText"
+        style="@style/Cards.PrimaryHeaderText"
         android:layout_alignTop="@id/user_image"
         android:layout_toRightOf="@id/header_text"
         android:drawableLeft="@drawable/stats_repost"
-        android:visibility="gone"
-        tools:text="reposted a track or a playlist" />
+        android:visibility="visible"
+        tools:text=" reposted a track or a playlist" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/creation_date"
-        style="@style/Stream.SecondaryHeaderText"
+        style="@style/Cards.SecondaryHeaderText"
         android:layout_below="@id/header_text"
         android:layout_toRightOf="@id/user_image"
         android:visibility="gone"
@@ -43,27 +43,27 @@
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/promoter"
-        style="@style/Stream.PrimaryHeaderText"
+        style="@style/Cards.PrimaryHeaderText"
         android:layout_centerVertical="true"
         android:layout_marginRight="6dp"
         android:layout_toRightOf="@id/user_image"
-        android:visibility="visible"
+        android:visibility="gone"
         tools:text="User" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/promoted_item"
-        style="@style/Stream.PrimaryHeaderText"
+        style="@style/Cards.PrimaryHeaderText"
         android:layout_centerVertical="true"
         android:layout_marginLeft="0dp"
         android:layout_toRightOf="@id/promoter"
         android:drawableLeft="@drawable/promoted_icon"
         android:drawablePadding="3dp"
-        android:visibility="visible"
+        android:visibility="gone"
         tools:text="promoted track or playlist" />
 
     <TextView
         android:id="@+id/private_separator"
-        style="@style/Stream.SecondaryHeaderText.Separator"
+        style="@style/Cards.SecondaryHeaderText.Separator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/header_text"
@@ -73,7 +73,7 @@
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/private_indicator"
-        style="@style/Stream.SecondaryHeaderText"
+        style="@style/Cards.SecondaryHeaderText"
         android:layout_below="@id/header_text"
         android:layout_marginLeft="4dp"
         android:layout_toRightOf="@id/private_separator"

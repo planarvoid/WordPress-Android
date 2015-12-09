@@ -6,6 +6,7 @@
         <item name="android:divider">@drawable/ak_list_divider_item</item>
         <item name="android:dividerHeight">@dimen/ak_list_divider_horizontal_height</item>
     </style>
+
     <style name="ListItemLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
@@ -14,12 +15,14 @@
         <item name="android:paddingRight">16dp</item>
         <item name="android:paddingBottom">16dp</item>
     </style>
+
     <style name="ListItemText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">14sp</item>
         <item name="android:antialias">true</item>
     </style>
+
     <style name="ListItemText.PrimaryText">
         <item name="android:layout_marginTop">1dp</item>
         <item name="android:layout_marginLeft">12dp</item>
@@ -29,6 +32,7 @@
         <item name="android:singleLine">false</item>
         <item name="android:lineSpacingMultiplier">1.2</item>
     </style>
+
     <style name="ListItemText.SecondaryText">
         <item name="android:layout_marginLeft">12dp</item>
         <item name="android:textColor">@color/list_secondary</item>
@@ -36,16 +40,19 @@
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
     </style>
+
     <style name="ListItemText.Numeric">
         <item name="android:textColor">@color/list_secondary</item>
         <item name="android:textSize">12sp</item>
         <item name="android:gravity">center</item>
         <item name="android:drawablePadding">6dp</item>
     </style>
+
     <style name="ListItemText.Numeric.Stats">
         <item name="android:layout_marginLeft">12dp</item>
         <item name="android:layout_marginTop">6dp</item>
     </style>
+
     <style name="ListItemText.TertiaryText">
         <item name="android:textSize">12sp</item>
         <item name="android:layout_marginLeft">12dp</item>
@@ -53,14 +60,17 @@
         <item name="android:gravity">center</item>
         <item name="android:drawablePadding">6dp</item>
     </style>
+
     <style name="ListItemImage">
         <item name="android:layout_width">@dimen/list_item_image_dimension</item>
         <item name="android:layout_height">@dimen/list_item_image_dimension</item>
     </style>
+
     <style name="ListItemImage.User">
         <item name="cbiv_borderColor">@color/user_image_border_color</item>
         <item name="cbiv_borderWidth">@dimen/user_image_border_width</item>
     </style>
+
     <style name="ListPrivateIndicator" parent="ListItemText.TertiaryText">
         <item name="android:drawableLeft">@drawable/stats_private</item>
         <item name="android:drawablePadding">3dp</item>
@@ -70,10 +80,12 @@
         <item name="android:textSize">12sp</item>
         <item name="android:text">@string/private_indicator</item>
     </style>
+
     <style name="ListItemOverflowButton">
         <item name="android:background">@drawable/btn_list_overflow</item>
         <item name="android:layout_marginBottom">6dp</item>
     </style>
+
     <style name="EngagementOverflowButton">
         <item name="android:background">@drawable/btn_engagements_overflow</item>
         <item name="android:layout_marginTop">8dp</item>
@@ -83,7 +95,6 @@
     </style>
 
     <!-- grid styles -->
-
     <style name="Explore.GridView" parent="@android:style/Widget.GridView">
         <item name="android:clipToPadding">false</item>
         <item name="android:fadingEdge">none</item>
@@ -141,6 +152,100 @@
         <item name="android:layout_alignParentLeft">true</item>
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:orientation">vertical</item>
+    </style>
+
+    <!-- cards style -->
+
+    <style name="Card">
+        <item name="android:background">@drawable/cards</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="Cards">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="Cards.Image" parent="GridItemImageView" />
+
+    <style name="Cards.Footer">
+        <item name="android:minHeight">56dp</item>
+    </style>
+
+    <style name="Cards.Image.Playlist" parent="Cards.Image">
+        <item name="ariv_aspectRatio">.83</item>
+    </style>
+
+    <style name="Cards.ArtistText" parent="BlackOverlayText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/overlay_subtext</item>
+        <item name="android:layout_marginLeft">12dp</item>
+    </style>
+
+    <style name="Cards.TitleText" parent="BlackOverlayText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/overlay_text</item>
+        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginRight">24dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">2</item>
+    </style>
+
+    <style name="Cards.PlaylistTracks">
+        <item name="android:textColor">@color/overlay_text</item>
+        <item name="android:antialias">true</item>
+        <item name="custom_font">fonts/Roboto-Light.ttf</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Cards.PlaylistTracks.Count">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="Cards.PlaylistTracks.Text">
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+    </style>
+
+    <style name="Cards.PrimaryHeaderText" parent="ListItemText.PrimaryText">
+        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:lineSpacingMultiplier">1.0</item>
+    </style>
+
+    <style name="Cards.SecondaryHeaderText" parent="ListItemText.SecondaryText">
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_marginLeft">4dp</item>
+    </style>
+
+    <style name="Cards.SecondaryHeaderText.Separator">
+        <item name="android:layout_marginLeft">6dp</item>
+    </style>
+
+    <style name="Cards.StatsItem" parent="ListItemText">
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="Cards.ToggleButton" parent="ListItemText">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:textColor">@color/toggle_button_text_states</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
     </style>
 
 </resources>

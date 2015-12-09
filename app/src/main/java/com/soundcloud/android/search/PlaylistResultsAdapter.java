@@ -5,7 +5,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.ProgressCellRenderer;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.view.adapters.PlaylistGridRenderer;
+import com.soundcloud.android.view.adapters.PlaylistCardRenderer;
 
 import android.view.View;
 
@@ -14,7 +14,7 @@ import javax.inject.Inject;
 class PlaylistResultsAdapter extends PagingRecyclerItemAdapter<PlaylistItem, RecyclerItemAdapter.ViewHolder> {
 
     @Inject
-    PlaylistResultsAdapter(PlaylistGridRenderer cellRenderer) {
+    PlaylistResultsAdapter(PlaylistCardRenderer cellRenderer) {
         super(cellRenderer, new ProgressCellRenderer(R.layout.grid_loading_item));
     }
 

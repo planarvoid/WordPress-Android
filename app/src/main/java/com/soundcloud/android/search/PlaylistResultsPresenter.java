@@ -10,11 +10,14 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.Subscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -29,13 +32,14 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
     private final Navigator navigator;
     private final EventBus eventBus;
 
+    private Subscription viewLifeCycle = RxUtils.invalidSubscription();
+
     @Inject
-    PlaylistResultsPresenter(
-            PlaylistDiscoveryOperations operations,
-            PlaylistResultsAdapter adapter,
-            SwipeRefreshAttacher swipeRefreshAttacher,
-            Navigator navigator,
-            EventBus eventBus) {
+    PlaylistResultsPresenter(PlaylistDiscoveryOperations operations,
+                             PlaylistResultsAdapter adapter,
+                             SwipeRefreshAttacher swipeRefreshAttacher,
+                             Navigator navigator,
+                             EventBus eventBus) {
         super(swipeRefreshAttacher, Options.grid(R.integer.grids_num_columns).build());
         this.operations = operations;
         this.adapter = adapter;
@@ -54,6 +58,14 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
         super.onCreateCollectionView(fragment, view, savedInstanceState);
         new EmptyViewBuilder().configureForSearch(getEmptyView());
         getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
+
+        viewLifeCycle = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter));
+    }
+
+    @Override
+    public void onDestroyView(Fragment fragment) {
+        viewLifeCycle.unsubscribe();
+        super.onDestroyView(fragment);
     }
 
     @Override

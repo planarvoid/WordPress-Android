@@ -1,15 +1,18 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.view.adapters.PlaylistGridRenderer.ItemViewHolder;
 import static java.util.Collections.singletonList;
+import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.view.adapters.PlaylistCardRenderer.PlaylistViewHolder;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,39 +23,44 @@ import android.widget.FrameLayout;
 
 import java.util.Collections;
 
-public class PlaylistGridRendererTest extends AndroidUnitTest {
+public class PlaylistCardRendererTest extends AndroidUnitTest {
 
-    private PlaylistGridRenderer renderer;
+    @Mock ImageOperations imageOperations;
+    @Mock Navigator navigator;
+    @Mock PlaylistItemMenuPresenter playlistMenuPresenter;
+    @Mock CardEngagementsPresenter cardEngagementsPresenter;
 
-    @Mock private ImageOperations imageOperations;
+    private PlaylistCardRenderer renderer;
 
     @Before
     public void setUp() throws Exception {
-        renderer = new PlaylistGridRenderer(imageOperations);
+        renderer = new PlaylistCardRenderer(resources(), navigator, imageOperations, playlistMenuPresenter, cardEngagementsPresenter);
     }
 
     @Test
     public void shouldCreateItemView() {
         View itemView = renderer.createItemView(new FrameLayout(context()));
+
         assertThat(itemView).isNotNull();
         assertThat(itemView.getTag()).isNotNull(); // contains the private ViewHolder instance
         assertThat(itemView.findViewById(R.id.image)).isNotNull();
-        assertThat(itemView.findViewById(R.id.username)).isNotNull();
+        assertThat(itemView.findViewById(R.id.creator)).isNotNull();
         assertThat(itemView.findViewById(R.id.title)).isNotNull();
     }
 
     @Test
-    public void shouldBindItemView() throws CreateModelException {
+    public void shouldBindItemView() {
         PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
 
         View itemView = renderer.createItemView(new FrameLayout(context()));
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
+        PlaylistViewHolder viewHolder = (PlaylistViewHolder) itemView.getTag();
         assertThat(viewHolder.title.getText()).isEqualTo(playlistItem.getTitle());
-        assertThat(viewHolder.username.getText()).isEqualTo(playlistItem.getCreatorName());
+        assertThat(viewHolder.creator.getText()).isEqualTo(playlistItem.getCreatorName());
         assertThat(viewHolder.tagList.getText()).isEqualTo("#tag1, #tag2");
-        assertThat(viewHolder.trackCount.getText()).isEqualTo("2 tracks");
+        assertThat(viewHolder.trackCount.getText()).isEqualTo("2");
+        assertThat(viewHolder.tracksView.getText()).isEqualTo("TRACKS");
     }
 
     @Test
@@ -64,7 +72,7 @@ public class PlaylistGridRendererTest extends AndroidUnitTest {
         View itemView = renderer.createItemView(new FrameLayout(context()));
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
+        PlaylistViewHolder viewHolder = (PlaylistViewHolder) itemView.getTag();
         assertThat(viewHolder.tagList.getText()).isEqualTo("#tag1");
     }
 
@@ -77,7 +85,7 @@ public class PlaylistGridRendererTest extends AndroidUnitTest {
         View itemView = renderer.createItemView(new FrameLayout(context()));
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
+        PlaylistViewHolder viewHolder = (PlaylistViewHolder) itemView.getTag();
         assertThat(viewHolder.tagList.getText()).isEqualTo("");
     }
 }

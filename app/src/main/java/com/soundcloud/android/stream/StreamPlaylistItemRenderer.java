@@ -1,12 +1,16 @@
 package com.soundcloud.android.stream;
 
 import butterknife.ButterKnife;
+
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenElement;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -15,20 +19,23 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static com.soundcloud.android.tracks.OverflowMenuOptions.builder;
 
 class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private final Resources resources;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final StreamCardViewPresenter cardViewPresenter;
-    private final StreamItemEngagementsPresenter cardEngagementsPresenter;
+    private final CardEngagementsPresenter cardEngagementsPresenter;
 
     @Inject
     public StreamPlaylistItemRenderer(PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                       StreamCardViewPresenter cardViewPresenter,
-                                      StreamItemEngagementsPresenter cardEngagementsPresenter,
+                                      CardEngagementsPresenter cardEngagementsPresenter,
                                       Resources resources) {
         this.cardEngagementsPresenter = cardEngagementsPresenter;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
@@ -38,7 +45,7 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.stream_playlist_item, parent, false);
+        final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.stream_playlist_card, parent, false);
         inflatedView.setTag(new StreamPlaylistViewHolder(inflatedView));
         return inflatedView;
     }
@@ -47,6 +54,7 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     public void bindItemView(int position, View view, List<PlaylistItem> playlistItems) {
         final PlaylistItem playlistItem = playlistItems.get(position);
         StreamPlaylistViewHolder itemView = (StreamPlaylistViewHolder) view.getTag();
+        itemView.resetAdditionalInformation();
 
         cardViewPresenter.bind(itemView, playlistItem);
         showTrackCount(itemView, playlistItem);
@@ -59,15 +67,22 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     private void setupEngagementBar(StreamPlaylistViewHolder playlistView, final PlaylistItem playlistItem) {
-        cardEngagementsPresenter.bind(playlistView, playlistItem);
+        cardEngagementsPresenter.bind(playlistView, playlistItem, getEventContextMetadata());
 
         playlistView.showDuration(ScTextUtils.formatTimestamp(playlistItem.getDuration(), TimeUnit.MILLISECONDS));
         playlistView.setOverflowListener(new StreamItemViewHolder.OverflowListener() {
             @Override
             public void onOverflow(View overflowButton) {
-                playlistItemMenuPresenter.show(overflowButton, playlistItem, getOverflowMenuOptions());
+                playlistItemMenuPresenter.show(overflowButton, playlistItem, builder().build());
             }
         });
+    }
+
+    private EventContextMetadata getEventContextMetadata() {
+        return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
+                .contextScreen(Screen.STREAM.get())
+                .pageName(Screen.STREAM.get())
+                .build();
     }
 
     static class StreamPlaylistViewHolder extends StreamItemViewHolder {
@@ -85,9 +100,5 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
             this.trackCount.setText(numberOfTracks);
             this.tracksView.setText(tracksString);
         }
-    }
-
-    private OverflowMenuOptions getOverflowMenuOptions() {
-        return OverflowMenuOptions.builder().build();
     }
 }

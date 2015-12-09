@@ -1,19 +1,27 @@
 package com.soundcloud.android.stream;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.view.LayoutInflater;
@@ -27,8 +35,10 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistItemMenuPresenter menuPresenter;
     @Mock private StreamCardViewPresenter cardViewPresenter;
-    @Mock private StreamItemEngagementsPresenter engagementsPresenter;
+    @Mock private CardEngagementsPresenter engagementsPresenter;
     @Mock private StreamPlaylistItemRenderer.StreamPlaylistViewHolder viewHolder;
+
+    private final PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
 
     private StreamPlaylistItemRenderer renderer;
     private View itemView;
@@ -36,9 +46,8 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
-        itemView = layoutInflater.inflate(R.layout.stream_playlist_item, new FrameLayout(context()), false);
+        itemView = layoutInflater.inflate(R.layout.default_playlist_card, new FrameLayout(context()), false);
         itemView.setTag(viewHolder);
-
 
         renderer = new StreamPlaylistItemRenderer(
                 menuPresenter, cardViewPresenter, engagementsPresenter, resources());
@@ -46,7 +55,6 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsCardViewPresenter() {
-        PlaylistItem playlistItem = postedPlaylist();
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
         verify(cardViewPresenter).bind(viewHolder, playlistItem);
@@ -54,7 +62,6 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsTrackCount() {
-        PlaylistItem playlistItem = postedPlaylist();
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
         verify(viewHolder).setTrackCount(
@@ -64,15 +71,19 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsEngagementsPresenter() {
-        PlaylistItem playlistItem = postedPlaylist();
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        engagementsPresenter.bind(viewHolder, playlistItem);
+        ArgumentCaptor<EventContextMetadata> eventContextCaptor = ArgumentCaptor.forClass(EventContextMetadata.class);
+        verify(engagementsPresenter).bind(eq(viewHolder), eq(playlistItem), eventContextCaptor.capture());
+
+        EventContextMetadata context = eventContextCaptor.getValue();
+        assertThat(context.invokerScreen()).isEqualTo(ScreenElement.LIST.get());
+        assertThat(context.contextScreen()).isEqualTo(Screen.STREAM.get());
+        assertThat(context.pageName()).isEqualTo(Screen.STREAM.get());
     }
 
     @Test
     public void bindsDurationAndOverflow() {
-        PlaylistItem playlistItem = postedPlaylist();
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
         verify(viewHolder).showDuration(formattedTime(playlistItem.getDuration()));
@@ -81,10 +92,6 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     private String tracksString(int trackCount) {
         return resources().getQuantityString(R.plurals.number_of_tracks, trackCount);
-    }
-
-    private PlaylistItem postedPlaylist() {
-        return PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
     }
 
     private String formattedTime(long time) {
