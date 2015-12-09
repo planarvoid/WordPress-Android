@@ -24,6 +24,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public static final int STOP_REASON_END_OF_QUEUE = 4;
     public static final int STOP_REASON_NEW_QUEUE = 5;
     public static final int STOP_REASON_ERROR = 6;
+    public static final int STOP_REASON_CONCURRENT_STREAMING = 7;
 
     public static final String KEY_LOGGED_IN_USER_URN = "logged_in_user_urn";
     public static final String KEY_PROTOCOL = "protocol";

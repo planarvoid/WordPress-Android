@@ -294,6 +294,8 @@ public class EventLoggerV1JsonDataBuilder {
                 return "context_change";
             case PlaybackSessionEvent.STOP_REASON_ERROR:
                 return "playback_error";
+            case PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING:
+                return "concurrent_streaming";
             default:
                 throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
         }

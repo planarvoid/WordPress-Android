@@ -470,7 +470,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
                 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(track, LOGGED_IN_USER, trackSourceInfo,
-                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR, false);
+                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING, false);
 
         jsonDataBuilder.buildForAudioEvent(event);
 
@@ -486,7 +486,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .playlistPositionV0("2")
                 .protocol("hls")
                 .playerType("PLAYA")
-                .reason("playback_error")
+                .reason("concurrent_streaming")
                 .connectionType("3g"));
     }
 

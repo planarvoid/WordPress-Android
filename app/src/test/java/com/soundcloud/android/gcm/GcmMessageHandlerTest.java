@@ -10,6 +10,7 @@ import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.StopReasonProvider;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -31,10 +32,11 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
     @Mock private PlaySessionController playSessionController;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private AccountOperations accountOperations;
+    @Mock private StopReasonProvider stopReasonProvider;
 
     @Before
     public void setUp() throws Exception {
-        handler = new GcmMessageHandler(resources(), featureFlags, decryptor, playSessionController, playSessionStateProvider, accountOperations);
+        handler = new GcmMessageHandler(resources(), featureFlags, decryptor, playSessionController, playSessionStateProvider, accountOperations, stopReasonProvider);
         when(featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(123L));
     }
@@ -51,6 +53,20 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
         handler.handleMessage(context(), intent);
 
         verify(playSessionController).pause();
+    }
+
+    @Test
+    public void setsPendingConcurrentPauseWhenStopMessageReceivedAndPlaying() throws UnsupportedEncodingException, EncryptionException {
+        final Intent intent = new Intent("com.google.android.c2dm.intent.RECEIVE");
+        intent.putExtra("from", resources().getString(R.string.google_api_key));
+        intent.putExtra("data", ENCRYPTED_DATA);
+
+        when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":123}");
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+
+        handler.handleMessage(context(), intent);
+
+        verify(stopReasonProvider).setPendingConcurrentPause();
     }
 
     @Test
