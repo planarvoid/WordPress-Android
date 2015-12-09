@@ -5,6 +5,8 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.enableSy
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.FacebookSdk;
+import com.newrelic.agent.android.NewRelic;
+import com.newrelic.agent.android.logging.AgentLog;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.ads.AdsController;
@@ -152,6 +154,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     protected void bootApplication() {
+        initializeNewRelic();
+
         migrationEngine.migrate();
 
         Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildType());
@@ -209,6 +213,16 @@ public class SoundCloudApplication extends MultiDexApplication {
         configurationFeatureController.subscribe();
         FacebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();
+    }
+
+    private void initializeNewRelic() {
+        if (getResources().getBoolean(R.bool.new_relic_enabled)) {
+            String appToken = getResources().getString(R.string.new_relic_app_token);
+            NewRelic
+                    .withApplicationToken(appToken)
+                    .withLogLevel(AgentLog.VERBOSE)
+                    .start(this.getApplicationContext());
+        }
     }
 
     private void generateDeviceKey() {
