@@ -61,7 +61,7 @@ class DownloadNotificationController {
         totalBytesToDownload = (int) (currentDownload == null ? completedBytes : completedBytes + currentDownload.getTotalBytes());
 
         for (DownloadRequest request : pendingQueue.getRequests()){
-            totalBytesToDownload += SecureFileStorage.calculateFileSizeInBytes(request.getDuration());
+            totalBytesToDownload += MP3Helper.calculateFileSizeInBytes(request.getDuration());
         }
 
         progressNotification = notificationBuilderProvider.get();

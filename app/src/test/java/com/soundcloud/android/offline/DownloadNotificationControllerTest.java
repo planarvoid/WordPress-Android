@@ -31,7 +31,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     private static final String DOWNLOAD_COMPLETED = getString(R.string.offline_update_completed_title);
     private static final String DOWNLOAD_PAUSED = getString(R.string.offline_update_paused);
     private static final int TRACK_DURATION = 1234;
-    private static final long TRACK_DURATION_IN_BYTES = SecureFileStorage.calculateFileSizeInBytes(TRACK_DURATION);
+    private static final long TRACK_DURATION_IN_BYTES = MP3Helper.calculateFileSizeInBytes(TRACK_DURATION);
 
     private final DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(123L));
     private final DownloadState successfulDownloadState = DownloadState.success(downloadRequest);

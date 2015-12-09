@@ -18,15 +18,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.TimeUnit;
 
 public class SecureFileStorage {
-
-    public static final int MP3_128_KBPS = 128;
 
     private static final String TAG = "SecureFileStorage";
     private static final String DIRECTORY_NAME = "offline";
     private static final String ENC_FILE_EXTENSION = ".enc";
+    private static final int FREE_SPACE_BUFFER = 100 * 1024 * 1024;
 
     protected final File OFFLINE_DIR;
 
@@ -95,14 +93,13 @@ public class SecureFileStorage {
         return Uri.EMPTY;
     }
 
-    public boolean isEnoughSpaceForTrack(long trackDurationMillis) {
-        long trackSize = calculateFileSizeInBytes(trackDurationMillis);
-        long dirSizeWithTrack = getStorageUsed() + trackSize;
-        return getStorageAvailable() > trackSize && isWithinStorageLimit(dirSizeWithTrack);
+    public boolean isEnoughSpace(long sizeInBytes) {
+        long dirSizeWithFile = getStorageUsed() + sizeInBytes;
+        return getStorageAvailable() >= sizeInBytes && isWithinStorageLimit(dirSizeWithFile);
     }
 
     private boolean isWithinStorageLimit(long dirSizeWithTrack) {
-        return !settingsStorage.hasStorageLimit() || settingsStorage.getStorageLimit() > dirSizeWithTrack;
+        return !settingsStorage.hasStorageLimit() || settingsStorage.getStorageLimit() >= dirSizeWithTrack;
     }
 
     public long getStorageUsed() {
@@ -110,7 +107,7 @@ public class SecureFileStorage {
     }
 
     public long getStorageAvailable() {
-        return Consts.FILES_PATH.getFreeSpace();
+        return Math.max(Consts.FILES_PATH.getFreeSpace() - FREE_SPACE_BUFFER, 0);
     }
 
     public long getStorageCapacity() {
@@ -126,10 +123,4 @@ public class SecureFileStorage {
         return OFFLINE_DIR.exists() || IOUtils.mkdirs(OFFLINE_DIR);
     }
 
-    @VisibleForTesting
-    public static long calculateFileSizeInBytes(long trackDurationMillis) {
-        long trackSeconds = TimeUnit.MILLISECONDS.toSeconds(trackDurationMillis);
-        long fileSizeKB = trackSeconds * MP3_128_KBPS / 8L; //(KB is kilobytes, not kilobits, hence the 8).
-        return fileSizeKB * 1024;
-    }
 }

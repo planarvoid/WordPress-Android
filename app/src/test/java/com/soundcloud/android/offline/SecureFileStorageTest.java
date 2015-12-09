@@ -8,6 +8,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.crypto.Encryptor;
@@ -128,7 +129,16 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
         storage.OFFLINE_DIR.mkdirs();
         when(settingsStorage.getStorageLimit()).thenReturn(1024L * 1024 * 1024);
 
-        assertThat(storage.isEnoughSpaceForTrack(1000)).isTrue();
+        assertThat(storage.isEnoughSpace(1000)).isTrue();
+    }
+
+    @Test
+    public void isEnoughSpaceShouldKeepSomeFreeSpaceOnDisk() throws Exception {
+        storage.OFFLINE_DIR.mkdirs();
+        final long freeSpace = Consts.FILES_PATH.getFreeSpace();
+        when(settingsStorage.getStorageLimit()).thenReturn(freeSpace);
+
+        assertThat(storage.isEnoughSpace(freeSpace)).isFalse();
     }
 
     @Test
@@ -137,16 +147,26 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
         when(settingsStorage.hasStorageLimit()).thenReturn(true);
         when(settingsStorage.getStorageLimit()).thenReturn(500L);
 
-        assertThat(storage.isEnoughSpaceForTrack(1000000L)).isFalse();
+        assertThat(storage.isEnoughSpace(600L)).isFalse();
     }
 
     @Test
-    public void calculateCorrectFileSizeBasedOnTrackDurationMp3WithBitRate128Stereo() {
-        long fileSizeFor1SecondTrackDuration = SecureFileStorage.calculateFileSizeInBytes(1000);
-        long fileSizeFor1MinuteTrackDuration = SecureFileStorage.calculateFileSizeInBytes(1000 * 60);
+    public void isEnoughSpaceShouldReturnTrueUnderAbsoluteMaximumLimit() {
+        storage.OFFLINE_DIR.mkdirs();
+        when(settingsStorage.hasStorageLimit()).thenReturn(true);
+        when(settingsStorage.getStorageLimit()).thenReturn(500L);
 
-        assertThat(fileSizeFor1SecondTrackDuration).isEqualTo(16384L);   //16 KB
-        assertThat(fileSizeFor1MinuteTrackDuration).isEqualTo(983040L);  //960 KB
+        assertThat(storage.isEnoughSpace(500L)).isTrue();
+    }
+
+    @Test
+    public void isEnoughSpaceShouldReturnFalseOverAbsoluteMaximumLimit() {
+        storage.OFFLINE_DIR.mkdirs();
+        final long freeSpace = Consts.FILES_PATH.getFreeSpace();
+        when(settingsStorage.hasStorageLimit()).thenReturn(true);
+        when(settingsStorage.getStorageLimit()).thenReturn(freeSpace);
+
+        assertThat(storage.isEnoughSpace(freeSpace)).isFalse();
     }
 
     @Test
