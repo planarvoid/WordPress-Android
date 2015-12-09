@@ -4,6 +4,7 @@ import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -33,7 +34,7 @@ public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
     }
 
     public void testShowsEmptyPostsView() {
-        assertThat("This user hasn't uploaded\nany public sounds yet.", is(screen.emptyViewMessage()));
+        assertThat(solo.getString(R.string.new_empty_user_posts_message), is(screen.emptyViewMessage()));
     }
 
     // ignore until we refactor the fragment
