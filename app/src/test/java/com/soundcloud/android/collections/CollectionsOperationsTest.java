@@ -4,8 +4,8 @@ import static com.soundcloud.android.collections.CollectionsOperations.PLAYLIST_
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
@@ -138,9 +138,10 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     public void onCollectionChangedWhenPlaylistCreatedEventFires() {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(Urn.forLocalPlaylist(1)));
+        final Urn localPlaylist = Urn.newLocalPlaylist();
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(localPlaylist));
 
-        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromPlaylistCreated(Urn.forLocalPlaylist(1))));
+        collectionChangedSubscriber.assertReceivedOnNext(Collections.singletonList(EntityStateChangedEvent.fromPlaylistCreated(localPlaylist)));
     }
 
     @Test

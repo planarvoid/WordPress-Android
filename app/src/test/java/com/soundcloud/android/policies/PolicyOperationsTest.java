@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -33,6 +33,8 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Mock private StorePoliciesCommand storePoliciesCommand;
     @Mock private LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand;
     @Mock private TxnResult writeResult;
+    @Mock private LoadPolicyUpdateTimeCommand policyUpdateTimeCommand;
+    @Mock private PolicyStorage policyStorage;
 
     private final List<Urn> tracks = Collections.singletonList(TRACK_URN);
     private ApiPolicyInfo apiPolicyInfo = ModelFixtures.apiPolicyInfo(TRACK_URN);
@@ -40,8 +42,8 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new PolicyOperations(fetchPoliciesCommand, storePoliciesCommand, loadTracksForPolicyUpdateCommand, Schedulers.immediate());
-
+        operations = new PolicyOperations(fetchPoliciesCommand, storePoliciesCommand, loadTracksForPolicyUpdateCommand,
+                policyUpdateTimeCommand, Schedulers.immediate(), policyStorage);
         when(fetchPoliciesCommand.toObservable())
                 .thenReturn(Observable.<Collection<ApiPolicyInfo>>just(Collections.singletonList(apiPolicyInfo)));
 

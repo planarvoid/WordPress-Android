@@ -8,10 +8,9 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
-import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
@@ -61,7 +60,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private final PlaybackInitiator playbackInitiator;
     private final PlaybackToastHelper playbackToastHelper;
     private final FeatureFlags featureFlags;
-    private final StreamDesignExperiment streamExperiment;
     private final DelayedLoadingDialogPresenter.Builder dialogBuilder;
     private final StartStationPresenter startStationPresenter;
     private final AccountOperations accountOperations;
@@ -69,7 +67,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private FragmentActivity activity;
     private TrackItem track;
     private PromotedSourceInfo promotedSourceInfo;
-    private OverflowMenuOptions menuOptions;
     private Urn pageUrn;
     private int positionInAdapter;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
@@ -93,7 +90,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                            PlaybackInitiator playbackInitiator,
                            PlaybackToastHelper playbackToastHelper,
                            FeatureFlags featureFlags,
-                           StreamDesignExperiment streamExperiment,
                            ShareOperations shareOperations,
                            DelayedLoadingDialogPresenter.Builder dialogBuilder,
                            StartStationPresenter startStationPresenter, AccountOperations accountOperations) {
@@ -108,36 +104,29 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         this.playbackInitiator = playbackInitiator;
         this.playbackToastHelper = playbackToastHelper;
         this.featureFlags = featureFlags;
-        this.streamExperiment = streamExperiment;
         this.dialogBuilder = dialogBuilder;
         this.startStationPresenter = startStationPresenter;
         this.shareOperations = shareOperations;
         this.accountOperations = accountOperations;
     }
 
-    public void show(FragmentActivity activity, View button, TrackItem track, int position, OverflowMenuOptions options) {
+    public void show(FragmentActivity activity, View button, TrackItem track, int position) {
         if (track instanceof PromotedTrackItem) {
             show(activity, button, track, position, Urn.NOT_SET, null,
-                    PromotedSourceInfo.fromItem((PromotedTrackItem) track), options);
+                    PromotedSourceInfo.fromItem((PromotedTrackItem) track));
         } else {
-            show(activity, button, track, position, Urn.NOT_SET, null, null, options);
+            show(activity, button, track, position, Urn.NOT_SET, null, null);
         }
     }
 
-    public void show(FragmentActivity activity, View button, TrackItem track, int position) {
-        show(activity, button, track, position, OverflowMenuOptions.builder().build());
-    }
-
     public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter, Urn pageUrn,
-                     RemoveTrackListener removeTrackListener, PromotedSourceInfo promotedSourceInfo,
-                     OverflowMenuOptions menuOptions) {
+                     RemoveTrackListener removeTrackListener, PromotedSourceInfo promotedSourceInfo) {
         this.activity = activity;
         this.track = track;
         this.positionInAdapter = positionInAdapter;
         this.removeTrackListener = removeTrackListener;
         this.promotedSourceInfo = promotedSourceInfo;
         this.pageUrn = pageUrn;
-        this.menuOptions = menuOptions;
         loadTrack(setupMenu(button));
     }
 
@@ -160,10 +149,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     }
 
     private void configureAdditionalEngagementsOptions(PopupMenuWrapper menu) {
-        if (streamExperiment.isCardDesign() && menuOptions.showAllEngagements()) {
-            menu.setItemVisible(R.id.toggle_repost, canRepost(track));
-            menu.setItemVisible(R.id.share, !track.isPrivate());
-        }
+        menu.setItemVisible(R.id.toggle_repost, canRepost(track));
+        menu.setItemVisible(R.id.share, !track.isPrivate());
     }
 
     private boolean canRepost(TrackItem track) {

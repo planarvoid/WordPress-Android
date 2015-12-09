@@ -35,8 +35,8 @@ public class RecyclerViewElement {
             if (recyclerView.getChildAdapterPosition(view) == position) {
                 Log.i(TAG, "found item at position " + i);
                 DefaultViewElement viewElement = new DefaultViewElement(view, testDriver);
-                if (viewElement.isFullyVisible()) {
-                    Log.i(TAG, "element was fully visible");
+                if (viewElement.isVisible()) {
+                    Log.i(TAG, "element was visible");
                     return viewElement;
                 }
             }

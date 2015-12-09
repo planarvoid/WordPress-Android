@@ -12,6 +12,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
@@ -57,6 +59,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Mock private FragmentManager fragmentManager;
     @Mock private ProfileScrollHelper profileScrollHelper;
     @Mock private AccountOperations accountOperations;
+    @Mock private FeatureFlags featureFlags;
     @Captor private ArgumentCaptor<ViewPager.OnPageChangeListener> onPageChangeListenerCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -77,12 +80,13 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(activity.findViewById(R.id.pager)).thenReturn(viewPager);
         when(activity.findViewById(R.id.str_layout)).thenReturn(swipeRefreshLayout);
         when(activity.findViewById(R.id.profile_header)).thenReturn(headerView);
+        when(featureFlags.isEnabled(Flag.FEATURE_PROFILE_NEW_TABS)).thenReturn(false);
         when(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width)).thenReturn(DIVIDER_WIDTH);
         when(profileHeaderPresenterFactory.create(activity, USER_URN)).thenReturn(profileHeaderPresenter);
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
 
         profilePresenter = new ProfilePresenter(profileScrollHelper, profileHeaderPresenterFactory,
-                profileOperations, eventBus, accountOperations);
+                profileOperations, eventBus, accountOperations, featureFlags);
     }
 
     @Test

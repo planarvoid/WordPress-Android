@@ -3,6 +3,7 @@ package com.soundcloud.android.sync.activities;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activities.ActivitiesStorage;
 import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.activities.ActivityProperty;
 import com.soundcloud.android.analytics.Referrer;
@@ -28,6 +29,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.support.v4.app.NotificationCompat;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -39,7 +41,8 @@ public class ActivitiesNotifier {
     private final ContentStats contentStats;
     private final ImageOperations imageOperations;
 
-    public ActivitiesNotifier(TimelineStorage activitiesStorage,
+    @Inject
+    public ActivitiesNotifier(ActivitiesStorage activitiesStorage,
                               ContentStats contentStats,
                               ImageOperations imageOperations) {
         this.activitiesStorage = activitiesStorage;

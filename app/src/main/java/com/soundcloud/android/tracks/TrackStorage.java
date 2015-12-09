@@ -17,6 +17,7 @@ import javax.inject.Inject;
 class TrackStorage {
 
     private final PropellerRx propeller;
+    private final TrackItemMapper trackMapper = new TrackItemMapper();
 
     @Inject
     TrackStorage(PropellerRx propeller) {
@@ -25,7 +26,7 @@ class TrackStorage {
 
     Observable<PropertySet> loadTrack(Urn urn) {
         return propeller.query(buildTrackQuery(urn))
-                .map(new TrackItemMapper())
+                .map(trackMapper)
                 .firstOrDefault(PropertySet.create());
     }
 
@@ -53,11 +54,13 @@ class TrackStorage {
                         TableColumns.SoundView.FULL_DURATION,
                         TableColumns.SoundView.PLAYBACK_COUNT,
                         TableColumns.SoundView.COMMENT_COUNT,
+                        TableColumns.SoundView.COMMENTABLE,
                         TableColumns.SoundView.LIKES_COUNT,
                         TableColumns.SoundView.REPOSTS_COUNT,
                         TableColumns.SoundView.WAVEFORM_URL,
                         TableColumns.SoundView.STREAM_URL,
                         TableColumns.SoundView.POLICIES_MONETIZABLE,
+                        TableColumns.SoundView.POLICIES_BLOCKED,
                         TableColumns.SoundView.POLICIES_POLICY,
                         TableColumns.SoundView.PERMALINK_URL,
                         TableColumns.SoundView.SHARING,
@@ -80,7 +83,7 @@ class TrackStorage {
                 .innerJoin(Table.Sounds.name(), joinConditions)
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), trackUrn.getNumericId())
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
-                .whereNull(TableColumns.Likes.REMOVED_AT);
+                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
     }
 
     private Query repostQuery(Urn trackUrn) {

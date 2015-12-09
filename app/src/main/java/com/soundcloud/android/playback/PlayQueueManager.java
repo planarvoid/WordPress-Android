@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
@@ -25,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 
 import android.support.annotation.VisibleForTesting;
@@ -173,47 +173,84 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.indexOfTrackUrn(currentPosition, urn);
     }
 
-    public void setPosition(int position) {
+    public void setPosition(int position, boolean isUserTriggered) {
         if (position != currentPosition && position < playQueue.size()) {
             this.currentPosition = position;
-            currentItemIsUserTriggered = true;
+            currentItemIsUserTriggered = isUserTriggered;
             publishPositionUpdate();
         }
-    }
-
-    public void moveToPreviousItem() {
-        if (playQueue.hasPreviousItem(currentPosition)) {
-            currentPosition--;
-            currentItemIsUserTriggered = true;
-            publishPositionUpdate();
-        }
-    }
-
-    public boolean autoNextItem() {
-        return nextItemInternal(false);
-    }
-
-    public boolean nextItem() {
-        return nextItemInternal(true);
     }
 
     public boolean hasNextItem() {
         return playQueue.hasNextItem(currentPosition);
     }
 
-    private boolean nextItemInternal(boolean manual) {
-        if (playQueue.hasNextItem(currentPosition)) {
-            currentPosition++;
-            currentItemIsUserTriggered = manual;
-            publishPositionUpdate();
+    public boolean hasPreviousItem() {
+        return playQueue.hasPreviousItem(currentPosition);
+    }
+
+    public List<Urn> getCurrentQueueTrackUrns() {
+        return playQueue.getTrackItemUrns();
+    }
+
+    public boolean moveToNextPlayableItem() {
+        return moveToNextPlayableItemInternal(true);
+    }
+
+    public boolean autoMoveToNextPlayableItem() {
+        return moveToNextPlayableItemInternal(false);
+    }
+
+    private boolean moveToNextPlayableItemInternal(boolean userTriggered) {
+        if (hasNextItem()) {
+            final int nextPlayableItem = getNextPlayableItem();
+            final int newPosition = nextPlayableItem == Consts.NOT_SET
+                    ? getQueueSize() - 1 // last track
+                    : nextPlayableItem; // next playable track
+            setPosition(newPosition, userTriggered);
             return true;
         } else {
             return false;
         }
     }
 
-    public List<Urn> getCurrentQueueTrackUrns() {
-        return playQueue.getTrackItemUrns();
+    private int getNextPlayableItem() {
+        for (int i = currentPosition + 1, size = getQueueSize(); i < size; i++) {
+            if (isPlayableAtPosition(i)) {
+                return i;
+            }
+        }
+        return Consts.NOT_SET;
+    }
+
+    private boolean isPlayableAtPosition(int i) {
+        final PlayQueueItem playQueueItem = playQueue.getPlayQueueItem(i);
+        if (playQueueItem.isVideo() || !((TrackQueueItem) playQueueItem).isBlocked()) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean moveToPreviousPlayableItem() {
+        if (hasPreviousItem()) {
+            final int previousPlayable = getPreviousPlayableItem();
+            final int newPosition = previousPlayable == Consts.NOT_SET
+                    ? 0 // first track
+                    : previousPlayable; // next playable track
+            setPosition(newPosition, true);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private int getPreviousPlayableItem() {
+        for (int i = currentPosition - 1; i > 0; i--) {
+            if (isPlayableAtPosition(i)) {
+                return i;
+            }
+        }
+        return Consts.NOT_SET;
     }
 
     public boolean hasSameTrackList(List<Urn> remoteTrackList) {
@@ -257,29 +294,19 @@ public class PlayQueueManager implements OriginProvider {
     public Observable<PlayQueue> loadPlayQueueAsync() {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
-        Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
-        if (playQueueObservable != null) {
-            return playQueueObservable
-                    .doOnSubscribe(new Action0() {
-                        @Override
-                        public void call() {
-                            // return so player can have the resume information while load is in progress
-                            setLastPlayedTrackAndPosition(
-                                    Urn.forTrack(playQueueOperations.getLastStoredPlayingTrackId()),
-                                    playQueueOperations.getLastStoredSeekPosition());
-                        }
-                    })
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(new Action1<PlayQueue>() {
-                        @Override
-                        public void call(PlayQueue savedQueue) {
-                            currentPosition = playQueueOperations.getLastStoredPlayPosition();
-                            setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
-                        }
-                    });
-        } else {
-            return Observable.empty();
-        }
+        return playQueueOperations.getLastStoredPlayQueue()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(new Action1<PlayQueue>() {
+                    @Override
+                    public void call(PlayQueue savedQueue) {
+                        setLastPlayedTrackAndPosition(
+                                Urn.forTrack(playQueueOperations.getLastStoredPlayingTrackId()),
+                                playQueueOperations.getLastStoredSeekPosition());
+
+                        currentPosition = playQueueOperations.getLastStoredPlayPosition();
+                        setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
+                    }
+                });
     }
 
     private void setLastPlayedTrackAndPosition(Urn urn, long lastStoredSeekPosition) {
@@ -324,7 +351,7 @@ public class PlayQueueManager implements OriginProvider {
             trackSourceInfo.setReposter(trackQueueItem.getReposter());
         }
 
-        if (playSessionSource.isFromQuery()) {
+        if (playSessionSource.isFromSearchQuery()) {
             trackSourceInfo.setSearchQuerySourceInfo(playSessionSource.getSearchQuerySourceInfo());
         }
 
@@ -333,7 +360,11 @@ public class PlayQueueManager implements OriginProvider {
         }
 
         if (playSessionSource.isFromStations()) {
-            trackSourceInfo.setOriginStation(playSessionSource.getCollectionUrn());
+            TrackQueueItem trackQueueItem = (TrackQueueItem) currentPlayQueueItem;
+            trackSourceInfo.setStationSourceInfo(
+                    playSessionSource.getCollectionUrn(),
+                    StationsSourceInfo.create(trackQueueItem.getQueryUrn())
+            );
         }
 
         final Urn collectionUrn = playSessionSource.getCollectionUrn();

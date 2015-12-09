@@ -14,7 +14,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.ads.LeaveBehindAd;
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -597,14 +597,14 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void onPlaybackErrorShowErrorState() {
         presenter.setPlayState(trackView, TestPlayStates.error(Reason.ERROR_FAILED), true, true);
 
-        verify(errorViewController).showError(Reason.ERROR_FAILED);
+        verify(errorViewController).showError(ErrorViewController.ErrorState.FAILED);
     }
 
     @Test
-    public void onNonErrorPlaybackEventClearAnyExistingErrorState() {
+    public void onNonErrorPlaybackEventClearAnyNonBlockedErrorState() {
         presenter.setPlayState(trackView, TestPlayStates.playing(), true, false);
 
-        verify(errorViewController).hideError();
+        verify(errorViewController).hideNonBlockedErrors();
     }
 
     @Test

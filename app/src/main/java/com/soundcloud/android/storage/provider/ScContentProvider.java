@@ -116,12 +116,6 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
 
-            case COMMENTS:
-            case ME_SOUND_STREAM:
-            case ME_ACTIVITIES:
-                table = content.table;
-                break;
-
             case ME_SOUNDS:
                 table = Table.Posts;
                 break;
@@ -302,7 +296,7 @@ public class ScContentProvider extends ContentProvider {
                 _sortOrder = Table.Likes + "." + TableColumns.Likes.CREATED_AT + " DESC";
 
                 qb.appendWhere(Table.Likes + "." + TableColumns.Likes._TYPE + " = " + Table.SoundView + "." + TableColumns.SoundView._TYPE);
-                qb.appendWhere(" AND " + TableColumns.Likes.REMOVED_AT + " IS NULL");
+                qb.appendWhere(" AND " + Table.Likes.field(TableColumns.Likes.REMOVED_AT) + " IS NULL");
                 if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
                     qb.appendWhere(" AND " + TableColumns.SoundView.CACHED + "= 1");
                 }
@@ -415,28 +409,6 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(TableColumns.TrackMetadata.USER_ID + " = " + userId);
                 break;
 
-            case ME_SOUND_STREAM:
-                if (_columns == null) {
-                    _columns = getSoundViewColumns(Table.ActivityView,
-                            TableColumns.ActivityView.SOUND_ID, TableColumns.ActivityView.SOUND_TYPE);
-                }
-                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
-                    qb.appendWhere(TableColumns.SoundView.CACHED + "= 1 AND ");
-                }
-
-            case ME_ALL_ACTIVITIES:
-            case ME_ACTIVITIES:
-                qb.setTables(Table.ActivityView.name());
-                if (content != Content.ME_ALL_ACTIVITIES) {
-                    // filter out playlist
-                    qb.appendWhere(TableColumns.ActivityView.CONTENT_ID + "=" + content.id + " ");
-                }
-                _sortOrder = makeActivitiesSort(uri, sortOrder);
-                break;
-            case COMMENTS:
-                qb.setTables(content.table.name());
-                break;
-
             case UNKNOWN:
             default:
                 throw new IllegalArgumentException("No query available for: " + uri);
@@ -489,8 +461,6 @@ public class ScContentProvider extends ContentProvider {
             case USER_ASSOCIATIONS:
             case ME_SOUNDS:
             case ME_PLAYLISTS:
-            case ME_SOUND_STREAM:
-            case ME_ACTIVITIES:
             case ME_LIKES:
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
@@ -570,7 +540,6 @@ public class ScContentProvider extends ContentProvider {
         switch (content) {
             case COLLECTIONS:
             case PLAYLISTS:
-            case ME_ALL_ACTIVITIES:
             case ME_SOUNDS:
                 break;
 
@@ -582,12 +551,6 @@ public class ScContentProvider extends ContentProvider {
 
             case PLAYLIST_TRACKS:
                 where = (!TextUtils.isEmpty(where) ? where + " AND " : "") + TableColumns.PlaylistTracks.PLAYLIST_ID + "=" + uri.getPathSegments().get(1);
-                break;
-
-            case ME_ACTIVITIES:
-            case ME_SOUND_STREAM:
-                where = TableColumns.Activities.CONTENT_ID + "= ?";
-                whereArgs = new String[]{String.valueOf(content.id)};
                 break;
 
             case ME_PLAYLISTS:
@@ -666,12 +629,14 @@ public class ScContentProvider extends ContentProvider {
                 "EXISTS (SELECT 1 FROM " + Table.Likes + ", " + Table.Sounds.name()
                         + " WHERE " + idCol + " = " + Table.Likes.name() + "." + TableColumns.Likes._ID
                         + " AND " + typeCol + " = " + Table.Likes.name() + "." + TableColumns.Likes._TYPE
-                        + " AND " + TableColumns.Likes.REMOVED_AT + " IS NULL)"
+                        + " AND " + Table.Sounds.field(TableColumns.Sounds.REMOVED_AT) + " IS NULL"
+                        + " AND " + Table.Likes.field(TableColumns.Likes.REMOVED_AT) + " IS NULL)"
                         + " AS " + TableColumns.SoundView.USER_LIKE,
 
                 "EXISTS (SELECT 1 FROM " + Table.Posts + ", " + Table.Sounds.name()
                         + " WHERE " + idCol + " = " + TableColumns.Posts.TARGET_ID
                         + " AND " + typeCol + " = " + TableColumns.Posts.TARGET_TYPE
+                        + " AND " + Table.Sounds.field(TableColumns.Sounds.REMOVED_AT) + " IS NULL"
                         + " AND " + TableColumns.Posts.TYPE + " = '" + TableColumns.Posts.TYPE_REPOST + "')"
                         + " AS " + TableColumns.SoundView.USER_REPOST
         };
@@ -686,12 +651,14 @@ public class ScContentProvider extends ContentProvider {
                 "EXISTS (SELECT 1 FROM " + Table.Likes + ", " + Table.Sounds.name()
                         + " WHERE Sounds._id = " + Table.Likes.name() + "." + TableColumns.Likes._ID
                         + " AND Sounds._type = " + Table.Likes.name() + "." + TableColumns.Likes._TYPE
-                        + " AND " + TableColumns.Likes.REMOVED_AT + " IS NULL)"
+                        + " AND " + Table.Sounds.field(TableColumns.Sounds.REMOVED_AT) + " IS NULL"
+                        + " AND " + Table.Likes.field(TableColumns.Likes.REMOVED_AT) + " IS NULL)"
                         + " AS " + TableColumns.SoundView.USER_LIKE,
 
                 "EXISTS (SELECT 1 FROM " + Table.Posts + ", " + Table.Sounds.name()
                         + " WHERE Sounds._id = " + TableColumns.Posts.TARGET_ID
                         + " AND Sounds._type = " + TableColumns.Posts.TARGET_TYPE
+                        + " AND " + Table.Sounds.field(TableColumns.Sounds.REMOVED_AT) + " IS NULL"
                         + " AND " + TableColumns.Posts.TYPE + " = '" + TableColumns.Posts.TYPE_REPOST + "')"
                         + " AS " + TableColumns.SoundView.USER_REPOST
         };

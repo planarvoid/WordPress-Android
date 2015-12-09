@@ -5,7 +5,7 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.likes.LikeProperty;
@@ -165,6 +165,7 @@ public class CollectionsOperations {
             switch (event.getKind()) {
                 case EntityStateChangedEvent.LIKE:
                 case EntityStateChangedEvent.PLAYLIST_CREATED:
+                case EntityStateChangedEvent.PLAYLIST_DELETED:
                     return true;
                 default:
                     return false;
@@ -200,7 +201,8 @@ public class CollectionsOperations {
     }
 
     public Observable<EntityStateChangedEvent> onCollectionChanged() {
-        return eventBus.queue(ENTITY_STATE_CHANGED)
+        return eventBus
+                .queue(ENTITY_STATE_CHANGED)
                 .filter(IS_COLLECTION_CHANGE_FILTER);
     }
 

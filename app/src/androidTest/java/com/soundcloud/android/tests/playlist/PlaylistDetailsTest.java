@@ -65,7 +65,7 @@ public class PlaylistDetailsTest extends ActivityTest<ResolveActivity> {
         int initialTrackCount = playlistDetailsScreen.getTrackCount();
 
         VisualPlayerElement player = playlistDetailsScreen.clickFirstTrack();
-        assertTrue("Player did not expand", player.waitForExpandedPlayer());
+        assertTrue("Player did not expand", player.waitForExpandedPlayer().isExpanded());
         player.pressBackToCollapse();
 
         TrackItemMenuElement menu = playlistDetailsScreen.clickFirstTrackOverflowButton();

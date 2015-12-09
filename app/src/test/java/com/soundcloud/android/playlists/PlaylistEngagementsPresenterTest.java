@@ -53,6 +53,7 @@ import rx.subjects.PublishSubject;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.ViewGroup;
 
 public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
@@ -75,6 +76,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private Navigator navigator;
     @Mock private ShareOperations shareOperations;
+    @Mock private FragmentManager fragmentManager;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
     private OnEngagementListener onEngagementListener;
@@ -87,6 +89,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
                 playbackToastHelper, navigator, shareOperations);
         when(rootView.getContext()).thenReturn(context);
         when(context.getResources()).thenReturn(resources());
+        when(fragment.getFragmentManager()).thenReturn(fragmentManager);
 
         controller.bindView(rootView);
         controller.onResume(fragment);

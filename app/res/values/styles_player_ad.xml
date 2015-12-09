@@ -80,4 +80,13 @@
         <item name="android:background">@drawable/btn_close_ad</item>
     </style>
 
+    <style name="AdVideoPause">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:background">@drawable/btn_video_ad_pause</item>
+    </style>
+
 </resources>

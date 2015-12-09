@@ -1,23 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/shuffle"
+    <item
+        android:id="@+id/shuffle"
         android:title="@string/shuffle_playlist" />
-    <item android:id="@+id/upsell_offline_content"
-        android:title="@string/make_offline_available"
-        android:visible="false" />
-    <item android:id="@+id/make_offline_available"
-        android:title="@string/make_offline_available"
-        android:visible="false" />
-    <item android:id="@+id/make_offline_unavailable"
-        android:title="@string/make_offline_unavailable"
-        android:visible="false" />
-    <item android:id="@+id/repost"
+    <item
+        android:id="@+id/repost"
         android:title="@string/repost"
         android:visible="false" />
-    <item android:id="@+id/unpost"
+    <item
+        android:id="@+id/unpost"
         android:title="@string/unpost"
         android:visible="false" />
-    <item android:id="@+id/share"
+    <item
+        android:id="@+id/share"
         android:title="@string/share" />
+    <item
+        android:id="@+id/upsell_offline_content"
+        android:title="@string/make_offline_available"
+        android:visible="false" />
+    <item
+        android:id="@+id/make_offline_available"
+        android:title="@string/make_offline_available"
+        android:visible="false" />
+    <item
+        android:id="@+id/make_offline_unavailable"
+        android:title="@string/make_offline_unavailable"
+        android:visible="false" />
+    <item
+        android:id="@+id/delete_playlist"
+        android:title="@string/delete_playlist"
+        android:visible="false" />
 </menu>

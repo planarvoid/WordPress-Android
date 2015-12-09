@@ -31,11 +31,13 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
     private String artworkUrl;
     private String permalinkUrl;
     private Sharing sharing = Sharing.UNDEFINED;
+    private Optional<String> description = Optional.absent();
     private ApiTrackStats stats;
 
     private boolean monetizable;
     private String policy;
     private boolean syncable;
+    private boolean blocked;
 
     private Optional<String> monetizationModel = Optional.absent();
     private Optional<Boolean> subMidTier = Optional.absent();
@@ -194,6 +196,15 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
         this.monetizable = monetizable;
     }
 
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    @JsonProperty("blocked")
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
+
     public String getPolicy() {
         return policy;
     }
@@ -256,7 +267,11 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
 
     @Override
     public Optional<String> getDescription() {
-        return Optional.absent(); // api-mobile doesn't return track descriptions yet
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = Optional.fromNullable(description);
     }
 
     @JsonProperty("syncable")
@@ -307,6 +322,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
                 .add("artworkUrl", artworkUrl)
                 .add("permalinkUrl", permalinkUrl)
                 .add("monetizable", monetizable)
+                .add("blocked", blocked)
                 .add("syncable", syncable)
                 .add("policy", policy)
                 .add("sharing", sharing)
@@ -325,6 +341,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
                 TrackProperty.WAVEFORM_URL.bind(getWaveformUrl()),
                 TrackProperty.PERMALINK_URL.bind(getPermalinkUrl()),
                 TrackProperty.MONETIZABLE.bind(isMonetizable()),
+                TrackProperty.BLOCKED.bind(isBlocked()),
                 TrackProperty.SYNCABLE.bind(isSyncable()),
                 TrackProperty.POLICY.bind(getPolicy()),
                 TrackProperty.PLAY_COUNT.bind(getStats().getPlaybackCount()),

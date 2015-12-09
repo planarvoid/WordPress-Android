@@ -7,11 +7,9 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.discovery.DiscoveryActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.discovery.SearchResultsActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -24,9 +22,6 @@ import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.search.LegacySearchActivity;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
@@ -44,14 +39,10 @@ public class Navigator {
     private static final int NO_FLAGS = 0;
     private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
-    private final FeatureFlags featureFlags;
-
-    public Navigator(FeatureFlags featureFlags) {
-        this.featureFlags = featureFlags;
-    }
+    public final static String EXTRA_SEARCH_INTENT = "search_intent";
 
     public void openHome(Context context) {
-        context.startActivity(new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        context.startActivity(createHomeIntent(context));
     }
 
     public void openUpgrade(Context context) {
@@ -70,16 +61,24 @@ public class Navigator {
         context.startActivity(createProfileIntent(context, user));
     }
 
-    public void openDiscovery(Context activityContext) {
-        if (featureFlags.isEnabled(Flag.DISCOVERY)) {
-            startActivity(activityContext, DiscoveryActivity.class);
-        } else {
-            startActivity(activityContext, LegacySearchActivity.class);
-        }
-    }
-
     public void openSearch(Activity activity) {
         startActivity(activity, SearchActivity.class);
+    }
+
+    public void openSearch(Activity activity, Intent searchIntent) {
+        activity.startActivity(searchIntent);
+    }
+
+    public void openSearch(Context context, Uri uri, Screen screen) {
+        final Intent searchIntent = createSearchIntentFromDeepLink(context, uri, screen);
+        final Intent homeIntent = createHomeIntent(context);
+        homeIntent.setAction(Actions.SEARCH);
+        homeIntent.putExtra(EXTRA_SEARCH_INTENT, searchIntent);
+        context.startActivity(homeIntent);
+    }
+
+    public void openUri(Context context, Uri uri) {
+        context.startActivity(new Intent(Intent.ACTION_VIEW).setData(uri));
     }
 
     public void openProfile(Context context, Urn user, Screen screen) {
@@ -168,10 +167,6 @@ public class Navigator {
         context.startActivity(createExploreIntent(context, screen));
     }
 
-    public void openLegacySearch(Context context, Uri uri, Screen screen) {
-        context.startActivity(createSearchIntent(context, uri, screen));
-    }
-
     public void openResolveForUrn(Context context, Urn urn) {
         context.startActivity(createResolveIntent(context, urn));
     }
@@ -209,6 +204,10 @@ public class Navigator {
                 .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
     }
 
+    private Intent createHomeIntent(Context context) {
+        return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
+
     private Intent createResolveIntent(Context context, Urn urn) {
         Intent intent = new Intent(context, ResolveActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
@@ -217,8 +216,8 @@ public class Navigator {
         return intent;
     }
 
-    private Intent createSearchIntent(Context context, Uri uri, Screen screen) {
-        Intent intent = new Intent(context, LegacySearchActivity.class);
+    private Intent createSearchIntentFromDeepLink(Context context, Uri uri, Screen screen) {
+        Intent intent = new Intent(context, SearchActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(uri);
         screen.addToIntent(intent);
@@ -279,11 +278,6 @@ public class Navigator {
     private Intent createRecommendationIntent(Context context, long localSeedId) {
         return new Intent(context, RecommendedTracksActivity.class)
                 .putExtra(RecommendedTracksActivity.EXTRA_LOCAL_SEED_ID, localSeedId);
-    }
-
-    private Intent createSearchResultsIntent(Context context, String searchQuery) {
-        return new Intent(context, SearchResultsActivity.class)
-                .putExtra(SearchResultsActivity.EXTRA_SEARCH_QUERY, searchQuery);
     }
 
     private Intent createPlaylistDiscoveryIntent(Context context, String playListTag) {

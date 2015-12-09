@@ -98,6 +98,18 @@ public class UrnTest extends AndroidUnitTest {
         assertThat(urn.getNumericId()).isEqualTo(-123L);
     }
 
+    @Test
+    public void isLocalPlaylist() {
+        Urn urn = Urn.newLocalPlaylist();
+        assertThat(urn.isLocal()).isTrue();
+    }
+
+    @Test
+    public void isLocalPlaylistShouldBeFalseWhenNotLocal() {
+        Urn urn = Urn.forPlaylist(123L);
+        assertThat(urn.isLocal()).isFalse();
+    }
+
     // This is still up for debate, but right now we represent NOT_SET Urns with numeric part -1
     @Test
     public void shouldAllowUrnsWithNegativeOneIds() {

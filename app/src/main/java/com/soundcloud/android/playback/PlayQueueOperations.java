@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
@@ -16,7 +17,6 @@ import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -32,6 +32,12 @@ class PlayQueueOperations {
     private final StoreTracksCommand storeTracksCommand;
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
+    private final Func1<List<PlayQueueItem>, Boolean> containsLastStoredPlayingTrack = new Func1<List<PlayQueueItem>, Boolean>() {
+        @Override
+        public Boolean call(List<PlayQueueItem> playQueueItems) {
+            return transform(playQueueItems, PlayQueueItem.TO_ID).contains(getLastStoredPlayingTrackId());
+        }
+    };
 
     @Inject
     PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
@@ -60,20 +66,21 @@ class PlayQueueOperations {
         return new PlaySessionSource(sharedPreferences);
     }
 
-    @Nullable
     Observable<PlayQueue> getLastStoredPlayQueue() {
-        if (getLastStoredPlayingTrackId() != Consts.NOT_SET) {
-            return playQueueStorage.loadAsync()
-                    .toList()
-                    .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
-                        @Override
-                        public PlayQueue call(List<PlayQueueItem> playQueueItems) {
-                            return new PlayQueue(playQueueItems);
-                        }
-                    })
-                    .subscribeOn(scheduler);
+        if (getLastStoredPlayingTrackId() == Consts.NOT_SET) {
+            return Observable.empty();
         }
-        return null;
+
+        return playQueueStorage.loadAsync()
+                .toList()
+                .filter(containsLastStoredPlayingTrack)
+                .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
+                    @Override
+                    public PlayQueue call(List<PlayQueueItem> playQueueItems) {
+                        return new PlayQueue(playQueueItems);
+                    }
+                })
+                .subscribeOn(scheduler);
     }
 
     Subscription saveQueue(PlayQueue playQueue) {

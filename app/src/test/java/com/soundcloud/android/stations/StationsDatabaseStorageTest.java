@@ -3,7 +3,6 @@ package com.soundcloud.android.stations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -43,7 +42,7 @@ public class StationsDatabaseStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadPlayQueueReturnsEmptyWhenNoContent() {
-        final TestSubscriber<Urn> subscriber = new TestSubscriber<>();
+        final TestSubscriber<StationTrack> subscriber = new TestSubscriber<>();
 
         storage.loadPlayQueue(Urn.forTrackStation(111222333L), 30).subscribe(subscriber);
 
@@ -53,7 +52,7 @@ public class StationsDatabaseStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadPlayQueueReturnsAllContentWhenStartPositionIs0() {
-        final TestSubscriber<Urn> subscriber = new TestSubscriber<>();
+        final TestSubscriber<StationTrack> subscriber = new TestSubscriber<>();
         final ApiStation station = StationFixtures.getApiStation(Urn.forTrackStation(123L), 10);
         testFixtures().insertStation(station);
 
@@ -65,7 +64,7 @@ public class StationsDatabaseStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadPlayQueueReturnsContentAfterGivenStartPosition() {
-        final TestSubscriber<Urn> subscriber = new TestSubscriber<>();
+        final TestSubscriber<StationTrack> subscriber = new TestSubscriber<>();
         final int size = 10;
         final ApiStation station = StationFixtures.getApiStation(Urn.forTrackStation(123L), size);
         testFixtures().insertStation(station);

@@ -135,7 +135,7 @@ public class StreamPreloader {
             preloadSubscription = trackRepository.track(urn)
                     .filter(isNotOfflineTrack)
                     .flatMap(waitForValidPreloadConditions)
-                    .first()
+                    .take(1)
                     .filter(cacheSpaceAvailable)
                     .subscribe(new PreloadSubscriber(urn));
         }

@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.player;
 
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
+import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -9,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.framework.helpers.PlayerHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddCommentScreen;
@@ -133,17 +133,12 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(profileScreen.getUserName(), is(equalTo(originalUser)));
     }
 
-    @BrokenSearchTest
-    public void testPlayerShowTheTrackDescription() throws Exception {
-        visualPlayerElement = streamScreen
-                .actionBar()
-                .clickSearchButton()
-                .actionBar()
-                .doLegacySearch("zzz track with description")
-                .touchTracksTab()
-                .getTracks()
-                .get(0)
-                .click();
+    public void testPlayerShowTheTrackDescription() {
+        visualPlayerElement = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("zzz track with description")
+                .clickFirstTrackItem();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
         TrackInfoScreen trackInfoScreen = visualPlayerElement
@@ -154,17 +149,12 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertTrue(trackInfoScreen.getDescription().isVisible());
     }
 
-    @BrokenSearchTest
-    public void testPlayerShowTheTrackNoDescription() throws Exception {
-        visualPlayerElement = streamScreen
-                .actionBar()
-                .clickSearchButton()
-                .actionBar()
-                .doLegacySearch("aaazzz track with no description")
-                .touchTracksTab()
-                .getTracks()
-                .get(0)
-                .click();
+    public void testPlayerShowTheTrackNoDescription() {
+        visualPlayerElement = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("aaazzz track with no description")
+                .clickFirstTrackItem();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
         TrackInfoScreen trackInfoScreen = visualPlayerElement
@@ -175,8 +165,12 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertTrue(trackInfoScreen.getNoDescription().isVisible());
     }
 
-    public void testPlayerTrackInfoLinksToComments() throws Exception {
-        playExploreTrack();
+    public void testListOfCommentsCanBePaged() {
+        visualPlayerElement = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("lots o' comments")
+                .clickFirstTrackItem();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
         TrackCommentsScreen trackCommentsScreen = visualPlayerElement
@@ -185,40 +179,38 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .clickComments();
 
         assertThat(originalTitle, is(equalTo((trackCommentsScreen.getTitle()))));
-    }
-
-    @BrokenSearchTest
-    public void testListOfCommentsCanBePaged() throws Exception {
-        visualPlayerElement = streamScreen
-                .actionBar()
-                .clickSearchButton()
-                .actionBar()
-                .doLegacySearch("lots o' comments")
-                .touchTracksTab()
-                .getTracks()
-                .get(0)
-                .click();
-
-        TrackCommentsScreen trackCommentsScreen = visualPlayerElement
-                .clickMenu()
-                .clickInfo()
-                .clickComments();
 
         int initialCommentsCount = trackCommentsScreen.getCommentsCount();
         trackCommentsScreen.scrollToBottomOfComments();
-        int nextCommentsCount = trackCommentsScreen.getCommentsCount();
 
+        int nextCommentsCount = trackCommentsScreen.getCommentsCount();
         assertThat(nextCommentsCount, is(greaterThan(initialCommentsCount)));
     }
 
-    public void testPlayerTrackMakeComment() throws Exception {
-        playTrackFromStream();
+    public void testPlayerTrackMakeComment() {
+        visualPlayerElement = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("lots o' comments")
+                .clickFirstTrackItem();
+
+        visualPlayerElement.playForFiveSeconds();
 
         final AddCommentScreen addCommentScreen = visualPlayerElement
                 .clickMenu()
                 .clickComment();
 
         assertTrue(addCommentScreen.waitForDialog());
+    }
+
+    public void testShouldHideCommentingWhenTrackHasBlockedComments() {
+        visualPlayerElement = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("zzzz yowz no comments")
+                .clickFirstTrackItem();
+
+        assertThat(visualPlayerElement.clickMenu().commentItem(), is(not(visible())));
     }
 
     private void playExploreTrack() {

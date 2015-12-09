@@ -1,24 +1,24 @@
 package com.soundcloud.android.discovery;
 
-import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
-import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
-import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
+import com.soundcloud.android.utils.KeyboardHelper;
+import com.soundcloud.android.utils.TransitionUtils;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.DataSetObserver;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
@@ -33,8 +33,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -45,7 +45,7 @@ import android.widget.ViewFlipper;
 
 import javax.inject.Inject;
 
-class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements SearchIntentResolver.DeepLinkListener {
 
     private static final int SUGGESTIONS_VIEW_INDEX = 0;
     private static final int RESULTS_VIEW_INDEX = 1;
@@ -59,30 +59,50 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
     private View toolbarElevation;
     private Window window;
     private FragmentManager fragmentManager;
-    private InputMethodManager inputMethodManager;
 
-    private final EventBus eventBus;
+    private final SearchIntentResolver intentResolver;
+    private final SearchTracker tracker;
     private final Resources resources;
     private final SuggestionsAdapter adapter;
     private final SuggestionsHelper suggestionsHelper;
+    private final EventBus eventBus;
+    private final KeyboardHelper keyboardHelper;
 
     @Inject
-    SearchPresenter(EventBus eventbus, Resources resources, SuggestionsAdapter adapter,
-                    SuggestionsHelperFactory suggestionsHelperFactory) {
-        this.eventBus = eventbus;
+    SearchPresenter(SearchIntentResolverFactory intentResolverFactory,
+                    SearchTracker tracker,
+                    Resources resources,
+                    SuggestionsAdapter adapter,
+                    SuggestionsHelperFactory suggestionsHelperFactory,
+                    EventBus eventBus,
+                    KeyboardHelper keyboardHelper) {
+        this.intentResolver = intentResolverFactory.create(this);
+        this.tracker = tracker;
         this.resources = resources;
         this.adapter = adapter;
         this.suggestionsHelper = suggestionsHelperFactory.create(adapter);
         this.adapter.registerDataSetObserver(new SuggestionsVisibilityController());
+        this.eventBus = eventBus;
+        this.keyboardHelper = keyboardHelper;
     }
 
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.window = activity.getWindow();
         this.fragmentManager = activity.getSupportFragmentManager();
-        this.inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        setupBackground(activity);
+        setupTransitionAnimation(window);
         setupViews(activity);
-        trackScreenEvent();
+        if (bundle == null) {
+            intentResolver.handle(activity, activity.getIntent());
+        }
+    }
+
+    @Override
+    public void onDeepLinkExecuted(String searchQuery) {
+        searchTextView.setText(searchQuery);
+        deactivateSearchView();
+        showResultsFor(searchQuery);
     }
 
     @Override
@@ -97,9 +117,9 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         displaySearchView(bundle.getInt(CURRENT_DISPLAYING_VIEW_KEY));
     }
 
-    @Override
-    public void onDestroy(AppCompatActivity activity) {
-        this.inputMethodManager = null;
+    private void setupTransitionAnimation(Window window) {
+        TransitionUtils.setChangeBoundsEnterTransition(window, TransitionUtils.ENTER_DURATION, new DecelerateInterpolator());
+        TransitionUtils.setChangeBoundsExitTransition(window, TransitionUtils.EXIT_DURATION, new DecelerateInterpolator());
     }
 
     private void setupViews(AppCompatActivity activity) {
@@ -171,16 +191,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         hideKeyboard();
     }
 
-    private void showKeyboard() {
-        window.setSoftInputMode(SOFT_INPUT_ADJUST_NOTHING | SOFT_INPUT_STATE_VISIBLE);
-        inputMethodManager.showSoftInput(searchTextView, InputMethodManager.SHOW_IMPLICIT);
-    }
-
-    private void hideKeyboard() {
-        window.setSoftInputMode(SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        inputMethodManager.hideSoftInputFromWindow(searchTextView.getWindowToken(), 0);
-    }
-
     private void displaySearchView(int searchViewIndex) {
         setElevation(searchViewIndex);
         if (searchViewFlipper.getDisplayedChild() != searchViewIndex) {
@@ -246,8 +256,39 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
         searchViewFlipper.setVisibility(View.INVISIBLE);
     }
 
-    private void trackScreenEvent() {
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_MAIN));
+    private void showKeyboard() {
+        keyboardHelper.show(window, searchTextView);
+    }
+
+    private void hideKeyboard() {
+        keyboardHelper.hide(window, searchTextView);
+    }
+
+    private void setupBackground(final AppCompatActivity activity) {
+        activity.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        activity.findViewById(R.id.search_screen_bg).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss(activity);
+            }
+        });
+    }
+
+    void dismiss(final AppCompatActivity activity) {
+        if (TransitionUtils.transitionsSupported()) {
+            ((ViewGroup) activity.findViewById(R.id.toolbar_id)).getChildAt(1)
+                    .animate()
+                    .alpha(0)
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            activity.supportFinishAfterTransition();
+                        }
+                    }).start();
+        } else {
+            activity.supportFinishAfterTransition();
+        }
     }
 
     private class SearchViewClickListener implements View.OnClickListener {
@@ -315,7 +356,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
             hideCloseButton();
             activateSearchView();
             displaySearchView(SUGGESTIONS_VIEW_INDEX);
-            trackScreenEvent();
+            tracker.trackScreenEvent();
         }
     }
 

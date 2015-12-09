@@ -40,6 +40,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
         assertTrue(player.isExpandedPlayerPlaying());
         player.swipePrevious();
         player.waitForTheExpandedPlayerToPlayNextTrack();
+        assertTrue(player.isExpandedPlayerPlaying());
 
         finishEventTracking(PLAY_RELATED_LIKES_AND_TRIGGER_MANUAL);
     }

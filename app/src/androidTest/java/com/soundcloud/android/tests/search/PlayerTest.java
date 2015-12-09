@@ -8,18 +8,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenSearchTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.screens.search.LegacySearchResultsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class PlayerTest extends ActivityTest<MainActivity> {
-    private StreamScreen streamScreen;
-    private LegacySearchResultsScreen searchResultsScreen;
     private VisualPlayerElement player;
 
     public PlayerTest() {
@@ -31,53 +24,40 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    @BrokenSearchTest
-    public void testVisualPlayerIsAccessibleFromSearch() throws Exception {
-        streamScreen().clickFirstTrackCard();
-        player().waitForContent();
-        assertThat(player(), is(expanded()));
-        player().pressBackToCollapse();
+    public void testVisualPlayerIsAccessibleFromSearch() {
+        final VisualPlayerElement player = mainNavHelper
+                .goToStream()
+                .clickFirstTrackCard();
 
-        streamScreen().actionBar().clickSearchButton();
+        assertThat(player, is(expanded()));
+        player.pressBackToCollapse();
+
+        mainNavHelper.goToDiscovery();
+
         assertThat(player(), is(visible()));
         assertThat(player(), is(collapsed()));
     }
 
-    @BrokenSearchTest
-    public void testPlayerIsNotVisibleIfNothingIsPlaying() throws Exception {
-        streamScreen().actionBar().clickSearchButton();
+    public void testPlayerIsNotVisibleIfNothingIsPlaying() {
+        mainNavHelper.goToDiscovery();
 
         assertThat(player(), is(not(visible())));
     }
 
-    @BrokenSearchTest
-    public void testTapingATrackFromSearchOpenVisualPlayer() throws Exception {
-        streamScreen().actionBar().clickSearchButton();
-        searchScreen().actionBar().doLegacySearch("nasa");
-        player = searchScreen().clickFirstTrackItem();
+    public void testTapingATrackFromSearchOpenVisualPlayer() {
+        final VisualPlayerElement player = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("nasa")
+                .clickFirstTrackItem();
 
         assertThat(player, is(expanded()));
     }
 
-    private VisualPlayerElement player() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    private VisualPlayerElement player() {
         if (player == null) {
             player = new VisualPlayerElement(solo);
         }
         return player;
-    }
-
-    private LegacySearchResultsScreen searchScreen() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        if (searchResultsScreen == null) {
-            searchResultsScreen = new LegacySearchResultsScreen(solo);
-        }
-        return searchResultsScreen;
-    }
-
-
-    private StreamScreen streamScreen() {
-        if (streamScreen == null) {
-            streamScreen = new StreamScreen(solo);
-        }
-        return streamScreen;
     }
 }

@@ -14,7 +14,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
-import com.soundcloud.android.screens.elements.PlaylistItemElement;
+import com.soundcloud.android.screens.elements.PlaylistElement;
 
 @EventTrackingTest
 @CollectionsTest
@@ -55,7 +55,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testPlaylistItemUpsellImpressionAndClick() {
-        PlaylistItemElement playlistAtPosition = mainNavHelper.goToCollections()
+        PlaylistElement playlistAtPosition = mainNavHelper.goToCollections()
                 .getPlaylists().get(0);
 
         startEventTracking();

@@ -1,6 +1,10 @@
 package com.soundcloud.android.tests.search.intents;
 
-import com.soundcloud.android.screens.search.PlaylistTagsScreen;
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+
+import com.soundcloud.android.screens.discovery.SearchScreen;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -13,8 +17,7 @@ public class ResolveSearchUrlTest extends SearchIntentsBaseTest {
     }
 
     public void testSearchUrlResolution() {
-        PlaylistTagsScreen tagsScreen = new PlaylistTagsScreen(solo);
-        assertEquals("Playlist tags screen should be visible", true, tagsScreen.isVisible());
+        SearchScreen searchScreen = new SearchScreen(solo);
+        assertThat("Search screen should be visible", searchScreen, is(visible()));
     }
-
 }

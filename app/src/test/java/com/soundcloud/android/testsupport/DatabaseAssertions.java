@@ -51,6 +51,7 @@ import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static com.soundcloud.android.storage.TableColumns.Sounds.USER_ID;
 import static com.soundcloud.android.storage.TableColumns.Sounds.WAVEFORM_URL;
+import static com.soundcloud.android.storage.TableColumns.TrackPolicies.BLOCKED;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.MONETIZABLE;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.MONETIZATION_MODEL;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.POLICY;
@@ -83,7 +84,6 @@ import static com.soundcloud.android.storage.Tables.Stations.STATION_URN;
 import static com.soundcloud.android.storage.Tables.Stations.TYPE;
 import static com.soundcloud.android.storage.Tables.StationsCollections.COLLECTION_TYPE;
 import static com.soundcloud.android.storage.Tables.StationsCollections.UPDATED_LOCALLY_AT;
-import static com.soundcloud.android.storage.Tables.StationsPlayQueues.POSITION;
 import static com.soundcloud.android.storage.Tables.StationsPlayQueues.TRACK_URN;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.TABLE;
@@ -94,7 +94,6 @@ import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertTha
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.comments.CommentRecord;
@@ -104,6 +103,8 @@ import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.ApiStationMetadata;
+import com.soundcloud.android.stations.StationRecord;
+import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.Comments;
 import com.soundcloud.android.storage.Tables.OfflineContent;
@@ -115,6 +116,7 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformSerializer;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.query.Query;
@@ -145,7 +147,7 @@ public class DatabaseAssertions {
     }
 
     public void assertTrackInserted(ApiTrack track) {
-        assertThat(select(from(Sounds.name())
+        final Query query = from(Sounds.name())
                 .whereEq(_ID, track.getId())
                 .whereEq(_TYPE, TYPE_TRACK)
                 .whereEq(TITLE, track.getTitle())
@@ -162,7 +164,11 @@ public class DatabaseAssertions {
                 .whereEq(LIKES_COUNT, track.getStats().getLikesCount())
                 .whereEq(REPOSTS_COUNT, track.getStats().getRepostsCount())
                 .whereEq(PLAYBACK_COUNT, track.getStats().getPlaybackCount())
-                .whereEq(COMMENT_COUNT, track.getStats().getCommentsCount()))).counts(1);
+                .whereEq(COMMENT_COUNT, track.getStats().getCommentsCount());
+        if (track.getDescription().isPresent()) {
+            query.whereEq(DESCRIPTION, track.getDescription().get());
+        }
+        assertThat(select(query)).counts(1);
         assertTrackPolicyInserted(track);
     }
 
@@ -235,7 +241,7 @@ public class DatabaseAssertions {
     public void assertStationPlayQueueInserted(StationRecord station) {
         assertThat(select(from(StationsPlayQueues.TABLE)
                         .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString())
-                        .whereIn(TRACK_URN, station.getTracks())
+                        .whereIn(TRACK_URN, Lists.transform(station.getTracks(), StationTrack.TO_URN))
         )).counts(station.getTracks().size());
     }
 
@@ -256,14 +262,20 @@ public class DatabaseAssertions {
         )).counts(1);
     }
 
-    public void assertStationPlayQueueContains(Urn stationUrn, List<Urn> tracks) {
-        assertThat(select(from(StationsPlayQueues.TABLE).whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString()))).counts(tracks.size());
-        for (int position = 0; position < tracks.size(); position++) {
-            Urn track = tracks.get(position);
-            assertThat(select(from(StationsPlayQueues.TABLE)
-                    .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
-                    .whereEq(POSITION, position)
-                    .whereEq(TRACK_URN, track.toString()))).counts(1);
+    public void assertStationPlayQueueContains(Urn stationUrn, List<StationTrack> stationTracks) {
+        assertThat(
+                select(from(StationsPlayQueues.TABLE).whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())))
+                .counts(stationTracks.size());
+
+        for (int position = 0; position < stationTracks.size(); position++) {
+            StationTrack stationTrack = stationTracks.get(position);
+            assertThat(
+                    select(from(StationsPlayQueues.TABLE)
+                            .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
+                            .whereEq(StationsPlayQueues.POSITION, position)
+                            .whereEq(StationsPlayQueues.TRACK_URN, stationTrack.getTrackUrn().toString())
+                            .whereEq(StationsPlayQueues.QUERY_URN, stationTrack.getQueryUrn().toString())))
+                    .counts(1);
         }
     }
 
@@ -294,6 +306,7 @@ public class DatabaseAssertions {
         final Query query = from(TrackPolicies.name())
                 .whereEq(TableColumns.TrackPolicies.TRACK_ID, track.getId())
                 .whereEq(MONETIZABLE, track.isMonetizable())
+                .whereEq(BLOCKED, track.isBlocked())
                 .whereEq(SYNCABLE, track.isSyncable())
                 .whereEq(POLICY, track.getPolicy());
 
@@ -404,10 +417,18 @@ public class DatabaseAssertions {
         )).counts(1);
     }
 
-    public void assertPlaylistNotStored(ApiPlaylist playlist) {
+    public void assertPlaylistNotStored(Urn urn) {
+        assertPlaylistNotStored(urn.getNumericId());
+    }
+
+    public void assertPlaylistNotStored(long playlistId) {
         assertThat(select(from(Sounds.name())
-                .whereEq(_ID, playlist.getId())
+                .whereEq(_ID, playlistId)
                 .whereEq(_TYPE, TYPE_PLAYLIST))).counts(0);
+    }
+
+    public void assertPlaylistInserted(Urn playlist) {
+        assertPlaylistInserted(playlist.getNumericId());
     }
 
     public void assertPlaylistInserted(long playlistId) {

@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests;
 
-import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;

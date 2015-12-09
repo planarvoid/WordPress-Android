@@ -52,7 +52,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.<Bitmap>empty());
 
-        presenter = new AudioAdPresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener, context());
+        presenter = new AudioAdPresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener);
         adView = presenter.createItemView(new FrameLayout(context()), skipListener);
         presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
     }

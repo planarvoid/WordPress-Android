@@ -9,7 +9,7 @@
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ],
-              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew buildReleaseNoProguard",
+              "cmd": "rm app/build/outputs/apk/*.apk \nBUILD_TYPE=releaseNoProguard ./gradlew buildReleaseNoProguard",
               "plugins": {
                 "androidLint": {
                   "failedTotalHigh": 0,
@@ -46,7 +46,52 @@
         ]
       ],
       "next-stages": [
-        "automated_tests"
+        "automated_tests",
+        "release_checklist",
+        "testdroid_tests",
+        "manual_tests"
+      ]
+    },
+    {
+      "name": "release_checklist",
+      "jobs": [
+        {
+          "create_release_checklist": {
+            "cmd": "bundle install && bundle exec rake github:release_checklist",
+            "manual": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "testdroid_tests",
+      "jobs": [
+        {
+          "testdroid_smoke_tests": {
+            "cmd": "cp app/build/outputs/apk/soundcloud-android*$PIPELINE_VERSION*releaseNoProguard-*.apk app/build/outputs/apk/soundcloud-android-testdroid.apk",
+            "plugins": {
+              "testdroid": {
+                "appPath": "app/build/outputs/apk/soundcloud-android-testdroid.apk",
+                "deviceGroupId": "2269",
+                "projectId": "29091428",
+                "notificationEmail": "android-dev@soundcloud.com"
+              }
+            },
+            "manual": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "manual_tests",
+      "jobs": [
+        {
+          "create_regression_tests_tasks": {
+            "cmd": "bundle install && bundle exec rake github:regression_tests",
+            "manual": true,
+            "localBranch": true
+          }
+        }
       ]
     },
     {
@@ -91,32 +136,11 @@
                 }
               }
             }
-          },
-          {
-            "testdroid_smoke_tests": {
-              "cmd": "cp app/build/outputs/apk/soundcloud-android-*releaseNoProguard*.apk app/build/outputs/apk/soundcloud-android-testdroid.apk",
-              "artifacts": [
-                "app/build/outputs/apk/soundcloud*.apk"
-              ]
-            }
           }
         ]
       ],
       "next-stages": [
-        "manual_tests",
         "deploy_beta"
-      ]
-    },
-    {
-      "name": "manual_tests",
-      "jobs": [
-        {
-          "create_regression_tests_tasks": {
-            "cmd": "bundle install && bundle exec rake github:regression_tests",
-            "manual": true,
-            "localBranch": true
-          }
-        }
       ]
     },
     {
@@ -167,7 +191,7 @@
           }
         ],
         {
-          "rollout_release_1_percent": {
+          "rollout_release_1_percent_and_followup_beta": {
             "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseOnePercent deployFollowUpBeta",
             "manual": true,
             "localBranch": true,

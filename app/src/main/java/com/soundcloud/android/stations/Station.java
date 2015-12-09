@@ -1,6 +1,5 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 
@@ -10,13 +9,13 @@ import java.util.List;
 class Station implements StationRecord {
 
     private final String type;
-    private final List<Urn> tracks;
+    private final List<StationTrack> tracks;
     private final int lastPosition;
     private final Urn urn;
     private final String title;
     private final String permalink;
 
-    public Station(Urn urn, String title, String type, List<Urn> tracks, String permalink, Integer lastPosition) {
+    public Station(Urn urn, String title, String type, List<StationTrack> tracks, String permalink, Integer lastPosition) {
         this.type = type;
         this.tracks = tracks;
         this.urn = urn;
@@ -26,9 +25,9 @@ class Station implements StationRecord {
     }
 
     static Station stationWithSeedTrack(StationRecord station, Urn seed) {
-        final List<Urn> recommendations = station.getTracks();
-        final List<Urn> tracks = new ArrayList<>(recommendations.size() + 1);
-        tracks.add(seed);
+        final List<StationTrack> recommendations = station.getTracks();
+        final List<StationTrack> tracks = new ArrayList<>(recommendations.size() + 1);
+        tracks.add(StationTrack.create(seed, Urn.NOT_SET));
         tracks.addAll(recommendations);
         return new Station(
                 station.getUrn(),
@@ -41,7 +40,7 @@ class Station implements StationRecord {
     }
 
     @Override
-    public List<Urn> getTracks() {
+    public List<StationTrack> getTracks() {
         return tracks;
     }
 

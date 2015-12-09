@@ -2,7 +2,6 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.api.legacy.model.AffiliationActivityBlueprint;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylistBlueprint;
@@ -74,7 +73,6 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(PlaybackSessionEventBlueprint.class);
             modelFactory.registerBlueprint(AssignmentBlueprint.class);
             modelFactory.registerBlueprint(PublicApiCommentBlueprint.class);
-            modelFactory.registerBlueprint(AffiliationActivityBlueprint.class);
             modelFactory.registerBlueprint(ApiTrackPostBlueprint.class);
             modelFactory.registerBlueprint(ApiTrackRepostBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistPostBlueprint.class);

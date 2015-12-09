@@ -6,6 +6,7 @@ import com.soundcloud.android.dialog.ImageAlertDialog;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.support.annotation.VisibleForTesting;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;

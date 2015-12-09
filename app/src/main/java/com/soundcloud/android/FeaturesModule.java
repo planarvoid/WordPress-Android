@@ -16,7 +16,6 @@ import com.soundcloud.android.playback.PlayerModule;
 import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.policies.PoliciesModule;
 import com.soundcloud.android.profile.ProfileModule;
-import com.soundcloud.android.search.SearchModule;
 import com.soundcloud.android.settings.SettingsModule;
 import com.soundcloud.android.stations.StationsModule;
 import com.soundcloud.android.stream.SoundStreamModule;
@@ -27,7 +26,6 @@ import dagger.Module;
 @Module(includes = {
         AuthenticationModule.class,
         ActivitiesModule.class,
-        SearchModule.class,
         ExploreModule.class,
         MainModule.class,
         PlayerModule.class,

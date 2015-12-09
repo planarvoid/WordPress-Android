@@ -2,6 +2,17 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/add_to_likes"
+        android:title="@string/btn_like" />
+    <item
+        android:id="@+id/toggle_repost"
+        android:title="@string/repost"
+        android:visible="false" />
+    <item
+        android:id="@+id/share"
+        android:title="@string/share"
+        android:visible="false" />
+    <item
         android:id="@+id/upsell_offline_content"
         android:title="@string/make_offline_available"
         android:visible="false" />
@@ -14,14 +25,7 @@
         android:title="@string/make_offline_unavailable"
         android:visible="false" />
     <item
-        android:id="@+id/add_to_likes"
-        android:title="@string/btn_like" />
-    <item
-        android:id="@+id/share"
-        android:title="@string/share"
-        android:visible="false" />
-    <item
-        android:id="@+id/toggle_repost"
-        android:title="@string/repost"
+        android:id="@+id/delete_playlist"
+        android:title="@string/delete_playlist"
         android:visible="false" />
 </menu>

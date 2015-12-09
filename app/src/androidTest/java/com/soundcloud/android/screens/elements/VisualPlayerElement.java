@@ -1,7 +1,5 @@
 package com.soundcloud.android.screens.elements;
 
-import static junit.framework.Assert.assertTrue;
-
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
@@ -55,9 +53,9 @@ public class VisualPlayerElement extends Element {
         return interstitial().isVisible();
     }
 
-    public void waitForTheExpandedPlayerToPlayNextTrack() {
+    public VisualPlayerElement waitForTheExpandedPlayerToPlayNextTrack() {
         waiter.waitForElementCondition(new TrackChangedCondition(getTrackTitle()));
-        assertTrue(isExpandedPlayerPlaying());
+        return this;
     }
 
     public VisualPlayerElement unlike() {
@@ -172,11 +170,16 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isExpandedPlayerPlaying() {
-        return waitForExpandedPlayer()
+        return waitForExpandedPlayer().isExpanded()
                 && !playButton().isVisible()
                 && progress().isVisible()
                 && waiter.waitForElementCondition(new TextChangedCondition(progress()));
     }
+
+    public boolean isExpandedPlayerPaused() {
+        return waitForExpandedPlayer().isExpanded() && playButton().isVisible();
+    }
+
 
     public void tapFooter() {
         footerPlayer().click();
@@ -210,16 +213,18 @@ public class VisualPlayerElement extends Element {
         waiter.waitForPlayerPage();
     }
 
-    public void swipeNext() {
+    public VisualPlayerElement swipeNext() {
         waitForContent();
         solo.swipeLeft();
         waiter.waitForPlayerPage();
+        return this;
     }
 
-    public void swipePrevious() {
+    public VisualPlayerElement swipePrevious() {
         waitForContent();
         solo.swipeRight();
         waiter.waitForPlayerPage();
+        return this;
     }
 
     public WhyAdsScreen clickWhyAds() {
@@ -272,8 +277,9 @@ public class VisualPlayerElement extends Element {
         });
     }
 
-    public boolean waitForExpandedPlayer() {
-        return waiter.waitForElementCondition(IS_EXPANDED_CONDITION);
+    public VisualPlayerElement waitForExpandedPlayer() {
+        waiter.waitForElementCondition(IS_EXPANDED_CONDITION);
+        return this;
     }
 
     private int getFullScreenHeight() {
@@ -315,8 +321,14 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
-    public void waitForAdOverlayToLoad() {
-        waiter.waitFiveSeconds();
+    public VisualPlayerElement waitForInterstitialToLoad() {
+        waiter.waitForElement(R.id.interstitial);
+        return this;
+    }
+
+    public VisualPlayerElement waitForLeaveBehindToLoad() {
+        waiter.waitForElement(R.id.leave_behind);
+        return this;
     }
 
     public void waitForPlayButton() {
@@ -325,6 +337,11 @@ public class VisualPlayerElement extends Element {
 
     public boolean waitForAdPage() {
         return waiter.waitForElement(R.id.player_ad_page);
+    }
+
+    public VisualPlayerElement waitForExpandedPlayerToStartPlaying() {
+        waiter.waitForElementToBeInvisible(With.id(R.id.player_play));
+        return this;
     }
 
     public boolean waitForPlayState() {
@@ -365,6 +382,14 @@ public class VisualPlayerElement extends Element {
 
     public boolean isCenteredAd() {
        return centeredAdArtwork().isVisible();
+    }
+
+    public String errorReason() {
+        return errorReasonElement().getText();
+    }
+
+    private TextElement errorReasonElement() {
+        return new TextElement(solo.findElement(With.id(R.id.playback_error_reason)));
     }
 
     public void clickCenteredAdArtwork() {
@@ -434,7 +459,7 @@ public class VisualPlayerElement extends Element {
 
         @Override
         public boolean isSatisfied() {
-            return !trackTitle().equals(original);
+            return !trackTitle().getText().equals(original);
         }
     }
 }

@@ -3,8 +3,10 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.model.Urn.forTrack;
 import static com.soundcloud.android.model.Urn.forUser;
 import static com.soundcloud.android.playback.TrackQueueItem.Builder;
+import static com.soundcloud.android.storage.Tables.PlayQueue.QUERY_URN;
 import static com.soundcloud.android.storage.Tables.PlayQueue.REPOSTER_ID;
 import static com.soundcloud.android.storage.Tables.PlayQueue.SOURCE;
+import static com.soundcloud.android.storage.Tables.PlayQueue.SOURCE_URN;
 import static com.soundcloud.android.storage.Tables.PlayQueue.SOURCE_VERSION;
 import static com.soundcloud.android.storage.Tables.PlayQueue.TRACK_ID;
 import static com.soundcloud.propeller.query.Query.from;
@@ -19,6 +21,7 @@ import com.soundcloud.propeller.test.assertions.QueryAssertions;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 
 import android.content.ContentValues;
 
@@ -39,19 +42,19 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldInsertPlayQueueAndReplaceExistingItems() {
         insertTrackQueueItem(new Builder(forTrack(1))
-                .fromSource("existing", "existing_version")
+                .fromSource("existing", "existing_version", new Urn("existing_sourceUrn"), new Urn("existing_queryUrn"))
                 .build());
 
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
         TestObserver<TxnResult> observer = new TestObserver<>();
         TrackQueueItem trackQueueItem1 = new Builder(forTrack(123L))
-                .fromSource("source1", "version1")
+                .fromSource("source1", "version1", new Urn("sourceUrn1"), new Urn("queryUrn1"))
                 .relatedEntity(RELATED_ENTITY)
                 .build();
 
         TrackQueueItem trackQueueItem2 = new Builder(forTrack(456L), forUser(456L))
-                .fromSource("source2", "version2")
+                .fromSource("source2", "version2", new Urn("sourceUrn2"), new Urn("queryUrn2"))
                 .build();
 
         PlayQueue playQueue = new PlayQueue(Arrays.<PlayQueueItem>asList(trackQueueItem1, trackQueueItem2));
@@ -69,23 +72,27 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                 .whereNull(REPOSTER_ID)
                 .whereEq(Tables.PlayQueue.RELATED_ENTITY, RELATED_ENTITY.toString())
                 .whereEq(SOURCE, "source1")
-                .whereEq(SOURCE_VERSION, "version1"))).counts(1);
+                .whereEq(SOURCE_VERSION, "version1")
+                .whereEq(SOURCE_URN, "sourceUrn1")
+                .whereEq(QUERY_URN, "queryUrn1"))).counts(1);
 
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE)
                 .whereEq(TRACK_ID, 456L)
                 .whereEq(REPOSTER_ID, 456L)
                 .whereEq(SOURCE, "source2")
-                .whereEq(SOURCE_VERSION, "version2"))).counts(1);
+                .whereEq(SOURCE_VERSION, "version2")
+                .whereEq(SOURCE_URN, "sourceUrn2")
+                .whereEq(QUERY_URN, "queryUrn2"))).counts(1);
     }
 
     @Test
     public void shouldSavePersistantItems() {
         final TrackQueueItem trackQueueItem1 = new Builder(forTrack(1), forUser(1))
-                .fromSource("source1", "version1")
+                .fromSource("source1", "version1", new Urn("sourceUrn1"), new Urn("queryUrn1"))
                 .persist(true)
                 .build();
         final TrackQueueItem trackQueueItem2 = new Builder(forTrack(2), forUser(2))
-                .fromSource("source2", "version2")
+                .fromSource("source2", "version2", new Urn("sourceUrn2"), new Urn("queryUrn2"))
                 .persist(false)
                 .build();
         PlayQueue playQueue = new PlayQueue(Arrays.<PlayQueueItem>asList(trackQueueItem1, trackQueueItem2));
@@ -97,67 +104,76 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldDeleteAllPlayQueueItems() {
-        TestObserver<ChangeResult> observer = new TestObserver<>();
+        TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
         insertTrackQueueItem(new Builder(forTrack(123L), forUser(123L))
-                .fromSource("source", "source_version")
+                .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
                 .build());
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.clearAsync().subscribe(observer);
+        storage.clearAsync().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).getNumRowsAffected()).isEqualTo(1);
+        assertThat(subscriber.getOnNextEvents()).hasSize(1);
+        assertThat(subscriber.getOnNextEvents().get(0).getNumRowsAffected()).isEqualTo(1);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).isEmpty();
     }
 
     @Test
     public void shouldLoadAllPlayQueueItems() {
-        TestObserver<PlayQueueItem> observer = new TestObserver<>();
+        TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final TrackQueueItem expectedItem = new Builder(forTrack(123L), forUser(123L))
-                .fromSource("source", "source_version")
+                .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
                 .relatedEntity(RELATED_ENTITY)
                 .build();
         insertTrackQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.loadAsync().subscribe(observer);
+        storage.loadAsync().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).hasSize(1);
-        PlayQueueItem item = observer.getOnNextEvents().get(0);
-        assertThat(item).isEqualTo(expectedItem);
+        subscriber.assertValue(expectedItem);
     }
 
     @Test
     public void shouldLoadAllPlayQueueItemsWithoutReposter() {
-        TestObserver<PlayQueueItem> observer = new TestObserver<>();
+        TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final TrackQueueItem expectedItem = new Builder(forTrack(123L))
-                .fromSource("source", "source_version")
+                .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
                 .relatedEntity(RELATED_ENTITY)
                 .build();
         insertTrackQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.loadAsync().subscribe(observer);
+        storage.loadAsync().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).hasSize(1);
-        PlayQueueItem item = observer.getOnNextEvents().get(0);
-        assertThat(item).isEqualTo(expectedItem);
+        subscriber.assertValue(expectedItem);
     }
 
     @Test
     public void shouldLoadAllPlayQueueItemsWithoutRelatedEntities() {
-        TestObserver<PlayQueueItem> observer = new TestObserver<>();
+        TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
         final TrackQueueItem expectedItem = new Builder(forTrack(123L), forTrack(123L))
+                .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
+                .build();
+        insertTrackQueueItem(expectedItem);
+        QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
+
+        storage.loadAsync().subscribe(subscriber);
+
+        subscriber.assertValue(expectedItem);
+    }
+
+    @Test
+    public void shouldLoadAllPlayQueueItemsWithoutSourceOrQueryUrn() {
+        TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
+        final TrackQueueItem expectedItem = new Builder(forTrack(123L), forTrack(123L))
+                // From a source with no source_urn or query_urn
                 .fromSource("source", "source_version")
                 .build();
         insertTrackQueueItem(expectedItem);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
-        storage.loadAsync().subscribe(observer);
+        storage.loadAsync().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).hasSize(1);
-        PlayQueueItem item = observer.getOnNextEvents().get(0);
-        assertThat(item).isEqualTo(expectedItem);
+        subscriber.assertValue(expectedItem);
     }
 
     private void insertTrackQueueItem(TrackQueueItem trackQueueItem) {
@@ -165,6 +181,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
         cv.put(Tables.PlayQueue.TRACK_ID.name(), trackQueueItem.getTrackUrn().getNumericId());
         cv.put(Tables.PlayQueue.SOURCE.name(), trackQueueItem.getSource());
         cv.put(Tables.PlayQueue.SOURCE_VERSION.name(), trackQueueItem.getSourceVersion());
+        cv.put(Tables.PlayQueue.SOURCE_URN.name(), trackQueueItem.getSourceUrn().toString());
+        cv.put(Tables.PlayQueue.QUERY_URN.name(), trackQueueItem.getQueryUrn().toString());
 
         if (!Urn.NOT_SET.equals(trackQueueItem.getRelatedEntity())){
             cv.put(Tables.PlayQueue.RELATED_ENTITY.name(), trackQueueItem.getRelatedEntity().toString());

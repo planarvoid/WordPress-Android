@@ -49,7 +49,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        navigator = new Navigator(flags);
+        navigator = new Navigator();
         appContext = context();
         activityContext = new Activity();
     }

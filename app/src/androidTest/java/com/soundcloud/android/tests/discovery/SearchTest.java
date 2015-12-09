@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.discovery;
 
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -37,7 +38,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
     public void testSubmittingSearchQueryOpensSearchResults() {
         SearchResultsScreen resultsScreen = searchScreen.doSearch("clownstep");
 
-        assertThat("Search results screen should be visible", resultsScreen.isVisible());
+        assertThat("Search results screen should be visible", resultsScreen, is(visible()));
         assertThat("Search results should be populated", resultsScreen.getResultItemCount(), is(greaterThan(0)));
     }
 
@@ -46,14 +47,14 @@ public class SearchTest extends ActivityTest<MainActivity> {
         VisualPlayerElement playerElement = resultsScreen.findAndClickFirstTrackItem().pressBackToCollapse();
 
         assertThat("Player is collapsed", playerElement.isCollapsed());
-        assertThat("Search results screen should be visible", resultsScreen.isVisible());
+        assertThat("Search results screen should be visible", resultsScreen, is(visible()));
     }
 
     @Ignore
     public void testSearchingFromSuggestionShortcutShowsSearchResults() {
         SearchResultsScreen resultsScreen = searchScreen.setSearchQuery("dubstep").clickOnCurrentSearchQuery();
 
-        assertThat("Search results screen should be visible", resultsScreen.isVisible());
+        assertThat("Search results screen should be visible", resultsScreen, is(visible()));
     }
 
     public void testTappingTrackOnAllTabOpensPlayer() {
@@ -65,7 +66,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
     public void testTappingPlaylistOnAllTabOpensPlaylistDetails() {
         PlaylistDetailsScreen playlistScreen = searchScreen.doSearch("track playlist").findAndClickFirstPlaylistItem();
 
-        assertThat("Playlist screen should be visible", playlistScreen.isVisible());
+        assertThat("Playlist screen should be visible", playlistScreen, is(visible()));
     }
 
     public void testTappingUserOnAllTabOpensProfile() {
@@ -74,11 +75,10 @@ public class SearchTest extends ActivityTest<MainActivity> {
         assertThat("Profile screen should be visible", profileScreen.isVisible());
     }
 
-    @Ignore
     public void testTappingUserOnPeopleTabOpensProfile() {
         ProfileScreen profileScreen = searchScreen.doSearch("emptyuser").goToPeopleTab().clickFirstUserItem();
 
-        assertThat("Profile screen should be visible", profileScreen.isVisible());
+        assertThat("Profile screen should be visible", profileScreen, is(visible()));
     }
 
     public void testTappingTrackOnTracksTabOpensPlayer() {
@@ -93,7 +93,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
                 .goToPlaylistsTab()
                 .clickFirstPlaylistItem();
 
-        assertThat("Playlist screen should be visible", playlistDetailsScreen.isVisible());
+        assertThat("Playlist screen should be visible", playlistDetailsScreen, is(visible()));
     }
 
     public void testOrderOfDisplayededTabs() {

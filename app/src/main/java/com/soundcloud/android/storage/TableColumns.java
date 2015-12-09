@@ -96,6 +96,7 @@ public final class TableColumns {
         public static final String TRACKS_URI = "tracks_uri";
         public static final String TRACK_COUNT = "track_count";
         public static final String PLAYLIST_TYPE = "playlist_type";
+        public static final String REMOVED_AT = "removed_at";
         public static final String DESCRIPTION = "description";
 
         public static final int TYPE_TRACK    = 0;
@@ -108,13 +109,14 @@ public final class TableColumns {
                 COMMENTABLE, SHARING, LICENSE, PURCHASE_URL, PLAYBACK_COUNT, DOWNLOAD_COUNT,
                 COMMENT_COUNT, LIKES_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT,
                 USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED,
-                TRACKS_URI, TRACK_COUNT, PLAYLIST_TYPE, DESCRIPTION
+                TRACKS_URI, TRACK_COUNT, PLAYLIST_TYPE, REMOVED_AT, DESCRIPTION
         };
     }
 
     public static class TrackPolicies implements BaseColumns {
         public static final String TRACK_ID = "track_id";
         public static final String MONETIZABLE = "monetizable";
+        public static final String BLOCKED = "blocked";
         public static final String SUB_MID_TIER = "sub_mid_tier";
         public static final String SUB_HIGH_TIER = "sub_high_tier";
         public static final String POLICY = "policy";
@@ -123,7 +125,7 @@ public final class TableColumns {
         public static final String LAST_UPDATED = "last_updated";
 
         public static final String[] ALL_FIELDS = new String[] {
-                TRACK_ID, MONETIZABLE, SUB_MID_TIER, SUB_HIGH_TIER, POLICY, MONETIZATION_MODEL, SYNCABLE, LAST_UPDATED
+                TRACK_ID, MONETIZABLE, BLOCKED, SUB_MID_TIER, SUB_HIGH_TIER, POLICY, MONETIZATION_MODEL, SYNCABLE, LAST_UPDATED
         };
     }
 
@@ -338,6 +340,7 @@ public final class TableColumns {
         public static final String DESCRIPTION = Sounds.DESCRIPTION;
 
         public static final String POLICIES_MONETIZABLE = "sound_policies_monetizable";
+        public static final String POLICIES_BLOCKED = "sound_policies_blocked";
         public static final String POLICIES_POLICY = "sound_policies_policy";
         public static final String POLICIES_SYNCABLE = "sound_policies_syncable";
         public static final String POLICIES_MONETIZATION_MODEL = "sound_policies_monetization_model";
@@ -360,7 +363,7 @@ public final class TableColumns {
         public static final String CACHED = "sound_cached";
 
         public static final String[] ALL_VIEW_FIELDS = {
-                POLICIES_MONETIZABLE, POLICIES_POLICY, POLICIES_SYNCABLE,
+                POLICIES_MONETIZABLE, POLICIES_BLOCKED, POLICIES_POLICY, POLICIES_SYNCABLE,
                 USER_ID, USERNAME, USER_PERMALINK, USER_AVATAR_URL, USER_LIKE, USER_REPOST, USER_PLAY_COUNT,
                 OFFLINE_DOWNLOADED_AT, OFFLINE_REMOVED_AT, CACHED
         };

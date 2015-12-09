@@ -5,7 +5,6 @@ import static com.soundcloud.android.playback.Player.StateTransition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.OverlayAdData;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -17,6 +16,7 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -152,8 +152,16 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.footerUser.setText(trackState.getUserName());
         holder.footerTitle.setText(trackState.getTitle());
 
-        if (!holder.errorViewController.isShowingError()){
-            holder.timestamp.setVisibility(View.VISIBLE);
+        final boolean blocked = trackState.isBlocked();
+        holder.playButton.setEnabled(!blocked);
+        holder.artworkView.setEnabled(!blocked);
+
+        if (blocked) {
+            holder.errorViewController.showError(ErrorViewController.ErrorState.BLOCKED);
+        } else {
+            if (!holder.errorViewController.isShowingError()){
+                holder.timestamp.setVisibility(View.VISIBLE);
+            }
         }
 
         setClickListener(this, holder.onClickViews);
@@ -340,9 +348,19 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     private void updateErrorState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
         if (isCurrentTrack && state.wasError()) {
-            holder.errorViewController.showError(state.getReason());
+            holder.errorViewController.showError(getErrorStateFromPlayerState(state));
         } else {
-            holder.errorViewController.hideError();
+            holder.errorViewController.hideNonBlockedErrors();
+        }
+    }
+
+    private ErrorViewController.ErrorState getErrorStateFromPlayerState(StateTransition state) {
+        switch (state.getReason()){
+            case ERROR_NOT_FOUND:
+            case ERROR_FORBIDDEN:
+                return ErrorViewController.ErrorState.UNPLAYABLE;
+            default:
+                return ErrorViewController.ErrorState.FAILED;
         }
     }
 

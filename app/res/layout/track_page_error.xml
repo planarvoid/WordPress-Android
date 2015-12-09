@@ -9,7 +9,7 @@
             android:id="@+id/playback_error_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/player_error"
+            android:src="@drawable/player_error"
             android:clickable="false"
             android:layout_centerInParent="true" />
 

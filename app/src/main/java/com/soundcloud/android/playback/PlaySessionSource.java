@@ -146,7 +146,7 @@ public class PlaySessionSource implements Parcelable {
         return Strings.isNotBlank(exploreVersion) ? exploreVersion : ScTextUtils.EMPTY_STRING;
     }
 
-    public boolean isFromQuery() {
+    public boolean isFromSearchQuery() {
         return searchQuerySourceInfo != null;
     }
 

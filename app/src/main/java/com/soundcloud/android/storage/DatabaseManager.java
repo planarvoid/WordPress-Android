@@ -19,7 +19,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 60;
+    public static final int DATABASE_VERSION = 63;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -171,6 +171,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 60:
                             success = upgradeTo60(db, oldVersion);
+                            break;
+                        case 61:
+                            success = upgradeTo61(db, oldVersion);
+                            break;
+                        case 62:
+                            success = upgradeTo62(db, oldVersion);
+                            break;
+                        case 63:
+                            success = upgradeTo63(db, oldVersion);
                             break;
                         default:
                             break;
@@ -550,6 +559,52 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
         return false;
     }
+
+    /**
+     * Adds QUERY_URN & SOURCE_URN to the PlayQueue table
+     * Adds the QUERY_URN column to the StationsPlayQueues table
+     */
+    private static boolean upgradeTo61(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable(Tables.PlayQueue.TABLE.name(), db);
+            dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
+            db.execSQL(Tables.PlayQueue.SQL);
+            db.execSQL(Tables.StationsPlayQueues.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 61);
+        }
+        return false;
+    }
+
+    /*
+     * Adds the BLOCKED to the track policy table
+     */
+    private static boolean upgradeTo62(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.alterColumns(Table.TrackPolicies, db);
+            recreateSoundDependentViews(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 62);
+        }
+        return false;
+    }
+
+    /**
+     * Adds REMOVED_AT to the Sounds table
+     */
+    private static boolean upgradeTo63(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.alterColumns(Table.Sounds, db);
+            recreateSoundDependentViews(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 63);
+        }
+        return false;
+    }
+
 
     private static void migratePolicies(SQLiteDatabase db) {
         final List<String> oldSoundColumns = Arrays.asList(

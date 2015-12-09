@@ -3,6 +3,7 @@ package com.soundcloud.android.policies;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,13 +16,16 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +35,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
+    @Mock private PolicyOperations policyOperations;
     @Mock private PolicySettingsStorage policySettingsStorage;
     @Mock private GoBackOnlineDialogPresenter goOnlinePresenter;
     @Mock private NetworkConnectionHelper connectionHelper;
@@ -52,7 +57,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
         controller = new PolicyUpdateController(
                 featureOperations,
                 offlineContentOperations,
-                policySettingsStorage,
+                policyOperations, policySettingsStorage,
                 dateProvider,
                 goOnlinePresenter,
                 connectionHelper);
@@ -60,6 +65,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.<List<Urn>>empty());
+        when(policyOperations.getMostRecentPolicyUpdateTimestamp()).thenReturn(Observable.<Long>empty());
 
         online27DaysAgo = now - TimeUnit.DAYS.toMillis(27L);
         online30DaysAgo = now - TimeUnit.DAYS.toMillis(30L);
@@ -73,7 +79,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
         controller.onResume(null);
 
         verify(goOnlinePresenter, never()).show(any(Activity.class), anyLong());
-        verify(policySettingsStorage, never()).getPolicyUpdateTime();
+        verify(policySettingsStorage, never()).getLastPolicyCheckTime();
     }
 
     @Test
@@ -81,25 +87,30 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
         when(policySettingsStorage.getLastPolicyCheckTime()).thenReturn(now);
         controller.onResume(null);
 
-        verify(policySettingsStorage, never()).getPolicyUpdateTime();
-        verifyZeroInteractions(goOnlinePresenter, offlineContentOperations);
+        verify(policySettingsStorage, never()).setLastPolicyCheckTime(any(Long.class));
+        verify(goOnlinePresenter, never()).show(any(Activity.class), anyLong());
+        verifyZeroInteractions(connectionHelper, offlineContentOperations);
     }
 
     @Test
     public void checksPoliciesUpdateTimeEveryDay() {
+        when(policyOperations.getMostRecentPolicyUpdateTimestamp())
+                .thenReturn(Observable.just(online27DaysAgo));
+
         dateProvider.setTime(yesterday, TimeUnit.MILLISECONDS);
         controller.onResume(null);
 
         dateProvider.setTime(tomorrow, TimeUnit.MILLISECONDS);
         controller.onResume(null);
 
-        verify(policySettingsStorage, times(2)).getPolicyUpdateTime();
+        verify(policySettingsStorage, times(2)).setLastPolicyCheckTime(any(Long.class));
     }
 
     @Test
     public void showsGoBackOnlineDialogWhenLastUpdate27DaysAgo() {
         when(policySettingsStorage.getLastPolicyCheckTime()).thenReturn(yesterday);
-        when(policySettingsStorage.getPolicyUpdateTime()).thenReturn(online27DaysAgo);
+        when(policyOperations.getMostRecentPolicyUpdateTimestamp())
+                .thenReturn(Observable.just(online27DaysAgo));
 
         controller.onResume(null);
 
@@ -111,7 +122,8 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
         final PublishSubject<List<Urn>> clearOfflineContentSubject = PublishSubject.create();
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
         when(policySettingsStorage.getLastPolicyCheckTime()).thenReturn(yesterday);
-        when(policySettingsStorage.getPolicyUpdateTime()).thenReturn(online30DaysAgo);
+        when(policyOperations.getMostRecentPolicyUpdateTimestamp())
+                .thenReturn(Observable.just(online30DaysAgo));
 
         controller.onResume(null);
 
@@ -123,7 +135,8 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
         final PublishSubject<List<Urn>> clearOfflineContentSubject = PublishSubject.create();
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
         when(policySettingsStorage.getLastPolicyCheckTime()).thenReturn(yesterday);
-        when(policySettingsStorage.getPolicyUpdateTime()).thenReturn(online33DaysAgo);
+        when(policyOperations.getMostRecentPolicyUpdateTimestamp())
+                .thenReturn(Observable.just(online33DaysAgo));
 
         controller.onResume(null);
 

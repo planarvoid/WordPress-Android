@@ -18,9 +18,10 @@ import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -38,12 +39,12 @@ public class PostsStorageTest extends StorageIntegrationTest {
     private PropertySet post3;
     private PropertySet post4;
 
-    private TestObserver<List<PropertySet>> observer = new TestObserver<>();
+    final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
 
     @Mock private AccountOperations accountOperations;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         user = testFixtures().insertUser();
 
         storage = new PostsStorage(propellerRx(), accountOperations);
@@ -52,15 +53,15 @@ public class PostsStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAllTrackPostsForPlayback() throws Exception {
+    public void shouldLoadAllTrackPostsForPlayback() {
         post1 = createPlaylistPostAt(POSTED_DATE_1);
         post2 = createTrackPostAt(POSTED_DATE_2);
         post3 = createTrackRepostAt(POSTED_DATE_3);
         post4 = createPlaylistRepostAt(POSTED_DATE_4);
 
-        storage.loadPostsForPlayback().subscribe(observer);
+        storage.loadPostsForPlayback().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(
+        subscriber.assertValue(
                 Arrays.asList(
                         post3.slice(TrackProperty.URN).put(PostProperty.REPOSTER_URN, user.getUrn()),
                         post2.slice(TrackProperty.URN))
@@ -68,19 +69,19 @@ public class PostsStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAllPosts() throws Exception {
+    public void shouldLoadAllPosts() {
         post1 = createPlaylistPostAt(POSTED_DATE_1);
         post2 = createTrackPostAt(POSTED_DATE_2);
         post3 = createTrackRepostAt(POSTED_DATE_3);
         post4 = createPlaylistRepostAt(POSTED_DATE_4);
 
-        storage.loadPosts(10, Long.MAX_VALUE).subscribe(observer);
+        storage.loadPosts(10, Long.MAX_VALUE).subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(Arrays.asList(post4, post3, post2, post1));
+        subscriber.assertValue(Arrays.asList(post4, post3, post2, post1));
     }
 
     @Test
-    public void shouldReturnTrackCountAsMaximumOfRemoteAndLocalCounts() throws Exception {
+    public void shouldReturnTrackCountAsMaximumOfRemoteAndLocalCounts() {
         post1 = createPlaylistPostAt(POSTED_DATE_1);
         post2 = createPlaylistRepostAt(POSTED_DATE_2);
         assertThat(post1.get(PlaylistProperty.TRACK_COUNT)).isEqualTo(2);
@@ -90,20 +91,20 @@ public class PostsStorageTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistTrack(playlistUrn, 1);
         testFixtures().insertPlaylistTrack(playlistUrn, 2);
 
-        storage.loadPosts(10, Long.MAX_VALUE).subscribe(observer);
+        storage.loadPosts(10, Long.MAX_VALUE).subscribe(subscriber);
 
-        final List<PropertySet> result = observer.getOnNextEvents().get(0);
+        final List<PropertySet> result = subscriber.getOnNextEvents().get(0);
         assertThat(result.get(1).get(PlaylistProperty.URN)).isEqualTo(playlistUrn);
         assertThat(result.get(1).get(PlaylistProperty.TRACK_COUNT)).isEqualTo(3);
     }
 
     @Test
-    public void shouldAdhereToLimit() throws Exception {
+    public void shouldAdhereToLimit() {
         post1 = createTrackPostAt(POSTED_DATE_1);
         post2 = createPlaylistPostAt(POSTED_DATE_2);
-        storage.loadPosts(1, Long.MAX_VALUE).subscribe(observer);
+        storage.loadPosts(1, Long.MAX_VALUE).subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(Arrays.asList(post2));
+        subscriber.assertValue(Collections.singletonList(post2));
     }
 
     @Test
@@ -115,9 +116,9 @@ public class PostsStorageTest extends StorageIntegrationTest {
         post3 = createTrackRepostAt(POSTED_DATE_4, POSTED_DATE_1);
         post4 = createPlaylistRepostAt(POSTED_DATE_4, POSTED_DATE_1);
 
-        storage.loadPosts(2, POSTED_DATE_3.getTime()).subscribe(observer);
+        storage.loadPosts(2, POSTED_DATE_3.getTime()).subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(Arrays.asList(post1, post2));
+        subscriber.assertValue(Arrays.asList(post1, post2));
     }
 
     @Test
@@ -128,9 +129,9 @@ public class PostsStorageTest extends StorageIntegrationTest {
         testFixtures().insertLike(new ApiLike(post1.get(PlaylistProperty.URN), new Date()));
         testFixtures().insertLike(new ApiLike(post2.get(PlaylistProperty.URN), new Date()));
 
-        storage.loadPosts(2, Long.MAX_VALUE).subscribe(observer);
+        storage.loadPosts(2, Long.MAX_VALUE).subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(Arrays.asList(post2, post1));
+        subscriber.assertValue(Arrays.asList(post2, post1));
     }
 
     @Test
@@ -139,9 +140,9 @@ public class PostsStorageTest extends StorageIntegrationTest {
         post2 = createTrackRepostAt(POSTED_DATE_2);
         createTrackAt(POSTED_DATE_3);
 
-        storage.loadPosts(10, Long.MAX_VALUE).subscribe(observer);
+        storage.loadPosts(10, Long.MAX_VALUE).subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(Arrays.asList(post2, post1));
+        subscriber.assertValue(Arrays.asList(post2, post1));
     }
 
     private PropertySet createTrackPostAt(Date postedAt) {

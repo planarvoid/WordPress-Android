@@ -73,13 +73,17 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     }
 
     @NotNull
-    public static Urn forPlaylist(long id) {
-        return new Urn(SOUNDCLOUD_SCHEME + COLON + PLAYLISTS_TYPE, id);
+    public static Urn newLocalPlaylist() {
+        return forPlaylist(-System.currentTimeMillis());
     }
 
     @NotNull
-    public static Urn forLocalPlaylist(long id) {
-        return new Urn(LOCAL_SCHEME + COLON + PLAYLISTS_TYPE, id);
+    public static Urn forPlaylist(long id) {
+        if (id < 0) {
+            return new Urn(LOCAL_SCHEME + COLON + PLAYLISTS_TYPE, id);
+        } else {
+            return new Urn(SOUNDCLOUD_SCHEME + COLON + PLAYLISTS_TYPE, id);
+        }
     }
 
     @NotNull
@@ -119,6 +123,10 @@ public final class Urn implements Parcelable, Comparable<Urn> {
 
     public boolean isPlaylist() {
         return content.matches(PLAYLIST_PATTERN) || content.matches(LOCAL_PLAYLIST_PATTERN);
+    }
+
+    public boolean isLocal() {
+        return content.startsWith(LOCAL_SCHEME + COLON);
     }
 
     public boolean isUser() {

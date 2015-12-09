@@ -11,7 +11,6 @@ import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -20,6 +19,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
@@ -29,6 +29,7 @@ import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.PropertySetFunctions;
@@ -55,6 +56,8 @@ import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class PlaySessionController {
+
+    private static final String TAG = "PlaySessionController";
 
     @VisibleForTesting
     static final int RECOMMENDED_LOAD_TOLERANCE = 5;
@@ -104,10 +107,10 @@ public class PlaySessionController {
 
     private Subscription currentTrackSubscription = RxUtils.invalidSubscription();
     private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     private PropertySet currentPlayQueueTrack; // the track that is currently set in the queue
     private boolean stopContinuousPlayback; // killswitch. If the api returns no tracks, stop asking for them
-    private Subscription subscription = RxUtils.invalidSubscription();
 
     private final Action0 stopLoadingPreviousTrack = new Action0() {
         @Override
@@ -134,6 +137,28 @@ public class PlaySessionController {
         @Override
         public void call(PlayQueue ignore) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+        }
+    };
+
+    private final Action1<StateTransition> updateAudioManager = new Action1<StateTransition>() {
+        @Override
+        public void call(StateTransition stateTransition) {
+            audioManager.setPlaybackState(stateTransition.playSessionIsActive());
+        }
+    };
+
+    private final Func1<StateTransition, Boolean> shouldAdvanceTracks = new Func1<StateTransition, Boolean>() {
+        @Override
+        public Boolean call(StateTransition stateTransition) {
+            return stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete()
+                    && (stateTransition.trackEnded() || unrecoverableErrorDuringAutoplay(stateTransition));
+        }
+    };
+
+    private final Action1<StateTransition> reconfigureUpcomingAd = new Action1<StateTransition>() {
+        @Override
+        public void call(StateTransition stateTransition) {
+            adsController.reconfigureAdForNextTrack();
         }
     };
 
@@ -175,9 +200,15 @@ public class PlaySessionController {
     }
 
     public void subscribe() {
-        eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlayStateSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackSubscriber());
         eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
+
+        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                .filter(PlayStateFunctions.IS_NOT_DEFAULT_STATE)
+                .doOnNext(updateAudioManager)
+                .filter(shouldAdvanceTracks)
+                .doOnNext(reconfigureUpcomingAd)
+                .subscribe(new AdvanceTrackSubscriber());
     }
 
     public void reloadQueueAndShowPlayerIfEmpty() {
@@ -224,7 +255,7 @@ public class PlaySessionController {
                 seek(SEEK_POSITION_RESET);
             } else {
                 publishSkipEventIfAudioAd();
-                playQueueManager.moveToPreviousItem();
+                playQueueManager.moveToPreviousPlayableItem();
             }
         }
     }
@@ -234,7 +265,7 @@ public class PlaySessionController {
             playbackToastHelper.showUnskippableAdToast();
         } else {
             publishSkipEventIfAudioAd();
-            playQueueManager.nextItem();
+            playQueueManager.moveToNextPlayableItem();
         }
     }
 
@@ -246,7 +277,7 @@ public class PlaySessionController {
     public void setPlayQueuePosition(int position) {
         if (position != playQueueManager.getCurrentPosition()) {
             publishSkipEventIfAudioAd();
-            playQueueManager.setPosition(position);
+            playQueueManager.setPosition(position, true);
         }
     }
 
@@ -278,43 +309,16 @@ public class PlaySessionController {
                 ? playQueueManager.loadPlayQueueAsync().flatMap(toPlayCurrent)
                 : playbackStrategyProvider.get().playCurrent();
 
-        subscription = playCurrentObservable.subscribe(new DefaultSubscriber<Void>());
+        subscription = playCurrentObservable.subscribe(new PlayCurrentSubscriber());
     }
 
-    private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
+    private class AdvanceTrackSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
         public void onNext(StateTransition stateTransition) {
-            if (!StateTransition.DEFAULT.equals(stateTransition)) {
-                audioManager.setPlaybackState(stateTransition.playSessionIsActive());
-                skipOnTrackFinishOrUnplayable(stateTransition);
-            }
-        }
-    }
-
-    private void skipOnTrackFinishOrUnplayable(StateTransition stateTransition) {
-
-        if (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete()
-                && (stateTransition.trackEnded() || unrecoverableErrorDuringAutoplay(stateTransition))) {
-            logInvalidSkipping(stateTransition);
-
-            adsController.reconfigureAdForNextTrack();
-
-            tryToSkipTrack(stateTransition);
-            if (!stateTransition.playSessionIsActive()) {
+            if (!playQueueManager.autoMoveToNextPlayableItem()) {
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
+            } else if (!stateTransition.playSessionIsActive()) {
                 playCurrent();
-            }
-        }
-    }
-
-    private void logInvalidSkipping(StateTransition stateTransition) {
-        final PlaybackProgress progress = stateTransition.getProgress();
-        if (stateTransition.trackEnded()) {
-            if (Math.abs(progress.getDuration() - progress.getPosition()) > SKIP_REPORT_TOLERANCE) {
-                ErrorUtils.handleSilentException(stateTransition.toString(), new IllegalStateException("Track ended prematurely"));
-            }
-        } else {
-            if (progress.getPosition() > 0) {
-                ErrorUtils.handleSilentException(stateTransition.toString(), new IllegalStateException("Skipping on track error too late"));
             }
         }
     }
@@ -324,12 +328,6 @@ public class PlaySessionController {
         return stateTransition.wasError() && !stateTransition.wasGeneralFailure() &&
                 currentTrackSourceInfo != null && !currentTrackSourceInfo.getIsUserTriggered()
                 && connectionHelper.isNetworkConnected();
-    }
-
-    private void tryToSkipTrack(StateTransition stateTransition) {
-        if (!playQueueManager.autoNextItem()) {
-            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
-        }
     }
 
     private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
@@ -365,7 +363,7 @@ public class PlaySessionController {
             currentTrackSubscription.unsubscribe();
 
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
-            if (playQueueItem.isTrack() ) {
+            if (playQueueItem.isTrack()) {
                 final boolean isAudioAd = AdFunctions.IS_AUDIO_AD_ITEM.apply(playQueueItem);
                 currentTrackSubscription = trackRepository
                         .track(playQueueItem.getUrn())
@@ -499,6 +497,18 @@ public class PlaySessionController {
                 valuePairs.put("Queue Size", String.valueOf(playQueueManager.getQueueSize()));
                 valuePairs.put("PlaySessionSource", playQueueManager.getCurrentPlaySessionSource().toString());
                 ErrorUtils.handleSilentException(e, valuePairs);
+            } else {
+                super.onError(e);
+            }
+        }
+    }
+
+    private class PlayCurrentSubscriber extends DefaultSubscriber<Void> {
+        @Override
+        public void onError(Throwable e) {
+            if (e instanceof BlockedTrackException) {
+                pause();
+                Log.e(TAG, "Not playing blocked track", e);
             } else {
                 super.onError(e);
             }

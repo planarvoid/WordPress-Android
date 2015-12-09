@@ -17,7 +17,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class DailyUpdateService extends IntentService {
 
@@ -28,7 +27,6 @@ public class DailyUpdateService extends IntentService {
     @Inject PolicySettingsStorage policySettingsStorage;
     @Inject ConfigurationManager configurationManager;
     @Inject AdIdHelper adIdHelper;
-    @Inject CurrentDateProvider dateProvider;
     @Inject EventBus eventBus;
 
     public DailyUpdateService() {
@@ -37,15 +35,15 @@ public class DailyUpdateService extends IntentService {
     }
 
     @VisibleForTesting
-    DailyUpdateService(PolicyOperations policyOperations, PolicySettingsStorage policySettingsStorage,
-                       ConfigurationManager configurationManager, AdIdHelper adIdHelper,
-                       CurrentDateProvider dateProvider, EventBus eventBus) {
+    DailyUpdateService(PolicyOperations policyOperations,
+                       PolicySettingsStorage policySettingsStorage,
+                       ConfigurationManager configurationManager,
+                       AdIdHelper adIdHelper, EventBus eventBus) {
         super(TAG);
         this.policyOperations = policyOperations;
         this.policySettingsStorage = policySettingsStorage;
         this.configurationManager = configurationManager;
         this.adIdHelper = adIdHelper;
-        this.dateProvider = dateProvider;
         this.eventBus = eventBus;
     }
 
@@ -69,14 +67,13 @@ public class DailyUpdateService extends IntentService {
     }
 
     private void updateTrackPolicies() {
+        Log.d(TAG, "Update track policies start");
         final List<Urn> updatedTracks = policyOperations.updateTrackPolicies();
         if (!updatedTracks.isEmpty()) {
-            Log.d(TAG, "Successfull policy update");
-            policySettingsStorage.setPolicyUpdateTime(dateProvider.getCurrentTime());
+            Log.d(TAG, "Successful policy update for " + updatedTracks.size() + " tracks");
             eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.success(updatedTracks));
         } else {
-            long policyUpdateInDays = TimeUnit.MILLISECONDS.toDays(dateProvider.getCurrentTime() - policySettingsStorage.getPolicyUpdateTime());
-            Log.d(TAG, "Last successful policy update was " + policyUpdateInDays + " days ago");
+            Log.d(TAG, "No policy update received");
         }
     }
 }

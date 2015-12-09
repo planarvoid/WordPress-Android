@@ -3,6 +3,7 @@ package com.soundcloud.android.deeplinks;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,20 +11,15 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.rx.eventbus.EventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,32 +46,59 @@ public class IntentResolverTest extends AndroidUnitTest {
     @InjectMocks private IntentResolver resolver;
 
     private Uri uri;
-    private PublicApiResource resource;
     private Intent intent;
     private Context context;
 
     @Before
     public void setUp() throws Exception {
         context = context();
-        setupIntentForUrl("soundcloud://playlists:1");
-        setupResource(PublicApiPlaylist.class);
         setupReferrer(Referrer.OTHER);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
-        when(playbackInitiator.startPlayback(any(PublicApiTrack.class), any(Screen.class))).thenReturn(Observable.<PlaybackResult>empty());
+        when(playbackInitiator.startPlayback(any(Urn.class), any(Screen.class))).thenReturn(Observable.<PlaybackResult>empty());
     }
 
     @Test
-    public void shouldPlayTrack() throws CreateModelException {
-        setupResource(PublicApiTrack.class);
+    public void shouldLaunchSoundStreamIfUriBlank() {
+        setupIntentForUrl("");
 
         resolver.handleIntent(intent, context);
 
-        verify(playbackInitiator).startPlayback((PublicApiTrack) resource, Screen.DEEPLINK);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchSoundStreamIfUriNull() {
+        setupIntentForUrl(null);
+
+        resolver.handleIntent(intent, context);
+
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchPlayerDirectlyFromPreviouslyResolvedUrn() {
+        setupIntentForUrl("soundcloud:tracks:123");
+
+        resolver.handleIntent(intent, context);
+
+        verify(playbackInitiator).startPlayback(Urn.forTrack(123), Screen.DEEPLINK);
+        verify(resolveOperations, never()).resolve(any(Uri.class));
+    }
+
+    @Test
+    public void shouldPlayTrackAfterResolvingDeepLink() throws CreateModelException {
+        setupIntentForUrl("soundcloud://sounds:123");
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+
+        resolver.handleIntent(intent, context);
+
+        verify(playbackInitiator).startPlayback(Urn.forTrack(123), Screen.DEEPLINK);
     }
 
     @Test
     public void shouldShowTheStreamWithAnExpandedPlayer() throws CreateModelException {
-        setupResource(PublicApiTrack.class);
+        setupIntentForUrl("soundcloud://sounds:123");
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
 
         resolver.handleIntent(intent, context);
 
@@ -83,40 +106,66 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldGotoPlaylistDetails() throws CreateModelException {
-        setupResource(PublicApiPlaylist.class);
+    public void shouldLaunchPlaylistDetailsDirectlyFromPreviouslyResolvedUrn() {
+        setupIntentForUrl("soundcloud:playlists:123");
 
         resolver.handleIntent(intent, context);
 
-        verify(navigator).openPlaylist(context, resource.getUrn(), Screen.DEEPLINK);
+        verify(navigator).openPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
+        verify(resolveOperations, never()).resolve(any(Uri.class));
     }
 
     @Test
-    public void shouldGotoUserProfile() throws CreateModelException {
-        setupResource(PublicApiUser.class);
+    public void shouldGotoPlaylistDetailsAfterResolvingDeepLink() throws CreateModelException {
+        setupIntentForUrl("soundcloud://playlists:123");
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forPlaylist(123)));
 
         resolver.handleIntent(intent, context);
 
-        verify(navigator).openProfile(context, resource.getUrn(), Screen.DEEPLINK);
+        verify(navigator).openPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldLaunchUserProfileDirectlyFromPreviouslyResolvedUrn() {
+        setupIntentForUrl("soundcloud:users:123");
+
+        resolver.handleIntent(intent, context);
+
+        verify(navigator).openProfile(context, Urn.forUser(123), Screen.DEEPLINK);
+        verify(resolveOperations, never()).resolve(any(Uri.class));
+    }
+
+    @Test
+    public void shouldGotoUserProfileAfterResolvingDeepLink() throws CreateModelException {
+        setupIntentForUrl("soundcloud://users:123");
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forUser(123)));
+
+        resolver.handleIntent(intent, context);
+
+        verify(navigator).openProfile(context, Urn.forUser(123), Screen.DEEPLINK);
     }
 
     @Test
     public void shouldTrackForegroundEventsWithResources() throws Exception {
+        setupIntentForUrl("soundcloud://sounds:123");
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
         setupReferrer(Referrer.TWITTER);
 
         resolver.handleIntent(intent, context);
 
-        verifyTrackingEvent(resource.getUrn(), Referrer.TWITTER);
+        verifyTrackingEvent(Urn.forTrack(123), Referrer.TWITTER);
     }
 
     @Test
     public void shouldTrackForegroundEventsWithResourceWhenUserIsNotLoggedIn() throws Exception {
+        setupIntentForUrl("soundcloud://sounds:123");
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
         setupReferrer(Referrer.FACEBOOK);
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
 
         resolver.handleIntent(intent, context);
 
-        verifyTrackingEvent(resource.getUrn(), Referrer.FACEBOOK);
+        verifyTrackingEvent(Urn.forTrack(123), Referrer.FACEBOOK);
     }
 
     @Test
@@ -131,33 +180,37 @@ public class IntentResolverTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoginCrawler() throws Exception {
-        setupResource(PublicApiPlaylist.class);
+        setupIntentForUrl("soundcloud://playlists:123");
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forPlaylist(123)));
         setupReferrer(Referrer.GOOGLE_CRAWLER);
 
         resolver.handleIntent(intent, context);
 
         verify(accountOperations).loginCrawlerUser();
-        verify(navigator).openPlaylist(context, resource.getUrn(), Screen.DEEPLINK);
+        verify(navigator).openPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
     }
 
     @Test
     public void shouldStartPlaybackForTracksOnCrawlersWithoutRelated() throws Exception {
-        setupResource(PublicApiTrack.class);
+        setupIntentForUrl("soundcloud://sounds:123");
         setupReferrer(Referrer.GOOGLE_CRAWLER);
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
 
         resolver.handleIntent(intent, context);
 
-        verify(playbackInitiator).startPlayback((PublicApiTrack) resource, Screen.DEEPLINK);
+        verify(playbackInitiator).startPlayback(Urn.forTrack(123), Screen.DEEPLINK);
     }
 
     @Test
     public void shouldLaunchOnboardingWithExtraUrnForLoggedOutUsers() throws Exception {
+        setupIntentForUrl("soundcloud://sounds:123");
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
 
         resolver.handleIntent(intent, context);
 
-        verifyTrackingEvent(resource.getUrn(), Referrer.OTHER);
-        verify(navigator).openOnboarding(context, resource.getUrn(), Screen.DEEPLINK);
+        verifyTrackingEvent(Urn.forTrack(123), Referrer.OTHER);
+        verify(navigator).openOnboarding(context, Urn.forTrack(123), Screen.DEEPLINK);
     }
 
     @Test
@@ -167,7 +220,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openLegacySearch(context, uri, Screen.DEEPLINK);
+        verify(navigator).openSearch(context, uri, Screen.DEEPLINK);
     }
 
     @Test
@@ -177,7 +230,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openLegacySearch(context, uri, Screen.DEEPLINK);
+        verify(navigator).openSearch(context, uri, Screen.DEEPLINK);
     }
 
     @Test
@@ -200,7 +253,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         verify(accountOperations).loginCrawlerUser();
         verifyTrackingEvent(Referrer.GOOGLE_CRAWLER);
-        verify(navigator).openLegacySearch(context, uri, Screen.DEEPLINK);
+        verify(navigator).openSearch(context, uri, Screen.DEEPLINK);
     }
 
     @Test
@@ -300,13 +353,10 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     public void setupIntentForUrl(String url) {
-        uri = Uri.parse(url);
+        if (url != null) {
+            uri = Uri.parse(url);
+        }
         intent = new Intent().setData(uri);
-    }
-
-    private void setupResource(Class resourceClass) {
-        resource = (PublicApiResource) ModelFixtures.create(resourceClass);
-        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(resource));
     }
 
     private void setupReferrer(Referrer referrer) {

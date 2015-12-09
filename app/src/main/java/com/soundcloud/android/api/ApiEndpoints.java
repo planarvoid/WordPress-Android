@@ -57,6 +57,10 @@ public enum ApiEndpoints {
     USER_POSTED_PLAYLISTS("/users/%s/posted_playlists"),
     USER_LIKES("/users/%s/liked_tracks_and_playlists"),
 
+    // tracks
+    TRACKS("/tracks/%s"),
+    TRACKS_FETCH("/tracks/fetch"),
+
     // playlist
     PLAYLISTS_CREATE("/playlists"),
     PLAYLISTS_FETCH("/playlists/fetch"),
@@ -79,15 +83,14 @@ public enum ApiEndpoints {
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),
-    TRACKS_FETCH("/tracks/fetch"),
     CONFIGURATION("/configuration/android"),
+    RESOLVE_ENTITY("/resolve"),
 
     // public API
     PLAY_PUBLISH("/tpub"),
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),
-    RESOLVE("/resolve"),
     MY_TRACK_REPOSTS("/e1/me/track_reposts/%s"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
     LEGACY_TRACKS("/tracks"),

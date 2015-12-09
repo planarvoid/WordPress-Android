@@ -29,10 +29,11 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(TrackProperty.FULL_DURATION, cursorReader.getLong(SoundView.FULL_DURATION));
         propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));
         propertySet.put(TrackProperty.COMMENTS_COUNT, cursorReader.getInt(SoundView.COMMENT_COUNT));
-        propertySet.put(TrackProperty.STREAM_URL, cursorReader.getString(SoundView.STREAM_URL));
+        propertySet.put(TrackProperty.IS_COMMENTABLE, cursorReader.getBoolean(SoundView.COMMENTABLE));
         propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
         propertySet.put(PlayableProperty.REPOSTS_COUNT, cursorReader.getInt(SoundView.REPOSTS_COUNT));
         propertySet.put(TrackProperty.MONETIZABLE, cursorReader.getBoolean(SoundView.POLICIES_MONETIZABLE));
+        propertySet.put(TrackProperty.BLOCKED, cursorReader.getBoolean(SoundView.POLICIES_BLOCKED));
         propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
         propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(SoundView.PERMALINK_URL));
         propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(SoundView.USER_REPOST));
@@ -40,7 +41,7 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundView.CREATED_AT));
 
         putOptionalFields(cursorReader, propertySet);
-        addOptionalOfflineSyncDates(cursorReader, propertySet);
+        putOptionalOfflineSyncDates(cursorReader, propertySet);
         return propertySet;
     }
 
@@ -62,7 +63,7 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlayableProperty.CREATOR_URN, creatorId == Consts.NOT_SET ? Urn.NOT_SET : Urn.forUser(creatorId));
     }
 
-    private void addOptionalOfflineSyncDates(CursorReader cursorReader, PropertySet propertySet) {
+    private void putOptionalOfflineSyncDates(CursorReader cursorReader, PropertySet propertySet) {
         final Date defaultDate = new Date(0);
         final Date removedAt = getDateOr(cursorReader, SoundView.OFFLINE_REMOVED_AT, defaultDate);
         final Date downloadedAt = getDateOr(cursorReader, SoundView.OFFLINE_DOWNLOADED_AT, defaultDate);

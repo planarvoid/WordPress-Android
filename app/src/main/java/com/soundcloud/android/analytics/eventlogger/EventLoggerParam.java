@@ -15,6 +15,7 @@ class EventLoggerParam {
     static final String PAGE_NAME = "page_name";
     static final String TRIGGER = "trigger";
     static final String SOURCE = "source";
+    static final String SOURCE_URN = "source_urn";
     static final String SOURCE_VERSION = "source_version";
     static final String IN_PLAYLIST = "in_playlist";
     static final String PLAYLIST_POSITION = "playlist_position";

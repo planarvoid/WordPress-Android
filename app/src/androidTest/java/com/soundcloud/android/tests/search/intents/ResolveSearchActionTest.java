@@ -1,9 +1,10 @@
 package com.soundcloud.android.tests.search.intents;
 
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.screens.search.LegacySearchResultsScreen;
+import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 
 import android.app.SearchManager;
 import android.content.Intent;
@@ -16,8 +17,8 @@ public class ResolveSearchActionTest extends SearchIntentsBaseTest {
     }
 
     public void testSearchActionResolution() {
-        LegacySearchResultsScreen resultsScreen = new LegacySearchResultsScreen(solo);
-        assertThat("Search results screen should be visible", resultsScreen.isVisible());
-        assertThat("Search query should be set", resultsScreen.actionBar().getLegacySearchQuery(), is("skrillex"));
+        final SearchResultsScreen resultsScreen = new SearchResultsScreen(solo);
+        assertThat("Search results screen should be visible", resultsScreen, is(visible()));
+        assertThat("Search query should be set", resultsScreen.getActionBarTitle(), is("skrillex"));
     }
 }

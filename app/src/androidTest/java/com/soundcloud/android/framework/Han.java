@@ -92,8 +92,8 @@ public class Han  {
         return viewFetcher.findElements(with);
     }
 
-    public void typeText(EditText editText, String text) {
-        solo.typeText(editText, text);
+    public void typeText(String text) {
+        instrumentation.sendStringSync(text);
     }
 
     public void clearEditText(EditText editText) {
@@ -288,7 +288,7 @@ public class Han  {
                 }
         );
         //This is needed as it does not seem that we are waiting for UI Thread to fully finish
-        sleep(300);
+        sleep(500);
     }
 
     public boolean searchText(String text, boolean onlyVisible) {

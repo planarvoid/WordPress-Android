@@ -48,6 +48,8 @@ public class ShareOperationsTest extends AndroidUnitTest {
 
         Assertions.assertThat(activityContext)
                 .nextStartedIntent()
+                .containsAction(Intent.ACTION_CHOOSER)
+                .wrappedIntent()
                 .containsAction(Intent.ACTION_SEND)
                 .containsExtra(Intent.EXTRA_SUBJECT, "squirlex galore - SoundCloud")
                 .containsExtra(Intent.EXTRA_TEXT, "Listen to squirlex galore by avieciie #np on #SoundCloud\\nhttp://permalink.url");

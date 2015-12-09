@@ -14,7 +14,8 @@ import javax.inject.Provider;
                 PlaylistDetailActivity.class,
                 PlaylistDetailFragment.class,
                 AddToPlaylistDialogFragment.class,
-                CreatePlaylistDialogFragment.class
+                CreatePlaylistDialogFragment.class,
+                DeletePlaylistDialogFragment.class
         }
 )
 public class PlaylistsModule {

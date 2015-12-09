@@ -22,6 +22,7 @@ import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -170,6 +171,17 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.show();
 
         verify(popupMenuWrapper, never()).show();
+    }
+
+    @Test
+    public void shouldHideCommentOptionWhenTrackIsNotCommentable() {
+        verify(popupMenuWrapper).setItemVisible(R.id.comment, true);
+
+        final PropertySet notCommentable = TestPropertySets.expectedTrackForPlayer().put(TrackProperty.IS_COMMENTABLE, false);
+        track = new PlayerTrackState(notCommentable, false, false, null);
+        controller.setTrack(track);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.comment, false);
     }
 
     private MenuItem mockMenuItem(int menuteItemId) {

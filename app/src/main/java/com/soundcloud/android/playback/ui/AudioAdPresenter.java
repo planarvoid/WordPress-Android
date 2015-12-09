@@ -12,7 +12,6 @@ import com.soundcloud.java.collections.Iterables;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
@@ -32,17 +31,15 @@ class AudioAdPresenter extends AdPagePresenter implements View.OnClickListener {
     private final Resources resources;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final AdPageListener listener;
-    private final Context context;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
     public AudioAdPresenter(ImageOperations imageOperations, Resources resources,
-                            PlayerOverlayController.Factory playerOverlayControllerFactory, AdPageListener listener, Context context) {
+                            PlayerOverlayController.Factory playerOverlayControllerFactory, AdPageListener listener) {
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.listener = listener;
-        this.context = context;
     }
 
     @Override

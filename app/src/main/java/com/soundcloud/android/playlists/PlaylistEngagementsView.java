@@ -6,6 +6,8 @@ import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -25,6 +27,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     private final Context context;
     private final CondensedNumberFormatter numberFormatter;
+    private final FeatureFlags featureFlags;
     private final Resources resources;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
@@ -38,9 +41,10 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     @Inject
     public PlaylistEngagementsView(Context context, CondensedNumberFormatter numberFormatter, PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                                   DownloadableHeaderView downloadableHeaderView) {
+                                   DownloadableHeaderView downloadableHeaderView, FeatureFlags featureFlags) {
         this.context = context;
         this.numberFormatter = numberFormatter;
+        this.featureFlags = featureFlags;
         this.resources = context.getResources();
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.downloadableHeaderView = downloadableHeaderView;
@@ -101,6 +105,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.setItemVisible(R.id.share, true);
         popupMenuWrapper.setItemVisible(R.id.repost, false);
         popupMenuWrapper.setItemVisible(R.id.unpost, false);
+        showDeletePlaylist();
     }
 
     void showPublicOptions(boolean repostedByUser) {
@@ -113,6 +118,13 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.setItemVisible(R.id.share, false);
         popupMenuWrapper.setItemVisible(R.id.repost, false);
         popupMenuWrapper.setItemVisible(R.id.unpost, false);
+        showDeletePlaylist();
+    }
+
+    private void showDeletePlaylist() {
+        if (featureFlags.isEnabled(Flag.DELETE_PLAYLIST)) {
+            popupMenuWrapper.setItemVisible(R.id.delete_playlist, true);
+        }
     }
 
     public void updateLikeItem(int likesCount, boolean likedByUser) {
@@ -165,6 +177,9 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
             case R.id.shuffle:
                 getListener().onPlayShuffled();
                 return true;
+            case R.id.delete_playlist:
+                getListener().onDeletePlaylist();
+                return true;
             default:
                 throw new IllegalArgumentException("Unexpected menu item clicked " + menuItem);
         }
@@ -213,5 +228,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         void onUpsellImpression();
         void onUpsell(Context context);
         void onPlayShuffled();
+        void onDeletePlaylist();
     }
 }

@@ -35,20 +35,12 @@ public class AudioAdTest extends AdBaseTest {
         assertThat(playerElement, is(not(SkipAllowed())));
     }
 
-    public void testTappingFullbleedAdArtworkPausesAd() {
+    public void testTappingFullBleedAdArtworkTwiceResumesPlayingAd() {
         swipeToAd();
         if (playerElement.isFullbleedAd()) {
             playerElement.waitForPlayState();
             playerElement.clickAdArtwork();
             assertThat(playerElement, is(not(playing())));
-        }
-    }
-
-    public void testTappingFullBleedAdArtworkTwiceResumePlayingAd() {
-        swipeToAd();
-        if (playerElement.isFullbleedAd()) {
-            playerElement.waitForPlayState();
-            playerElement.clickAdArtwork();
             playerElement.waitForPlayButton();
             playerElement.clickAdArtwork();
             assertThat(playerElement, is(playing()));

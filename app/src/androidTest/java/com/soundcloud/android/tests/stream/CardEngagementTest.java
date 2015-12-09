@@ -12,6 +12,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -50,12 +51,13 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingToggleRepostFromCard() {
-        boolean reposted = streamScreen.scrollToFirstTrack().isReposted();
+        StreamCardElement track = streamScreen.scrollToFirstTrack();
+        boolean reposted = track.isReposted();
 
-        streamScreen.scrollToFirstTrack().toggleRepost();
+        track.toggleRepost();
 
         assertThat(streamScreen, is(visible()));
-        assertThat(streamScreen.scrollToFirstTrack().isReposted(), is(not(reposted)));
+        assertThat(track.isReposted(), is(not(reposted)));
 
         final String repostToastMessage = getRepostToastMessage(reposted);
         assertTrue("Did not observe a toast with a message: " + repostToastMessage,
@@ -63,12 +65,13 @@ public class CardEngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingToggleLikeFromCard() {
-        boolean liked = streamScreen.scrollToFirstTrack().isLiked();
+        StreamCardElement track = streamScreen.scrollToFirstTrack();
+        boolean liked = track.isLiked();
 
-        streamScreen.scrollToFirstTrack().toggleLike();
+        track.toggleLike();
 
         assertThat(streamScreen, is(visible()));
-        assertThat(streamScreen.scrollToFirstTrack().isLiked(), is(not(liked)));
+        assertThat(track.isLiked(), is(not(liked)));
 
         final String likeToastMessage = getLikeToastMessage(liked);
         assertTrue("Did not observe a toast with a message: " + likeToastMessage,

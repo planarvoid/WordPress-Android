@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.api.model.StationRecord;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -84,6 +84,10 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
         return source.getOrElse(PlayableProperty.CREATOR_URN, Urn.NOT_SET);
     }
 
+    public boolean isBlocked() {
+        return source.getOrElse(TrackProperty.BLOCKED, false);
+    }
+
     long getPlayableDuration() {
         return source.get(TrackProperty.PLAY_DURATION);
     }
@@ -117,6 +121,10 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
 
     public boolean isPrivate() {
         return source.get(PlayableProperty.IS_PRIVATE);
+    }
+
+    public boolean isCommentable() {
+        return source.getOrElse(TrackProperty.IS_COMMENTABLE, false);
     }
 
     @Override

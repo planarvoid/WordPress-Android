@@ -53,16 +53,6 @@ public class SyncStateManagerTest {
     }
 
     @Test
-    public void shouldChangeAutoRefresh() throws Exception {
-        Uri uri = Content.ME_LIKES.uri;
-        LocalCollection lc = new LocalCollection(uri, 100, 1, LocalCollection.SyncState.IDLE, 0, null);
-        new LocalCollectionDAO(resolver).create(lc);
-        expect(lc.shouldAutoRefresh()).toBeTrue();
-        syncStateManager.updateSyncState(lc.getId(), LocalCollection.SyncState.SYNCING);
-        expect(syncStateManager.fromContent(uri).shouldAutoRefresh()).toBeFalse();
-    }
-
-    @Test
     public void shouldInitializeNewLocalCollectionIfNotInDatabase() {
         final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
                 System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");

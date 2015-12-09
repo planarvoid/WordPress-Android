@@ -13,7 +13,7 @@ import android.net.Uri;
 public class ResolveFacebookTrackDeepLinkTest extends ResolveBaseTest {
     @Override
     protected Uri getUri() {
-        return TestConsts.FACEBOOK_SOUND_DEEP_LINK;
+        return TestConsts.FACEBOOK_TRACK_DEEP_LINK;
     }
 
     public void testShowExpandedPlayerWhenTrackUrnIsValid() {

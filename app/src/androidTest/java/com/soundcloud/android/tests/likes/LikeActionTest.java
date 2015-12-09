@@ -26,12 +26,11 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
     public void ignoreLikesSyncing_testLikedTrackAddedToLikeCollectionWhenLikingFromTrackItemOverflowMenu() throws Exception {
         final StreamScreen streamScreen = new StreamScreen(solo);
 
-        final TrackItemElement expectedTrack = streamScreen
-                .actionBar()
-                .clickSearchButton()
-                .actionBar()
-                .doLegacySearch("Acceptance")
-                .touchTracksTab()
+        final TrackItemElement expectedTrack = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("Acceptance")
+                .goToTracksTab()
                 .getTracks()
                 .get(0);
 
@@ -47,20 +46,19 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
                 .get(0)
                 .getTitle();
 
-        assertEquals("The track we liked from the search page should be the same as the top track in your likes",
-                expectedTitle, actualTitle);
+        assertThat("The track we liked from the search page should be the same as the top track in your likes",
+                expectedTitle, is(actualTitle));
     }
 
     // *** Ignore until we come up with a good way to prevent like actions from getting synced ***
     public void ignoreLikesSyncing_testLikedPlaylistAddedToLikeCollectionWhenLikingFromPlaylistScreenEngagementBar() throws Exception {
         final StreamScreen streamScreen = new StreamScreen(solo);
 
-        final PlaylistDetailsScreen playlistDetailsScreen = streamScreen
-                .actionBar()
-                .clickSearchButton()
-                .actionBar()
-                .doLegacySearch("Acceptance")
-                .touchPlaylistsTab()
+        final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("Acceptance")
+                .goToPlaylistsTab()
                 .getPlaylists()
                 .get(0)
                 .click();
@@ -75,10 +73,9 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
         solo.goBack();
         assertThat("Stream should be visible", streamScreen, is(visible()));
 
-        final String actualTitle = mainNavHelper.goToCollections()
-                .getFirstPlaylistTitle();
+        final String actualTitle = mainNavHelper.goToCollections().getFirstPlaylist().getTitle();
 
-        assertEquals("The playlist we liked from the playlist detail screen should be the same as the top playlist in "+
-                "your liked playlists", expectedTitle, actualTitle);
+        assertThat("The playlist we liked from the playlist detail screen should be the same as the top playlist in " +
+                "your liked playlists", expectedTitle, is(actualTitle));
     }
 }

@@ -37,8 +37,8 @@ class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFrom
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(propeller.delete(Table.PlaylistTracks, Filter.filter()
-                        .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, params.playlistUrn.getNumericId())
-                        .whereNull(TableColumns.PlaylistTracks.REMOVED_AT)));
+                        .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID), params.playlistUrn.getNumericId())
+                        .whereNull(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT))));
 
                 for (int i = 0; i < playlistTracks.size(); i++) {
                     step(propeller.upsert(Table.PlaylistTracks, buildPlaylistTrackContentValues(params.playlistUrn, playlistTracks.get(i), i)));
@@ -67,9 +67,9 @@ class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFrom
     private Query getPlaylistTracks(Urn playlistUrn) {
         return Query.from(Table.PlaylistTracks.name())
                 .select(TableColumns.PlaylistTracks.TRACK_ID)
-                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
-                .whereNull(TableColumns.PlaylistTracks.REMOVED_AT)
-                .order(TableColumns.PlaylistTracks.POSITION, Query.Order.ASC);
+                .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID), playlistUrn.getNumericId())
+                .whereNull(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT))
+                .order(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.POSITION), Query.Order.ASC);
     }
 
     @Override

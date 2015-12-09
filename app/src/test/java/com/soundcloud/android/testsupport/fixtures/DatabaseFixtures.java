@@ -1,15 +1,17 @@
 package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.StationRecord;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationFixtures;
+import com.soundcloud.android.stations.StationRecord;
+import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -19,18 +21,17 @@ import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
-import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import java.util.Date;
 import java.util.List;
@@ -45,6 +46,13 @@ public class DatabaseFixtures {
 
     public ApiTrack insertTrack() {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        insertTrack(track);
+        return track;
+    }
+
+    public ApiTrack insertBlockedTrack() {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setBlocked(true);
         insertTrack(track);
         return track;
     }
@@ -67,6 +75,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.PERMALINK_URL, track.getPermalinkUrl());
         cv.put(TableColumns.Sounds.SHARING, track.getSharing().value());
         cv.put(TableColumns.Sounds.CREATED_AT, track.getCreatedAt().getTime());
+        cv.put(TableColumns.Sounds.DESCRIPTION, track.getDescription().orNull());
 
         insertInto(Table.Sounds, cv);
         insertPolicy(track);
@@ -157,6 +166,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.TrackPolicies.TRACK_ID, track.getId());
         cv.put(TableColumns.TrackPolicies.POLICY, track.getPolicy());
         cv.put(TableColumns.TrackPolicies.MONETIZABLE, track.isMonetizable());
+        cv.put(TableColumns.TrackPolicies.BLOCKED, track.isBlocked());
         cv.put(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable());
         cv.put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 
@@ -206,20 +216,7 @@ public class DatabaseFixtures {
     }
 
     public void insertPlaylist(ApiPlaylist playlist) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Sounds._ID, playlist.getId());
-        cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(TableColumns.Sounds.TITLE, playlist.getTitle());
-        cv.put(TableColumns.Sounds.USER_ID, playlist.getUser().getId());
-        cv.put(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount());
-        cv.put(TableColumns.Sounds.REPOSTS_COUNT, playlist.getStats().getRepostsCount());
-        cv.put(TableColumns.Sounds.PERMALINK_URL, playlist.getPermalinkUrl());
-        cv.put(TableColumns.Sounds.SHARING, playlist.getSharing().value());
-        cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
-        cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
-        cv.put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime());
-
-        insertInto(Table.Sounds, cv);
+        insertInto(Table.Sounds, createPlaylistContentValues(playlist));
     }
 
     public ApiTrack insertPlaylistTrack(ApiPlaylist playlist, int position) {
@@ -350,10 +347,10 @@ public class DatabaseFixtures {
     }
 
     private void insertStationPlayQueue(ApiStation station) {
-        final List<? extends TrackRecord> playQueue = station.getTrackRecords();
+        final List<StationTrack> stationTracks = station.getTracks();
 
-        for (int i = 0; i < playQueue.size(); i++) {
-            final TrackRecord track = playQueue.get(i);
+        for (int i = 0; i < stationTracks.size(); i++) {
+            final StationTrack track = stationTracks.get(i);
             insertInto(StationsPlayQueues.TABLE, getTrackContentValues(i, station, track));
         }
     }
@@ -366,12 +363,13 @@ public class DatabaseFixtures {
                 .put(Stations.PERMALINK, station.getPermalink());
     }
 
-    private ContentValues getTrackContentValues(int position, StationRecord stationInfo, TrackRecord track) {
+    private ContentValues getTrackContentValues(int position, StationRecord stationInfo, StationTrack track) {
         final ContentValuesBuilder trackContentValues = ContentValuesBuilder.values();
         
         trackContentValues.put(StationsPlayQueues.POSITION, position);
         trackContentValues.put(StationsPlayQueues.STATION_URN, stationInfo.getUrn().toString());
-        trackContentValues.put(StationsPlayQueues.TRACK_URN, track.getUrn().toString());
+        trackContentValues.put(StationsPlayQueues.TRACK_URN, track.getTrackUrn().toString());
+        trackContentValues.put(StationsPlayQueues.QUERY_URN, track.getQueryUrn().toString());
 
         return trackContentValues.get();
     }
@@ -428,6 +426,33 @@ public class DatabaseFixtures {
         insertPlaylist(playlist);
         insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         return playlist;
+    }
+
+    public ApiPlaylist insertRemovedPlaylist(Date removedAt) {
+        ApiPlaylist playlist = insertPlaylist();
+
+        ContentValues cv = createPlaylistContentValues(playlist);
+        cv.put(TableColumns.Sounds.REMOVED_AT, removedAt.getTime());
+        insertInto(Table.Sounds, cv);
+
+        return playlist;
+    }
+
+    @NonNull
+    private ContentValues createPlaylistContentValues(ApiPlaylist playlist) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Sounds._ID, playlist.getId());
+        cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+        cv.put(TableColumns.Sounds.TITLE, playlist.getTitle());
+        cv.put(TableColumns.Sounds.USER_ID, playlist.getUser().getId());
+        cv.put(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount());
+        cv.put(TableColumns.Sounds.REPOSTS_COUNT, playlist.getStats().getRepostsCount());
+        cv.put(TableColumns.Sounds.PERMALINK_URL, playlist.getPermalinkUrl());
+        cv.put(TableColumns.Sounds.SHARING, playlist.getSharing().value());
+        cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
+        cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
+        cv.put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime());
+        return cv;
     }
 
     public ApiPlaylist insertLikedPlaylistPendingRemoval(Date unlikedDate) {
