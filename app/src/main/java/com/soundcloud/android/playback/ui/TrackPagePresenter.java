@@ -161,8 +161,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.footerTitle.setText(trackState.getTitle());
 
         final boolean blocked = trackState.isBlocked();
-        holder.playButton.setEnabled(!blocked);
         holder.artworkView.setEnabled(!blocked);
+        updatePlayButton(holder, blocked);
 
         if (featureOperations.upsellMidTier()) {
             holder.previewIndicator.setVisibility(trackState.isSnipped() ? View.VISIBLE : View.GONE);
@@ -172,12 +172,18 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         if (blocked) {
             holder.errorViewController.showError(ErrorViewController.ErrorState.BLOCKED);
         } else {
-            if (!holder.errorViewController.isShowingError()){
+            if (!holder.errorViewController.isShowingError()) {
                 holder.timestamp.setVisibility(View.VISIBLE);
             }
         }
 
         setClickListener(this, holder.onClickViews);
+    }
+
+    private void updatePlayButton(TrackPageHolder holder, boolean blocked) {
+        if (holder.playButton != null) {
+            holder.playButton.setEnabled(!blocked);
+        }
     }
 
     private void bindStationsContext(PlayerTrackState trackState, TrackPageHolder holder) {
@@ -372,7 +378,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     private ErrorViewController.ErrorState getErrorStateFromPlayerState(StateTransition state) {
-        switch (state.getReason()){
+        switch (state.getReason()) {
             case ERROR_NOT_FOUND:
             case ERROR_FORBIDDEN:
                 return ErrorViewController.ErrorState.UNPLAYABLE;
@@ -402,7 +408,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     @Override
     public void setProgress(View trackPage, PlaybackProgress progress) {
-        if (!progress.isEmpty()){
+        if (!progress.isEmpty()) {
             setProgressInternal(trackPage, progress);
         }
     }
@@ -551,7 +557,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         final WaveformView waveformView = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.waveformController = waveformControllerFactory.create(waveformView);
-        holder.playerOverlayControllers = new PlayerOverlayController[] {
+        holder.playerOverlayControllers = new PlayerOverlayController[]{
                 playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark)),
                 playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image))
         };
@@ -639,9 +645,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         View more;
         View close;
         View bottomClose;
-        View nextButton;
-        View previousButton;
-        View playButton;
+        @Nullable View nextButton;
+        @Nullable View previousButton;
+        @Nullable View playButton;
         View closeIndicator;
         View previewIndicator;
         View upsellButton;
