@@ -3,7 +3,6 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
@@ -47,7 +46,6 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_PLAYLIST_DISCO));
         getBinding().connect();
     }
 

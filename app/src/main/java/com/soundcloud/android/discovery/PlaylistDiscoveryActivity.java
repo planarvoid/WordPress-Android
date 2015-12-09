@@ -3,8 +3,11 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.search.PlaylistResultsFragment;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
@@ -33,6 +36,14 @@ public class PlaylistDiscoveryActivity extends ScActivity {
 
             setTitle("#" + playListTag);
             createFragmentForPlaylistDiscovery(playListTag);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (shouldTrackScreen()) {
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_PLAYLIST_DISCO));
         }
     }
 
