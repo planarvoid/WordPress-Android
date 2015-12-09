@@ -8,6 +8,7 @@ import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.propeller.query.Query;
 import org.junit.Before;
@@ -23,13 +24,27 @@ public class RemovePlaylistCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void removesPlaylist() throws Exception {
+    public void removesPlaylist() {
         testFixtures().insertPlaylist();
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
 
         command.call(playlist.getUrn());
 
         final Query query = from(Sounds.name())
+                .whereEq(_ID, playlist.getId())
+                .whereEq(_TYPE, TYPE_PLAYLIST);
+
+        assertThat(select(query)).isEmpty();
+    }
+
+    @Test
+    public void removesPlaylistFromOfflineContent() {
+        testFixtures().insertPlaylist();
+        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+
+        command.call(playlist.getUrn());
+
+        final Query query = from(Tables.OfflineContent.TABLE)
                 .whereEq(_ID, playlist.getId())
                 .whereEq(_TYPE, TYPE_PLAYLIST);
 

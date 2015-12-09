@@ -179,6 +179,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
         return filter()
                 .whereEq(Sounds.field(_ID), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID))
                 .whereEq(Sounds.field(_TYPE), TYPE_TRACK)
+                .whereNull(Sounds.field(TableColumns.Sounds.REMOVED_AT))
                 .whereIn(PLAYLIST_ID, playlistIds);
     }
 

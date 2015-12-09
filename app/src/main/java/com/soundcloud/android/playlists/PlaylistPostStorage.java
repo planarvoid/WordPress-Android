@@ -25,6 +25,7 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
+import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
@@ -89,7 +90,7 @@ public class PlaylistPostStorage {
         );
     }
 
-    Observable<ChangeResult> remove(Urn urn) {
+    Observable<TxnResult> remove(Urn urn) {
         return removePlaylistCommand.toObservable(urn);
     }
 

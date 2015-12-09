@@ -18,6 +18,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -178,7 +179,7 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
     @Test
     public void removeShouldRemoveLocalPlaylist() {
         final Urn localPlaylist = Urn.newLocalPlaylist();
-        when(playlistPostStorage.remove(localPlaylist)).thenReturn(Observable.just(new ChangeResult(1)));
+        when(playlistPostStorage.remove(localPlaylist)).thenReturn(Observable.just(new TxnResult()));
 
         operations.remove(localPlaylist).subscribe();
 
@@ -198,7 +199,7 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
     @Test
     public void removeShouldTriggerMyPlaylistSync() {
         final Urn localPlaylist = Urn.newLocalPlaylist();
-        when(playlistPostStorage.remove(localPlaylist)).thenReturn(Observable.just(new ChangeResult(1)));
+        when(playlistPostStorage.remove(localPlaylist)).thenReturn(Observable.just(new TxnResult()));
 
         operations.remove(localPlaylist).subscribe();
 
