@@ -142,7 +142,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        initializeNewRelic();
 
         initializePreInjectionObjects();
         setUpCrashReportingIfNeeded();
@@ -155,6 +154,8 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     protected void bootApplication() {
+        initializeNewRelic();
+
         migrationEngine.migrate();
 
         Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildType());
