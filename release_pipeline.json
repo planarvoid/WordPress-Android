@@ -9,7 +9,7 @@
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ],
-              "cmd": "rm app/build/outputs/apk/*.apk \nBUILD_TYPE=releaseNoProguard ./gradlew buildReleaseNoProguard",
+              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew buildReleaseNoProguard",
               "plugins": {
                 "androidLint": {
                   "failedTotalHigh": 0,
