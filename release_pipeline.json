@@ -46,52 +46,7 @@
         ]
       ],
       "next-stages": [
-        "automated_tests",
-        "release_checklist",
-        "testdroid_tests",
-        "manual_tests"
-      ]
-    },
-    {
-      "name": "release_checklist",
-      "jobs": [
-        {
-          "create_release_checklist": {
-            "cmd": "bundle install && bundle exec rake github:release_checklist",
-            "manual": true
-          }
-        }
-      ]
-    },
-    {
-      "name": "testdroid_tests",
-      "jobs": [
-        {
-          "testdroid_smoke_tests": {
-            "cmd": "cp app/build/outputs/apk/soundcloud-android*$PIPELINE_VERSION*releaseNoProguard-*.apk app/build/outputs/apk/soundcloud-android-testdroid.apk",
-            "plugins": {
-              "testdroid": {
-                "appPath": "app/build/outputs/apk/soundcloud-android-testdroid.apk",
-                "deviceGroupId": "2269",
-                "projectId": "29091428",
-                "notificationEmail": "android-dev@soundcloud.com"
-              }
-            },
-            "manual": true
-          }
-        }
-      ]
-    },
-    {
-      "name": "manual_tests",
-      "jobs": [
-        {
-          "create_regression_tests_tasks": {
-            "cmd": "bundle install && bundle exec rake github:regression_tests",
-            "manual": true,
-            "localBranch": true
-          }
-        }
+        "automated_tests"
       ]
     },
     {
@@ -137,10 +92,49 @@
               }
             }
           }
-        ]
+        ],
+        {
+          "testdroid_smoke_tests": {
+            "cmd": "cp app/build/outputs/apk/soundcloud-android*$PIPELINE_VERSION*releaseNoProguard-*.apk app/build/outputs/apk/soundcloud-android-testdroid.apk",
+            "plugins": {
+              "testdroid": {
+                "appPath": "app/build/outputs/apk/soundcloud-android-testdroid.apk",
+                "deviceGroupId": "2269",
+                "projectId": "29091428",
+                "notificationEmail": "android-dev@soundcloud.com"
+              }
+            },
+            "manual": true
+          }
+        }
       ],
       "next-stages": [
-        "deploy_beta"
+        "deploy_beta",
+        "release_checklist",
+        "manual_tests"
+      ]
+    },
+    {
+      "name": "release_checklist",
+      "jobs": [
+        {
+          "create_release_checklist": {
+            "cmd": "bundle install && bundle exec rake github:release_checklist",
+            "manual": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "manual_tests",
+      "jobs": [
+        {
+          "create_regression_tests_tasks": {
+            "cmd": "bundle install && bundle exec rake github:regression_tests",
+            "manual": true,
+            "localBranch": true
+          }
+        }
       ]
     },
     {
