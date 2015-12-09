@@ -57,6 +57,10 @@ class TrackPageListener extends PageListener {
                 playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
     }
 
+    public void onUpsell(final Context activityContext) {
+        navigator.openUpgrade(activityContext);
+    }
+
     private EventContextMetadata getEventContextMetadata(Urn trackUrn) {
         return EventContextMetadata.builder()
                 .invokerScreen(ScreenElement.PLAYER.get())

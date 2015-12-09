@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
 
 import android.graphics.Rect;
@@ -137,6 +138,10 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.why_ads));
     }
 
+    private ViewElement upgrade() {
+        return solo.findElement(With.id(R.id.upsell_button));
+    }
+
     private ViewElement adPage() {
         return solo.findElement(With.id(R.id.player_ad_page));
     }
@@ -230,6 +235,11 @@ public class VisualPlayerElement extends Element {
     public WhyAdsScreen clickWhyAds() {
         whyAds().click();
         return new WhyAdsScreen(solo);
+    }
+
+    public UpgradeScreen clickUpgrade() {
+        upgrade().click();
+        return new UpgradeScreen(solo);
     }
 
     public boolean isAdPageVisible() {

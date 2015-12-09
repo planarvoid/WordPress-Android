@@ -61,6 +61,7 @@ class TrackStorage {
                         TableColumns.SoundView.STREAM_URL,
                         TableColumns.SoundView.POLICIES_MONETIZABLE,
                         TableColumns.SoundView.POLICIES_BLOCKED,
+                        TableColumns.SoundView.POLICIES_SNIPPED,
                         TableColumns.SoundView.POLICIES_POLICY,
                         TableColumns.SoundView.PERMALINK_URL,
                         TableColumns.SoundView.SHARING,

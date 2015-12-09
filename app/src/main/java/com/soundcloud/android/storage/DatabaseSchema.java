@@ -84,6 +84,7 @@ final class DatabaseSchema {
             "track_id INTEGER, " +
             "monetizable BOOLEAN DEFAULT 0," +
             "blocked BOOLEAN DEFAULT 0," +
+            "snipped BOOLEAN DEFAULT 0," +
             "syncable BOOLEAN DEFAULT 1," +
             "sub_mid_tier BOOLEAN DEFAULT 0," +
             "sub_high_tier BOOLEAN DEFAULT 0," +
@@ -324,6 +325,7 @@ final class DatabaseSchema {
             ",Sounds." + TableColumns.Sounds.DESCRIPTION + " as " + TableColumns.SoundView.DESCRIPTION +
             ",TrackPolicies." + TableColumns.TrackPolicies.MONETIZABLE + " as " + TableColumns.SoundView.POLICIES_MONETIZABLE +
             ",TrackPolicies." + TableColumns.TrackPolicies.BLOCKED + " as " + TableColumns.SoundView.POLICIES_BLOCKED +
+            ",TrackPolicies." + TableColumns.TrackPolicies.SNIPPED + " as " + TableColumns.SoundView.POLICIES_SNIPPED +
             ",TrackPolicies." + TableColumns.TrackPolicies.POLICY + " as " + TableColumns.SoundView.POLICIES_POLICY +
             ",TrackPolicies." + TableColumns.TrackPolicies.SYNCABLE + " as " + TableColumns.SoundView.POLICIES_SYNCABLE +
             ",TrackPolicies." + TableColumns.TrackPolicies.SUB_MID_TIER + " as " + TableColumns.SoundView.POLICIES_SUB_MID_TIER +

@@ -36,6 +36,8 @@ public interface TrackRecord  {
 
     boolean isBlocked();
 
+    boolean isSnipped();
+
     String getPolicy();
 
     Optional<String> getMonetizationModel();

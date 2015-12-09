@@ -88,6 +88,10 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
         return source.getOrElse(TrackProperty.BLOCKED, false);
     }
 
+    public boolean isSnipped() {
+        return source.getOrElse(TrackProperty.SNIPPED, false);
+    }
+
     long getPlayableDuration() {
         return source.get(TrackProperty.PLAY_DURATION);
     }

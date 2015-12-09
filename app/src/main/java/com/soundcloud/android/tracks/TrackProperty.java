@@ -14,6 +14,7 @@ public class TrackProperty extends PlayableProperty {
     public static final Property<Boolean> IS_COMMENTABLE = Property.of(TrackProperty.class, Boolean.class);
 
     public static final Property<Boolean> MONETIZABLE = Property.of(TrackProperty.class, Boolean.class);
+    public static final Property<Boolean> SNIPPED = Property.of(TrackProperty.class, Boolean.class);
     public static final Property<Boolean> BLOCKED = Property.of(TrackProperty.class, Boolean.class);
     public static final Property<Boolean> SYNCABLE = Property.of(TrackProperty.class, Boolean.class);
     public static final Property<String> POLICY = Property.of(TrackProperty.class, String.class);
