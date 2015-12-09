@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
@@ -180,12 +179,12 @@ public class PlaybackInitiator {
         }
     }
 
-    public Observable<PlaybackResult> startPlayback(PublicApiTrack track, Screen screen) {
+    public Observable<PlaybackResult> startPlayback(Urn trackUrn, Screen screen) {
         playQueueManager.clearAll();
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
-        return playTracksList(Observable.just(track.getUrn()).toList()
-                .flatMap(urnsToPlayQueue(playSessionSource)), track.getUrn(), 0, playSessionSource);
+        return playTracksList(Observable.just(trackUrn).toList()
+                .flatMap(urnsToPlayQueue(playSessionSource)), trackUrn, 0, playSessionSource);
     }
 
     @NonNull

@@ -13,7 +13,7 @@ public class ResolveClickTrackingUrlTest extends ResolveBaseTest {
 
     @Override
     protected Uri getUri() {
-        return Uri.parse("http://soundcloud.com/-/t/click/postman-email-follower?url="+TestConsts.STEVE_ANGELLO_URI);
+        return Uri.parse("http://soundcloud.com/-/t/click/postman-email-follower?url="+TestConsts.STEVE_ANGELLO_PERMALINK);
     }
 
     public void testResolveUrl() {

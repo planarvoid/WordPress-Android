@@ -5,10 +5,11 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
-public class ResolveUserSoundCloudUriNotFoundTest extends ResolveBaseTest {
+public class TrackDeepLinkNotFoundTest extends ResolveBaseTest {
+
     @Override
     protected Uri getUri() {
-        return TestConsts.UNRESOLVABLE_SC_USER_URI;
+        return TestConsts.UNRESOLVABLE_TRACK_DEEPLINK;
     }
 
     public void testResolveUnknownUrlShouldShowErrorLoadingUrl() {

@@ -14,7 +14,7 @@ public class ResolveGoogleCrawlerPlaylistTest extends ResolveGoogleCrawlerBaseTe
 
     @Override
     protected Uri getUri() {
-        return TestConsts.FORSS_PLAYLIST_SC_URI;
+        return TestConsts.FORSS_PLAYLIST_DEEP_LINK;
     }
 
     public void testResolveUrl() {

@@ -6,10 +6,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -47,16 +43,21 @@ class ResolveOperations {
         this.storeUsersCommand = storeUsersCommand;
     }
 
-    public Observable<PublicApiResource> resolve(@NonNull final Uri originalUri) {
-        return Observable.create(new Observable.OnSubscribe<PublicApiResource>() {
+    public Observable<Urn> resolve(@NonNull final Uri originalUri) {
+        return Observable.create(new Observable.OnSubscribe<Urn>() {
             @Override
-            public void call(Subscriber<? super PublicApiResource> subscriber) {
+            public void call(Subscriber<? super Urn> subscriber) {
                 Uri uri = followClickTrackingUrl(originalUri);
                 try {
-                    PublicApiResource resolvedResource = resolveUri(uri);
-                    storeResource(resolvedResource);
-                    subscriber.onNext(resolvedResource);
-                    subscriber.onCompleted();
+                    ApiResolvedResource resolvedResource = resolveResource(uri.toString());
+                    final Urn urn = resolvedResource.getUrn();
+                    if (Urn.NOT_SET.equals(urn)) {
+                        subscriber.onError(new OnErrorThrowable.OnNextValue(uri));
+                    } else {
+                        storeResource(resolvedResource);
+                        subscriber.onNext(urn);
+                        subscriber.onCompleted();
+                    }
                 } catch (ApiRequestException | IOException | ApiMapperException e) {
                     subscriber.onError(new OnErrorThrowable.OnNextValue(uri));
                 }
@@ -64,26 +65,14 @@ class ResolveOperations {
         }).subscribeOn(scheduler);
     }
 
-    private PublicApiResource resolveUri(@NonNull Uri uri)
+    private ApiResolvedResource resolveResource(@NonNull String identifier)
             throws ApiRequestException, IOException, ApiMapperException {
-        Urn urn = resolveUrn(uri);
-
-        if (Urn.NOT_SET.equals(urn)) {
-            return resolveResource(uri.toString()); // use resolver with url
-        } else {
-            return resolveResource(urn.toString()); // use resolver with urn
-        }
-    }
-
-    private PublicApiResource resolveResource(@NonNull String url)
-            throws ApiRequestException, IOException, ApiMapperException {
-        // Note: OkHttp will follow redirects as needed
-        ApiRequest request = ApiRequest.get(ApiEndpoints.RESOLVE.path())
-                .forPublicApi()
-                .addQueryParam("url", url)
+        ApiRequest request = ApiRequest.get(ApiEndpoints.RESOLVE_ENTITY.path())
+                .forPrivateApi(1)
+                .addQueryParam("identifier", identifier)
                 .build();
 
-        return apiClient.fetchMappedResponse(request, PublicApiResource.class);
+        return apiClient.fetchMappedResponse(request, ApiResolvedResource.class);
     }
 
     @NonNull
@@ -97,25 +86,13 @@ class ResolveOperations {
         }
     }
 
-    @NonNull
-    private Urn resolveUrn(@NonNull Uri uri) {
-        try {
-            UrnResolver resolver = new UrnResolver();
-            return resolver.toUrn(uri);
-        } catch (IllegalArgumentException e) {
-            return Urn.NOT_SET;
-        }
-    }
-
-    private void storeResource(@NonNull PublicApiResource resource) {
-        Urn urn = resource.getUrn();
-
-        if (urn.isTrack()) {
-            storeTracksCommand.call(Collections.singletonList(((PublicApiTrack) resource).toApiMobileTrack()));
-        } else if (urn.isPlaylist()) {
-            storePlaylistsCommand.call(Collections.singletonList(((PublicApiPlaylist) resource).toApiMobilePlaylist()));
-        } else if (urn.isUser()) {
-            storeUsersCommand.call(Collections.singletonList(((PublicApiUser) resource).toApiMobileUser()));
+    private void storeResource(@NonNull ApiResolvedResource resource) {
+        if (resource.getOptionalTrack().isPresent()) {
+            storeTracksCommand.call(Collections.singletonList(resource.getOptionalTrack().get()));
+        } else if (resource.getOptionalPlaylist().isPresent()) {
+            storePlaylistsCommand.call(Collections.singletonList(resource.getOptionalPlaylist().get()));
+        } else if (resource.getOptionalUser().isPresent()) {
+            storeUsersCommand.call(Collections.singletonList(resource.getOptionalUser().get()));
         }
     }
 }

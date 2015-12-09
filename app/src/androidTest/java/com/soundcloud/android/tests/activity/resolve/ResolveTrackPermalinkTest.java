@@ -10,7 +10,7 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
-public class ResolveTrackSoundCloudUriTest extends ResolveBaseTest {
+public class ResolveTrackPermalinkTest extends ResolveBaseTest {
 
     private static final String TRACK_NAME = "STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]";
 
@@ -26,6 +26,6 @@ public class ResolveTrackSoundCloudUriTest extends ResolveBaseTest {
 
     @Override
     protected Uri getUri() {
-        return TestConsts.CHE_FLUTE_SC_URI;
+        return TestConsts.CHE_FLUTE_TRACK_PERMALINK;
     }
 }

@@ -7,16 +7,15 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.exceptions.OnErrorThrowable;
@@ -59,12 +58,22 @@ public class IntentResolver {
     public void handleIntent(Intent intent, Context context) {
         Uri uri = intent.getData();
         Referrer referrer = getReferrer(context, intent);
-        DeepLink deepLink = DeepLink.fromUri(uri);
-
-        if (shouldShowLogInMessage(deepLink, referrer)) {
-            showOnboardingForUrn(context, Urn.NOT_SET, referrer);
+        if (uri == null || Strings.isBlank(uri.toString())) {
+            // fall back to home screen
+            showHomeScreen(context, referrer);
         } else {
-            handleDeepLink(context, uri, deepLink, referrer);
+            Urn urn = new Urn(uri.toString());
+            DeepLink deepLink = DeepLink.fromUri(uri);
+
+            if (isSupportedEntityUrn(urn)) {
+                // this is the case where we had previously resolved the link and are now
+                // coming back from the login screen with the resolved URN
+                startActivityForResource(context, urn, referrer);
+            } else if (shouldShowLogInMessage(deepLink, referrer)) {
+                showOnboardingForUrn(context, Urn.NOT_SET, referrer);
+            } else {
+                handleDeepLink(context, uri, deepLink, referrer);
+            }
         }
     }
 
@@ -110,11 +119,11 @@ public class IntentResolver {
                 .subscribe(fetchSubscriber(context, uri, referrer));
     }
 
-    private DefaultSubscriber<? super PublicApiResource> fetchSubscriber(final Context context, final Uri uri, final Referrer referrer) {
-        return new DefaultSubscriber<PublicApiResource>() {
+    private DefaultSubscriber<? super Urn> fetchSubscriber(final Context context, final Uri uri, final Referrer referrer) {
+        return new DefaultSubscriber<Urn>() {
             @Override
-            public void onNext(PublicApiResource resource) {
-                startActivityForResource(context, resource, referrer);
+            public void onNext(Urn urn) {
+                startActivityForResource(context, urn, referrer);
             }
 
             @Override
@@ -157,30 +166,22 @@ public class IntentResolver {
         navigator.openRecord(context, Screen.DEEPLINK);
     }
 
-    private void startActivityForResource(Context context, PublicApiResource resource, Referrer referrer) {
-        Urn urn = resource.getUrn();
+    private void startActivityForResource(Context context, Urn urn, Referrer referrer) {
+        if (isCrawler(referrer)) {
+            loginCrawler();
+        }
 
-        if (isActionableResource(resource)) {
-            if (isCrawler(referrer)) {
-                loginCrawler();
-            }
-
-            if (accountOperations.isUserLoggedIn()) {
-                trackForegroundEventForResource(urn, referrer);
-                navigateToResource(context, resource);
-            } else {
-                showOnboardingForUrn(context, urn, referrer);
-            }
+        if (accountOperations.isUserLoggedIn()) {
+            trackForegroundEventForResource(urn, referrer);
+            navigateToResource(context, urn);
         } else {
-            showHomeScreen(context, referrer);
+            showOnboardingForUrn(context, urn, referrer);
         }
     }
 
-    private void navigateToResource(Context context, PublicApiResource resource) {
-        Urn urn = resource.getUrn();
-
+    private void navigateToResource(Context context, Urn urn) {
         if (urn.isTrack()) {
-            fireAndForget(playbackInitiator.startPlayback((PublicApiTrack) resource, Screen.DEEPLINK));
+            fireAndForget(playbackInitiator.startPlayback(urn, Screen.DEEPLINK));
             navigator.openStreamWithExpandedPlayer(context, Screen.DEEPLINK);
         } else if (urn.isUser()) {
             navigator.openProfile(context, urn, Screen.DEEPLINK);
@@ -191,8 +192,7 @@ public class IntentResolver {
         }
     }
 
-    boolean isActionableResource(PublicApiResource resource) {
-        Urn urn = resource.getUrn();
+    private boolean isSupportedEntityUrn(Urn urn) {
         return urn.isTrack() || urn.isUser() || urn.isPlaylist();
     }
 

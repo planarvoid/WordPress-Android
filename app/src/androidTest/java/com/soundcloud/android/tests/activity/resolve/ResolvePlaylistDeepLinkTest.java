@@ -10,7 +10,7 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
-public class ResolvePlaylistSoundCloudUriTest extends ResolveBaseTest {
+public class ResolvePlaylistDeepLinkTest extends ResolveBaseTest {
 
     public void testShouldOpenPlaylistDetails() {
         PlaylistDetailsScreen playlistDetailsScreen = new PlaylistDetailsScreen(solo);
@@ -21,6 +21,6 @@ public class ResolvePlaylistSoundCloudUriTest extends ResolveBaseTest {
 
     @Override
     protected Uri getUri() {
-        return TestConsts.FORSS_PLAYLIST_SC_URI;
+        return TestConsts.FORSS_PLAYLIST_DEEP_LINK;
     }
 }

@@ -10,13 +10,13 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
-public class ResolveFacebookTrackWebLinkTest extends FacebookResolveBaseTest {
+public class ResolveFacebookTrackPermalinkTest extends FacebookResolveBaseTest {
 
     private static final String TRACK_NAME = "STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]";
 
     @Override
     protected Uri getUri() {
-        return TestConsts.FACEBOOK_SOUND_URI;
+        return TestConsts.FACEBOOK_TRACK_PERMALINK;
     }
 
     public void testFacebookTrackDeeplinkOpensPlayerScreenAndLoadRecommendations() {
