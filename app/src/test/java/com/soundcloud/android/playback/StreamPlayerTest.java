@@ -391,13 +391,6 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playbackHasPausedReturnTrueIfLastStateTransitionIsIdleNone() {
-        instantiateStreamPlaya();
-        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.idle());
-        assertThat(streamPlayerWrapper.playbackHasPaused()).isTrue();
-    }
-
-    @Test
     public void shouldNotDestroySkippyIfInitialisationFailed() {
         when(skippyAdapter.init()).thenReturn(false);
         instantiateStreamPlaya();

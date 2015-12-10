@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.StopReasonProvider;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -34,19 +35,22 @@ public class GcmMessageHandler {
     private final PlaySessionController playSessionController;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final AccountOperations accountOperations;
+    private final StopReasonProvider stopReasonProvider;
 
     @Inject
     public GcmMessageHandler(Resources resources, FeatureFlags featureFlags,
                              GcmDecryptor gcmDecryptor,
                              PlaySessionController playSessionController,
                              PlaySessionStateProvider playSessionStateProvider,
-                             AccountOperations accountOperations) {
+                             AccountOperations accountOperations,
+                             StopReasonProvider stopReasonProvider) {
         this.resources = resources;
         this.featureFlags = featureFlags;
         this.gcmDecryptor = gcmDecryptor;
         this.playSessionController = playSessionController;
         this.playSessionStateProvider = playSessionStateProvider;
         this.accountOperations = accountOperations;
+        this.stopReasonProvider = stopReasonProvider;
     }
 
     public void handleMessage(Context context, Intent intent) {
@@ -73,6 +77,7 @@ public class GcmMessageHandler {
             if (isStopAction(jsonPayload) && isLoggedInUser(jsonPayload) && playSessionStateProvider.isPlaying()) {
                 // TODO : tracking event here
                 if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING) && !jsonPayload.optBoolean("stealth")) {
+                    stopReasonProvider.setPendingConcurrentPause();
                     playSessionController.pause();
                     Toast.makeText(context, R.string.concurrent_streaming_stopped, Toast.LENGTH_LONG).show();
                 }

@@ -26,6 +26,7 @@ class PlaybackSessionAnalyticsController {
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
     private final AppboyPlaySessionState appboyPlaySessionState;
+    private final StopReasonProvider stopReasonProvider;
     private PlaybackSessionEvent lastSessionEventData;
     private AudioAd lastPlayAudioAd;
 
@@ -44,13 +45,14 @@ class PlaybackSessionAnalyticsController {
     public PlaybackSessionAnalyticsController(EventBus eventBus, TrackRepository trackRepository,
                                               AccountOperations accountOperations, PlayQueueManager playQueueManager,
                                               AdsOperations adsOperations,
-                                              AppboyPlaySessionState appboyPlaySessionState) {
+                                              AppboyPlaySessionState appboyPlaySessionState, StopReasonProvider stopReasonProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.accountOperations = accountOperations;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
         this.appboyPlaySessionState = appboyPlaySessionState;
+        this.stopReasonProvider = stopReasonProvider;
     }
 
     public void onStateTransition(Player.StateTransition stateTransition) {
@@ -69,25 +71,9 @@ class PlaybackSessionAnalyticsController {
         if (stateTransition.isPlayerPlaying()) {
             publishPlayEvent(stateTransition);
         } else {
-            publishStopEvent(stateTransition, stopReasonFromTransition(stateTransition));
+            publishStopEvent(stateTransition, stopReasonProvider.fromTransition(stateTransition));
         }
         lastStateTransition = stateTransition;
-    }
-
-    private int stopReasonFromTransition(Player.StateTransition stateTransition) {
-        if (stateTransition.isBuffering()) {
-            return PlaybackSessionEvent.STOP_REASON_BUFFERING;
-        } else {
-            if (stateTransition.getReason() == Player.Reason.TRACK_COMPLETE) {
-                return playQueueManager.hasNextItem()
-                        ? PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED
-                        : PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE;
-            } else if (stateTransition.wasError()) {
-                return PlaybackSessionEvent.STOP_REASON_ERROR;
-            } else {
-                return PlaybackSessionEvent.STOP_REASON_PAUSE;
-            }
-        }
     }
 
     private void publishPlayEvent(final Player.StateTransition stateTransition) {

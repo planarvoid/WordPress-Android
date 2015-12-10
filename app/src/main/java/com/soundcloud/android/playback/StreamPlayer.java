@@ -70,16 +70,6 @@ class StreamPlayer implements PlayerListener {
         return lastStateTransition.isPlayerPlaying();
     }
 
-    @Deprecated
-    public boolean isBuffering() {
-        return lastStateTransition.isBuffering();
-    }
-
-    @Deprecated
-    public boolean playbackHasPaused() {
-        return lastStateTransition.isPaused();
-    }
-
     public void play(PlaybackItem playbackItem) {
         prepareForPlay(playbackItem);
 
@@ -150,6 +140,7 @@ class StreamPlayer implements PlayerListener {
 
     @Override
     public void onPlaystateChanged(Player.StateTransition stateTransition) {
+
         if (shouldFallbackToMediaPlayer(stateTransition)) {
             final long progress = skippyPlayerDelegate.getProgress();
             configureNextPlayerToUse(mediaPlayerDelegate);

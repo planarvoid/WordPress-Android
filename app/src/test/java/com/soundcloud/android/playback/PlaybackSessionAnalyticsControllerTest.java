@@ -46,6 +46,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Mock private TrackSourceInfo trackSourceInfo;
     @Mock private AdsOperations adsOperations;
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
+    @Mock private StopReasonProvider stopReasonProvider;
 
     @Before
     public void setUp() throws Exception {
@@ -58,7 +59,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
 
         analyticsController = new PlaybackSessionAnalyticsController(
-                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, appboyPlaySessionState);
+                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, appboyPlaySessionState, stopReasonProvider);
     }
 
     @Test
@@ -74,6 +75,19 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         assertThat(playbackSessionEvent.isStopEvent()).isFalse();
+    }
+
+    @Test
+    public void stateChangeEventPublishesSkipEvent() {
+        publishPlayingEvent();
+        final Urn trackUrn2 = Urn.forTrack(2L);
+        when(trackRepository.track(trackUrn2)).thenReturn(Observable.<PropertySet>never());
+        Player.StateTransition playEvent2 = publishPlayingEventForTrack(trackUrn2);
+
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        expectCommonAudioEventData(playEvent2, playbackSessionEvent);
+        assertThat(playbackSessionEvent.isStopEvent()).isTrue();
+        assertThat(playbackSessionEvent.getStopReason()).isEqualTo(PlaybackSessionEvent.STOP_REASON_SKIP);
     }
 
     @Test
@@ -137,10 +151,13 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
         when(playQueueManager.hasNextItem()).thenReturn(true);
 
+
         publishPlayingEvent();
         publishStopEvent(Player.PlayerState.BUFFERING, Player.Reason.NONE); // make sure intermediate events don't matter
         publishPlayingEvent();
-        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE);
+        final Player.StateTransition stateTransition = publishStopEvent(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+
+        when(stopReasonProvider.fromTransition(stateTransition)).thenReturn(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
@@ -219,45 +236,11 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stateChangeEventInNonPlayingStatePublishesStopEventForBuffering() throws Exception {
+    public void stateChangeEventInNonPlayingStatePublishesStopReasonFromProvider() throws Exception {
         publishPlayingEvent();
-        publishStopEvent(Player.PlayerState.BUFFERING, Player.Reason.NONE);
-
-        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_BUFFERING);
-    }
-
-    @Test
-    public void stateChangeEventInNonPlayingStatePublishesStopEventForPause() throws Exception {
-        publishPlayingEvent();
-        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.NONE);
+        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.NONE, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_PAUSE);
-    }
-
-    @Test
-    public void stateChangeEventInNonPlayingStatePublishesStopEventForTrackFinished() throws Exception {
-        publishPlayingEvent();
-        when(playQueueManager.hasNextItem()).thenReturn(true);
-        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE);
-
-        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
-    }
-
-    @Test
-    public void stateChangeEventInNonPlayingStatePublishesStopEventForQueueFinished() throws Exception {
-        publishPlayingEvent();
-        when(playQueueManager.hasNextItem()).thenReturn(false);
-        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE);
-
-        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE);
-    }
-
-    @Test
-    public void stateChangeEventInNonPlayingStatePublishesStopEventForError() throws Exception {
-        publishPlayingEvent();
-        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED);
-
-        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_ERROR);
     }
 
     // the player does not send stop events when skipping, so we have to materialize these
@@ -316,6 +299,15 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         final Player.StateTransition stopEvent = new Player.StateTransition(
                 newState, reason, TRACK_URN, PROGRESS, DURATION);
         stopEvent.addExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        analyticsController.onStateTransition(stopEvent);
+        return stopEvent;
+    }
+
+    private Player.StateTransition publishStopEvent(Player.PlayerState newState, Player.Reason reason, int stopReason) {
+        final Player.StateTransition stopEvent = new Player.StateTransition(
+                newState, reason, TRACK_URN, PROGRESS, DURATION);
+        stopEvent.addExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        when(stopReasonProvider.fromTransition(stopEvent)).thenReturn(stopReason);
         analyticsController.onStateTransition(stopEvent);
         return stopEvent;
     }

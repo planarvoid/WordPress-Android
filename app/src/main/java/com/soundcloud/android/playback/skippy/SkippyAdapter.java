@@ -22,7 +22,6 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
-import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.BufferUnderrunListener;
@@ -168,8 +167,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             return;
         }
 
-        sendSkippyPlayEvent();
-
         stateHandler.removeMessages(0);
         lastStateChangeProgress = 0;
 
@@ -197,12 +194,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             }
 
         }
-    }
-
-    private void sendSkippyPlayEvent() {
-        // we can get rid of this after 100 percent launch. This is to help determind effectiveness of wakelocks
-        ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-        eventBus.publish(EventQueue.TRACKING, new SkippyPlayEvent(currentConnectionType, true));
     }
 
     private String buildStreamUrl(int playType) {
