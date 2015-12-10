@@ -135,7 +135,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
                 LOGGED_IN_USER_URN, trackSourceInfo, PROGRESS, 1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false).withAudioAd(audioAd);
 
         assertThat(event.isAd()).isTrue();
-        assertThat(event.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo("adswizz:ads:869");
+        assertThat(event.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo("dfp:ads:869");
         assertThat(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(TRACK_URN.toString());
         assertThat(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
         assertThat(event.getAudioAdImpressionUrls()).contains("audio_impression1", "audio_impression2");

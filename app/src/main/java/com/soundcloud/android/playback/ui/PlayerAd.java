@@ -19,7 +19,7 @@ public class PlayerAd extends PlayerItem {
         this.adData = adData;
     }
 
-    String getAdUrn() {
+    Urn getAdUrn() {
         return adData.getAdUrn();
     }
 

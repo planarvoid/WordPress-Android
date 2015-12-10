@@ -5,6 +5,7 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Player.PlayerListener;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
+import com.soundcloud.android.playback.mediaplayer.VideoPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -21,6 +22,7 @@ class StreamPlayer implements PlayerListener {
     static boolean skippyFailedToInitialize;
 
     private final MediaPlayerAdapter mediaPlayerDelegate;
+    private final VideoPlayerAdapter videoPlayerDelegate;
     private final SkippyAdapter skippyPlayerDelegate;
     private final NetworkConnectionHelper networkConnectionHelper;
 
@@ -33,10 +35,11 @@ class StreamPlayer implements PlayerListener {
 
     @Inject
     public StreamPlayer(MediaPlayerAdapter mediaPlayerAdapter,
+                        VideoPlayerAdapter videoPlayerAdapter,
                         SkippyAdapter skippyAdapter,
                         NetworkConnectionHelper networkConnectionHelper) {
-
         mediaPlayerDelegate = mediaPlayerAdapter;
+        videoPlayerDelegate = videoPlayerAdapter;
         skippyPlayerDelegate = skippyAdapter;
         this.networkConnectionHelper = networkConnectionHelper;
 
@@ -74,15 +77,17 @@ class StreamPlayer implements PlayerListener {
         prepareForPlay(playbackItem);
 
         switch(playbackItem.getPlaybackType()) {
-            case DEFAULT :
-                currentPlayer.play(playbackItem.getTrackUrn(), playbackItem.getStartPosition());
+            case AUDIO_DEFAULT:
+                currentPlayer.play(playbackItem.getUrn(), playbackItem.getStartPosition());
                 break;
-            case OFFLINE :
-                currentPlayer.playOffline(playbackItem.getTrackUrn(), playbackItem.getStartPosition());
+            case AUDIO_OFFLINE:
+                currentPlayer.playOffline(playbackItem.getUrn(), playbackItem.getStartPosition());
                 break;
-            case UNINTERRUPTED :
-                currentPlayer.playUninterrupted(playbackItem.getTrackUrn());
+            case AUDIO_UNINTERRUPTED:
+                currentPlayer.playUninterrupted(playbackItem.getUrn());
                 break;
+            case VIDEO_DEFAULT:
+                currentPlayer.playVideo((VideoPlaybackItem) playbackItem);
         }
     }
 
@@ -92,7 +97,7 @@ class StreamPlayer implements PlayerListener {
 
     private void prepareForPlay(PlaybackItem playbackItem) {
         lastTrackPlayed = playbackItem;
-        configureNextPlayerToUse();
+        configureNextPlayerToUse(playbackItem);
     }
 
     public void resume() {
@@ -125,6 +130,7 @@ class StreamPlayer implements PlayerListener {
 
     public void destroy() {
         // call stop first as it will save the queue/position
+        videoPlayerDelegate.destroy();
         mediaPlayerDelegate.destroy();
         if (!skippyFailedToInitialize) {
             skippyPlayerDelegate.destroy();
@@ -144,7 +150,7 @@ class StreamPlayer implements PlayerListener {
         if (shouldFallbackToMediaPlayer(stateTransition)) {
             final long progress = skippyPlayerDelegate.getProgress();
             configureNextPlayerToUse(mediaPlayerDelegate);
-            mediaPlayerDelegate.play(lastTrackPlayed.getTrackUrn(), progress);
+            mediaPlayerDelegate.play(lastTrackPlayed.getUrn(), progress);
         } else {
             checkNotNull(playerListener, "Stream Player Listener is unexpectedly null when passing state");
             lastStateTransition = stateTransition;
@@ -167,8 +173,8 @@ class StreamPlayer implements PlayerListener {
         return playerListener.requestAudioFocus();
     }
 
-    private void configureNextPlayerToUse() {
-        configureNextPlayerToUse(getNextPlayer());
+    private void configureNextPlayerToUse(PlaybackItem playbackItem) {
+        configureNextPlayerToUse(getNextPlayer(playbackItem));
     }
 
     private void configureNextPlayerToUse(Player nextPlayer) {
@@ -182,8 +188,10 @@ class StreamPlayer implements PlayerListener {
         currentPlayer.setListener(this);
     }
 
-    private Player getNextPlayer() {
-        if (skippyFailedToInitialize || PlaybackConstants.FORCE_MEDIA_PLAYER) {
+    private Player getNextPlayer(PlaybackItem playbackItem) {
+        if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT) {
+            return videoPlayerDelegate;
+        } else if (skippyFailedToInitialize || PlaybackConstants.FORCE_MEDIA_PLAYER) {
             return mediaPlayerDelegate;
         }
         return skippyPlayerDelegate;
@@ -192,5 +200,4 @@ class StreamPlayer implements PlayerListener {
     private boolean isUsingSkippyPlayer() {
         return currentPlayer == skippyPlayerDelegate;
     }
-
 }

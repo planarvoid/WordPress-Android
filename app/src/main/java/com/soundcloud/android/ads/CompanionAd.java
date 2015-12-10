@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import android.net.Uri;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public abstract class CompanionAd {
         );
     }
 
-    public abstract String getAdUrn();
+    public abstract Urn getAdUrn();
 
     public abstract Uri getImageUrl();
 

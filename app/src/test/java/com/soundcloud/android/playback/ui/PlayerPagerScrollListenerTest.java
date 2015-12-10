@@ -102,7 +102,7 @@ public class PlayerPagerScrollListenerTest {
 
     @Test
     public void showsBlockedSwipeToastWhenSwipeOnAdPage() {
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
 
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 

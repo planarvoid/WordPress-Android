@@ -121,6 +121,15 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playQueueTrackChangedHandlerCallsPlayCurrentIfCurrentItemIsVideoAd() {
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(videoItem, Urn.NOT_SET, 0));
+
+        verify(playbackStrategy).playCurrent();
+    }
+
+    @Test
     public void playQueueTrackChangedHandlerCallsPlayCurrentIfThePlayerIsInPlaySession() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
@@ -292,28 +301,28 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void onStateTransitionTriesToAdvanceItemIfTrackEndedWhileCasting() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
         verify(playQueueManager).autoMoveToNextPlayableItem();
         verify(playbackStrategy, never()).playCurrent();
     }
 
     @Test
     public void onStateTransitionTriesToReconfigureAd() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
         verify(adsController).reconfigureAdForNextTrack();
     }
 
     @Test
     public void onStateTransitionDoesNotOpenCurrentTrackAfterFailingToAdvancePlayQueue() throws Exception {
         when(playQueueManager.moveToNextPlayableItem()).thenReturn(false);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
         verifyZeroInteractions(playbackStrategy);
     }
 
     @Test
     public void onStateTransitionPublishesPlayQueueCompleteEventAfterFailingToAdvancePlayQueue() throws Exception {
         when(playQueueManager.moveToNextPlayableItem()).thenReturn(false);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
         final List<Player.StateTransition> stateTransitionEvents = eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
         assertThat(Iterables.filter(stateTransitionEvents, new Predicate<Player.StateTransition>() {
             @Override
@@ -498,6 +507,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
 
         assertThat(recommendedSubject.hasObservers()).isFalse();
+    }
+
+    @Test
+    public void togglePlaybackShouldTogglePlaybackStrategyIfVideoAd() {
+        when(playSessionStateProvider.isPlayingCurrentPlayQueueTrack()).thenReturn(false);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn)));
+
+        controller.togglePlayback();
+
+        verify(playbackStrategy).togglePlayback();
     }
 
     @Test

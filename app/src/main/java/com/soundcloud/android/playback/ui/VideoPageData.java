@@ -6,7 +6,7 @@ import com.soundcloud.java.optional.Optional;
 final class VideoPageData extends PlayerPageData {
 
     VideoPageData(int positionInPlayQueue, Optional<AdData> adData) {
-        super(Kind.VIDEO, positionInPlayQueue, adData);
+        super(Kind.VIDEO, adData.get().getAdUrn(), positionInPlayQueue, adData);
     }
 
     @Override

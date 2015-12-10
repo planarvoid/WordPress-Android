@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.functions.Function;
@@ -33,11 +31,6 @@ public abstract class PlayQueueItem {
         return this.getKind() == Kind.EMPTY;
     }
 
-    public Urn getUrn() {
-        checkArgument(this.isTrack(), "Getting URN from non-track play queue item");
-        return ((TrackQueueItem) this).getTrackUrn();
-    }
-
     public Urn getUrnOrNotSet() {
         return this.isTrack() ? getUrn() : Urn.NOT_SET;
     }
@@ -50,6 +43,8 @@ public abstract class PlayQueueItem {
         this.adData = adData;
     }
 
+    public abstract Urn getUrn();
+
     public abstract boolean shouldPersist();
 
     public abstract Kind getKind();
@@ -57,6 +52,11 @@ public abstract class PlayQueueItem {
     private static class Empty extends PlayQueueItem {
         public Empty() {
             super.setAdData(Optional.<AdData>absent());
+        }
+
+        @Override
+        public Urn getUrn() {
+            throw new IllegalArgumentException("Attempting to access URN of Empty PlayQueueItem");
         }
 
         @Override

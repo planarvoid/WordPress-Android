@@ -38,11 +38,11 @@ public class PlayPublisher {
     private final Scheduler scheduler;
     private final ApiClientRx apiClient;
 
-    private static final Func1<Player.StateTransition, Boolean> IS_PLAYER_PLAYING_EVENT =
+    private static final Func1<Player.StateTransition, Boolean> IS_PLAYER_PLAYING_A_TRACK =
             new Func1<Player.StateTransition, Boolean>() {
                 @Override
                 public Boolean call(Player.StateTransition stateTransition) {
-                    return stateTransition.isPlayerPlaying();
+                    return !stateTransition.getUrn().isAd() && stateTransition.isPlayerPlaying();
                 }
             };
 
@@ -73,7 +73,7 @@ public class PlayPublisher {
 
     public void subscribe() {
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .filter(IS_PLAYER_PLAYING_EVENT)
+                .filter(IS_PLAYER_PLAYING_A_TRACK)
                 .flatMap(toApiResponse)
                 .subscribe(new ResponseLogger());
     }
@@ -83,7 +83,7 @@ public class PlayPublisher {
         return new Payload(resources.getString(R.string.gcm_gateway_id),
                 gcmStorage.getToken(),
                 dateProvider.getCurrentTime(),
-                stateTransition.getTrackUrn());
+                stateTransition.getUrn());
     }
 
     private static class ResponseLogger extends DefaultSubscriber<ApiResponse> {

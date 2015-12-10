@@ -56,10 +56,10 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private boolean isResumed;
     private boolean setPlayQueueAfterScroll;
 
-    private final Func1<CurrentPlayQueueItemEvent, Boolean> isCurrentTrackAudioAd = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
+    private final Func1<CurrentPlayQueueItemEvent, Boolean> isCurrentTrackAd = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
         @Override
         public Boolean call(CurrentPlayQueueItemEvent ignored) {
-            return adsOperations.isCurrentItemAudioAd();
+            return adsOperations.isCurrentItemAd();
         }
     };
 
@@ -164,10 +164,10 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         // play queue changes
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
 
-        // setup audio ad
+        // setup player ad
         subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                 .doOnNext(onTrackChanged)
-                .filter(isCurrentTrackAudioAd)
+                .filter(isCurrentTrackAd)
                 .doOnNext(allowScrollAfterTimeout)
                 .subscribe(new ShowAudioAdSubscriber()));
 
@@ -224,8 +224,8 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         trackPager.setCurrentItem(0, false);
     }
 
-    private void showAudioAd() {
-        if (isShowingCurrentAudioAd() || !isResumed){
+    private void showAd() {
+        if (isShowingCurrentAd() || !isResumed){
             setAdPlayQueue();
         } else {
             setPlayQueueAfterScroll = true;
@@ -233,8 +233,8 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     }
 
-    private boolean isShowingCurrentAudioAd() {
-        return adsOperations.isCurrentItemAudioAd()
+    private boolean isShowingCurrentAd() {
+        return adsOperations.isCurrentItemAd()
                 && playQueueManager.isCurrentPosition(getDisplayedPositionInPlayQueue());
     }
 
@@ -268,7 +268,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         @Override
         public void onNext(Integer ignored) {
             if(setPlayQueueAfterScroll){
-                if (adsOperations.isCurrentItemAudioAd()){
+                if (adsOperations.isCurrentItemAd()){
                     setAdPlayQueue();
                 } else {
                     refreshPlayQueue();
@@ -288,7 +288,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private final class ShowAudioAdSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent>  {
         @Override
         public void onNext(CurrentPlayQueueItemEvent ignored) {
-            showAudioAd();
+            showAd();
         }
     }
 

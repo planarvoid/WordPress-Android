@@ -90,7 +90,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
-    private Urn trackUrn;
+    private Urn trackUrn = Urn.forTrack(123L);
     private TestDateProvider dateProvider;
 
     @Before

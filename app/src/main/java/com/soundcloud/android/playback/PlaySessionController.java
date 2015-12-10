@@ -221,7 +221,7 @@ public class PlaySessionController {
     }
 
     public void togglePlayback() {
-        if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack()) {
+        if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack() || playQueueManager.getCurrentPlayQueueItem().isVideo()) {
             playbackStrategyProvider.get().togglePlayback();
         } else {
             playCurrent();
@@ -297,7 +297,7 @@ public class PlaySessionController {
         if (adsOperations.isCurrentItemAudioAd()) {
             final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueueManager.getCurrentPlayQueueItem();
             final AudioAd audioAd = (AudioAd) trackQueueItem.getAdData().get();
-            final UIEvent event = UIEvent.fromSkipAudioAdClick(audioAd, trackQueueItem.getTrackUrn(),
+            final UIEvent event = UIEvent.fromSkipAudioAdClick(audioAd, trackQueueItem.getUrn(),
                     accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo());
             eventBus.publish(EventQueue.TRACKING, event);
         }
@@ -316,7 +316,7 @@ public class PlaySessionController {
         @Override
         public void onNext(StateTransition stateTransition) {
             if (!playQueueManager.autoMoveToNextPlayableItem()) {
-                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getUrn()));
             } else if (!stateTransition.playSessionIsActive()) {
                 playCurrent();
             }
@@ -369,6 +369,10 @@ public class PlaySessionController {
                         .track(playQueueItem.getUrn())
                         .map(PropertySetFunctions.mergeWith(PropertySet.from(AdProperty.IS_AUDIO_AD.bind(isAudioAd))))
                         .subscribe(new CurrentTrackSubscriber());
+            } else if (playQueueItem.isVideo()) {
+                // Temporarily until PlaySessionController can handle video ads properly
+                currentPlayQueueTrack = null;
+                playCurrent();
             }
         }
     }

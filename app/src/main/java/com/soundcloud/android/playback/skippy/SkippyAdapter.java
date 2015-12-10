@@ -27,6 +27,7 @@ import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.VideoPlaybackItem;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DebugUtils;
@@ -144,6 +145,11 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @Override
     public void playOffline(Urn track, long fromPos) {
         play(track, fromPos, PLAY_TYPE_OFFLINE);
+    }
+
+    @Override
+    public void playVideo(VideoPlaybackItem videoPlaybackItem) {
+        throw new IllegalAccessError("Skippy does not support video playback");
     }
 
     private void play(Urn track, long fromPos, int playType) {
@@ -360,7 +366,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                     throw new IllegalArgumentException("Unexpected skippy error code : " + lastError);
             }
         } else if (reason == COMPLETE) {
-            return Reason.TRACK_COMPLETE;
+            return Reason.PLAYBACK_COMPLETE;
         } else {
             return Reason.NONE;
         }

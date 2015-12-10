@@ -77,7 +77,7 @@ class PlayQueueStorage {
 
     private ContentValues trackItemContentValues(TrackQueueItem playQueueItem) {
         final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values()
-                .put(Tables.PlayQueue.TRACK_ID, playQueueItem.getTrackUrn().getNumericId())
+                .put(Tables.PlayQueue.TRACK_ID, playQueueItem.getUrn().getNumericId())
                 .put(Tables.PlayQueue.SOURCE, playQueueItem.getSource())
                 .put(Tables.PlayQueue.SOURCE_VERSION, playQueueItem.getSourceVersion());
 

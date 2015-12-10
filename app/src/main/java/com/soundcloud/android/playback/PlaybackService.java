@@ -177,22 +177,25 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         Log.d(TAG, "Received new playState " + stateTransition);
 
         // TODO : Fix threading in Skippy so we can never receive delayed messages
-        if (currentPlaybackItem.isPresent() && currentPlaybackItem.get().getTrackUrn().equals(stateTransition.getTrackUrn())) {
+        if (currentPlaybackItem.isPresent() && currentPlaybackItem.get().getUrn().equals(stateTransition.getUrn())) {
             if (!stateTransition.isPlaying()) {
                 onIdleState();
             }
 
-            analyticsController.onStateTransition(stateTransition);
+            // Temporarily until event logging is handled for video ads
+            if (currentPlaybackItem.get().getPlaybackType() != PlaybackType.VIDEO_DEFAULT) {
+                analyticsController.onStateTransition(stateTransition);
+            }
             eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
         }
     }
 
     @Override
     public void onProgressEvent(long position, long duration) {
-        if (currentPlaybackItem.isPresent()){
+        if (currentPlaybackItem.isPresent()) {
+            final PlaybackItem playbackItem = currentPlaybackItem.get();
             final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
-            final PlaybackProgressEvent event = new PlaybackProgressEvent(playbackProgress, currentPlaybackItem.get().getTrackUrn());
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(playbackProgress, playbackItem.getUrn()));
         }
     }
 

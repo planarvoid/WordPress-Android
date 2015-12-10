@@ -103,7 +103,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(UIEvent.fromAudioAdCompanionDisplayClick(audioAd, audioAdTrackUrn, LOGGED_IN_USER, trackSourceInfo, TIMESTAMP));
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
-                .adUrn(audioAd.getVisualAd().getAdUrn())
+                .adUrn(audioAd.getVisualAd().getAdUrn().toString())
                 .pageName(Screen.LIKES.get())
                 .clickName("clickthrough::companion_display")
                 .clickTarget(audioAd.getVisualAd().getClickThroughUrl().toString())
@@ -122,7 +122,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(UIEvent.fromSkipAudioAdClick(audioAd, audioAdTrackUrn, LOGGED_IN_USER, trackSourceInfo, TIMESTAMP));
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
-                .adUrn(audioAd.getAdUrn())
+                .adUrn(audioAd.getAdUrn().toString())
                 .pageName(Screen.LIKES.get())
                 .clickName("ad::skip")
                 .clickObject(audioAdTrackUrn.toString())
@@ -139,7 +139,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(AdOverlayTrackingEvent.forImpression(TIMESTAMP, leaveBehindAd, monetizedTrack, LOGGED_IN_USER, trackSourceInfo));
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", TIMESTAMP)
-                .adUrn(leaveBehindAd.getAdUrn())
+                .adUrn(leaveBehindAd.getAdUrn().toString())
                 .pageName(Screen.LIKES.get())
                 .impressionName("leave_behind")
                 .impressionObject(leaveBehindAd.getAudioAdUrn().toString())
@@ -157,7 +157,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(event);
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", TIMESTAMP)
-                .adUrn(interstitialAd.getAdUrn())
+                .adUrn(interstitialAd.getAdUrn().toString())
                 .pageName(Screen.LIKES.get())
                 .impressionName("interstitial")
                 .impressionObject(monetizedTrack.toString())
@@ -175,7 +175,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
-                .adUrn(leaveBehindAd.getAdUrn())
+                .adUrn(leaveBehindAd.getAdUrn().toString())
                 .pageName(Screen.LIKES.get())
                 .clickName("clickthrough::leave_behind")
                 .clickObject(leaveBehindAd.getAudioAdUrn().toString())
@@ -194,7 +194,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
-                .adUrn(interstitialAd.getAdUrn())
+                .adUrn(interstitialAd.getAdUrn().toString())
                 .pageName(Screen.LIKES.get())
                 .clickName("clickthrough::interstitial")
                 .clickTarget(interstitialAd.getClickthroughUrl().toString())
@@ -211,7 +211,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(new VisualAdImpressionEvent(audioAd, audioAdTrackUrn, LOGGED_IN_USER, trackSourceInfo, TIMESTAMP));
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", TIMESTAMP)
-                .adUrn(audioAd.getVisualAd().getAdUrn())
+                .adUrn(audioAd.getVisualAd().getAdUrn().toString())
                 .pageName(Screen.LIKES.get())
                 .impressionName("companion_display")
                 .impressionObject(audioAdTrackUrn.toString())
@@ -230,7 +230,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", stopEvent.getTimestamp())
                 .pageName(stopEvent.getTrackSourceInfo().getOriginScreen())
-                .adUrn(audioAd.getAdUrn())
+                .adUrn(audioAd.getAdUrn().toString())
                 .clickName("ad::finish")
                 .clickObject(stopEvent.getTrackUrn().toString())
                 .monetizedObject(monetizedTrackUrn.toString())
@@ -247,7 +247,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .adUrn(audioAd.getAdUrn())
+                .adUrn(audioAd.getAdUrn().toString())
                 .impressionName("audio_ad_impression")
                 .impressionObject(audioAdTrack.get(TrackProperty.URN).toString())
                 .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
@@ -514,7 +514,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .protocol("hls")
                 .playerType("PLAYA")
                 .connectionType("3g")
-                .adUrn(audioAd.getAdUrn())
+                .adUrn(audioAd.getAdUrn().toString())
                 .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                 .monetizationType("audio_ad"));
     }
@@ -546,7 +546,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .protocol("hls")
                 .playerType("PLAYA")
                 .connectionType("3g")
-                .adUrn(audioAd.getAdUrn())
+                .adUrn(audioAd.getAdUrn().toString())
                 .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                 .monetizationType("audio_ad")
                 .queryUrn("some:search:urn")

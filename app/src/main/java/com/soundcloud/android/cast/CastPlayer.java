@@ -121,7 +121,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     public void pullProgress() {
         try {
             final PlaybackProgress playbackProgress = new PlaybackProgress(castManager.getCurrentMediaPosition(), castManager.getMediaDuration());
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
             Log.e(CastOperations.TAG, "Unable to report progress", e);
         }
@@ -137,7 +137,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
             case MediaStatus.IDLE_REASON_ERROR:
                 return Reason.ERROR_FAILED;
             case MediaStatus.IDLE_REASON_FINISHED:
-                return Reason.TRACK_COMPLETE;
+                return Reason.PLAYBACK_COMPLETE;
             case MediaStatus.IDLE_REASON_CANCELED:
                 return Reason.NONE;
             default:

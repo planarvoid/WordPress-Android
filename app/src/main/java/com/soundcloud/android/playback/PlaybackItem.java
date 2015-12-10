@@ -4,11 +4,12 @@ import com.soundcloud.android.model.Urn;
 
 public interface PlaybackItem {
 
-    Urn getTrackUrn();
+    Urn getUrn();
 
     long getStartPosition();
 
     PlaybackType getPlaybackType();
 
     long getDuration();
+
 }

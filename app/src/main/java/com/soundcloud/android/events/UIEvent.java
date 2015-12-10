@@ -212,7 +212,7 @@ public final class UIEvent extends TrackingEvent {
     @VisibleForTesting
     public static UIEvent fromAudioAdCompanionDisplayClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(KIND_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
-                .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.getVisualAd().getAdUrn())
+                .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.getVisualAd().getAdUrn().toString())
                 .<UIEvent>put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString())
                 .<UIEvent>put(AdTrackingKeys.KEY_CLICK_THROUGH_URL, audioAd.getVisualAd().getClickThroughUrl().toString())
                 .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.getVisualAd().getClickUrls());
@@ -221,7 +221,7 @@ public final class UIEvent extends TrackingEvent {
     @VisibleForTesting
     public static UIEvent fromSkipAudioAdClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(KIND_SKIP_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
-                .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.getAdUrn())
+                .<UIEvent>put(AdTrackingKeys.KEY_AD_URN, audioAd.getAdUrn().toString())
                 .addPromotedTrackingUrls(SKIPS, audioAd.getSkipUrls());
     }
 

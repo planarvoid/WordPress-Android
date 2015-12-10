@@ -1,22 +1,17 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.java.optional.Optional;
 
-public class PlaybackProgressEvent {
-    PlaybackProgress playbackProgress;
-    Urn trackUrn;
-
-    public PlaybackProgressEvent(PlaybackProgress playbackProgress, Urn trackUrn) {
-        this.playbackProgress = playbackProgress;
-        this.trackUrn = trackUrn;
+@AutoValue
+public abstract class PlaybackProgressEvent {
+    public static PlaybackProgressEvent create(PlaybackProgress playbackProgress, Urn itemUrn) {
+        return new AutoValue_PlaybackProgressEvent(playbackProgress, itemUrn);
     }
 
-    public PlaybackProgress getPlaybackProgress() {
-        return playbackProgress;
-    }
+    public abstract PlaybackProgress getPlaybackProgress();
 
-    public Urn getTrackUrn() {
-        return trackUrn;
-    }
+    public abstract Urn getUrn();
 }

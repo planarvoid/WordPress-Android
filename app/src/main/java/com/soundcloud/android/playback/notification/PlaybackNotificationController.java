@@ -8,6 +8,7 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.playback.PlayQueueFunctions;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackService;
+import com.soundcloud.android.playback.PlayerFunctions;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -131,7 +132,7 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
         subscriptions.unsubscribe();
         subscriptions = new CompositeSubscription(
                 eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM).subscribe(new CurrentTrackSubscriber(activeStrategy, playbackService)),
-                eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).subscribe(new PlaybackStateSubscriber(playbackService, activeStrategy))
+                eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).filter(PlayerFunctions.IS_NOT_VIDEO_AD).subscribe(new PlaybackStateSubscriber(playbackService, activeStrategy))
         );
     }
 
@@ -147,7 +148,7 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
             final TrackQueueItem trackItem = (TrackQueueItem) event.getCurrentPlayQueueItem();
-            final PropertySet trackData = PropertySet.from(EntityProperty.URN.bind(trackItem.getTrackUrn()))
+            final PropertySet trackData = PropertySet.from(EntityProperty.URN.bind(trackItem.getUrn()))
                     .put(AdProperty.IS_AUDIO_AD, AdFunctions.IS_AUDIO_AD_ITEM.apply(trackItem));
             strategy.setTrack(playbackService, trackData);
         }
@@ -164,7 +165,7 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
 
         @Override
         public void onNext(Player.StateTransition stateTransition) {
-            if (stateTransition.playSessionIsActive()) {
+            if (stateTransition.getUrn().isTrack() && stateTransition.playSessionIsActive()) {
                 strategy.notifyPlaying(playbackService);
             } else {
                 strategy.notifyIdleState(playbackService);

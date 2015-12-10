@@ -15,8 +15,10 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.Player.StateTransition;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
@@ -89,10 +91,11 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private final LruCache<Urn, ReplaySubject<PropertySet>> trackObservableCache =
             new LruCache<>(TRACK_CACHE_SIZE);
 
-    private final Func1<PlaybackProgressEvent, Boolean> currentTrackFilter = new Func1<PlaybackProgressEvent, Boolean>() {
+    private final Func1<PlaybackProgressEvent, Boolean> currentPlayQueueItemFilter = new Func1<PlaybackProgressEvent, Boolean>() {
         @Override
         public Boolean call(PlaybackProgressEvent progressEvent) {
-            return playQueueManager.isCurrentTrack(progressEvent.getTrackUrn());
+            final PlayQueueItem currentItem = playQueueManager.getCurrentPlayQueueItem();
+            return !currentItem.isEmpty() && currentItem.getUrn().equals(progressEvent.getUrn());
         }
     };
     private static final Func2<AdData, PropertySet, PlayerItem> TO_PLAYER_AD = new Func2<AdData, PropertySet, PlayerItem>() {
@@ -218,7 +221,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private void setupPlaybackProgressSubscriber() {
         foregroundSubscription.add(eventBus
                 .queue(EventQueue.PLAYBACK_PROGRESS)
-                .filter(currentTrackFilter)
+                .filter(currentPlayQueueItemFilter)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlayerPagerPresenter.PlaybackProgressSubscriber()));
     }
@@ -349,18 +352,17 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
         final TrackPageData trackData = (TrackPageData) viewData;
         if (trackData.isAdPage()) {
-            return getAdObservable(viewData.getAdData().get(), Optional.of(trackData.getTrackUrn()));
+            return getAdObservable(viewData.getAdData().get(), Optional.of(trackData.getUrn()));
         } else if (trackData.isTrackPage() && trackData.getCollectionUrn().isStation()) {
             return getStationObservable(trackData);
         } else {
-            return getTrackObservable(trackData.getTrackUrn(), trackData.getAdData())
-                    .map(toPlayerTrack);
+            return getTrackObservable(trackData.getUrn(), trackData.getAdData()).map(toPlayerTrack);
         }
     }
 
     private Observable<? extends PlayerItem> getStationObservable(TrackPageData trackPageData)  {
         return Observable.zip(
-                getTrackObservable(trackPageData.getTrackUrn(), trackPageData.getAdData()).map(toPlayerTrack),
+                getTrackObservable(trackPageData.getUrn(), trackPageData.getAdData()).map(toPlayerTrack),
                 stationsOperations.station(trackPageData.getCollectionUrn()),
                 new Func2<PlayerTrackState, StationRecord, PlayerItem>() {
                     @Override
@@ -415,7 +417,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             final View trackView = entry.getKey();
             if (isTrackView(trackView)) {
                 final TrackPageData trackPageData = (TrackPageData) entry.getValue();
-                final Urn urn = trackPageData.getTrackUrn();
+                final Urn urn = trackPageData.getUrn();
                 trackPagePresenter.onPageChange(trackView);
                 updateProgress(trackPagePresenter, trackView, urn);
             }
@@ -449,10 +451,10 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     private Boolean isPlayerItemRelatedToView(View pageView, PlayerItem item) {
         if (item instanceof PlayerAd) {
-            final String itemAdUrn = ((PlayerAd) item).getAdUrn();
-            return pagesInPlayer.containsKey(pageView) &&
-                    pagesInPlayer.get(pageView).isAdPage() &&
-                    pagesInPlayer.get(pageView).getAdData().get().getAdUrn().equals(itemAdUrn);
+            final Urn itemAdUrn = ((PlayerAd) item).getAdUrn();
+            return pagesInPlayer.containsKey(pageView)
+                    && pagesInPlayer.get(pageView).isAdPage()
+                    && pagesInPlayer.get(pageView).getAdData().get().getAdUrn().equals(itemAdUrn);
         } else {
             return isTrackViewRelatedToUrn(pageView, item.getTrackUrn());
         }
@@ -461,7 +463,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private boolean isTrackViewRelatedToUrn(View pageView, Urn trackUrn) {
         if (pagesInPlayer.containsKey(pageView) && pagesInPlayer.get(pageView).isTrackPage()) {
             final TrackPageData trackPageData = (TrackPageData) pagesInPlayer.get(pageView);
-            return trackPageData.getTrackUrn().equals(trackUrn);
+            return trackPageData.getUrn().equals(trackUrn);
         }
         return trackPageRecycler.isPageForUrn(pageView, trackUrn);
     }
@@ -517,11 +519,18 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         public void onNext(PlaybackProgressEvent progress) {
             for (Map.Entry<View, PlayerPageData> entry : pagesInPlayer.entrySet()) {
                 final PlayerPagePresenter presenter = pagePresenter(entry.getValue());
-                final View trackView = entry.getKey();
-                if (isTrackViewRelatedToUrn(trackView, progress.getTrackUrn())) {
-                    presenter.setProgress(trackView, progress.getPlaybackProgress());
+                final View pageView = entry.getKey();
+                final PlayerPageData pageData = entry.getValue();
+
+                if (isProgressEventForPage(pageData, pageView, progress)) {
+                    presenter.setProgress(pageView, progress.getPlaybackProgress());
                 }
             }
+        }
+
+        private boolean isProgressEventForPage(PlayerPageData pageData, View pageView, PlaybackProgressEvent progress) {
+           return (progress.getUrn().isTrack() && isTrackViewRelatedToUrn(pageView, progress.getUrn()))
+                   || progress.getUrn().isAd() && progress.getUrn().equals(pageData.getUrn());
         }
     }
 
@@ -550,7 +559,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
                 if (pageData.isTrackPage()) {
                     final TrackPageData trackData = (TrackPageData) pageData;
-                    if (!playQueueManager.isCurrentTrack(trackData.getTrackUrn())) {
+                    if (!playQueueManager.isCurrentTrack(trackData.getUrn())) {
                         presenter.clearAdOverlay(trackView);
                     }
                 }
@@ -559,11 +568,14 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     }
 
     private void configurePageFromPlayerState(StateTransition stateTransition, PlayerPagePresenter presenter, View view) {
+        final boolean viewPresentingCurrentVideo = pagesInPlayer.containsKey(view)
+                && pagesInPlayer.get(view).isVideoPage()
+                && stateTransition.getUrn().equals(pagesInPlayer.get(view).getUrn());
         final boolean viewPresentingCurrentTrack = pagesInPlayer.containsKey(view)
                 && pagesInPlayer.get(view).isTrackPage()
-                && isTrackViewRelatedToUrn(view, stateTransition.getTrackUrn());
+                && isTrackViewRelatedToUrn(view, stateTransition.getUrn());
 
-        presenter.setPlayState(view, stateTransition, viewPresentingCurrentTrack, isForeground);
+        presenter.setPlayState(view, stateTransition, (viewPresentingCurrentTrack || viewPresentingCurrentVideo), isForeground);
     }
 
     private void configurePageFromUiEvent(PlayerUIEvent event, PlayerPagePresenter presenter, View view) {
@@ -596,8 +608,10 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             View view;
             switch (getItemViewType(position)) {
                 case TYPE_AUDIO_AD_VIEW:
+                    view = instantiateAdView(audioAdView, audioAdPresenter, container, position);
+                    break;
                 case TYPE_VIDEO_AD_VIEW:
-                    view = instantiateAdView(container, position);
+                    view = instantiateAdView(videoAdView, videoAdPresenter, container, position);
                     break;
                 default:
                     view = instantiateTrackView(position);
@@ -612,7 +626,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         private View instantiateTrackView(int position) {
             final View view;
             final TrackPageData trackPageData = (TrackPageData) currentData.get(position);
-            final Urn urn = trackPageData.getTrackUrn();
+            final Urn urn = trackPageData.getUrn();
 
             if (trackPageRecycler.hasExistingPage(urn)){
                 view = trackPageRecycler.removePageByUrn(urn);
@@ -629,20 +643,13 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             return view;
         }
 
-        private View instantiateAdView(ViewGroup container, int position) {
-            final PlayerPageData playerPageData = currentData.get(position);
-
-            if (playerPageData.isTrackPage() && audioAdView == null) {
-                audioAdView = audioAdPresenter.createItemView(container, skipListener);
-            } else if (playerPageData.isVideoPage() && videoAdView == null) {
-                videoAdView = videoAdPresenter.createItemView(container, skipListener);
-            } else if (playerPageData.isTrackPage()){
-                audioAdPresenter.clearItemView(audioAdView);
+        private View instantiateAdView(View adView, AdPagePresenter presenter, ViewGroup container, int position) {
+            if (adView == null) {
+                adView = presenter.createItemView(container, skipListener);
             } else {
-                videoAdPresenter.clearItemView(videoAdView);
+                presenter.clearItemView(adView);
             }
-
-            return bindView(position, playerPageData.isTrackPage() ? audioAdView : videoAdView);
+            return bindView(position, adView);
         }
 
         @Override
@@ -652,7 +659,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
             if (isTrackView(view)) {
                 final TrackPageData pageData = (TrackPageData) pagesInPlayer.get(view);
-                final Urn trackUrn = pageData.getTrackUrn();
+                final Urn trackUrn = pageData.getUrn();
                 trackPageRecycler.recyclePage(trackUrn, view);
                 if (!playQueueManager.isCurrentTrack(trackUrn)) {
                     trackPagePresenter.onBackground(view);

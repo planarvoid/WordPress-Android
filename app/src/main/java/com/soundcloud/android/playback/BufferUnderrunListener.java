@@ -52,7 +52,7 @@ public class BufferUnderrunListener {
             uninterruptedPlayTime = incrementPlaytime(uninterruptedPlayTime);
             if (isBufferUnderrun) {
                 checkForEmptyPlayerType(stateTransition);
-                emitUninterruptedPlaytimeEvent(stateTransition.getTrackUrn(), playbackProtocol, playerType, currentConnectionType, uninterruptedPlayTime);
+                emitUninterruptedPlaytimeEvent(stateTransition.getUrn(), playbackProtocol, playerType, currentConnectionType, uninterruptedPlayTime);
                 uninterruptedPlayTime = 0L;
             }
             enteringPlayingStateTime = null;

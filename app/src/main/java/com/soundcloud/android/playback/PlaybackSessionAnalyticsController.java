@@ -56,8 +56,8 @@ class PlaybackSessionAnalyticsController {
     }
 
     public void onStateTransition(Player.StateTransition stateTransition) {
-        final Urn currentTrack = stateTransition.getTrackUrn();
-        if (!currentTrack.equals(lastStateTransition.getTrackUrn())) {
+        final Urn currentTrack = stateTransition.getUrn();
+        if (!currentTrack.equals(lastStateTransition.getUrn())) {
             if (lastStateTransition.isPlayerPlaying()) {
                 // publish skip event manually, since it went from playing the last track to playing the new
                 // track without seeing a stop event first (which only happens if you change tracks manually)

@@ -8,17 +8,11 @@ import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 
 final class TrackPageData extends PlayerPageData {
-    private final Urn trackUrn;
     private final Urn collectionUrn;
 
     TrackPageData(int positionInPlayQueue, @NotNull Urn trackUrn, Urn collectionUrn, Optional<AdData> adData) {
-        super(Kind.TRACK, positionInPlayQueue, adData);
-        this.trackUrn = trackUrn;
+        super(Kind.TRACK, trackUrn, positionInPlayQueue, adData);
         this.collectionUrn = collectionUrn;
-    }
-
-    public Urn getTrackUrn() {
-        return trackUrn;
     }
 
     public Urn getCollectionUrn() {
@@ -33,7 +27,7 @@ final class TrackPageData extends PlayerPageData {
     public String toString() {
         return "TrackPageData{" +
                 "positionInPlayQueue=" + positionInPlayQueue +
-                ", trackUrn=" + trackUrn +
+                ", trackUrn=" + urn +
                 ", adData=" + adData+
                 '}';
     }

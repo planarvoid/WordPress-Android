@@ -67,11 +67,11 @@ public class PlayQueueTest extends AndroidUnitTest {
 
         assertThat(playQueue.size()).isEqualTo(6);
         assertTrackQueueItem(playQueue.getPlayQueueItem(3),
-                TRACK_QUEUE_ITEM_1.getTrackUrn(),
+                TRACK_QUEUE_ITEM_1.getUrn(),
                 TRACK_QUEUE_ITEM_1.getSource(),
                 TRACK_QUEUE_ITEM_1.getSourceVersion());
         assertTrackQueueItem(playQueue.getPlayQueueItem(4),
-                TRACK_QUEUE_ITEM_2.getTrackUrn(),
+                TRACK_QUEUE_ITEM_2.getUrn(),
                 TRACK_QUEUE_ITEM_2.getSource(),
                 TRACK_QUEUE_ITEM_2.getSourceVersion());
         assertVideoQueueItem(playQueue.getPlayQueueItem(5), VIDEO_QUEUE_ITEM.getAdData());
@@ -171,7 +171,7 @@ public class PlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void getTrackItemUrnsReturnsListOfUrnsForTrackItems() throws Exception {
-        assertThat(playQueue.getTrackItemUrns()).containsExactly(TRACK_QUEUE_ITEM_1.getTrackUrn(), TRACK_QUEUE_ITEM_2.getTrackUrn());
+        assertThat(playQueue.getTrackItemUrns()).containsExactly(TRACK_QUEUE_ITEM_1.getUrn(), TRACK_QUEUE_ITEM_2.getUrn());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class PlayQueueTest extends AndroidUnitTest {
     private void assertTrackQueueItem(PlayQueueItem playQueueItem, Urn trackUrn, String source, String sourceVersion) {
         assertThat(playQueueItem.isTrack()).isTrue();
         final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueueItem;
-        assertThat(trackQueueItem.getTrackUrn()).isEqualTo(trackUrn);
+        assertThat(trackQueueItem.getUrn()).isEqualTo(trackUrn);
         assertThat(trackQueueItem.getSource()).isEqualTo(source);
         assertThat(trackQueueItem.getSourceVersion()).isEqualTo(sourceVersion);
     }

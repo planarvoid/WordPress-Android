@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback;
 
 public enum PlaybackType {
-    DEFAULT, OFFLINE, UNINTERRUPTED
+    VIDEO_DEFAULT,
+    AUDIO_DEFAULT,
+    AUDIO_OFFLINE,
+    AUDIO_UNINTERRUPTED,
 }

@@ -46,7 +46,9 @@ public class PlaySessionStateProvider {
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,  new PlayQueueTrackSubscriber());
-        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).filter(ignoreDefaultStateFilter)
+        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                .filter(PlayerFunctions.IS_NOT_VIDEO_AD)
+                .filter(ignoreDefaultStateFilter)
                 .subscribe(new PlayStateSubscriber());
     }
 
@@ -99,14 +101,14 @@ public class PlaySessionStateProvider {
         @Override
         public void onNext(StateTransition stateTransition) {
             final boolean isTrackChange = currentPlayingUrn != null &&
-                    !stateTransition.isForTrack(currentPlayingUrn);
+                    !stateTransition.isForUrn(currentPlayingUrn);
 
             if (isTrackChange && stateTransition.playSessionIsActive()) {
                 progressMap.clear();
             }
 
             lastStateTransition = stateTransition;
-            currentPlayingUrn = stateTransition.getTrackUrn();
+            currentPlayingUrn = stateTransition.getUrn();
 
             if (stateTransition.getProgress().isDurationValid()) {
                 progressMap.put(currentPlayingUrn, stateTransition.getProgress());
@@ -124,13 +126,15 @@ public class PlaySessionStateProvider {
     }
 
     private boolean playingNewTrackFromBeginning(StateTransition stateTransition, boolean isTrackChange) {
-        return isTrackChange && !playQueueManager.wasLastSavedTrack(stateTransition.getTrackUrn());
+        return isTrackChange && !playQueueManager.wasLastSavedTrack(stateTransition.getUrn());
     }
 
     private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
         @Override
         public void onNext(PlaybackProgressEvent progress) {
-            progressMap.put(progress.getTrackUrn(), progress.getPlaybackProgress());
+            if (!progress.getUrn().isAd()) {
+                progressMap.put(progress.getUrn(), progress.getPlaybackProgress());
+            }
         }
     }
 

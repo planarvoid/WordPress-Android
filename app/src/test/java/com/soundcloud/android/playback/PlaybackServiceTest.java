@@ -8,7 +8,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -20,6 +22,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.TestDateProvider;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +37,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     private static final long START_POSITION = 123L;
     private PlaybackService playbackService;
     private PlaybackItem playbackItem = AudioPlaybackItem.create(TestPropertySets.fromApiTrack(), START_POSITION);
-    private Urn track = playbackItem.getTrackUrn();
+    private Urn track = playbackItem.getUrn();
     private TestEventBus eventBus = new TestEventBus();
     private TestDateProvider dateProvider = new TestDateProvider();
 
@@ -147,6 +150,21 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onPlaystateChangedPublishesStateTransistionForVideo() throws Exception {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123));
+        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
+        playbackItem = VideoPlaybackItem.create(videoAd);
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+
+        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, videoAd.getAdUrn(), 0, 123, dateProvider);
+        playbackService.onPlaystateChanged(stateTransition);
+
+        Player.StateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
+        assertThat(broadcasted).isEqualTo(stateTransition);
+    }
+
+    @Test
     public void onPlaystateChangedPublishesStateTransition() throws Exception {
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
 
@@ -176,7 +194,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void onPlaystateChangedDoesNotPublishStateTransitionWithDifferentUrnThanCurrent() {
-        when(stateTransition.getTrackUrn()).thenReturn(track);
+        when(stateTransition.getUrn()).thenReturn(track);
 
         playbackService.onPlaystateChanged(stateTransition);
 
@@ -198,7 +216,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void doesNotForwardPlayerStateTransitionToAnalyticsControllerWithDifferentUrnThenCurrent() {
-        when(stateTransition.getTrackUrn()).thenReturn(track);
+        when(stateTransition.getUrn()).thenReturn(track);
 
         playbackService.onPlaystateChanged(stateTransition);
 
@@ -206,7 +224,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onProgressPublishesAProgressEvent() throws Exception {
+    public void onProgressPublishesAProgressEventForTrack() throws Exception {
         when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
         playbackService.onCreate();
         playbackService.play(playbackItem);
@@ -214,7 +232,24 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onProgressEvent(123L, 456L);
 
         PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
-        assertThat(broadcasted.getTrackUrn()).isEqualTo(track);
+        assertThat(broadcasted.getUrn().isTrack()).isTrue();
+        assertThat(broadcasted.getUrn()).isEqualTo(track);
+        assertThat(broadcasted.getPlaybackProgress().getPosition()).isEqualTo(123L);
+        assertThat(broadcasted.getPlaybackProgress().getDuration()).isEqualTo(456L);
+    }
+
+    @Test
+    public void onProgressPublishesAProgressEventForVideo() throws Exception {
+        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
+        playbackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123)));
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+
+        playbackService.onProgressEvent(123L, 456L);
+
+        PlaybackProgressEvent broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS);
+        assertThat(broadcasted.getUrn().isAd()).isTrue();
+        assertThat(broadcasted.getUrn()).isEqualTo(Urn.forAd("dfp", "905"));
         assertThat(broadcasted.getPlaybackProgress().getPosition()).isEqualTo(123L);
         assertThat(broadcasted.getPlaybackProgress().getDuration()).isEqualTo(456L);
     }

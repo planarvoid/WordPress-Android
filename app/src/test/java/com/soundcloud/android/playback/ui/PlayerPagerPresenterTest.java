@@ -16,6 +16,7 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.InterstitialAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -38,6 +39,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -224,6 +226,20 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onPlayingStateEventForVideoCallsSetPlayStateForOnPresenter() {
+        presenter.onResume(playerFragment);
+        setupVideoAd();
+        final VideoAd videoAd = AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN);
+        final View currentVideoView = getVideoAdPageView();
+
+        Player.StateTransition state = new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, videoAd.getAdUrn(), 0L, 100L, new TestDateProvider());
+
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+
+        verify(videoAdPresenter).setPlayState(currentVideoView, state, true, true);
+    }
+
+    @Test
     public void onPlayableChangedEventSetsLikeStatusOnTrackPage() {
         View currentPageView = getPageView();
         EntityStateChangedEvent likeEvent = EntityStateChangedEvent.fromLike(TRACK1_URN, true, 1);
@@ -244,10 +260,43 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+     public void onPlaybackProgressEventSetsProgressOnCurrentPlayingVideoPage() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
+
+        setupVideoAd();
+        presenter.onResume(playerFragment);
+        View currentPageView = getVideoAdPageView();
+
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), videoAd.getAdUrn());
+
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
+
+        verify(videoAdPresenter).setProgress(currentPageView, event.getPlaybackProgress());
+    }
+
+    @Test
+     public void onPlaybackProgressEventDoesntSetProgressOnNonCurrentPlayingVideoPage() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
+
+        setupVideoAd();
+        presenter.onResume(playerFragment);
+        View currentPageView = getVideoAdPageView();
+
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), Urn.forAd("dfp", "other-ad-urn"));
+
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
+
+        verify(videoAdPresenter, never()).setProgress(currentPageView, event.getPlaybackProgress());
+    }
+
+    @Test
     public void onPlaybackProgressEventSetsProgressOnCurrentPlayingTrackPage() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1_URN));
         presenter.onResume(playerFragment);
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), TRACK1_URN);
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), TRACK1_URN);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -258,7 +307,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void onPlaybackProgressEventDoNotSetsProgressForPausedAdapter() {
         presenter.onResume(playerFragment);
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), TRACK1_URN);
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), TRACK1_URN);
         presenter.onPause(playerFragment);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
@@ -269,7 +318,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void onPlaybackProgressEventDoNotSetProgressOnOtherTrackPage() {
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), Urn.forTrack(234L));
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), Urn.forTrack(234L));
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -279,7 +328,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void onPlaybackProgressEventDoesNotSetProgressOnNotPlayingTrackPage() {
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), Urn.forTrack(999L));
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), Urn.forTrack(999L));
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 

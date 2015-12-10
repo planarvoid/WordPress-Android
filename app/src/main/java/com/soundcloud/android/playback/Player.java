@@ -10,6 +10,8 @@ import android.util.SparseArray;
 
 import java.util.EnumSet;
 
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+
 // TODO, extract transitions/reason/error codes to their own classes
 @SuppressWarnings({"PMD.ExcessivePublicCount"})
 public interface Player {
@@ -19,6 +21,7 @@ public interface Player {
     void play(Urn track, long fromPos);
     void playUninterrupted(Urn track);
     void playOffline(Urn track, long fromPos);
+    void playVideo(VideoPlaybackItem videoPlaybackItem);
     void resume();
     void pause();
     long seek(long ms, boolean performSeek);
@@ -45,38 +48,39 @@ public interface Player {
         private final PlayerState newState;
         private final Reason reason;
         private final PlaybackProgress progress;
-        private final Urn trackUrn;
+        private final Urn itemUrn;
 
         // used to pass various additional meta data with the event, often for tracking/analytics
         private final SparseArray<String> extraAttributes = new SparseArray<>(2);
 
         public static final StateTransition DEFAULT = new StateTransition(PlayerState.IDLE, Reason.NONE, Urn.NOT_SET);
 
-        public StateTransition(PlayerState newState, Reason reason, Urn trackUrn) {
-            this(newState, reason, trackUrn, 0, 0);
+        public StateTransition(PlayerState newState, Reason reason, Urn itemUrn) {
+            this(newState, reason, itemUrn, 0, 0);
         }
 
-        public StateTransition(PlayerState newState, Reason reason, Urn trackUrn, long currentProgress, long duration) {
-            this(newState, reason, trackUrn, currentProgress, duration, new CurrentDateProvider());
+        public StateTransition(PlayerState newState, Reason reason, Urn itemUrn, long currentProgress, long duration) {
+            this(newState, reason, itemUrn, currentProgress, duration, new CurrentDateProvider());
         }
 
         public StateTransition(PlayerState newState,
-                               Reason reason, Urn trackUrn,
-                               long currentProgress,
-                               long duration,
-                               CurrentDateProvider dateProvider) {
+                        Reason reason,
+                        Urn itemUrn,
+                        long currentProgress,
+                        long duration,
+                        CurrentDateProvider dateProvider) {
             this.newState = newState;
             this.reason = reason;
-            this.trackUrn = trackUrn;
+            this.itemUrn = itemUrn;
             this.progress = new PlaybackProgress(currentProgress, duration, dateProvider);
         }
 
-        public Urn getTrackUrn() {
-            return trackUrn;
+        public Urn getUrn() {
+            return itemUrn;
         }
 
-        public boolean isForTrack(Urn trackUrn) {
-            return this.trackUrn != null && this.trackUrn.equals(trackUrn);
+        public boolean isForUrn(Urn urn) {
+            return getUrn().equals(urn);
         }
 
         public PlayerState getNewState() {
@@ -96,7 +100,7 @@ public interface Player {
         }
 
         public boolean playSessionIsActive() {
-            return newState.isPlaying() || (newState == PlayerState.IDLE && reason == Reason.TRACK_COMPLETE);
+            return newState.isPlaying() || (newState == PlayerState.IDLE && reason == Reason.PLAYBACK_COMPLETE);
         }
 
         public boolean isPlayerPlaying() {
@@ -128,7 +132,7 @@ public interface Player {
         }
 
         public boolean trackEnded() {
-            return newState == PlayerState.IDLE && reason == Reason.TRACK_COMPLETE;
+            return newState == PlayerState.IDLE && reason == Reason.PLAYBACK_COMPLETE;
         }
 
         public boolean isPaused() {
@@ -146,7 +150,7 @@ public interface Player {
         public void addToIntent(Intent intent) {
             newState.addToIntent(intent);
             reason.addToIntent(intent);
-            intent.putExtra(TRACK_URN_EXTRA, getTrackUrn());
+            intent.putExtra(TRACK_URN_EXTRA, getUrn());
             intent.putExtra(PROGRESS_EXTRA, progress.getPosition());
             intent.putExtra(DURATION_EXTRA, progress.getDuration());
         }
@@ -162,7 +166,7 @@ public interface Player {
                 return MoreObjects.equal(newState, that.newState)
                         && MoreObjects.equal(reason, that.reason)
                         && MoreObjects.equal(progress, that.progress)
-                        && MoreObjects.equal(trackUrn, that.trackUrn);
+                        && MoreObjects.equal(itemUrn, that.itemUrn);
             }
         }
 
@@ -171,7 +175,7 @@ public interface Player {
             int result = newState.hashCode();
             result = 31 * result + reason.hashCode();
             result = 31 * result + progress.hashCode();
-            result = 31 * result + (trackUrn != null ? trackUrn.hashCode() : 0);
+            result = 31 * result + itemUrn.hashCode();
             return result;
         }
 
@@ -182,7 +186,7 @@ public interface Player {
                     ", reason=" + reason +
                     ", currentProgress=" + progress.getPosition() +
                     ", duration=" + progress.getDuration() +
-                    ", trackUrn=" + trackUrn +
+                    ", itemUrn=" + itemUrn +
                     ", extraAttributes=" + extraAttributes +
                     '}';
         }
@@ -228,13 +232,13 @@ public interface Player {
     }
 
     enum Reason {
-        NONE, TRACK_COMPLETE, PLAY_QUEUE_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN;
+        NONE, PLAYBACK_COMPLETE, PLAY_QUEUE_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN;
 
         public static final EnumSet<Reason> ERRORS =
                 EnumSet.of(ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
 
         public static final EnumSet<Reason> PLAYBACK_STOPPED =
-                EnumSet.of(TRACK_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
+                EnumSet.of(PLAYBACK_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN);
 
         @VisibleForTesting
         static final String PLAYER_REASON_EXTRA = "PLAYER_REASON_EXTRA";

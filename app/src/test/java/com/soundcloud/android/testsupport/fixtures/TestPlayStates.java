@@ -1,6 +1,5 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Player.PlayerState;
 import com.soundcloud.android.playback.Player.Reason;
@@ -33,7 +32,7 @@ public class TestPlayStates {
     }
 
     public static StateTransition complete() {
-        return new StateTransition(PlayerState.IDLE, Reason.TRACK_COMPLETE, URN);
+        return new StateTransition(PlayerState.IDLE, Reason.PLAYBACK_COMPLETE, URN);
     }
 
     public static StateTransition buffering() {

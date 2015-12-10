@@ -73,7 +73,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void returnsLastProgressEventByUrnFromEventQueue() throws Exception {
-        final PlaybackProgressEvent playbackProgressEvent = new PlaybackProgressEvent(createPlaybackProcess(1L, 2L), TRACK_URN);
+        final PlaybackProgressEvent playbackProgressEvent = PlaybackProgressEvent.create(createPlaybackProcess(1L, 2L), TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
         assertThat(provider.getLastProgressForTrack(TRACK_URN)).isSameAs(playbackProgressEvent.getPlaybackProgress());
     }
@@ -100,7 +100,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForTrackEndSavesQueueWithPositionWithZero() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.IDLE, Player.Reason.TRACK_COMPLETE, TRACK_URN, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, TRACK_URN, 123, 456));
         verify(playQueueManager).saveCurrentProgress(0);
     }
 

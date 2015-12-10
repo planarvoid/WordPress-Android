@@ -76,7 +76,7 @@ public class PlayQueueDataSourceTest extends AndroidUnitTest {
         final TrackPageData trackPageData = (TrackPageData) playerPageData;
         assertThat(trackPageData.isTrackPage()).isTrue();
         assertThat(trackPageData.getPositionInPlayQueue()).isSameAs(position);
-        assertThat(trackPageData.getTrackUrn()).isEqualTo(trackUrn);
+        assertThat(trackPageData.getUrn()).isEqualTo(trackUrn);
         assertThat(trackPageData.getAdData()).isEqualTo(adData);
         assertThat(trackPageData.getCollectionUrn()).isEqualTo(collectionUrn);
     }

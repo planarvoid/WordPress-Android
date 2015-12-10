@@ -1,9 +1,11 @@
 package com.soundcloud.android.ads;
 
+import android.os.Parcelable;
+
 import auto.parcel.AutoParcel;
 
 @AutoParcel
-public abstract class VideoSource {
+public abstract class VideoSource implements Parcelable {
     public static VideoSource create(ApiVideoSource apiVideoSource) {
         return new AutoParcel_VideoSource(
                 apiVideoSource.getCodec(),

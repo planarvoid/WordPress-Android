@@ -25,7 +25,7 @@ public class AdOverlayTrackingEventTest extends AndroidUnitTest {
         AdOverlayTrackingEvent uiEvent = AdOverlayTrackingEvent.forImpression(1000L, leaveBehindAd, Urn.forTrack(456), Urn.forUser(123), sourceInfo);
         assertThat(uiEvent.getKind()).isEqualTo(AdOverlayTrackingEvent.KIND_IMPRESSION);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(leaveBehindAd.getAdUrn());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(leaveBehindAd.getAdUrn().toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(leaveBehindAd.getImageUrl());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(leaveBehindAd.getClickthroughUrl().toString());
@@ -38,7 +38,7 @@ public class AdOverlayTrackingEventTest extends AndroidUnitTest {
         AdOverlayTrackingEvent uiEvent = AdOverlayTrackingEvent.forClick(1000L, leaveBehindAd, Urn.forTrack(456), Urn.forUser(123), sourceInfo);
         assertThat(uiEvent.getKind()).isEqualTo(AdOverlayTrackingEvent.KIND_CLICK);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(leaveBehindAd.getAdUrn());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(leaveBehindAd.getAdUrn().toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(leaveBehindAd.getImageUrl());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(leaveBehindAd.getClickthroughUrl().toString());

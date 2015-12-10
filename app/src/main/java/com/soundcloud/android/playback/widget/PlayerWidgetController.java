@@ -106,7 +106,7 @@ public class PlayerWidgetController {
             final PropertySet adProperties = PropertySet.from(
                     AdProperty.IS_AUDIO_AD.bind(AdFunctions.IS_AUDIO_AD_ITEM.apply(currentTrackQueueItem))
             );
-            return trackRepository.track(currentTrackQueueItem.getTrackUrn())
+            return trackRepository.track(currentTrackQueueItem.getUrn())
                     .map(PropertySetFunctions.mergeWith(adProperties));
     }
 
@@ -162,7 +162,11 @@ public class PlayerWidgetController {
     private class PlaybackStateSubscriber extends DefaultSubscriber<Player.StateTransition> {
         @Override
         public void onNext(Player.StateTransition state) {
-            presenter.updatePlayState(context, state.playSessionIsActive());
+            if (!state.getUrn().isAd()){
+                presenter.updatePlayState(context, state.playSessionIsActive());
+            } else {
+                presenter.reset(context);
+            }
         }
     }
 

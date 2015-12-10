@@ -69,7 +69,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private final Func1<? super Integer, Boolean> noPageChangedScrollOnAd = new Func1<Integer, Boolean>() {
         @Override
         public Boolean call(Integer state) {
-            return !wasPageChange && state == ViewPager.SCROLL_STATE_IDLE && adsOperations.isCurrentItemAudioAd();
+            return !wasPageChange && state == ViewPager.SCROLL_STATE_IDLE && adsOperations.isCurrentItemAd();
         }
     };
 

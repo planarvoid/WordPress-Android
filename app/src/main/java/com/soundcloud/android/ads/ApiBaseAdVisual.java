@@ -1,18 +1,19 @@
 package com.soundcloud.android.ads;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.List;
 
 abstract class ApiBaseAdVisual {
 
-    public final String urn;
+    public final Urn urn;
     public final String imageUrl;
     public final String clickthroughUrl;
     public final List<String> trackingImpressionUrls;
     public final List<String> trackingClickUrls;
 
-    public ApiBaseAdVisual(String urn, String imageUrl, String clickthroughUrl, List<String> trackingImpressionUrls,
+    public ApiBaseAdVisual(Urn urn, String imageUrl, String clickthroughUrl, List<String> trackingImpressionUrls,
                            List<String> trackingClickUrls) {
         this.urn = urn;
         this.imageUrl = imageUrl;
