@@ -41,9 +41,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/image"
-            android:clickable="true"
-            android:focusable="false">
+            android:layout_below="@id/image">
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/tag"
@@ -55,9 +53,7 @@
                 android:id="@id/extra_info"
                 style="@style/GridItemExtra"
                 tools:text="25 tracks" />
-
         </RelativeLayout>
 
     </RelativeLayout>
-
 </FrameLayout>
