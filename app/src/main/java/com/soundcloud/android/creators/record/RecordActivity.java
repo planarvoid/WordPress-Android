@@ -13,6 +13,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -94,6 +95,12 @@ public class RecordActivity extends ScActivity {
     }
 
     @Override
+    public Screen getScreen() {
+        // This is a container, screens are the fragments.
+        return Screen.UNKNOWN;
+    }
+
+    @Override
     public boolean onSupportNavigateUp() {
         navigator.openHome(this);
         finish();
@@ -101,7 +108,7 @@ public class RecordActivity extends ScActivity {
     }
 
     public void trackScreen(ScreenEvent screenEvent) {
-        if (shouldTrackScreen()) {
+        if (screenTracker.isEnteringScreen()) {
             eventBus.publish(EventQueue.TRACKING, screenEvent);
         }
     }

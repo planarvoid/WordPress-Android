@@ -2,6 +2,7 @@ package com.soundcloud.android.payments;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
@@ -21,6 +22,11 @@ public class UpgradeActivity extends ScActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         upgradePresenter.handleBillingResult(new BillingResult(requestCode, resultCode, data));
+    }
+
+    @Override
+    public Screen getScreen() {
+        return Screen.UPGRADE;
     }
 
     @Override

@@ -3,12 +3,10 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -102,11 +100,8 @@ public class PlaylistDetailActivity extends ScActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.PLAYLIST_DETAILS));
-        }
+    public Screen getScreen() {
+        return Screen.PLAYLIST_DETAILS;
     }
 
     @Override

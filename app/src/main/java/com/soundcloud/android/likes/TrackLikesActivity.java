@@ -2,8 +2,6 @@ package com.soundcloud.android.likes;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.main.Screen;
@@ -36,11 +34,8 @@ public class TrackLikesActivity extends ScActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.LIKES));
-        }
+    public Screen getScreen() {
+        return Screen.LIKES;
     }
 
     @Override

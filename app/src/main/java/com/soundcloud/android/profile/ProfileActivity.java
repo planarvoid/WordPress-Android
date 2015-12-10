@@ -3,6 +3,7 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -17,6 +18,12 @@ public class ProfileActivity extends ScActivity {
     @Inject @LightCycle ProfilePresenter profilePresenter;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+
+    @Override
+    public Screen getScreen() {
+        // The activity is not a screen. Fragments are.
+        return Screen.UNKNOWN;
+    }
 
     @Override
     protected void setActivityContentView() {

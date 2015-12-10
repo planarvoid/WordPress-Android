@@ -17,6 +17,9 @@ public enum Screen {
     AUTH_USER_DETAILS("auth:user_details"),
     AUTH_FORGOT_PASSWORD("auth:forgot_password"),
 
+    // TODO : new screen. Review tracking
+    VERIFY_AGE("verify_age"),
+
     SIDE_MENU_DRAWER("drawer"),
     STREAM("stream:main"),
 
@@ -63,6 +66,8 @@ public enum Screen {
     SEARCH_USERS("search:people"),
     SEARCH_SUGGESTIONS("search:suggestions"),
     SEARCH_PLAYLIST_DISCO("search:tags"),
+    // TODO : new screen. Review tracking
+    SEARCH_RECOMMENDED_TRACKS("search:recommended_tracks"),
 
     // recommendations
     RECOMMENDATIONS_MAIN("personal-recommended:main"),
@@ -73,6 +78,8 @@ public enum Screen {
     RECORD_EDIT("record:edit"),
     RECORD_UPLOAD("record:share"),
     RECORD_PROGRESS("record:progress"),
+    // TODO : new screen. Review tracking
+    DEEPLINK_UPLOAD("deeplink:share"),
 
     // playlists
     PLAYLIST_DETAILS("playlists:main"),
@@ -95,6 +102,10 @@ public enum Screen {
     SETTINGS_NOTIFICATIONS("settings:notification_settings"),
     SETTINGS_ACCOUNT("settings:account_sync_settings"),
     SETTINGS_OFFLINE("settings:offline_sync_settings"),
+    // TODO : new screen. Review tracking
+    SETTINGS_LEGAL("settings:legal"),
+    // TODO : new screen. Review tracking
+    SETTINGS_LICENSES("settings:licenses"),
 
     WIDGET("widget"),
     SUBSCRIBE("subscribe"),
@@ -107,7 +118,11 @@ public enum Screen {
     // Stations
     STATIONS_HOME("stations:home"),
     STATIONS_SHOW_ALL("stations:show_all"),
-    STATIONS_RECENT("stations:recent_stations");
+    STATIONS_RECENT("stations:recent_stations"),
+
+    // PAYMENT
+    // TODO : new screen. Review tracking
+    UPGRADE("upgrade");
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
 

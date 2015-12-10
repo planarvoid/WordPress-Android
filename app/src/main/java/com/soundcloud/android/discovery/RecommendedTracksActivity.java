@@ -4,6 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -40,6 +41,11 @@ public class RecommendedTracksActivity extends ScActivity {
             throw new IllegalStateException("Invalid recommendation local seed id");
         }
 
+    }
+
+    @Override
+    public Screen getScreen() {
+        return Screen.SEARCH_RECOMMENDED_TRACKS;
     }
 
     @Override

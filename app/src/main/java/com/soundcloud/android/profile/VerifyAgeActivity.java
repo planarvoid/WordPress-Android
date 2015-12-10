@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 
@@ -26,6 +27,11 @@ public class VerifyAgeActivity extends ScActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         presenter.onCreate(this, savedInstanceState);
+    }
+
+    @Override
+    public Screen getScreen() {
+        return Screen.VERIFY_AGE;
     }
 
     @Override

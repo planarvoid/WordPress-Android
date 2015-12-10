@@ -10,6 +10,7 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -25,6 +26,7 @@ public class MainActivity extends ScActivity {
 
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
+    @Inject EventBus eventBus;
 
     @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle PlayerController playerController;
@@ -96,10 +98,11 @@ public class MainActivity extends ScActivity {
             accountOperations.triggerLoginFlow(this);
             finish();
         }
+    }
 
-        if (shouldTrackScreen()) {
-            mainPresenter.trackScreen();
-        }
+    @Override
+    public Screen getScreen() {
+        return mainPresenter.getScreen();
     }
 
     @Override

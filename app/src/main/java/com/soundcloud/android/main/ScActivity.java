@@ -16,7 +16,6 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Fragment;
 import android.content.Intent;
@@ -36,14 +35,13 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
     @Inject @LightCycle UserRemovedController userRemovedController;
     @Inject @LightCycle ImageOperationsController imageOperationsController;
     @Inject @LightCycle AccountPlaybackController accountPlaybackController;
-    @Inject @LightCycle ScreenStateProvider screenStateProvider;
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject @LightCycle PlaybackNotificationController playbackNotificationController;
     @Inject @LightCycle ActionBarHelper actionMenuController;
     @Inject @LightCycle AnalyticsConnector analyticsConnector;
+    @Inject @LightCycle protected ScreenTracker screenTracker;
 
     @Inject ApplicationProperties applicationProperties;
-    @Inject protected EventBus eventBus;
     @Inject protected AccountOperations accountOperations;
 
     public ScActivity() {
@@ -57,16 +55,14 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
         return false;
     }
 
-    public boolean isForeground() {
-        return screenStateProvider.isForeground();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // This is a workaround. For some devices the back/up button does not work if we don't inflate "some" menu
         getMenuInflater().inflate(R.menu.empty, menu);
         return true;
     }
+
+    abstract public Screen getScreen();
 
     protected void configureMainOptionMenuItems(Menu menu) {
         actionMenuController.onCreateOptionsMenu(menu, getMenuInflater());
@@ -114,9 +110,5 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
         return super.dispatchKeyEvent(event);
     }
 
-    protected boolean shouldTrackScreen() {
-        // What does it mean ? Is there a bug here ? #2664
-        return !screenStateProvider.isConfigurationChange() || screenStateProvider.isReallyResuming();
-    }
 
 }

@@ -215,7 +215,11 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     public void trackScreen() {
-        final Screen currentScreen = navigationModel.getItem(pager.getCurrentItem()).getScreen();
+        final Screen currentScreen = getScreen();
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(currentScreen));
+    }
+
+    Screen getScreen() {
+        return navigationModel.getItem(pager.getCurrentItem()).getScreen();
     }
 }

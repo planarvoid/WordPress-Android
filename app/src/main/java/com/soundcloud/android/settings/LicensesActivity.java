@@ -1,6 +1,7 @@
 package com.soundcloud.android.settings;
 
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 
 import android.os.Bundle;
@@ -20,6 +21,11 @@ public class LicensesActivity extends ScActivity {
     public boolean onNavigateUp() {
         finish();
         return true;
+    }
+
+    @Override
+    public Screen getScreen() {
+        return Screen.SETTINGS_LICENSES;
     }
 
     @Override
