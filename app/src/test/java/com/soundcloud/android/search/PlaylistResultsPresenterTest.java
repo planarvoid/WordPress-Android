@@ -9,6 +9,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
@@ -19,6 +20,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -106,7 +108,8 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
 
     private void fakePlaylistResultsForTag(String searchTag) {
         ApiPlaylistCollection collection = new ApiPlaylistCollection(singletonList(playlist), null, null);
-        when(operations.playlistsForTag(searchTag)).thenReturn(Observable.just(collection));
+        SearchResult searchResult = new SearchResult(collection.getCollection(), Optional.<Link>absent(), Optional.<Urn>absent());
+        when(operations.playlistsForTag(searchTag)).thenReturn(Observable.just(searchResult));
 
         Bundle fragmentArgs = new Bundle();
         fragmentArgs.putString(PlaylistResultsFragment.KEY_PLAYLIST_TAG, searchTag);

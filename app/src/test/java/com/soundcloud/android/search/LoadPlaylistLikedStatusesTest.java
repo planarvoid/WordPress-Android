@@ -19,39 +19,38 @@ import java.util.Map;
 public class LoadPlaylistLikedStatusesTest extends StorageIntegrationTest {
 
     private LoadPlaylistLikedStatuses command;
+    private ApiPlaylist likedPlaylist;
+    private ApiPlaylist playlist;
 
     @Before
     public void setUp() throws Exception {
+        likedPlaylist = testFixtures().insertLikedPlaylist(new Date());
+        playlist = testFixtures().insertPlaylist();
+
         command = new LoadPlaylistLikedStatuses(propeller());
     }
 
     @Test
-    public void shouldReturnPlaylistLikeStatuses() throws Exception {
-        ApiPlaylist apiPlaylist1 = testFixtures().insertLikedPlaylist(new Date());
-        ApiPlaylist apiPlaylist2 = testFixtures().insertPlaylist();
-        List<PropertySet> input = Arrays.asList(apiPlaylist1.toPropertySet(), apiPlaylist2.toPropertySet());
+    public void shouldReturnPlaylistLikeStatuses() {
+        final List<PropertySet> input = Arrays.asList(likedPlaylist.toPropertySet(), playlist.toPropertySet());
 
-        Map<Urn, PropertySet> likedStatuses = command.call(input);
+        final Map<Urn, PropertySet> likedStatuses = command.call(input);
 
         assertThat(likedStatuses).hasSize(2);
-        assertThat(likedStatuses.get(apiPlaylist1.getUrn()).get(PlaylistProperty.IS_LIKED)).isTrue();
-        assertThat(likedStatuses.get(apiPlaylist2.getUrn()).get(PlaylistProperty.IS_LIKED)).isFalse();
+        assertThat(likedStatuses.get(likedPlaylist.getUrn()).get(PlaylistProperty.IS_LIKED)).isTrue();
+        assertThat(likedStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_LIKED)).isFalse();
     }
 
     @Test
-    public void shouldOnlyReturnLikedStatusForPlaylists() throws Exception {
-        final ApiPlaylist likedPlaylist = testFixtures().insertLikedPlaylist(new Date());
-        final ApiPlaylist unlikedPlaylist = testFixtures().insertPlaylist();
+    public void shouldOnlyReturnLikedStatusForPlaylists() {
         final ApiTrack track = testFixtures().insertTrack();
+        final List<PropertySet> input = Arrays.asList(
+                likedPlaylist.toPropertySet(), playlist.toPropertySet(), track.toPropertySet());
 
-        List<PropertySet> input = Arrays.asList(
-                likedPlaylist.toPropertySet(), unlikedPlaylist.toPropertySet(), track.toPropertySet());
-
-
-        Map<Urn, PropertySet> likedStatuses = command.call(input);
+        final Map<Urn, PropertySet> likedStatuses = command.call(input);
 
         assertThat(likedStatuses.get(likedPlaylist.getUrn()).get(PlaylistProperty.IS_LIKED)).isTrue();
-        assertThat(likedStatuses.get(unlikedPlaylist.getUrn()).get(PlaylistProperty.IS_LIKED)).isFalse();
+        assertThat(likedStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_LIKED)).isFalse();
         assertThat(likedStatuses.containsKey(track.getUrn())).isFalse();
     }
 
