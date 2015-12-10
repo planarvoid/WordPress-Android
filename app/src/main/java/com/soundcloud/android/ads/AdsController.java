@@ -334,7 +334,7 @@ public class AdsController {
         @Override
         public void onNext(Player.StateTransition state) {
             if (adsOperations.isCurrentItemAudioAd() && state.trackEnded()) {
-                final Optional<AdData> monetizableAdData = adsOperations.getMonetizableTrackAdData();
+                final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
                 if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
                     ((OverlayAdData) monetizableAdData.get()).setMetaAdCompleted();
                 }

@@ -355,7 +355,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getQueueSize()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
-        verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
+        verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
 
     @Test
@@ -364,7 +364,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
-        verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
+        verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
 
     @Test
@@ -400,7 +400,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
-        verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
+        verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
 
     @Test
@@ -411,7 +411,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
-        verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
+        verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
 
     @Test
@@ -423,7 +423,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPosition()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE - 1);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
-        verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
+        verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
 
     @Test
@@ -452,7 +452,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
-        verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
+        verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
 
     @Test
@@ -466,7 +466,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
-        verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
+        verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
 
     @Test
@@ -478,7 +478,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
-        verify(playQueueManager, never()).appendUniquePlayQueueItems(recommendedPlayQueue);
+        verify(playQueueManager, never()).appendPlayQueueItems(recommendedPlayQueue);
     }
 
     @Test
@@ -492,7 +492,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
-        verify(playQueueManager).appendUniquePlayQueueItems(recommendedPlayQueue);
+        verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);
     }
 
     @Test
@@ -558,22 +558,15 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdatePlayPositionToGivenIndex() {
-        controller.setPlayQueuePosition(5);
-
-        verify(playQueueManager).setPosition(5, true);
-    }
-
-    @Test
-    public void settingPlayQueuePositionPublishesAdSkippedTrackingEventWhenTrackIsAudioAd() {
+    public void settingPlayQueueItemPublishesAdSkippedTrackingEventWhenTrackIsAudioAd() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
 
-        controller.setPlayQueuePosition(5);
+        controller.setCurrentPlayQueueItem(trackPlayQueueItem);
 
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
         inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAudioAd();
-        inOrder.verify(playQueueManager).setPosition(5, true);
+        inOrder.verify(playQueueManager).setCurrentPlayQueueItem(trackPlayQueueItem);
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
@@ -581,8 +574,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void settingPlayQueuePositionDoesNotPublishAdSkippedTrackingEventWhenTrackNotAnAd() {
-        controller.setPlayQueuePosition(5);
+    public void settingPlayQueueItemDoesNotPublishAdSkippedTrackingEventWhenTrackNotAnAd() {
+        controller.setCurrentPlayQueueItem(trackPlayQueueItem);
 
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }

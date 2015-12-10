@@ -3,10 +3,7 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class PlaybackUtils {
 
@@ -36,35 +33,6 @@ public class PlaybackUtils {
             updatedPosition = 0;
         }
 
-        return getDeduplicatedList(playQueue, updatedPosition);
-    }
-
-    /**
-     * Remove duplicates and non-track items from playqueue, preserving the ordering with regards to the item they clicked on
-     * Returns the new startPosition.
-     */
-    // TODO: This method should return de-duplicated list, instead of mutating the original one
-    private static int getDeduplicatedList(PlayQueue trackUrns, int startPosition) {
-        final Set<PlayQueueItem> seenTracks = new HashSet<>(trackUrns.size());
-        final Urn playedTrack = trackUrns.getUrn(startPosition);
-
-        int i = 0;
-        Iterator<PlayQueueItem> iterator = trackUrns.iterator();
-        int adjustedPosition = startPosition;
-        while (iterator.hasNext()) {
-            final PlayQueueItem track = iterator.next();
-            if (i != adjustedPosition && (seenTracks.contains(track) ||
-                    !track.isTrack() ||
-                    track.getUrn().equals(playedTrack))) {
-                iterator.remove();
-                if (i < adjustedPosition) {
-                    adjustedPosition--;
-                }
-            } else {
-                seenTracks.add(track);
-                i++;
-            }
-        }
-        return adjustedPosition;
+        return updatedPosition;
     }
 }

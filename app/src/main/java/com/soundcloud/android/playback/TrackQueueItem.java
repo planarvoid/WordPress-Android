@@ -77,26 +77,6 @@ public class TrackQueueItem extends PlayQueueItem {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        TrackQueueItem that = (TrackQueueItem) o;
-        return MoreObjects.equal(trackUrn, that.trackUrn) && MoreObjects.equal(source, that.source)
-                && MoreObjects.equal(sourceVersion, that.sourceVersion) && getKind() == that.getKind()
-                && MoreObjects.equal(blocked, that.blocked);
-    }
-
-    @Override
-    public int hashCode() {
-        return MoreObjects.hashCode(trackUrn, source, sourceVersion);
-    }
-
-    @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("trackUrn", trackUrn)

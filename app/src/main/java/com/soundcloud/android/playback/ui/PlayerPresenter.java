@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
@@ -7,6 +9,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
@@ -29,7 +32,6 @@ import android.os.Message;
 import android.view.View;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment> {
 
@@ -45,9 +47,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     private final Observable<PlaybackProgressEvent> checkAdProgress;
     private final PlayerPagerScrollListener playerPagerScrollListener;
-    private final Provider<PlayQueueDataSource> playQueueDataSwitcherProvider;
-
-    private PlayQueueDataSource playQueueDataSource;
     private CompositeSubscription subscription = new CompositeSubscription();
     private Subscription unblockPagerSubscription = RxUtils.invalidSubscription();
     private Handler changeTracksHandler;
@@ -109,13 +108,11 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     @Inject
     public PlayerPresenter(PlayerPagerPresenter presenter, EventBus eventBus,
                            PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                           Provider<PlayQueueDataSource> playQueueDataSwitcherProvider,
                            PlayerPagerScrollListener playerPagerScrollListener, AdsOperations adsOperations) {
         this.presenter = presenter;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playSessionController = playSessionController;
-        this.playQueueDataSwitcherProvider = playQueueDataSwitcherProvider;
         this.playerPagerScrollListener = playerPagerScrollListener;
         this.adsOperations = adsOperations;
 
@@ -132,7 +129,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setPositionToDisplayedTrack(){
-        playSessionController.setPlayQueuePosition(getDisplayedPositionInPlayQueue());
+        playSessionController.setCurrentPlayQueueItem(getDisplayedItem());
     }
 
     public void onPlayerSlide(float slideOffset) {
@@ -214,13 +211,13 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setFullQueue() {
-        presenter.setCurrentData(playQueueDataSource.getFullQueue());
+        presenter.setCurrentPlayQueue(playQueueManager.getPlayQueueItems());
         trackPager.setCurrentItem(playQueueManager.getCurrentPosition(), false);
         setPlayQueueAfterScroll = false;
     }
 
     private void setAdPlayQueue() {
-        presenter.setCurrentData(playQueueDataSource.getCurrentItemAsQueue());
+        presenter.setCurrentPlayQueue(newArrayList(playQueueManager.getCurrentPlayQueueItem()));
         trackPager.setCurrentItem(0, false);
     }
 
@@ -235,15 +232,14 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     private boolean isShowingCurrentAd() {
         return adsOperations.isCurrentItemAd()
-                && playQueueManager.isCurrentPosition(getDisplayedPositionInPlayQueue());
+                && playQueueManager.isCurrentItem(getDisplayedItem());
     }
 
-    private int getDisplayedPositionInPlayQueue() {
-        return presenter.getPlayQueuePosition(trackPager.getCurrentItem());
+    private PlayQueueItem getDisplayedItem() {
+        return presenter.getItemAtPosition(trackPager.getCurrentItem());
     }
 
     private void refreshPlayQueue() {
-        playQueueDataSource = playQueueDataSwitcherProvider.get();
         setFullQueue();
     }
 

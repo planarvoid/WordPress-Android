@@ -190,6 +190,18 @@ public class PlayQueueTest extends AndroidUnitTest {
         assertThat(trackQueueItem.getSourceUrn()).isEqualTo(stationUrn);
     }
 
+    @Test
+    public void hasSameTracksTrueWithSameTracksInSameOrder() {
+        final PlayQueue playQueue2 = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, VIDEO_QUEUE_ITEM));
+        assertThat(this.playQueue.hasSameTracks(playQueue2)).isTrue();
+    }
+
+    @Test
+    public void hasSameTracksFalseWithSameTracksInDifferentOrder() {
+        final PlayQueue playQueue2 = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_2, TRACK_QUEUE_ITEM_1, VIDEO_QUEUE_ITEM));
+        assertThat(this.playQueue.hasSameTracks(playQueue2)).isFalse();
+    }
+
     private void assertTrackQueueItem(PlayQueueItem playQueueItem, Urn trackUrn) {
         assertThat(playQueueItem.isTrack()).isTrue();
         assertThat(playQueueItem.getUrn()).isEqualTo(trackUrn);

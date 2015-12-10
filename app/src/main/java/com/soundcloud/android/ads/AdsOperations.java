@@ -1,6 +1,7 @@
 package com.soundcloud.android.ads;
 
-import android.util.Log;
+import static com.soundcloud.android.utils.Log.ADS_TAG;
+import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
@@ -16,18 +17,15 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.java.optional.Optional;
-
-import java.util.Arrays;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 
-import static com.soundcloud.android.utils.Log.ADS_TAG;
-import static com.soundcloud.java.checks.Preconditions.checkState;
+import android.util.Log;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.Arrays;
 
 public class AdsOperations {
 
@@ -155,37 +153,38 @@ public class AdsOperations {
     }
 
     public boolean isCurrentItemAd() {
-        return isAdAtPosition(playQueueManager.getCurrentPosition());
+        return isAd(playQueueManager.getCurrentPlayQueueItem());
     }
 
     public boolean isNextItemAd() {
-        return isAdAtPosition(playQueueManager.getCurrentPosition() + 1);
-    }
-
-    public boolean isAdAtPosition(int position) {
-        return isAudioAdAtPosition(position) || isVideoAdAtPosition(position);
+        return isAd(playQueueManager.getNextPlayQueueItem());
     }
 
     public boolean isCurrentItemAudioAd() {
-        return !playQueueManager.isQueueEmpty() && isAudioAdAtPosition(playQueueManager.getCurrentPosition());
+        return isAudioAd(playQueueManager.getCurrentPlayQueueItem());
     }
 
-    private boolean isAudioAdAtPosition(int position) {
-        final PlayQueueItem playQueueItem = playQueueManager.getPlayQueueItemAtPosition(position);
+    public static boolean isAd(PlayQueueItem playQueueItem) {
+        return isAudioAd(playQueueItem) || isVideoAd(playQueueItem);
+    }
+
+    public static boolean isAudioAd(PlayQueueItem playQueueItem) {
         return playQueueItem.getAdData().isPresent() && playQueueItem.getAdData().get() instanceof AudioAd;
     }
 
-    private boolean isVideoAdAtPosition(int position) {
-        final PlayQueueItem playQueueItem = playQueueManager.getPlayQueueItemAtPosition(position);
+    public static boolean isVideoAd(PlayQueueItem playQueueItem) {
         return playQueueItem.isVideo();
+    }
+
+    public static boolean hasAdOverlay(PlayQueueItem playQueueItem) {
+        return playQueueItem.getAdData().isPresent() && playQueueItem.getAdData().get() instanceof OverlayAdData;
     }
 
     public void clearAllAdsFromQueue() {
         playQueueManager.removeAds(PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
     }
 
-    public Optional<AdData> getMonetizableTrackAdData() {
-        final int monetizableTrackPosition = playQueueManager.getCurrentPosition() + 1;
-        return playQueueManager.getPlayQueueItemAtPosition(monetizableTrackPosition).getAdData();
+    public Optional<AdData> getNextTrackAdData() {
+        return playQueueManager.getNextPlayQueueItem().getAdData();
     }
 }

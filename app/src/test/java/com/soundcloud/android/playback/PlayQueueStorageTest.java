@@ -9,6 +9,7 @@ import static com.soundcloud.android.storage.Tables.PlayQueue.SOURCE;
 import static com.soundcloud.android.storage.Tables.PlayQueue.SOURCE_URN;
 import static com.soundcloud.android.storage.Tables.PlayQueue.SOURCE_VERSION;
 import static com.soundcloud.android.storage.Tables.PlayQueue.TRACK_ID;
+import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueItemsEqual;
 import static com.soundcloud.propeller.query.Query.from;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -129,7 +130,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
         storage.loadAsync().subscribe(subscriber);
 
-        subscriber.assertValue(expectedItem);
+        assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
     }
 
     @Test
@@ -144,7 +145,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
         storage.loadAsync().subscribe(subscriber);
 
-        subscriber.assertValue(expectedItem);
+        assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
     }
 
     @Test
@@ -158,7 +159,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
         storage.loadAsync().subscribe(subscriber);
 
-        subscriber.assertValue(expectedItem);
+        assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
     }
 
     @Test
@@ -173,7 +174,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
         storage.loadAsync().subscribe(subscriber);
 
-        subscriber.assertValue(expectedItem);
+        assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
     }
 
     private void insertTrackQueueItem(TrackQueueItem trackQueueItem) {
