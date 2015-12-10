@@ -1,19 +1,16 @@
 package com.soundcloud.android.tracks;
 
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.view.LayoutInflater;
@@ -22,21 +19,19 @@ import android.widget.FrameLayout;
 
 import java.util.Locale;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackInfoPresenterTest extends TestCase {
+public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     private View view;
     private TrackInfoPresenter presenter;
 
     @Mock TrackInfoPresenter.CommentClickListener commentClickListener;
 
-    private final CondensedNumberFormatter numberFormatter =
-            CondensedNumberFormatter.create(Locale.US, Robolectric.application.getResources());
+    private final CondensedNumberFormatter numberFormatter =  CondensedNumberFormatter.create(Locale.US, resources());
 
     @Before
     public void setUp() throws Exception {
-        presenter = new TrackInfoPresenter(Robolectric.application.getResources(), numberFormatter);
-        view = presenter.create(LayoutInflater.from(Robolectric.application), new FrameLayout(Robolectric.application));
+        presenter = new TrackInfoPresenter(resources(), numberFormatter);
+        view = presenter.create(LayoutInflater.from(context()), new FrameLayout(context()));
     }
 
     @Test
@@ -48,11 +43,11 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bind(view, trackProperties, commentClickListener);
 
-        expect(view.findViewById(R.id.plays)).toBeVisible();
-        expect(view.findViewById(R.id.divider1)).toBeVisible();
-        expect(view.findViewById(R.id.likes)).toBeVisible();
-        expect(view.findViewById(R.id.divider2)).toBeVisible();
-        expect(view.findViewById(R.id.reposts)).toBeVisible();
+        assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.likes).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.divider2).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.reposts).getVisibility()).isEqualTo(View.VISIBLE);
     }
 
     @Test
@@ -64,11 +59,11 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bind(view, trackProperties, commentClickListener);
 
-        expect(view.findViewById(R.id.plays)).toBeGone();
-        expect(view.findViewById(R.id.divider1)).toBeGone();
-        expect(view.findViewById(R.id.likes)).toBeGone();
-        expect(view.findViewById(R.id.divider2)).toBeGone();
-        expect(view.findViewById(R.id.reposts)).toBeGone();
+        assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.likes).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.divider2).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.reposts).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
@@ -80,11 +75,11 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bind(view, trackProperties, commentClickListener);
 
-        expect(view.findViewById(R.id.plays)).toBeGone();
-        expect(view.findViewById(R.id.divider1)).toBeGone();
-        expect(view.findViewById(R.id.likes)).toBeVisible();
-        expect(view.findViewById(R.id.divider2)).toBeVisible();
-        expect(view.findViewById(R.id.reposts)).toBeVisible();
+        assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.likes).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.divider2).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.reposts).getVisibility()).isEqualTo(View.VISIBLE);
     }
 
     @Test
@@ -96,11 +91,11 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bind(view, trackProperties, commentClickListener);
 
-        expect(view.findViewById(R.id.plays)).toBeVisible();
-        expect(view.findViewById(R.id.divider1)).toBeVisible();
-        expect(view.findViewById(R.id.likes)).toBeGone();
-        expect(view.findViewById(R.id.divider2)).toBeGone();
-        expect(view.findViewById(R.id.reposts)).toBeVisible();
+        assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.likes).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.divider2).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.reposts).getVisibility()).isEqualTo(View.VISIBLE);
     }
 
     @Test
@@ -112,11 +107,11 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bind(view, trackProperties, commentClickListener);
 
-        expect(view.findViewById(R.id.plays)).toBeVisible();
-        expect(view.findViewById(R.id.divider1)).toBeVisible();
-        expect(view.findViewById(R.id.likes)).toBeVisible();
-        expect(view.findViewById(R.id.divider2)).toBeGone();
-        expect(view.findViewById(R.id.reposts)).toBeGone();
+        assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.likes).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.divider2).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.reposts).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
@@ -128,11 +123,11 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bind(view, trackProperties, commentClickListener);
 
-        expect(view.findViewById(R.id.plays)).toBeVisible();
-        expect(view.findViewById(R.id.divider1)).toBeGone();
-        expect(view.findViewById(R.id.likes)).toBeGone();
-        expect(view.findViewById(R.id.divider2)).toBeGone();
-        expect(view.findViewById(R.id.reposts)).toBeGone();
+        assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.likes).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.divider2).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.reposts).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
@@ -144,11 +139,11 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bind(view, trackProperties, commentClickListener);
 
-        expect(view.findViewById(R.id.plays)).toBeGone();
-        expect(view.findViewById(R.id.divider1)).toBeGone();
-        expect(view.findViewById(R.id.likes)).toBeVisible();
-        expect(view.findViewById(R.id.divider2)).toBeGone();
-        expect(view.findViewById(R.id.reposts)).toBeGone();
+        assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.likes).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.divider2).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.reposts).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
@@ -160,11 +155,11 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bind(view, trackProperties, commentClickListener);
 
-        expect(view.findViewById(R.id.plays)).toBeGone();
-        expect(view.findViewById(R.id.divider1)).toBeGone();
-        expect(view.findViewById(R.id.likes)).toBeGone();
-        expect(view.findViewById(R.id.divider2)).toBeGone();
-        expect(view.findViewById(R.id.reposts)).toBeVisible();
+        assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.likes).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.divider2).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.reposts).getVisibility()).isEqualTo(View.VISIBLE);
     }
 
     @Test
@@ -173,7 +168,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bind(view, trackProperties, commentClickListener);
 
-        expect(view.findViewById(R.id.comments)).toBeGone();
+        assertThat(view.findViewById(R.id.comments).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
@@ -182,8 +177,8 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bindDescription(view, trackProperties);
 
-        expect(view.findViewById(R.id.description)).toBeGone();
-        expect(view.findViewById(R.id.no_description)).toBeVisible();
+        assertThat(view.findViewById(R.id.description).getVisibility()).isEqualTo(View.GONE);
+        assertThat(view.findViewById(R.id.no_description).getVisibility()).isEqualTo(View.VISIBLE);
     }
 
     @Test // fixes #2863
@@ -194,7 +189,7 @@ public class TrackInfoPresenterTest extends TestCase {
 
         presenter.bindDescription(view, trackProperties);
 
-        expect(view.findViewById(R.id.description)).toBeVisible();
-        expect(view.findViewById(R.id.no_description)).toBeGone();
+        assertThat(view.findViewById(R.id.description).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(view.findViewById(R.id.no_description).getVisibility()).isEqualTo(View.GONE);
     }
 }

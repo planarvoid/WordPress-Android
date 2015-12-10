@@ -1,10 +1,11 @@
 package com.soundcloud.android.comments;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.comments.CommentsOperations.COMMENTS_PAGE_SIZE;
 import static com.soundcloud.android.comments.CommentsOperations.CommentsCollection;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -12,21 +13,17 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-import java.util.Arrays;
-
-@RunWith(SoundCloudTestRunner.class)
-public class CommentsOperationsTest {
+public class CommentsOperationsTest extends AndroidUnitTest {
 
     @Mock private ApiClientRx apiClientRx;
 
@@ -39,7 +36,7 @@ public class CommentsOperationsTest {
     @Before
     public void setup() {
         operations = new CommentsOperations(apiClientRx, Schedulers.immediate());
-        apiComments = Observable.just(new CommentsCollection(Arrays.asList(comment), nextPageUrl));
+        apiComments = Observable.just(new CommentsCollection(singletonList(comment), nextPageUrl));
         when(apiClientRx.mappedResponse(argThat(
                 isPublicApiRequestTo("GET", "/tracks/123/comments")
                         .withQueryParam("linked_partitioning", "1")
@@ -52,7 +49,7 @@ public class CommentsOperationsTest {
         Urn track = Urn.forTrack(123L);
         operations.comments(track).subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -62,22 +59,22 @@ public class CommentsOperationsTest {
 
         operations.pager().next();
 
-        expect(observer.getOnNextEvents()).toNumber(2);
+        assertThat(observer.getOnNextEvents()).hasSize(2);
     }
 
     @Test
     public void shouldStopPagingIfNoMorePagesAvailable() {
-        apiComments = Observable.just(new CommentsCollection(Arrays.asList(comment), null));
+        apiComments = Observable.just(new CommentsCollection(singletonList(comment), null));
 
         operations.pager().page(apiComments).subscribe(observer);
 
         operations.pager().next();
 
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
     }
 
     @Test
-    public void addsComment() throws Exception {
+    public void addsComment() {
         when(apiClientRx.mappedResponse(argThat(
                 isPublicApiRequestTo("POST", "/tracks/123/comments")
                         .withContent(new CommentsOperations.CommentHolder("some comment text", 2001L))
@@ -86,7 +83,7 @@ public class CommentsOperationsTest {
         TestSubscriber<PublicApiComment> subscriber = new TestSubscriber<>();
         operations.addComment(Urn.forTrack(123L), "some comment text", 2001L).subscribe(subscriber);
 
-        expect(subscriber.getOnNextEvents()).toContainExactly(comment);
-        expect(subscriber.getOnCompletedEvents()).toNumber(1);
+        assertThat(subscriber.getOnNextEvents()).containsExactly(comment);
+        assertThat(subscriber.getOnCompletedEvents()).hasSize(1);
     }
 }

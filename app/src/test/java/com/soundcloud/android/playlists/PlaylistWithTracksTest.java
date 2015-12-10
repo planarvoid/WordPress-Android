@@ -1,98 +1,95 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
-import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaylistWithTracksTest {
+public class PlaylistWithTracksTest extends AndroidUnitTest {
 
     @Test
-    public void isLocalPlaylistIfUrnIsNegative() throws Exception {
+    public void isLocalPlaylistIfUrnIsNegative() {
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(-123L), Collections.<TrackItem>emptyList());
-        expect(playlistWithTracks.isLocalPlaylist()).toBeTrue();
+        assertThat(playlistWithTracks.isLocalPlaylist()).isTrue();
     }
 
     @Test
-    public void isNotLocalPlaylistTrueIfUrnIsMissing() throws Exception {
+    public void isNotLocalPlaylistTrueIfUrnIsMissing() {
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(PropertySet.create(), Collections.<TrackItem>emptyList());
-        expect(playlistWithTracks.isLocalPlaylist()).toBeFalse();
+        assertThat(playlistWithTracks.isLocalPlaylist()).isFalse();
     }
 
     @Test
-    public void isNotLocalPlaylistTrueIfUrnIsPositive() throws Exception {
+    public void isNotLocalPlaylistTrueIfUrnIsPositive() {
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(123L), Collections.<TrackItem>emptyList());
-        expect(playlistWithTracks.isLocalPlaylist()).toBeFalse();
+        assertThat(playlistWithTracks.isLocalPlaylist()).isFalse();
     }
 
     @Test
-    public void isMissingMetadataIfPlaylistMetadataIsEmpty() throws Exception {
+    public void isMissingMetadataIfPlaylistMetadataIsEmpty() {
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(PropertySet.create(), Collections.<TrackItem>emptyList());
-        expect(playlistWithTracks.isMissingMetaData()).toBeTrue();
+        assertThat(playlistWithTracks.isMissingMetaData()).isTrue();
     }
 
     @Test
-    public void isNotMissingMetadataIfPlaylistMetadataIsEmpty() throws Exception {
+    public void isNotMissingMetadataIfPlaylistMetadataIsEmpty() {
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(123L), Collections.<TrackItem>emptyList());
-        expect(playlistWithTracks.isMissingMetaData()).toBeFalse();
+        assertThat(playlistWithTracks.isMissingMetaData()).isFalse();
     }
 
     @Test
-    public void needsTracksIfTracklistEmpty() throws Exception {
+    public void needsTracksIfTracklistEmpty() {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
                 PlaylistProperty.TRACK_COUNT.bind(0) // the track count is usually wrong, as it does not count private tracks
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, Collections.<TrackItem>emptyList());
-        expect(playlistWithTracks.needsTracks()).toBeTrue();
+        assertThat(playlistWithTracks.needsTracks()).isTrue();
     }
 
     @Test
-    public void doesNotNeedTracksIfTrackListSizeGreaterThanZero() throws Exception {
+    public void doesNotNeedTracksIfTrackListSizeGreaterThanZero() {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L))
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, ModelFixtures.trackItems(10));
-        expect(playlistWithTracks.needsTracks()).toBeFalse();
+        assertThat(playlistWithTracks.needsTracks()).isFalse();
     }
 
     @Test
-    public void returnsTrackCountFromPlaylistMetadataIfTracksMissing() throws Exception {
+    public void returnsTrackCountFromPlaylistMetadataIfTracksMissing() {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
                 PlaylistProperty.TRACK_COUNT.bind(2)
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, Collections.<TrackItem>emptyList());
-        expect(playlistWithTracks.getTrackCount()).toEqual(2);
+        assertThat(playlistWithTracks.getTrackCount()).isEqualTo(2);
     }
 
     @Test
-    public void returnsTrackCountFromTracklistIfTracksAreThere() throws Exception {
+    public void returnsTrackCountFromTracklistIfTracksAreThere() {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
                 PlaylistProperty.TRACK_COUNT.bind(1)
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, ModelFixtures.trackItems(2));
-        expect(playlistWithTracks.getTrackCount()).toEqual(2);
+        assertThat(playlistWithTracks.getTrackCount()).isEqualTo(2);
     }
 
     @Test
-    public void returnsDurationFromPlaylistMetadataIfTracksMissing() throws Exception {
+    public void returnsDurationFromPlaylistMetadataIfTracksMissing() {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
                 PlaylistProperty.TRACK_COUNT.bind(1),
@@ -100,23 +97,18 @@ public class PlaylistWithTracksTest {
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, Collections.<TrackItem>emptyList());
-        expect(playlistWithTracks.getDuration()).toEqual("1:00");
+        assertThat(playlistWithTracks.getDuration()).isEqualTo("1:00");
     }
 
     @Test
-    public void returnsDurationFromTracklistIfTracksAreThere() throws Exception {
+    public void returnsDurationFromTracklistIfTracksAreThere() {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
                 PlaylistProperty.PLAY_DURATION.bind(TimeUnit.SECONDS.toMillis(60))
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, ModelFixtures.trackItems(2));
-        expect(playlistWithTracks.getDuration()).toEqual("0:24");
-    }
-
-    @Test
-    public void implementsEqualsAndHashCode() throws Exception {
-        EqualsVerifier.forClass(PlaylistWithTracks.class).verify();
+        assertThat(playlistWithTracks.getDuration()).isEqualTo("0:24");
     }
 
     private PlaylistWithTracks createPlaylistMetaData(Urn playlistUrn, List<TrackItem> tracks) {

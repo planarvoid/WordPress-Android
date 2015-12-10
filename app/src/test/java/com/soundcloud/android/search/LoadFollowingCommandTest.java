@@ -1,21 +1,18 @@
-package com.soundcloud.android.associations;
+package com.soundcloud.android.search;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Map;
 
-@RunWith(SoundCloudTestRunner.class)
 public class LoadFollowingCommandTest extends StorageIntegrationTest {
 
     private LoadFollowingCommand command;
@@ -35,8 +32,8 @@ public class LoadFollowingCommandTest extends StorageIntegrationTest {
         Map<Urn, PropertySet> userFollowings = command.call(getUserList());
         PropertySet followedPropertySet = userFollowings.get(followedUser.getUrn());
 
-        expect(followedPropertySet.get(UserProperty.IS_FOLLOWED_BY_ME)).toBe(true);
-        expect(userFollowings.get(unfollowedUser.getUrn())).toBeNull();
+        assertThat(followedPropertySet.get(UserProperty.IS_FOLLOWED_BY_ME)).isTrue();
+        assertThat(userFollowings.get(unfollowedUser.getUrn())).isNull();
     }
 
     private Iterable<PropertySet> getUserList() {

@@ -1,4 +1,4 @@
-package com.soundcloud.android.associations;
+package com.soundcloud.android.search;
 
 import static com.soundcloud.android.storage.TableColumns.UserAssociations.POSITION;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn, PropertySet>> {
+class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn, PropertySet>> {
     private final PropellerDatabase propeller;
 
     @Inject
