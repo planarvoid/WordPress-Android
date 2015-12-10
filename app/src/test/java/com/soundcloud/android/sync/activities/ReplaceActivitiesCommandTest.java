@@ -8,6 +8,9 @@ import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertTha
 import static java.util.Collections.singleton;
 
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.comments.StoreCommentCommand;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
@@ -19,7 +22,11 @@ public class ReplaceActivitiesCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        command = new ReplaceActivitiesCommand(propeller(), new StoreCommentCommand(propeller()));
+        command = new ReplaceActivitiesCommand(propeller(),
+                new StoreUsersCommand(propeller()),
+                new StoreTracksCommand(propeller()),
+                new StorePlaylistsCommand(propeller()),
+                new StoreCommentCommand(propeller()));
     }
 
     @Test

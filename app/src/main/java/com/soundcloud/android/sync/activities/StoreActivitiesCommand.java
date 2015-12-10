@@ -25,11 +25,21 @@ import java.util.Set;
 
 class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActivityItem>, TxnResult> {
 
+    private final StoreUsersCommand storeUsersCommand;
+    private final StoreTracksCommand storeTracksCommand;
+    private final StorePlaylistsCommand storePlaylistsCommand;
     private final StoreCommentCommand storeCommentCommand;
 
     @Inject
-    StoreActivitiesCommand(PropellerDatabase propeller, StoreCommentCommand storeCommentCommand) {
+    StoreActivitiesCommand(PropellerDatabase propeller,
+                           StoreUsersCommand storeUsersCommand,
+                           StoreTracksCommand storeTracksCommand,
+                           StorePlaylistsCommand storePlaylistsCommand,
+                           StoreCommentCommand storeCommentCommand) {
         super(propeller);
+        this.storeUsersCommand = storeUsersCommand;
+        this.storeTracksCommand = storeTracksCommand;
+        this.storePlaylistsCommand = storePlaylistsCommand;
         this.storeCommentCommand = storeCommentCommand;
     }
 
@@ -48,7 +58,7 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
 
         @Override
         public void steps(PropellerDatabase propeller) {
-            storeDependencies(propeller);
+            storeDependencies();
 
             for (ApiActivityItem activityItem : activities) {
                 handleLikeActivity(propeller, activityItem);
@@ -105,7 +115,7 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
             }
         }
 
-        private void storeDependencies(PropellerDatabase propeller) {
+        private void storeDependencies() {
             final Set<UserRecord> users = new HashSet<>();
             final Set<TrackRecord> tracks = new HashSet<>();
             final Set<PlaylistRecord> playlists = new HashSet<>();
@@ -116,13 +126,13 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
                 playlists.addAll(activityItem.getPlaylist().asSet());
             }
             if (!users.isEmpty()) {
-                step(new StoreUsersCommand(propeller).call(users));
+                step(storeUsersCommand.call(users));
             }
             if (!tracks.isEmpty()) {
-                step(new StoreTracksCommand(propeller).call(tracks));
+                step(storeTracksCommand.call(tracks));
             }
             if (!playlists.isEmpty()) {
-                step(new StorePlaylistsCommand(propeller).call(playlists));
+                step(storePlaylistsCommand.call(playlists));
             }
         }
 

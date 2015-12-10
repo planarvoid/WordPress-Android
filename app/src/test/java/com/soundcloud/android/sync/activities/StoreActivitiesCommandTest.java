@@ -14,6 +14,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.comments.StoreCommentCommand;
 import com.soundcloud.android.model.Urn;
@@ -30,7 +33,11 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        command = new StoreActivitiesCommand(propeller(), new StoreCommentCommand(propeller()));
+        command = new StoreActivitiesCommand(propeller(),
+                new StoreUsersCommand(propeller()),
+                new StoreTracksCommand(propeller()),
+                new StorePlaylistsCommand(propeller()),
+                new StoreCommentCommand(propeller()));
     }
 
     @Test

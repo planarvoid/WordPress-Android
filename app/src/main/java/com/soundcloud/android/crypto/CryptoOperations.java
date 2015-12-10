@@ -4,11 +4,8 @@ import static com.soundcloud.android.crypto.KeyGeneratorWrapper.GENERATED_KEY_SI
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.events.EncryptionEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -31,14 +28,12 @@ public class CryptoOperations {
     private final KeyGeneratorWrapper keyGenerator;
     private final Encryptor encryptor;
     private final SecureRandom secureRandom;
-    private final EventBus eventBus;
     private final Scheduler storageScheduler;
 
     @Inject
-    public CryptoOperations(KeyStorage storage, KeyGeneratorWrapper keyGenerator, Encryptor encryptor, EventBus eventBus,
+    public CryptoOperations(KeyStorage storage, KeyGeneratorWrapper keyGenerator, Encryptor encryptor,
                             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.keyGenerator = keyGenerator;
-        this.eventBus = eventBus;
         this.secureRandom = new SecureRandom();
         this.encryptor = encryptor;
         this.storage = storage;
@@ -72,10 +67,8 @@ public class CryptoOperations {
         try {
             final DeviceSecret secret = checkAndGetDeviceKey();
             encryptor.encrypt(stream, outputStream, secret, listener);
-            eventBus.publish(EventQueue.TRACKING, EncryptionEvent.fromEncryptionSuccess());
         } catch (EncryptionException e) {
             ErrorUtils.handleSilentException("Encryption error", e);
-            eventBus.publish(EventQueue.TRACKING, EncryptionEvent.fromEncryptionError());
             throw e;
         }
     }
@@ -106,8 +99,6 @@ public class CryptoOperations {
             storage.put(key);
         } catch (NoSuchAlgorithmException e) {
             ErrorUtils.handleSilentException("Key generation error", e);
-            eventBus.publish(EventQueue.TRACKING,
-                    EncryptionEvent.fromKeyGenerationError());
         }
     }
 }

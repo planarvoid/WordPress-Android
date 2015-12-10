@@ -3,7 +3,6 @@ package com.soundcloud.android;
 import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
 
-import com.crashlytics.android.Crashlytics;
 import com.facebook.FacebookSdk;
 import com.newrelic.agent.android.NewRelic;
 import com.newrelic.agent.android.logging.AgentLog;
@@ -14,6 +13,7 @@ import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
+import com.soundcloud.android.analytics.crashlytics.FabricProvider;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
@@ -56,7 +56,6 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.NotNull;
 
 import android.accounts.Account;
@@ -117,6 +116,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject AppboyPlaySessionState appboyPlaySessionState;
     @Inject StreamPreloader streamPreloader;
     @Inject @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory;
+    @Inject FabricProvider fabricProvider;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -144,7 +144,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         instance = this;
 
         initializePreInjectionObjects();
-        setUpCrashReportingIfNeeded();
         objectGraph.inject(this);
 
         // reroute to a static field for legacy code
@@ -154,6 +153,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     protected void bootApplication() {
+        setUpCrashReportingIfNeeded();
         initializeNewRelic();
 
         migrationEngine.migrate();
@@ -238,7 +238,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private void setUpCrashReportingIfNeeded() {
         if (isReportingCrashes()) {
-            Fabric.with(this, new Crashlytics());
+            fabricProvider.initialize(this);
         }
         uncaughtExceptionHandlerController.setHandler();
     }
