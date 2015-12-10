@@ -2,8 +2,6 @@ package com.soundcloud.android.settings;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -30,11 +28,8 @@ public class SettingsActivity extends ScActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SETTINGS_MAIN));
-        }
+    public Screen getScreen() {
+        return Screen.SETTINGS_MAIN;
     }
 
     @Override

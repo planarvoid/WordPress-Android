@@ -3,6 +3,7 @@ package com.soundcloud.android.explore;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -13,7 +14,6 @@ import javax.inject.Inject;
 public class ExploreTracksCategoryActivity extends ScActivity {
 
     @Inject @LightCycle PlayerController playerController;
-
     @Inject BaseLayoutHelper baseLayoutHelper;
 
     @Override
@@ -32,6 +32,12 @@ public class ExploreTracksCategoryActivity extends ScActivity {
                     .replace(R.id.container, exploreTracksFragment)
                     .commit();
         }
+    }
+
+    @Override
+    public Screen getScreen() {
+        // This screen is not tracked.
+        return Screen.UNKNOWN;
     }
 
     @Override

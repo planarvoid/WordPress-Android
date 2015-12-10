@@ -7,7 +7,6 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -19,7 +18,6 @@ import javax.inject.Inject;
 public class ActionBarHelper extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final CastConnectionHelper castConnectionHelper;
-    private final EventBus eventBus;
     private final ApplicationProperties applicationProperties;
     private final BugReporter bugReporter;
     private final Navigator navigator;
@@ -27,13 +25,11 @@ public class ActionBarHelper extends DefaultActivityLightCycle<AppCompatActivity
 
     @Inject
     public ActionBarHelper(CastConnectionHelper castConnectionHelper,
-                           EventBus eventBus,
                            ApplicationProperties applicationProperties,
                            BugReporter bugReporter,
                            Navigator navigator,
                            DeviceHelper deviceHelper) {
         this.castConnectionHelper = castConnectionHelper;
-        this.eventBus = eventBus;
         this.applicationProperties = applicationProperties;
         this.bugReporter = bugReporter;
         this.navigator = navigator;

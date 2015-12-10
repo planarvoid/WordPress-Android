@@ -4,8 +4,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.PlayerController;
@@ -105,11 +103,8 @@ public class TrackCommentsActivity extends ScActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(getCurrentScreen()));
-        }
+    public Screen getScreen() {
+        return Screen.PLAYER_COMMENTS;
     }
 
     @Override
@@ -117,10 +112,6 @@ public class TrackCommentsActivity extends ScActivity {
         if (!playerController.handleBackPressed()) {
             super.onBackPressed();
         }
-    }
-
-    private Screen getCurrentScreen() {
-        return Screen.PLAYER_COMMENTS;
     }
 
     private class TrackSubscriber extends DefaultSubscriber<PropertySet> {

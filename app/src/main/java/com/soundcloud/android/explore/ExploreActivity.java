@@ -3,8 +3,6 @@ package com.soundcloud.android.explore;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.main.Screen;
@@ -28,18 +26,15 @@ public class ExploreActivity extends ScActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.EXPLORE_TRENDING_MUSIC));
-        }
-    }
-
-    @Override
     public void onBackPressed() {
         if (!playerController.handleBackPressed()) {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public Screen getScreen() {
+        return Screen.EXPLORE_TRENDING_MUSIC;
     }
 
     @Override

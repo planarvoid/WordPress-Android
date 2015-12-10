@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -16,6 +17,12 @@ public class SearchActivity extends ScActivity {
     @Inject @LightCycle PlayerController playerController;
 
     @Inject BaseLayoutHelper layoutHelper;
+
+    @Override
+    public Screen getScreen() {
+        // The Activity is not a screen. Fragments are screens.
+        return Screen.UNKNOWN;
+    }
 
     @Override
     protected void setActivityContentView() {

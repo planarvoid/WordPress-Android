@@ -2,11 +2,9 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.PlayerController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -36,14 +34,6 @@ public class ShowAllStationsActivity extends ScActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (shouldTrackScreen()) {
-            eventBus.publish(EventQueue.TRACKING, getScreenEventFromIntent());
-        }
-    }
-
     private String getTitleFromIntent() {
         final int type = getIntent().getIntExtra(COLLECTION_TYPE, Consts.NOT_SET);
 
@@ -63,12 +53,13 @@ public class ShowAllStationsActivity extends ScActivity {
         }
     }
 
-    private ScreenEvent getScreenEventFromIntent() {
+    @Override
+    public Screen getScreen() {
         final int type = getIntent().getIntExtra(COLLECTION_TYPE, Consts.NOT_SET);
         if (type == StationsCollectionsTypes.RECENT) {
-            return ScreenEvent.create(Screen.STATIONS_RECENT);
+            return Screen.STATIONS_RECENT;
         }
-        return ScreenEvent.create(Screen.STATIONS_SHOW_ALL);
+        return Screen.STATIONS_SHOW_ALL;
     }
 
     private void attachFragment() {
