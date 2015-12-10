@@ -96,6 +96,21 @@ public class TrackQueueItem extends PlayQueueItem {
         return MoreObjects.hashCode(trackUrn, source, sourceVersion);
     }
 
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("trackUrn", trackUrn)
+                .add("reposter", reposter)
+                .add("relatedEntity", relatedEntity)
+                .add("source", source)
+                .add("sourceVersion", sourceVersion)
+                .add("sourceUrn", sourceUrn)
+                .add("queryUrn", queryUrn)
+                .add("shouldPersist", shouldPersist)
+                .add("blocked", blocked)
+                .toString();
+    }
+
     public static class Builder {
         private final Urn track;
         private final Urn reposter;
@@ -113,8 +128,7 @@ public class TrackQueueItem extends PlayQueueItem {
         }
 
         public Builder(PropertySet track) {
-            this(track.get(TrackProperty.URN),
-                    track.getOrElse(PostProperty.REPOSTER_URN, Urn.NOT_SET));
+            this(track.get(TrackProperty.URN), track.getOrElse(PostProperty.REPOSTER_URN, Urn.NOT_SET));
         }
 
         public Builder(Urn track, Urn reposter) {
