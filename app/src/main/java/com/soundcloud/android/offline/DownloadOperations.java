@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.offline.MP3Helper.calculateFileSizeInBytes;
 import static com.soundcloud.android.offline.StrictSSLHttpClient.TrackFileResponse;
 
 import com.soundcloud.android.ApplicationModule;
@@ -77,7 +78,7 @@ class DownloadOperations {
     }
 
     DownloadState download(DownloadRequest request, DownloadProgressListener listener) {
-        if (!fileStorage.isEnoughSpaceForTrack(request.getDuration())) {
+        if (!fileStorage.isEnoughSpace(calculateFileSizeInBytes(request.getDuration()))) {
             return DownloadState.notEnoughSpace(request);
         }
 

@@ -49,7 +49,6 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
     private final Urn trackUrn = Urn.forTrack(123L);
     private final String streamUrl = "http://stream1.url";
-    private final long trackDuration = 12345;
     private final DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(trackUrn);
 
     @Before
@@ -62,7 +61,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         when(response.isUnavailable()).thenReturn(false);
         when(response.isSuccess()).thenReturn(true);
         when(response.getInputStream()).thenReturn(downloadStream);
-        when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(true);
+        when(fileStorage.isEnoughSpace(anyLong())).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
     }
@@ -170,7 +169,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
     @Test
     public void doesNotDownloadTrackWhenNotEnoughSpace() {
-        when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(false);
+        when(fileStorage.isEnoughSpace(anyLong())).thenReturn(false);
 
         operations.download(downloadRequest, listener);
 
@@ -179,7 +178,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
     @Test
     public void doesNotStoreTrackWhenNotEnoughSpace() throws IOException, EncryptionException {
-        when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(false);
+        when(fileStorage.isEnoughSpace(anyLong())).thenReturn(false);
 
         operations.download(downloadRequest, listener);
 
@@ -188,7 +187,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
     @Test
     public void returnsNotEnoughSpaceResult() {
-        when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(false);
+        when(fileStorage.isEnoughSpace(anyLong())).thenReturn(false);
 
         assertThat(operations.download(downloadRequest, listener).isNotEnoughSpace()).isTrue();
     }

@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
-import static com.soundcloud.android.offline.SecureFileStorage.calculateFileSizeInBytes;
+import static com.soundcloud.android.offline.MP3Helper.calculateFileSizeInBytes;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
