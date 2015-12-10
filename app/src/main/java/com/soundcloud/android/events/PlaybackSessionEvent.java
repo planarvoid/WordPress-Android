@@ -134,24 +134,12 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return EVENT_KIND_PLAY.equals(kind);
     }
 
-    public boolean isBufferingEvent() {
-        return stopReason == STOP_REASON_BUFFERING;
-    }
-
     public boolean isStopEvent() {
         return !isPlayEvent();
     }
 
     public TrackSourceInfo getTrackSourceInfo() {
         return trackSourceInfo;
-    }
-
-    public boolean isPlayingOwnPlaylist() {
-        return trackSourceInfo.getPlaylistOwnerUrn().toString().equals(get(KEY_LOGGED_IN_USER_URN));
-    }
-
-    public boolean isUserTriggered() {
-        return trackSourceInfo.getIsUserTriggered();
     }
 
     public long getProgress() {
