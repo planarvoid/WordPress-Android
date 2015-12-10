@@ -22,7 +22,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
-import android.view.SurfaceHolder;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
@@ -185,7 +184,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 }
 
                 // Temporarily until event logging is handled for video ads
-                if (currentPlaybackItem.get().getPlaybackType() != PlaybackType.VIDEO) {
+                if (currentPlaybackItem.get().getPlaybackType() != PlaybackType.VIDEO_DEFAULT) {
                     analyticsController.onStateTransition(stateTransition);
                 }
                 eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
@@ -200,7 +199,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
             final PlaybackProgressEvent progressEvent;
 
-            if (playbackItem.getPlaybackType() == PlaybackType.VIDEO) {
+            if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT) {
                 progressEvent = PlaybackProgressEvent.forVideo(playbackProgress, ((VideoPlaybackItem) playbackItem).getAdUrn());
             } else {
                 progressEvent = PlaybackProgressEvent.forTrack(playbackProgress, currentPlaybackItem.get().getTrackUrn());

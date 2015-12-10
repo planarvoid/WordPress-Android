@@ -11,7 +11,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 
 import android.support.annotation.VisibleForTesting;
-import android.view.SurfaceHolder;
 
 import javax.inject.Inject;
 
@@ -78,16 +77,16 @@ class StreamPlayer implements PlayerListener {
         prepareForPlay(playbackItem);
 
         switch(playbackItem.getPlaybackType()) {
-            case DEFAULT :
+            case AUDIO_DEFAULT:
                 currentPlayer.play(playbackItem.getTrackUrn(), playbackItem.getStartPosition());
                 break;
-            case OFFLINE :
+            case AUDIO_OFFLINE:
                 currentPlayer.playOffline(playbackItem.getTrackUrn(), playbackItem.getStartPosition());
                 break;
-            case UNINTERRUPTED :
+            case AUDIO_UNINTERRUPTED:
                 currentPlayer.playUninterrupted(playbackItem.getTrackUrn());
                 break;
-            case VIDEO:
+            case VIDEO_DEFAULT:
                 currentPlayer.playVideo((VideoPlaybackItem) playbackItem);
         }
     }
@@ -190,7 +189,7 @@ class StreamPlayer implements PlayerListener {
     }
 
     private Player getNextPlayer(PlaybackItem playbackItem) {
-        if (playbackItem.getPlaybackType() == PlaybackType.VIDEO) {
+        if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT) {
             return videoPlayerDelegate;
         } else if (skippyFailedToInitialize || PlaybackConstants.FORCE_MEDIA_PLAYER) {
             return mediaPlayerDelegate;

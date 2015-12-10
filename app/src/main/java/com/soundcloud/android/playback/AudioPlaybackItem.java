@@ -16,15 +16,15 @@ public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
     }
 
     public static AudioPlaybackItem create(PropertySet track, long startPosition) {
-        return create(track, startPosition, PlaybackType.DEFAULT);
+        return create(track, startPosition, PlaybackType.AUDIO_DEFAULT);
     }
 
     public static AudioPlaybackItem forOffline(PropertySet track, long startPosition) {
-        return create(track, startPosition, PlaybackType.OFFLINE);
+        return create(track, startPosition, PlaybackType.AUDIO_OFFLINE);
     }
 
     public static AudioPlaybackItem forAudioAd(PropertySet track) {
-        return create(track, 0, PlaybackType.UNINTERRUPTED);
+        return create(track, 0, PlaybackType.AUDIO_UNINTERRUPTED);
     }
 
     @Override

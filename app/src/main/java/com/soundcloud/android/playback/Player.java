@@ -103,8 +103,8 @@ public interface Player {
         }
 
         public boolean isForPlaybackItem(PlaybackItem playbackItem) {
-            return ((playbackItem.getPlaybackType() == PlaybackType.VIDEO && isForVideo()) ||
-                    (playbackItem.getPlaybackType() != PlaybackType.VIDEO && isForTrack(playbackItem.getTrackUrn())));
+            return ((playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT && isForVideo()) ||
+                    (playbackItem.getPlaybackType() != PlaybackType.VIDEO_DEFAULT && isForTrack(playbackItem.getTrackUrn())));
         }
 
         public Urn getTrackUrn() {
