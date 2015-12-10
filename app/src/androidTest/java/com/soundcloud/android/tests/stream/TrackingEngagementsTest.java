@@ -5,7 +5,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.annotation.Issue;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -76,7 +75,6 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
         finishEventTracking(LIKE_ENGAGEMENTS_FROM_STREAM);
     }
 
-    @Ignore
     @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/4503")
     public void testLikePlayingTrackFromStream() {
         startEventTracking();
@@ -94,7 +92,6 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
         finishEventTracking(LIKE_TRACK_PLAYING_FROM_STREAM);
     }
 
-    @Ignore
     @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/4503")
     public void testRepostPlayingTrackFromStream() {
         startEventTracking();

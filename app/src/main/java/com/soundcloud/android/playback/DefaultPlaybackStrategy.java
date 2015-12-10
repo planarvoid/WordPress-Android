@@ -9,6 +9,7 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -18,6 +19,8 @@ import rx.functions.Func1;
 
 public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
+    // https://github.com/soundcloud/SoundCloud-Android/issues/4503
+    private static final String TAG_BUG_4503 = "BUG_4503";
     private final PlayQueueManager playQueueManager;
     private final ServiceInitiator serviceInitiator;
     private final TrackRepository trackRepository;
@@ -127,6 +130,21 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                     public void call(Subscriber<? super PlaybackResult> subscriber) {
                         final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueue, initialTrackPosition,
                                 initialTrackUrn, playSessionSource);
+                         String message = "setNewQueue -> " +
+                                "playQueue = [" + playQueue + "], " +
+                                "initialTrackUrn = [" + initialTrackUrn + "], " +
+                                "initialTrackPosition = [" + initialTrackPosition + "], " +
+                                 "playSessionSource = [" + playSessionSource + "]" +
+                                 "updatedPosition = [" + updatedPosition + "]" +
+                                 "updated PlayQueueItem = [" + playQueue.getPlayQueueItem(updatedPosition) + "]";
+                        if (initialTrackPosition < playQueue.size()) {
+                            message += "initial PlayQueueItem = [" + playQueue.getPlayQueueItem(initialTrackPosition) + "]";
+                        }
+
+                        Log.d(TAG_BUG_4503,
+                                message
+                        );
+
                         playQueueManager.setNewPlayQueue(playQueue, playSessionSource, updatedPosition);
                         subscriber.onNext(PlaybackResult.success());
                         subscriber.onCompleted();
