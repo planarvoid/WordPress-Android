@@ -49,6 +49,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .goToDiscovery()
                 .clickSearch()
                 .doSearch("nasa")
+                .goToTracksTab()
                 .clickFirstTrackItem();
 
         assertThat(player, is(expanded()));
