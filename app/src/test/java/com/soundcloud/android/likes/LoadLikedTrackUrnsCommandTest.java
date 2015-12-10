@@ -1,21 +1,18 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Date;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest {
 
     private LoadLikedTrackUrnsCommand command;
@@ -32,7 +29,7 @@ public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest {
 
         List<Urn> trackLikes = command.call();
 
-        expect(trackLikes).toContainExactly(track.getUrn());
+        assertThat(trackLikes).containsExactly(track.getUrn());
     }
 
     @Test
@@ -40,7 +37,7 @@ public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest {
         testFixtures().insertLikedPlaylist(new Date(100));
 
         List<Urn> playlistLikes = command.call();
-        expect(playlistLikes).toBeEmpty();
+        assertThat(playlistLikes).isEmpty();
     }
 
     @Test
@@ -51,6 +48,6 @@ public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest {
 
         List<Urn> trackLikes = command.call();
 
-        expect(trackLikes).toBeEmpty();
+        assertThat(trackLikes).isEmpty();
     }
 }

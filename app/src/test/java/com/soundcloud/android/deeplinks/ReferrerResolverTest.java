@@ -1,13 +1,11 @@
 package com.soundcloud.android.deeplinks;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -15,96 +13,95 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ReferrerResolverTest {
+public class ReferrerResolverTest extends AndroidUnitTest {
     private ReferrerResolver resolver;
     private Resources resources;
 
     @Before
     public void setUp() throws Exception {
         resolver = new ReferrerResolver();
-        resources = Robolectric.application.getResources();
+        resources = resources();
     }
 
     @Test
-    public void shouldNotDetectFacebookIntentForIntentWithoutAction() throws Exception {
-        expect(resolver.isFacebookAction(new Intent(), resources)).toBeFalse();
+    public void shouldNotDetectFacebookIntentForIntentWithoutAction() {
+        assertThat(resolver.isFacebookAction(new Intent(), resources)).isFalse();
     }
 
     @Test
     public void shouldNotDetectFacebookIntentForIntentWithIncorrectAppId() throws Exception {
         Intent intent = new Intent("com.facebook.application.123");
-        expect(resolver.isFacebookAction(intent, resources)).toBeFalse();
+        assertThat(resolver.isFacebookAction(intent, resources)).isFalse();
     }
 
     @Test
     public void shouldDetectFacebookIntentViaAction() throws Exception {
         Intent intent = new Intent("com.facebook.application.19507961798");
-        expect(resolver.isFacebookAction(intent, resources)).toBeTrue();
+        assertThat(resolver.isFacebookAction(intent, resources)).isTrue();
     }
 
     @Test
     public void shouldDetectFacebookIntentViaAppId() throws Exception {
         Intent intent = new Intent();
         intent.putExtra("app_id", 19507961798l);
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.FACEBOOK);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.FACEBOOK);
     }
 
     @Test
     public void shouldNotDetectFacebookIntentViaOtherAppIds() throws Exception {
         Intent intent = new Intent();
         intent.putExtra("app_id", 101l);
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.OTHER);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.OTHER);
     }
 
     @Test
     public void shouldDetectOriginParameters() throws Exception {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234?origin=mobi"));
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.MOBI);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.MOBI);
     }
 
     @Test
     public void shouldNotDetectOriginParametersOnOpaqueUris() throws Exception {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud:sounds:1234?origin=mobi"));
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.OTHER);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.OTHER);
     }
 
     @Test
     public void shouldNotDetectMissingOrigin() throws Exception {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.OTHER);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.OTHER);
     }
 
     @Test
     public void shouldNotDetectEmptyOrigin() throws Exception {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234?origin="));
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.OTHER);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.OTHER);
     }
 
     @Test
     public void shouldIgnoreCaseOfOrigin() throws Exception {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234?origin=tWiTtEr"));
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.TWITTER);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.TWITTER);
     }
 
     @Test
     public void shouldDetectOriginBeforeOtherIntentData() throws Exception {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234?origin=twitter"));
         intent.putExtra("com.android.browser.application_id", "com.google.android.apps.plus");
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.TWITTER);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.TWITTER);
     }
 
     @Test
     public void shouldUseFallbackToIntentDataWhenOriginIsEmpty() throws Exception {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234?origin="));
         intent.putExtra("com.android.browser.application_id", "com.google.android.apps.plus");
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.GOOGLE_PLUS);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.GOOGLE_PLUS);
     }
 
     @Test
     public void shouldDetectFacebookReferrer() throws Exception {
         Intent intent = new Intent("com.facebook.application.19507961798");
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.FACEBOOK);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.FACEBOOK);
     }
 
     @Test
@@ -114,7 +111,7 @@ public class ReferrerResolverTest {
         Intent intent = new Intent();
         intent.putExtra("intent.extra.ANCESTOR", ancestorIntent);
 
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.TWITTER);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.TWITTER);
     }
 
     @Test
@@ -122,7 +119,7 @@ public class ReferrerResolverTest {
         Intent intent = new Intent();
         intent.putExtra("com.android.browser.application_id", "com.google.android.apps.plus");
 
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.GOOGLE_PLUS);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.GOOGLE_PLUS);
     }
 
     @Test
@@ -132,7 +129,7 @@ public class ReferrerResolverTest {
         Intent intent = new Intent();
         intent.putExtra("com.android.browser.headers", bundle);
 
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.GOOGLE);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.GOOGLE);
     }
 
     @Test
@@ -140,12 +137,12 @@ public class ReferrerResolverTest {
         Intent intent = new Intent();
         intent.putExtra("com.android.browser.headers", "http://www.lmgtfy.com/");
 
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.OTHER);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.OTHER);
     }
 
     @Test
     public void shouldDetectOtherReferrerAsDefault() throws Exception {
-        expect(resolver.getReferrerFromIntent(new Intent(), resources)).toEqual(Referrer.OTHER);
+        assertThat(resolver.getReferrerFromIntent(new Intent(), resources)).isEqualTo(Referrer.OTHER);
     }
 
     @Test
@@ -153,7 +150,7 @@ public class ReferrerResolverTest {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
         intent.putExtra("android.intent.extra.REFERRER", Uri.parse("android-app://com.google.appcrawler"));
 
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.GOOGLE_CRAWLER);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.GOOGLE_CRAWLER);
     }
 
     @Test
@@ -161,14 +158,7 @@ public class ReferrerResolverTest {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
         intent.putExtra("android.intent.extra.REFERRER_NAME", "android-app://com.google.appcrawler");
 
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.GOOGLE_CRAWLER);
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.GOOGLE_CRAWLER);
     }
 
-    @Test
-    public void shouldNotThrowWhenExpectedTypesDontMatch() throws Exception {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
-        intent.putExtra("android.intent.extra.REFERRER_NAME", Uri.parse("android-app://com.google.appcrawler"));
-
-        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.OTHER);
-    }
 }

@@ -1,21 +1,18 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ApiUniversalSearchItemTest {
-
+public class ApiUniversalSearchItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldConvertWrappedApiUserToPropertySet() {
@@ -24,7 +21,7 @@ public class ApiUniversalSearchItemTest {
 
         final PropertySet propertySet = searchResult.toPropertySet();
 
-        expect(propertySet.get(UserProperty.URN)).toEqual(user.getUrn());
+        assertThat(propertySet.get(UserProperty.URN)).isEqualTo(user.getUrn());
     }
 
     @Test
@@ -34,7 +31,7 @@ public class ApiUniversalSearchItemTest {
 
         final PropertySet propertySet = searchResult.toPropertySet();
 
-        expect(propertySet.get(PlayableProperty.URN)).toEqual(track.getUrn());
+        assertThat(propertySet.get(PlayableProperty.URN)).isEqualTo(track.getUrn());
     }
 
     @Test
@@ -44,7 +41,7 @@ public class ApiUniversalSearchItemTest {
 
         final PropertySet propertySet = searchResult.toPropertySet();
 
-        expect(propertySet.get(PlayableProperty.URN)).toEqual(playlist.getUrn());
+        assertThat(propertySet.get(PlayableProperty.URN)).isEqualTo(playlist.getUrn());
     }
 
 }
