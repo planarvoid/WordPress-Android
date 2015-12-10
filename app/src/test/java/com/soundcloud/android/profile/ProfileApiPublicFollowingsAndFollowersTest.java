@@ -1,7 +1,7 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.when;
@@ -15,20 +15,18 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
 
 import java.util.Arrays;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ProfileApiPublicFollowingsAndFollowersTest {
+public class ProfileApiPublicFollowingsAndFollowersTest extends AndroidUnitTest {
 
     private static final String NEXT_HREF = "next-href";
 
@@ -101,9 +99,9 @@ public class ProfileApiPublicFollowingsAndFollowersTest {
     }
 
     private void assertAllItemsEmitted() {
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).getNextLink().get().getHref()).toEqual(NEXT_HREF);
-        expect(observer.getOnNextEvents().get(0).getCollection()).toContain(
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0).getNextLink().get().getHref()).isEqualTo(NEXT_HREF);
+        assertThat(observer.getOnNextEvents().get(0).getCollection()).contains(
                 publicApiUser1.toApiMobileUser(),
                 publicApiUser2.toApiMobileUser()
         );

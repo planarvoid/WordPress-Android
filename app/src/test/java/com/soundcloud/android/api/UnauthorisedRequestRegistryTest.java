@@ -1,14 +1,13 @@
 package com.soundcloud.android.api;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.Context;
@@ -16,11 +15,10 @@ import android.content.Intent;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-@RunWith(SoundCloudTestRunner.class)
-public class UnauthorisedRequestRegistryTest {
+public class UnauthorisedRequestRegistryTest extends AndroidUnitTest {
 
-    private UnauthorisedRequestRegistry registry;
     @Mock private Context context;
+    private UnauthorisedRequestRegistry registry;
 
     @Before
     public void setup() {
@@ -32,44 +30,44 @@ public class UnauthorisedRequestRegistryTest {
     public void shouldUpdateObservedTimeOfUnauthorisedRequestsIfNoneObservedBefore() {
         final Long currentTime = System.currentTimeMillis();
         registry.updateObservedUnauthorisedRequestTimestamp();
-        expect(registry.getLastObservedTime() >= currentTime).toBeTrue();
+        assertThat(registry.getLastObservedTime() >= currentTime).isTrue();
     }
 
     @Test
     public void shouldNotUpdateObservedTimeOfUnauthorisedRequestsIfObservedBefore() {
-        expect(registry.getLastObservedTime()).toBe(0L);
+        assertThat(registry.getLastObservedTime()).isEqualTo(0L);
         registry.updateObservedUnauthorisedRequestTimestamp();
         long timestamp = registry.getLastObservedTime();
-        expect(timestamp).toBeGreaterThan(0L);
+        assertThat(timestamp).isGreaterThanOrEqualTo(0L);
         registry.updateObservedUnauthorisedRequestTimestamp();
-        expect(registry.getLastObservedTime()).toEqual(timestamp);
+        assertThat(registry.getLastObservedTime()).isEqualTo(timestamp);
     }
 
     @Test
     public void shouldResetFirstObservedTimeOfUnauthorisedRequest() {
-        expect(registry.getLastObservedTime()).toBe(0L);
+        assertThat(registry.getLastObservedTime()).isEqualTo(0L);
         registry.updateObservedUnauthorisedRequestTimestamp();
-        expect(registry.getLastObservedTime()).toBeGreaterThan(0L);
+        assertThat(registry.getLastObservedTime()).isGreaterThanOrEqualTo(0L);
         registry.clearObservedUnauthorisedRequestTimestamp();
-        expect(registry.getLastObservedTime()).toBe(0L);
+        assertThat(registry.getLastObservedTime()).isEqualTo(0L);
     }
 
     @Test
     public void shouldReturnTrueIfTimeLimitForFirstObservedUnauthorisedRequestHasExpired() {
         registry = new UnauthorisedRequestRegistry(context, new AtomicLong(22L));
-        expect(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).toBeTrue();
+        assertThat(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfTimeLimitForFirstObservedUnauthorisedRequestHasNotExpired() {
         registry = new UnauthorisedRequestRegistry(context, new AtomicLong(System.currentTimeMillis()));
-        expect(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).toBeFalse();
+        assertThat(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfTimeLimitForFirstObservedUnauthorisedRequestDoesNotExist() {
-        expect(registry.getLastObservedTime()).toEqual(0L);
-        expect(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).toBeFalse();
+        assertThat(registry.getLastObservedTime()).isEqualTo(0L);
+        assertThat(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).isFalse();
     }
 
     @Test

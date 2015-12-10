@@ -1,34 +1,32 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.EventBus;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaylistDetailsControllerTest {
-
-    PlaylistDetailsController controller;
+public class PlaylistDetailsControllerTest extends AndroidUnitTest {
 
     @Mock private PlaylistTrackItemRenderer trackItemRenderer;
     @Mock private ListItemAdapter<TrackItem> itemAdapter;
+    
     private EventBus eventBus = new TestEventBus();
     private PlaylistWithTracks playlist;
-
+    private PlaylistDetailsController controller;
+    
     @Before
     public void setUp() throws Exception {
         controller = new PlaylistDetailsControllerImpl(trackItemRenderer, itemAdapter, eventBus);
@@ -37,13 +35,13 @@ public class PlaylistDetailsControllerTest {
 
     @Test
     public void hasTracksIsFalseIfAdapterDataIsEmpty() throws Exception {
-        expect(controller.hasTracks()).toBeFalse();
+        assertThat(controller.hasTracks()).isFalse();
     }
 
     @Test
     public void hasTracksIsTrueIfAdapterDataIsNotEmpty() throws Exception {
         when(itemAdapter.getItems()).thenReturn(playlist.getTracks());
-        expect(controller.hasTracks()).toBeTrue();
+        assertThat(controller.hasTracks()).isTrue();
     }
 
     @Test

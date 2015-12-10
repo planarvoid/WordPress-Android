@@ -1,12 +1,11 @@
 package com.soundcloud.android.commands;
 
-import static com.soundcloud.android.Expect.expect;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import rx.Observable;
 import rx.observers.TestObserver;
-
-import java.util.Arrays;
 
 public class LegacyCommandTest {
 
@@ -43,33 +42,33 @@ public class LegacyCommandTest {
     private ToString toString = new ToString();
     private ToInteger toInteger = new ToInteger();
     private Failed failed = new Failed();
-    private TestObserver testObserver = new TestObserver();
+    private TestObserver<Integer> testObserver = new TestObserver<>();
 
     @Test
     public void shouldExecuteWithBoundParameters() throws Exception {
-        expect(toString.with(1).call()).toEqual("1");
+        assertThat(toString.with(1).call()).isEqualTo("1");
     }
 
     @Test
     public void shouldChainCommands() throws Exception {
-        expect(toString.with(1).andThen(toInteger).call()).toBe(1);
+        assertThat(toString.with(1).andThen(toInteger).call()).isEqualTo(1);
     }
 
     @Test
     public void shouldChainCommandsViaObservables() {
         toString.with(1).flatMap(toInteger).subscribe(testObserver);
-        testObserver.assertReceivedOnNext(Arrays.asList(1));
+        testObserver.assertReceivedOnNext(singletonList(1));
     }
 
     @Test
     public void shouldBeConvertibleToAction() {
         Observable.just(1).doOnNext(toString.toAction()).subscribe(testObserver);
-        expect(toString.called).toBeTrue();
+        assertThat(toString.called).isTrue();
     }
 
     @Test
     public void shouldReportErrorsThatOccurWhenInvokedAsAction() {
         Observable.just(1).doOnNext(failed.toAction()).subscribe(testObserver);
-        expect(testObserver.getOnErrorEvents()).toNumber(1);
+        assertThat(testObserver.getOnErrorEvents()).hasSize(1);
     }
 }

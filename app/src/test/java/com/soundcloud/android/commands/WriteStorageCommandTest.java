@@ -1,8 +1,7 @@
 package com.soundcloud.android.commands;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestStorageResults;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -10,8 +9,9 @@ import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WriteStorageCommandTest {
 
     @Mock private PropellerDatabase propeller;
@@ -27,7 +27,7 @@ public class WriteStorageCommandTest {
         };
 
         final InsertResult result = successfulCommand.call("input");
-        expect(result.success()).toBeTrue();
+        assertThat(result.success()).isTrue();
     }
 
     @Test(expected = PropellerWriteException.class)

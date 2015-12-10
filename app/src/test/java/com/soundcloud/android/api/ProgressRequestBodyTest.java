@@ -8,13 +8,15 @@ import com.squareup.okhttp.RequestBody;
 import okio.BufferedSink;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ProgressRequestBodyTest {
 
     private static final String CONTENT = "hello!";
@@ -28,7 +30,6 @@ public class ProgressRequestBodyTest {
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
         requestBody = new ProgressRequestBody(wrappedBody, progressListener);
     }
 

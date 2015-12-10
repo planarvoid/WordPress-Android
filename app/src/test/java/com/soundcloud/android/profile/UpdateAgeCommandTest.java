@@ -1,8 +1,6 @@
 package com.soundcloud.android.profile;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_SMART_NULLS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -13,16 +11,14 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiObjectContentRequest;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.api.TestApiResponses;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Map;
 
-@RunWith(SoundCloudTestRunner.class)
-public class UpdateAgeCommandTest {
+public class UpdateAgeCommandTest extends AndroidUnitTest{
 
     @Test
     public void shouldSendUpdateRequestToApiMobile() throws Exception {
@@ -33,13 +29,13 @@ public class UpdateAgeCommandTest {
 
         BirthdayInfo info = BirthdayInfo.buildFrom(40);
         UpdateAgeCommand command = new UpdateAgeCommand(apiClient).with(info);
-        assertThat(command.call(), is(true));
+        assertThat(command.call()).isTrue();
 
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClient).fetchResponse(captor.capture());
 
         Map<String, Integer> content = (Map) ((ApiObjectContentRequest) captor.getValue()).getContent();
-        expect(content.get("month")).toEqual(info.getMonth());
-        expect(content.get("year")).toEqual(info.getYear());
+        assertThat(content.get("month")).isEqualTo(info.getMonth());
+        assertThat(content.get("year")).isEqualTo(info.getYear());
     }
 }

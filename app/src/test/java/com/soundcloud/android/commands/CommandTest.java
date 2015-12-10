@@ -1,20 +1,20 @@
 package com.soundcloud.android.commands;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.Observer;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CommandTest {
 
     @Mock private Observer<String> observer;
@@ -59,13 +59,13 @@ public class CommandTest {
     public void toAction() throws Exception {
         command.toAction().call("action input");
 
-        expect(inputCapture.get()).toEqual("action input");
+        assertThat(inputCapture.get()).isEqualTo("action input");
     }
 
     @Test
     public void toContinuation() throws Exception {
         Observable.just("item").flatMap(command.toContinuation()).subscribe(observer);
 
-        expect(inputCapture.get()).toEqual("item");
+        assertThat(inputCapture.get()).isEqualTo("item");
     }
 }
