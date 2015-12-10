@@ -8,8 +8,8 @@ import static com.soundcloud.android.stream.StreamItem.Kind.PROMOTED;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.main.Screen;
@@ -33,6 +33,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
@@ -71,9 +72,10 @@ class SoundStreamOperations extends TimelineOperations<StreamItem> {
     private final Action1<List<StreamItem>> promotedImpressionAction = new Action1<List<StreamItem>>() {
         @Override
         public void call(List<StreamItem> streamItems) {
-            PromotedListItem promotedListItem = (PromotedListItem) getFirstOfKind(streamItems, PROMOTED);
+            Optional<StreamItem> promotedListItemOpt = getFirstOfKind(streamItems, PROMOTED);
 
-            if (promotedListItem != null) {
+            if (promotedListItemOpt.isPresent()) {
+                PromotedListItem promotedListItem = (PromotedListItem) promotedListItemOpt.get();
                 markPromotedItemAsStaleCommand.call(promotedListItem);
                 publishTrackingEvent(promotedListItem);
             }
@@ -94,6 +96,31 @@ class SoundStreamOperations extends TimelineOperations<StreamItem> {
                 }
             }
             return streamItems;
+        }
+    };
+
+    private final Func1<List<StreamItem>, List<StreamItem>> prependFacebookListenerInvites = new Func1<List<StreamItem>, List<StreamItem>>() {
+        @Override
+        public List<StreamItem> call(List<StreamItem> streamItems) {
+            if (facebookInvites.canShowForListeners() && canAddNotification(streamItems)) {
+                streamItems.add(0, new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN));
+            }
+            return streamItems;
+        }
+    };
+
+    private final Func2<List<StreamItem>, Optional<FacebookInvitesItem>, List<StreamItem>> prependFacebookCreatorInvites = new Func2<List<StreamItem>, Optional<FacebookInvitesItem>, List<StreamItem>>() {
+        @Override
+        public List<StreamItem> call(List<StreamItem> streamItems, Optional<FacebookInvitesItem> notification) {
+            if (notification.isPresent() && canAddNotification(streamItems)) {
+                streamItems.add(0, notification.get());
+                publishCreatorFacebookInvitesShown();
+            }
+            return streamItems;
+        }
+
+        private void publishCreatorFacebookInvitesShown() {
+            eventBus.publish(EventQueue.TRACKING, FacebookInvitesEvent.forCreatorShown());
         }
     };
 
@@ -129,25 +156,13 @@ class SoundStreamOperations extends TimelineOperations<StreamItem> {
         return removeStalePromotedItemsCommand.toObservable(null)
                 .subscribeOn(scheduler)
                 .flatMap(continueWith(super.initialTimelineItems(syncCompleted)))
-                .zipWith(facebookInvites.loadWithPictures(), prependFacebookInvites())
+                .zipWith(facebookInvites.creatorInvites(), prependFacebookCreatorInvites)
+                .map(prependFacebookListenerInvites)
                 .map(prependStationsOnboardingItem);
     }
 
-    private Func2<List<StreamItem>, Optional<FacebookInvitesItem>, List<StreamItem>> prependFacebookInvites() {
-        return new Func2<List<StreamItem>, Optional<FacebookInvitesItem>, List<StreamItem>>() {
-            @Override
-            public List<StreamItem> call(List<StreamItem> streamItems, Optional<FacebookInvitesItem> notification) {
-                if (notification.isPresent() && canAddNotification(streamItems)) {
-                    streamItems.add(0, notification.get());
-                    publishFacebookInvitesShown(notification.get());
-                }
-                return streamItems;
-            }
-        };
-    }
-
     private boolean canAddNotification(List<StreamItem> streamItems) {
-        return streamItems.size() > 0 && getFirstOfKind(streamItems, NOTIFICATION) == null;
+        return streamItems.size() > 0 && !getFirstOfKind(streamItems, NOTIFICATION).isPresent();
     }
 
     public Observable<List<StreamItem>> updatedStreamItems() {
@@ -172,38 +187,34 @@ class SoundStreamOperations extends TimelineOperations<StreamItem> {
         return result.size() == 1 && result.get(0).getKind() == PROMOTED;
     }
 
-    private void publishFacebookInvitesShown(FacebookInvitesItem notification) {
-        eventBus.publish(EventQueue.TRACKING, StreamNotificationEvent.forFacebookInviteShown(notification));
-    }
-
-    @Nullable
-    private StreamItem getFirstOfKind(List<StreamItem> streamItems, Kind kind) {
+    @NonNull
+    private Optional<StreamItem> getFirstOfKind(List<StreamItem> streamItems, Kind kind) {
         for (StreamItem streamItem : streamItems) {
             if (kind.equals(streamItem.getKind())) {
-                return streamItem;
+                return Optional.of(streamItem);
             }
         }
-        return null;
+        return Optional.absent();
     }
 
-    @Nullable
-    private StreamItem getLastOfKind(List<StreamItem> streamItems, Kind kind) {
+    @NonNull
+    private Optional<StreamItem> getLastOfKind(List<StreamItem> streamItems, Kind kind) {
         final ListIterator<StreamItem> iterator = streamItems.listIterator(streamItems.size());
         while (iterator.hasPrevious()) {
             final StreamItem streamItem = iterator.previous();
             if (kind.equals(streamItem.getKind())) {
-                return streamItem;
+                return Optional.of(streamItem);
             }
         }
-        return null;
+        return Optional.absent();
     }
 
     @Nullable
     @Override
     protected Date getFirstItemTimestamp(List<StreamItem> items) {
-        final StreamItem streamItem = getFirstOfKind(items, PLAYABLE);
-        if (streamItem != null) {
-            return streamItem.getCreatedAt();
+        final Optional<StreamItem> streamItem = getFirstOfKind(items, PLAYABLE);
+        if (streamItem.isPresent()) {
+            return streamItem.get().getCreatedAt();
         }
         return null;
     }
@@ -211,9 +222,9 @@ class SoundStreamOperations extends TimelineOperations<StreamItem> {
     @Nullable
     @Override
     protected Date getLastItemTimestamp(List<StreamItem> items) {
-        final StreamItem streamItem = getLastOfKind(items, PLAYABLE);
-        if (streamItem != null) {
-            return streamItem.getCreatedAt();
+        final Optional<StreamItem> streamItem = getLastOfKind(items, PLAYABLE);
+        if (streamItem.isPresent()) {
+            return streamItem.get().getCreatedAt();
         }
         return null;
     }

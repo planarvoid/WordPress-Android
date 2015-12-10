@@ -10,8 +10,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -210,56 +210,56 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishTrackingEventOnFacebookInvitesButtonClick() {
-        final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
+        final FacebookInvitesItem item = new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN);
         presenter.onCreate(fragmentRule.getFragment(), null);
         when(adapter.getItem(0)).thenReturn(item);
 
-        presenter.onFacebookInvitesInviteButtonClicked(0);
+        presenter.onListenerInvitesClicked(0);
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(StreamNotificationEvent.class);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(FacebookInvitesEvent.class);
     }
 
     @Test
     public void shouldOpenFacebookInvitesDialogOnFacebookInvitesButtonClick() {
-        final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
+        final FacebookInvitesItem item = new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN);
         when(adapter.getItem(0)).thenReturn(item);
         presenter.onCreate(fragmentRule.getFragment(), null);
 
-        presenter.onFacebookInvitesInviteButtonClicked(0);
+        presenter.onListenerInvitesClicked(0);
 
-        verify(facebookInvitesDialogPresenter).show(fragmentRule.getActivity());
+        verify(facebookInvitesDialogPresenter).showForListeners(fragmentRule.getActivity());
     }
 
     @Test
     public void shouldPublishTrackingEventOnFacebookCloseButtonClick() {
-        final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
+        final FacebookInvitesItem item = new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN);
         when(adapter.getItem(0)).thenReturn(item);
 
-        presenter.onFacebookInvitesCloseButtonClicked(0);
+        presenter.onListenerInvitesDismiss(0);
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(StreamNotificationEvent.class);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(FacebookInvitesEvent.class);
     }
 
     @Test
     public void shouldNotOpenFacebookInvitesDialogOnFacebookInvitesCloseButtonClick() {
-        final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
+        final FacebookInvitesItem item = new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN);
         when(adapter.getItem(0)).thenReturn(item);
         presenter.onCreate(fragmentRule.getFragment(), null);
 
-        presenter.onFacebookInvitesCloseButtonClicked(0);
+        presenter.onListenerInvitesDismiss(0);
 
-        verify(facebookInvitesDialogPresenter, never()).show(fragmentRule.getActivity());
+        verify(facebookInvitesDialogPresenter, never()).showForListeners(fragmentRule.getActivity());
     }
 
     @Test
     public void shouldNotDoAnythingWhenClickingOnFacebookInvitesNotification() {
-        final FacebookInvitesItem item = new FacebookInvitesItem(Collections.<String>emptyList());
+        final FacebookInvitesItem item = new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN);
         when(adapter.getItem(0)).thenReturn(item);
 
         presenter.onItemClicked(view, 0);
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
-        verify(facebookInvitesDialogPresenter, never()).show(fragmentRule.getActivity());
+        verify(facebookInvitesDialogPresenter, never()).showForListeners(fragmentRule.getActivity());
     }
 
     @Test

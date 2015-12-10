@@ -159,12 +159,13 @@ public abstract class TestPropertySets {
 
     public static PropertySet expectedPostedTrackForPostsScreen() {
         return PropertySet.from(
-                PlaylistProperty.URN.bind(Urn.forTrack(123L)),
-                PlaylistProperty.TITLE.bind("squirlex galore part 2"),
-                PlaylistProperty.CREATOR_NAME.bind("avieciie"),
-                PlaylistProperty.PLAY_DURATION.bind(123456L),
-                PlaylistProperty.LIKES_COUNT.bind(2),
-                PlaylistProperty.IS_PRIVATE.bind(false),
+                PlayableProperty.URN.bind(Urn.forTrack(123L)),
+                PlayableProperty.TITLE.bind("squirlex galore part 2"),
+                PlayableProperty.CREATOR_NAME.bind("avieciie"),
+                PlayableProperty.PLAY_DURATION.bind(123456L),
+                PlayableProperty.LIKES_COUNT.bind(2),
+                PlayableProperty.IS_PRIVATE.bind(false),
+                PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
                 PostProperty.CREATED_AT.bind(new Date()));
     }
 

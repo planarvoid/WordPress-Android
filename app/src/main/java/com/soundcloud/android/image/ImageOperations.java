@@ -429,7 +429,7 @@ public class ImageOperations {
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 
-    private String getImageUrl(Urn urn, ApiImageSize apiImageSize) {
+    public String getImageUrl(Urn urn, ApiImageSize apiImageSize) {
         return urlBuilder.from(ApiEndpoints.IMAGES, urn, apiImageSize.sizeSpec).build();
     }
 

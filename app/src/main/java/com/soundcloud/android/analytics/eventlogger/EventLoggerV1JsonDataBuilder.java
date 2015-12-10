@@ -9,9 +9,9 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.CollectionEvent;
+import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
@@ -59,14 +59,14 @@ public class EventLoggerV1JsonDataBuilder {
         return transform(buildAudioEvent(event));
     }
 
-    public String buildForStreamNotification(StreamNotificationEvent event) {
+    public String buildForFacebookInvites(FacebookInvitesEvent event) {
         switch (event.getKind()) {
-            case StreamNotificationEvent.KIND_CLICK:
-                return transform(buildStreamNotificationClickEvent(event));
-            case StreamNotificationEvent.KIND_IMPRESSION:
-                return transform(buildStreamNotificationImpressionEvent(event));
+            case FacebookInvitesEvent.KIND_CLICK:
+                return transform(buildFacebookInvitesClickEvent(event));
+            case FacebookInvitesEvent.KIND_IMPRESSION:
+                return transform(buildFacebookInvitesImpressionEvent(event));
             default:
-                throw new IllegalStateException("Unexpected StreamNotificationEvent type: " + event);
+                throw new IllegalStateException("Unexpected FacebookInvitesEvent type: " + event);
         }
     }
 
@@ -227,18 +227,18 @@ public class EventLoggerV1JsonDataBuilder {
         return data;
     }
 
-    private EventLoggerEventData buildStreamNotificationImpressionEvent(StreamNotificationEvent event) {
+    private EventLoggerEventData buildFacebookInvitesImpressionEvent(FacebookInvitesEvent event) {
         return buildBaseEvent(IMPRESSION_EVENT, event)
-                .pageName(event.get(StreamNotificationEvent.KEY_PAGE_NAME))
-                .impressionCategory(event.get(StreamNotificationEvent.KEY_IMPRESSION_CATEGORY))
-                .impressionName(event.get(StreamNotificationEvent.KEY_IMPRESSION_NAME));
+                .pageName(event.get(FacebookInvitesEvent.KEY_PAGE_NAME))
+                .impressionCategory(event.get(FacebookInvitesEvent.KEY_IMPRESSION_CATEGORY))
+                .impressionName(event.get(FacebookInvitesEvent.KEY_IMPRESSION_NAME));
     }
 
-    private EventLoggerEventData buildStreamNotificationClickEvent(StreamNotificationEvent event) {
+    private EventLoggerEventData buildFacebookInvitesClickEvent(FacebookInvitesEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
-                .pageName(event.get(StreamNotificationEvent.KEY_PAGE_NAME))
-                .clickCategory(event.get(StreamNotificationEvent.KEY_CLICK_CATEGORY))
-                .clickName(event.get(StreamNotificationEvent.KEY_CLICK_NAME));
+                .pageName(event.get(FacebookInvitesEvent.KEY_PAGE_NAME))
+                .clickCategory(event.get(FacebookInvitesEvent.KEY_CLICK_CATEGORY))
+                .clickName(event.get(FacebookInvitesEvent.KEY_CLICK_NAME));
     }
 
     private String transform(EventLoggerEventData data) {

@@ -12,11 +12,9 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import rx.functions.Action1;
-import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,9 +55,10 @@ public class ConfigurationHelper {
         new OfflineContentHelper().clearOfflineContent(context);
     }
 
-    public static void forceFacebookInvitesNotification(final Context context) {
+    public static void forceFacebookListenerInvitesNotification(final Context context) {
         final FacebookInvitesStorage facebookInvitesStorage = getFacebookInvitesStorage(context);
         facebookInvitesStorage.setTimesAppOpened(FacebookInvitesOperations.SHOW_AFTER_OPENS_COUNT - 1);
+        facebookInvitesStorage.setLastCreatorDismissMillisAgo(FacebookInvitesOperations.CREATOR_DISMISS_FOR_LISTENERS_INTERVAL_MS + 1);
         facebookInvitesStorage.setLastClick(0);
         facebookInvitesStorage.resetDismissed();
     }

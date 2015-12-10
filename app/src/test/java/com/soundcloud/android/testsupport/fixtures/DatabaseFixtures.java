@@ -5,6 +5,7 @@ import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.model.Urn;
@@ -277,6 +278,15 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiTrack insertPrivateTrackWithCreationDate(ApiUser user, Date createdAtDate) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setCreatedAt(createdAtDate);
+        track.setUser(user);
+        track.setSharing(Sharing.PRIVATE);
+        insertTrack(track);
+        return track;
+    }
+
     public ApiTrack insertTrackWithUser(ApiTrack track, ApiUser user) {
         track.setUser(user);
         insertTrack(track);
@@ -373,7 +383,7 @@ public class DatabaseFixtures {
 
     private ContentValues getTrackContentValues(int position, StationRecord stationInfo, StationTrack track) {
         final ContentValuesBuilder trackContentValues = ContentValuesBuilder.values();
-        
+
         trackContentValues.put(StationsPlayQueues.POSITION, position);
         trackContentValues.put(StationsPlayQueues.STATION_URN, stationInfo.getUrn().toString());
         trackContentValues.put(StationsPlayQueues.TRACK_URN, track.getTrackUrn().toString());

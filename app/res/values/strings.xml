@@ -597,6 +597,9 @@
     <string name="facebook_invites_description">Sharing is caring. Invite your friends to experience SoundCloud with you.</string>
     <string name="facebook_invites_button">Invite friends</string>
 
+    <!-- __FACEBOOK CREATOR INVITES -->
+    <string name="facebook_creator_invites_title">Invite friends to listen to your latest track on SoundCloud</string>
+
     <!-- __COLLECTION -->
     <string name="collections_playlists_header">Playlists</string>
     <string name="collections_your_liked_tracks">Liked tracks</string>

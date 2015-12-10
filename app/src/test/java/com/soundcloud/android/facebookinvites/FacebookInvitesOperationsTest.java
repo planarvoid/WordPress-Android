@@ -1,162 +1,175 @@
 package com.soundcloud.android.facebookinvites;
 
+import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.CLICK_INTERVAL_MS;
+import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.CREATOR_DISMISS_FOR_LISTENERS_INTERVAL_MS;
+import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.CREATOR_DISMISS_INTERVAL_MS;
+import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.DISMISS_INTERVAL_MS;
+import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.REST_AFTER_DISMISS_COUNT;
+import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.SHOW_AFTER_OPENS_COUNT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.TestDateProvider;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-import rx.schedulers.Schedulers;
+import rx.observers.TestSubscriber;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class FacebookInvitesOperationsTest extends AndroidUnitTest {
 
     private FacebookInvitesOperations operations;
-
-    private long clickInterval = FacebookInvitesOperations.CLICK_INTERVAL_MS;
-    private long dismissInterval = FacebookInvitesOperations.DISMISS_INTERVAL_MS;
-    private int openCount = FacebookInvitesOperations.SHOW_AFTER_OPENS_COUNT;
-    private int dismissCount = FacebookInvitesOperations.REST_AFTER_DISMISS_COUNT;
 
     @Mock private FacebookInvitesStorage storage;
     @Mock private Observer<Optional<FacebookInvitesItem>> observer;
     @Mock private FacebookApi facebookApi;
     @Mock private FacebookApiHelper facebookApiHelper;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private MyProfileOperations myProfileOperations;
+
+    private TestDateProvider dateProvider = new TestDateProvider();
 
     @Before
     public void setUp() throws Exception {
-        operations = new FacebookInvitesOperations(storage, facebookApi, facebookApiHelper, networkConnectionHelper,
-                Schedulers.immediate());
+        operations = new FacebookInvitesOperations(storage, facebookApiHelper, networkConnectionHelper, dateProvider, myProfileOperations);
+        dateProvider.setTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
 
-        when(storage.getMillisSinceLastClick()).thenReturn(clickInterval);
-        when(storage.getTimesAppOpened()).thenReturn(openCount);
-        when(storage.getMillisSinceLastDismiss()).thenReturn(dismissInterval);
-        when(storage.getTimesDismissed()).thenReturn(0);
+        when(storage.getMillisSinceLastClick()).thenReturn(CLICK_INTERVAL_MS);
+        when(storage.getTimesAppOpened()).thenReturn(SHOW_AFTER_OPENS_COUNT);
+        when(storage.getMillisSinceLastListenerDismiss()).thenReturn(DISMISS_INTERVAL_MS);
+        when(storage.getTimesListenerDismissed()).thenReturn(0);
+        when(storage.getMillisSinceLastCreatorDismiss()).thenReturn(CREATOR_DISMISS_INTERVAL_MS);
         when(facebookApiHelper.canShowAppInviteDialog()).thenReturn(true);
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
     }
 
     @Test
-    public void canShowOnSetup() throws Exception {
-        assertThat(operations.canShow()).isTrue();
+    public void canShowForListenersOnSetup() throws Exception {
+        assertThat(operations.canShowForListeners()).isTrue();
     }
 
     @Test
-    public void shouldNotShowWhenAppInviteDialogIsFalse() throws Exception {
+    public void shouldNotShowForListenersWhenAppInviteDialogIsFalse() throws Exception {
         when(facebookApiHelper.canShowAppInviteDialog()).thenReturn(false);
 
-        assertThat(operations.canShow()).isFalse();
+        assertThat(operations.canShowForListeners()).isFalse();
     }
 
     @Test
-    public void shouldNotShowWhenAppNotOpenedEnoughTimes() throws Exception {
-        when(storage.getTimesAppOpened()).thenReturn(openCount - 1);
+    public void shouldNotShowForListenersWhenAppNotOpenedEnoughTimes() throws Exception {
+        when(storage.getTimesAppOpened()).thenReturn(SHOW_AFTER_OPENS_COUNT - 1);
 
-        assertThat(operations.canShow()).isFalse();
+        assertThat(operations.canShowForListeners()).isFalse();
     }
 
     @Test
-    public void shouldNotShowFirstTime() throws Exception {
+    public void shouldNotShowForListenersTheFirstTime() throws Exception {
         when(storage.getTimesAppOpened()).thenReturn(0);
 
-        assertThat(operations.canShow()).isFalse();
+        assertThat(operations.canShowForListeners()).isFalse();
     }
 
     @Test
-    public void shouldPersistAfterAppOpenedEnoughTimes() throws Exception {
-        when(storage.getTimesAppOpened()).thenReturn(openCount + 1);
+    public void shouldPersistForListenersAfterAppOpenedEnoughTimes() throws Exception {
+        when(storage.getTimesAppOpened()).thenReturn(SHOW_AFTER_OPENS_COUNT + 1);
 
-        assertThat(operations.canShow()).isTrue();
+        assertThat(operations.canShowForListeners()).isTrue();
     }
 
     @Test
-    public void shouldNotShowWhenLastClickTooEarly() throws Exception {
-        when(storage.getMillisSinceLastClick()).thenReturn(clickInterval - 1);
+    public void shouldNotShowForListenersWhenLastClickTooEarly() throws Exception {
+        when(storage.getMillisSinceLastClick()).thenReturn(CLICK_INTERVAL_MS - 1);
 
-        assertThat(operations.canShow()).isFalse();
+        assertThat(operations.canShowForListeners()).isFalse();
     }
 
     @Test
-    public void shouldNotShowWhenConnectionNotAvailable() throws Exception {
+    public void shouldNotShowForListenersWhenConnectionNotAvailable() throws Exception {
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(false);
 
-        assertThat(operations.canShow()).isFalse();
+        assertThat(operations.canShowForListeners()).isFalse();
     }
 
     @Test
-    public void shouldNotShowWhenDismissedBeforeClickInterval() throws Exception {
-        when(storage.getTimesDismissed()).thenReturn(dismissCount - 1);
-        when(storage.getMillisSinceLastDismiss()).thenReturn(clickInterval - 1);
+    public void shouldNotShowForListenersWhenDismissedBeforeClickInterval() throws Exception {
+        when(storage.getTimesListenerDismissed()).thenReturn(REST_AFTER_DISMISS_COUNT - 1);
+        when(storage.getMillisSinceLastListenerDismiss()).thenReturn(CLICK_INTERVAL_MS - 1);
 
-        assertThat(operations.canShow()).isFalse();
+        assertThat(operations.canShowForListeners()).isFalse();
     }
 
     @Test
-    public void shouldShowWhenDismissedAfterClickInterval() throws Exception {
-        when(storage.getTimesDismissed()).thenReturn(dismissCount - 1);
-        when(storage.getMillisSinceLastDismiss()).thenReturn(clickInterval);
+    public void shouldShowForListenersWhenDismissedAfterClickInterval() throws Exception {
+        when(storage.getTimesListenerDismissed()).thenReturn(REST_AFTER_DISMISS_COUNT - 1);
+        when(storage.getMillisSinceLastListenerDismiss()).thenReturn(CLICK_INTERVAL_MS);
 
-        assertThat(operations.canShow()).isTrue();
+        assertThat(operations.canShowForListeners()).isTrue();
     }
 
     @Test
-    public void shouldNotShowWhenDismissedBeforeDismissInterval() throws Exception {
-        when(storage.getTimesDismissed()).thenReturn(dismissCount);
-        when(storage.getMillisSinceLastDismiss()).thenReturn(dismissInterval - 1);
+    public void shouldNotForListenersShowWhenDismissedBeforeDismissInterval() throws Exception {
+        when(storage.getTimesListenerDismissed()).thenReturn(REST_AFTER_DISMISS_COUNT);
+        when(storage.getMillisSinceLastListenerDismiss()).thenReturn(DISMISS_INTERVAL_MS - 1);
 
-        assertThat(operations.canShow()).isFalse();
+        assertThat(operations.canShowForListeners()).isFalse();
     }
 
     @Test
-    public void shouldShowWhenDismissedAfterDismissInterval() throws Exception {
-        when(storage.getTimesDismissed()).thenReturn(dismissCount);
-        when(storage.getMillisSinceLastDismiss()).thenReturn(dismissInterval);
+    public void shouldShowForListenersWhenDismissedAfterDismissInterval() throws Exception {
+        when(storage.getTimesListenerDismissed()).thenReturn(REST_AFTER_DISMISS_COUNT);
+        when(storage.getMillisSinceLastListenerDismiss()).thenReturn(DISMISS_INTERVAL_MS);
 
-        assertThat(operations.canShow()).isTrue();
+        assertThat(operations.canShowForListeners()).isTrue();
     }
 
     @Test
-    public void shouldShowWhenLastClickAfter() throws Exception {
-        when(storage.getMillisSinceLastClick()).thenReturn(clickInterval + 1);
+    public void shouldShowForListenersWhenLastClickAfter() throws Exception {
+        when(storage.getMillisSinceLastClick()).thenReturn(CLICK_INTERVAL_MS + 1);
 
-        assertThat(operations.canShow()).isTrue();
+        assertThat(operations.canShowForListeners()).isTrue();
     }
 
     @Test
-    public void shouldReturnUnfulfilledWhenCantShow() {
-        when(facebookApiHelper.canShowAppInviteDialog()).thenReturn(false);
-        operations.loadWithPictures().subscribe(observer);
+    public void shouldNotShowForListenersWhenCreatorDismissedBeforeDismissInterval() throws Exception {
+        when(storage.getMillisSinceLastCreatorDismiss()).thenReturn(CREATOR_DISMISS_FOR_LISTENERS_INTERVAL_MS - 1);
+
+        assertThat(operations.canShowForListeners()).isFalse();
+    }
+
+    @Test
+    public void shouldNotLoadForCreatorsWhenNoRecentPost() throws Exception {
+        when(myProfileOperations.lastPublicPostedTrack()).thenReturn(Observable.just(Optional.<PropertySet>absent()));
+
+        operations.creatorInvites().subscribe(observer);
 
         verify(observer).onNext(Optional.<FacebookInvitesItem>absent());
     }
 
     @Test
-    public void shouldReturnFulfilledWithImages() {
-        List<String> pictureUrls = Arrays.asList("url1", "url2");
-        when(facebookApi.friendPictureUrls()).thenReturn(Observable.just(pictureUrls));
-        operations.loadWithPictures().subscribe(observer);
+    public void shouldLoadForCreatorsWhenRecentPost() throws Exception {
+        final TestSubscriber<Optional<FacebookInvitesItem>> subscriber = new TestSubscriber<>();
+        PropertySet track = TestPropertySets.expectedPostedTrackForPostsScreen();
+        when(myProfileOperations.lastPublicPostedTrack()).thenReturn(Observable.just(Optional.of(track)));
 
-        verify(observer).onNext(Optional.of(new FacebookInvitesItem(pictureUrls)));
+        operations.creatorInvites().subscribe(subscriber);
+
+        final FacebookInvitesItem invitesItem = subscriber.getOnNextEvents().get(0).get();
+        assertThat(invitesItem.getEntityUrn()).isEqualTo(FacebookInvitesItem.CREATOR_URN);
+        assertThat(invitesItem.getTrackUrn()).isEqualTo(track.get(PlayableProperty.URN));
+        assertThat(invitesItem.getTrackUrl()).isEqualTo(track.get(PlayableProperty.PERMALINK_URL));
     }
 
-    @Test
-    public void shouldFallBackToEmptyResultIfSequenceFails() {
-        when(facebookApi.friendPictureUrls()).thenReturn(Observable.<List<String>>error(new IOException()));
-
-        operations.loadWithPictures().subscribe(observer);
-
-        verify(observer).onNext(Optional.<FacebookInvitesItem>absent());
-    }
 }

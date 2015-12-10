@@ -1,13 +1,17 @@
 package com.soundcloud.android.facebookapi;
 
+import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
+
 import com.soundcloud.android.utils.ErrorUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,10 +19,12 @@ import java.util.List;
 public class FacebookApi {
 
     private final FacebookApiHelper facebookApiHelper;
+    private final Scheduler scheduler;
 
     @Inject
-    public FacebookApi(FacebookApiHelper facebookApiHelper) {
+    public FacebookApi(FacebookApiHelper facebookApiHelper, @Named(HIGH_PRIORITY) Scheduler scheduler) {
         this.facebookApiHelper = facebookApiHelper;
+        this.scheduler = scheduler;
     }
 
     public Observable<List<String>> friendPictureUrls() {
@@ -31,11 +37,10 @@ public class FacebookApi {
             public void call(final Subscriber<? super List<String>> subscriber) {
                 FacebookApiResponse response = facebookApiHelper.graphRequest(FacebookApiEndpoints.ME_FRIEND_PICTURES);
                 List<String> pictureUrls = extractFriendPictureUrls(response);
-
                 subscriber.onNext(pictureUrls);
                 subscriber.onCompleted();
             }
-        });
+        }).subscribeOn(scheduler);
     }
 
     private List<String> extractPictureUrls(JSONObject jsonResponse) {

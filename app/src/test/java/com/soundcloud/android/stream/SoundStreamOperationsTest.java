@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.model.EntityProperty;
@@ -44,7 +44,6 @@ import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -67,13 +66,12 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     private TestEventBus eventBus = new TestEventBus();
 
     private final PropertySet promotedTrackProperties = TestPropertySets.expectedPromotedTrack();
-    private final FacebookInvitesItem facebookInviteItem = new FacebookInvitesItem(Arrays.asList("url1", "url2"));
+    private final FacebookInvitesItem creatorInviteItem = new FacebookInvitesItem(FacebookInvitesItem.CREATOR_URN);
 
     @Before
     public void setUp() throws Exception {
         when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
-        when(facebookInvitesOperations.loadWithPictures())
-                .thenReturn(Observable.just(Optional.<FacebookInvitesItem>absent()));
+        when(facebookInvitesOperations.creatorInvites()).thenReturn(Observable.just(Optional.<FacebookInvitesItem>absent()));
         this.operations = (SoundStreamOperations) super.operations;
     }
 
@@ -186,71 +184,55 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     }
 
     @Test
-    public void shouldShowFacebookInvitesAsFirstItem() {
+    public void shouldShowFacebookListenerInvitesAsFirstItem() {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
-        when(facebookInvitesOperations.loadWithPictures())
-                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+        when(facebookInvitesOperations.canShowForListeners()).thenReturn(true);
 
-        operations.initialStreamItems().subscribe(observer);
-
-        verify(observer).onNext(itemsWithFacebookInvite(items));
-        verify(observer).onCompleted();
+        assertInitialStreamFirstItemUrn(FacebookInvitesItem.LISTENER_URN);
     }
 
     @Test
-    public void shouldShowFacebookInvitesAsFirstItemWithoutFriendPictures() {
+    public void shouldShowFacebookCreatorInvitesAsFirstItem() {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
-        when(facebookInvitesOperations.loadWithPictures())
-                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+        when(facebookInvitesOperations.canShowForListeners()).thenReturn(true);
+        when(facebookInvitesOperations.creatorInvites()).thenReturn(Observable.just(Optional.of(creatorInviteItem)));
 
-        operations.initialStreamItems().subscribe(observer);
-
-        verify(observer).onNext(itemsWithFacebookInvite(items));
-        verify(observer).onCompleted();
+        assertInitialStreamFirstItemUrn(FacebookInvitesItem.CREATOR_URN);
     }
 
     @Test
-    public void shouldTrackFacebookInvitesShown() {
+    public void shouldTrackFacebookCreatorInvitesShown() {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
-        when(facebookInvitesOperations.loadWithPictures())
-                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+        when(facebookInvitesOperations.creatorInvites()).thenReturn(Observable.just(Optional.of(creatorInviteItem)));
 
         operations.initialStreamItems().subscribe(observer);
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(StreamNotificationEvent.class);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(FacebookInvitesEvent.class);
     }
 
     @Test
     public void shouldNotShowFacebookInvitesOnEmptyStream() {
-        when(facebookInvitesOperations.loadWithPictures())
-                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+        when(facebookInvitesOperations.canShowForListeners()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.<PropertySet>empty());
         when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
 
-        operations.initialStreamItems().subscribe(observer);
-
-        verify(observer).onNext(Collections.<StreamItem>emptyList());
-        verify(observer).onCompleted();
+        assertInitialStreamEmpty();
     }
 
     @Test
     public void shouldNotShowFacebookInvitesOnPromotedOnlyStream() {
-        when(facebookInvitesOperations.loadWithPictures())
-                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+        when(facebookInvitesOperations.canShowForListeners()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.just(promotedTrackProperties));
         when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
 
-        operations.initialStreamItems().subscribe(observer);
-
-        verify(observer).onNext(Collections.<StreamItem>emptyList());
-        verify(observer).onCompleted();
+        assertInitialStreamEmpty();
     }
 
     @Test
@@ -258,17 +240,13 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedTrackProperties);
 
-        when(facebookInvitesOperations.loadWithPictures())
-                .thenReturn(Observable.just(Optional.of(facebookInviteItem)));
+        when(facebookInvitesOperations.canShowForListeners()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.from(itemsWithPromoted));
         when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
 
-        operations.initialStreamItems().subscribe(observer);
-
-        verify(observer).onNext(itemsWithFacebookInvite(itemsWithPromoted));
-        verify(observer).onCompleted();
+        assertInitialStreamFirstItemUrn(FacebookInvitesItem.LISTENER_URN);
     }
 
     @Test
@@ -278,11 +256,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
         when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
 
-        final TestSubscriber<List<StreamItem>> subscriber = new TestSubscriber<>();
-        operations.initialStreamItems().subscribe(subscriber);
-
-        final StreamItem firstItem = subscriber.getOnNextEvents().get(0).get(0);
-        assertThat(firstItem.getEntityUrn()).isEqualTo(StationOnboardingStreamItem.URN);
+        assertInitialStreamFirstItemUrn(StationOnboardingStreamItem.URN);
     }
 
     @Test
@@ -293,10 +267,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
                 .thenReturn(Observable.<PropertySet>empty());
         when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
 
-        final TestSubscriber<List<StreamItem>> subscriber = new TestSubscriber<>();
-        operations.initialStreamItems().subscribe(subscriber);
-
-        subscriber.assertValue(Collections.<StreamItem>emptyList());
+        assertInitialStreamEmpty();
     }
 
     @Test
@@ -307,10 +278,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
                 .thenReturn(Observable.just(promotedTrackProperties));
         when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
 
-        final TestSubscriber<List<StreamItem>> subscriber = new TestSubscriber<>();
-        operations.initialStreamItems().subscribe(subscriber);
-
-        subscriber.assertValue(Collections.<StreamItem>emptyList());
+        assertInitialStreamEmpty();
     }
 
     @Test
@@ -325,17 +293,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
                 .thenReturn(Observable.from(itemsWithPromoted));
         when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
 
-        final TestSubscriber<List<StreamItem>> subscriber = new TestSubscriber<>();
-        operations.initialStreamItems().subscribe(subscriber);
-
-        final StreamItem firstItem = subscriber.getOnNextEvents().get(0).get(0);
-        assertThat(firstItem.getEntityUrn()).isEqualTo(StationOnboardingStreamItem.URN);
-    }
-
-    private List<StreamItem> itemsWithFacebookInvite(List<PropertySet> items) {
-        final List<StreamItem> streamItems = viewModelsFromPropertySets(items);
-        streamItems.add(0, facebookInviteItem);
-        return streamItems;
+        assertInitialStreamFirstItemUrn(StationOnboardingStreamItem.URN);
     }
 
     @Override
@@ -355,4 +313,22 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
                 PlayableProperty.URN.bind(ModelFixtures.create(ApiTrack.class).getUrn()),
                 SoundStreamProperty.CREATED_AT.bind(new Date(timestamp)));
     }
+
+    private void assertInitialStreamEmpty() {
+        final TestSubscriber<List<StreamItem>> subscriber = subscribeToInitialStream();
+        subscriber.assertValue(Collections.<StreamItem>emptyList());
+    }
+
+    private void assertInitialStreamFirstItemUrn(Urn urn) {
+        final TestSubscriber<List<StreamItem>> subscriber = subscribeToInitialStream();
+        final StreamItem firstItem = subscriber.getOnNextEvents().get(0).get(0);
+        assertThat(firstItem.getEntityUrn()).isEqualTo(urn);
+    }
+
+    private TestSubscriber<List<StreamItem>> subscribeToInitialStream() {
+        final TestSubscriber<List<StreamItem>> subscriber = new TestSubscriber<>();
+        operations.initialStreamItems().subscribe(subscriber);
+        return subscriber;
+    }
+
 }

@@ -24,7 +24,7 @@ public class FacebookInvitesTest extends TrackingActivityTest<LauncherActivity> 
 
     @Override
     protected void setUp() throws Exception {
-        ConfigurationHelper.forceFacebookInvitesNotification(getInstrumentation().getTargetContext());
+        ConfigurationHelper.forceFacebookListenerInvitesNotification(getInstrumentation().getTargetContext());
         super.setUp();
     }
 

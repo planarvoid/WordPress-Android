@@ -7,6 +7,7 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -16,7 +17,6 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.StreamNotificationEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
@@ -98,8 +98,8 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleMidTierTrackEvent((MidTierTrackEvent) event);
         } else if (event instanceof UpgradeTrackingEvent) {
             handleUpsellEvent((UpgradeTrackingEvent) event);
-        } else if (event instanceof StreamNotificationEvent) {
-            handleStreamNotificationEvent((StreamNotificationEvent) event);
+        } else if (event instanceof FacebookInvitesEvent) {
+            handleFacebookInvitesEvent((FacebookInvitesEvent) event);
         } else if (event instanceof CollectionEvent) {
             handleCollectionEvent((CollectionEvent) event);
         }
@@ -109,8 +109,8 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForCollectionEvent(event));
     }
 
-    private void handleStreamNotificationEvent(StreamNotificationEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForStreamNotification(event));
+    private void handleFacebookInvitesEvent(FacebookInvitesEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForFacebookInvites(event));
     }
 
     private void handleForegroundEvent(ForegroundEvent event) {

@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.observers.TestSubscriber;
+import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +27,7 @@ public class FacebookApiTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        facebookApi = new FacebookApi(facebookApiHelper);
+        facebookApi = new FacebookApi(facebookApiHelper, Schedulers.immediate());
         picturesSubscriber = new TestSubscriber<>();
         when(facebookApiHelper.hasAccessToken()).thenReturn(true);
     }
