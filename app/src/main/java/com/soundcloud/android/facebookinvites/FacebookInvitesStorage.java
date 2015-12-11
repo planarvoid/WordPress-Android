@@ -12,10 +12,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class FacebookInvitesStorage {
-    public static final String LAST_CLICK = "last_click";
-    public static final String TIMES_APP_OPENED = "times_app_opened";
-    public static final String LAST_DISMISS = "last_dismiss";
-    public static final String TIMES_DISMISSED = "times_dismissed";
+    private static final String LAST_CLICK = "last_click";
+    private static final String TIMES_APP_OPENED = "times_app_opened";
+    private static final String LAST_DISMISS = "last_dismiss";
+    private static final String CREATORS_LAST_DISMISS = "creators_last_dismiss";
+    private static final String TIMES_DISMISSED = "times_dismissed";
 
     private final DateProvider dateProvider;
     private final SharedPreferences sharedPreferences;
@@ -27,41 +28,6 @@ public class FacebookInvitesStorage {
         this.dateProvider = dateProvider;
     }
 
-    public void setAppOpened() {
-        incrementCounter(TIMES_APP_OPENED);
-    }
-
-    public void setClicked() {
-        setCurrentTimestamp(LAST_CLICK);
-        resetDismissed();
-    }
-
-    public void setDismissed() {
-        incrementCounter(TIMES_DISMISSED);
-        setCurrentTimestamp(LAST_DISMISS);
-    }
-
-    public void resetDismissed() {
-        setTimestamp(LAST_DISMISS, 0l);
-        setCounter(TIMES_DISMISSED, 0);
-    }
-
-    public long getMillisSinceLastClick() {
-        return millisSince(LAST_CLICK);
-    }
-
-    public long getMillisSinceLastDismiss() {
-        return millisSince(LAST_DISMISS);
-    }
-
-    public int getTimesAppOpened() {
-        return getCounter(TIMES_APP_OPENED);
-    }
-
-    public int getTimesDismissed() {
-        return getCounter(TIMES_DISMISSED);
-    }
-
     @VisibleForTesting
     public void setTimesAppOpened(int count) {
         setCounter(TIMES_APP_OPENED, count);
@@ -70,6 +36,54 @@ public class FacebookInvitesStorage {
     @VisibleForTesting
     public void setLastClick(long ts) {
         setTimestamp(LAST_CLICK, ts);
+    }
+
+    @VisibleForTesting
+    public void setLastCreatorDismissMillisAgo(long ts) {
+        setTimestamp(CREATORS_LAST_DISMISS, dateProvider.getCurrentTime() - ts);
+    }
+
+    public void resetDismissed() {
+        setTimestamp(LAST_DISMISS, 0L);
+        setCounter(TIMES_DISMISSED, 0);
+    }
+
+    void setAppOpened() {
+        incrementCounter(TIMES_APP_OPENED);
+    }
+
+    void setClicked() {
+        setCurrentTimestamp(LAST_CLICK);
+        resetDismissed();
+    }
+
+    void setDismissed() {
+        incrementCounter(TIMES_DISMISSED);
+        setCurrentTimestamp(LAST_DISMISS);
+    }
+
+    void setCreatorDismissed() {
+        setCurrentTimestamp(CREATORS_LAST_DISMISS);
+    }
+
+    long getMillisSinceLastClick() {
+        return millisSince(LAST_CLICK);
+    }
+
+    long getMillisSinceLastListenerDismiss() {
+        return millisSince(LAST_DISMISS);
+    }
+
+    long getMillisSinceLastCreatorDismiss() {
+        return millisSince(CREATORS_LAST_DISMISS);
+    }
+
+    int getTimesAppOpened() {
+        return getCounter(TIMES_APP_OPENED);
+    }
+
+    int getTimesListenerDismissed() {
+        return getCounter(TIMES_DISMISSED);
     }
 
     private int getCounter(String key) {

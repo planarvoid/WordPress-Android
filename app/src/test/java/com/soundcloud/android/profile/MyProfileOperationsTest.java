@@ -21,6 +21,7 @@ import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import org.junit.Before;
 import org.junit.Test;
@@ -350,6 +351,17 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         operations.updatedFollowings().subscribe(subscriber);
 
         subscriber.assertValue(pageOfFollowings);
+    }
+
+    @Test
+    public void shouldLoadLastPublicPostedTrack() {
+        Optional<PropertySet> trackOpt = Optional.of(TestPropertySets.expectedPostedTrackForPostsScreen());
+        when(postStorage.loadLastPublicPostedTrack()).thenReturn(Observable.just(trackOpt));
+        TestSubscriber<Optional<PropertySet>> subscriber = new TestSubscriber<>();
+
+        operations.lastPublicPostedTrack().subscribe(subscriber);
+
+        subscriber.assertValue(trackOpt);
     }
 
     private List<PropertySet> createPageOfFollowings(int size) {

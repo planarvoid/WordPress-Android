@@ -15,6 +15,7 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -145,6 +146,37 @@ public class PostsStorageTest extends StorageIntegrationTest {
         subscriber.assertValue(Arrays.asList(post2, post1));
     }
 
+    @Test
+    public void shouldLoadLastPublicPostedTrackWithDatePostedAndPermalink() throws Exception {
+        post1 = createTrackPostForLastPostedAt(POSTED_DATE_2);
+        createTrackPostForLastPostedAt(POSTED_DATE_1);
+        TestSubscriber<Optional<PropertySet>> subscriber = new TestSubscriber<>();
+
+        storage.loadLastPublicPostedTrack().subscribe(subscriber);
+
+        subscriber.assertValue(Optional.of(post1));
+    }
+
+    @Test
+    public void shouldLoadLastPublicPostedTrackExcludingPrivateTracks() throws Exception {
+        createPrivateTrackPostForLastPostedAt(POSTED_DATE_2);
+        post2 = createTrackPostForLastPostedAt(POSTED_DATE_1);
+        TestSubscriber<Optional<PropertySet>> subscriber = new TestSubscriber<>();
+
+        storage.loadLastPublicPostedTrack().subscribe(subscriber);
+
+        subscriber.assertValue(Optional.of(post2));
+    }
+
+    @Test
+    public void shouldLoadLastPublicPostedAsAbsentWhenUserHasNoPosts() throws Exception {
+        TestSubscriber<Optional<PropertySet>> subscriber = new TestSubscriber<>();
+
+        storage.loadLastPublicPostedTrack().subscribe(subscriber);
+
+        subscriber.assertValue(Optional.<PropertySet>absent());
+    }
+
     private PropertySet createTrackPostAt(Date postedAt) {
         ApiTrack track = createTrackAt(postedAt);
         createTrackPostWithId(track.getUrn().getNumericId(), postedAt);
@@ -230,4 +262,28 @@ public class PostsStorageTest extends StorageIntegrationTest {
     private void createPlaylistRepostWithId(long trackId, Date postedAt) {
         testFixtures().insertPlaylistRepost(trackId, postedAt.getTime());
     }
+
+    private PropertySet createTrackPostForLastPostedAt(Date postedAt) {
+        ApiTrack track = createTrackAt(postedAt);
+        createTrackPostWithId(track.getUrn().getNumericId(), postedAt);
+        return createTrackPostForLastPostedPropertySet(track);
+    }
+
+    private PropertySet createTrackPostForLastPostedPropertySet(ApiTrack track) {
+        return track.toPropertySet().slice(
+                TrackProperty.URN,
+                TrackProperty.PERMALINK_URL
+        ).put(PostProperty.CREATED_AT, track.getCreatedAt());
+    }
+
+    private ApiTrack createPrivateTrackAt(Date creationDate) {
+        return testFixtures().insertPrivateTrackWithCreationDate(user, creationDate);
+    }
+
+    private PropertySet createPrivateTrackPostForLastPostedAt(Date postedAt) {
+        ApiTrack track = createPrivateTrackAt(postedAt);
+        createTrackPostWithId(track.getUrn().getNumericId(), postedAt);
+        return createTrackPostForLastPostedPropertySet(track);
+    }
+
 }

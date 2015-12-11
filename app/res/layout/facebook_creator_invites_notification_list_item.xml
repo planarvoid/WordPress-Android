@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    android:id="@+id/facebook_invites_list_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <include layout="@layout/facebook_creator_invites_notification" />
+
+    <ImageButton
+        android:id="@+id/close_button"
+        style="@style/ListItemNotificationCloseButton" />
+
+</FrameLayout>

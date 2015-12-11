@@ -16,6 +16,7 @@ import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.Scheduler;
@@ -229,6 +230,11 @@ public class MyProfileOperations {
                         return hasSynced ? postsStorage.loadPosts(PAGE_SIZE, beforeTime) : updatedPosts();
                     }
                 }).subscribeOn(scheduler);
+    }
+
+    public Observable<Optional<PropertySet>> lastPublicPostedTrack() {
+        return postsStorage.loadLastPublicPostedTrack()
+                .subscribeOn(scheduler);
     }
 
     Observable<List<PropertySet>> pagedPlaylistItems() {

@@ -1,7 +1,8 @@
 package com.soundcloud.android.stream;
 
+import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
-import com.soundcloud.android.facebookinvites.FacebookInvitesItemRenderer;
+import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRenderer;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
@@ -23,18 +24,23 @@ public class SoundStreamAdapter
     private static final int PLAYLIST_ITEM_TYPE = 1;
     private static final int FACEBOOK_INVITES_ITEM_TYPE = 2;
     private static final int STATIONS_ONBOARDING_STREAM_ITEM_TYPE = 3;
+    private static final int FACEBOOK_CREATOR_INVITES_ITEM_TYPE = 4;
 
-    private final FacebookInvitesItemRenderer facebookInvitesItemRenderer;
+    private final FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer;
     private final StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer;
+    private final FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer;
 
     @Inject
-    public SoundStreamAdapter(StreamCellRendererProvider rendererProvider, FacebookInvitesItemRenderer facebookInvitesItemRenderer,
-                              StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer) {
+    public SoundStreamAdapter(StreamCellRendererProvider rendererProvider, FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer,
+                              StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer,
+                              FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer) {
         super(new CellRendererBinding<>(TRACK_ITEM_TYPE, rendererProvider.getTrackItemRenderer()),
                 new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, rendererProvider.getPlaylistItemRenderer()),
-                new CellRendererBinding<>(FACEBOOK_INVITES_ITEM_TYPE, facebookInvitesItemRenderer),
-                new CellRendererBinding<>(STATIONS_ONBOARDING_STREAM_ITEM_TYPE, stationsOnboardingStreamItemRenderer));
-        this.facebookInvitesItemRenderer = facebookInvitesItemRenderer;
+                new CellRendererBinding<>(FACEBOOK_INVITES_ITEM_TYPE, facebookListenerInvitesItemRenderer),
+                new CellRendererBinding<>(STATIONS_ONBOARDING_STREAM_ITEM_TYPE, stationsOnboardingStreamItemRenderer),
+                new CellRendererBinding<>(FACEBOOK_CREATOR_INVITES_ITEM_TYPE, facebookCreatorInvitesItemRenderer));
+        this.facebookListenerInvitesItemRenderer = facebookListenerInvitesItemRenderer;
+        this.facebookCreatorInvitesItemRenderer = facebookCreatorInvitesItemRenderer;
         this.stationsOnboardingStreamItemRenderer = stationsOnboardingStreamItemRenderer;
     }
 
@@ -47,8 +53,10 @@ public class SoundStreamAdapter
             return TRACK_ITEM_TYPE;
         } else if (urn.isPlaylist()) {
             return PLAYLIST_ITEM_TYPE;
-        } else if (urn.equals(FacebookInvitesItem.URN)) {
+        } else if (urn.equals(FacebookInvitesItem.LISTENER_URN)) {
             return FACEBOOK_INVITES_ITEM_TYPE;
+        } else if (urn.equals(FacebookInvitesItem.CREATOR_URN)) {
+            return FACEBOOK_CREATOR_INVITES_ITEM_TYPE;
         } else if (urn.equals(StationOnboardingStreamItem.URN)) {
             return STATIONS_ONBOARDING_STREAM_ITEM_TYPE;
         } else {
@@ -78,8 +86,12 @@ public class SoundStreamAdapter
         }
     }
 
-    void setOnFacebookInvitesClickListener(FacebookInvitesItemRenderer.OnFacebookInvitesClickListener clickListener) {
-        this.facebookInvitesItemRenderer.setOnFacebookInvitesClickListener(clickListener);
+    void setOnFacebookInvitesClickListener(FacebookListenerInvitesItemRenderer.Listener clickListener) {
+        this.facebookListenerInvitesItemRenderer.setListener(clickListener);
+    }
+
+    void setOnFacebookCreatorInvitesClickListener(FacebookCreatorInvitesItemRenderer.Listener clickListener) {
+        this.facebookCreatorInvitesItemRenderer.setOnFacebookInvitesClickListener(clickListener);
     }
 
     void setOnStationsOnboardingStreamClickListener(StationsOnboardingStreamItemRenderer.Listener listener) {
