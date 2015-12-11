@@ -16,7 +16,7 @@ class UpsellOperations {
     }
 
     public boolean canDisplayUpsellInStream() {
-        return featureOperations.upsellMidTier() && !storage.wasUpsellDismissed();
+        return featureOperations.upsellHighTier() && !storage.wasUpsellDismissed();
     }
 
     public void disableUpsell() {

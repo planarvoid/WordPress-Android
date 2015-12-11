@@ -98,7 +98,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedSendsUpsellImpressionIfUpselling() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
         setupForegroundFragment();
 
@@ -123,7 +123,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsOfflineSettingsWithUpgrade() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
         setupForegroundFragment();
 
@@ -159,7 +159,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onOfflineSettingsClickSendsUpsellClickEventIfUpselling() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));

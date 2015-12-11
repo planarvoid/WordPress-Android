@@ -70,7 +70,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     private Subscription entityStateChangedSubscription = RxUtils.invalidSubscription();
     private Fragment fragment;
 
-
     @Inject
     TrackLikesPresenter(TrackLikeOperations likeOperations,
                         OfflinePlaybackOperations playbackOperations,
@@ -205,7 +204,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     }
 
     private boolean shouldShowUpsell(TrackItem item) {
-        return item.isMidTier() && featureOperations.upsellMidTier();
+        return item.isHighTier() && featureOperations.upsellHighTier();
     }
 
     @Override

@@ -115,8 +115,8 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
     @Test
     public void showsUpsellWhenClickingOnMidTierTrackAndUserCanUpgrade() {
         final ListView list = (ListView) createFragmentView().findViewById(android.R.id.list);
-        when(adapter.getItem(0)).thenReturn(new TrackItem(TestPropertySets.midTierTrack()));
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(adapter.getItem(0)).thenReturn(new TrackItem(TestPropertySets.highTierTrack()));
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
         list.getOnItemClickListener().onItemClick(list, mock(View.class), /* offset for header */ 1, 123);
 
@@ -126,7 +126,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
     @Test
     public void doesNotShowUpsellWhenClickingOnMidTierTrackAndUserCannotUpgrade() {
         final ListView list = (ListView) createFragmentView().findViewById(android.R.id.list);
-        when(adapter.getItem(0)).thenReturn(new TrackItem(TestPropertySets.midTierTrack()));
+        when(adapter.getItem(0)).thenReturn(new TrackItem(TestPropertySets.highTierTrack()));
 
         list.getOnItemClickListener().onItemClick(list, mock(View.class), /* offset for header */ 1, 123);
 

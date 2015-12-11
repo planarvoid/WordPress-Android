@@ -102,7 +102,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private void setupOfflineSync(YouView youView) {
         if (featureOperations.isOfflineContentEnabled() || offlineContentOperations.hasOfflineContent()) {
             youView.showOfflineSettings();
-        } else if (featureOperations.upsellMidTier()) {
+        } else if (featureOperations.upsellHighTier()) {
             youView.showOfflineSettings();
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsImpression());
         } else {
@@ -175,7 +175,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     @Override
     public void onOfflineSettingsClicked(View view) {
         navigator.openOfflineSettings(view.getContext());
-        if (featureOperations.upsellMidTier()) {
+        if (featureOperations.upsellHighTier()) {
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsClick());
         }
     }

@@ -32,7 +32,7 @@ public class ConfigurationHelper {
 
     public static void enableUpsell(final Context context) {
         final PlanStorage planStorage = getPlanStorage(context);
-        planStorage.updateUpsells(Collections.singletonList(Plan.MID_TIER));
+        planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
         disableFeature(context, FeatureName.OFFLINE_SYNC);
         disableFeature(context, FeatureName.REMOVE_AUDIO_ADS);
 
@@ -40,8 +40,8 @@ public class ConfigurationHelper {
                 .doOnNext(new Action1<List<String>>() {
                     @Override
                     public void call(List<String> strings) {
-                        if (!planStorage.getUpsells().contains(Plan.MID_TIER)) {
-                            planStorage.updateUpsells(Collections.singletonList(Plan.MID_TIER));
+                        if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
+                            planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
                         }
                     }
                 }).subscribe();
@@ -86,7 +86,7 @@ public class ConfigurationHelper {
     }
 
     private static void disableFeature(Context context, final String name) {
-        final Feature feature = new Feature(name, false, Collections.singletonList(Plan.MID_TIER));
+        final Feature feature = new Feature(name, false, Collections.singletonList(Plan.HIGH_TIER));
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
         featureStorage.update(feature);

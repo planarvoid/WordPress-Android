@@ -17,7 +17,7 @@ public class AvailableProductsTest {
 
     @Before
     public void setUp() throws Exception {
-        knownProduct = new Product("product_id", "mid_tier");
+        knownProduct = new Product("product_id", "high_tier");
         unknownProduct = new Product("other_product_id", "super_consumer_sub");
     }
 

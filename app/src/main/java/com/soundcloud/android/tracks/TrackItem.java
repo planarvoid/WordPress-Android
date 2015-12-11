@@ -71,9 +71,9 @@ public class TrackItem extends PlayableItem {
         return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
     }
 
-    public boolean isMidTier() {
+    public boolean isHighTier() {
         // this should really be get, EVENTUALLY... (we dont have policy for everything reliably yet)
-        return source.getOrElse(TrackProperty.SUB_MID_TIER, false);
+        return source.getOrElse(TrackProperty.SUB_HIGH_TIER, false);
     }
 
     public boolean isUnavailableOffline() {

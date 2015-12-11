@@ -25,9 +25,9 @@ public class PlanStorageTest extends AndroidUnitTest {
 
     @Test
     public void updateStoresValue() {
-        storage.updatePlan(Plan.MID_TIER);
+        storage.updatePlan(Plan.HIGH_TIER);
 
-        assertThat(storage.getPlan()).isEqualTo(Plan.MID_TIER);
+        assertThat(storage.getPlan()).isEqualTo(Plan.HIGH_TIER);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class PlanStorageTest extends AndroidUnitTest {
 
     @Test
     public void clearRemovesStoredValues() {
-        storage.updatePlan(Plan.MID_TIER);
+        storage.updatePlan(Plan.HIGH_TIER);
 
         storage.clear();
 

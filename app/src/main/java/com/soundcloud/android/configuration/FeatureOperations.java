@@ -50,16 +50,16 @@ public class FeatureOperations {
     }
 
     private boolean isFeatureAvailableViaUpgrade(String featureName) {
-        return isFeatureAvailableInPlan(featureName, Plan.MID_TIER)
-                && upsellMidTier();
+        return isFeatureAvailableInPlan(featureName, Plan.HIGH_TIER)
+                && upsellHighTier();
     }
 
     private boolean isFeatureAvailableInPlan(String featureName, String plan) {
         return featureStorage.getPlans(featureName).contains(plan);
     }
 
-    public boolean upsellMidTier() {
-        return planStorage.getUpsells().contains(Plan.MID_TIER);
+    public boolean upsellHighTier() {
+        return planStorage.getUpsells().contains(Plan.HIGH_TIER);
     }
 
     public Observable<Boolean> offlineContentEnabled() {
