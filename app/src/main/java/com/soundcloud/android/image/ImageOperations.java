@@ -429,6 +429,7 @@ public class ImageOperations {
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 
+    // TODO: Separate concerns of url building with image operations (see https://github.com/soundcloud/SoundCloud-Android/pull/4513#discussion-diff-47249877)
     public String getImageUrl(Urn urn, ApiImageSize apiImageSize) {
         return urlBuilder.from(ApiEndpoints.IMAGES, urn, apiImageSize.sizeSpec).build();
     }
