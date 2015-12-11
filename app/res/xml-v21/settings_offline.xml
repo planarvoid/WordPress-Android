@@ -2,6 +2,12 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreference
         android:defaultValue="false"
+        android:key="@string/key_offline_collection"
+        android:summary="@string/pref_offline_offline_collection_description"
+        android:title="@string/pref_offline_offline_collection" />
+
+    <SwitchPreference
+        android:defaultValue="false"
         android:key="@string/key_offline_wifi_only"
         android:summary="@string/pref_offline_wifi_only_description"
         android:title="@string/pref_offline_wifi_only_sync" />

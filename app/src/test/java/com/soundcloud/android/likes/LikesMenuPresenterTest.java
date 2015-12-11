@@ -90,7 +90,7 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showDisableLikesSyncingWhenClickOnMakeOfflineUnavailableMenu() {
-        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.just(true));
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.<Void>just(null));
         showMenu(true, true);
 
         likesMenuPresenter.onOptionsItemSelected(makeOfflineUnavailableItem, context, fragmentManager);
@@ -131,7 +131,7 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void sendsTrackingEventWhenRemovingOfflineLikes() {
-        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.<Boolean>empty());
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.<Void>empty());
         showMenu(true, false);
 
         likesMenuPresenter.onOptionsItemSelected(makeOfflineUnavailableItem, context, fragmentManager);

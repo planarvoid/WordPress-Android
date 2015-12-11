@@ -14,15 +14,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
@@ -50,7 +49,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
     private OfflineContentOperations operations;
     private TestEventBus eventBus;
-    private TestSubscriber<Object> subscriber;
+    private TestSubscriber<Urn> subscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -79,7 +78,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void doesNotRequestPolicyUpdatesWhenAllPoliciesAreUpToDate() {
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(new ArrayList<Urn>()));
-        operations.updateOfflineContentStalePolicies().subscribe(subscriber);
+        operations.updateOfflineContentStalePolicies().subscribe();
 
         verifyZeroInteractions(policyOperations);
     }
@@ -104,13 +103,14 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
         when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
 
-        operations.loadOfflineContentUpdates().subscribe(new TestObserver<OfflineContentUpdates>());
+        operations.loadOfflineContentUpdates().subscribe();
 
         verify(storeDownloadUpdatesCommand).call(offlineContentUpdates);
     }
 
     @Test
     public void loadOfflineContentReturnsContentUpdates() throws Exception {
+        final TestSubscriber<OfflineContentUpdates> subscriber = new TestSubscriber<>();
         final Collection<DownloadRequest> downloadRequests = Collections.emptyList();
         final OfflineContentUpdates offlineContentUpdates = mock(OfflineContentUpdates.class);
 
@@ -119,33 +119,29 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
         when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
 
-        final TestObserver<OfflineContentUpdates> observer = new TestObserver<>();
-        operations.loadOfflineContentUpdates().subscribe(observer);
+        operations.loadOfflineContentUpdates().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(offlineContentUpdates);
+        subscriber.assertValue(offlineContentUpdates);
     }
-
 
     @Test
     public void makePlaylistAvailableOfflineStoresAsOfflineContent() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        final TestObserver<Boolean> observer = new TestObserver<>();
         when(offlineContentStorage.storeAsOfflinePlaylist(playlistUrn)).thenReturn(Observable.just(changeResult));
 
-        operations.makePlaylistAvailableOffline(playlistUrn).subscribe(observer);
+        operations.makePlaylistAvailableOffline(playlistUrn).subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(true);
+        subscriber.assertCompleted();
     }
 
     @Test
     public void makePlaylistUnavailableOfflineRemovesOfflineContentPlaylist() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        final TestObserver<Boolean> observer = new TestObserver<>();
         when(offlineContentStorage.removeFromOfflinePlaylists(playlistUrn)).thenReturn(Observable.just(changeResult));
 
-        operations.makePlaylistUnavailableOffline(playlistUrn).subscribe(observer);
+        operations.makePlaylistUnavailableOffline(playlistUrn).subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(true);
+        subscriber.assertCompleted();
     }
 
     @Test
@@ -153,7 +149,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(offlineContentStorage.storeAsOfflinePlaylist(playlistUrn)).thenReturn(Observable.just(changeResult));
 
-        operations.makePlaylistAvailableOffline(playlistUrn).subscribe(new TestObserver<Boolean>());
+        operations.makePlaylistAvailableOffline(playlistUrn).subscribe();
 
         EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         PropertySet eventPropertySet = event.getChangeMap().get(playlistUrn);
@@ -166,7 +162,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(offlineContentStorage.removeFromOfflinePlaylists(playlistUrn)).thenReturn(Observable.just(changeResult));
 
-        operations.makePlaylistUnavailableOffline(playlistUrn).subscribe(new TestObserver<Boolean>());
+        operations.makePlaylistUnavailableOffline(playlistUrn).subscribe();
 
         EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         PropertySet eventPropertySet = event.getChangeMap().get(playlistUrn);
@@ -179,10 +175,10 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
         when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(removed));
 
-        final TestObserver<List<Urn>> observer = new TestObserver<>();
-        operations.clearOfflineContent().subscribe(observer);
+        final TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
+        operations.clearOfflineContent().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(removed);
+        subscriber.assertValue(removed);
     }
 
     @Test
@@ -199,33 +195,34 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
     @Test
     public void getLikedTracksOfflineStateReturnsNoOfflineWhenOfflineLikedTrackAreDisabled() {
+        final TestSubscriber<OfflineState> subscriber = new TestSubscriber<>();
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(false));
 
-        final TestObserver<OfflineState> observer = new TestObserver<>();
-        operations.getLikedTracksOfflineStateFromStorage().subscribe(observer);
+        operations.getLikedTracksOfflineStateFromStorage().subscribe(subscriber);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(OfflineState.NO_OFFLINE);
+        subscriber.assertValue(OfflineState.NO_OFFLINE);
     }
 
     @Test
     public void getLikedTracksOfflineStateReturnsStateFromStorageWhenOfflineLikedTracksAreEnabled() {
+        final TestSubscriber<OfflineState> subscriber = new TestSubscriber<>();
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
         when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(Observable.just(OfflineState.REQUESTED));
-        final TestObserver<OfflineState> observer = new TestObserver<>();
-        operations.getLikedTracksOfflineStateFromStorage().subscribe(observer);
 
-        assertThat(observer.getOnNextEvents()).containsExactly(OfflineState.REQUESTED);
+        operations.getLikedTracksOfflineStateFromStorage().subscribe(subscriber);
+
+        subscriber.assertValue(OfflineState.REQUESTED);
     }
 
     @Test
     public void loadOfflineContentUpdatesDoesNotFailWhenPoliciesFailedToUpdate() {
-        final TestObserver<OfflineContentUpdates> observer = new TestObserver<>();
+        final TestSubscriber<OfflineContentUpdates> subscriber = new TestSubscriber<>();
 
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>error(new RuntimeException("Test exception")));
-        operations.loadOfflineContentUpdates().subscribe(observer);
+        operations.loadOfflineContentUpdates().subscribe(subscriber);
 
-        assertThat(observer.getOnCompletedEvents()).hasSize(1);
-        assertThat(observer.getOnErrorEvents()).isEmpty();
+        subscriber.assertCompleted();
+        subscriber.assertNoErrors();
     }
 
 }

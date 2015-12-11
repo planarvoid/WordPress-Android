@@ -31,6 +31,7 @@ public class SettingKey {
     public static final String DEV_FLUSH_EVENTLOGGER_INSTANTLY = "dev.flushEventloggerInstantly";
 
     // Offline
+    public static final String OFFLINE_COLLECTION = "offline.offlineCollections";
     public static final String WIFI_ONLY = "offline.wifiOnlySync";
     public static final String OFFLINE_STORAGE_LIMIT = "offline.storageLimit";
     public static final String OFFLINE_REMOVE_ALL_OFFLINE_CONTENT = "offline.removeAllOfflineContent";

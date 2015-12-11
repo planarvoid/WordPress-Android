@@ -8,20 +8,21 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
-import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineState;
@@ -237,7 +238,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     @Override
     public void onMakeOfflineAvailable(boolean isMarkedForOffline) {
-        Observable<Boolean> observable = isMarkedForOffline
+        Observable<Urn> observable = isMarkedForOffline
                 ? offlineOperations.makePlaylistAvailableOffline(playlistWithTracks.getUrn())
                 : offlineOperations.makePlaylistUnavailableOffline(playlistWithTracks.getUrn());
         fireAndForget(observable);

@@ -16,7 +16,6 @@ public class OfflineSettingsStorage {
 
     private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
     private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
-    private static final String OFFLINE_CONTENT = "has_content_offline";
     private static final String ENCRYPTION_TEST_DONE = "encryption_test_run";
 
     private final SharedPreferences sharedPreferences;
@@ -62,14 +61,6 @@ public class OfflineSettingsStorage {
 
     public void setStorageLimit(long limit) {
         sharedPreferences.edit().putLong(OFFLINE_STORAGE_LIMIT, limit).apply();
-    }
-
-    public boolean hasOfflineContent() {
-        return sharedPreferences.getBoolean(OFFLINE_CONTENT, false);
-    }
-
-    public void setHasOfflineContent(boolean hasOfflineContent) {
-        sharedPreferences.edit().putBoolean(OFFLINE_CONTENT, hasOfflineContent).apply();
     }
 
     public boolean hasRunEncryptionTest() {

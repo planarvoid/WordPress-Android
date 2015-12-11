@@ -20,7 +20,7 @@ import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
-import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
@@ -49,17 +49,17 @@ class GeneralSettings implements OnPreferenceClickListener {
 
     private final Context appContext;
     private final FeatureOperations featureOperations;
-    private final OfflineSettingsOperations offlineSettingsOperations;
+    private final OfflineContentOperations offlineContentOperations;
     private final EventBus eventBus;
 
     private PreferenceFragment settings;
 
     @Inject
     public GeneralSettings(Context appContext, FeatureOperations featureOperations,
-                           OfflineSettingsOperations offlineSettingsOperations, EventBus eventBus) {
+                           OfflineContentOperations offlineContentOperations, EventBus eventBus) {
         this.appContext = appContext;
         this.featureOperations = featureOperations;
-        this.offlineSettingsOperations = offlineSettingsOperations;
+        this.offlineContentOperations = offlineContentOperations;
         this.eventBus = eventBus;
     }
 
@@ -72,7 +72,7 @@ class GeneralSettings implements OnPreferenceClickListener {
     }
 
     private void setupOfflineSync(PreferenceFragment settings) {
-        if (featureOperations.isOfflineContentEnabled() || offlineSettingsOperations.hasOfflineContent()) {
+        if (featureOperations.isOfflineContentEnabled() || offlineContentOperations.hasOfflineContent()) {
             addOfflineSettings(settings);
         } else if (featureOperations.upsellMidTier()) {
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsImpression());
@@ -168,7 +168,7 @@ class GeneralSettings implements OnPreferenceClickListener {
     private void showLogoutDialog(final Activity parent) {
         new AlertDialog.Builder(parent)
                 .setTitle(R.string.sign_out_title)
-                .setMessage(offlineSettingsOperations.hasOfflineContent()
+                .setMessage(offlineContentOperations.hasOfflineContent()
                         ? R.string.sign_out_description_offline
                         : R.string.sign_out_description)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

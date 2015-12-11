@@ -1,90 +1,50 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestObserver;
 
-import java.util.Collections;
+import android.content.Context;
 
-public class OfflineContentStorageTest extends StorageIntegrationTest {
+public class OfflineContentStorageTest extends AndroidUnitTest {
 
-    private OfflineContentStorage contentStorage;
+    private OfflineContentStorage storage;
 
     @Before
     public void setUp() {
-        contentStorage = new OfflineContentStorage(propellerRx());
+        storage = new OfflineContentStorage(null, sharedPreferences("Test", Context.MODE_PRIVATE));
     }
 
     @Test
-    public void storesPlaylistInOfflineContentTable() {
-        final Urn playlistUrn = Urn.forPlaylist(123L);
-
-        contentStorage.storeAsOfflinePlaylist(playlistUrn).subscribe();
-
-        databaseAssertions().assertPlaylistMarkedForOfflineSync(playlistUrn);
+    public void offlineContentFlagIsNotSetByDefault() {
+        assertThat(storage.hasOfflineContent()).isFalse();
     }
 
     @Test
-    public void removesPlaylistFromOfflineContentTable() {
-        final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
+    public void savesOfflineContentFlag() {
+        storage.setHasOfflineContent(true);
 
-        contentStorage.removeFromOfflinePlaylists(playlistUrn).subscribe();
-
-        databaseAssertions().assertPlaylistNotMarkedForOfflineSync(playlistUrn);
+        assertThat(storage.hasOfflineContent()).isTrue();
     }
 
     @Test
-    public void isOfflinePlaylistReturnsTrueForOfflinePlaylist() {
-        final TestObserver<Boolean> testObserver = new TestObserver<>();
-        final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
-
-        contentStorage.isOfflinePlaylist(playlistUrn).subscribe(testObserver);
-
-        testObserver.assertReceivedOnNext(Collections.singletonList(true));
+    public void isOfflineCollectionEnabledReturnsFalseByDefault() {
+        assertThat(storage.isOfflineCollectionEnabled()).isFalse();
     }
 
     @Test
-    public void isOfflinePlaylistReturnsFalseForNonOfflinePlaylist() {
-        final TestObserver<Boolean> testObserver = new TestObserver<>();
+    public void storeOfflineCollectionEnabled() {
+        storage.storeOfflineCollectionEnabled();
 
-        contentStorage.isOfflinePlaylist(Urn.forPlaylist(123L)).subscribe(testObserver);
-
-        testObserver.assertReceivedOnNext(Collections.singletonList(false));
+        assertThat(storage.isOfflineCollectionEnabled()).isTrue();
     }
 
     @Test
-    public void storeOfflineLikesEnabledWritesToOfflineContentTable() {
-        contentStorage.storeOfflineLikesEnabled().subscribe();
+    public void storeOfflineCollectionDisabled() {
+        storage.storeOfflineCollectionDisabled();
 
-        databaseAssertions().assertOfflineLikesEnabled();
+        assertThat(storage.isOfflineCollectionEnabled()).isFalse();
     }
-
-    @Test
-    public void storeOfflineLikesDisabledWritesToOfflineContentTable() {
-        contentStorage.storeOfflineLikesDisabled().subscribe();
-
-        databaseAssertions().assertOfflineLikesDisabled();
-    }
-
-    @Test
-    public void isOfflineLikesEnabledReturnsStoredValue() {
-        final TestObserver<Boolean> testObserver = new TestObserver<>();
-
-        contentStorage.storeOfflineLikesEnabled().subscribe();
-        contentStorage.isOfflineLikesEnabled().subscribe(testObserver);
-
-        testObserver.assertReceivedOnNext(Collections.singletonList(true));
-    }
-
-    @Test
-    public void isOfflineLikesEnabledReturnsFalseWhenNothingStoredInDB() {
-        final TestObserver<Boolean> testObserver = new TestObserver<>();
-
-        contentStorage.isOfflineLikesEnabled().subscribe(testObserver);
-
-        testObserver.assertReceivedOnNext(Collections.singletonList(false));
-    }
-
 }

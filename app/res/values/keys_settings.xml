@@ -29,6 +29,7 @@
     <string name="key_subscription_buy">buySubscription</string>
 
     <!-- Offline sync settings -->
+    <string name="key_offline_collection">offline.offlineCollections</string>
     <string name="key_offline_wifi_only">offline.wifiOnlySync</string>
     <string name="key_offline_storage_limit">offline.storageLimit</string>
     <string name="key_offline_remove_all_offline_content">offline.removeAllOfflineContent</string>

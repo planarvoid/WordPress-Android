@@ -106,7 +106,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
 
     private void createPlaylist(final String title, final boolean isPrivate, final boolean isOffline) {
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
-        Observable<?> observable = isOffline
+        Observable<Urn> observable = isOffline
                 ? playlistOperations.createNewOfflinePlaylist(title, isPrivate, Urn.forTrack(firstTrackId))
                 : playlistOperations.createNewPlaylist(title, isPrivate, Urn.forTrack(firstTrackId));
 
