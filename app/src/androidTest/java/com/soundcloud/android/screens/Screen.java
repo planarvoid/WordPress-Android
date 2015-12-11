@@ -19,7 +19,6 @@ import android.support.v7.widget.RecyclerView;
 import java.util.List;
 
 public abstract class Screen {
-    protected static final int MAX_SCROLLS_TO_FIND_ITEM = 10;
 
     protected Han testDriver;
     protected Waiter waiter;
