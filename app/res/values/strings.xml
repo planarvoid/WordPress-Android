@@ -407,7 +407,7 @@
     <string name="sc_upload_private">\u00A0Private</string>
     <string name="sc_upload_public">\u00A0Public</string>
 
-    <!-- __SEARCH -->
+    <!-- __DISCOVERY SEARCH -->
     <string name="search_hint">Search SoundCloud</string>
     <string name="search_settings_description">Search sounds</string>
     <string name="search_type_all">ALL</string>
@@ -420,8 +420,10 @@
     <string name="search_empty">No results found</string>
     <string name="search_empty_subtext">Check the spelling or try a different search</string>
     <string name="search_for_query">Search for \'%s\'</string>
+    <string name="search_premium_content_results_count">Found %1$d SoundCloud Go Results</string>
+    <string name="search_premium_content_view_all">View all SoundCloud Go Results</string>
 
-    <!-- __DISCOVERY -->
+    <!-- __DISCOVERY RECOMMENDATIONS -->
     <string name="activity_title_recommendations">Recommended for you</string>
     <!-- @Todo from l10n: what is filled in here? -->
     <string name="recommendation_view_all">View all %1$d</string>

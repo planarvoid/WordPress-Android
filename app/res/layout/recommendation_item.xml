@@ -14,8 +14,8 @@
         android:layout_marginRight="@dimen/recommendations_cell_text_recommended_margin"
         android:gravity="center_vertical"
         android:paddingBottom="@dimen/recommendations_cell_text_recommended_padding_bottom"
-        android:paddingLeft="@dimen/recommendations_cell_text_padding"
-        android:paddingRight="@dimen/recommendations_cell_text_padding"
+        android:paddingLeft="@dimen/discovery_cell_text_padding"
+        android:paddingRight="@dimen/discovery_cell_text_padding"
         android:paddingTop="@dimen/recommendations_cell_text_recommended_padding_top"
         android:text="@string/recommendation_seeds_header"
         android:visibility="gone"
@@ -35,8 +35,8 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/recommendations_cell_text_padding"
-                android:paddingRight="@dimen/recommendations_cell_text_padding"
+                android:paddingLeft="@dimen/discovery_cell_text_padding"
+                android:paddingRight="@dimen/discovery_cell_text_padding"
                 tools:ignore="UselessParent">
 
                 <TextView
@@ -45,7 +45,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingBottom="@dimen/default_list_item_padding"
-                    android:paddingRight="@dimen/recommendations_cell_text_padding"
+                    android:paddingRight="@dimen/discovery_cell_text_padding"
                     android:paddingTop="@dimen/default_list_item_padding"
                     android:layout_marginLeft="@dimen/recommendations_cell_text_recommended_margin"
                     tools:text="Because you liked bla bla bla" />
@@ -86,10 +86,10 @@
                     android:id="@+id/view_all"
                     style="@style/Recommendation.ViewAllText"
                     android:layout_width="wrap_content"
-                    android:layout_height="@dimen/recommendations_cell_text_view_all_height"
+                    android:layout_height="@dimen/discovery_cell_text_height"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:paddingBottom="@dimen/recommendations_cell_text_view_all_padding"
+                    android:paddingBottom="@dimen/discovery_cell_text_view_all_padding"
                     tools:text="View All" />
 
                 <ImageView
@@ -98,9 +98,9 @@
                     android:layout_centerInParent="true"
                     android:layout_toRightOf="@id/view_all"
                     android:gravity="center"
-                    android:paddingLeft="@dimen/recommendations_cell_image_view_all_padding"
-                    android:paddingRight="@dimen/recommendations_cell_image_view_all_padding"
-                    android:src="@drawable/chevron_333" />
+                    android:paddingLeft="@dimen/discovery_cell_image_view_all_padding"
+                    android:paddingRight="@dimen/discovery_cell_image_view_all_padding"
+                    android:src="@drawable/chevron" />
 
             </RelativeLayout>
 

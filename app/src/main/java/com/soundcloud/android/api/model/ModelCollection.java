@@ -15,6 +15,9 @@ import java.util.Map;
 
 public class ModelCollection<T> implements Iterable<T> {
 
+    public static final String PROPERTY_COLLECTION = "collection";
+    public static final String PROPERTY_LINKS = "_links";
+    public static final String PROPERTY_QUERY_URN = "query_urn";
     public static final String NEXT_LINK_REL = "next";
 
     private final List<T> collection;
@@ -45,9 +48,9 @@ public class ModelCollection<T> implements Iterable<T> {
         }
     }
 
-    public ModelCollection(@JsonProperty("collection") List<T> collection,
-                           @JsonProperty("_links") Map<String, Link> links,
-                           @JsonProperty("query_urn") String queryUrn) {
+    public ModelCollection(@JsonProperty(PROPERTY_COLLECTION) List<T> collection,
+                           @JsonProperty(PROPERTY_LINKS) Map<String, Link> links,
+                           @JsonProperty(PROPERTY_QUERY_URN) String queryUrn) {
         this(collection, links);
         if (queryUrn != null) {
             this.queryUrn = new Urn(queryUrn);

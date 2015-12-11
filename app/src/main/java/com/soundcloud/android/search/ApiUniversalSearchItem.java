@@ -1,5 +1,7 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.java.optional.Optional.fromNullable;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -7,6 +9,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -14,17 +17,17 @@ import org.jetbrains.annotations.Nullable;
  */
 class ApiUniversalSearchItem implements PropertySetSource {
 
-    private final ApiUser user;
-    private final ApiPlaylist playlist;
-    private final ApiTrack track;
+    private final Optional<ApiUser> user;
+    private final Optional<ApiPlaylist> playlist;
+    private final Optional<ApiTrack> track;
 
     @JsonCreator
     ApiUniversalSearchItem(@JsonProperty("user") @Nullable ApiUser user,
                            @JsonProperty("playlist") @Nullable ApiPlaylist playlist,
                            @JsonProperty("track") @Nullable ApiTrack track) {
-        this.user = user;
-        this.playlist = playlist;
-        this.track = track;
+        this.user = fromNullable(user);
+        this.playlist = fromNullable(playlist);
+        this.track = fromNullable(track);
     }
 
     static ApiUniversalSearchItem forTrack(ApiTrack track) {
@@ -41,42 +44,27 @@ class ApiUniversalSearchItem implements PropertySetSource {
 
     @Override
     public PropertySet toPropertySet() {
-        if (user != null) {
-            return user.toPropertySet();
+        if (user.isPresent()) {
+            return user.get().toPropertySet();
         }
-        if (playlist != null) {
-            return playlist.toPropertySet();
+        if (playlist.isPresent()) {
+            return playlist.get().toPropertySet();
         }
-        if (track != null) {
-            return track.toPropertySet();
+        if (track.isPresent()) {
+            return track.get().toPropertySet();
         }
         throw new IllegalStateException("missing wrapped search result entity");
     }
 
-    @Nullable
-    public ApiUser getUser() {
+    public Optional<ApiUser> user() {
         return user;
     }
 
-    @Nullable
-    public ApiPlaylist getPlaylist() {
+    public Optional<ApiPlaylist> playlist() {
         return playlist;
     }
 
-    @Nullable
-    public ApiTrack getTrack() {
+    public Optional<ApiTrack> track() {
         return track;
-    }
-
-    public boolean isUser() {
-        return user != null;
-    }
-
-    public boolean isPlaylist() {
-        return playlist != null;
-    }
-
-    public boolean isTrack() {
-        return track != null;
     }
 }
