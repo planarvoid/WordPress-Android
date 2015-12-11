@@ -131,6 +131,11 @@ public class TrackLikesScreen extends Screen {
                 .findElement(With.id(R.id.header_download_state)));
     }
 
+    public CollectionsScreen goBack() {
+        testDriver.goBack();
+        return new CollectionsScreen(testDriver);
+    }
+
     private RecyclerViewElement likesList() {
         return testDriver.findElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
     }

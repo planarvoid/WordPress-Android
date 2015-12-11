@@ -6,9 +6,11 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.TrackLikesScreen;
+import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistItemsTest extends ActivityTest<MainActivity> {
@@ -47,23 +49,31 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
     @BrokenScrollingTest
     public void testAddTrackToPlaylistFromPlayer() {
-        StreamScreen streamScreen = new StreamScreen(solo);
-        String trackAddedTitle = streamScreen.scrollToFirstTrack().trackTitle();
+        final TrackLikesScreen trackLikesScreen = mainNavHelper
+                .goToCollections()
+                .clickTrackLikes();
+        final TrackItemElement track = trackLikesScreen
+                .getTracks()
+                .get(0);
 
-        VisualPlayerElement player = streamScreen.clickFirstTrackCard();
-        player.clickMenu()
+        final String trackAddedTitle = track.getTitle();
+
+        track.click().clickMenu()
                 .clickAddToPlaylist()
                 .clickCreateNewPlaylist()
                 .enterTitle(playlist)
                 .clickDoneAndReturnToPlayer()
                 .pressBackToCollapse();
 
+        trackLikesScreen.goBack();
+
         assertPlaylistContainsTrack(trackAddedTitle);
     }
 
     private void assertPlaylistContainsTrack(String trackTitle) {
-        PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
-                .clickPlaylistWithTitle(playlist);
+        final CollectionsScreen collectionsScreen = mainNavHelper.goToCollections();
+        collectionsScreen.pullToRefresh();
+        PlaylistDetailsScreen playlistDetailsScreen = collectionsScreen.clickPlaylistWithTitle(playlist);
 
         assertThat(playlistDetailsScreen.getTitle(), is(playlist));
         assertThat(playlistDetailsScreen.containsTrackWithTitle(trackTitle), is(true));
