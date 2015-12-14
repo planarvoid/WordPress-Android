@@ -2,7 +2,6 @@ package com.soundcloud.android.playback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -38,6 +37,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
             TrackProperty.URN.bind(trackUrn),
             TrackProperty.PLAY_DURATION.bind(456L)
     );
+    private AudioPlaybackItem audioPlaybackItem = AudioPlaybackItem.create(track, 123L);
     private VideoPlaybackItem videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(trackUrn));
 
     @Before
@@ -85,7 +85,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         startPlaybackOnSkippy();
 
-        verify(skippyAdapter).play(trackUrn, 123L);
+        verify(skippyAdapter).play(audioPlaybackItem);
     }
 
     @Test
@@ -99,11 +99,12 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @Test
     public void playWithUninterruptedPlaybackItemCallsPlayOnSkippyByDefault() {
+        final AudioPlaybackItem uninterruptedItem = AudioPlaybackItem.forAudioAd(track);
         instantiateStreamPlaya();
 
-        streamPlayerWrapper.play(AudioPlaybackItem.forAudioAd(track));
+        streamPlayerWrapper.play(uninterruptedItem);
 
-        verify(skippyAdapter).playUninterrupted(trackUrn);
+        verify(skippyAdapter).play(uninterruptedItem);
     }
 
     @Test
@@ -113,16 +114,17 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         startPlaybackOnSkippy();
 
-        verify(mediaPlayerAdapter).play(trackUrn, 123L);
+        verify(mediaPlayerAdapter).play(audioPlaybackItem);
     }
 
     @Test
     public void playOfflineCallsPlayOfflineOnSkippyWithResumeTime() {
+        final AudioPlaybackItem offlineItem = AudioPlaybackItem.forOffline(track, 123L);
         instantiateStreamPlaya();
 
-        streamPlayerWrapper.play(AudioPlaybackItem.forOffline(track, 123L));
+        streamPlayerWrapper.play(offlineItem);
 
-        verify(skippyAdapter).playOffline(trackUrn, 123);
+        verify(skippyAdapter).play(offlineItem);
     }
 
     @Test
@@ -132,7 +134,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         startPlaybackOnSkippy();
 
-        verify(mediaPlayerAdapter).play(trackUrn, 123L);
+        verify(mediaPlayerAdapter).play(audioPlaybackItem);
     }
 
 
@@ -151,7 +153,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
 
-        verify(videoPlayerAdapter).playVideo(videoPlaybackItem);
+        verify(videoPlayerAdapter).play(videoPlaybackItem);
     }
 
     @Test
@@ -357,7 +359,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
         streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, trackUrn));
-        verify(mediaPlayerAdapter).play(trackUrn, 123L);
+        verify(mediaPlayerAdapter).play(audioPlaybackItem);
     }
 
     @Test
@@ -370,7 +372,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
         streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, trackUrn));
-        verify(mediaPlayerAdapter, never()).play(any(Urn.class), anyLong());
+        verify(mediaPlayerAdapter, never()).play(any(PlaybackItem.class));
     }
 
     @Test
@@ -383,7 +385,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
         streamPlayerWrapper.onPlaystateChanged(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, trackUrn));
-        verify(mediaPlayerAdapter, never()).play(any(Urn.class), anyLong());
+        verify(mediaPlayerAdapter, never()).play(any(PlaybackItem.class));
     }
 
     @Test
@@ -474,7 +476,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void startPlaybackOnSkippy() {
-        streamPlayerWrapper.play(AudioPlaybackItem.create(track, 123L));
+        streamPlayerWrapper.play(audioPlaybackItem);
     }
 
     private void startPlaybackOnVideoPlayerAdapter(VideoPlaybackItem videoPlaybackItem) {

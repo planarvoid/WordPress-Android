@@ -12,7 +12,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
+import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.VideoPlaybackItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -62,7 +64,17 @@ public class VideoPlayerAdapter implements Player, SurfaceHolder.Callback, Media
     }
 
     @Override
-    public void playVideo(VideoPlaybackItem videoPlaybackItem) {
+    public void play(PlaybackItem playbackItem) {
+        switch(playbackItem.getPlaybackType()) {
+            case VIDEO_DEFAULT:
+                playVideo((VideoPlaybackItem) playbackItem);
+                break;
+            default:
+                throw new IllegalStateException("VideoPlayerAdapter cannot play this item: " + playbackItem);
+        }
+    }
+
+    private void playVideo(VideoPlaybackItem videoPlaybackItem) {
         if (mediaPlayer == null || releaseUnresettableMediaPlayer()) {
             createMediaPlayer();
         } else {
@@ -102,26 +114,6 @@ public class VideoPlayerAdapter implements Player, SurfaceHolder.Callback, Media
             mediaPlayer.start();
             setInternalState(PlaybackState.PLAYING);
         }
-    }
-
-    @Override
-    public void play(Urn track) {
-        throw new IllegalStateException("VideoPlayerAdapter cannot play tracks!");
-    }
-
-    @Override
-    public void play(Urn track, long fromPos) {
-        throw new IllegalStateException("VideoPlayerAdapter cannot play tracks!");
-    }
-
-    @Override
-    public void playUninterrupted(Urn track) {
-        throw new IllegalStateException("VideoPlayerAdapter cannot play tracks!");
-    }
-
-    @Override
-    public void playOffline(Urn track, long fromPos) {
-        throw new IllegalStateException("VideoPlayerAdapter cannot play tracks!");
     }
 
     @Override

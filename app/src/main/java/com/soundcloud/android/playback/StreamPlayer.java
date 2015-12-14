@@ -30,7 +30,7 @@ class StreamPlayer implements PlayerListener {
     private PlayerListener playerListener;
 
     // store start info so we can fallback and retry after Skippy failures
-    private PlaybackItem lastTrackPlayed;
+    private PlaybackItem lastItemPlayed;
     private Player.StateTransition lastStateTransition = Player.StateTransition.DEFAULT;
 
     @Inject
@@ -75,20 +75,7 @@ class StreamPlayer implements PlayerListener {
 
     public void play(PlaybackItem playbackItem) {
         prepareForPlay(playbackItem);
-
-        switch(playbackItem.getPlaybackType()) {
-            case AUDIO_DEFAULT:
-                currentPlayer.play(playbackItem.getUrn(), playbackItem.getStartPosition());
-                break;
-            case AUDIO_OFFLINE:
-                currentPlayer.playOffline(playbackItem.getUrn(), playbackItem.getStartPosition());
-                break;
-            case AUDIO_UNINTERRUPTED:
-                currentPlayer.playUninterrupted(playbackItem.getUrn());
-                break;
-            case VIDEO_DEFAULT:
-                currentPlayer.playVideo((VideoPlaybackItem) playbackItem);
-        }
+        currentPlayer.play(playbackItem);
     }
 
     public void preload(Urn urn) {
@@ -96,7 +83,7 @@ class StreamPlayer implements PlayerListener {
     }
 
     private void prepareForPlay(PlaybackItem playbackItem) {
-        lastTrackPlayed = playbackItem;
+        lastItemPlayed = playbackItem;
         configureNextPlayerToUse(playbackItem);
     }
 
@@ -146,11 +133,11 @@ class StreamPlayer implements PlayerListener {
 
     @Override
     public void onPlaystateChanged(Player.StateTransition stateTransition) {
-
         if (shouldFallbackToMediaPlayer(stateTransition)) {
-            final long progress = skippyPlayerDelegate.getProgress();
+            final long currentProgress = skippyPlayerDelegate.getProgress();
+            final PlaybackItem updatedItem = AudioPlaybackItem.create(lastItemPlayed.getUrn(), currentProgress, lastItemPlayed.getDuration());
             configureNextPlayerToUse(mediaPlayerDelegate);
-            mediaPlayerDelegate.play(lastTrackPlayed.getUrn(), progress);
+            mediaPlayerDelegate.play(updatedItem);
         } else {
             checkNotNull(playerListener, "Stream Player Listener is unexpectedly null when passing state");
             lastStateTransition = stateTransition;

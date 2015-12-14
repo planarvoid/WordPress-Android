@@ -18,6 +18,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -34,16 +35,20 @@ import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
+import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
+import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,6 +96,11 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
     private Urn trackUrn = Urn.forTrack(123L);
+    private PropertySet track = PropertySet.from(
+            TrackProperty.URN.bind(trackUrn),
+            TrackProperty.PLAY_DURATION.bind(456L)
+    );
+    private PlaybackItem playbackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET);
     private TestDateProvider dateProvider;
 
     @Before
@@ -144,52 +154,52 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void playDoesNotInteractWithSkippyIfNoListenerPresent() {
         skippyAdapter.setListener(null);
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         verifyZeroInteractions(skippy);
     }
 
     @Test
     public void playDoesNotInteractWithSkippyIfAudioFocusFailsToBeGranted() {
         when(listener.requestAudioFocus()).thenReturn(false);
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         verifyZeroInteractions(skippy);
     }
 
     @Test
     public void playBroadcastsErrorStateIfAudioFocusFailsToBeGranted() {
         when(listener.requestAudioFocus()).thenReturn(false);
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         verify(listener).onPlaystateChanged(new Player.StateTransition(PlayerState.IDLE, Player.Reason.ERROR_FAILED, trackUrn, 0, -1, dateProvider));
     }
 
     @Test
     public void playCallsPlayUrlOnSkippy() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         verify(skippy).play(STREAM_URL, 0);
     }
 
     @Test
     public void playUninterruptedUsesPlayAd() {
-        skippyAdapter.playUninterrupted(trackUrn);
+        skippyAdapter.play(AudioPlaybackItem.forAudioAd(track));
         verify(skippy).playAd(STREAM_URL, 0);
     }
 
     @Test
     public void playRemovesStateChangeMessagesFromHandler() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         verify(stateChangeHandler).removeMessages(0);
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionIfSoundCloudDoesNotExistWhenTryingToPlay() {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
     }
 
     @Test
     public void playUrlWithTheCurrentUrlAndPositionCallsSeekAndResumeOnSkippy() {
-        skippyAdapter.play(trackUrn);
-        skippyAdapter.play(trackUrn, 123L);
+        skippyAdapter.play(AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET));
+        skippyAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET));
         InOrder inOrder = Mockito.inOrder(skippy);
         inOrder.verify(skippy).seek(123L);
         inOrder.verify(skippy).resume();
@@ -197,18 +207,18 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void playUrlWithTheSameUrlAfterErrorCallsPlayUrlOnSkippy() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED, PROGRESS, DURATION, STREAM_URL);
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
 
         verify(skippy, times(2)).play(STREAM_URL, 0);
     }
 
     @Test
     public void playUrlWithTheSameUrlAfterCompleteCallsPlayUrlOnSkippy() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.IDLE, Reason.COMPLETE, Error.OK, PROGRESS, DURATION, STREAM_URL);
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
 
         verify(skippy, times(2)).play(STREAM_URL, 0);
     }
@@ -221,7 +231,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         when(cryptoOperations.checkAndGetDeviceKey()).thenReturn(new DeviceSecret("asdf", key, iVector));
         when(secureFileStorage.getFileUriForOfflineTrack(trackUrn)).thenReturn(uri);
 
-        skippyAdapter.playOffline(trackUrn, 123L);
+        skippyAdapter.play(AudioPlaybackItem.forOffline(track, 123L));
 
         verify(skippy).playOffline(uri.toString(), 123L, key, iVector);
     }
@@ -290,28 +300,28 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void getProgressReturnsGetPositionFromSkippy() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.getProgress();
         verify(skippy).getPosition();
     }
 
     @Test
     public void doesNotPropogateProgressChangesForIncorrectUri() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onProgressChange(123L, 456L, "WrongStreamUrl");
         verify(listener, never()).onProgressEvent(anyLong(), anyLong());
     }
 
     @Test
     public void propogatesProgressChangesForPlayingUri() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onProgressChange(123L, 456L, STREAM_URL);
         verify(listener).onProgressEvent(123L, 456L);
     }
 
     @Test
     public void adjustsProgressChangesToDurationBoundsForPlayingUri() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onProgressChange(567, 456L, STREAM_URL);
         verify(listener).onProgressEvent(456, 456L);
     }
@@ -319,14 +329,14 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void doesNotPropogateStateChangesForIncorrectUrl() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, PROGRESS, DURATION, "WrongStreamUrl");
         verify(stateChangeHandler, never()).sendMessage(any(Message.class));
     }
 
     @Test
     public void skippyIdlePausedEventTranslatesToListenerIdleEvent() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         Player.StateTransition expected = new Player.StateTransition(PlayerState.IDLE, Player.Reason.NONE, trackUrn, PROGRESS, DURATION, dateProvider);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, PROGRESS, DURATION, STREAM_URL);
@@ -335,7 +345,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void skippyPlayingTranslatesToListenerPlayingEvent() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         Player.StateTransition expected = new Player.StateTransition(PlayerState.PLAYING, Player.Reason.NONE, trackUrn, PROGRESS, DURATION, dateProvider);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
@@ -344,7 +354,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void skippyPlayBufferingTranslatesToListenerBufferingEvent() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         Player.StateTransition expected = new Player.StateTransition(PlayerState.BUFFERING, Player.Reason.NONE, trackUrn, PROGRESS, DURATION, dateProvider);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK, PROGRESS, DURATION, STREAM_URL);
@@ -353,7 +363,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void skippyIdleErrorTimeoutTranslatesToListenerTimeoutError() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         Player.StateTransition expected = new Player.StateTransition(PlayerState.IDLE, Player.Reason.ERROR_FAILED, trackUrn, PROGRESS, DURATION, dateProvider);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.TIMEOUT, PROGRESS, DURATION, STREAM_URL);
@@ -362,7 +372,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void skippyFailedErrorTranslatesToListenerErrorFailed() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         Player.StateTransition expected = new Player.StateTransition(PlayerState.IDLE, Player.Reason.ERROR_FAILED, trackUrn, PROGRESS, DURATION, dateProvider);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED, PROGRESS, DURATION, STREAM_URL);
@@ -371,7 +381,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void skippyIdleErrorForbiddenTranslatesToListenerErrorForbiddenEvent() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         Player.StateTransition expected = new Player.StateTransition(PlayerState.IDLE, Player.Reason.ERROR_FORBIDDEN, trackUrn, PROGRESS, DURATION, dateProvider);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FORBIDDEN, PROGRESS, DURATION, STREAM_URL);
@@ -380,7 +390,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void skippyIdleErrorNotFoundTranslatesToListenerErrorNotFoundEvent() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         Player.StateTransition expected = new Player.StateTransition(PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, trackUrn, PROGRESS, DURATION, dateProvider);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.MEDIA_NOT_FOUND, PROGRESS, DURATION, STREAM_URL);
@@ -389,7 +399,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void skippyIdlePausedEventAdjustsProgressToDurationBoundsWhenSendingEvent() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         Player.StateTransition expected = new Player.StateTransition(PlayerState.IDLE, Player.Reason.NONE, trackUrn, DURATION, DURATION, dateProvider);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, DURATION + 1, DURATION, STREAM_URL);
@@ -398,7 +408,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void returnsLastStateChangeProgressAfterError() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         Player.StateTransition expected = new Player.StateTransition(PlayerState.IDLE, Player.Reason.ERROR_NOT_FOUND, trackUrn, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.MEDIA_NOT_FOUND, PROGRESS, DURATION, STREAM_URL);
@@ -407,7 +417,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void locksLockUtilWhenPlaying() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
 
         verify(lockUtil).lock();
@@ -415,7 +425,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void locksLockUtilWhenBuffering() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK, PROGRESS, DURATION, STREAM_URL);
 
         verify(lockUtil).lock();
@@ -423,7 +433,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void unlocksLockUtilWhenIdle() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.IDLE, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
 
         verify(lockUtil).unlock();
@@ -431,7 +441,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void unlocksLockUtilOnError() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.IDLE, Reason.ERROR, Error.FAILED, PROGRESS, DURATION, STREAM_URL);
 
         verify(lockUtil).unlock();
@@ -439,7 +449,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void unlocksLockUtilWhenComplete() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onStateChanged(State.IDLE, Reason.COMPLETE, Error.OK, PROGRESS, DURATION, STREAM_URL);
 
         verify(lockUtil).unlock();
@@ -447,7 +457,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void shouldAddStreamingProtocolToPlayStateEvent() {
-        skippyAdapter.play(trackUrn);
+        skippyAdapter.play(playbackItem);
 
         skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
         verify(stateChangeHandler).obtainMessage(anyInt(), stateCaptor.capture());
@@ -609,5 +619,4 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         verify(accountOperations, never()).getLoggedInUserUrn();
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
-
 }

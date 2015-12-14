@@ -8,6 +8,7 @@ import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackConstants;
+import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
@@ -90,12 +91,20 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     @Override
-    public void play(Urn track) {
-        play(track, 0);
+    public void play(PlaybackItem playbackItem) {
+        switch (playbackItem.getPlaybackType()) {
+            case AUDIO_DEFAULT:
+                play(playbackItem.getUrn(), playbackItem.getStartPosition());
+                break;
+            case AUDIO_UNINTERRUPTED:
+                play(playbackItem.getUrn(), 0);
+                break;
+            default:
+                throw new IllegalStateException("MediaPlayer cannot play this item: " + playbackItem);
+        }
     }
 
-    @Override
-    public void play(Urn track, long fromPos) {
+    private void play(Urn track, long fromPos) {
         if (mediaPlayer == null || releaseUnresettableMediaPlayer()) {
             createMediaPlayer();
         } else {
@@ -118,22 +127,6 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         } catch (IOException e) {
             handleMediaPlayerError(mediaPlayer, resumePos);
         }
-    }
-
-    @Override
-    public void playUninterrupted(Urn track) {
-        // Not implemented for MediaPlayer
-        play(track);
-    }
-
-    @Override
-    public void playOffline(Urn track, long fromPos) {
-        throw new IllegalStateException("MediaPlayer cannot play offline content!!");
-    }
-
-    @Override
-    public void playVideo(VideoPlaybackItem videoPlaybackItem) {
-        throw new IllegalStateException("MediaPlayer cannot play video!");
     }
 
     @Override

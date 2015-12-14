@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.ConnectionType;
@@ -22,7 +23,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
+import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
@@ -68,6 +71,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<Player.StateTransition> stateCaptor;
 
     private Urn trackUrn = Urn.forTrack(123L);
+    private PlaybackItem playbackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET);
     private int duration = 20000;
 
     private Urn userUrn;
@@ -98,7 +102,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void playUrlShouldCreateConfiguredMediaPlayer() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         verify(mediaPlayerManager).create();
         verify(mediaPlayer).setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
         verify(mediaPlayer).setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -114,14 +118,14 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void playUrlShouldCallBufferingState() {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
         when(mediaPlayer.getDuration()).thenReturn(duration);
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, trackUrn, 0, -1, dateProvider)));
         verifyNoMoreInteractions(listener);
     }
 
     @Test
     public void preparedListenerShouldStartPlayback() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         verify(mediaPlayer).start();
     }
@@ -129,7 +133,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void preparedListenerShouldNotStartPlaybackIfFocusNotGranted() {
         when(listener.requestAudioFocus()).thenReturn(false);
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         verify(mediaPlayer, never()).start();
     }
@@ -138,7 +142,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void preparedListenerShouldCallStatesBufferingToPlaying() {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
 
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         when(mediaPlayer.getDuration()).thenReturn(20000);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
@@ -151,7 +155,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void shouldAddStreamingProtocolToPlayStateEvent() {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
 
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
 
         verify(listener).onPlaystateChanged(stateCaptor.capture());
 
@@ -162,7 +166,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void preparedListenerShouldReportTimeToPlay() {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
         when(dateProvider.getCurrentDate()).thenReturn(new Date(0));
-        mediaPlayerAdapter.play(trackUrn, 123L);
+        mediaPlayerAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET));
         when(dateProvider.getCurrentDate()).thenReturn(new Date(1000));
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
@@ -179,20 +183,20 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void playUrlShouldResetAndReuseOldMediaPlayer() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         verify(mediaPlayer).reset();
     }
 
     @Test
     public void pauseShouldStopReleaseMediaPlayerIfPausedWhilePreparing() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.pause();
         verify(mediaPlayerManager).stopAndReleaseAsync(mediaPlayer);
     }
 
     @Test
     public void pauseNotifyIdleStateIfPausedWhilePreparing() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.pause();
 
         InOrder inOrder = Mockito.inOrder(listener);
@@ -207,7 +211,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void seekShouldSeekOnMediaPlayerWhilePreparing() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
         verify(mediaPlayer).seekTo(123);
     }
@@ -244,7 +248,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void playUrlShouldCreateNewMediaPlayerIfWaitingForSeekToReturn() {
         playUrlAndSetPrepared();
         assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         verify(mediaPlayerManager).create();
     }
 
@@ -252,7 +256,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void playUrlShouldReleaseOldMediaPlayerIfWaitingForSeekToReturn() {
         playUrlAndSetPrepared();
         assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         verify(mediaPlayerManager).stopAndReleaseAsync(mediaPlayer);
     }
 
@@ -264,7 +268,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void resumeShouldCreateNewMediaPlayerIfInPreparingState() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         reset(mediaPlayer);
         mediaPlayerAdapter.resume();
         verify(mediaPlayerManager, times(2)).create();
@@ -331,7 +335,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void playUrlShouldRetryMaxTimesIfMediaPlayerFailsToPrepare() throws IOException {
         Mockito.doThrow(new IOException()).when(mediaPlayer).setDataSource(any(String.class));
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
 
         InOrder inOrder = inOrder(listener);
         inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, trackUrn, 0, -1, dateProvider)));
@@ -340,19 +344,19 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void playUrlSetsDataSourceOnMediaPlayer() throws IOException {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         verify(mediaPlayer).setDataSource(STREAM_URL);
     }
 
     @Test
     public void playUrlCallsPrepareAsyncOnMediaPlayer() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         verify(mediaPlayer).prepareAsync();
     }
 
     @Test
     public void onTrackEndedResetsRetryCount() throws IOException {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
         mediaPlayerAdapter.onTrackEnded();
@@ -363,7 +367,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onSeekResetsRetryCount() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
         mediaPlayerAdapter.seek(10, true);
@@ -373,7 +377,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void shouldReleaseMediaPlayerOnlyAfterRetryingPlaybackThreeTimes() throws IOException {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
         verify(mediaPlayer, times(2)).reset();
@@ -385,7 +389,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onErrorShouldRetryStreamPlaybacksMaxRetryTimesThenReportError() throws IOException {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES + 1);
 
@@ -396,14 +400,14 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onErrorShouldReturnTrueWhenRetrying() throws IOException {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         assertThat(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).isTrue();
     }
 
     @Test
     public void onErrorShouldReturnTrueWhenRetriesExhausted() throws IOException {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
         assertThat(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).isTrue();
@@ -411,7 +415,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnMediaPlayerProgressAfterOnSeekCompleteCalled() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         when(mediaPlayer.getDuration()).thenReturn(duration);
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
@@ -486,7 +490,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onSeekCompleteShouldClearSeekPosThroughHandler() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 
@@ -502,7 +506,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onBufferingListenerClearsSeekMessageThroughHandlerWhenBuffering() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
 
@@ -511,7 +515,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onBufferingListenerWhilePreparingDoesNotChangeState() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         reset(listener);
 
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
@@ -571,7 +575,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void stopDoesNothingIfNotStoppable() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.stop();
         verify(mediaPlayer, never()).stop();
     }
@@ -596,7 +600,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSeekIfPlayFromPositionIsZero() {
-        mediaPlayerAdapter.play(trackUrn, 0L);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         verify(mediaPlayer, never()).seekTo(anyInt());
     }
@@ -605,7 +609,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void shouldResumePlaybackAtSpecifiedTime() {
         when(mediaPlayer.getDuration()).thenReturn(duration);
 
-        mediaPlayerAdapter.play(trackUrn, 123L);
+        mediaPlayerAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET));
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         InOrder inOrder = inOrder(mediaPlayer);
@@ -622,7 +626,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void setVolumeSetsVolumeOnPlayer() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.setVolume(1.0f);
         verify(mediaPlayer).setVolume(1.0f, 1.0f);
     }
@@ -666,7 +670,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     private void playUrlAndSetPrepared() {
-        mediaPlayerAdapter.play(trackUrn);
+        mediaPlayerAdapter.play(playbackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         reset(mediaPlayer);
         reset(mediaPlayerManager);
