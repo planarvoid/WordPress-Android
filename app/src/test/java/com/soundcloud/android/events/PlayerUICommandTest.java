@@ -1,30 +1,27 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(SoundCloudTestRunner.class)
 public class PlayerUICommandTest {
 
     @Test
     public void createEventForExpandPlayer() {
         PlayerUICommand event = PlayerUICommand.expandPlayer();
-        expect(event.isExpand()).toBeTrue();
+        assertThat(event.isExpand()).isTrue();
     }
 
     @Test
     public void createsEventForClosePlayer() {
         PlayerUICommand event = PlayerUICommand.collapsePlayer();
-        expect(event.isCollapse()).toBeTrue();
+        assertThat(event.isCollapse()).isTrue();
     }
 
     @Test
     public void createsEventForShowPlayer() {
         PlayerUICommand event = PlayerUICommand.showPlayer();
-        expect(event.isShow()).toBeTrue();
+        assertThat(event.isShow()).isTrue();
     }
 
 }

@@ -1,24 +1,21 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(SoundCloudTestRunner.class)
 public class PlayerUIEventTest {
 
     @Test
     public void createsEventFromPlayerExpanded() {
         PlayerUIEvent event = PlayerUIEvent.fromPlayerExpanded();
-        expect(event.getKind()).toEqual(0);
+        assertThat(event.getKind()).isEqualTo(0);
     }
 
     @Test
     public void createsEventFromPlayerCollapsed() {
         PlayerUIEvent event = PlayerUIEvent.fromPlayerCollapsed();
-        expect(event.getKind()).toEqual(1);
+        assertThat(event.getKind()).isEqualTo(1);
     }
 
 }

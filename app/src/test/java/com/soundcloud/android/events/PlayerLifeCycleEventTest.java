@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.Expect.expect;
 import static junit.framework.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
@@ -27,22 +27,22 @@ public class PlayerLifeCycleEventTest {
 
     @Test
     public void serviceIsRunningForCreatedEvent() throws Exception {
-        expect(PlayerLifeCycleEvent.forCreated().isServiceRunning()).toBeTrue();
+        assertThat(PlayerLifeCycleEvent.forCreated().isServiceRunning()).isTrue();
     }
 
     @Test
     public void serviceIsRunningForStartedEvent() throws Exception {
-        expect(PlayerLifeCycleEvent.forCreated().isServiceRunning()).toBeTrue();
+        assertThat(PlayerLifeCycleEvent.forCreated().isServiceRunning()).isTrue();
     }
 
     @Test
     public void serviceIsNotRunningForStoppedEvent() throws Exception {
-        expect(PlayerLifeCycleEvent.forStopped().isServiceRunning()).toBeFalse();
+        assertThat(PlayerLifeCycleEvent.forStopped().isServiceRunning()).isFalse();
     }
 
     @Test
     public void serviceIsNotRunningForDestroyedEvent() throws Exception {
-        expect(PlayerLifeCycleEvent.forDestroyed().isServiceRunning()).toBeFalse();
+        assertThat(PlayerLifeCycleEvent.forDestroyed().isServiceRunning()).isFalse();
     }
 
 }

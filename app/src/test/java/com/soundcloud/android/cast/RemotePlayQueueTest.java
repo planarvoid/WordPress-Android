@@ -1,16 +1,13 @@
 package com.soundcloud.android.cast;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class RemotePlayQueueTest {
 
     private static final Urn URN = Urn.forTrack(123L);
@@ -20,7 +17,7 @@ public class RemotePlayQueueTest {
     @Test
     public void returnsCurrentTrackPosition() {
         RemotePlayQueue remotePlayQueue = new RemotePlayQueue(PLAY_QUEUE, URN2);
-        expect(remotePlayQueue.getCurrentPosition()).toEqual(1);
+        assertThat(remotePlayQueue.getCurrentPosition()).isEqualTo(1);
     }
 
 }

@@ -1,21 +1,20 @@
 package com.soundcloud.android.tracks;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.tracks.TrackGridRenderer.ItemViewHolder;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.view.View;
@@ -23,18 +22,16 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.Arrays;
 import java.util.Locale;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackGridRendererTest {
+public class TrackGridRendererTest extends AndroidUnitTest {
 
     private TrackGridRenderer renderer;
 
     @Mock private ImageOperations imageOperations;
 
     private final CondensedNumberFormatter numberFormatter =
-            CondensedNumberFormatter.create(Locale.US, Robolectric.application.getResources());
+            CondensedNumberFormatter.create(Locale.US, resources());
 
     @Before
     public void setUp() throws Exception {
@@ -43,12 +40,12 @@ public class TrackGridRendererTest {
 
     @Test
     public void shouldCreateItemView() {
-        View itemView = renderer.createItemView(new FrameLayout(Robolectric.application));
-        expect(itemView).not.toBeNull();
-        expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
-        expect(itemView.findViewById(R.id.image)).not.toBeNull();
-        expect(itemView.findViewById(R.id.username)).not.toBeNull();
-        expect(itemView.findViewById(R.id.title)).not.toBeNull();
+        View itemView = renderer.createItemView(new FrameLayout(context()));
+        assertThat(itemView).isNotNull();
+        assertThat(itemView.getTag()).isNotNull(); // contains the private ViewHolder instance
+        assertThat(itemView.findViewById(R.id.image)).isNotNull();
+        assertThat(itemView.findViewById(R.id.username)).isNotNull();
+        assertThat(itemView.findViewById(R.id.title)).isNotNull();
     }
 
     @Test
@@ -56,14 +53,14 @@ public class TrackGridRendererTest {
         TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
         View itemView = mock(View.class);
-        when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
+        when(itemView.getResources()).thenReturn(resources());
         ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
-        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, singletonList(trackItem));
 
-        expect(viewHolder.title.getText()).toEqual(trackItem.getTitle());
-        expect(viewHolder.username.getText()).toEqual(trackItem.getCreatorName());
+        assertThat(viewHolder.title.getText()).isEqualTo(trackItem.getTitle());
+        assertThat(viewHolder.username.getText()).isEqualTo(trackItem.getCreatorName());
     }
 
     @Test
@@ -73,22 +70,22 @@ public class TrackGridRendererTest {
         TrackItem trackItem = TrackItem.from(apiTrack);
 
         View itemView = mock(View.class);
-        when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
+        when(itemView.getResources()).thenReturn(resources());
         TrackGridRenderer.ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
-        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, singletonList(trackItem));
 
-        expect(viewHolder.genre.getVisibility()).toEqual(View.GONE);
+        assertThat(viewHolder.genre.getVisibility()).isEqualTo(View.GONE);
     }
 
     private ItemViewHolder createItemViewHolder() {
         ItemViewHolder viewHolder = mock(ItemViewHolder.class);
-        viewHolder.imageView = new ImageView(Robolectric.application);
-        viewHolder.title = new TextView(Robolectric.application);
-        viewHolder.username = new TextView(Robolectric.application);
-        viewHolder.genre = new TextView(Robolectric.application);
-        viewHolder.playcount = new TextView(Robolectric.application);
+        viewHolder.imageView = new ImageView(context());
+        viewHolder.title = new TextView(context());
+        viewHolder.username = new TextView(context());
+        viewHolder.genre = new TextView(context());
+        viewHolder.playcount = new TextView(context());
         return viewHolder;
     }
 }
