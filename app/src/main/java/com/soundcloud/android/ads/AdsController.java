@@ -54,7 +54,7 @@ public class AdsController {
     private Subscription skipFailedAdSubscription = RxUtils.invalidSubscription();
     private Map<Urn, AdsFetchOperation> currentAdsFetches = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
     private Optional<ApiAdsForTrack> adsForNextTrack = Optional.absent();
-    private ActivityLifeCycleEvent currentLifeCycleEvent;
+    private boolean isForeground;
 
     private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = new Func1<PlayQueueEvent, Boolean>() {
         @Override
@@ -192,7 +192,7 @@ public class AdsController {
         if (playQueueManager.hasNextItem() &&
                 !adsOperations.isNextItemAd() &&
                 nextTrackAudioAd.isPresent() &&
-                currentLifeCycleEvent.isNotForeground()) {
+                !isForeground) {
             final int nextTrackPosition = playQueueManager.getCurrentPosition() + 1;
             final Urn nextTrackUrn = playQueueManager.getNextPlayQueueItem().getUrn();
             adsOperations.insertAudioAd(nextTrackUrn, nextTrackAudioAd.get(), nextTrackPosition);
@@ -360,7 +360,7 @@ public class AdsController {
     private class ActivityStateSubscriber extends DefaultSubscriber<ActivityLifeCycleEvent> {
         @Override
         public void onNext(ActivityLifeCycleEvent latestState) {
-            currentLifeCycleEvent = latestState;
+            isForeground = latestState.isForeground();
         }
     }
 }

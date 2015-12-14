@@ -150,7 +150,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void configureAdForNextTrackInsertsAudioAdWhenAppInForeground() {
+    public void configureAdForNextTrackDoesntInsertAudioAdWhenAppInForeground() {
         insertFullAdsForNextTrack();
 
         when(adsOperations.isNextItemAd()).thenReturn(false);
@@ -160,6 +160,18 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.reconfigureAdForNextTrack();
 
         verify(adsOperations, never()).insertAudioAd(any(Urn.class), any(ApiAudioAd.class), anyInt());
+    }
+
+    @Test
+    public void configureAdForNextTrackInsertsAudioAdWhenNoActivityLifecycleEventsObserved() {
+        insertFullAdsForNextTrack();
+
+        when(adsOperations.isNextItemAd()).thenReturn(false);
+        when(playQueueManager.getCurrentPosition()).thenReturn(0);
+
+        adsController.reconfigureAdForNextTrack();
+
+        verify(adsOperations).insertAudioAd(any(Urn.class), any(ApiAudioAd.class), anyInt());
     }
 
     @Test
@@ -519,7 +531,6 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.subscribe();
         final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(CURRENT_TRACK_URN, AudioAd.create(apiAdsForTrack.audioAd().get(), CURRENT_TRACK_URN));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
     }
 }
