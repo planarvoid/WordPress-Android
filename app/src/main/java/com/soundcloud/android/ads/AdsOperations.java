@@ -1,7 +1,6 @@
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.utils.Log.ADS_TAG;
-import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
@@ -9,6 +8,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -17,6 +17,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.LocaleProvider;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -34,6 +35,7 @@ public class AdsOperations {
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
     private final FeatureFlags featureFlags;
+    private final EventBus eventBus;
     private final Action1<ApiAdsForTrack> cacheAudioAdTrack = new Action1<ApiAdsForTrack>() {
         @Override
         public void call(ApiAdsForTrack apiAdsForTrack) {
@@ -48,12 +50,13 @@ public class AdsOperations {
     @Inject
     AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager,
                   ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                  FeatureFlags featureFlags) {
+                  FeatureFlags featureFlags, EventBus eventBus) {
         this.storeTracksCommand = storeTracksCommand;
         this.playQueueManager = playQueueManager;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.featureFlags = featureFlags;
+        this.eventBus = eventBus;
     }
 
     public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {
@@ -90,66 +93,53 @@ public class AdsOperations {
         };
     }
 
-    public void applyAdToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
-        final int currentMonetizablePosition = playQueueManager.getUpcomingPositionForUrn(monetizableTrack);
-        checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
+    public void applyAdToUpcomingTrack(ApiAdsForTrack ads) {
+        final PlayQueueItem monetizableItem = playQueueManager.getNextPlayQueueItem();
 
         if (featureFlags.isEnabled(Flag.VIDEO_ADS) && ads.videoAd().isPresent()) {
-            insertVideoAd(monetizableTrack, ads.videoAd().get(), currentMonetizablePosition);
+            insertVideoAd(monetizableItem, ads.videoAd().get());
         } else if (ads.interstitialAd().isPresent()) {
-            applyInterstitialAd(ads.interstitialAd().get(), currentMonetizablePosition, monetizableTrack);
+            applyInterstitialAd(ads.interstitialAd().get(), monetizableItem);
         } else if (ads.audioAd().isPresent()) {
-            insertAudioAd(monetizableTrack, ads.audioAd().get(), currentMonetizablePosition);
+            insertAudioAd(monetizableItem, ads.audioAd().get());
         }
     }
 
-    public void applyInterstitialToTrack(Urn monetizableTrack, ApiAdsForTrack ads) {
-        final int currentMonetizablePosition = playQueueManager.getUpcomingPositionForUrn(monetizableTrack);
-        checkState(currentMonetizablePosition != -1, "Failed to find the monetizable track");
+    public void applyInterstitialToTrack(PlayQueueItem playQueueItem, ApiAdsForTrack ads) {
         if (ads.interstitialAd().isPresent()) {
-            applyInterstitialAd(ads.interstitialAd().get(), currentMonetizablePosition, monetizableTrack);
+            applyInterstitialAd(ads.interstitialAd().get(), playQueueItem);
         }
     }
 
-    private void applyInterstitialAd(ApiInterstitial apiInterstitial, int currentMonetizablePosition, Urn monetizableTrack) {
-        final InterstitialAd interstitialData = InterstitialAd.create(apiInterstitial, monetizableTrack);
+    private void applyInterstitialAd(ApiInterstitial apiInterstitial, PlayQueueItem monetizableItem) {
+        final InterstitialAd interstitialData = InterstitialAd.create(apiInterstitial, monetizableItem.getUrn());
+        monetizableItem.setAdData(Optional.<AdData>of(interstitialData));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueueManager.getCollectionUrn()));
 
-        playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.SetAdDataOperation(currentMonetizablePosition, Optional.<AdData>of(interstitialData))
-        );
     }
 
-    void insertVideoAd(Urn monetizableTrack, ApiVideoAd apiVideoAd, int currentMonetizablePosition) {
-        final VideoAd videoData = VideoAd.create(apiVideoAd, monetizableTrack);
-
-        playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.SetAdDataOperation(currentMonetizablePosition, Optional.<AdData>absent()),
-                new PlayQueueManager.InsertVideoOperation(currentMonetizablePosition, videoData)
-        );
+    void insertVideoAd(PlayQueueItem monetizableItem, ApiVideoAd apiVideoAd) {
+        final VideoAd videoData = VideoAd.create(apiVideoAd, monetizableItem.getUrn());
+        monetizableItem.setAdData(Optional.<AdData>absent());
+        playQueueManager.insertVideo(monetizableItem, videoData);
     }
 
-    void insertAudioAd(Urn monetizableTrack, ApiAudioAd apiAudioAd, int currentMonetizablePosition) {
-        final AudioAd audioAdData = AudioAd.create(apiAudioAd, monetizableTrack);
+    void insertAudioAd(PlayQueueItem monetizableItem, ApiAudioAd apiAudioAd) {
+        final AudioAd audioAdData = AudioAd.create(apiAudioAd, monetizableItem.getUrn());
 
         if (apiAudioAd.hasApiLeaveBehind()) {
-            insertAudioAdWithLeaveBehind(apiAudioAd, audioAdData, currentMonetizablePosition);
+            insertAudioAdWithLeaveBehind(apiAudioAd, audioAdData, monetizableItem);
         } else {
-            playQueueManager.performPlayQueueUpdateOperations(
-                    new PlayQueueManager.SetAdDataOperation(currentMonetizablePosition, Optional.<AdData>absent()),
-                    new PlayQueueManager.InsertAudioOperation(currentMonetizablePosition, apiAudioAd.getApiTrack().getUrn(), audioAdData, false)
-            );
+            monetizableItem.setAdData(Optional.<AdData>absent());
+            playQueueManager.insertAudioAd(monetizableItem, apiAudioAd.getApiTrack().getUrn(), audioAdData, false);
         }
     }
 
-    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, AudioAd audioAdData, int currentMonetizablePosition) {
+    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, AudioAd audioAdData, PlayQueueItem monetizableItem) {
         final Urn audioAdTrack = apiAudioAd.getApiTrack().getUrn();
         final LeaveBehindAd leaveBehindAd = LeaveBehindAd.create(apiAudioAd.getLeaveBehind(), apiAudioAd.getApiTrack().getUrn());
-        final int newMonetizablePosition = currentMonetizablePosition + 1;
-
-        playQueueManager.performPlayQueueUpdateOperations(
-                new PlayQueueManager.InsertAudioOperation(currentMonetizablePosition, audioAdTrack, audioAdData, false),
-                new PlayQueueManager.SetAdDataOperation(newMonetizablePosition, Optional.<AdData>of(leaveBehindAd))
-        );
+        monetizableItem.setAdData(Optional.<AdData>of(leaveBehindAd));
+        playQueueManager.insertAudioAd(monetizableItem, audioAdTrack, audioAdData, false);
     }
 
     public boolean isCurrentItemAd() {

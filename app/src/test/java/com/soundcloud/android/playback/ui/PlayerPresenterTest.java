@@ -332,7 +332,6 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         when(viewPager.getCurrentItem()).thenReturn(pagerPosition);
         when(playerPagerPresenter.getItemAtPosition(pagerPosition)).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
         when(playQueueManager.getCurrentPosition()).thenReturn(adPosition);
-        when(playQueueManager.isCurrentPosition(playQueuePosition)).thenReturn(adPosition == playQueuePosition); // ??
     }
 
     private void assertLastQueueWasAdQueue() {

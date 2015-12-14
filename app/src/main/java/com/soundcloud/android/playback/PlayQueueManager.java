@@ -5,7 +5,6 @@ import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFunctions;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
@@ -21,7 +20,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -83,6 +81,10 @@ public class PlayQueueManager implements OriginProvider {
 
     public boolean isCurrentItem(PlayQueueItem playQueueItem) {
         return getCurrentPlayQueueItem().equals(playQueueItem);
+    }
+
+    public boolean isNextItem(PlayQueueItem playQueueItem) {
+        return getNextPlayQueueItem().equals(playQueueItem);
     }
 
     public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {
@@ -154,24 +156,12 @@ public class PlayQueueManager implements OriginProvider {
         return getCurrentPosition() + 1;
     }
 
-    public boolean isCurrentPosition(int position) {
-        return position == getCurrentPosition();
-    }
-
     public boolean isQueueEmpty() {
         return playQueue.isEmpty();
     }
 
     public int getQueueSize() {
         return playQueue.size();
-    }
-
-    public int getPositionForUrn(final Urn urn) {
-        return playQueue.indexOfTrackUrn(urn);
-    }
-
-    public int getUpcomingPositionForUrn(Urn urn) {
-        return playQueue.indexOfTrackUrn(currentPosition, urn);
     }
 
     public void setPosition(int position, boolean isUserTriggered) {
@@ -329,7 +319,7 @@ public class PlayQueueManager implements OriginProvider {
             // Track is from a promoted playlist and not a recommendation
             if (trackSourceInfo.isFromPlaylist() && trackSourceInfo.getPlaylistPosition() < playSessionSource.getCollectionSize()) {
                 return trackSourceInfo.getCollectionUrn().equals(promotedSourceInfo.getPromotedItemUrn());
-            } else if (isCurrentPosition(0)) { // Track is a promoted track?
+            } else if (0 == getCurrentPosition()) { // Track is a promoted track?
                 return trackUrn.equals(promotedSourceInfo.getPromotedItemUrn());
             }
         }
@@ -411,14 +401,6 @@ public class PlayQueueManager implements OriginProvider {
         playSessionSource = PlaySessionSource.EMPTY;
     }
 
-    public void performPlayQueueUpdateOperations(QueueUpdateOperation... operations) {
-        assertOnUiThread(UI_ASSERTION_MESSAGE);
-        for (QueueUpdateOperation operation : operations) {
-            operation.execute(playQueue);
-        }
-        publishQueueUpdate();
-    }
-
     @VisibleForTesting
     public void removeAds() {
         removeAds(PlayQueueEvent.fromQueueUpdate(getCollectionUrn()));
@@ -486,59 +468,13 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public interface QueueUpdateOperation {
-        void execute(PlayQueue playQueue);
+    public void insertVideo(PlayQueueItem beforeItem, VideoAd videoAd){
+        playQueue.insertVideo(playQueue.indexOfPlayQueueItem(beforeItem), videoAd);
+        publishQueueUpdate();
     }
 
-    public static class InsertAudioOperation implements QueueUpdateOperation {
-
-        private final int position;
-        private final Urn trackUrn;
-        private final AudioAd audioAd;
-        private final boolean shouldPersist;
-
-        public InsertAudioOperation(int position, Urn trackUrn, AudioAd audioAd, boolean shouldPersist) {
-            this.position = position;
-            this.trackUrn = trackUrn;
-            this.audioAd = audioAd;
-            this.shouldPersist = shouldPersist;
-        }
-
-        @Override
-        public void execute(PlayQueue playQueue) {
-            playQueue.insertAudioAd(position, trackUrn, audioAd, shouldPersist);
-        }
-    }
-
-    public static class InsertVideoOperation implements QueueUpdateOperation {
-
-        private final int position;
-        private final VideoAd videoAd;
-
-        public InsertVideoOperation(int position, VideoAd videoAd) {
-            this.position = position;
-            this.videoAd = videoAd;
-        }
-
-        @Override
-        public void execute(PlayQueue playQueue) {
-            playQueue.insertVideo(position, videoAd);
-        }
-    }
-
-    public static class SetAdDataOperation implements QueueUpdateOperation {
-
-        private final int position;
-        private final Optional<AdData> adData;
-
-        public SetAdDataOperation(int position, Optional<AdData> adData) {
-            this.position = position;
-            this.adData = adData;
-        }
-
-        @Override
-        public void execute(PlayQueue playQueue) {
-            playQueue.setAdData(position, adData);
-        }
+    public void insertAudioAd(PlayQueueItem beforeItem, Urn trackUrn, AudioAd audioAd, boolean shouldPersist){
+        playQueue.insertAudioAd(playQueue.indexOfPlayQueueItem(beforeItem), trackUrn, audioAd, shouldPersist);
+        publishQueueUpdate();
     }
 }
