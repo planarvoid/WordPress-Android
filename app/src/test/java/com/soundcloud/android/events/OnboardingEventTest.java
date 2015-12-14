@@ -14,7 +14,7 @@ public class OnboardingEventTest {
     private OnboardingEvent onboardingEvent;
 
     @Test
-         public void shouldCreateEventFromSignupPrompt() {
+    public void shouldCreateEventFromSignupPrompt() {
         onboardingEvent = OnboardingEvent.signUpPrompt();
         assertThat(onboardingEvent.getKind()).isEqualTo(OnboardingEvent.AUTH_PROMPT);
         assertThat(onboardingEvent.getAttributes().get("type")).isEqualTo("sign up");
