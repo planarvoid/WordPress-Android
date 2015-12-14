@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -62,7 +61,7 @@ public class SimpleTrackingApiTest extends AndroidUnitTest {
     public void shouldSetUserAgentHeader() throws Exception {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
 
-        simpleTrackingApi.pushToRemote(singletonList(event));
+        simpleTrackingApi.pushToRemote(Arrays.asList(event));
 
         assertThat(requestCaptor.getValue().headers("User-Agent").get(0)).isEqualTo("SoundCloud-Android");
     }
@@ -72,7 +71,7 @@ public class SimpleTrackingApiTest extends AndroidUnitTest {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
         TrackingRecord event = new TrackingRecord(1L, PromotedAnalyticsProvider.BACKEND_NAME, fakeUrl);
 
-        simpleTrackingApi.pushToRemote(singletonList(event));
+        simpleTrackingApi.pushToRemote(Arrays.asList(event));
 
         assertThat(requestCaptor.getValue().method()).isEqualTo("GET");
     }
@@ -82,7 +81,7 @@ public class SimpleTrackingApiTest extends AndroidUnitTest {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
         TrackingRecord event = new TrackingRecord(1L, PlayCountAnalyticsProvider.BACKEND_NAME, fakeUrl);
 
-        simpleTrackingApi.pushToRemote(singletonList(event));
+        simpleTrackingApi.pushToRemote(Arrays.asList(event));
 
         assertThat(requestCaptor.getValue().method()).isEqualTo("POST");
         assertThat(requestCaptor.getValue().body().contentLength()).isEqualTo(0L);
