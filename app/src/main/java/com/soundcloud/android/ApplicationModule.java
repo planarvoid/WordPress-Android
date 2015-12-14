@@ -45,6 +45,7 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.you.YouNavigationTarget;
+import com.soundcloud.reporting.FabricReporter;
 import com.soundcloud.rx.eventbus.DefaultEventBus;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
@@ -309,5 +310,11 @@ public class ApplicationModule {
         } else {
             return new Navigator();
         }
+    }
+
+    @Provides
+    @Singleton
+    public FabricReporter provideFabricReporter() {
+        return new FabricReporter();
     }
 }

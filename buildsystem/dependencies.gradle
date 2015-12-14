@@ -12,7 +12,7 @@ ext {
   androidMultiDex = "1.0.1"
   androidSupportVersion = '23.1.1'
   playServicesVersion = '7.8.0'
-  androidKitVersion = '0.43'
+  androidKitVersion = '0.44'
   lightCycleVersion = '0.0.6'
   daggerVersion = '1.2.2'
   propellerVersion = '0.57'
@@ -47,7 +47,7 @@ ext {
           // Analytics / tracking
           comscore                    : "com.comscore:comscore:3.1508.28",
           adjustAndroid               : "com.adjust.sdk:adjust-android:4.1.2",
-          crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.2@aar",
+          crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.5",
           appBoy                      : "com.appboy:android-sdk-ui:1.11.0",
           newRelic                    : "com.newrelic.agent.android:android-agent:5.3.3",
 
