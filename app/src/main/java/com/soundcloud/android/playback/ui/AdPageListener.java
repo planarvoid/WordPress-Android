@@ -66,7 +66,7 @@ class AdPageListener extends PageListener {
     public void onClickThrough() {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         final PlayerAdData playerAdData = (PlayerAdData) currentPlayQueueItem.getAdData().get();
-        final Optional<AdData> monetizableAdData = adsOperations.getMonetizableTrackAdData();
+        final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
 
         startActivity(playerAdData.getVisualAd().getClickThroughUrl());
 

@@ -483,7 +483,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     public void playStateChangeEventForAudioAdEndingSetsUpLeaveBehind() throws Exception {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         final LeaveBehindAd monetizableAdData = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
-        when(adsOperations.getMonetizableTrackAdData()).thenReturn(Optional.<AdData>of(monetizableAdData));
+        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(monetizableAdData));
 
         adsController.subscribe();
 

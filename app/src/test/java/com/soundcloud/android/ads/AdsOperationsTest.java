@@ -80,9 +80,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void isCurrentItemAdShouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(1);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(0))
+        when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAd()).isTrue();
@@ -90,9 +88,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void isCurrentItemAdShouldReturnTrueIfCurrentItemIsVideoAd() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(1);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(0))
+        when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAd()).isTrue();
@@ -100,9 +96,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void isCurrentItemAdShouldReturnFalseIfCurrentItemIsRegularTrack() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(1);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(0))
+        when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
 
         assertThat(adsOperations.isCurrentItemAd()).isFalse();
@@ -110,18 +104,14 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void isCurrentItemAdShouldReturnFalseOnEmptyPlayQueueItem() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(1);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(0)).thenReturn(PlayQueueItem.EMPTY);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
 
         assertThat(adsOperations.isCurrentItemAd()).isFalse();
     }
 
    @Test
     public void isNextItemAdShouldReturnTrueIfNextItemIsAudioAd() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(2);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(1))
+        when(playQueueManager.getNextPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isNextItemAd()).isTrue();
@@ -129,9 +119,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void isNextItemAdShouldReturnTrueIfNextItemIsVideoAd() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(2);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(1))
+        when(playQueueManager.getNextPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isNextItemAd()).isTrue();
@@ -139,9 +127,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void isNextItemAdShouldReturnFalseIfNextItemIsRegularTrack() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(2);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(1))
+        when(playQueueManager.getNextPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
 
         assertThat(adsOperations.isNextItemAd()).isFalse();
@@ -149,18 +135,14 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void isNextItemAdShouldReturnFalseIfNextItemIsEmptyPlayQueueItem() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(2);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(1)).thenReturn(PlayQueueItem.EMPTY);
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
 
         assertThat(adsOperations.isNextItemAd()).isFalse();
     }
 
     @Test
     public void isCurrentItemAudioAdShouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(1);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(0))
+        when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAudioAd()).isTrue();
@@ -168,9 +150,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void isCurrentItemAudioAdShouldReturnFalseIfCurrentItemIsVideoAd() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(1);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(0))
+        when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAudioAd()).isFalse();
@@ -178,9 +158,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void isCurrentItemAudioAdShouldReturnFalseIfCurrentItemIsRegularTrack() throws CreateModelException {
-        when(playQueueManager.getQueueSize()).thenReturn(1);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
-        when(playQueueManager.getPlayQueueItemAtPosition(0))
+        when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
 
         assertThat(adsOperations.isCurrentItemAudioAd()).isFalse();

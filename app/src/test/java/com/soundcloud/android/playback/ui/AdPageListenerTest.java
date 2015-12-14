@@ -60,7 +60,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onClickThroughShouldOpenUrlWhenCurrentTrackIsAudioAd() throws CreateModelException {
-        when(adsOperations.getMonetizableTrackAdData()).thenReturn(Optional.<AdData>absent());
+        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
 
         listener.onClickThrough();
 
@@ -72,7 +72,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onClickThroughShouldPublishUIEventForAudioAdClick() {
-        when(adsOperations.getMonetizableTrackAdData()).thenReturn(Optional.<AdData>absent());
+        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
 
         listener.onClickThrough();
 
@@ -84,7 +84,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
     @Test
     public void onClickThroughShouldSetMenetizableTrackMetaAdClicked() {
         final LeaveBehindAd monetizableLeaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(321L));
-        when(adsOperations.getMonetizableTrackAdData()).thenReturn(Optional.<AdData>of(monetizableLeaveBehindAd));
+        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(monetizableLeaveBehindAd));
 
         listener.onClickThrough();
 

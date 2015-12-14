@@ -18,6 +18,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -27,8 +29,6 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-
-import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -68,7 +68,7 @@ public class PlayQueueManager implements OriginProvider {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         logEmptyPlayQueues(playQueue, playSessionSource);
 
-        if (this.playQueue.equals(playQueue) && this.playSessionSource.equals(playSessionSource)) {
+        if (this.playQueue.hasSameTracks(playQueue) && this.playSessionSource.equals(playSessionSource)) {
             this.currentPosition = startPosition;
             eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(getCurrentPlayQueueItem(), getCollectionUrn(), getCurrentPosition()));
         } else {
@@ -79,6 +79,18 @@ public class PlayQueueManager implements OriginProvider {
         saveCurrentProgress(0L);
 
         fireAndForget(policyOperations.updatePolicies(playQueue.getTrackItemUrns()));
+    }
+
+    public boolean isCurrentItem(PlayQueueItem playQueueItem) {
+        return getCurrentPlayQueueItem().equals(playQueueItem);
+    }
+
+    public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {
+        setPosition(playQueue.indexOfPlayQueueItem(playQueueItem), true);
+    }
+
+    public List<PlayQueueItem> getPlayQueueItems() {
+        return Lists.newArrayList(playQueue);
     }
 
     private void logEmptyPlayQueues(PlayQueue playQueue, PlaySessionSource playSessionSource) {
@@ -95,18 +107,6 @@ public class PlayQueueManager implements OriginProvider {
         saveQueue();
     }
 
-    void appendUniquePlayQueueItems(Iterable<PlayQueueItem> playQueueItems) {
-        final List<Integer> queueHashes = this.playQueue.getQueueHashes();
-
-        for (PlayQueueItem playQueueItem : playQueueItems) {
-            if (!queueHashes.contains(playQueueItem.hashCode())) {
-                this.playQueue.addPlayQueueItem(playQueueItem);
-            }
-        }
-        publishQueueUpdate();
-        saveQueue();
-    }
-
     public PlayQueueItem getCurrentPlayQueueItem() {
         return getPlayQueueItemAtPosition(currentPosition);
     }
@@ -119,7 +119,8 @@ public class PlayQueueManager implements OriginProvider {
         return getPlayQueueItemAtPosition(getQueueSize() - 1);
     }
 
-    public PlayQueueItem getPlayQueueItemAtPosition(int position) {
+    @VisibleForTesting
+    PlayQueueItem getPlayQueueItemAtPosition(int position) {
         if (position >= 0 && position < getQueueSize()) {
             return playQueue.getPlayQueueItem(position);
         } else {

@@ -91,13 +91,6 @@ public class PlaySessionController {
         }
     };
 
-    private final Action1<PlayQueue> appendUniquePlayQueueItems = new Action1<PlayQueue>() {
-        @Override
-        public void call(PlayQueue playQueue) {
-            playQueueManager.appendUniquePlayQueueItems(playQueue);
-        }
-    };
-
     private final Action1<PlayQueue> appendPlayQueueItems = new Action1<PlayQueue>() {
         @Override
         public void call(PlayQueue playQueue) {
@@ -274,10 +267,10 @@ public class PlaySessionController {
                 playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
 
-    public void setPlayQueuePosition(int position) {
-        if (position != playQueueManager.getCurrentPosition()) {
+    public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {
+        if (!playQueueManager.getCurrentPlayQueueItem().equals(playQueueItem)) {
             publishSkipEventIfAudioAd();
-            playQueueManager.setPosition(position, true);
+            playQueueManager.setCurrentPlayQueueItem(playQueueItem);
         }
     }
 
@@ -349,7 +342,7 @@ public class PlaySessionController {
                     loadRecommendedSubscription = playQueueOperations
                             .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(), fromContinuousPlay())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .doOnNext(appendUniquePlayQueueItems)
+                            .doOnNext(appendPlayQueueItems)
                             .subscribe(new UpcomingTracksSubscriber());
                 } else if (event.getCollectionUrn().isStation()) {
                     loadRecommendedSubscription = stationsOperations

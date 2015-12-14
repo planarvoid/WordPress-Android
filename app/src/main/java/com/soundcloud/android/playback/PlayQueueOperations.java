@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-class PlayQueueOperations {
+public class PlayQueueOperations {
 
     @VisibleForTesting static final String SHARED_PREFERENCES_KEY = "playlistPos";
 

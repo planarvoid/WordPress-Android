@@ -1,5 +1,6 @@
 package com.soundcloud.android.cast;
 
+import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueSet;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -332,7 +333,7 @@ public class CastPlayerTest extends AndroidUnitTest {
         castPlayer.reloadCurrentQueue().subscribe(observer);
 
         final PlayQueue playQueue = TestPlayQueue.fromUrns(Arrays.asList(TRACK_URN1), PlaySessionSource.EMPTY);
-        verify(playQueueManager).setNewPlayQueue(playQueue, PlaySessionSource.EMPTY, 0);
+        assertPlayQueueSet(playQueueManager, playQueue, PlaySessionSource.EMPTY, 0);
     }
 
     @Test

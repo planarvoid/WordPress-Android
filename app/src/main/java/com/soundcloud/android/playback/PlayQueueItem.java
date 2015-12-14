@@ -69,4 +69,14 @@ public abstract class PlayQueueItem {
             return Kind.EMPTY;
         }
     }
+
+    @Override
+    public final boolean equals(Object o) {
+        return (this == o);
+    }
+
+    @Override
+    public final int hashCode() {
+        return super.hashCode();
+    }
 }

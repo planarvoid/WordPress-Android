@@ -112,6 +112,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return Iterables.indexOf(playQueueItems, isMatchingItem(trackUrn));
     }
 
+    int indexOfPlayQueueItem(final PlayQueueItem playQueueItem) {
+        return Iterables.indexOf(playQueueItems, isMatchingItem(playQueueItem));
+    }
+
     public int indexOfTrackUrn(int startPosition, final Urn urn) {
         final List<PlayQueueItem> subList = playQueueItems.subList(startPosition, this.playQueueItems.size());
         final int index = Iterables.indexOf(subList, isMatchingItem(urn));
@@ -122,11 +126,33 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         }
     }
 
+    boolean hasSameTracks(PlayQueue playQueue) {
+        if (playQueue.size() != size()){
+            return false;
+        } else {
+            for (int i = 0; i < size(); i++){
+                if (!playQueue.getPlayQueueItem(i).getUrn().equals(getPlayQueueItem(i).getUrn())){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     private Predicate<PlayQueueItem> isMatchingItem(final Urn urn) {
         return new Predicate<PlayQueueItem>() {
             @Override
             public boolean apply(PlayQueueItem input) {
                 return input.isTrack() && input.getUrn().equals(urn);
+            }
+        };
+    }
+
+    private Predicate<PlayQueueItem> isMatchingItem(final PlayQueueItem playQueueItem) {
+        return new Predicate<PlayQueueItem>() {
+            @Override
+            public boolean apply(PlayQueueItem input) {
+                return input.equals(playQueueItem);
             }
         };
     }
@@ -249,7 +275,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         }
 
         PlayQueue playQueue = (PlayQueue) o;
-        return MoreObjects.equal(playQueueItems, playQueue.playQueueItems);
+        return MoreObjects.equal(getTrackItemUrns(), playQueue.getTrackItemUrns());
     }
 
     @Override

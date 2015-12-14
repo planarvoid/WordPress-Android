@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueSet;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -211,23 +211,13 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playNewQueueRemovesDuplicates() {
-        PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
-        defaultPlaybackStrategy.setNewQueue(
-                getPlayQueue(playSessionSource, asList(TRACK1, TRACK2, TRACK3, TRACK2, TRACK1)), TRACK1, 0, playSessionSource).subscribe(playNewQueueSubscriber);
-
-        PlayQueue expectedPlayQueue = getPlayQueue(playSessionSource, asList(TRACK1, TRACK2, TRACK3));
-        verify(playQueueManager).setNewPlayQueue(eq(expectedPlayQueue), eq(playSessionSource), eq(0));
-    }
-
-    @Test
     public void playNewQueueShouldFallBackToPositionZeroIfInitialTrackNotFound() {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
         defaultPlaybackStrategy.setNewQueue(
                 getPlayQueue(playSessionSource, asList(TRACK1, TRACK2)), TRACK1, 2, playSessionSource).subscribe(playNewQueueSubscriber);
 
         PlayQueue expectedPlayQueue = getPlayQueue(playSessionSource, asList(TRACK1, TRACK2));
-        verify(playQueueManager).setNewPlayQueue(eq(expectedPlayQueue), eq(playSessionSource), eq(0));
+        assertPlayQueueSet(playQueueManager, expectedPlayQueue, PlaySessionSource.EMPTY, 0);
     }
 
     @NonNull

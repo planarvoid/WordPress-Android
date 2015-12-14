@@ -4,6 +4,7 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
@@ -32,6 +33,8 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private PlayerPagerPresenter presenter;
     private boolean wasPageChange;
     private boolean wasDragging;
+    private boolean wasSwipeNext;
+    private int previousIndex;
 
     private final DefaultSubscriber<Integer> trackPageChanged = new DefaultSubscriber<Integer>() {
         @Override
@@ -60,7 +63,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
         @Override
         public void call(PlayerUIEvent event) {
             final boolean isExpanded = event.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
-            final PlayControlEvent trackEvent = isSwipeNext() ?
+            final PlayControlEvent trackEvent = wasSwipeNext ?
                     PlayControlEvent.swipeSkip(isExpanded) : PlayControlEvent.swipePrevious(isExpanded);
             eventBus.publish(EventQueue.TRACKING, trackEvent);
         }
@@ -96,10 +99,12 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
 
     @Override
     public void onPageSelected(int position) {
-        final int playQueuePosition = presenter.getPlayQueuePosition(position);
-        final boolean notAd = !adsOperations.isAdAtPosition(playQueuePosition);
-        final boolean currentPosition = playQueueManager.isCurrentPosition(playQueuePosition);
+        final PlayQueueItem itemAtPosition = presenter.getItemAtPosition(position);
+        final boolean notAd = !AdsOperations.isAd(itemAtPosition);
+        final boolean currentPosition = playQueueManager.isCurrentItem(itemAtPosition);
         trackPager.setPagingEnabled(notAd || currentPosition);
+        wasSwipeNext = previousIndex < position;
+        previousIndex = position;
         wasPageChange = true;
     }
 
@@ -132,9 +137,5 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
 
     public Observable<Integer> getPageChangedObservable() {
         return scrollStateSubject.filter(settledOnNewPage);
-    }
-
-    private boolean isSwipeNext() {
-        return trackPager.getCurrentItem() > playQueueManager.getCurrentPosition();
     }
 }
