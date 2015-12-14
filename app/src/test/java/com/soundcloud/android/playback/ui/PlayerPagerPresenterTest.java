@@ -648,7 +648,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     private View getVideoAdPageView() {
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
         return (View) adapter.instantiateItem(container, 0);
     }
 

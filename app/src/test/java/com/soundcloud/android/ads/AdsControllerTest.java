@@ -5,7 +5,6 @@ import static com.soundcloud.android.playback.Player.Reason;
 import static com.soundcloud.android.playback.Player.StateTransition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -146,7 +145,6 @@ public class AdsControllerTest extends AndroidUnitTest {
         insertFullAdsForNextTrack();
 
         when(adsOperations.isNextItemAd()).thenReturn(false);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
 
         adsController.reconfigureAdForNextTrack();
@@ -159,7 +157,6 @@ public class AdsControllerTest extends AndroidUnitTest {
         insertFullAdsForNextTrack();
 
         when(adsOperations.isNextItemAd()).thenReturn(false);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(mock(AppCompatActivity.class)));
 
         adsController.reconfigureAdForNextTrack();
@@ -172,7 +169,6 @@ public class AdsControllerTest extends AndroidUnitTest {
         insertFullAdsForNextTrack();
 
         when(adsOperations.isNextItemAd()).thenReturn(false);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
 
         adsController.reconfigureAdForNextTrack();
 
@@ -184,7 +180,6 @@ public class AdsControllerTest extends AndroidUnitTest {
         insertFullAdsForNextTrack();
 
         when(adsOperations.isNextItemAd()).thenReturn(true);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
 
         adsController.reconfigureAdForNextTrack();
@@ -195,7 +190,6 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void configureAdForNextTrackDoesNothingWithNoAdsForNextTrack() {
         when(adsOperations.isNextItemAd()).thenReturn(false);
-        when(playQueueManager.getCurrentPosition()).thenReturn(0);
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
 
         adsController.reconfigureAdForNextTrack();

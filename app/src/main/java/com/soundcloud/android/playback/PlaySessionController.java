@@ -384,7 +384,7 @@ public class PlaySessionController {
 
     private boolean withinRecommendedFetchTolerance() {
         return !playQueueManager.isQueueEmpty() &&
-                playQueueManager.getQueueSize() - playQueueManager.getCurrentPosition() <= RECOMMENDED_LOAD_TOLERANCE;
+                playQueueManager.getQueueItemsRemaining() <= RECOMMENDED_LOAD_TOLERANCE;
     }
 
     private boolean isNotAlreadyLoadingRecommendations() {

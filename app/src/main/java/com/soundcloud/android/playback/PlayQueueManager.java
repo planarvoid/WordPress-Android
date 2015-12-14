@@ -114,7 +114,11 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     public PlayQueueItem getNextPlayQueueItem() {
-        return getPlayQueueItemAtPosition(getNextPosition());
+        if (hasNextItem()) {
+            return playQueue.getPlayQueueItem(getCurrentPosition() + 1);
+        } else {
+            return PlayQueueItem.EMPTY;
+        }
     }
 
     public PlayQueueItem getLastPlayQueueItem() {
@@ -130,30 +134,24 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public boolean isCurrentTrack(@NotNull Urn trackUrn) {
-        return isTrackAt(trackUrn, getCurrentPosition());
-    }
-
-    public boolean isTrackAt(@NotNull Urn trackUrn, int currentPosition) {
-        return currentPosition < getQueueSize() &&
-                getPlayQueueItemAtPosition(currentPosition).isTrack() &&
-                getPlayQueueItemAtPosition(currentPosition).getUrn().equals(trackUrn);
-    }
-
-    public int getCurrentPosition() {
+    @VisibleForTesting
+    int getCurrentPosition() {
         return currentPosition;
+    }
+
+    public boolean isCurrentTrack(@NotNull Urn trackUrn) {
+        int currentPosition1 = getCurrentPosition();
+        return currentPosition1 < getQueueSize() &&
+                getPlayQueueItemAtPosition(currentPosition1).isTrack() &&
+                getPlayQueueItemAtPosition(currentPosition1).getUrn().equals(trackUrn);
     }
 
     public boolean wasLastSavedTrack(Urn urn) {
         return lastPlayedTrackAndPosition.first().equals(urn);
     }
 
-    public long getLastSavedPosition() {
+    public long getLastSavedProgressPosition() {
         return lastPlayedTrackAndPosition.second();
-    }
-
-    private int getNextPosition() {
-        return getCurrentPosition() + 1;
     }
 
     public boolean isQueueEmpty() {
@@ -164,6 +162,11 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.size();
     }
 
+    public int getQueueItemsRemaining() {
+        return getQueueSize() - playQueue.indexOfPlayQueueItem(getCurrentPlayQueueItem()) - 1;
+    }
+
+    @Deprecated // this should not be used outside of casting, which uses it as an optimisation. Use setCurrentPlayQueueItem instead
     public void setPosition(int position, boolean isUserTriggered) {
         if (position != currentPosition && position < playQueue.size()) {
             this.currentPosition = position;

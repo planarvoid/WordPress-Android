@@ -84,6 +84,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private View videoAdView;
 
     private SkipListener skipListener;
+
     private List<PlayQueueItem> currentPlayQueue = Collections.emptyList();
     @NotNull private ViewVisibilityProvider viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
     private PlayerUIEvent lastPlayerUIEvent;
@@ -135,6 +136,10 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     public void setCurrentPlayQueue(List<PlayQueueItem> playQueue) {
         currentPlayQueue = playQueue;
         trackPagerAdapter.notifyDataSetChanged();
+    }
+
+    List<PlayQueueItem> getCurrentPlayQueue() {
+        return currentPlayQueue;
     }
 
     void onPlayerSlide(float slideOffset) {

@@ -120,7 +120,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     @Test
     public void onStateTransitionForBufferingDoesNotSaveProgressIfResuming() throws Exception {
         when(playQueueManager.wasLastSavedTrack(TRACK_URN)).thenReturn(true);
-        when(playQueueManager.getLastSavedPosition()).thenReturn(123L);
+        when(playQueueManager.getLastSavedProgressPosition()).thenReturn(123L);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, TRACK_URN, 0, 456));
         verify(playQueueManager, never()).saveCurrentProgress(anyLong());
     }
