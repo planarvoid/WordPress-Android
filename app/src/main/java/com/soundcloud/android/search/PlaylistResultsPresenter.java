@@ -32,7 +32,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
     private final Navigator navigator;
     private final EventBus eventBus;
 
-    private Subscription viewLifeCycle = RxUtils.invalidSubscription();
+    private Subscription eventSubscription = RxUtils.invalidSubscription();
 
     @Inject
     PlaylistResultsPresenter(PlaylistDiscoveryOperations operations,
@@ -59,12 +59,12 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
         new EmptyViewBuilder().configureForSearch(getEmptyView());
         getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
 
-        viewLifeCycle = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter));
+        eventSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter));
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        viewLifeCycle.unsubscribe();
+        eventSubscription.unsubscribe();
         super.onDestroyView(fragment);
     }
 

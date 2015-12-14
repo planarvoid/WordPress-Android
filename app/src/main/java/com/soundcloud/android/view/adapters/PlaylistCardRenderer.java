@@ -58,7 +58,9 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.default_playlist_card, parent, false);
+        final View inflatedView =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.default_playlist_card, parent, false);
         inflatedView.setTag(new PlaylistViewHolder(inflatedView));
         return inflatedView;
     }
@@ -114,7 +116,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
                 itemView.image);
     }
 
-    private String formatTags(List<String> tags) {
+    private static String formatTags(List<String> tags) {
         if (tags.size() >= 2) {
             return Strings.joinOn(", ").join(Lists.transform(tags.subList(0, 2), new Function<String, String>() {
                 @Override

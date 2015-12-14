@@ -15,7 +15,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.playlists.RepostResultSubscriber;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.stream.StreamItemViewHolder;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.rx.eventbus.EventBus;
