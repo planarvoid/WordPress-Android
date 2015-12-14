@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils;
 
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -13,6 +14,7 @@ import java.util.List;
  * detached. Useful for when sending callbacks to a {@link android.app.Service} where a
  * listening {@link android.app.Activity} can be swapped out during configuration changes.
  */
+@SuppressLint("ParcelCreator") // this class will go away with the legacy SuggestionsAdapter
 public class DetachableResultReceiver extends ResultReceiver {
 
     private Receiver receiver;

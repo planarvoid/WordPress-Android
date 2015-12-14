@@ -5,6 +5,7 @@ import rx.Subscriber;
 import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,6 +14,7 @@ import android.support.annotation.VisibleForTesting;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+@SuppressLint("ParcelCreator") // not sure how to fix this; needs review
 public class ResultReceiverAdapter extends ResultReceiver {
 
     @VisibleForTesting

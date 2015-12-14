@@ -7,7 +7,6 @@ import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.collections.Lists;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -116,17 +115,10 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
 
-            case ME_SOUNDS:
-                table = Table.Posts;
-                break;
-
             case ME_FOLLOWINGS:
                 table = Table.UserAssociations;
                 extraCV = new String[]{TableColumns.UserAssociations.ASSOCIATION_TYPE, String.valueOf(content.collectionType)};
                 break;
-
-            case ME_REPOSTS:
-                throw new IllegalArgumentException("Trying to bulkInsert reposts, and should not");
 
             case PLAYLIST_TRACKS:
                 deleteUri = true; // clean out table first
@@ -263,16 +255,6 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(content.table.name());
                 break;
 
-            case ME_SOUNDS:
-                joinPostsAndSoundView(qb);
-
-                if (_columns == null) {
-                    _columns = getPostsColumns() ;
-                }
-                _sortOrder = makeCollectionSort(uri, Table.Posts.field(TableColumns.Posts.CREATED_AT) + " DESC");
-
-                break;
-
             case ME_PLAYLISTS:
                 joinPostsAndSoundView(qb);
                 if (_columns == null) {
@@ -282,40 +264,6 @@ public class ScContentProvider extends ContentProvider {
                         + Table.Posts.field(TableColumns.Posts.TARGET_TYPE) + " = '" + TableColumns.Sounds.TYPE_PLAYLIST + "'");
 
                 _sortOrder = makeCollectionSort(uri, Table.Posts.field(TableColumns.Posts.CREATED_AT) + " DESC");
-                break;
-
-            case ME_LIKES:
-                qb.setTables(Table.SoundView.name() + " INNER JOIN " + Table.Likes.name()
-                        + " ON " + Table.SoundView + "." + TableColumns.SoundView._ID + " = " + Table.Likes.name() + "." + TableColumns.Likes._ID);
-                if ("1".equals(uri.getQueryParameter(Parameter.TYPE_IDS_ONLY))) {
-                    _columns = new String[]{Table.Likes + "." + TableColumns.Likes._TYPE, Table.Likes + "." + TableColumns.Likes._ID};
-                } else if (_columns == null) {
-                    _columns = addFakeLikeAssociationColumns(getSoundViewColumns(Table.SoundView));
-                }
-
-                _sortOrder = Table.Likes + "." + TableColumns.Likes.CREATED_AT + " DESC";
-
-                qb.appendWhere(Table.Likes + "." + TableColumns.Likes._TYPE + " = " + Table.SoundView + "." + TableColumns.SoundView._TYPE);
-                qb.appendWhere(" AND " + Table.Likes.field(TableColumns.Likes.REMOVED_AT) + " IS NULL");
-                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
-                    qb.appendWhere(" AND " + TableColumns.SoundView.CACHED + "= 1");
-                }
-
-                break;
-
-            case ME_REPOSTS:
-                joinPostsAndSoundView(qb);
-                if (_columns == null) {
-                    _columns = getPostsColumns() ;
-                }
-
-                qb.appendWhere(" AND " + Table.Posts.field(TableColumns.Posts.TYPE) + " = '" + TableColumns.Posts.TYPE_REPOST + "'");
-
-                _sortOrder = makeCollectionSort(uri, TableColumns.Posts.CREATED_AT + " DESC");
-
-                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
-                    qb.appendWhere(" AND " + TableColumns.SoundView.CACHED + "= 1");
-                }
                 break;
 
             case ME_FOLLOWINGS:
@@ -459,10 +407,7 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTION:
             case COLLECTIONS:
             case USER_ASSOCIATIONS:
-            case ME_SOUNDS:
             case ME_PLAYLISTS:
-            case ME_LIKES:
-            case ME_REPOSTS:
             case ME_FOLLOWINGS:
                 id = db.insertWithOnConflict(content.table.name(), null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 if (id >= 0 && values.containsKey(BaseColumns._ID)) {
@@ -540,7 +485,6 @@ public class ScContentProvider extends ContentProvider {
         switch (content) {
             case COLLECTIONS:
             case PLAYLISTS:
-            case ME_SOUNDS:
                 break;
 
             case TRACK:
@@ -556,11 +500,6 @@ public class ScContentProvider extends ContentProvider {
             case ME_PLAYLISTS:
                 String whereAppend = Table.Posts.field(TableColumns.Posts.TYPE) + " = '" + TableColumns.Posts.TYPE_POST + "' AND "
                         + Table.Posts.field(TableColumns.Posts.TARGET_TYPE) + " = " + TableColumns.Sounds.TYPE_PLAYLIST;
-                where = TextUtils.isEmpty(where) ? whereAppend : where + " AND " + whereAppend;
-                break;
-
-            case ME_REPOSTS:
-                whereAppend = TableColumns.Posts.TYPE + " = '" + TableColumns.Posts.TYPE_REPOST + "'";
                 where = TextUtils.isEmpty(where) ? whereAppend : where + " AND " + whereAppend;
                 break;
 
@@ -607,16 +546,6 @@ public class ScContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-    }
-
-    // New likes don't have all the fields expected to load into SoundAssociation in legacy ScListFragments etc.
-    private static String[] addFakeLikeAssociationColumns(String[] columns) {
-        final String[] arr = new String[columns.length + 3];
-        final List<String> cols = Lists.newArrayList(columns);
-        cols.add(Table.Likes + "." + TableColumns.Likes.CREATED_AT + " AS " + TableColumns.AssociationView.ASSOCIATION_TIMESTAMP);
-        cols.toArray(arr);
-
-        return arr;
     }
 
     private static String[] getSoundViewColumns(Table table) {

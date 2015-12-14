@@ -22,6 +22,7 @@ import java.util.Date;
 /**
  * Currently maps to nothing on the back end. However, we should create UserAssociations there so we are consistent
  */
+@Deprecated // remove after migrating affiliations to api-mobile
 public class UserAssociation extends Association implements UserHolder {
 
     public static final Function<UserAssociation, String> TO_TOKEN_FUNCTION = new Function<UserAssociation, String>() {

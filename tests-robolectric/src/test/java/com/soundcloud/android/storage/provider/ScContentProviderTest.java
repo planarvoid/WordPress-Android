@@ -61,23 +61,6 @@ public class ScContentProviderTest {
     }
 
     @Test
-    public void shouldQueryLikesWithDescendingOrder() throws Exception {
-        ApiTrack track1 = testFixtures.insertLikedTrack(new Date(1000));
-        ApiTrack track2 = testFixtures.insertLikedTrack(new Date(2000));
-
-        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(2);
-
-        long[] result = new long[2];
-        int i = 0;
-        while (c.moveToNext()) {
-            result[i++] = c.getLong(c.getColumnIndex(TableColumns.SoundView._ID));
-        }
-        expect(result[0]).toEqual(track2.getId());
-        expect(result[1]).toEqual(track1.getId());
-    }
-
-    @Test
     public void shouldEnableSyncing() throws Exception {
         Account account = new Account("name", "type");
         ScContentProvider.enableSyncing(account, 3600);

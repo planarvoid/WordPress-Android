@@ -34,8 +34,6 @@
   <!--@Todo from l10n: please explain-->
   <string name="account_one_active">Você pode ter apenas uma conta ativa</string>
   <string name="comments">Comentários</string>
-  <!--@Todo from l10n: please explain-->
-  <string name="this_user">Este usuário</string>
   <string name="display_name">Exibir nome</string>
   <!--@Todo from l10n: probably move to non-final since related to offline sync?-->
   <string name="unlimited">ilimitado</string>
@@ -127,7 +125,6 @@
   <string name="list_empty_notification_secondary">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes.</string>
   <string name="list_empty_stream_action">ENCONTRE PESSOAS PARA SEGUIR</string>
   <string name="list_empty_stream_message">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes.</string>
-  <string name="list_empty_user_following_action">ENCONTRE PESSOAS PARA SEGUIR</string>
   <string name="empty_playlist_title">Playlist vazia</string>
   <string name="empty_playlist_description">Esta playlist ainda não tem faixas.</string>
   <string name="list_empty_you_sounds_message">Republique os sons para compartilhá-los com seus seguidores.</string>
@@ -136,11 +133,6 @@
   <string name="list_empty_you_following_message">Siga seus artistas, bandas e curadores favoritos para ouvir as faixas mais recentes.</string>
   <string name="list_empty_you_followers_message">Você ainda não tem nenhum seguidor.</string>
   <string name="list_empty_you_followers_secondary">Compartilhe suas faixas e playlists favoritas para criar sua comunidade</string>
-  <string name="empty_user_tracks_text">%1$s ainda não fez upload de nenhuma faixa pública.</string>
-  <string name="empty_user_playlists_text">No momento, %1$s não tem playlists.</string>
-  <string name="empty_user_likes_text">%1$s ainda não escolheu\nnenhuma curtida.</string>
-  <string name="empty_user_followings_text">%1$s não está\nseguindo ninguém.</string>
-  <string name="empty_user_followers_text">%1$s ainda não\né seguido por ninguém.</string>
   <!--new profile-->
   <string name="new_empty_user_posts_message">Esse usuário ainda não fez upload de\nnenhuma faixa pública.</string>
   <string name="new_empty_user_playlists_message">Esse usuário não possui nenhuma playlist no momento.</string>

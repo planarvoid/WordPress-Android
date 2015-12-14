@@ -18,6 +18,18 @@ import javax.inject.Inject;
  */
 public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
 
+    public static final Creator<NotificationPlaybackRemoteViews> CREATOR = new Creator<NotificationPlaybackRemoteViews>() {
+        @Override
+        public NotificationPlaybackRemoteViews createFromParcel(Parcel source) {
+            return new NotificationPlaybackRemoteViews(source);
+        }
+
+        @Override
+        public NotificationPlaybackRemoteViews[] newArray(int size) {
+            return new NotificationPlaybackRemoteViews[size];
+        }
+    };
+
     private static final int PENDING_INTENT_REQUEST_CODE = NotificationPlaybackRemoteViews.class.hashCode();
 
     NotificationPlaybackRemoteViews(String packageName, int layout) {
@@ -27,8 +39,7 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
                 R.drawable.notifications_pause);
     }
 
-    @SuppressWarnings("UnusedDeclaration")
-    public NotificationPlaybackRemoteViews(Parcel parcel) {
+    NotificationPlaybackRemoteViews(Parcel parcel) {
         super(parcel);
     }
 
