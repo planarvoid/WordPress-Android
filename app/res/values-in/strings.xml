@@ -34,8 +34,6 @@
   <!--@Todo from l10n: please explain-->
   <string name="account_one_active">Anda hanya boleh mempunyai satu akun aktif</string>
   <string name="comments">Komentar</string>
-  <!--@Todo from l10n: please explain-->
-  <string name="this_user">Pengguna ini</string>
   <!--@Todo from l10n: probably move to non-final since related to offline sync?-->
   <string name="unlimited">tanpa batas</string>
   <!--__RELATED TRACKS-->
@@ -94,18 +92,12 @@
   <string name="info_empty_other_message">Orang ini belum menambahkan deskripsi profil.</string>
   <string name="list_empty_you_followers_message">Anda belum punya pengikut.</string>
   <string name="list_empty_you_followers_secondary">Bagikan trek dan daftar putar favorit Anda untuk membangun komunitas</string>
-  <string name="list_empty_user_following_action">Temukan orang-orang untuk diikuti</string>
   <string name="list_empty_you_following_message">Ikuti artis, band, dan kurator favoritmu untuk mendengarkan trek terbaru mereka.</string>
   <string name="list_empty_you_likes_message">Sukai suara favoritmu untuk mendengarnya lagi.</string>
   <string name="list_empty_you_sounds_message">Pos ulang audio untuk dibagikan kepada para pengikut Anda.</string>
   <string name="empty_playlist_title">Daftar Putar Kosong</string>
   <string name="empty_playlist_description">Belum ada trek di daftar putar ini</string>
-  <string name="empty_user_playlists_text">%1$s saat ini tidak punya daftar putar.</string>
   <string name="list_empty_you_playlists_message">Buat Daftar Putar untuk membuat mix dari audio-audio favorit Anda.</string>
-  <string name="empty_user_tracks_text">%1$s belum mengunggah\naudio publik.</string>
-  <string name="empty_user_likes_text">%1$s belum\nmemilih satu suka pun.</string>
-  <string name="empty_user_followings_text">%1$s belum\nmengikuti siapa-siapa.</string>
-  <string name="empty_user_followers_text">%1$s belum\n memiliki pengikut.</string>
   <!--new profile-->
   <string name="new_empty_user_posts_message">Pengguna ini belum mengunggah\nsuara publik sama sekali.</string>
   <string name="new_empty_user_playlists_message">Pengguna ini saat ini tidak memiliki daftar lagu.</string>

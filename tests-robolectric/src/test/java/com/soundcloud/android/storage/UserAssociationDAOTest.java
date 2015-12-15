@@ -3,9 +3,7 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes;
 
-import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.provider.Content;
@@ -81,7 +79,7 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
     @Test
     public void shouldRemoveFollowing() {
         UserAssociation following = TestHelper.insertAsUserAssociation(new PublicApiUser(TARGET_USER_ID), UserAssociation.Type.FOLLOWING);
-        TestHelper.insertAsUserAssociation(new PublicApiUser(123L), SoundAssociation.Type.FOLLOWER);
+        TestHelper.insertAsUserAssociation(new PublicApiUser(123L), UserAssociation.Type.FOLLOWER);
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(Content.USERS).toHaveCount(2);
 

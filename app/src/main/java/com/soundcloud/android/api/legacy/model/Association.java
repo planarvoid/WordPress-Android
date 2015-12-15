@@ -18,6 +18,7 @@ import android.os.Parcel;
 
 import java.util.Date;
 
+@Deprecated // remove after migrating affiliations to api-mobile
 public abstract class Association extends PublicApiResource implements PlayableHolder, Refreshable, RelatesToUser {
 
     @Nullable public PublicApiUser owner;

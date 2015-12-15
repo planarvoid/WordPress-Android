@@ -6,6 +6,7 @@ import com.soundcloud.android.sync.stream.SoundStreamNotifier;
 import com.soundcloud.android.sync.activities.ActivitiesNotifier;
 import com.soundcloud.android.utils.Log;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import javax.inject.Inject;
  * Receives and processes the results from a sync run initiated in {@link SyncAdapterService}, creating
  * notifications if necessary.
  */
+@SuppressLint("ParcelCreator") // we need to review this; not an easy fix
 class SyncServiceResultReceiver extends ResultReceiver {
     private final SoundStreamNotifier soundStreamNotifier;
     private final ActivitiesNotifier activitiesNotifier;

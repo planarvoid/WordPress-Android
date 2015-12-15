@@ -19,10 +19,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = PublicApiTrack.class, name = "track"),
         @JsonSubTypes.Type(value = PublicApiComment.class, name = "comment"),
         @JsonSubTypes.Type(value = PublicApiUser.class, name = "user"),
-        @JsonSubTypes.Type(value = PublicApiPlaylist.class, name = "playlist"),
-        @JsonSubTypes.Type(value = SoundAssociation.class, name = "stream_item"),
-        @JsonSubTypes.Type(value = Like.class, name = "like"),
-        @JsonSubTypes.Type(value = Friend.class, name = "friend")})
+        @JsonSubTypes.Type(value = PublicApiPlaylist.class, name = "playlist")})
 public abstract class PublicApiResource
         extends ScModel
         implements Identifiable, Persisted {

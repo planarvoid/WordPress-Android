@@ -2,6 +2,7 @@ package com.soundcloud.android.sync;
 
 import rx.Subscriber;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +12,7 @@ import android.os.ResultReceiver;
 /**
  * Bridge between an Android ResultReceiver and an Rx Subscriber
  */
+@SuppressLint("ParcelCreator") // not sure how to fix this; needs review
 class LegacyResultReceiverAdapter extends ResultReceiver {
 
     private final Subscriber<? super Boolean> subscriber;

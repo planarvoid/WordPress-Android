@@ -35,8 +35,6 @@
     <!-- @Todo from l10n: please explain -->
     <string name="account_one_active">You can only have one active account</string>
     <string name="comments">Comments</string>
-    <!-- @Todo from l10n: please explain -->
-    <string name="this_user">This user</string>
     <string name="display_name">Display name</string>
     <!-- @Todo from l10n: probably move to non-final since related to offline sync? -->
     <string name="unlimited">unlimited</string>
@@ -137,7 +135,6 @@
     <string name="list_empty_notification_secondary">Follow your favorite artists, bands and podcasts to hear their latest tracks.</string>
     <string name="list_empty_stream_action">FIND PEOPLE TO FOLLOW</string>
     <string name="list_empty_stream_message">Follow your favorite artists, bands and podcasts to hear their latest tracks.</string>
-    <string name="list_empty_user_following_action">FIND PEOPLE TO FOLLOW</string>
     <string name="empty_playlist_title">Empty playlist</string>
     <string name="empty_playlist_description">This playlist has no tracks yet.</string>
 
@@ -147,12 +144,6 @@
     <string name="list_empty_you_following_message">Follow your favorite artists, bands and curators to hear their latest tracks.</string>
     <string name="list_empty_you_followers_message">You don’t have any followers yet.</string>
     <string name="list_empty_you_followers_secondary">Share your favorite tracks and playlists to build your community</string>
-
-    <string name="empty_user_tracks_text">%1$s hasn’t uploaded\nany public sounds yet.</string>
-    <string name="empty_user_playlists_text">%1$s currently has no playlists.</string>
-    <string name="empty_user_likes_text">%1$s hasn’t\nchosen any likes yet.</string>
-    <string name="empty_user_followings_text">%1$s isn’t\nfollowing anyone yet.</string>
-    <string name="empty_user_followers_text">%1$s isn’t\nbeing followed by anyone yet.</string>
 
     <string name="empty_you_sounds_message">You haven’t uploaded any sounds yet.</string>
     <string name="empty_user_sounds_message">This user hasn’t uploaded any public sounds yet.</string>

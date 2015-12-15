@@ -15,7 +15,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModel;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.storage.Table;
 import org.jetbrains.annotations.Nullable;
@@ -27,11 +26,17 @@ import android.util.SparseArray;
 import java.util.EnumSet;
 
 public enum Content {
+    // these are still used but should be ported off of Content enum
+    ME_LIKES("me/likes", null, 107, null, LIKE, Table.Likes),
+    ME_SOUNDS("me/sounds", null, 132, null, -1, Table.Posts),
+    ME_SOUND_STREAM("me/stream", null, 140, null, -1, null),
+    ME_ACTIVITIES("me/activities/all/own", null, 142, null, -1, null),
+
+    // legacy stuff
     ME("me", Endpoints.MY_DETAILS, 100, PublicApiUser.class, -1, Table.Users),
     ME_COMMENTS("me/comments", null, 102, PublicApiComment.class, -1, Table.Comments),
     ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, UserAssociation.class, FOLLOWING, Table.UserAssociations),
     ME_FOLLOWING("me/followings/#", null, 104, UserAssociation.class, -1, null),
-    ME_LIKES("me/likes", TempEndpoints.e1.USER_LIKES, 107, SoundAssociation.class, LIKE, Table.Likes),
     ME_LIKE("me/likes/#", null, 108, PublicApiTrack.class, LIKE, null),
     ME_REPOSTS("me/reposts", null, 109, null, REPOST, Table.CollectionItems),
     ME_PLAYLISTS("me/playlists", TempEndpoints.MY_PLAYLISTS, 110, PublicApiPlaylist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.Posts),
@@ -45,12 +50,6 @@ public enum Content {
     ME_PLAYLIST_REPOST("me/reposts/playlists/#", TempEndpoints.e1.MY_PLAYLIST_REPOST, 122, PublicApiPlaylist.class, -1, null),
     ME_PLAYLIST_LIKE("me/likes/playlists/#", TempEndpoints.e1.MY_PLAYLIST_LIKE, 123, PublicApiPlaylist.class, -1, null),
 
-    ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 132, SoundAssociation.class, -1, Table.Posts),
-
-    // the ids of the following entries should not be changed, they are referenced in th db
-    ME_SOUND_STREAM("me/stream", null, 140, null, -1, null),
-    ME_ACTIVITIES("me/activities/all/own", null, 142, null, -1, null),
-
     SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, PublicApiUser.class, -1, null),
 
     SOUNDS("sounds", null, 200, Playable.class, -1, Table.Sounds),
@@ -60,20 +59,15 @@ public enum Content {
     TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.Sounds),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
-    TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, PublicApiUser.class, -1, Table.Users),
-    TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, PublicApiUser.class, -1, Table.Users),
     TRACK_LOOKUP("tracks/q/*", Endpoints.TRACKS, 250, PublicApiTrack.class, -1, Table.Sounds),
 
     USERS("users", Endpoints.USERS, 301, PublicApiUser.class, -1, Table.Users),
     USER("users/#", Endpoints.USER_DETAILS, 302, PublicApiUser.class, -1, Table.Users),
-    USER_SOUNDS("users/#/sounds", TempEndpoints.e1.USER_SOUNDS, 311, SoundAssociation.class, -1, Table.Likes),
-    USER_LIKES("users/#/likes", TempEndpoints.e1.USER_LIKES, 304, PublicApiTrack.class, LIKE, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, PublicApiUser.class, FOLLOWER, null),
     USER_FOLLOWINGS("users/#/followings", Endpoints.USER_FOLLOWINGS, 306, PublicApiUser.class, FOLLOWING, null),
     USER_COMMENTS("users/#/comments", null, 307, PublicApiComment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", TempEndpoints.USER_PLAYLISTS, 309, null, -1, null),
-    USER_REPOSTS("users/#/reposts", TempEndpoints.e1.USER_REPOSTS, 310, Playable.class, REPOST, null),
     USER_LOOKUP("users/q/*", Endpoints.USERS, 350, PublicApiUser.class, -1, Table.Users),
 
     COMMENTS("comments", null, 400, PublicApiComment.class, -1, Table.Comments),

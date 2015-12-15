@@ -24,6 +24,18 @@ import android.os.Parcel;
  */
 public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
 
+    public static final Creator<PlayerWidgetRemoteViews> CREATOR = new Creator<PlayerWidgetRemoteViews>() {
+        @Override
+        public PlayerWidgetRemoteViews createFromParcel(Parcel source) {
+            return new PlayerWidgetRemoteViews(source);
+        }
+
+        @Override
+        public PlayerWidgetRemoteViews[] newArray(int size) {
+            return new PlayerWidgetRemoteViews[size];
+        }
+    };
+
     private static final int PENDING_INTENT_REQUEST_CODE = PlayerWidgetRemoteViews.class.hashCode();
 
     public PlayerWidgetRemoteViews(Context context) {
@@ -38,8 +50,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
         linkButtonsWidget(context, Urn.NOT_SET, Urn.NOT_SET, false);
     }
 
-    @SuppressWarnings("UnusedDeclaration")
-    public PlayerWidgetRemoteViews(Parcel parcel) {
+    PlayerWidgetRemoteViews(Parcel parcel) {
         super(parcel);
     }
 
