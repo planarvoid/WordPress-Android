@@ -152,4 +152,8 @@
 
     <!-- transifex doesn't properly support plurals, so ignore for now -->
     <issue id="PluralsCandidate" severity="ignore" />
+
+    <!-- we resolve deep links by indirecting through ResolveActivity -->
+    <issue id="GoogleAppIndexingWarning" severity="ignore"/>
+
 </lint>

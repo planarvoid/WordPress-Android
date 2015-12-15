@@ -1,14 +1,6 @@
 package com.soundcloud.android.search;
 
-import static android.view.View.VISIBLE;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.FlowLayout;
-import com.soundcloud.rx.eventbus.EventBus;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.Nullable;
@@ -17,8 +9,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import javax.inject.Inject;
+import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.FlowLayout;
+import com.soundcloud.rx.eventbus.EventBus;
+
 import java.util.List;
+
+import javax.inject.Inject;
+
+import static android.view.View.VISIBLE;
 
 public class PlaylistTagsPresenter {
 
@@ -70,6 +72,7 @@ public class PlaylistTagsPresenter {
         displayTags(view, tags, R.id.recent_tags, recentTagClickListener);
     }
 
+    @SuppressLint("SetTextI18n")
     private void displayTags(View layout, List<String> tags,
                              int layoutId, View.OnClickListener tagClickListener) {
         ViewGroup tagFlowLayout = (ViewGroup) layout.findViewById(layoutId);

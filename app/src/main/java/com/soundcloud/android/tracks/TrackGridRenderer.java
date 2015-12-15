@@ -1,11 +1,6 @@
 package com.soundcloud.android.tracks;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.util.CondensedNumberFormatter;
-
+import android.annotation.SuppressLint;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.view.View;
@@ -13,8 +8,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
+import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.util.CondensedNumberFormatter;
+
 import java.util.List;
+
+import javax.inject.Inject;
 
 //Delete this class when Explore is gone
 @Deprecated
@@ -44,6 +46,7 @@ public class TrackGridRenderer implements CellRenderer<TrackItem> {
         return itemView;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void bindItemView(int position, View itemView, List<TrackItem> tracks) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();

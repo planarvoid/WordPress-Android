@@ -1,13 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.crop.Crop;
-import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.images.ImageUtils;
-import org.jetbrains.annotations.Nullable;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +20,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.crop.Crop;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
+
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class SignupDetailsLayout extends RelativeLayout {
     private static final String BUNDLE_USERNAME = "BUNDLE_USERNAME";
@@ -69,6 +71,9 @@ public class SignupDetailsLayout extends RelativeLayout {
         }
     }
 
+    // suppressing, it's crazy that a view layout is messing with avatar files
+    // let's revisit this when re re-do signup.
+    @SuppressLint("SetWorldWritable")
     public File generateTempAvatarFile() {
         avatarFile = ImageUtils.createTempAvatarFile();
         avatarFile.setWritable(true, false);
