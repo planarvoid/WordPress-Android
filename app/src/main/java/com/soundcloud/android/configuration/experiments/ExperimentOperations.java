@@ -1,26 +1,25 @@
 package com.soundcloud.android.configuration.experiments;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 import rx.functions.Action1;
 
-import android.util.Log;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Singleton
 public class ExperimentOperations {
 
-    private static final String TAG = "Configuration";
     private static final String EXPERIMENT_PREFIX = "exp_";
 
     private final Action1<Assignment> cacheCurrentAssignments = new Action1<Assignment>() {
         @Override
         public void call(Assignment assignment) {
-            Log.d(TAG, "Loaded current experiment config\n" + assignment.toString());
             ExperimentOperations.this.assignment = assignment;
         }
     };
@@ -46,7 +45,6 @@ public class ExperimentOperations {
     }
 
     public void update(Assignment assignment) {
-        Log.d(TAG, "Store next experiment config\n" + assignment.toString());
         experimentStorage.storeAssignment(assignment);
     }
 
@@ -71,5 +69,31 @@ public class ExperimentOperations {
             }
         }
         return params;
+    }
+
+    public void forceExperimentVariation(Experiment experiment, String variation) {
+        List<Layer> existingLayers = assignment.getLayers();
+        List<Layer> newLayers = new ArrayList<>(existingLayers.size() + 1);
+        String layerName = experiment.getLayerName();
+
+        for (Layer existingLayer : existingLayers) {
+            if (!existingLayer.getLayerName().equals(layerName)) {
+                newLayers.add(existingLayer);
+                break;
+            }
+        }
+
+        newLayers.add(buildExperimentLayer(experiment, variation));
+        assignment = new Assignment(newLayers);
+        update(assignment);
+    }
+
+    private Layer buildExperimentLayer(Experiment experiment, String variation) {
+        Layer layer = new Layer();
+        layer.setLayerName(experiment.getLayerName());
+        layer.setExperimentName(experiment.getName());
+        layer.setVariantName(variation);
+        layer.setVariantId(Consts.NOT_SET);
+        return layer;
     }
 }

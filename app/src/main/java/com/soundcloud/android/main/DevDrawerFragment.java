@@ -33,6 +33,7 @@ public class DevDrawerFragment extends PreferenceFragment {
     @Inject EventBus eventBus;
     @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
+    @Inject DevDrawerExperimentsHelper drawerExperimentsHelper;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -45,6 +46,7 @@ public class DevDrawerFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.dev_drawer_prefs);
         addActions();
         addFeatureToggles();
+        drawerExperimentsHelper.addExperiments(getPreferenceScreen());
     }
 
     private void addFeatureToggles() {
