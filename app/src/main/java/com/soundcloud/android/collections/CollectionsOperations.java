@@ -166,6 +166,7 @@ public class CollectionsOperations {
                 case EntityStateChangedEvent.LIKE:
                 case EntityStateChangedEvent.PLAYLIST_CREATED:
                 case EntityStateChangedEvent.PLAYLIST_DELETED:
+                case EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER:
                     return true;
                 default:
                     return false;

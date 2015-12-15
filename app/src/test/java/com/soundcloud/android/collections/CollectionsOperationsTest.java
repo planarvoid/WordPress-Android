@@ -4,6 +4,7 @@ import static com.soundcloud.android.collections.CollectionsOperations.PLAYLIST_
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.events.EventQueue;
@@ -27,6 +28,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -142,6 +144,16 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(localPlaylist));
 
         collectionChangedSubscriber.assertReceivedOnNext(Collections.singletonList(EntityStateChangedEvent.fromPlaylistCreated(localPlaylist)));
+    }
+
+    @Test
+    public void onCollectionChangedWhenPlaylistPushedEventFires() {
+        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+
+        final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistPushedToServer(playlist));
+
+        collectionChangedSubscriber.assertReceivedOnNext(Collections.singletonList(EntityStateChangedEvent.fromPlaylistPushedToServer(playlist)));
     }
 
     @Test
