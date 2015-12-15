@@ -13,6 +13,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
+import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.stations.StationRecord;
@@ -26,6 +27,7 @@ import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -64,7 +66,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlayerArtworkController artworkController;
     @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
     @Mock private PlayerOverlayController playerOverlayController;
-    @Mock private AdOverlayController.Factory leaveBehindControllerFactory;
+    @Mock private AdOverlayControllerFactory adOverlayControllerFactory;
     @Mock private AdOverlayController adOverlayController;
     @Mock private ErrorViewController.Factory errorControllerFactory;
     @Mock private ErrorViewController errorViewController;
@@ -89,13 +91,13 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         ViewGroup container = new FrameLayout(context());
         presenter = new TrackPagePresenter(waveformOperations, featureOperations, listener, numberFormatter, waveformFactory,
-                artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
+                artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, adOverlayControllerFactory,
                 errorControllerFactory, castConnectionHelper, resources());
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackPageMenuController);
-        when(leaveBehindControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(adOverlayController);
+        when(adOverlayControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(adOverlayController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
         trackView = presenter.createItemView(container, skipListener);
         dateProvider = new TestDateProvider();

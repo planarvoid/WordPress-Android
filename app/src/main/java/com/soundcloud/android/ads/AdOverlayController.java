@@ -1,9 +1,10 @@
 package com.soundcloud.android.ads;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -16,18 +17,18 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.view.View;
 
-import javax.inject.Inject;
-
 @SuppressWarnings("PMD.AccessorClassGeneration")
+@AutoFactory(allowSubclasses = true)
 public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     private final View trackView;
-    private final ImageOperations imageOperations;
     private final Context context;
     private final DeviceHelper deviceHelper;
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
     private final AccountOperations accountOperations;
+    private final InterstitialPresenterFactory interstitialPresenterFactory;
+    private final LeaveBehindPresenterFactory leaveBehindPresenterFactory;
     private final AdOverlayListener listener;
 
     private Optional<OverlayAdData> overlayData = Optional.absent();
@@ -48,15 +49,24 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         void onAdOverlayHidden(boolean fullscreen);
     }
 
-    AdOverlayController(View trackView, AdOverlayListener listener, ImageOperations imageOperations, Context context, DeviceHelper deviceHelper, EventBus eventBus, PlayQueueManager playQueueManager, AccountOperations accountOperations) {
+    AdOverlayController(View trackView,
+                        AdOverlayListener listener,
+                        @Provided Context context,
+                        @Provided DeviceHelper deviceHelper,
+                        @Provided EventBus eventBus,
+                        @Provided PlayQueueManager playQueueManager,
+                        @Provided AccountOperations accountOperations,
+                        @Provided InterstitialPresenterFactory interstitialPresenterFactory,
+                        @Provided LeaveBehindPresenterFactory leaveBehindPresenterFactory) {
         this.trackView = trackView;
         this.listener = listener;
-        this.imageOperations = imageOperations;
         this.context = context;
         this.deviceHelper = deviceHelper;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.accountOperations = accountOperations;
+        this.interstitialPresenterFactory = interstitialPresenterFactory;
+        this.leaveBehindPresenterFactory = leaveBehindPresenterFactory;
     }
 
     @Override
@@ -95,8 +105,17 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     public void initialize(OverlayAdData data) {
         this.overlayData = Optional.of(data);
-        presenter = AdOverlayPresenter.create(data, trackView, this, eventBus, context.getResources(), imageOperations);
+
+        if (isInterstitial(data)) {
+            presenter = interstitialPresenterFactory.create(trackView, this);
+        } else {
+            presenter = leaveBehindPresenterFactory.create(trackView, this);
+        }
         setAdNotVisible();
+    }
+
+    private static boolean isInterstitial(OverlayAdData data) {
+        return data instanceof InterstitialAd;
     }
 
     public void show() {
@@ -126,7 +145,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     }
 
     private void onAdVisible() {
-        if (presenter != null) {
+        if (presenter != null && playQueueManager.getCurrentPlayQueueItem().isTrack()) {
             presenter.onAdVisible(playQueueManager.getCurrentPlayQueueItem(), overlayData.get(), playQueueManager.getCurrentTrackSourceInfo());
             listener.onAdOverlayShown(presenter.isFullScreen());
         }
@@ -163,28 +182,4 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
             overlayData.get().setMetaAdDismissed();
         }
     }
-
-    public static class Factory {
-        private final ImageOperations imageOperations;
-        private final Context context;
-        private final DeviceHelper deviceHelper;
-        private final EventBus eventBus;
-        private final PlayQueueManager playQueueManager;
-        private final AccountOperations accountOperations;
-
-        @Inject
-        Factory(ImageOperations imageOperations, Context context, DeviceHelper deviceHelper, EventBus eventBus, PlayQueueManager playQueueManager, AccountOperations accountOperations) {
-            this.imageOperations = imageOperations;
-            this.context = context;
-            this.deviceHelper = deviceHelper;
-            this.eventBus = eventBus;
-            this.playQueueManager = playQueueManager;
-            this.accountOperations = accountOperations;
-        }
-
-        public AdOverlayController create(View trackView, AdOverlayListener listener) {
-            return new AdOverlayController(trackView, listener, imageOperations, context, deviceHelper, eventBus, playQueueManager, accountOperations);
-        }
-    }
-
 }

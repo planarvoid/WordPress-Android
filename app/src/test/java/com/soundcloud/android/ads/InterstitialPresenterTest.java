@@ -1,28 +1,26 @@
 package com.soundcloud.android.ads;
 
-import android.content.res.Resources;
-import android.view.View;
-import android.view.ViewStub;
-import android.widget.ImageView;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.EventBus;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import android.content.res.Resources;
+import android.view.View;
+import android.view.ViewStub;
+import android.widget.ImageView;
 
 public class InterstitialPresenterTest extends AndroidUnitTest {
 
     private InterstitialAd interstitialData;
     private InterstitialPresenter presenter;
-    AdOverlayPresenter adOverlayPresenter;
 
     @Mock AdOverlayPresenter.Listener listener;
     @Mock View trackView;
@@ -46,12 +44,6 @@ public class InterstitialPresenterTest extends AndroidUnitTest {
 
         interstitialData = AdFixtures.getInterstitialAd(Urn.forTrack(123L));
         presenter = new InterstitialPresenter(trackView, listener, eventBus, imageOperations, resources);
-    }
-
-    @Test
-    public void createsInterstitialPresenterFromInterstitialPropertySet() throws Exception {
-        adOverlayPresenter = AdOverlayPresenter.create(interstitialData, trackView, listener, eventBus, resources, imageOperations);
-        assertThat(adOverlayPresenter).isInstanceOf(InterstitialPresenter.class);
     }
 
     @Test
