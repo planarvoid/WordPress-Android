@@ -10,18 +10,11 @@ import android.util.SparseArray;
 
 import java.util.EnumSet;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 // TODO, extract transitions/reason/error codes to their own classes
 @SuppressWarnings({"PMD.ExcessivePublicCount"})
 public interface Player {
 
-    @Deprecated // remove this when we get rid of or simplify mediaplayer
-    void play(Urn track);
-    void play(Urn track, long fromPos);
-    void playUninterrupted(Urn track);
-    void playOffline(Urn track, long fromPos);
-    void playVideo(VideoPlaybackItem videoPlaybackItem);
+    void play(PlaybackItem playbackItem);
     void resume();
     void pause();
     long seek(long ms, boolean performSeek);

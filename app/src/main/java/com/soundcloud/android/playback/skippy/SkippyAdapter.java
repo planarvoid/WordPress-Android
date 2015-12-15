@@ -25,9 +25,9 @@ import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.BufferUnderrunListener;
+import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.VideoPlaybackItem;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DebugUtils;
@@ -128,28 +128,20 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
-    public void play(Urn track) {
-        play(track, POSITION_START);
-    }
-
-    @Override
-    public void play(Urn track, long fromPos) {
-        play(track, fromPos, PLAY_TYPE_DEFAULT);
-    }
-
-    @Override
-    public void playUninterrupted(Urn track) {
-        play(track, POSITION_START, PLAY_TYPE_STREAM_UNINTERRUPTED);
-    }
-
-    @Override
-    public void playOffline(Urn track, long fromPos) {
-        play(track, fromPos, PLAY_TYPE_OFFLINE);
-    }
-
-    @Override
-    public void playVideo(VideoPlaybackItem videoPlaybackItem) {
-        throw new IllegalAccessError("Skippy does not support video playback");
+    public void play(PlaybackItem playbackItem) {
+        switch(playbackItem.getPlaybackType()) {
+            case AUDIO_DEFAULT:
+                play(playbackItem.getUrn(), playbackItem.getStartPosition(), PLAY_TYPE_DEFAULT);
+                break;
+            case AUDIO_OFFLINE:
+                play(playbackItem.getUrn(), playbackItem.getStartPosition(), PLAY_TYPE_OFFLINE);
+                break;
+            case AUDIO_UNINTERRUPTED:
+                play(playbackItem.getUrn(), POSITION_START, PLAY_TYPE_STREAM_UNINTERRUPTED);
+                break;
+            default:
+                throw new IllegalStateException("SkippyAdapter does not support this item type: " + playbackItem.getPlaybackType());
+        }
     }
 
     private void play(Urn track, long fromPos, int playType) {
