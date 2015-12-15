@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.mediaplayer.VideoPlayerAdapter;
+import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
 import com.soundcloud.java.collections.Iterables;
 
 import android.content.res.Resources;
@@ -21,17 +21,17 @@ import javax.inject.Inject;
 
 class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
-    private final VideoPlayerAdapter videoPlayerAdapter;
+    private final MediaPlayerVideoAdapter mediaPlayerVideoAdapter;
     private final ImageOperations imageOperations;
     private final AdPageListener listener;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final Resources resources;
 
     @Inject
-    public VideoAdPresenter(VideoPlayerAdapter videoPlayerAdapter, ImageOperations imageOperations,
+    public VideoAdPresenter(MediaPlayerVideoAdapter mediaPlayerVideoAdapter, ImageOperations imageOperations,
                             AdPageListener listener, PlayerOverlayController.Factory playerOverlayControllerFactory,
                             Resources resources) {
-        this.videoPlayerAdapter = videoPlayerAdapter;
+        this.mediaPlayerVideoAdapter = mediaPlayerVideoAdapter;
         this.imageOperations = imageOperations;
         this.listener = listener;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
@@ -93,7 +93,7 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
     public void setVideoViewHolder(Holder holder) {
         final SurfaceHolder surfaceHolder = holder.videoSurfaceView.getHolder();
-        surfaceHolder.addCallback(videoPlayerAdapter);
+        surfaceHolder.addCallback(mediaPlayerVideoAdapter);
     }
 
     @Override

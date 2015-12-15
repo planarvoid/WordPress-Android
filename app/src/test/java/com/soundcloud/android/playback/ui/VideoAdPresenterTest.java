@@ -12,7 +12,7 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.mediaplayer.VideoPlayerAdapter;
+import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 
@@ -33,7 +33,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     private VideoAdPresenter presenter;
     private View adView;
 
-    @Mock private VideoPlayerAdapter videoPlayerAdapter;
+    @Mock private MediaPlayerVideoAdapter mediaPlayerVideoAdapter;
     @Mock private ImageOperations imageOperations;
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdPageListener pageListener;
@@ -43,7 +43,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     public void setUp() throws  Exception {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
 
-        presenter = new VideoAdPresenter(videoPlayerAdapter, imageOperations, pageListener, playerOverlayControllerFactory, resources());
+        presenter = new VideoAdPresenter(mediaPlayerVideoAdapter, imageOperations, pageListener, playerOverlayControllerFactory, resources());
         adView = presenter.createItemView(new FrameLayout(context()), null);
         presenter.bindItemView(adView, new PlayerAd(buildAd(), PropertySet.create()));
     }

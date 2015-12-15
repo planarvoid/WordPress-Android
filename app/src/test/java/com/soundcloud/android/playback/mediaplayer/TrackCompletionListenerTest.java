@@ -5,32 +5,25 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import android.media.MediaPlayer;
-import android.os.Build;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackCompletionListenerTest {
+public class TrackCompletionListenerTest extends AndroidUnitTest {
 
     private static int DURATION = 10000;
 
     private TrackCompletionListener trackCompletionListener;
 
-    @Mock private MediaPlayerAdapter mediaPlayerAdapter;
+    @Mock private MediaPlayerAudioAdapter mediaPlayerAdapter;
     @Mock private MediaPlayer mediaPlayer;
 
     @Before
     public void setUp() throws Exception {
-        // Default to JellyBean for normal functionality
-        TestHelper.setSdkVersion(Build.VERSION_CODES.JELLY_BEAN);
-
         trackCompletionListener = new TrackCompletionListener(mediaPlayerAdapter);
         when(mediaPlayer.getDuration()).thenReturn(DURATION);
         when(mediaPlayerAdapter.isSeekable()).thenReturn(true);

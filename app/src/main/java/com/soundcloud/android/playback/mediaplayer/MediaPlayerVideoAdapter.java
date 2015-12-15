@@ -10,11 +10,9 @@ import android.view.SurfaceHolder;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.VideoPlaybackItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -28,10 +26,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class VideoPlayerAdapter implements Player, SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
+public class MediaPlayerVideoAdapter implements Player, SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener {
 
-    public static final String TAG = "VideoPlayerAdapter";
+    public static final String TAG = "MediaPlayerVideoAdapter";
     public static final int MAX_CONNECT_RETRIES = 2;
 
     private final Context context;
@@ -50,11 +48,11 @@ public class VideoPlayerAdapter implements Player, SurfaceHolder.Callback, Media
     private double loadPercent;
 
     @Inject
-    public VideoPlayerAdapter(Context context,
-                              MediaPlayerManager mediaPlayerManager,
-                              NetworkConnectionHelper networkConnectionHelper,
-                              CurrentDateProvider currentDateProvider,
-                              PlayerHandler playerHandler) {
+    public MediaPlayerVideoAdapter(Context context,
+                                   MediaPlayerManager mediaPlayerManager,
+                                   NetworkConnectionHelper networkConnectionHelper,
+                                   CurrentDateProvider currentDateProvider,
+                                   PlayerHandler playerHandler) {
         this.context = context.getApplicationContext();
         this.mediaPlayerManager = mediaPlayerManager;
         this.networkConnectionHelper = networkConnectionHelper;
@@ -70,7 +68,7 @@ public class VideoPlayerAdapter implements Player, SurfaceHolder.Callback, Media
                 playVideo((VideoPlaybackItem) playbackItem);
                 break;
             default:
-                throw new IllegalStateException("VideoPlayerAdapter cannot play this item: " + playbackItem);
+                throw new IllegalStateException("MediaPlayerVideoAdapter cannot play this item: " + playbackItem);
         }
     }
 
@@ -118,7 +116,7 @@ public class VideoPlayerAdapter implements Player, SurfaceHolder.Callback, Media
 
     @Override
     public long seek(long ms, boolean performSeek) {
-        throw new IllegalStateException("VideoPlayerAdapter cannot seek!");
+        throw new IllegalStateException("MediaPlayerVideoAdapter cannot seek!");
     }
 
     @Override
@@ -382,26 +380,26 @@ public class VideoPlayerAdapter implements Player, SurfaceHolder.Callback, Media
     static class PlayerHandler extends Handler {
         static final int SEND_PROGRESS = 0;
 
-        private WeakReference<VideoPlayerAdapter> videoPlayerAdapterWeakReference;
+        private WeakReference<MediaPlayerVideoAdapter> videoPlayerAdapterWeakReference;
 
         @Inject
         PlayerHandler() {}
 
         @VisibleForTesting
-        void setVideoPlayerAdapterWeakReference(VideoPlayerAdapter adapter) {
+        void setVideoPlayerAdapterWeakReference(MediaPlayerVideoAdapter adapter) {
             videoPlayerAdapterWeakReference = new WeakReference<>(adapter);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            final VideoPlayerAdapter videoPlayerAdapter = videoPlayerAdapterWeakReference.get();
-            if (videoPlayerAdapter == null) {
+            final MediaPlayerVideoAdapter mediaPlayerVideoAdapter = videoPlayerAdapterWeakReference.get();
+            if (mediaPlayerVideoAdapter == null) {
                 return;
             }
 
             switch (msg.what) {
                 case SEND_PROGRESS:
-                    videoPlayerAdapter.sendProgress();
+                    mediaPlayerVideoAdapter.sendProgress();
                     sendEmptyMessageDelayed(SEND_PROGRESS, PlaybackConstants.PROGRESS_DELAY_MS);
                     break;
             }
@@ -409,18 +407,18 @@ public class VideoPlayerAdapter implements Player, SurfaceHolder.Callback, Media
     }
 
     static class VideoCompletionListener implements MediaPlayer.OnCompletionListener {
-        private final VideoPlayerAdapter videoPlayerAdapter;
+        private final MediaPlayerVideoAdapter mediaPlayerVideoAdapter;
 
-        VideoCompletionListener(VideoPlayerAdapter videoPlayerAdapter) {
-            this.videoPlayerAdapter = videoPlayerAdapter;
+        VideoCompletionListener(MediaPlayerVideoAdapter mediaPlayerVideoAdapter) {
+            this.mediaPlayerVideoAdapter = mediaPlayerVideoAdapter;
         }
 
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
-            if (videoPlayerAdapter.isInErrorState()) {
-                videoPlayerAdapter.stop(mediaPlayer);
+            if (mediaPlayerVideoAdapter.isInErrorState()) {
+                mediaPlayerVideoAdapter.stop(mediaPlayer);
             } else {
-                videoPlayerAdapter.onTrackEnded();
+                mediaPlayerVideoAdapter.onTrackEnded();
             }
         }
     }

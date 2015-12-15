@@ -12,7 +12,6 @@ import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
-import com.soundcloud.android.playback.VideoPlaybackItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.strings.Strings;
@@ -33,10 +32,10 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
+public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener {
 
-    private static final String TAG = "MediaPlayerAdapter";
+    private static final String TAG = "MediaPlayerAudioAdapter";
     private static final int POS_NOT_SET = Consts.NOT_SET;
 
     public static final int MAX_CONNECT_RETRIES = 2;
@@ -71,13 +70,13 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private String currentStreamUrl = Strings.EMPTY;
 
     @Inject
-    public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager,
-                              PlayerHandler playerHandler, EventBus eventBus,
-                              NetworkConnectionHelper networkConnectionHelper,
-                              AccountOperations accountOperations,
-                              BufferUnderrunListener bufferUnderrunListener,
-                              StreamUrlBuilder urlBuilder,
-                              CurrentDateProvider dateProvider) {
+    public MediaPlayerAudioAdapter(Context context, MediaPlayerManager mediaPlayerManager,
+                                   PlayerHandler playerHandler, EventBus eventBus,
+                                   NetworkConnectionHelper networkConnectionHelper,
+                                   AccountOperations accountOperations,
+                                   BufferUnderrunListener bufferUnderrunListener,
+                                   StreamUrlBuilder urlBuilder,
+                                   CurrentDateProvider dateProvider) {
         this.bufferUnderrunListener = bufferUnderrunListener;
         this.urlBuilder = urlBuilder;
         this.dateProvider = dateProvider;
@@ -553,30 +552,30 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         static final int CLEAR_LAST_SEEK = 0;
         static final int SEND_PROGRESS = 1;
 
-        private WeakReference<MediaPlayerAdapter> mediaPlayerAdapterWeakReference;
+        private WeakReference<MediaPlayerAudioAdapter> mediaPlayerAdapterWeakReference;
 
         @Inject
         PlayerHandler() {
         }
 
         @VisibleForTesting
-        void setMediaPlayerAdapter(MediaPlayerAdapter adapter) {
+        void setMediaPlayerAdapter(MediaPlayerAudioAdapter adapter) {
             mediaPlayerAdapterWeakReference = new WeakReference<>(adapter);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            final MediaPlayerAdapter mediaPlayerAdapter = mediaPlayerAdapterWeakReference.get();
-            if (mediaPlayerAdapter == null) {
+            final MediaPlayerAudioAdapter mediaPlayerAudioAdapter = mediaPlayerAdapterWeakReference.get();
+            if (mediaPlayerAudioAdapter == null) {
                 return;
             }
 
             switch (msg.what) {
                 case CLEAR_LAST_SEEK:
-                    mediaPlayerAdapter.seekPos = POS_NOT_SET;
+                    mediaPlayerAudioAdapter.seekPos = POS_NOT_SET;
                     break;
                 case SEND_PROGRESS:
-                    mediaPlayerAdapter.sendProgress();
+                    mediaPlayerAudioAdapter.sendProgress();
                     sendEmptyMessageDelayed(SEND_PROGRESS, PlaybackConstants.PROGRESS_DELAY_MS);
                     break;
 

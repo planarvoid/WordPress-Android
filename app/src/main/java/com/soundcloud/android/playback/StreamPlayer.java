@@ -4,8 +4,8 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Player.PlayerListener;
-import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
-import com.soundcloud.android.playback.mediaplayer.VideoPlayerAdapter;
+import com.soundcloud.android.playback.mediaplayer.MediaPlayerAudioAdapter;
+import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -21,8 +21,8 @@ class StreamPlayer implements PlayerListener {
     @VisibleForTesting
     static boolean skippyFailedToInitialize;
 
-    private final MediaPlayerAdapter mediaPlayerDelegate;
-    private final VideoPlayerAdapter videoPlayerDelegate;
+    private final MediaPlayerAudioAdapter mediaPlayerDelegate;
+    private final MediaPlayerVideoAdapter videoPlayerDelegate;
     private final SkippyAdapter skippyPlayerDelegate;
     private final NetworkConnectionHelper networkConnectionHelper;
 
@@ -34,12 +34,12 @@ class StreamPlayer implements PlayerListener {
     private Player.StateTransition lastStateTransition = Player.StateTransition.DEFAULT;
 
     @Inject
-    public StreamPlayer(MediaPlayerAdapter mediaPlayerAdapter,
-                        VideoPlayerAdapter videoPlayerAdapter,
+    public StreamPlayer(MediaPlayerAudioAdapter mediaPlayerAudioAdapter,
+                        MediaPlayerVideoAdapter mediaPlayerVideoAdapter,
                         SkippyAdapter skippyAdapter,
                         NetworkConnectionHelper networkConnectionHelper) {
-        mediaPlayerDelegate = mediaPlayerAdapter;
-        videoPlayerDelegate = videoPlayerAdapter;
+        mediaPlayerDelegate = mediaPlayerAudioAdapter;
+        videoPlayerDelegate = mediaPlayerVideoAdapter;
         skippyPlayerDelegate = skippyAdapter;
         this.networkConnectionHelper = networkConnectionHelper;
 
@@ -47,7 +47,7 @@ class StreamPlayer implements PlayerListener {
             skippyFailedToInitialize = !skippyPlayerDelegate.init();
         }
 
-        currentPlayer = skippyFailedToInitialize ? mediaPlayerAdapter : skippyAdapter;
+        currentPlayer = skippyFailedToInitialize ? mediaPlayerAudioAdapter : skippyAdapter;
     }
 
     /**

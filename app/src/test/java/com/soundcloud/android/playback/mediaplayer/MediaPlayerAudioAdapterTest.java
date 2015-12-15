@@ -50,18 +50,18 @@ import android.os.PowerManager;
 import java.io.IOException;
 import java.util.Date;
 
-public class MediaPlayerAdapterTest extends AndroidUnitTest {
+public class MediaPlayerAudioAdapterTest extends AndroidUnitTest {
 
     private static final String ACCESS_TOKEN = "access";
     private static final Token TOKEN = new Token(ACCESS_TOKEN,"refresh");
     private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/http?oauth_token=access";
 
-    private MediaPlayerAdapter mediaPlayerAdapter;
+    private MediaPlayerAudioAdapter mediaPlayerAudioAdapter;
 
     @Mock private Context context;
     @Mock private MediaPlayer mediaPlayer;
     @Mock private MediaPlayerManager mediaPlayerManager;
-    @Mock private MediaPlayerAdapter.PlayerHandler playerHandler;
+    @Mock private MediaPlayerAudioAdapter.PlayerHandler playerHandler;
     @Mock private Player.PlayerListener listener;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private AccountOperations accountOperations;
@@ -91,18 +91,18 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         when(urlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(STREAM_URL);
         when(dateProvider.getCurrentDate()).thenReturn(new Date());
 
-        mediaPlayerAdapter = new MediaPlayerAdapter(context, mediaPlayerManager, playerHandler, eventBus, networkConnectionHelper, accountOperations, bufferUnderrunListener, urlBuilder, dateProvider);
-        mediaPlayerAdapter.setListener(listener);
+        mediaPlayerAudioAdapter = new MediaPlayerAudioAdapter(context, mediaPlayerManager, playerHandler, eventBus, networkConnectionHelper, accountOperations, bufferUnderrunListener, urlBuilder, dateProvider);
+        mediaPlayerAudioAdapter.setListener(listener);
     }
 
     @Test
     public void constructorSetsPlayerListener() {
-        verify(playerHandler).setMediaPlayerAdapter(mediaPlayerAdapter);
+        verify(playerHandler).setMediaPlayerAdapter(mediaPlayerAudioAdapter);
     }
 
     @Test
     public void playUrlShouldCreateConfiguredMediaPlayer() {
-        mediaPlayerAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.play(playbackItem);
         verify(mediaPlayerManager).create();
         verify(mediaPlayer).setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
         verify(mediaPlayer).setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -118,23 +118,23 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void playUrlShouldCallBufferingState() {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
         when(mediaPlayer.getDuration()).thenReturn(duration);
-        mediaPlayerAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.play(playbackItem);
         verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, trackUrn, 0, -1, dateProvider)));
         verifyNoMoreInteractions(listener);
     }
 
     @Test
     public void preparedListenerShouldStartPlayback() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
         verify(mediaPlayer).start();
     }
 
     @Test
     public void preparedListenerShouldNotStartPlaybackIfFocusNotGranted() {
         when(listener.requestAudioFocus()).thenReturn(false);
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
         verify(mediaPlayer, never()).start();
     }
 
@@ -142,9 +142,9 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void preparedListenerShouldCallStatesBufferingToPlaying() {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
 
-        mediaPlayerAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.play(playbackItem);
         when(mediaPlayer.getDuration()).thenReturn(20000);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
 
         InOrder inOrder = Mockito.inOrder(listener);
         inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, trackUrn, 0, -1, dateProvider)));
@@ -155,7 +155,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void shouldAddStreamingProtocolToPlayStateEvent() {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
 
-        mediaPlayerAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.play(playbackItem);
 
         verify(listener).onPlaystateChanged(stateCaptor.capture());
 
@@ -166,9 +166,9 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void preparedListenerShouldReportTimeToPlay() {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
         when(dateProvider.getCurrentDate()).thenReturn(new Date(0));
-        mediaPlayerAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET));
+        mediaPlayerAudioAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET));
         when(dateProvider.getCurrentDate()).thenReturn(new Date(1000));
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
@@ -183,21 +183,21 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void playUrlShouldResetAndReuseOldMediaPlayer() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.play(playbackItem);
         verify(mediaPlayer).reset();
     }
 
     @Test
     public void pauseShouldStopReleaseMediaPlayerIfPausedWhilePreparing() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.pause();
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.pause();
         verify(mediaPlayerManager).stopAndReleaseAsync(mediaPlayer);
     }
 
     @Test
     public void pauseNotifyIdleStateIfPausedWhilePreparing() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.pause();
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.pause();
 
         InOrder inOrder = Mockito.inOrder(listener);
         inOrder.verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, trackUrn, 0, -1, dateProvider)));
@@ -206,20 +206,20 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void seekShouldReturnInvalidSeekPositionWithNoMediaPlayer() {
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(-1L);
+        assertThat(mediaPlayerAudioAdapter.seek(123l)).isEqualTo(-1L);
     }
 
     @Test
     public void seekShouldSeekOnMediaPlayerWhilePreparing() {
-        mediaPlayerAdapter.play(playbackItem);
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        assertThat(mediaPlayerAudioAdapter.seek(123l)).isEqualTo(123l);
         verify(mediaPlayer).seekTo(123);
     }
 
     @Test
     public void seekShouldCallSeekOnMediaPlayer() {
         playUrlAndSetPrepared();
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
+        assertThat(mediaPlayerAudioAdapter.seek(123l)).isEqualTo(123l);
         verify(mediaPlayer).seekTo(123);
     }
 
@@ -227,115 +227,115 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void seekShouldCallSeekOnMediaPlayerWithTimeOfZeroWhenPositionNotZero() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(1);
-        assertThat(mediaPlayerAdapter.seek(0L)).isEqualTo(0L);
+        assertThat(mediaPlayerAudioAdapter.seek(0L)).isEqualTo(0L);
         verify(mediaPlayer).seekTo(0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void seekShouldThrowAnIllegalArgumentExceptionWithNegativeSeekTime() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.seek(-1L);
+        mediaPlayerAudioAdapter.seek(-1L);
     }
 
     @Test
     public void seekShouldReturnSeekPositionWhenGettingProgressWhileSeeking() {
         playUrlAndSetPrepared();
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123l);
+        assertThat(mediaPlayerAudioAdapter.seek(123l)).isEqualTo(123l);
+        assertThat(mediaPlayerAudioAdapter.getProgress()).isEqualTo(123l);
     }
 
     @Test
     public void playUrlShouldCreateNewMediaPlayerIfWaitingForSeekToReturn() {
         playUrlAndSetPrepared();
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
-        mediaPlayerAdapter.play(playbackItem);
+        assertThat(mediaPlayerAudioAdapter.seek(123l)).isEqualTo(123l);
+        mediaPlayerAudioAdapter.play(playbackItem);
         verify(mediaPlayerManager).create();
     }
 
     @Test
     public void playUrlShouldReleaseOldMediaPlayerIfWaitingForSeekToReturn() {
         playUrlAndSetPrepared();
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
-        mediaPlayerAdapter.play(playbackItem);
+        assertThat(mediaPlayerAudioAdapter.seek(123l)).isEqualTo(123l);
+        mediaPlayerAudioAdapter.play(playbackItem);
         verify(mediaPlayerManager).stopAndReleaseAsync(mediaPlayer);
     }
 
     @Test
     public void resumeShouldCreateNewMediaPlayerWithNoMediaPlayer() {
-        mediaPlayerAdapter.resume();
+        mediaPlayerAudioAdapter.resume();
         verify(mediaPlayerManager).create();
     }
 
     @Test
     public void resumeShouldCreateNewMediaPlayerIfInPreparingState() {
-        mediaPlayerAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.play(playbackItem);
         reset(mediaPlayer);
-        mediaPlayerAdapter.resume();
+        mediaPlayerAudioAdapter.resume();
         verify(mediaPlayerManager, times(2)).create();
     }
 
     @Test
     public void pauseShouldDoNothingWithNoMediaPlayer() {
-        mediaPlayerAdapter.pause();
+        mediaPlayerAudioAdapter.pause();
         verifyNoMoreInteractions(mediaPlayer);
     }
 
     @Test
     public void pauseShouldCallPauseWhenMediaPlayerPlaying() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.pause();
+        mediaPlayerAudioAdapter.pause();
         verify(mediaPlayer).pause();
     }
 
     @Test
     public void pauseShouldCallPauseOnWhenInPauseState() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.pause();
+        mediaPlayerAudioAdapter.pause();
         reset(mediaPlayer);
-        mediaPlayerAdapter.pause();
+        mediaPlayerAudioAdapter.pause();
         verify(mediaPlayer).pause();
     }
 
     @Test
     public void pauseShouldCallPauseOnWhenInBufferingState() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
-        mediaPlayerAdapter.pause();
+        mediaPlayerAudioAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
+        mediaPlayerAudioAdapter.pause();
         verify(mediaPlayer).pause();
     }
 
     @Test
     public void seekShouldReturn0WithNoMediaPlayer() {
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(0l);
+        assertThat(mediaPlayerAudioAdapter.getProgress()).isEqualTo(0l);
     }
 
     @Test
     public void seekShouldReturnMediaPlayerPosition() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(999);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(999l);
+        assertThat(mediaPlayerAudioAdapter.getProgress()).isEqualTo(999l);
     }
 
     @Test
     public void seekShouldReturnSeekPositionIfWaitingForSeek() {
         playUrlAndSetPrepared();
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123l);
+        assertThat(mediaPlayerAudioAdapter.seek(123l)).isEqualTo(123l);
+        assertThat(mediaPlayerAudioAdapter.getProgress()).isEqualTo(123l);
     }
 
     @Test
     public void seekRemovesSeekPosClearingThroughHandlerThroughHandler() {
         playUrlAndSetPrepared();
 
-        mediaPlayerAdapter.seek(456l);
+        mediaPlayerAudioAdapter.seek(456l);
         // seek position cleared via handler
-        verify(playerHandler).removeMessages(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK);
+        verify(playerHandler).removeMessages(MediaPlayerAudioAdapter.PlayerHandler.CLEAR_LAST_SEEK);
     }
 
     @Test
     public void playUrlShouldRetryMaxTimesIfMediaPlayerFailsToPrepare() throws IOException {
         Mockito.doThrow(new IOException()).when(mediaPlayer).setDataSource(any(String.class));
-        mediaPlayerAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.play(playbackItem);
 
         InOrder inOrder = inOrder(listener);
         inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, trackUrn, 0, -1, dateProvider)));
@@ -344,54 +344,54 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void playUrlSetsDataSourceOnMediaPlayer() throws IOException {
-        mediaPlayerAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.play(playbackItem);
         verify(mediaPlayer).setDataSource(STREAM_URL);
     }
 
     @Test
     public void playUrlCallsPrepareAsyncOnMediaPlayer() {
-        mediaPlayerAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.play(playbackItem);
         verify(mediaPlayer).prepareAsync();
     }
 
     @Test
     public void onTrackEndedResetsRetryCount() throws IOException {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
-        mediaPlayerAdapter.onTrackEnded();
-        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
+        causeMediaPlayerErrors(MediaPlayerAudioAdapter.MAX_CONNECT_RETRIES);
+        mediaPlayerAudioAdapter.onTrackEnded();
+        causeMediaPlayerErrors(MediaPlayerAudioAdapter.MAX_CONNECT_RETRIES);
         verify(mediaPlayer, times(4)).reset();
         verify(mediaPlayer, never()).release();
     }
 
     @Test
     public void onSeekResetsRetryCount() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
-        mediaPlayerAdapter.seek(10, true);
-        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
+        causeMediaPlayerErrors(MediaPlayerAudioAdapter.MAX_CONNECT_RETRIES);
+        mediaPlayerAudioAdapter.seek(10, true);
+        causeMediaPlayerErrors(MediaPlayerAudioAdapter.MAX_CONNECT_RETRIES);
         verify(mediaPlayer, never()).release();
     }
 
     @Test
     public void shouldReleaseMediaPlayerOnlyAfterRetryingPlaybackThreeTimes() throws IOException {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
+        causeMediaPlayerErrors(MediaPlayerAudioAdapter.MAX_CONNECT_RETRIES);
         verify(mediaPlayer, times(2)).reset();
         verify(mediaPlayer, times(3)).setDataSource(STREAM_URL);
         verify(mediaPlayer, never()).release();
-        mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
+        mediaPlayerAudioAdapter.onError(mediaPlayer, 0, 0);
         verify(mediaPlayer).release();
     }
 
     @Test
     public void onErrorShouldRetryStreamPlaybacksMaxRetryTimesThenReportError() throws IOException {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES + 1);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
+        causeMediaPlayerErrors(MediaPlayerAudioAdapter.MAX_CONNECT_RETRIES + 1);
 
         InOrder inOrder = inOrder(listener);
         inOrder.verify(listener, times(3)).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, trackUrn, 0, -1, dateProvider)));
@@ -400,38 +400,38 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onErrorShouldReturnTrueWhenRetrying() throws IOException {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-        assertThat(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).isTrue();
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
+        assertThat(mediaPlayerAudioAdapter.onError(mediaPlayer, 0, 0)).isTrue();
     }
 
     @Test
     public void onErrorShouldReturnTrueWhenRetriesExhausted() throws IOException {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-        causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
-        assertThat(mediaPlayerAdapter.onError(mediaPlayer, 0, 0)).isTrue();
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
+        causeMediaPlayerErrors(MediaPlayerAudioAdapter.MAX_CONNECT_RETRIES);
+        assertThat(mediaPlayerAudioAdapter.onError(mediaPlayer, 0, 0)).isTrue();
     }
 
     @Test
     public void shouldReturnMediaPlayerProgressAfterOnSeekCompleteCalled() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
         when(mediaPlayer.getDuration()).thenReturn(duration);
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
-        assertThat(mediaPlayerAdapter.seek(456l)).isEqualTo(456l);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(456l);
-        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123l);
+        assertThat(mediaPlayerAudioAdapter.seek(456l)).isEqualTo(456l);
+        assertThat(mediaPlayerAudioAdapter.getProgress()).isEqualTo(456l);
+        mediaPlayerAudioAdapter.onSeekComplete(mediaPlayer);
+        assertThat(mediaPlayerAudioAdapter.getProgress()).isEqualTo(123l);
     }
 
     @Test
     public void onSeekCompleteShouldPauseIfInPauseState() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.pause();
+        mediaPlayerAudioAdapter.pause();
         Mockito.reset(mediaPlayer);
 
-        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+        mediaPlayerAudioAdapter.onSeekComplete(mediaPlayer);
 
         verify(mediaPlayer).pause();
     }
@@ -439,10 +439,10 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void onSeekCompleteShouldNotPauseIfInTrackComplete() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.onTrackEnded();
+        mediaPlayerAudioAdapter.onTrackEnded();
         Mockito.reset(mediaPlayer);
 
-        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+        mediaPlayerAudioAdapter.onSeekComplete(mediaPlayer);
 
         verify(mediaPlayer, never()).pause();
     }
@@ -450,10 +450,10 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void onSeekCompleteShouldNotStartMediaPlayerIfTrackComplete() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.onTrackEnded();
+        mediaPlayerAudioAdapter.onTrackEnded();
         Mockito.reset(mediaPlayer);
 
-        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+        mediaPlayerAudioAdapter.onSeekComplete(mediaPlayer);
 
         verify(mediaPlayer, never()).start();
     }
@@ -461,7 +461,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void onSeekCompleteShouldPauseAndPlayMediaPlayerIfInPlayStateOnKitKat() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+        mediaPlayerAudioAdapter.onSeekComplete(mediaPlayer);
 
         verify(mediaPlayer).pause();
         verify(mediaPlayer).start();
@@ -472,7 +472,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
 
-        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+        mediaPlayerAudioAdapter.onSeekComplete(mediaPlayer);
 
         verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, trackUrn, 123, duration, dateProvider)));
     }
@@ -483,42 +483,42 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(duration + 1);
 
-        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+        mediaPlayerAudioAdapter.onSeekComplete(mediaPlayer);
 
         verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, trackUrn, duration, duration, dateProvider)));
     }
 
     @Test
     public void onSeekCompleteShouldClearSeekPosThroughHandler() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.onSeekComplete(mediaPlayer);
 
-        verify(playerHandler).removeMessages(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK);
-        verify(playerHandler).sendEmptyMessageDelayed(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK, MediaPlayerAdapter.SEEK_COMPLETE_PROGRESS_DELAY);
+        verify(playerHandler).removeMessages(MediaPlayerAudioAdapter.PlayerHandler.CLEAR_LAST_SEEK);
+        verify(playerHandler).sendEmptyMessageDelayed(MediaPlayerAudioAdapter.PlayerHandler.CLEAR_LAST_SEEK, MediaPlayerAudioAdapter.SEEK_COMPLETE_PROGRESS_DELAY);
     }
 
     @Test
     public void stopShouldDoNothingWithIncorrectMediaPlayer() {
-        mediaPlayerAdapter.stop(mediaPlayer);
+        mediaPlayerAudioAdapter.stop(mediaPlayer);
         verifyZeroInteractions(listener);
     }
 
     @Test
     public void onBufferingListenerClearsSeekMessageThroughHandlerWhenBuffering() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
 
-        verify(playerHandler).removeMessages(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK);
+        verify(playerHandler).removeMessages(MediaPlayerAudioAdapter.PlayerHandler.CLEAR_LAST_SEEK);
     }
 
     @Test
     public void onBufferingListenerWhilePreparingDoesNotChangeState() {
-        mediaPlayerAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.play(playbackItem);
         reset(listener);
 
-        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
+        mediaPlayerAudioAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
 
         verify(listener, never()).onPlaystateChanged(any(Player.StateTransition.class));
     }
@@ -528,7 +528,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void onBufferingListenerSetsBufferingStateWhenBuffering() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
-        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
+        mediaPlayerAudioAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
         verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.BUFFERING, Reason.NONE, trackUrn, 123, duration, dateProvider)));
     }
 
@@ -536,25 +536,25 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void onBufferingListenerClearsSeekPosThroughHandlerWhenBufferingComplete() {
         playUrlAndSetPrepared();
 
-        mediaPlayerAdapter.seek(456l);
-        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
-        mediaPlayerAdapter.onSeekComplete(mediaPlayer);
+        mediaPlayerAudioAdapter.seek(456l);
+        mediaPlayerAudioAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
+        mediaPlayerAudioAdapter.onSeekComplete(mediaPlayer);
 
         // reflects the seek position
-        assertThat(mediaPlayerAdapter.getSeekPosition()).isEqualTo(456l);
-        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
+        assertThat(mediaPlayerAudioAdapter.getSeekPosition()).isEqualTo(456l);
+        mediaPlayerAudioAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
 
         // seek position cleared via handler
-        verify(playerHandler, times(3)).removeMessages(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK);
-        verify(playerHandler).sendEmptyMessageDelayed(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK, 3000);
+        verify(playerHandler, times(3)).removeMessages(MediaPlayerAudioAdapter.PlayerHandler.CLEAR_LAST_SEEK);
+        verify(playerHandler).sendEmptyMessageDelayed(MediaPlayerAudioAdapter.PlayerHandler.CLEAR_LAST_SEEK, 3000);
     }
 
     @Test
     public void onBufferingListenerPausesWhenNotPlayingInOnBufferingComplete() {
         playUrlAndSetPrepared();
 
-        mediaPlayerAdapter.pause();
-        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
+        mediaPlayerAudioAdapter.pause();
+        mediaPlayerAudioAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
 
         verify(mediaPlayer, times(2)).pause();
     }
@@ -563,20 +563,20 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void shouldSetStateToPlayingAfterBufferingCompletes() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
-        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
+        mediaPlayerAudioAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
         verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.PLAYING, Reason.NONE, trackUrn, 123, duration, dateProvider)));
     }
 
     @Test
     public void stopDoesNothingWithNoMediaPlayer() {
-        mediaPlayerAdapter.stop();
+        mediaPlayerAudioAdapter.stop();
         verifyZeroInteractions(listener);
     }
 
     @Test
     public void stopDoesNothingIfNotStoppable() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.stop();
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.stop();
         verify(mediaPlayer, never()).stop();
     }
 
@@ -584,7 +584,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void stopCallsStopAndSetsIdleStateIfStoppable() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
-        mediaPlayerAdapter.stop();
+        mediaPlayerAudioAdapter.stop();
         verify(mediaPlayer).stop();
         verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.NONE, trackUrn, 123, duration, dateProvider)));
     }
@@ -593,15 +593,15 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void stopForTransitionCallsStopAndSetsIdleStateIfStoppable() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
-        mediaPlayerAdapter.stopForTrackTransition();
+        mediaPlayerAudioAdapter.stopForTrackTransition();
         verify(mediaPlayer).stop();
         verify(listener).onPlaystateChanged(eq(new Player.StateTransition(PlayerState.IDLE, Reason.NONE, trackUrn, 123, duration, dateProvider)));
     }
 
     @Test
     public void shouldNotSeekIfPlayFromPositionIsZero() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
         verify(mediaPlayer, never()).seekTo(anyInt());
     }
 
@@ -609,45 +609,45 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void shouldResumePlaybackAtSpecifiedTime() {
         when(mediaPlayer.getDuration()).thenReturn(duration);
 
-        mediaPlayerAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET));
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET));
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
 
         InOrder inOrder = inOrder(mediaPlayer);
         inOrder.verify(mediaPlayer).start();
         inOrder.verify(mediaPlayer).seekTo(123);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123L);
+        assertThat(mediaPlayerAudioAdapter.getProgress()).isEqualTo(123L);
     }
 
     @Test
     public void setVolumeDoesNothingWithNoPlayer() {
-        mediaPlayerAdapter.setVolume(1.0f);
+        mediaPlayerAudioAdapter.setVolume(1.0f);
         verifyZeroInteractions(mediaPlayer);
     }
 
     @Test
     public void setVolumeSetsVolumeOnPlayer() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.setVolume(1.0f);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.setVolume(1.0f);
         verify(mediaPlayer).setVolume(1.0f, 1.0f);
     }
 
     @Test
     public void destroyShouldCallStop() {
         playUrlAndSetPrepared();
-        mediaPlayerAdapter.destroy();
+        mediaPlayerAudioAdapter.destroy();
         verify(mediaPlayer).stop();
     }
 
     @Test
     public void destroyShouldClearHandler() {
-        mediaPlayerAdapter.destroy();
+        mediaPlayerAudioAdapter.destroy();
         verify(playerHandler).removeCallbacksAndMessages(null);
     }
 
     @Test
     public void shouldNotFirePerformanceEventWhenPreparedIfUserIsNotLoggedIn(){
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
         verify(accountOperations, never()).getLoggedInUserUrn();
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
@@ -656,7 +656,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void shouldNotSendBufferUnderrunEventWhenBufferingInitially() {
         playUrlAndSetPrepared();
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
-        mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
+        mediaPlayerAudioAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
     }
@@ -664,14 +664,14 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void shouldNotInteractWithMediaPlayertWhenPreparedIfUserIsNotLoggedIn(){
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
 
         verifyZeroInteractions(mediaPlayer);
     }
 
     private void playUrlAndSetPrepared() {
-        mediaPlayerAdapter.play(playbackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        mediaPlayerAudioAdapter.play(playbackItem);
+        mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
         reset(mediaPlayer);
         reset(mediaPlayerManager);
         reset(listener);
@@ -682,7 +682,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     private void causeMediaPlayerErrors(int numberOfErrors) {
         for (int i = 0; i < numberOfErrors; i++) {
-            mediaPlayerAdapter.onError(mediaPlayer, 0, 0);
+            mediaPlayerAudioAdapter.onError(mediaPlayer, 0, 0);
         }
     }
 
