@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.payments.UpgradeActivity;
 
@@ -29,9 +30,12 @@ public class UpgradeScreen extends Screen {
     }
 
     private UpgradeScreen clickBuy() {
-        waiter.waitForElement(R.id.upgrade_buy);
-        testDriver.clickOnView(With.id(R.id.upgrade_buy));
+        upgradeButton().click();
         return this;
+    }
+
+    public ViewElement upgradeButton() {
+        return testDriver.findElement(With.id(R.id.upgrade_buy));
     }
 
     public boolean isDisplayingSuccess() {
