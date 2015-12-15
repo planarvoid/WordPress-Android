@@ -8,8 +8,6 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -26,7 +24,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueueManager.QueueUpdateOperation;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.StationsSourceInfo;
@@ -261,61 +258,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getPositionForUrnReturnsNotSetForEmptyPlayQueue() throws Exception {
-        assertThat(playQueueManager.getPositionForUrn(Urn.forTrack(1L))).isEqualTo(Consts.NOT_SET);
-    }
-
-    @Test
-    public void getPositionForUrnReturnsNotSetForUrnIfNotInPlayQueue() throws Exception {
-        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource);
-
-        assertThat(playQueueManager.getPositionForUrn(Urn.forTrack(4L))).isEqualTo(Consts.NOT_SET);
-    }
-
-    @Test
-    public void getPositionForUrnReturnsPositionForUrnIfInPlayQueue() throws Exception {
-        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource);
-
-        assertThat(playQueueManager.getPositionForUrn(Urn.forTrack(2L))).isEqualTo(1);
-    }
-
-    @Test
-    public void getUpcomingPositionForUrnReturnsNotSetForEmptyPlayQueue() throws Exception {
-        assertThat(playQueueManager.getUpcomingPositionForUrn(Urn.forTrack(1L))).isEqualTo(Consts.NOT_SET);
-    }
-
-    @Test
-    public void getUpcomingPositionForUrnReturnsNotSetForUrnIfNotInPlayQueue() throws Exception {
-        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource);
-
-        assertThat(playQueueManager.getUpcomingPositionForUrn(Urn.forTrack(4L))).isEqualTo(Consts.NOT_SET);
-    }
-
-    @Test
-    public void getUpcomingPositionForUrnReturnsPositionForUrnIfInPlayQueue() throws Exception {
-        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L, 2L)), playlistSessionSource);
-        playQueueManager.setPosition(0, true);
-
-        assertThat(playQueueManager.getUpcomingPositionForUrn(Urn.forTrack(2L))).isEqualTo(1);
-    }
-
-    @Test
-    public void getUpcomingPositionForUrnReturnsCurrentItem() throws Exception {
-        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L, 2L)), playlistSessionSource);
-        playQueueManager.setPosition(1, true);
-
-        assertThat(playQueueManager.getUpcomingPositionForUrn(Urn.forTrack(2L))).isEqualTo(1);
-    }
-
-    @Test
-    public void getUpcomingPositionForUrnReturnsUpcomingItem() throws Exception {
-        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L, 2L)), playlistSessionSource);
-        playQueueManager.setPosition(2, true);
-
-        assertThat(playQueueManager.getUpcomingPositionForUrn(Urn.forTrack(2L))).isEqualTo(3);
-    }
-
-    @Test
     public void setNewPlayQueueMarksCurrentTrackAsUserTriggered() {
         when(playQueue.isEmpty()).thenReturn(false);
         when(playQueue.size()).thenReturn(1);
@@ -472,7 +414,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void saveProgressUpdatesSavePositionWithoutNonPersistentTracks() throws CreateModelException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(3L));
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource, 1);
-        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertAudioOperation(2, Urn.forTrack(2L), audioAd, false));
+        playQueueManager.insertAudioAd(playQueueManager.getNextPlayQueueItem(), Urn.forTrack(2L), audioAd, false);
         playQueueManager.setPosition(3, true);
 
         playQueueManager.saveCurrentProgress(12L);
@@ -487,7 +429,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPersistentTrack() throws CreateModelException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(3L));
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource, 1);
-        playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertAudioOperation(2, Urn.forTrack(1L), audioAd, false));
+        playQueueManager.insertAudioAd(playQueueManager.getNextPlayQueueItem(), Urn.forTrack(1L), audioAd, false);
         playQueueManager.setPosition(2, true);
 
         playQueueManager.saveCurrentProgress(12L);
@@ -503,7 +445,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(123L)), playlistSessionSource);
         playQueueManager.saveCurrentProgress(456L);
         assertThat(playQueueManager.wasLastSavedTrack(Urn.forTrack(123L))).isTrue();
-        assertThat(playQueueManager.getLastSavedPosition()).isEqualTo(456);
+        assertThat(playQueueManager.getLastSavedProgressPosition()).isEqualTo(456);
     }
 
     @Test
@@ -602,28 +544,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L)), playlistSessionSource);
         assertPlayQueueItemsEqual(playQueueManager.getNextPlayQueueItem(),
                 TestPlayQueueItem.createTrack(Urn.forTrack(2L)));
-    }
-
-    @Test
-    public void performPlayQueueUpdateOperationsExecutesOperationsInOrder() throws CreateModelException {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 1);
-
-        final QueueUpdateOperation queueUpdateOperation1 = mock(QueueUpdateOperation.class);
-        final QueueUpdateOperation queueUpdateOperation2 = mock(QueueUpdateOperation.class);
-        playQueueManager.performPlayQueueUpdateOperations(queueUpdateOperation1, queueUpdateOperation2);
-
-        final InOrder inOrder = inOrder(queueUpdateOperation1, queueUpdateOperation2);
-        inOrder.verify(queueUpdateOperation1).execute(playQueue);
-        inOrder.verify(queueUpdateOperation2).execute(playQueue);
-
-    }
-
-    @Test
-    public void performPlayQueueUpdateOperationsPublishesQueueChangeEvent() throws Exception {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 1);
-        playQueueManager.performPlayQueueUpdateOperations();
-
-        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.QUEUE_UPDATE);
     }
 
     @Test
@@ -775,7 +695,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void shouldHaveNoLastPositionWhenPlaybackOperationsReturnsEmptyObservable() {
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
         playQueueManager.loadPlayQueueAsync();
-        assertThat(playQueueManager.getLastSavedPosition()).isEqualTo(Consts.NOT_SET);
+        assertThat(playQueueManager.getLastSavedProgressPosition()).isEqualTo(Consts.NOT_SET);
     }
 
     @Test
@@ -798,7 +718,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
         assertThat(playQueueManager.wasLastSavedTrack(Urn.forTrack(456))).isTrue();
-        assertThat(playQueueManager.getLastSavedPosition()).isEqualTo(400L);
+        assertThat(playQueueManager.getLastSavedProgressPosition()).isEqualTo(400L);
     }
 
     @Test
@@ -963,32 +883,17 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldReturnTrueIfGivenTrackIsTrackAtPosition() {
-        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
-        playQueueManager.setNewPlayQueue(createPlayQueue(tracksUrn), playlistSessionSource);
-        playQueueManager.setPosition(1, true);
-        assertThat(playQueueManager.isTrackAt(Urn.forTrack(3L), 2)).isTrue();
-    }
-
-    @Test
-    public void shouldReturnFalseIfGivenTrackIsNotTrackAtPosition() {
-        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
-        playQueueManager.setNewPlayQueue(createPlayQueue(tracksUrn), playlistSessionSource);
-        playQueueManager.setPosition(1, true);
-        assertThat(playQueueManager.isTrackAt(Urn.forTrack(3L), 0)).isFalse();
-    }
-
-    @Test
-    public void shouldReturnFalseIfGivenTrackIsNotTrackAtValidPosition() {
-        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
-        playQueueManager.setNewPlayQueue(createPlayQueue(tracksUrn), playlistSessionSource);
-        playQueueManager.setPosition(1, true);
-        assertThat(playQueueManager.isTrackAt(Urn.forTrack(3L), 5)).isFalse();
-    }
-
-    @Test
     public void isCurrentTrackShouldReturnFalseWhenPlayQueueIsEmpty() {
         assertThat(playQueueManager.isCurrentTrack(Urn.forTrack(123L))).isFalse();
+    }
+
+    @Test
+    public void getQueueItemsRemainingReturnsQueueItemsRemaining() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource), playlistSessionSource);
+
+        assertThat(playQueueManager.getQueueItemsRemaining()).isEqualTo(2);
     }
 
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {

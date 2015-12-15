@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -14,25 +15,21 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.schedulers.Schedulers;
-
-import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,6 +37,7 @@ import java.util.Collections;
 public class AdsOperationsTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private final TrackQueueItem trackQueueItem = TestPlayQueueItem.createTrack(TRACK_URN);
 
     private AdsOperations adsOperations;
     private ApiAdsForTrack fullAdsForTrack;
@@ -48,13 +46,14 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private FeatureFlags featureFlags;
-    private PlaySessionSource playSessionSource;
+
+    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), featureFlags);
+        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), featureFlags, eventBus);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
-        playSessionSource = PlaySessionSource.forExplore("origin", "1.0");
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
 
         when(featureFlags.isEnabled(Flag.VIDEO_ADS)).thenReturn(false);
     }
@@ -167,171 +166,95 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void applyAdMergesInterstitialWhenNoAudioAdIsAvailable() throws Exception {
         final ApiAdsForTrack adsWithOnlyInterstitial = AdFixtures.interstitialAdsForTrack();
-        adsOperations.applyAdToTrack(TRACK_URN, adsWithOnlyInterstitial);
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
 
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
+        adsOperations.applyAdToUpcomingTrack(adsWithOnlyInterstitial);
 
-        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueue playQueue = createPlayQueue();
-        value1.execute(playQueue);
-
-        assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
-        final InterstitialAd expectedInterstitial = AdFixtures.getInterstitialAd(TRACK_URN);
-        assertThat(playQueue.getAdData(0)).isEqualTo(Optional.of(expectedInterstitial));
+        assertThat(trackQueueItem.getAdData()).isEqualTo(Optional.of(AdFixtures.getInterstitialAd(TRACK_URN)));
     }
 
     @Test
     public void applyInterstitialMergesInterstitial() throws Exception {
-        final ApiAdsForTrack ads = AdFixtures.fullAdsForTrack();
-        adsOperations.applyInterstitialToTrack(TRACK_URN, ads);
+        adsOperations.applyInterstitialToTrack(trackQueueItem, AdFixtures.fullAdsForTrack());
 
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
-
-        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueue playQueue = createPlayQueue();
-        value1.execute(playQueue);
-
-        assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
-        final InterstitialAd expectedInterstitial = AdFixtures.getInterstitialAd(TRACK_URN);
-        assertThat(playQueue.getAdData(0)).isEqualTo(Optional.of(expectedInterstitial));
+        assertThat(trackQueueItem.getAdData()).isEqualTo(Optional.of(AdFixtures.getInterstitialAd(TRACK_URN)));
     }
 
     @Test
     public void applyAdInsertsAudioAdWhenOnlyAudioAdIsAvailable() throws Exception {
         ApiAdsForTrack adsWithOnlyAudioAd = AdFixtures.audioAdsForTrack();
-        adsOperations.applyAdToTrack(TRACK_URN, adsWithOnlyAudioAd);
+        final LeaveBehindAd expectedLeavebehding = LeaveBehindAd.create(adsWithOnlyAudioAd.audioAd().get().getLeaveBehind(),
+                adsWithOnlyAudioAd.audioAd().get().getApiTrack().getUrn());
 
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
+        adsOperations.applyAdToUpcomingTrack(adsWithOnlyAudioAd);
 
-        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = createPlayQueue();
-        value1.execute(playQueue);
-        value2.execute(playQueue);
-
-        assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(adsWithOnlyAudioAd.audioAd().get().getApiTrack().getUrn());
-        assertThat(playQueue.getPlayQueueItem(1).getUrn()).isEqualTo(TRACK_URN);
-        final LeaveBehindAd expectedLeaveBehind = AdFixtures.getLeaveBehindAd(adsWithOnlyAudioAd.audioAd().get().getApiTrack().getUrn());
-        assertThat(playQueue.getAdData(1)).isEqualTo(Optional.of(expectedLeaveBehind));
+        verifyAudioAdInserted(adsWithOnlyAudioAd, Optional.of(expectedLeavebehding));
     }
 
     @Test
     public void applyAdPrefersInterstitialWhenBothAreAvailable() throws Exception {
         ApiAdsForTrack fullAdsForTrack = AdFixtures.fullAdsForTrack();
-        adsOperations.applyAdToTrack(TRACK_URN, fullAdsForTrack);
+        adsOperations.applyAdToUpcomingTrack(fullAdsForTrack);
 
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture());
-
-        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueue playQueue = createPlayQueue();
-        value1.execute(playQueue);
-
-        assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
-        final InterstitialAd expectedInterstitial = AdFixtures.getInterstitialAd(TRACK_URN);
-        assertThat(playQueue.getAdData(0)).isEqualTo(Optional.of(expectedInterstitial));
+        verify(playQueueManager, never()).insertAudioAd(any(PlayQueueItem.class), any(Urn.class), any(AudioAd.class), anyBoolean());
+        assertThat(trackQueueItem.getAdData()).isEqualTo(Optional.of(AdFixtures.getInterstitialAd(TRACK_URN)));
     }
 
     @Test
     public void applyAdIsNoOpIfNoAdsAvailable() throws Exception {
         ApiAdsForTrack fullAdsForTrack = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
-        adsOperations.applyAdToTrack(TRACK_URN, fullAdsForTrack);
+        adsOperations.applyAdToUpcomingTrack(fullAdsForTrack);
 
-        final PlayQueue playQueue = createPlayQueue();
-
-        verify(playQueueManager, never()).performPlayQueueUpdateOperations(any(PlayQueueManager.QueueUpdateOperation.class));
-        assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(TRACK_URN);
+        verify(playQueueManager, never()).insertAudioAd(any(PlayQueueItem.class), any(Urn.class), any(AudioAd.class), anyBoolean());
+        verify(playQueueManager, never()).insertVideo(any(PlayQueueItem.class), any(VideoAd.class));
+        assertThat(trackQueueItem.getAdData()).isEqualTo(Optional.absent());
     }
 
     @Test
     public void insertAudioAdShouldInsertAudioAd() throws Exception {
         final ApiAudioAd audioAdWithoutLeaveBehind = AdFixtures.getApiAudioAdWithoutLeaveBehind();
 
-        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(audioAdWithoutLeaveBehind))));
+        adsOperations.applyAdToUpcomingTrack(new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(audioAdWithoutLeaveBehind))));
 
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
-
-        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = createPlayQueue();
-        value1.execute(playQueue);
-        value2.execute(playQueue);
-
-        assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(audioAdWithoutLeaveBehind.getApiTrack().getUrn());
-        assertThat(playQueue.getPlayQueueItem(1).getUrn()).isEqualTo(TRACK_URN);
+        verify(playQueueManager).insertAudioAd(trackQueueItem, audioAdWithoutLeaveBehind.getApiTrack().getUrn(),
+                AudioAd.create(audioAdWithoutLeaveBehind, TRACK_URN), false);
+        assertThat(trackQueueItem.getAdData()).isEqualTo(Optional.absent());
     }
 
     @Test
     public void insertAudioAdShouldInsertAudioAdAndLeaveBehind() throws Exception {
         final ApiAdsForTrack noInterstitial = AdFixtures.audioAdsForTrack();
-        adsOperations.applyAdToTrack(TRACK_URN, noInterstitial);
-
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
-
-        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = createPlayQueue();
-        value1.execute(playQueue);
-        value2.execute(playQueue);
-
-        assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(noInterstitial.audioAd().get().getApiTrack().getUrn());
-        assertThat(playQueue.getPlayQueueItem(1).getUrn()).isEqualTo(TRACK_URN);
         final LeaveBehindAd expectedLeaveBehind = AdFixtures.getLeaveBehindAd(noInterstitial.audioAd().get().getApiTrack().getUrn()) ;
-        assertThat(playQueue.getAdData(1)).isEqualTo(Optional.of(expectedLeaveBehind));
+
+        adsOperations.applyAdToUpcomingTrack(noInterstitial);
+
+        verifyAudioAdInserted(noInterstitial, Optional.of(expectedLeaveBehind));
     }
 
     @Test
     public void applyAdInsertsAudioAdWithNoLeaveBehindWhenNoOtherAdIsAvailable() throws Exception {
         final ApiAudioAd apiAudioAd = AdFixtures.getApiAudioAdWithoutLeaveBehind();
+        final ApiAdsForTrack ads = new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(apiAudioAd)));
 
-        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(apiAudioAd))));
+        adsOperations.applyAdToUpcomingTrack(ads);
 
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
-
-        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = createPlayQueue();
-        value1.execute(playQueue);
-        value2.execute(playQueue);
-
-        assertThat(playQueue.getPlayQueueItem(0).getUrn()).isEqualTo(apiAudioAd.getApiTrack().getUrn());
-        assertThat(playQueue.getPlayQueueItem(1).getUrn()).isEqualTo(TRACK_URN);
-        assertThat(playQueue.getAdData(1).isPresent()).isFalse();
+        verifyAudioAdInserted(ads, Optional.<LeaveBehindAd>absent());
     }
 
     public void insertVideoAdShouldInsertVideoAd() throws Exception {
         when(featureFlags.isEnabled(Flag.VIDEO_ADS)).thenReturn(true);
         final ApiVideoAd videoAd = AdFixtures.getApiVideoAd();
+        final ApiAdsForTrack ads = new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(videoAd)));
 
-        adsOperations.applyAdToTrack(TRACK_URN, new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(videoAd))));
+        adsOperations.applyAdToUpcomingTrack(ads);
 
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor1 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        ArgumentCaptor<PlayQueueManager.QueueUpdateOperation> captor2 = ArgumentCaptor.forClass(PlayQueueManager.QueueUpdateOperation.class);
-        verify(playQueueManager).performPlayQueueUpdateOperations(captor1.capture(), captor2.capture());
-
-        final PlayQueueManager.QueueUpdateOperation value1 = captor1.getValue();
-        final PlayQueueManager.QueueUpdateOperation value2 = captor2.getValue();
-        final PlayQueue playQueue = createPlayQueue();
-        value1.execute(playQueue);
-        value2.execute(playQueue);
-
-        assertThat(playQueue.getPlayQueueItem(0).isVideo()).isTrue();
-        assertThat(playQueue.getPlayQueueItem(0).getAdData()).isEqualTo(Optional.of(VideoAd.create(videoAd, TRACK_URN)));
-        assertThat(playQueue.getPlayQueueItem(1).getUrn()).isEqualTo(TRACK_URN);
+        verify(playQueueManager).insertVideo(trackQueueItem,VideoAd.create(videoAd, TRACK_URN));
+        assertThat(trackQueueItem.getAdData()).isEqualTo(Optional.of(VideoAd.create(videoAd, TRACK_URN)));
     }
 
-    @NonNull
-    private PlayQueue createPlayQueue() {
-        return TestPlayQueue.fromUrns(playSessionSource, TRACK_URN);
+    private void verifyAudioAdInserted(ApiAdsForTrack noInterstitial, Optional<LeaveBehindAd> leaveBehindAdOptional) {
+        verify(playQueueManager).insertAudioAd(trackQueueItem, noInterstitial.audioAd().get().getApiTrack().getUrn(),
+                AudioAd.create(noInterstitial.audioAd().get(), TRACK_URN), false);
+        assertThat(trackQueueItem.getAdData()).isEqualTo(leaveBehindAdOptional);
     }
 }

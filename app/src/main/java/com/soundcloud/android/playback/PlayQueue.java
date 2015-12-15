@@ -148,7 +148,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         };
     }
 
-    private Predicate<PlayQueueItem> isMatchingItem(final PlayQueueItem playQueueItem) {
+    public static Predicate<PlayQueueItem> isMatchingItem(final PlayQueueItem playQueueItem) {
         return new Predicate<PlayQueueItem>() {
             @Override
             public boolean apply(PlayQueueItem input) {

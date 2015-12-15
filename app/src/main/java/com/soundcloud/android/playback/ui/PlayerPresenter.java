@@ -9,12 +9,14 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleBinder;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -32,6 +34,7 @@ import android.os.Message;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
 class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment> {
 
@@ -101,7 +104,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private final DefaultSubscriber<CurrentPlayQueueItemEvent> setPagerPositionFromPlayQueueManager = new DefaultSubscriber<CurrentPlayQueueItemEvent>() {
         @Override
         public void onNext(CurrentPlayQueueItemEvent args) {
-            setQueuePosition(playQueueManager.getCurrentPosition());
+            setQueuePositionToCurrent();
         }
     };
 
@@ -211,9 +214,15 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setFullQueue() {
-        presenter.setCurrentPlayQueue(playQueueManager.getPlayQueueItems());
-        trackPager.setCurrentItem(playQueueManager.getCurrentPosition(), false);
+        final List<PlayQueueItem> playQueueItems = playQueueManager.getPlayQueueItems();
+        presenter.setCurrentPlayQueue(playQueueItems);
+        trackPager.setCurrentItem(getIndexOfCurrentPlayQueueitem(), false);
         setPlayQueueAfterScroll = false;
+    }
+
+    private int getIndexOfCurrentPlayQueueitem() {
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        return Iterables.indexOf(presenter.getCurrentPlayQueue(), PlayQueue.isMatchingItem(currentPlayQueueItem));
     }
 
     private void setAdPlayQueue() {
@@ -226,8 +235,14 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
             setAdPlayQueue();
         } else {
             setPlayQueueAfterScroll = true;
-            setQueuePosition(playQueueManager.getCurrentPosition());
+            setQueuePositionToCurrent();
         }
+    }
+
+    private void setQueuePositionToCurrent() {
+        int position = getIndexOfCurrentPlayQueueitem();
+        boolean isAdjacentTrack = Math.abs(trackPager.getCurrentItem() - position) <= 1;
+        trackPager.setCurrentItem(position, isAdjacentTrack);
     }
 
     private boolean isShowingCurrentAd() {

@@ -153,7 +153,6 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
     @Test
     public void setsPagingEnabledOnPageSelectedWithCurrentNormalTrack() {
         when(presenter.getItemAtPosition(1)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(1)));
-        when(playQueueManager.isCurrentPosition(1)).thenReturn(true);
 
         pagerScrollListener.onPageSelected(1);
 
@@ -164,7 +163,6 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
     public void setsPagingEnabledOnPageSelectedWithNormalTrack() {
         // for normal tracks paging should always be enabled
         when(presenter.getItemAtPosition(1)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(1)));
-        when(playQueueManager.isCurrentPosition(1)).thenReturn(false);
 
         pagerScrollListener.onPageSelected(1);
 

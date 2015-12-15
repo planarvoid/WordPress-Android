@@ -86,7 +86,7 @@ public class PlaySessionStateProvider {
             return progressMap.get(urn);
 
         } else if (playQueueManager.wasLastSavedTrack(urn)) {
-            return new PlaybackProgress(playQueueManager.getLastSavedPosition(), Consts.NOT_SET);
+            return new PlaybackProgress(playQueueManager.getLastSavedProgressPosition(), Consts.NOT_SET);
 
         } else {
             return PlaybackProgress.empty();
