@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -16,16 +15,31 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
+import rx.functions.Func1;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
+
+    private static final Func1<SearchResult, List<PlaylistItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<PlaylistItem>>() {
+        @Override
+        public List<PlaylistItem> call(SearchResult propertySets) {
+            final List<PlaylistItem> result = new ArrayList<>(propertySets.getItems().size());
+            for (PropertySet source : propertySets) {
+                result.add(PlaylistItem.from(source));
+            }
+            return result;
+        }
+    };
 
     private final PlaylistDiscoveryOperations operations;
     private final PlaylistResultsAdapter adapter;
@@ -71,9 +85,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
     @Override
     protected CollectionBinding<PlaylistItem> onBuildBinding(Bundle fragmentArgs) {
         String playlistTag = fragmentArgs.getString(PlaylistResultsFragment.KEY_PLAYLIST_TAG);
-        return CollectionBinding.from(
-                operations.playlistsForTag(playlistTag),
-                PlaylistItem.<ApiPlaylistCollection>fromApiPlaylists())
+        return CollectionBinding.from(operations.playlistsForTag(playlistTag), TO_PRESENTATION_MODELS)
                 .withAdapter(adapter)
                 .withPager(operations.pager(playlistTag))
                 .build();

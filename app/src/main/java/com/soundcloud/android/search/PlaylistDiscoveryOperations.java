@@ -9,9 +9,12 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicates;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -27,6 +30,7 @@ import javax.inject.Named;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class PlaylistDiscoveryOperations {
 
@@ -34,7 +38,17 @@ public class PlaylistDiscoveryOperations {
     private final NetworkConnectionHelper connectionHelper;
     private final PlaylistTagStorage tagStorage;
     private final StorePlaylistsCommand storePlaylistsCommand;
+    private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
+    private final LoadPlaylistRepostStatuses loadPlaylistRepostStatuses;
     private final Scheduler scheduler;
+
+    private final Func1<ApiPlaylistCollection, SearchResult> toBackFilledSearchResult = new Func1<ApiPlaylistCollection, SearchResult>() {
+        @Override
+        public SearchResult call(ApiPlaylistCollection collection) {
+            final SearchResult result = new SearchResult(collection.getCollection(), collection.getNextLink(),collection.getQueryUrn());
+            return backfillSearchResult(result);
+        }
+    };
 
     private final Func1<ModelCollection<String>, List<String>> collectionToList = new Func1<ModelCollection<String>, List<String>>() {
         @Override
@@ -55,11 +69,15 @@ public class PlaylistDiscoveryOperations {
                                 NetworkConnectionHelper connectionHelper,
                                 PlaylistTagStorage tagStorage,
                                 StorePlaylistsCommand storePlaylistsCommand,
+                                LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
+                                LoadPlaylistRepostStatuses loadPlaylistRepostStatuses,
                                 @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.connectionHelper = connectionHelper;
         this.tagStorage = tagStorage;
         this.storePlaylistsCommand = storePlaylistsCommand;
+        this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
+        this.loadPlaylistRepostStatuses = loadPlaylistRepostStatuses;
         this.scheduler = scheduler;
     }
 
@@ -99,7 +117,7 @@ public class PlaylistDiscoveryOperations {
                 .map(collectionToList);
     }
 
-    Observable<ApiPlaylistCollection> playlistsForTag(final String tag) {
+    Observable<SearchResult> playlistsForTag(final String tag) {
         final ApiRequest request =
                 createPlaylistResultsRequest(ApiEndpoints.PLAYLIST_DISCOVERY.path())
                         .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
@@ -113,11 +131,11 @@ public class PlaylistDiscoveryOperations {
         });
     }
 
-    Pager.PagingFunction<ApiPlaylistCollection> pager(final String searchTag) {
-        return new Pager.PagingFunction<ApiPlaylistCollection>() {
+    Pager.PagingFunction<SearchResult> pager(final String searchTag) {
+        return new Pager.PagingFunction<SearchResult>() {
             @Override
-            public Observable<ApiPlaylistCollection> call(ApiPlaylistCollection apiPlaylists) {
-                final Optional<Link> nextLink = apiPlaylists.getNextLink();
+            public Observable<SearchResult> call(SearchResult searchResult) {
+                final Optional<Link> nextLink = searchResult.nextHref;
                 if (nextLink.isPresent()) {
                     return getPlaylistResultsNextPage(searchTag, nextLink.get().getHref());
                 } else {
@@ -127,7 +145,7 @@ public class PlaylistDiscoveryOperations {
         };
     }
 
-    private Observable<ApiPlaylistCollection> getPlaylistResultsNextPage(String query, String nextHref) {
+    private Observable<SearchResult> getPlaylistResultsNextPage(String query, String nextHref) {
         final ApiRequest.Builder builder = createPlaylistResultsRequest(nextHref);
         return getPlaylistResultsPage(query, builder.build());
     }
@@ -136,11 +154,12 @@ public class PlaylistDiscoveryOperations {
         return ApiRequest.get(url).forPrivateApi(1);
     }
 
-    private Observable<ApiPlaylistCollection> getPlaylistResultsPage(String query, ApiRequest request) {
+    private Observable<SearchResult> getPlaylistResultsPage(String query, ApiRequest request) {
         return apiClientRx.mappedResponse(request, ApiPlaylistCollection.class)
                 .subscribeOn(scheduler)
                 .doOnNext(storePlaylistsCommand.toAction())
-                .map(withSearchTag(query));
+                .map(withSearchTag(query))
+                .map(toBackFilledSearchResult);
     }
 
     private Func1<ApiPlaylistCollection, ApiPlaylistCollection> withSearchTag(final String searchTag) {
@@ -160,6 +179,24 @@ public class PlaylistDiscoveryOperations {
 
     private Collection<String> removeItemIgnoreCase(List<String> list, String itemToRemove) {
         return MoreCollections.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
+    }
+
+    private SearchResult backfillSearchResult(SearchResult result) {
+        final Map<Urn, PropertySet> playlistRepostStatus = loadPlaylistRepostStatuses.call(result);
+        final Map<Urn, PropertySet> playlistLikedStatus = loadPlaylistLikedStatuses.call(result);
+
+        for (final PropertySet resultItem : result) {
+            final Urn itemUrn = resultItem.getOrElse(UserProperty.URN, Urn.NOT_SET);
+
+            if (playlistRepostStatus.containsKey(itemUrn)) {
+                resultItem.update(playlistRepostStatus.get(itemUrn));
+            }
+
+            if (playlistLikedStatus.containsKey(itemUrn)) {
+                resultItem.update(playlistLikedStatus.get(itemUrn));
+            }
+        }
+        return result;
     }
 
 }
