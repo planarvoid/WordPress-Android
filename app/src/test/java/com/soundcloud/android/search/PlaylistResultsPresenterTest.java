@@ -8,9 +8,11 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -18,7 +20,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +28,8 @@ import rx.Observable;
 
 import android.os.Bundle;
 import android.view.View;
+
+import java.util.Collections;
 
 public class PlaylistResultsPresenterTest extends AndroidUnitTest {
 
@@ -39,6 +42,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private Navigator navigator;
     @Mock private View view;
+
     private TestEventBus eventBus = new TestEventBus();
     private ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
 
@@ -51,25 +55,16 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
         presenter = new PlaylistResultsPresenter(operations, adapter, swipeRefreshAttacher, navigator, eventBus);
     }
 
-    private void fakePlaylistResultsForTag(String searchTag) {
-        ApiPlaylistCollection collection = new ApiPlaylistCollection(singletonList(playlist), null, null);
-        when(operations.playlistsForTag(searchTag)).thenReturn(Observable.just(collection));
-
-        Bundle fragmentArgs = new Bundle();
-        fragmentArgs.putString(PlaylistResultsFragment.KEY_PLAYLIST_TAG, searchTag);
-        fragmentRule.setFragmentArguments(fragmentArgs);
-    }
-
     @Test
-    public void shouldPerformPlaylistTagSearchWithTagFromBundleInOnCreate() throws Exception {
+    public void shouldPerformPlaylistTagSearchWithTagFromBundleInOnCreate() {
         presenter.onCreate(fragmentRule.getFragment(), null);
 
         verify(adapter).onNext(singletonList(PlaylistItem.from(playlist)));
     }
 
     @Test
-    public void shouldOpenPlaylistActivityWhenClickingPlaylistItem() throws CreateModelException {
-        PlaylistItem clickedPlaylist = ModelFixtures.create(PlaylistItem.class);
+    public void shouldOpenPlaylistActivityWhenClickingPlaylistItem() {
+        final PlaylistItem clickedPlaylist = ModelFixtures.create(PlaylistItem.class);
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);
 
         presenter.onCreate(fragmentRule.getFragment(), null);
@@ -80,7 +75,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPublishSearchEventWhenResultOnPlaylistTagResultsIsClicked() throws Exception {
+    public void shouldPublishSearchEventWhenResultOnPlaylistTagResultsIsClicked() {
         when(adapter.getItem(0)).thenReturn(ModelFixtures.create(PlaylistItem.class));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
@@ -91,6 +86,31 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
         assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
         assertThat(event.getAttributes().get("type")).isEqualTo("playlist");
         assertThat(event.getAttributes().get("context")).isEqualTo("tags");
+    }
+
+    @Test
+    public void shouldNotifyAdapterWhenPlaylistEntityStateChanged() {
+        when(adapter.getItems()).thenReturn(Collections.singletonList(PlaylistItem.from(playlist)));
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fakeLikePlaylistEvent(playlist.getUrn()));
+
+        verify(adapter).notifyDataSetChanged();
+    }
+
+    private EntityStateChangedEvent fakeLikePlaylistEvent(Urn playlistUrn) {
+        return EntityStateChangedEvent.fromLike(playlistUrn, true, playlist.getLikesCount() + 1);
+    }
+
+    private void fakePlaylistResultsForTag(String searchTag) {
+        ApiPlaylistCollection collection = new ApiPlaylistCollection(singletonList(playlist), null, null);
+        when(operations.playlistsForTag(searchTag)).thenReturn(Observable.just(collection));
+
+        Bundle fragmentArgs = new Bundle();
+        fragmentArgs.putString(PlaylistResultsFragment.KEY_PLAYLIST_TAG, searchTag);
+        fragmentRule.setFragmentArguments(fragmentArgs);
     }
 
 }

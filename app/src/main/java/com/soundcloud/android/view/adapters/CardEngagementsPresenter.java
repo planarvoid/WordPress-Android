@@ -1,10 +1,9 @@
-package com.soundcloud.android.stream;
+package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.java.strings.Strings.EMPTY;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -12,7 +11,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.playlists.RepostResultSubscriber;
@@ -20,13 +18,20 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.rx.eventbus.EventBus;
+
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.view.View;
 
 import javax.inject.Inject;
 
-class StreamItemEngagementsPresenter {
+public class CardEngagementsPresenter {
+
+    public interface CardEngagementClickListener {
+        void onLikeClick(View likeButton);
+
+        void onRepostClick(View repostButton);
+    }
 
     private final CondensedNumberFormatter numberFormatter;
     private final LikeOperations likeOperations;
@@ -35,11 +40,11 @@ class StreamItemEngagementsPresenter {
     private final EventBus eventBus;
 
     @Inject
-    StreamItemEngagementsPresenter(CondensedNumberFormatter numberFormatter,
-                                   LikeOperations likeOperations,
-                                   RepostOperations repostOperations,
-                                   AccountOperations accountOperations,
-                                   EventBus eventBus) {
+    CardEngagementsPresenter(CondensedNumberFormatter numberFormatter,
+                             LikeOperations likeOperations,
+                             RepostOperations repostOperations,
+                             AccountOperations accountOperations,
+                             EventBus eventBus) {
         this.numberFormatter = numberFormatter;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
@@ -47,31 +52,30 @@ class StreamItemEngagementsPresenter {
         this.eventBus = eventBus;
     }
 
-    void bind(StreamItemViewHolder viewHolder, final PlayableItem playable) {
-        viewHolder.resetAdditionalInformation();
-        viewHolder.showLikeStats(getCountString(playable.getLikesCount()), playable.isLiked());
-        showRepostStats(viewHolder, playable);
+    public void bind(final CardViewHolder viewHolder,
+                     final PlayableItem playable,
+                     final EventContextMetadata contextMetadata) {
 
-        viewHolder.setEngagementClickListener(new StreamItemViewHolder.CardEngagementClickListener() {
+        viewHolder.showLikeStats(getCountString(playable.getLikesCount()), playable.isLiked());
+
+        if (!accountOperations.isLoggedInUser(playable.getCreatorUrn())) {
+            viewHolder.showRepostStats(getCountString(playable.getRepostCount()), playable.isReposted());
+        }
+
+        viewHolder.setEngagementClickListener(new CardEngagementClickListener() {
             @Override
             public void onLikeClick(View likeButton) {
-                handleLike(likeButton, playable);
+                handleLike(likeButton, playable, contextMetadata);
             }
 
             @Override
             public void onRepostClick(View repostButton) {
-                handleRepost(repostButton, playable);
+                handleRepost(repostButton, playable, contextMetadata);
             }
         });
     }
 
-    private void showRepostStats(StreamItemViewHolder viewHolder, PlayableItem playableItem) {
-        if (!accountOperations.isLoggedInUser(playableItem.getCreatorUrn())) {
-            viewHolder.showRepostStats(getCountString(playableItem.getRepostCount()), playableItem.isReposted());
-        }
-    }
-
-    private void handleRepost(View repostButton, PlayableItem playableItem) {
+    private void handleRepost(View repostButton, PlayableItem playableItem, EventContextMetadata contextMetadata) {
         final Urn entityUrn = playableItem.getEntityUrn();
         final boolean addRepost = !playableItem.isReposted();
         repostOperations.toggleRepost(entityUrn, addRepost)
@@ -79,12 +83,12 @@ class StreamItemEngagementsPresenter {
                 .subscribe(new RepostResultSubscriber(repostButton.getContext(), addRepost));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(addRepost, entityUrn,
-                getEventContextMetadata(),
+                contextMetadata,
                 getPromotedSourceInfo(playableItem),
                 EntityMetadata.from(playableItem)));
     }
 
-    private void handleLike(View likeButton, PlayableItem playableItem) {
+    private void handleLike(View likeButton, PlayableItem playableItem, EventContextMetadata contextMetadata) {
         final Urn entityUrn = playableItem.getEntityUrn();
         final boolean addLike = !playableItem.isLiked();
         likeOperations.toggleLike(entityUrn, addLike)
@@ -92,7 +96,7 @@ class StreamItemEngagementsPresenter {
                 .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, entityUrn,
-                getEventContextMetadata(),
+                contextMetadata,
                 getPromotedSourceInfo(playableItem),
                 EntityMetadata.from(playableItem)));
     }
@@ -105,13 +109,6 @@ class StreamItemEngagementsPresenter {
         } else {
             return null;
         }
-    }
-
-    private EventContextMetadata getEventContextMetadata() {
-        return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
-                .contextScreen(Screen.STREAM.get())
-                .pageName(Screen.STREAM.get())
-                .build();
     }
 
     private String getCountString(int count) {

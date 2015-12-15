@@ -1,5 +1,5 @@
 <RelativeLayout
-    style="@style/Stream.Card.Footer"
+    style="@style/Cards.Footer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="InconsistentLayout">
@@ -17,7 +17,7 @@
 
     <ToggleButton
         android:id="@+id/toggle_like"
-        style="@style/Stream.ToggleButton"
+        style="@style/Cards.ToggleButton"
         android:layout_marginLeft="8dp"
         android:layout_toLeftOf="@id/overflow_button"
         android:drawableLeft="@drawable/ic_toggle_player_like_states"
@@ -25,15 +25,15 @@
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/play_count"
-        style="@style/Stream.StatsItem"
+        style="@style/Cards.StatsItem"
         android:layout_toLeftOf="@id/toggle_like"
         android:drawableLeft="@drawable/stats_play"
         android:visibility="gone"
         tools:text="1234" />
 
     <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/playlist_duration"
-        style="@style/Stream.StatsItem"
+        android:id="@+id/playlist_additional_info"
+        style="@style/Cards.StatsItem"
         android:layout_toLeftOf="@id/toggle_like"
         android:visibility="gone"
         tools:text="2134" />

@@ -16,15 +16,17 @@
 
         <include layout="@layout/stream_item_header" />
 
-        <RelativeLayout style="@style/Stream.Card">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <com.soundcloud.android.view.ParallaxImageView
                 android:id="@id/image"
-                style="@style/Stream.Image.Playlist" />
+                style="@style/Cards.Image.Playlist" />
 
             <com.soundcloud.android.view.JaggedTextView
                 android:id="@id/creator"
-                style="@style/Stream.ArtistText"
+                style="@style/Cards.ArtistText"
                 android:layout_alignTop="@id/image"
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="16dp"
@@ -32,7 +34,7 @@
 
             <com.soundcloud.android.view.JaggedTextView
                 android:id="@id/title"
-                style="@style/Stream.TitleText"
+                style="@style/Cards.TitleText"
                 android:layout_below="@id/creator"
                 tools:text="Playlist Title" />
 
@@ -48,19 +50,19 @@
 
                 <TextView
                     android:id="@+id/track_count"
-                    style="@style/Stream.PlaylistTracks.Count"
+                    style="@style/Cards.PlaylistTracks.Count"
                     tools:text="12" />
 
                 <TextView
                     android:id="@+id/tracks_text"
-                    style="@style/Stream.PlaylistTracks.Text"
+                    style="@style/Cards.PlaylistTracks.Text"
                     tools:text="TRACKS" />
 
             </LinearLayout>
 
         </RelativeLayout>
 
-        <include layout="@layout/stream_item_footer" />
+        <include layout="@layout/default_card_footer" />
 
     </LinearLayout>
 

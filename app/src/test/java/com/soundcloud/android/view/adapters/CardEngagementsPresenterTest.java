@@ -1,4 +1,4 @@
-package com.soundcloud.android.stream;
+package com.soundcloud.android.view.adapters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
@@ -9,15 +9,19 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.stream.StreamItemViewHolder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
+import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -31,7 +35,7 @@ import android.view.View;
 
 import java.util.Locale;
 
-public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
+public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
     @Mock LikeOperations likeOperations;
     @Mock RepostOperations repostOperations;
@@ -39,23 +43,20 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
     @Mock StreamItemViewHolder viewHolder;
     @Mock View view;
     @Mock ScreenProvider screenProvider;
-    @Captor ArgumentCaptor<StreamItemViewHolder.CardEngagementClickListener> listenerCaptor;
+    @Captor ArgumentCaptor<CardEngagementClickListener> listenerCaptor;
 
-    private final CondensedNumberFormatter numberFormatter =
-            CondensedNumberFormatter.create(Locale.US, resources());
+    private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
+    private final PlayableItem playableItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+    private final TestEventBus eventBus = new TestEventBus();
+    private final PublishSubject<PropertySet> testSubject = PublishSubject.create();
+    private final EventContextMetadata contextMetadata = EventContextMetadata.builder().build();
 
-    private PlayableItem playableItem;
-    private TestEventBus eventBus;
-    private StreamItemEngagementsPresenter presenter;
-    private PublishSubject<PropertySet> testSubject;
+    private CardEngagementsPresenter presenter;
 
     @Before
     public void setUp() {
-        testSubject = PublishSubject.create();
-        playableItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        eventBus = new TestEventBus();
-        presenter = new StreamItemEngagementsPresenter(numberFormatter, likeOperations, repostOperations,
-                accountOperations, eventBus);
+        presenter = new CardEngagementsPresenter(
+                numberFormatter, likeOperations, repostOperations, accountOperations, eventBus);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(999));
         when(likeOperations.toggleLike(playableItem.getEntityUrn(), !playableItem.isLiked())).thenReturn(testSubject);
@@ -65,14 +66,8 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void resetsEngagementsBar() {
-        presenter.bind(viewHolder, playableItem);
-        verify(viewHolder).resetAdditionalInformation();
-    }
-
-    @Test
     public void setsLikeAndRepostsStats() {
-        presenter.bind(viewHolder, playableItem);
+        presenter.bind(viewHolder, playableItem, contextMetadata);
         verify(viewHolder).showLikeStats(formattedStats(playableItem.getLikesCount()), playableItem.isLiked());
         verify(viewHolder).showRepostStats(formattedStats(playableItem.getRepostCount()), playableItem.isReposted());
     }
@@ -80,14 +75,14 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
     @Test
     public void doesNotShowRepostStatsForOwnTracks() {
         when(accountOperations.isLoggedInUser(playableItem.getCreatorUrn())).thenReturn(true);
-        presenter.bind(viewHolder, playableItem);
+        presenter.bind(viewHolder, playableItem, contextMetadata);
 
         verify(viewHolder, never()).showRepostStats(formattedStats(playableItem.getRepostCount()), playableItem.isReposted());
     }
 
     @Test
     public void togglesLikeOnLikeClick() {
-        presenter.bind(viewHolder, playableItem);
+        presenter.bind(viewHolder, playableItem, contextMetadata);
 
         captureListener().onLikeClick(view);
 
@@ -97,7 +92,7 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void togglesRepostOnRepostClick() {
-        presenter.bind(viewHolder, playableItem);
+        presenter.bind(viewHolder, playableItem, contextMetadata);
 
         captureListener().onRepostClick(view);
 
@@ -107,7 +102,7 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void toggleRepostSendsTrackingEvent() {
-        presenter.bind(viewHolder, playableItem);
+        presenter.bind(viewHolder, playableItem, contextMetadata);
 
         captureListener().onRepostClick(view);
 
@@ -118,7 +113,7 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void toggleLikeSendsTrackingEvent() {
-        presenter.bind(viewHolder, playableItem);
+        presenter.bind(viewHolder, playableItem, contextMetadata);
 
         captureListener().onLikeClick(view);
 
@@ -127,7 +122,7 @@ public class StreamItemEngagementsPresenterTest extends AndroidUnitTest {
         assertThat(trackingEvent.isFromOverflow()).isFalse();
     }
 
-    private StreamItemViewHolder.CardEngagementClickListener captureListener() {
+    private CardEngagementClickListener captureListener() {
         verify(viewHolder).setEngagementClickListener(listenerCaptor.capture());
         return listenerCaptor.getValue();
     }
