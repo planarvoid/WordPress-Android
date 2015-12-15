@@ -16,6 +16,7 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
@@ -31,7 +32,9 @@ import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.net.Uri;
 import android.support.v4.util.ArrayMap;
@@ -123,6 +126,22 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         assertThat(event.getKind()).isEqualTo(UIEvent.KIND_CREATE_PLAYLIST);
         assertThat(event.get(EntityMetadata.KEY_PLAYABLE_TITLE)).isEqualTo(newPlaylist.getTitle());
         assertThat(event.get(EntityMetadata.KEY_PLAYABLE_URN)).isEqualTo(newPlaylist.getUrn().toString());
+    }
+
+    @Test
+    public void shouldPublishPlaylistPushedEventAfterReplacingPlaylist() throws Exception {
+        final ApiPlaylist newPlaylist = setupNewPlaylistCreation();
+        ArgumentCaptor<EntityStateChangedEvent> captor = ArgumentCaptor.forClass(EntityStateChangedEvent.class);
+
+        syncer.syncContent(URI, null);
+
+        InOrder inOrder = Mockito.inOrder(replacePlaylist, eventBus);
+        inOrder.verify(replacePlaylist).call();
+        inOrder.verify(eventBus).publish(eq(EventQueue.ENTITY_STATE_CHANGED), captor.capture());
+
+        EntityStateChangedEvent event = captor.getValue();
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER);
+        assertThat(event.getChangeMap().get(newPlaylist.getUrn())).isEqualTo(newPlaylist.toPropertySet());
     }
 
     @Test

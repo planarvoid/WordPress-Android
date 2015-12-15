@@ -29,6 +29,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int FOLLOWING = 7;
     public static final int PLAYLIST_CREATED = 8;
     public static final int PLAYLIST_DELETED = 9;
+    public static final int PLAYLIST_PUSHED_TO_SERVER = 10;
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -164,6 +165,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static EntityStateChangedEvent fromPlaylistDeleted(Urn playlist) {
         return create(PLAYLIST_DELETED, PropertySet.from(PlaylistProperty.URN.bind(playlist)));
+    }
+
+    public static EntityStateChangedEvent fromPlaylistPushedToServer(PropertySet playlist) {
+        return create(PLAYLIST_PUSHED_TO_SERVER, playlist);
     }
 
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(Urn playlistUrn, int trackCount) {
