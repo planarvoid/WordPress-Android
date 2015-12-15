@@ -107,10 +107,10 @@ public class PlaylistOperations {
                 .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
-    Observable<Boolean> createNewOfflinePlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
-        return createNewPlaylist(title, isPrivate, firstTrackUrn).flatMap(new Func1<Urn, Observable<Boolean>>() {
+    Observable<Urn> createNewOfflinePlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
+        return createNewPlaylist(title, isPrivate, firstTrackUrn).flatMap(new Func1<Urn, Observable<Urn>>() {
             @Override
-            public Observable<Boolean> call(Urn urn) {
+            public Observable<Urn> call(Urn urn) {
                 return offlineOperations.makePlaylistAvailableOffline(urn);
             }
         });

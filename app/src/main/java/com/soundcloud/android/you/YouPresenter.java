@@ -4,14 +4,14 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.ScrollContent;
-import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.UserProperty;
@@ -40,7 +40,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private final Resources resources;
     private final EventBus eventBus;
     private final FeatureOperations featureOperations;
-    private final OfflineSettingsOperations offlineSettingsOperations;
+    private final OfflineContentOperations offlineContentOperations;
     private final Navigator navigator;
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
@@ -56,7 +56,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                         Resources resources,
                         EventBus eventBus,
                         FeatureOperations featureOperations,
-                        OfflineSettingsOperations offlineSettingsOperations,
+                        OfflineContentOperations offlineContentOperations,
                         Navigator navigator,
                         BugReporter bugReporter,
                         ApplicationProperties appProperties) {
@@ -67,7 +67,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         this.resources = resources;
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
-        this.offlineSettingsOperations = offlineSettingsOperations;
+        this.offlineContentOperations = offlineContentOperations;
         this.navigator = navigator;
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
@@ -100,7 +100,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     }
 
     private void setupOfflineSync(YouView youView) {
-        if (featureOperations.isOfflineContentEnabled() || offlineSettingsOperations.hasOfflineContent()) {
+        if (featureOperations.isOfflineContentEnabled() || offlineContentOperations.hasOfflineContent()) {
             youView.showOfflineSettings();
         } else if (featureOperations.upsellMidTier()) {
             youView.showOfflineSettings();
@@ -209,7 +209,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     public void onSignOutClicked(final View view) {
         new AlertDialog.Builder(view.getContext())
                 .setTitle(R.string.sign_out_title)
-                .setMessage(offlineSettingsOperations.hasOfflineContent()
+                .setMessage(offlineContentOperations.hasOfflineContent()
                         ? R.string.sign_out_description_offline
                         : R.string.sign_out_description)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

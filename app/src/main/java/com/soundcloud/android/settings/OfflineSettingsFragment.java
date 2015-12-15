@@ -2,6 +2,7 @@ package com.soundcloud.android.settings;
 
 import static android.preference.Preference.OnPreferenceChangeListener;
 import static android.preference.Preference.OnPreferenceClickListener;
+import static com.soundcloud.android.settings.SettingKey.OFFLINE_COLLECTION;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_REMOVE_ALL_OFFLINE_CONTENT;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_STORAGE_LIMIT;
 import static com.soundcloud.android.settings.SettingKey.SUBSCRIBE;
@@ -18,6 +19,8 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
@@ -41,6 +44,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     @Inject FeatureOperations featureOperations;
     @Inject EventBus eventBus;
     @Inject Navigator navigator;
+    @Inject FeatureFlags featureFlags;
 
     private CompositeSubscription subscription;
 
@@ -78,9 +82,18 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
         offlineStorage.setOnPreferenceChangeListener(this);
         offlineStorage.setOfflineUsage(offlineUsage);
 
+        TwoStatePreference offlineCollection = (TwoStatePreference) findPreference(OFFLINE_COLLECTION);
+        if (featureFlags.isDisabled(Flag.OFFLINE_SYNC_COLLECTION)) {
+            getPreferenceScreen().removePreference(offlineCollection);
+        } else {
+            offlineCollection.setChecked(offlineContentOperations.isOfflineCollectionEnabled());
+            offlineCollection.setOnPreferenceChangeListener(this);
+        }
+
         TwoStatePreference wifi = (TwoStatePreference) findPreference(WIFI_ONLY);
         wifi.setChecked(offlineSettings.isWifiOnlyEnabled());
         wifi.setOnPreferenceChangeListener(this);
+
         setupClearContent();
 
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new CurrentDownloadSubscriber()));
@@ -99,6 +112,13 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         switch (preference.getKey()) {
+            case OFFLINE_COLLECTION:
+                if (((boolean) newValue)) {
+                    offlineContentOperations.enableOfflineCollection();
+                } else {
+                    offlineContentOperations.disableOfflineCollection();
+                }
+                return true;
             case OFFLINE_STORAGE_LIMIT:
                 onUpdateStorageLimit((long) newValue);
                 return true;

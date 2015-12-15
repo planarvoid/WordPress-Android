@@ -78,8 +78,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>empty());
 
-        when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.<Boolean>empty());
-        when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.<Boolean>empty());
+        when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.<Urn>empty());
+        when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.<Urn>empty());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean()))
@@ -175,7 +175,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnMakeOfflineAvailableMarksPlaylistAsOfflineContent() {
-        final PublishSubject<Boolean> offlineObservable = PublishSubject.create();
+        final PublishSubject<Urn> offlineObservable = PublishSubject.create();
         when(offlineOperations.makePlaylistAvailableOffline(playlist.getEntityUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
@@ -200,7 +200,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnMakeOfflineUnavailableRemovedPlaylistFromOfflineContent() {
-        final PublishSubject<Boolean> offlineObservable = PublishSubject.create();
+        final PublishSubject<Urn> offlineObservable = PublishSubject.create();
         when(offlineOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
 

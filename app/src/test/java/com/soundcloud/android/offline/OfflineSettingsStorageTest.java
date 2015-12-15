@@ -51,15 +51,11 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     }
 
     @Test
-    public void offlineContentFlagIsNotSetByDefault() {
-        assertThat(storage.hasOfflineContent()).isFalse();
-    }
+    public void clearsSettingsStorage() {
+        storage.setWifiOnlyEnabled(false);
+        storage.clear();
 
-    @Test
-    public void savesOfflineContentFlag() {
-        storage.setHasOfflineContent(true);
-
-        assertThat(storage.hasOfflineContent()).isTrue();
+        assertThat(storage.isWifiOnlyEnabled()).isTrue();
     }
 
     @Test
@@ -69,13 +65,5 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
         storage.setEncryptionTestRun();
 
         assertTrue(storage.hasRunEncryptionTest());
-    }
-
-    @Test
-    public void clearsSettingsStorage() {
-        storage.setWifiOnlyEnabled(false);
-        storage.clear();
-
-        assertThat(storage.isWifiOnlyEnabled()).isTrue();
     }
 }

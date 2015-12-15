@@ -61,6 +61,8 @@
 
     <!-- __OFFLINE SETTINGS -->
     <string name="pref_offline_settings">Offline Sync Settings</string>
+    <string name="pref_offline_offline_collection">Save Likes and Playlists offline</string>
+    <string name="pref_offline_offline_collection_description">Enable to save all your Likes and Playlists offline</string>
     <string name="pref_offline_wifi_only_sync">Only offline sync over Wi-Fi</string>
     <string name="pref_offline_wifi_only_description">Sync your likes and playlists only using Wi-Fi connection</string>
     <string name="pref_offline_settings_summary">Manage your Offline Sync settings</string>

@@ -15,7 +15,7 @@ import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -51,7 +51,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureOperations featureOperations;
-    @Mock private OfflineSettingsOperations offlineSettingsOperations;
+    @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private Navigator navigator;
     @Mock private BugReporter bugReporter;
     @Mock private ApplicationProperties appProperties;
@@ -63,7 +63,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new YouPresenter(youViewFactory, userRepository, accountOperations, imageOperations, resources(),
-                eventBus, featureOperations, offlineSettingsOperations, navigator, bugReporter, appProperties);
+                eventBus, featureOperations, offlineContentOperations, navigator, bugReporter, appProperties);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(youViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(youView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
@@ -141,7 +141,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsOfflineSettingsWithOfflineContent() {
-        when(offlineSettingsOperations.hasOfflineContent()).thenReturn(true);
+        when(offlineContentOperations.hasOfflineContent()).thenReturn(true);
 
         setupForegroundFragment();
 

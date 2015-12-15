@@ -32,7 +32,6 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Mock private DownloadNotificationController notificationController;
     @Mock private OfflineContentScheduler offlineContentScheduler;
     @Mock private OfflineContentOperations offlineContentOperations;
-    @Mock private OfflineSettingsOperations offlineSettingsOperations;
     @Mock private DownloadHandler.Builder handlerFactory;
     @Mock private DownloadHandler downloadHandler;
     @Mock private Notification notification;
@@ -66,7 +65,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
                 .thenReturn(Observable.<OfflineContentUpdates>never());
         when(notificationController.onPendingRequests(any(DownloadQueue.class))).thenReturn(notification);
 
-        service = new OfflineContentService(downloadOperations, offlineContentOperations, offlineSettingsOperations, notificationController,
+        service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
                 offlineContentScheduler, handlerFactory, publisher, downloadQueue);
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         service.onCreate();
@@ -169,7 +168,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onSuccess(downloadState1);
 
-        verify(offlineSettingsOperations).setHasOfflineContent(true);
+        verify(offlineContentOperations).setHasOfflineContent(true);
     }
 
     @Test

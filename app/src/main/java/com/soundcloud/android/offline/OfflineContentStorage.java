@@ -4,6 +4,7 @@ import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -14,18 +15,37 @@ import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 
 import android.content.ContentValues;
+import android.content.SharedPreferences;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 class OfflineContentStorage {
+    private static final String IS_OFFLINE_COLLECTION = "is_offline_collection";
     private static final String IS_OFFLINE_PLAYLIST = "is_offline_playlist";
     private static final String IS_OFFLINE_LIKES = "if_offline_likes";
+    private static final String OFFLINE_CONTENT = "has_content_offline";
 
     private final PropellerRx propellerRx;
+    private final SharedPreferences sharedPreferences;
 
     @Inject
-    public OfflineContentStorage(PropellerRx propellerRx) {
+    public OfflineContentStorage(PropellerRx propellerRx,
+                                 @Named(StorageModule.OFFLINE_SETTINGS) SharedPreferences sharedPreferences) {
         this.propellerRx = propellerRx;
+        this.sharedPreferences = sharedPreferences;
+    }
+
+    public Boolean isOfflineCollectionEnabled() {
+        return sharedPreferences.getBoolean(IS_OFFLINE_COLLECTION, false);
+    }
+
+    public void storeOfflineCollectionDisabled() {
+        sharedPreferences.edit().putBoolean(IS_OFFLINE_COLLECTION, false).apply();
+    }
+
+    public void storeOfflineCollectionEnabled() {
+        sharedPreferences.edit().putBoolean(IS_OFFLINE_COLLECTION, true).apply();
     }
 
     public Observable<Boolean> isOfflinePlaylist(Urn playlistUrn) {
@@ -56,6 +76,14 @@ class OfflineContentStorage {
         return Query.apply(exists(Query.from(OfflineContent.TABLE)
                 .where(offlineLikesFilter()))
                 .as(IS_OFFLINE_LIKES));
+    }
+
+    public boolean hasOfflineContent() {
+        return sharedPreferences.getBoolean(OFFLINE_CONTENT, false);
+    }
+
+    public void setHasOfflineContent(boolean hasOfflineContent) {
+        sharedPreferences.edit().putBoolean(OFFLINE_CONTENT, hasOfflineContent).apply();
     }
 
     private Query isMarkedForOfflineQuery(Urn playlistUrn) {

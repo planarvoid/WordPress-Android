@@ -60,7 +60,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
     private PlaylistEngagementsPresenter controller;
     private PlaylistWithTracks playlistWithTracks;
-    private PublishSubject<Boolean> publishSubject;
+    private PublishSubject<Urn> publishSubject;
     private TestEventBus eventBus;
 
     @Mock private RepostOperations repostOperations;
