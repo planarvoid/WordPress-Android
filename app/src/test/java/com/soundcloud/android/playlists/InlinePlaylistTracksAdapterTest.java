@@ -1,16 +1,16 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class InlinePlaylistTracksAdapterTest {
 
     @InjectMocks
@@ -20,22 +20,22 @@ public class InlinePlaylistTracksAdapterTest {
 
     @Test
     public void reports2DifferentItemTypes() {
-        expect(adapter.getViewTypeCount()).toBe(2);
+        assertThat(adapter.getViewTypeCount()).isEqualTo(2);
     }
 
     @Test
     public void hasCountOf1WithNoDataAndInlineEmptyViews() throws Exception {
-        expect(adapter.getItemCount()).toBe(1);
+        assertThat(adapter.getItemCount()).isEqualTo(1);
     }
 
     @Test
     public void hasContentItemsShouldBeFalseWhenNoItemsHaveBeenSet() {
-        expect(adapter.hasContentItems()).toBeFalse();
+        assertThat(adapter.hasContentItems()).isFalse();
     }
 
     @Test
     public void hasContentItemsShouldBeTrueOnceItemsHaveBeenAdded() {
         adapter.addItem(TrackItem.from(PropertySet.create()));
-        expect(adapter.hasContentItems()).toBeTrue();
+        assertThat(adapter.hasContentItems()).isTrue();
     }
 }

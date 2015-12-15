@@ -1,10 +1,11 @@
 package com.soundcloud.android.analytics;
 
-import static com.soundcloud.android.Expect.expect;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.squareup.okhttp.Call;
@@ -12,7 +13,6 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -21,8 +21,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class BatchTrackingApiTest {
+public class BatchTrackingApiTest extends AndroidUnitTest {
 
     private static final String BATCH_URL = "http://batch-url";
     private static final String DATA = "{\"some\" : \"data\"}";
@@ -38,7 +37,7 @@ public class BatchTrackingApiTest {
     @Captor private ArgumentCaptor<Request> requestCaptor;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         api = new BatchTrackingApi(httpClient, deviceHelper, BATCH_URL, BATCH_SIZE);
         when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android");
         when(httpClient.newCall(requestCaptor.capture())).thenReturn(httpCall);
@@ -53,16 +52,16 @@ public class BatchTrackingApiTest {
         );
 
         List<TrackingRecord> successes = api.pushToRemote(Arrays.asList(EVENT, EVENT, EVENT, EVENT, EVENT, EVENT));
-        expect(successes).toNumber(BATCH_SIZE * 2);
+        assertThat(successes).hasSize(BATCH_SIZE * 2);
     }
 
     @Test
     public void shouldSetUserAgentHeader() throws Exception {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
 
-        api.pushToRemote(Arrays.asList(EVENT));
+        api.pushToRemote(singletonList(EVENT));
 
-        expect(requestCaptor.getValue().headers("User-Agent").get(0)).toEqual("SoundCloud-Android");
+        assertThat(requestCaptor.getValue().headers("User-Agent").get(0)).isEqualTo("SoundCloud-Android");
     }
 
     @Test
@@ -70,9 +69,9 @@ public class BatchTrackingApiTest {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
         TrackingRecord event = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME, DATA);
 
-        api.pushToRemote(Arrays.asList(event));
+        api.pushToRemote(singletonList(event));
 
-        expect(requestCaptor.getValue().method()).toEqual("POST");
+        assertThat(requestCaptor.getValue().method()).isEqualTo("POST");
     }
 
     @Test
@@ -107,8 +106,8 @@ public class BatchTrackingApiTest {
     }
 
     private void checkPostRequest(int call, String expectedBody) throws IOException {
-        expect(requestCaptor.getAllValues().get(call).method()).toEqual("POST");
-        expect(requestCaptor.getAllValues().get(call).body().contentLength()).toEqual((long) expectedBody.length());
-        expect(requestCaptor.getAllValues().get(call).body().contentType().toString()).toEqual("application/json");
+        assertThat(requestCaptor.getAllValues().get(call).method()).isEqualTo("POST");
+        assertThat(requestCaptor.getAllValues().get(call).body().contentLength()).isEqualTo((long) expectedBody.length());
+        assertThat(requestCaptor.getAllValues().get(call).body().contentType().toString()).isEqualTo("application/json");
     }
 }

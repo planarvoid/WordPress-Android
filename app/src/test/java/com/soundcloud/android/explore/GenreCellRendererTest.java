@@ -1,5 +1,6 @@
 package com.soundcloud.android.explore;
 
+import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.endsWith;
 import static org.mockito.Matchers.eq;
@@ -8,11 +9,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
@@ -20,33 +19,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.Arrays;
 import java.util.Locale;
 
-@RunWith(SoundCloudTestRunner.class)
-public class GenreCellRendererTest {
+public class GenreCellRendererTest extends AndroidUnitTest {
 
-    @InjectMocks
-    private GenreCellRenderer presenter;
+    @InjectMocks private GenreCellRenderer presenter;
 
-    @Mock
-    private ViewGroup parentView;
-    @Mock
-    private View itemView;
-    @Mock
-    private GenreSection section;
-    @Mock
-    private TextView genreTitleText;
-    @Mock
-    private TextView sectionHeaderText;
+    @Mock private ViewGroup parentView;
+    @Mock private View itemView;
+    @Mock private GenreSection section;
+    @Mock private TextView genreTitleText;
+    @Mock private TextView sectionHeaderText;
 
     @Before
     public void setup() {
-        when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
+        when(itemView.getResources()).thenReturn(resources());
         when(itemView.findViewById(android.R.id.text1)).thenReturn(genreTitleText);
         when(itemView.findViewById(R.id.list_section_header)).thenReturn(sectionHeaderText);
         when(section.getTitleId()).thenReturn(R.string.explore_category_trending_audio);
-        when(parentView.getContext()).thenReturn(Robolectric.application);
+        when(parentView.getContext()).thenReturn(context());
     }
 
     @Test
@@ -55,7 +46,7 @@ public class GenreCellRendererTest {
 
         presenter.setSectionForPosition(0, section, true);
 
-        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, singletonList(exploreGenre));
         verify(sectionHeaderText).setText(anyString().toUpperCase(Locale.getDefault()));
         verify(sectionHeaderText).setVisibility(View.VISIBLE);
     }
@@ -66,7 +57,7 @@ public class GenreCellRendererTest {
 
         presenter.setSectionForPosition(0, section, false);
 
-        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, singletonList(exploreGenre));
         verify(sectionHeaderText).setVisibility(View.GONE);
     }
 
@@ -75,7 +66,7 @@ public class GenreCellRendererTest {
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Genre Title");
 
-        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, singletonList(exploreGenre));
 
         verify(genreTitleText).setText(eq("Genre Title"));
     }
@@ -85,7 +76,7 @@ public class GenreCellRendererTest {
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Religion & Spirituality");
 
-        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, singletonList(exploreGenre));
 
         verify(itemView).setTag(endsWith("religion_&_spirituality"));
     }
@@ -96,7 +87,7 @@ public class GenreCellRendererTest {
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Religion & Spirituality");
 
-        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, singletonList(exploreGenre));
 
         verify(itemView).setTag(startsWith("explore:music"));
     }
@@ -107,7 +98,7 @@ public class GenreCellRendererTest {
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Religion & Spirituality");
 
-        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, singletonList(exploreGenre));
 
         verify(itemView).setTag(startsWith("explore:audio"));
     }
@@ -118,7 +109,7 @@ public class GenreCellRendererTest {
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Religion & Spirituality");
 
-        presenter.bindItemView(0, itemView, Arrays.asList(exploreGenre));
+        presenter.bindItemView(0, itemView, singletonList(exploreGenre));
     }
 
 }

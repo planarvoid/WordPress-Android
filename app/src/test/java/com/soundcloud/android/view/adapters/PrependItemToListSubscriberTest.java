@@ -4,18 +4,19 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.ListItemAdapter;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import rx.subjects.PublishSubject;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class PrependItemToListSubscriberTest {
 
     @Mock private ListItemAdapter<ListItem> adapter;
     @Mock private ListItem item;
+
     private PublishSubject<ListItem> observable;
 
     @Before

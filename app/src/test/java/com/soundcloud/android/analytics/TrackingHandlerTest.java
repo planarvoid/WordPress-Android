@@ -9,12 +9,10 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -22,8 +20,7 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TrackingHandlerTest {
+public class TrackingHandlerTest extends AndroidUnitTest {
 
     private TrackingHandler trackingHandler;
 
@@ -37,7 +34,7 @@ public class TrackingHandlerTest {
     public void before() {
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
         when(apiFactory.create(anyString())).thenReturn(api);
-        trackingHandler = new TrackingHandler(Robolectric.application.getMainLooper(), networkConnectionHelper, storage, apiFactory);
+        trackingHandler = new TrackingHandler(context().getMainLooper(), networkConnectionHelper, storage, apiFactory);
     }
 
     @Test

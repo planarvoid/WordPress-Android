@@ -3,19 +3,26 @@ package com.soundcloud.android.view;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(SoundCloudTestRunner.class)
+import android.content.Context;
+
+@RunWith(MockitoJUnitRunner.class)
 public class ListenableScrollViewTest {
 
-    private ListenableScrollView scrollView = new ListenableScrollView(Robolectric.application);
+    @Mock private ListenableScrollView.OnScrollListener listener;
+    @Mock private Context context;
 
-    @Mock
-    private ListenableScrollView.OnScrollListener listener;
+    private ListenableScrollView scrollView;
+
+    @Before
+    public void setUp() {
+        scrollView = new ListenableScrollView(context);
+    }
 
     @Test
     public void shouldCallBackToAttachedListener() {

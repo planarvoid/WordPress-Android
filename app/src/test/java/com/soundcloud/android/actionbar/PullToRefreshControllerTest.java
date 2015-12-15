@@ -1,6 +1,6 @@
 package com.soundcloud.android.actionbar;
 
-import static com.soundcloud.android.rx.TestPager.pagerWithNextPage;
+import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
@@ -15,15 +15,13 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
@@ -33,6 +31,7 @@ import rx.Subscription;
 import rx.android.LegacyPager;
 import rx.observables.ConnectableObservable;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -40,11 +39,9 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.View;
 import android.widget.AdapterView;
 
-import java.util.Arrays;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PullToRefreshControllerTest {
+public class PullToRefreshControllerTest extends AndroidUnitTest {
 
     private RefreshableFragment fragment = new RefreshableFragment();
 
@@ -66,12 +63,11 @@ public class PullToRefreshControllerTest {
     public void setUp() throws Exception {
         controller = new PullToRefreshController(wrapper);
 
-        Robolectric.shadowOf(fragment).setActivity(activity);
         when(layout.findViewById(R.id.str_layout)).thenReturn(layout);
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
         when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(wrapper.isAttached()).thenReturn(true);
-        observable = TestObservables.withSubscription(subscription, Observable.just(Arrays.asList("item"))).replay();
+        observable = Observable.just(singletonList("item")).replay();
     }
 
     @Test(expected = NullPointerException.class)
@@ -164,7 +160,7 @@ public class PullToRefreshControllerTest {
         controller.onViewCreated(fragment, layout, bundle);
         controller.connect(observable, adapter);
 
-        verify(adapter).onNext(Arrays.asList("item"));
+        verify(adapter).onNext(singletonList("item"));
     }
 
     @Test
@@ -188,7 +184,7 @@ public class PullToRefreshControllerTest {
         InOrder inOrder = inOrder(adapter, wrapper);
 
         inOrder.verify(adapter).clear();
-        inOrder.verify(adapter).onNext(Arrays.asList("item"));
+        inOrder.verify(adapter).onNext(singletonList("item"));
         inOrder.verify(wrapper).setRefreshing(false);
         inOrder.verifyNoMoreInteractions();
     }
@@ -197,14 +193,14 @@ public class PullToRefreshControllerTest {
     public void shouldUnsubscribeItselfAfterRefreshingSoThatSubsequentPagesDoNotTriggerRefreshLogic() {
         controller.setRefreshListener(fragment, adapter);
 
-        LegacyPager<List<String>> pager = pagerWithNextPage(Observable.just(Arrays.asList("page2")));
-        observable = pager.page(Observable.just(Arrays.asList("page1"))).publish();
+        LegacyPager<List<String>> pager = TestPager.pagerWithNextPage(Observable.just(singletonList("page2")));
+        observable = pager.page(Observable.just(singletonList("page1"))).publish();
         triggerRefresh();
 
         // emit a subsequent page
         pager.next();
         // for any subsequent pages, refresh behavior should not fire
-        verify(adapter, never()).onNext(Arrays.asList("page2"));
+        verify(adapter, never()).onNext(singletonList("page2"));
     }
 
     @Test
@@ -222,6 +218,7 @@ public class PullToRefreshControllerTest {
         refreshListenerCaptor.getValue().onRefresh();
     }
 
+    @SuppressLint("ValidFragment")
     private class RefreshableFragment extends Fragment
             implements RefreshableListComponent<ConnectableObservable<List<String>>> {
 

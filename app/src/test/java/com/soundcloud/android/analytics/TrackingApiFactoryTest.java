@@ -1,20 +1,20 @@
 package com.soundcloud.android.analytics;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.squareup.okhttp.OkHttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.content.res.Resources;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class TrackingApiFactoryTest {
 
     @Mock private OkHttpClient httpClient;
@@ -31,13 +31,13 @@ public class TrackingApiFactoryTest {
     @Test
     public void createsBatchApiForBoogaloo() {
         TrackingApi trackingApi = apiFactory.create(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(trackingApi).toBeInstanceOf(BatchTrackingApi.class);
+        assertThat(trackingApi).isInstanceOf(BatchTrackingApi.class);
     }
 
     @Test
     public void createsSimpleApiForOtherBackends() {
         TrackingApi trackingApi = apiFactory.create(PlayCountAnalyticsProvider.BACKEND_NAME);
-        expect(trackingApi).toBeInstanceOf(SimpleTrackingApi.class);
+        assertThat(trackingApi).isInstanceOf(SimpleTrackingApi.class);
     }
 
 }

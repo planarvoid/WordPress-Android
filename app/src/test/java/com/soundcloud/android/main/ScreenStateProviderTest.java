@@ -1,22 +1,20 @@
 package com.soundcloud.android.main;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ScreenStateProviderTest {
+public class ScreenStateProviderTest extends AndroidUnitTest {
     @Mock private AppCompatActivity activity;
-    
+
     private ScreenStateProvider lightCycle;
 
     @Before
@@ -26,27 +24,27 @@ public class ScreenStateProviderTest {
 
     @Test
     public void isNotForegroundByDefault() {
-        expect(lightCycle.isForeground()).toBeFalse();
+        assertThat(lightCycle.isForeground()).isFalse();
     }
 
     @Test
     public void isForegroundWhenOnResume() {
         lightCycle.onResume(activity);
-        expect(lightCycle.isForeground()).toBeTrue();
+        assertThat(lightCycle.isForeground()).isTrue();
     }
 
     @Test
     public void isNotForegroundOnPause() {
         lightCycle.onResume(activity);
         lightCycle.onPause(activity);
-        expect(lightCycle.isForeground()).toBeFalse();
+        assertThat(lightCycle.isForeground()).isFalse();
     }
 
     @Test
     public void isNotConfigurationChangeWhenStarting() {
         lightCycle.onCreate(activity, null);
         lightCycle.onResume(activity);
-        expect(lightCycle.isConfigurationChange()).toBeFalse();
+        assertThat(lightCycle.isConfigurationChange()).isFalse();
     }
 
     @Test
@@ -61,7 +59,7 @@ public class ScreenStateProviderTest {
         lightCycle.onCreate(activity, bundle);
         lightCycle.onResume(activity);
 
-        expect(lightCycle.isConfigurationChange()).toBeTrue();
+        assertThat(lightCycle.isConfigurationChange()).isTrue();
     }
 
     @Test
@@ -76,6 +74,6 @@ public class ScreenStateProviderTest {
         lightCycle.onCreate(activity, bundle);
         lightCycle.onResume(activity);
 
-        expect(lightCycle.isConfigurationChange()).toBeFalse();
+        assertThat(lightCycle.isConfigurationChange()).isFalse();
     }
 }

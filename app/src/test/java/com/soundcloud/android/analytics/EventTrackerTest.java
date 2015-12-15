@@ -6,18 +6,16 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
-@RunWith(SoundCloudTestRunner.class)
-public class EventTrackerTest {
+public class EventTrackerTest extends AndroidUnitTest {
     private EventTracker eventTracker;
 
     @Mock TrackingHandlerFactory trackingHandlerFactory;

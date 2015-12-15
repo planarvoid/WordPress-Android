@@ -9,20 +9,19 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.subjects.PublishSubject;
 
-@RunWith(SoundCloudTestRunner.class)
-public class RemoveEntityListSubscriberTest {
+public class RemoveEntityListSubscriberTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private ItemAdapter<ListItem> adapter;
+
     private PublishSubject<Urn> observable;
 
     @Before

@@ -1,16 +1,16 @@
 package com.soundcloud.android.presentation;
 
-import static com.soundcloud.android.Expect.expect;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
@@ -21,8 +21,7 @@ import android.widget.FrameLayout;
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ListItemAdapterTest {
+public class ListItemAdapterTest extends AndroidUnitTest {
 
     @Mock private CellRenderer<String> cellRenderer;
 
@@ -35,21 +34,21 @@ public class ListItemAdapterTest {
 
     @Test
     public void shouldAddItems() {
-        expect(adapter.getItemCount()).toBe(0);
+        assertThat(adapter.getItemCount()).isEqualTo(0);
         adapter.addItem("item");
-        expect(adapter.getItemCount()).toBe(1);
+        assertThat(adapter.getItemCount()).isEqualTo(1);
     }
 
     @Test
     public void shouldAddItemsFromObservableSequence() {
         Observable.just(Arrays.asList("one", "two", "three")).subscribe(adapter);
-        expect(adapter.getItemCount()).toBe(3);
+        assertThat(adapter.getItemCount()).isEqualTo(3);
     }
 
     @Test
     public void shouldGetItem() {
         adapter.addItem("item");
-        expect(adapter.getItem(0)).toEqual("item");
+        assertThat(adapter.getItem(0)).isEqualTo("item");
     }
 
     @Test
@@ -59,9 +58,9 @@ public class ListItemAdapterTest {
 
         List<String> items = adapter.getItems();
 
-        expect(items.size()).toEqual(2);
-        expect(items.get(0)).toEqual("item1");
-        expect(items.get(1)).toEqual("item2");
+        assertThat(items.size()).isEqualTo(2);
+        assertThat(items.get(0)).isEqualTo("item1");
+        assertThat(items.get(1)).isEqualTo("item2");
     }
 
     @Test
@@ -71,9 +70,9 @@ public class ListItemAdapterTest {
         adapter.prependItem("item0");
 
         List<String> items = adapter.getItems();
-        expect(items.size()).toEqual(2);
-        expect(items.get(0)).toEqual("item0");
-        expect(items.get(1)).toEqual("item1");
+        assertThat(items.size()).isEqualTo(2);
+        assertThat(items.get(0)).isEqualTo("item0");
+        assertThat(items.get(1)).isEqualTo("item1");
     }
 
     @Test
@@ -85,14 +84,14 @@ public class ListItemAdapterTest {
         adapter.removeItem(1);
 
         List<String> items = adapter.getItems();
-        expect(items.size()).toEqual(2);
-        expect(items.get(0)).toEqual("item1");
-        expect(items.get(1)).toEqual("item3");
+        assertThat(items.size()).isEqualTo(2);
+        assertThat(items.get(0)).isEqualTo("item1");
+        assertThat(items.get(1)).isEqualTo("item3");
     }
 
     @Test
     public void shouldDefaultToIdentityForItemIdFunction() {
-        expect(adapter.getItemId(1)).toBe(1L);
+        assertThat(adapter.getItemId(1)).isEqualTo(1L);
     }
 
     @Test
@@ -132,7 +131,7 @@ public class ListItemAdapterTest {
         adapter.addItem("item");
 
         adapter.getView(0, null, parent);
-        verify(cellRenderer).bindItemView(0, itemView, Arrays.asList("item"));
+        verify(cellRenderer).bindItemView(0, itemView, singletonList("item"));
     }
 
     @Test
@@ -142,9 +141,9 @@ public class ListItemAdapterTest {
         adapter.addItem("item");
 
         View itemView = adapter.getView(0, convertView, parent);
-        expect(itemView).toBe(convertView);
+        assertThat(itemView).isEqualTo(convertView);
         verify(cellRenderer, never()).createItemView(any(ViewGroup.class));
-        verify(cellRenderer).bindItemView(0, itemView, Arrays.asList("item"));
+        verify(cellRenderer).bindItemView(0, itemView, singletonList("item"));
     }
 
 }

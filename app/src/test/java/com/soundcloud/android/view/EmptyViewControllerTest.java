@@ -1,39 +1,36 @@
 package com.soundcloud.android.view;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.sync.SyncFailedException;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Subscription;
 import rx.observables.ConnectableObservable;
+import rx.subjects.PublishSubject;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
-public class EmptyViewControllerTest {
+public class EmptyViewControllerTest extends AndroidUnitTest {
 
     private EmptyViewController controller;
 
     private Fragment fragment = new Fragment();
     private Bundle fragmentArgs = new Bundle();
     private ConnectableObservable observable;
+    private PublishSubject subject;
 
     @Mock private View layout;
     @Mock private EmptyView emptyView;
-    @Mock private Subscription subscription;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
 
     @Before
@@ -41,7 +38,8 @@ public class EmptyViewControllerTest {
         controller = new EmptyViewController(networkConnectionHelper);
         fragment.setArguments(fragmentArgs);
         when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
-        observable = TestObservables.emptyConnectableObservable(subscription);
+        subject = PublishSubject.create();
+        observable = subject.replay();
     }
 
     @Test
@@ -91,7 +89,8 @@ public class EmptyViewControllerTest {
         controller.onViewCreated(fragment, layout, null);
         controller.connect(observable);
         controller.onDestroyView(fragment);
-        verify(subscription).unsubscribe();
+
+        assertThat(subject.hasObservers()).isFalse();
     }
 
     @Test
@@ -99,6 +98,6 @@ public class EmptyViewControllerTest {
         controller.onViewCreated(fragment, layout, null);
         controller.connect(observable);
         controller.onDestroyView(fragment);
-        expect(controller.getEmptyView()).toBeNull();
+        assertThat(controller.getEmptyView()).isNull();
     }
 }
