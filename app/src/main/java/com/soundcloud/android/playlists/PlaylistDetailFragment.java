@@ -35,6 +35,7 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -75,6 +76,14 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.getKind() == EntityStateChangedEvent.PLAYLIST_DELETED
+                    && event.getFirstUrn().equals(getPlaylistUrn());
+        }
+    };
+
+    private final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_PUSHED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.getKind() == EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER
                     && event.getFirstUrn().equals(getPlaylistUrn());
         }
     };
@@ -264,6 +273,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         super.onResume();
         eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED,
                 playstateTransitionSubscriber));
+
         eventSubscription.add(
                 eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                         .filter(EntityStateChangedEvent.IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
@@ -274,6 +284,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                 .queue(ENTITY_STATE_CHANGED)
                 .filter(IS_CURRENT_PLAYLIST_DELETED)
                 .subscribe(new GoBackSubscriber()));
+
+        eventSubscription.add(eventBus
+                .queue(ENTITY_STATE_CHANGED)
+                .filter(IS_PLAYLIST_PUSHED_FILTER)
+                .subscribe(new PlaylistPushedSubscriber()));
     }
 
     @Override
@@ -291,10 +306,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private Urn getPlaylistUrn() {
-        // if possible, use the instance to get the ID as it can change during syncing
-        if (playlistWithTracks != null) {
-            return playlistWithTracks.getUrn();
-        }
         return getArguments().getParcelable(EXTRA_URN);
     }
 
@@ -487,6 +498,15 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
             if (isAdded()) {
                 getActivity().finish();
             }
+        }
+    }
+
+    private class PlaylistPushedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+        @Override
+        public void onNext(EntityStateChangedEvent args) {
+            final PropertySet updatedPlaylist = args.getNextChangeSet();
+            playlistWithTracks.update(updatedPlaylist);
+            getArguments().putParcelable(EXTRA_URN, updatedPlaylist.get(PlaylistProperty.URN));
         }
     }
 }

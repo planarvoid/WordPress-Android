@@ -151,9 +151,10 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
         final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistPushedToServer(playlist));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), playlist));
 
-        collectionChangedSubscriber.assertReceivedOnNext(Collections.singletonList(EntityStateChangedEvent.fromPlaylistPushedToServer(playlist)));
+        collectionChangedSubscriber.assertReceivedOnNext(Collections.singletonList(
+                EntityStateChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), playlist)));
     }
 
     @Test
