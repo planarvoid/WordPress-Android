@@ -131,7 +131,7 @@ public class Han  {
         }
     }
 
-    public ArrayList getViews(View view) {
+    public ArrayList<View> getViews(View view) {
         return solo.getViews(view);
     }
 
