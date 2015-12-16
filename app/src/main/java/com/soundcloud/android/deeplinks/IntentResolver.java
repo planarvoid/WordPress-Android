@@ -1,7 +1,5 @@
 package com.soundcloud.android.deeplinks;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ServiceInitiator;
@@ -13,6 +11,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.java.strings.Strings;
@@ -70,7 +69,8 @@ public class IntentResolver {
                 // coming back from the login screen with the resolved URN
                 startActivityForResource(context, urn, referrer);
             } else if (shouldShowLogInMessage(deepLink, referrer)) {
-                showOnboardingForUrn(context, Urn.NOT_SET, referrer);
+                trackForegroundEvent(referrer);
+                showOnboardingForUrn(context, Urn.NOT_SET);
             } else {
                 handleDeepLink(context, uri, deepLink, referrer);
             }
@@ -119,7 +119,7 @@ public class IntentResolver {
                 .subscribe(fetchSubscriber(context, uri, referrer));
     }
 
-    private DefaultSubscriber<? super Urn> fetchSubscriber(final Context context, final Uri uri, final Referrer referrer) {
+    private DefaultSubscriber<Urn> fetchSubscriber(final Context context, final Uri uri, final Referrer referrer) {
         return new DefaultSubscriber<Urn>() {
             @Override
             public void onNext(Urn urn) {
@@ -134,7 +134,8 @@ public class IntentResolver {
                 if (DeepLink.WEB_VIEW.equals(deepLink)) {
                     startWebView(context, resolvedUri, referrer);
                 } else {
-                    launchApplicationWithMessage(context, referrer, R.string.error_loading_url);
+                    trackForegroundEvent(referrer);
+                    launchApplicationWithMessage(context, R.string.error_loading_url);
                 }
             }
         };
@@ -171,18 +172,20 @@ public class IntentResolver {
             loginCrawler();
         }
 
+        trackForegroundEventForResource(urn, referrer);
+
         if (accountOperations.isUserLoggedIn()) {
-            trackForegroundEventForResource(urn, referrer);
             navigateToResource(context, urn);
         } else {
-            showOnboardingForUrn(context, urn, referrer);
+            showOnboardingForUrn(context, urn);
         }
     }
 
-    private void navigateToResource(Context context, Urn urn) {
+    private void navigateToResource(final Context context, final Urn urn) {
         if (urn.isTrack()) {
-            fireAndForget(playbackInitiator.startPlayback(urn, Screen.DEEPLINK));
-            navigator.openStreamWithExpandedPlayer(context, Screen.DEEPLINK);
+            playbackInitiator.startPlayback(urn, Screen.DEEPLINK)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new PlaybackSubscriber(context));
         } else if (urn.isUser()) {
             navigator.openProfile(context, urn, Screen.DEEPLINK);
         } else if (urn.isPlaylist()) {
@@ -192,16 +195,28 @@ public class IntentResolver {
         }
     }
 
+    private class PlaybackSubscriber extends DefaultSubscriber<PlaybackResult> {
+        private final Context context;
+
+        PlaybackSubscriber(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void onNext(PlaybackResult playbackResult) {
+            if (playbackResult.isSuccess()) {
+                navigator.openStreamWithExpandedPlayer(context, Screen.DEEPLINK);
+            } else {
+                launchApplicationWithMessage(context, R.string.error_loading_url);
+            }
+        }
+    }
+
     private boolean isSupportedEntityUrn(Urn urn) {
         return urn.isTrack() || urn.isUser() || urn.isPlaylist();
     }
 
-    private void showOnboardingForUrn(Context context, Urn urn, Referrer referrer) {
-        if (Urn.NOT_SET.equals(urn)) {
-            trackForegroundEvent(referrer);
-        } else {
-            trackForegroundEventForResource(urn, referrer);
-        }
+    private void showOnboardingForUrn(Context context, Urn urn) {
         AndroidUtils.showToast(context, R.string.error_toast_user_not_logged_in);
         navigator.openOnboarding(context, urn, Screen.DEEPLINK);
     }
@@ -216,8 +231,7 @@ public class IntentResolver {
         return fallbackUri;
     }
 
-    private void launchApplicationWithMessage(Context context, Referrer referrer, int messageId) {
-        trackForegroundEvent(referrer);
+    private void launchApplicationWithMessage(Context context, int messageId) {
         AndroidUtils.showToast(context, messageId);
         navigator.openLauncher(context);
     }

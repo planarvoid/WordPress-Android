@@ -1,5 +1,6 @@
 package com.soundcloud.android.deeplinks;
 
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -99,10 +100,25 @@ public class IntentResolverTest extends AndroidUnitTest {
     public void shouldShowTheStreamWithAnExpandedPlayer() throws CreateModelException {
         setupIntentForUrl("soundcloud://sounds:123");
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+        when(playbackInitiator.startPlayback(Urn.forTrack(123), Screen.DEEPLINK))
+                .thenReturn(Observable.just(PlaybackResult.success()));
 
         resolver.handleIntent(intent, context);
 
         verify(navigator).openStreamWithExpandedPlayer(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldNotOpenStreamWhenFailedToStartPlayback() throws CreateModelException {
+        setupIntentForUrl("soundcloud://sounds:123");
+        when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
+        when(playbackInitiator.startPlayback(Urn.forTrack(123), Screen.DEEPLINK))
+                .thenReturn(Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_OFFLINE)));
+
+        resolver.handleIntent(intent, context);
+
+        verify(navigator, never()).openStreamWithExpandedPlayer(context, Screen.DEEPLINK);
+        verify(navigator).openLauncher(context);
     }
 
     @Test
