@@ -12,7 +12,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
-import com.soundcloud.android.framework.annotation.Ignore;
+import com.soundcloud.android.framework.annotation.GoogleAccountTest;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.LoginErrorScreen;
@@ -52,7 +52,7 @@ public class LoginFlowTest extends LoginTest {
     * I want to sign in with my G+ credentials
     * So that I don't need to create another SC account
     */
-    @Ignore
+    @GoogleAccountTest
     public void testGPlusLoginFlow() {
         //FIXME Assuming that we have more than one g+ account, there should be another test for this
         final TermsOfUseScreen termsOfUseScreen = homeScreen
@@ -76,7 +76,7 @@ public class LoginFlowTest extends LoginTest {
     * As a Google account User
     * I want to sign in even if I don't have g+ profile
     */
-    @Ignore
+    @GoogleAccountTest
     public void testNoGooglePlusAccountLogin() {
         final TermsOfUseScreen termsOfUseScreen = homeScreen
                 .clickLogInButton()

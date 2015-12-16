@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
+import com.soundcloud.android.framework.annotation.GoogleAccountTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.matcher.view.IsVisible;
@@ -34,6 +35,7 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
+    @GoogleAccountTest
     public void testSettingsUpsellImpressionAndClick() {
         startEventTracking();
 
