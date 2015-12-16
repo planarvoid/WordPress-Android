@@ -75,11 +75,10 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public OfflineState getDownloadState() {
-        if (source.contains(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE)
-                && !source.get(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE)) {
-            return OfflineState.NO_OFFLINE;
+        if (source.getOrElse(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, false)) {
+            return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
         }
-        return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
+        return OfflineState.NO_OFFLINE;
     }
 
     public List<String> getTags() {

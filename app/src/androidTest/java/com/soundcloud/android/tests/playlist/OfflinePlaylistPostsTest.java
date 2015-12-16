@@ -4,8 +4,6 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enabl
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
-import com.soundcloud.android.framework.annotation.Issue;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
@@ -33,8 +31,6 @@ public class OfflinePlaylistPostsTest extends ActivityTest<MainActivity> {
         enableOfflineContent(context);
     }
 
-    @Ignore
-    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/4441")
     public void testDownloadsPlaylistWhenMadeAvailableOffline() {
         final CollectionsScreen playlistsScreen = mainNavHelper.goToCollections()
                 .getPlaylists()
