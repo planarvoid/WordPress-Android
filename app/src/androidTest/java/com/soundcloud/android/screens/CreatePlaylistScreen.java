@@ -36,11 +36,6 @@ public class CreatePlaylistScreen extends Screen {
         return this;
     }
 
-    public SearchResultsScreen clickDoneAndReturnToSearchResultsScreen() {
-        getDoneButton().click();
-        return new SearchResultsScreen(testDriver);
-    }
-
     public StreamScreen clickDoneAndReturnToStream() {
         getDoneButton().click();
         return new StreamScreen(testDriver);

@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
@@ -49,16 +50,23 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
 
     private String createNewPlaylist() {
         final String title = String.valueOf(System.currentTimeMillis());
-        mainNavHelper
-                .goToDiscovery()
-                .clickSearch()
-                .doSearch("lots o' comments")
-                .clickFirstTrackOverflowButton()
+        final CreatePlaylistScreen createPlaylistScreen = mainNavHelper.goToStream()
+                .clickFirstNotPromotedTrackCard()
+                .clickMenu()
                 .clickAddToPlaylist()
                 .clickCreateNewPlaylist()
-                .enterTitle(title)
-                .clickDoneAndReturnToSearchResultsScreen()
-                .goBack();
+                .enterTitle(title);
+
+        // Fix : test can find a track in the stream because the
+        // user fill up with playlists.
+        //
+        // This can happen because while the creation is synced, the deletion
+        // may not be synced (it the test runner kill the app before)
+        networkManagerClient.switchWifiOff();
+
+        createPlaylistScreen
+                .clickDoneAndReturnToPlayer()
+                .pressCloseButton();
 
         return title;
     }
