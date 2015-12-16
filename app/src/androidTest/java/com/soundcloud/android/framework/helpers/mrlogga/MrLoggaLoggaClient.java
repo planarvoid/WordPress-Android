@@ -118,8 +118,11 @@ class MrLoggaLoggaClient {
 
     private MrLoggaResponse executeRequest(Request request) {
         try {
+            Log.d(TAG, "request=" + request);
             Response response = httpClient.newCall(request).execute();
-            return new MrLoggaResponse(response.isSuccessful(), response.body().string());
+            final String responsePayload = response.body().string();
+            Log.d(TAG, "response=" + response + ";body=" + responsePayload);
+            return new MrLoggaResponse(response.isSuccessful(), responsePayload);
         } catch (IOException exception) {
             Log.e(TAG, "IOException when request", exception);
             return new MrLoggaResponse(false, exception.getMessage());

@@ -65,7 +65,8 @@ public class BatchTrackingApi implements TrackingApi {
         final Response response = httpClient.newCall(request).execute();
         try {
             final int status = response.code();
-            Log.d(EventTracker.TAG, "Tracking event response: " + response.toString());
+            Log.d(EventTracker.TAG, "Tracking event response: " + response.toString()
+                    + ";body=" + response.body().string());
             if (isSuccessCodeOrIgnored(status)) {
                 successes.addAll(events);
             } else {
