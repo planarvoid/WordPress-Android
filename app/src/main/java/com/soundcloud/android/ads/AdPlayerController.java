@@ -30,15 +30,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     private Subscription subscription = RxUtils.invalidSubscription();
     private Urn lastSeenAdTrack = Urn.NOT_SET;
 
-    private final Func1<State, Boolean> isNewAudioAd = new Func1<State, Boolean>() {
-        @Override
-        public Boolean call(State state) {
-            return state.isAudioAd && !lastSeenAdTrack.equals(state.trackUrn);
-        }
-    };
-
     private final Action1<State> setAdHasBeenSeen = new Action1<State>() {
-
         @Override
         public void call(State state) {
             if (isPlayerExpandedWithAd(state)) {
@@ -49,7 +41,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         }
 
         private boolean isPlayerExpandedWithAd(State state) {
-            return state.playerUIEventKind == PlayerUIEvent.PLAYER_EXPANDED && state.isAudioAd;
+            return state.playerUIEventKind == PlayerUIEvent.PLAYER_EXPANDED && state.isAd;
         }
 
         private boolean isDifferentTrack(State state) {
@@ -60,7 +52,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     private final Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, State> combine = new Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, State>() {
         @Override
         public State call(CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
-            return new State(adsOperations.isCurrentItemAudioAd(),
+            return new State(adsOperations.isCurrentItemAd(),
                     currentItemEvent.getCurrentPlayQueueItem().getUrn(),
                     playerUIEvent.getKind());
         }
@@ -76,11 +68,10 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     public void onResume(AppCompatActivity activity) {
         subscription = Observable
                 .combineLatest(
-                        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM),
+                        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
                         eventBus.queue(EventQueue.PLAYER_UI),
                         combine)
                 .doOnNext(setAdHasBeenSeen)
-                .filter(isNewAudioAd)
                 .subscribe(new PlayQueueSubscriber());
     }
 
@@ -92,19 +83,27 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     private final class PlayQueueSubscriber extends DefaultSubscriber<State> {
         @Override
         public void onNext(State event) {
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY));
-            lastSeenAdTrack = event.trackUrn;
+            if (event.isAd) {
+               if (adsOperations.isCurrentItemAudioAd() && !lastSeenAdTrack.equals(event.trackUrn)) {
+                   eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+                   eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY));
+                   lastSeenAdTrack = event.trackUrn;
+               } else if (adsOperations.isCurrentItemVideoAd()) {
+                   eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayer());
+               }
+            } else {
+                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
+            }
         }
     }
 
     private static class State {
-        private final boolean isAudioAd;
+        private final boolean isAd;
         private final Urn trackUrn;
         private final int playerUIEventKind;
 
-        public State(boolean isAudioAd, Urn trackUrn, int playerUIEventKind) {
-            this.isAudioAd = isAudioAd;
+        public State(boolean isAd, Urn trackUrn, int playerUIEventKind) {
+            this.isAd = isAd;
             this.trackUrn = trackUrn;
             this.playerUIEventKind = playerUIEventKind;
         }

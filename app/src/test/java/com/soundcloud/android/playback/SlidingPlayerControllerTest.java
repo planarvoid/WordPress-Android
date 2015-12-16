@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.playback.ui.SlidingPlayerController.EXTRA_EXPAND_PLAYER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -13,14 +14,17 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
+import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +67,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         when(fragmentManager.findFragmentById(R.id.player_root)).thenReturn(playerFragment);
         when(playerFragment.getActivity()).thenReturn(activity);
         when(activity.getWindow()).thenReturn(window);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
         attachController();
     }
 
@@ -139,6 +144,33 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
 
         verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+    }
+
+    @Test
+    public void locksPlayerAsExpandedWhenLockEventIsReceived() {
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayer());
+
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+        verify(slidingPanel).setTouchEnabled(false);
+    }
+
+    @Test
+    public void locksPlayerDoesntExpandAlreadyExpandedPlayerWhenLockEventIsReceived() {
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayer());
+
+        verify(slidingPanel, never()).setPanelState(PanelState.EXPANDED);
+        verify(slidingPanel).setTouchEnabled(false);
+    }
+
+    @Test
+    public void unlocksPlayerWhenUnlockEventIsReceived() {
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
+
+        verify(slidingPanel).setTouchEnabled(true);
     }
 
     @Test
@@ -232,6 +264,23 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
 
         verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+    }
+
+    @Test
+    public void shouldExpandAndLockPlayerOnResumeIfCurrentItemIsVideoAd() {
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
+        controller.onResume(activity);
+
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+        verify(slidingPanel).setTouchEnabled(false);
+    }
+
+    @Test
+    public void onBackPressedShouldDoNothingWhenPlayerIsLocked() {
+        assertThat(controller.handleBackPressed()).isFalse();
+        verify(slidingPanel, never()).setPanelState(any(PanelState.class));
     }
 
     @Test

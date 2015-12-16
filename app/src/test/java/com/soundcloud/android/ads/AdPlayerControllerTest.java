@@ -33,13 +33,13 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotExpandPlayerWhenAudioAdIsNotPlaying() {
+    public void doesNotExpandPlayerButUnlocksPlayerWhenRegularTrackIsPlaying() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
         setAudioAdIsPlaying(false);
 
         resumeFromBackground();
 
-        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).isEmpty();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isUnlock()).isTrue();
     }
 
     @Test
@@ -50,6 +50,15 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
         resumeFromBackground();
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).isTrue();
+    }
+
+    @Test
+    public void locksPlayerWhenVideoAdIsPlaying() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        setVideoAdIsPlaying();
+
+        resumeFromBackground();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isLock()).isTrue();
     }
 
     @Test
@@ -101,10 +110,17 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     private void setAudioAdIsPlaying(boolean isPlaying) {
+        when(adsOperations.isCurrentItemAd()).thenReturn(isPlaying);
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(isPlaying);
-
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                 CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 0));
+    }
+
+    private void setVideoAdIsPlaying() {
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))), Urn.NOT_SET, 0));
     }
 
     private void resumeFromBackground() {

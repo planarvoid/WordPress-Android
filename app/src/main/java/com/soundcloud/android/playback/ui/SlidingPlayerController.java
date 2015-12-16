@@ -45,6 +45,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
+    private boolean isLocked;
     private boolean expandOnResume;
     private boolean wasDragged;
 
@@ -99,8 +100,21 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         slidingPanel.setPanelState(PanelState.HIDDEN);
     }
 
+    private void lock() {
+        if (!isExpanded()) {
+            expand();
+        }
+        slidingPanel.setTouchEnabled(false);
+        isLocked = true;
+    }
+
+    private void unlock() {
+        slidingPanel.setTouchEnabled(true);
+        isLocked = false;
+    }
+
     public boolean handleBackPressed() {
-        if (isExpanded()) {
+        if (!isLocked && isExpanded()) {
             collapse();
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON));
             return true;
@@ -141,16 +155,20 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     private void restorePlayerState() {
+        final boolean isRestoringVideoAd = playQueueManager.getCurrentPlayQueueItem().isVideo();
         showPanelAsCollapsedIfNeeded();
-        if (expandOnResume) {
-            restoreExpanded();
+        if (expandOnResume || isRestoringVideoAd) {
+            restoreExpanded(isRestoringVideoAd);
         }
     }
 
-    private void restoreExpanded() {
+    private void restoreExpanded(boolean shouldLockPlayer) {
         setStatusBarColor(expandedStatusColor);
         expand();
         notifyExpandedState();
+        if (shouldLockPlayer) {
+            lock();
+        }
     }
 
     private void showPanelAsCollapsedIfNeeded() {
@@ -182,6 +200,10 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
                 expand();
             } else if (event.isCollapse()) {
                 collapse();
+            } else if (event.isLock()) {
+                lock();
+            } else if (event.isUnlock()) {
+                unlock();
             }
         }
     }

@@ -164,6 +164,29 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void isCurrentItemVideoAdShouldReturnTrueIfCurrentItemIsVideoAd() throws CreateModelException {
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
+
+        assertThat(adsOperations.isCurrentItemVideoAd()).isTrue();
+    }
+
+    @Test
+    public void isCurrentItemVideoAdShouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
+
+        assertThat(adsOperations.isCurrentItemVideoAd()).isFalse();
+    }
+
+    @Test
+    public void isCurrentItemVideoAdShouldReturnTrueIfCurrentItemIsRegularTrack() throws CreateModelException {
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
+
+        assertThat(adsOperations.isCurrentItemVideoAd()).isFalse();
+    }
+    @Test
     public void applyAdMergesInterstitialWhenNoAudioAdIsAvailable() throws Exception {
         final ApiAdsForTrack adsWithOnlyInterstitial = AdFixtures.interstitialAdsForTrack();
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
