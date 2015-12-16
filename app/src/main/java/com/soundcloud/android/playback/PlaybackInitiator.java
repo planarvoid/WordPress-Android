@@ -123,6 +123,7 @@ public class PlaybackInitiator {
                                                       int startPosition,
                                                       final PlaySessionSource playSessionSource) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
+            playSessionController.play();
             return Observable.just(PlaybackResult.success());
         } else {
             return playQueue

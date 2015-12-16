@@ -800,23 +800,11 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isCurrentPlaylistReturnsTrueIfPlaylistUrnMatchesAndCurrentTrackHasNoSource() {
+    public void isCurrentCollectionReturnsTrueIfPlaylistUrnMatchesAndCurrentTrackHasNoSource() {
         playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN, PLAYLIST_TRACK_COUNT);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
 
         assertThat(playQueueManager.isCurrentCollection(PLAYLIST_URN)).isTrue();
-    }
-
-    @Test
-    public void isCurrentPlaylistReturnsFalseIfPlaylistUrnMatchesAndCurrentTrackHasAlternateSource() {
-        when(playQueue.isEmpty()).thenReturn(false);
-        when(playQueue.size()).thenReturn(1);
-        when(playQueue.getPlayQueueItem(0)).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(369L), "recommender", "1.0"));
-
-        playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN, PLAYLIST_TRACK_COUNT);
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-
-        assertThat(playQueueManager.isCurrentCollection(PLAYLIST_URN)).isFalse();
     }
 
     @Test

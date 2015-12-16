@@ -20,7 +20,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -378,13 +377,7 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     public boolean isCurrentCollection(Urn collection) {
-        return getCollectionUrn().equals(collection) &&
-                (playQueue.isEmpty() || isTrackQueueItemSourceEmpty(getCurrentPlayQueueItem()));
-    }
-
-    public boolean isTrackQueueItemSourceEmpty(PlayQueueItem playQueueItem) {
-        return playQueueItem.isTrack()
-                && Strings.isBlank(((TrackQueueItem) playQueueItem).getSource());
+        return getCollectionUrn().equals(collection);
     }
 
     public boolean isCurrentCollectionOrRecommendation(Urn collection) {

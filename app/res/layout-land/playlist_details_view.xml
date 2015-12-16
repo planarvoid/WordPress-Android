@@ -18,9 +18,9 @@
             android:layout_height="@dimen/playlist_header_height"
             android:scaleType="centerCrop" />
 
-        <ToggleButton
-            android:id="@+id/toggle_play_pause"
-            style="@style/PlaylistPlayToggle" />
+        <ImageButton
+            android:id="@+id/btn_play"
+            style="@style/PlaylistPlay" />
     </RelativeLayout>
 
     <com.soundcloud.android.view.CustomFontTextView

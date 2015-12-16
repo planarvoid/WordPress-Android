@@ -15,9 +15,9 @@
             android:layout_height="wrap_content"
             android:scaleType="centerCrop" />
 
-        <ToggleButton
-            android:id="@+id/toggle_play_pause"
-            style="@style/PlaylistPlayToggle" />
+        <ImageButton
+            android:id="@+id/btn_play"
+            style="@style/PlaylistPlay" />
     </RelativeLayout>
 
     <com.soundcloud.android.view.JaggedTextView
