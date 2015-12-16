@@ -41,7 +41,7 @@ import java.util.Collections;
 
 public class ApiClientTest extends AndroidUnitTest {
 
-    private static final String URL = "http://api.com/path/to/resource";
+    private static final String URL = "/path/to/resource";
     private static final String JSON_DATA = "{}";
     private static final String CLIENT_ID = "testClientId";
 

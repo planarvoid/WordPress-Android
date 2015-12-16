@@ -3,7 +3,6 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.api.legacy.Request;
-import com.squareup.okhttp.RequestBody;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -19,14 +18,7 @@ import android.util.Log;
 import java.io.IOException;
 
 public final class HttpUtils {
-
-    private static final RequestBody EMPTY_REQUEST_BODY = RequestBody.create(null, new byte[0]);
-
     private HttpUtils() {
-    }
-
-    public static RequestBody emptyRequestBody() {
-        return EMPTY_REQUEST_BODY;
     }
 
     public static

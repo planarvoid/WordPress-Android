@@ -4,21 +4,19 @@ import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.net.HttpHeaders;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import org.apache.http.HttpStatus;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 /**
  * Network facade for event tracking based on URLConnection. Processes a list of locally persisted events to be
@@ -80,7 +78,7 @@ class SimpleTrackingApi implements TrackingApi {
         request.addHeader(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
 
         if (PlayCountAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
-            request.post(HttpUtils.emptyRequestBody());
+            request.post(null);
             request.addHeader("Content-Length", "0");
         } else if (PromotedAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
             request.get();
@@ -89,6 +87,6 @@ class SimpleTrackingApi implements TrackingApi {
     }
 
     private boolean isSuccessCodeOrIgnored(int status) {
-        return status >= HttpStatus.OK && status < HttpStatus.INTERNAL_SERVER_ERROR;
+        return status >= HttpStatus.SC_OK && status < HttpStatus.SC_INTERNAL_SERVER_ERROR;
     }
 }
