@@ -26,7 +26,6 @@ import org.apache.http.HttpStatus;
 
 import android.os.Looper;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -47,10 +46,10 @@ public class ApiClient {
 
     private boolean assertBackgroundThread;
 
-    @Inject
     public ApiClient(OkHttpClient httpClient, ApiUrlBuilder urlBuilder,
                      JsonTransformer jsonTransformer, DeviceHelper deviceHelper, AdIdHelper adIdHelper,
-                     OAuth oAuth, UnauthorisedRequestRegistry unauthorisedRequestRegistry, AccountOperations accountOperations) {
+                     OAuth oAuth, UnauthorisedRequestRegistry unauthorisedRequestRegistry,
+                     AccountOperations accountOperations) {
         this.httpClient = httpClient;
         this.urlBuilder = urlBuilder;
         this.jsonTransformer = jsonTransformer;
