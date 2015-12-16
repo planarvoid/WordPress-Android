@@ -53,11 +53,15 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     public ViewElement commentItem() {
-        return container().findElement(With.textContaining("Comment"));
+        return container()
+                .findElement(With.textContaining("Comment"))
+                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
     }
 
     private ViewElement startStation() {
-        return container().findElement(With.text(testDriver.getString(R.string.stations_start_track_station)));
+        return container()
+                .findElement(With.text(testDriver.getString(R.string.stations_start_track_station)))
+                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
     }
 
     private ViewElement info() {
