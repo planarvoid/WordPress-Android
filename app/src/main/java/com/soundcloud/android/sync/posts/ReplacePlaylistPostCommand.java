@@ -11,6 +11,7 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns.Likes;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -60,6 +61,12 @@ class ReplacePlaylistPostCommand extends LegacyCommand<Pair<Urn, ApiPlaylist>, W
                         .whereEq(Posts.TARGET_ID, localPlaylistUrn.getNumericId())
                         .whereEq(Posts.TARGET_TYPE, Sounds.TYPE_PLAYLIST)));
 
+                // make sure the liked playlist appears under the new ID in the Likes table
+                final ContentValues playlistLikesValues = new ContentValues();
+                playlistLikesValues.put(Likes._ID, newPlaylist.getId());
+                step(propeller.update(Table.Likes, playlistLikesValues, filter()
+                        .whereEq(Likes._ID, localPlaylistUrn.getNumericId())
+                        .whereEq(Likes._TYPE, Sounds.TYPE_PLAYLIST)));
 
                 // update offline playlist if exists
                 final ContentValues offlinePlaylistValues = new ContentValues();

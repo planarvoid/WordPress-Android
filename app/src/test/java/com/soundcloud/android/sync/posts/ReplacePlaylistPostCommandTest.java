@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.WriteResult;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import android.util.Pair;
 
 import java.util.Collections;
+import java.util.Date;
 
 public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
 
@@ -57,6 +59,18 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
         assertThat(result.success()).isTrue();
 
         databaseAssertions().assertPlaylistPostInsertedFor(newPlaylist);
+    }
+
+    @Test
+    public void shouldUpdateLikesTableWithNewPlaylistId() throws Exception {
+        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
+        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        testFixtures().insertLike(oldPlaylist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, new Date());
+
+        WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
+        assertThat(result.success()).isTrue();
+
+        databaseAssertions().assertPlaylistLikeInsertedFor(newPlaylist);
     }
 
     @Test

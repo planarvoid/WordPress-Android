@@ -490,6 +490,16 @@ public class DatabaseAssertions {
                 .whereEq(TARGET_TYPE, TYPE_PLAYLIST))).counts(1);
     }
 
+    public void assertPlaylistLikeInsertedFor(ApiPlaylist playlist) {
+        assertPlaylistLikeInsertedFor(playlist.getUrn());
+    }
+
+    private void assertPlaylistLikeInsertedFor(Urn playlistUrn) {
+        assertThat(select(from(Likes.name())
+                .whereEq(TableColumns.Likes._ID, playlistUrn.getNumericId())
+                .whereEq(TableColumns.Likes._TYPE, TYPE_PLAYLIST))).counts(1);
+    }
+
     public void assertTrackRepostInserted(Urn urn, Date createdAt) {
         assertThat(select(from(Posts.name())
                 .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
