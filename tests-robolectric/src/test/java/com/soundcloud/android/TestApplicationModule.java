@@ -6,8 +6,11 @@ import static org.mockito.Mockito.when;
 import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.ads.AdIdHelper;
+import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -17,6 +20,7 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.playback.IRemoteAudioManager;
 import com.soundcloud.android.playback.PlaybackStrategy;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
@@ -164,8 +168,19 @@ public class TestApplicationModule {
     }
 
     @Provides
-    public OkHttpClient provideOkHttpClient() {
-        return new OkHttpClient();
+    @Named(ApiModule.API_HTTP_CLIENT)
+    public OkHttpClient provideApiOkHttpClient() {
+        return mock(OkHttpClient.class);
+    }
+
+    @Provides
+    @Named(AnalyticsModule.TRACKING_HTTP_CLIENT)
+    public OkHttpClient provideTrackingOkHttpClient() {
+        return mock(OkHttpClient.class);
+    }
+
+    @Provides ApiClient apiClient() {
+        return mock(ApiClient.class);
     }
 
     @Provides

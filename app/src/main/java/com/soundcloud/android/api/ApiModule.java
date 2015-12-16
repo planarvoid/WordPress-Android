@@ -13,17 +13,20 @@ import dagger.Provides;
 
 import android.content.Context;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.concurrent.TimeUnit;
 
 @Module(complete = false, library = true)
 public class ApiModule {
 
+    public static final String API_HTTP_CLIENT = "ApiHttpClient";
+
     private static final int READ_WRITE_TIMEOUT_SECONDS = 20;
     private static final int CONNECT_TIMEOUT_SECONDS = 20;
 
     @Provides
-    public ApiClient provideApiClient(OkHttpClient httpClient,
+    public ApiClient provideApiClient(@Named(API_HTTP_CLIENT) OkHttpClient httpClient,
                                       ApiUrlBuilder urlBuilder,
                                       JsonTransformer jsonTransformer,
                                       DeviceHelper deviceHelper,
@@ -55,6 +58,8 @@ public class ApiModule {
     }
 
     @Provides
+    @Singleton
+    @Named(API_HTTP_CLIENT)
     public OkHttpClient provideOkHttpClient() {
         OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.setConnectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
