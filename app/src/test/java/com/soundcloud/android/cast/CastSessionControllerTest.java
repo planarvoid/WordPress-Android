@@ -144,7 +144,7 @@ public class CastSessionControllerTest extends AndroidUnitTest  {
         callOnMetadatUpdated();
 
         assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).isEqualTo(1);
-        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).isTrue();
+        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isCollapse()).isTrue();
     }
 
     @Test
@@ -165,7 +165,7 @@ public class CastSessionControllerTest extends AndroidUnitTest  {
         callOnMetadatUpdated();
 
         assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).isEqualTo(1);
-        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).isTrue();
+        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isCollapse()).isTrue();
     }
 
     @Test

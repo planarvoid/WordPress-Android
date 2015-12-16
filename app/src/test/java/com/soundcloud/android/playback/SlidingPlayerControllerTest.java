@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.events.EventQueue;
@@ -77,7 +78,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
         controller.onResume(activity);
 
-        verify(slidingPanel).hidePanel();
+        verify(slidingPanel).setPanelState(PanelState.HIDDEN);
     }
 
     @Test
@@ -86,27 +87,28 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
         controller.onResume(activity);
 
-        verify(slidingPanel, never()).hidePanel();
+        verify(slidingPanel, never()).setPanelState(PanelState.HIDDEN);
     }
 
     @Test
     public void showPanelIfQueueHasItems() {
-        when(slidingPanel.isPanelHidden()).thenReturn(true);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.HIDDEN);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 
         controller.onResume(activity);
 
-        verify(slidingPanel).showPanel();
+        verify(slidingPanel).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
     public void doNotShowPanelIfItIsNotHidden() {
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
-        when(slidingPanel.isPanelHidden()).thenReturn(false);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.COLLAPSED);
 
         controller.onResume(activity);
 
-        verify(slidingPanel, never()).showPanel();
+        verify(slidingPanel, never()).setPanelState(PanelState.COLLAPSED);
+        verify(slidingPanel, never()).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -120,23 +122,23 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     @Test
     public void expandsPlayerWhenVisiblePlayTriggeredEventIsReceived() {
         controller.onResume(activity);
-        when(slidingPanel.isPanelHidden()).thenReturn(false);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.COLLAPSED);
 
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
 
-        verify(slidingPanel).expandPanel();
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
     public void showsFooterPlayerWhenHiddenAndPlayTriggeredEventIsReceived() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
-        when(slidingPanel.isPanelHidden()).thenReturn(true);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.HIDDEN);
         when(slidingPanel.getViewTreeObserver()).thenReturn(mock(ViewTreeObserver.class));
 
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
 
-        verify(slidingPanel).expandPanel();
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -144,7 +146,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
 
-        verify(slidingPanel).collapsePanel();
+        verify(slidingPanel).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
@@ -152,16 +154,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
-        verify(slidingPanel, times(0)).expandPanel();
-    }
-
-    @Test
-    public void showPanelWhenShowPlayerEventIsReceived() {
-        controller.onResume(activity);
-
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
-
-        verify(slidingPanel).showPanel();
+        verify(slidingPanel, times(0)).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -173,7 +166,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Test
     public void storesExpandingStateInBundle() {
-        when(slidingPanel.isPanelExpanded()).thenReturn(true);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
         Bundle bundle = new Bundle();
 
         controller.onSaveInstanceState(activity, bundle);
@@ -238,7 +231,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onNewIntent(activity, intent);
         controller.onResume(activity);
 
-        verify(slidingPanel).expandPanel();
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
@@ -246,7 +239,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         collapsePanel();
 
         assertThat(controller.handleBackPressed()).isFalse();
-        verify(slidingPanel, never()).collapsePanel();
+        verify(slidingPanel, never()).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
@@ -254,7 +247,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         expandPanel();
 
         assertThat(controller.handleBackPressed()).isTrue();
-        verify(slidingPanel).collapsePanel();
+        verify(slidingPanel).setPanelState(PanelState.COLLAPSED);
     }
 
     @Test
@@ -283,14 +276,14 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onPanelSlide(layout, 0.6f);
         controller.onPanelSlide(layout, 0.4f);
         controller.onPanelSlide(layout, 0.3f);
-        when(slidingPanel.isPanelExpanded()).thenReturn(false);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.COLLAPSED);
     }
 
     private void expandPanel() {
         controller.onPanelSlide(layout, 0.4f);
         controller.onPanelSlide(layout, 0.6f);
         controller.onPanelSlide(layout, 0.7f);
-        when(slidingPanel.isPanelExpanded()).thenReturn(true);
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
     }
 
     private Intent createIntentWithExpandingCommand() {
