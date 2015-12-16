@@ -20,7 +20,7 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
     }
 
     public void testDeletePlaylistFromOverFlowMenu() {
-        final String newPlaylist = createANewPlaylist();
+        final String newPlaylist = createNewPlaylist();
         final CollectionsScreen collectionsScreen = mainNavHelper.goToCollections();
 
         collectionsScreen
@@ -33,7 +33,7 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
     }
 
     public void testDeletePlaylistFromPlaylistDetails() {
-        final String newPlaylist = createANewPlaylist();
+        final String newPlaylist = createNewPlaylist();
 
         final CollectionsScreen collectionsScreen = mainNavHelper.goToCollections();
 
@@ -47,16 +47,18 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
         assertThat(collectionsScreen.getPlaylist(newPlaylist).isVisible(), is(false));
     }
 
-    private String createANewPlaylist() {
+    private String createNewPlaylist() {
         final String title = String.valueOf(System.currentTimeMillis());
-        mainNavHelper.goToStream()
-                .clickFirstNotPromotedTrackCard()
-                .clickMenu()
+        mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .doSearch("lots o' comments")
+                .clickFirstTrackOverflowButton()
                 .clickAddToPlaylist()
                 .clickCreateNewPlaylist()
                 .enterTitle(title)
-                .clickDoneAndReturnToPlayer()
-                .pressCloseButton();
+                .clickDoneAndReturnToSearchResultsScreen()
+                .goBack();
 
         return title;
     }

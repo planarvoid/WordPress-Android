@@ -6,6 +6,7 @@ import com.soundcloud.android.framework.viewelements.EditTextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class CreatePlaylistScreen extends Screen {
@@ -33,6 +34,11 @@ public class CreatePlaylistScreen extends Screen {
         titleInputField().clearText();
         titleInputField().typeText(title);
         return this;
+    }
+
+    public SearchResultsScreen clickDoneAndReturnToSearchResultsScreen() {
+        getDoneButton().click();
+        return new SearchResultsScreen(testDriver);
     }
 
     public StreamScreen clickDoneAndReturnToStream() {
