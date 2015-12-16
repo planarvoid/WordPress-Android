@@ -195,7 +195,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
                                       int checkedStringId) {
-        final String buttonLabel = numberFormatter.format(count);
+        final String buttonLabel = count < 0 ? "" : numberFormatter.format(count);
         button.setTextOn(buttonLabel);
         button.setTextOff(buttonLabel);
         button.setChecked(checked);
