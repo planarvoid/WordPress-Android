@@ -1,18 +1,17 @@
 package com.soundcloud.android.explore;
 
-import com.soundcloud.android.Expect;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import android.os.Parcel;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ExploreGenreTest {
+public class ExploreGenreTest extends AndroidUnitTest {
 
     private ExploreGenre category;
 
@@ -27,12 +26,12 @@ public class ExploreGenreTest {
 
         Parcel parcel = Parcel.obtain();
         category.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
 
         ExploreGenre category = ExploreGenre.CREATOR.createFromParcel(parcel);
-        Expect.expect(category.getTitle()).toEqual(this.category.getTitle());
-        Expect.expect(category.getLinks().get("link1")).toEqual(this.category.getLinks().get("link1"));
-        Expect.expect(category.getLinks().get("link2")).toEqual(this.category.getLinks().get("link2"));
-
+        assertThat(category.getTitle()).isEqualTo(this.category.getTitle());
+        assertThat(category.getLinks().get("link1")).isEqualTo(this.category.getLinks().get("link1"));
+        assertThat(category.getLinks().get("link2")).isEqualTo(this.category.getLinks().get("link2"));
     }
 
     @Test
@@ -40,10 +39,10 @@ public class ExploreGenreTest {
         category = ExploreGenre.POPULAR_MUSIC_CATEGORY;
         Parcel parcel = Parcel.obtain();
         category.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
 
         ExploreGenre category = ExploreGenre.CREATOR.createFromParcel(parcel);
-        Expect.expect(category).toBe(ExploreGenre.POPULAR_MUSIC_CATEGORY);
-
+        assertThat(category).isEqualTo(ExploreGenre.POPULAR_MUSIC_CATEGORY);
     }
 
     @Test
@@ -51,10 +50,10 @@ public class ExploreGenreTest {
         category = ExploreGenre.POPULAR_AUDIO_CATEGORY;
         Parcel parcel = Parcel.obtain();
         category.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
 
         ExploreGenre category = ExploreGenre.CREATOR.createFromParcel(parcel);
-        Expect.expect(category).toBe(ExploreGenre.POPULAR_AUDIO_CATEGORY);
-
+        assertThat(category).isEqualTo(ExploreGenre.POPULAR_AUDIO_CATEGORY);
     }
 
     @Test
@@ -66,6 +65,6 @@ public class ExploreGenreTest {
         links.put(ExploreGenre.SUGGESTED_TRACKS_LINK_REL, new Link(href));
         category.setLinks(links);
 
-        Expect.expect(category.getSuggestedTracksPath()).toBe(href);
+        assertThat(category.getSuggestedTracksPath()).isEqualTo(href);
     }
 }

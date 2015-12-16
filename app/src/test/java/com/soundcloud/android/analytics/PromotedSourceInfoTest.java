@@ -1,18 +1,16 @@
 package com.soundcloud.android.analytics;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import android.os.Parcel;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PromotedSourceInfoTest {
+public class PromotedSourceInfoTest extends AndroidUnitTest {
 
     @Test
     public void implementsParcelable() {
@@ -20,12 +18,13 @@ public class PromotedSourceInfoTest {
         Parcel parcel = Parcel.obtain();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedListItem);
         promotedSourceInfo.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
 
         PromotedSourceInfo copy = new PromotedSourceInfo(parcel);
-        expect(copy.getAdUrn()).toEqual(promotedSourceInfo.getAdUrn());
-        expect(copy.getPromotedItemUrn()).toEqual(promotedSourceInfo.getPromotedItemUrn());
-        expect(copy.getPromoterUrn()).toEqual(promotedSourceInfo.getPromoterUrn());
-        expect(copy.getTrackingUrls()).toEqual(promotedSourceInfo.getTrackingUrls());
+        assertThat(copy.getAdUrn()).isEqualTo(promotedSourceInfo.getAdUrn());
+        assertThat(copy.getPromotedItemUrn()).isEqualTo(promotedSourceInfo.getPromotedItemUrn());
+        assertThat(copy.getPromoterUrn()).isEqualTo(promotedSourceInfo.getPromoterUrn());
+        assertThat(copy.getTrackingUrls()).isEqualTo(promotedSourceInfo.getTrackingUrls());
     }
 
     @Test
@@ -34,10 +33,10 @@ public class PromotedSourceInfoTest {
         Parcel parcel = Parcel.obtain();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedListItem);
         promotedSourceInfo.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
 
         PromotedSourceInfo copy = new PromotedSourceInfo(parcel);
-        expect(copy.getPromoterUrn()).toEqual(promotedSourceInfo.getPromoterUrn());
-        expect(copy.getPromoterUrn().isPresent()).toBeFalse();
+        assertThat(copy.getPromoterUrn()).isEqualTo(promotedSourceInfo.getPromoterUrn());
+        assertThat(copy.getPromoterUrn().isPresent()).isFalse();
     }
-
 }
