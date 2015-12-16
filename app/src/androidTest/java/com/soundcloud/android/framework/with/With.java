@@ -3,6 +3,7 @@ package com.soundcloud.android.framework.with;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.objects.MoreObjects;
 
 import android.content.res.Resources;
 import android.view.View;
@@ -41,6 +42,13 @@ public abstract class With implements Predicate<ViewElement> {
 
     public static With classSimpleName(String classStringName) {
         return new WithClassSimpleName(classStringName);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("selector", getSelector())
+                .toString();
     }
 
     static class WithId extends With {

@@ -5,7 +5,6 @@ import com.soundcloud.android.framework.ViewFetcher;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
-import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.Tabs;
 
@@ -14,11 +13,14 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.Animation;
 import android.webkit.WebView;
 import android.widget.ToggleButton;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 public final class DefaultViewElement extends ViewElement {
@@ -45,6 +47,38 @@ public final class DefaultViewElement extends ViewElement {
     @Override
     public List<ViewElement> findElements(With with) {
         return viewFetcher.findElements(with);
+    }
+
+    @Override
+    public ViewElement findAncestor(ViewElement root, With with) {
+        return viewFetcher.findAncestor(root.getView(), with);
+    }
+
+    @Override
+    // We are making the assumption that the direct children are likely
+    // to be the matching ones and therefore perform a breadth first search.
+    public boolean isAncestorOf(ViewElement child) {
+        final Deque<View> queue = new LinkedList<>();
+
+        final View root = this.view;
+        final View expectedChild = child.getView();
+
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            final View current = queue.pop();
+
+            if (current != root && current.equals(expectedChild)) {
+                return true;
+            }
+
+            if (current instanceof ViewGroup) {
+                final ViewGroup group = (ViewGroup) current;
+                for (int i = 0, count = group.getChildCount(); i < count; i++) {
+                    queue.add(group.getChildAt(i));
+                }
+            }
+        }
+        return false;
     }
 
     @Override

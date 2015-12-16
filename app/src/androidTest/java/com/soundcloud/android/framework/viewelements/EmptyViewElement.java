@@ -32,6 +32,16 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
+    public ViewElement findAncestor(ViewElement root, With with) {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
+    public boolean isAncestorOf(ViewElement child) {
+        return false;
+    }
+
+    @Override
     public boolean isElementDisplayed(With id) {
          throw new ViewNotFoundException(selector);
     }

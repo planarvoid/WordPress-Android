@@ -61,6 +61,20 @@ public class ViewFetcher {
         return viewElements;
     }
 
+    public ViewElement findAncestor(View root, With with) {
+        final ViewFetcher ancestorViewsFetcher = new ViewFetcher(root, testDriver);
+        final List<ViewElement> matchingViews = ancestorViewsFetcher.findElements(with);
+        final ViewElement expectedChild = new DefaultViewElement(parentView, testDriver);
+
+        for (ViewElement matchingView : matchingViews) {
+            if (matchingView.isAncestorOf(expectedChild)) {
+                return matchingView;
+            }
+        }
+
+        return new EmptyViewElement("Find ancestor with " + with);
+    }
+
     public ViewElement getChildAt(int index) {
         return getDirectChildViews().get(index);
     }
