@@ -2,11 +2,13 @@ package com.soundcloud.android.tests.stations;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
+import com.soundcloud.android.framework.annotation.StationsSoftLaunchTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 @EventTrackingTest
+@StationsSoftLaunchTest
 public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
     private static final String START_STATION_FROM_PLAYLIST = "audio-events-v1-start_station_from_playlist";
 

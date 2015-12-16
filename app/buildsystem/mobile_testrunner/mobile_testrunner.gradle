@@ -27,7 +27,7 @@ task runLollipopTests << {
           "com.soundcloud.android.framework.annotation.Ignore",
           "com.soundcloud.android.framework.annotation.CollectionsTest",
           "com.soundcloud.android.framework.annotation.BlockedTrackTest",
-          "com.soundcloud.android.framework.annotation.StationsTest"
+          "com.soundcloud.android.framework.annotation.StationsTabTest"
   ] as String[]
 
   def systemProperties = [
@@ -52,7 +52,9 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.EventTrackingTest",
           "com.soundcloud.android.framework.annotation.StationsTest",
           "com.soundcloud.android.framework.annotation.BlockedTrackTest",
-          "com.soundcloud.android.framework.annotation.CollectionsTest"
+          "com.soundcloud.android.framework.annotation.CollectionsTest",
+          "com.soundcloud.android.framework.annotation.StationsTabTest",
+          "com.soundcloud.android.framework.annotation.StationsSoftLaunchTest"
   ] as String[]
 
   def systemProperties = [
