@@ -43,11 +43,11 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     public ViewElement shareItem() {
-        return getRootMenuElements().get(1);
+        return findElement(With.text(testDriver.getString(R.string.share)));
     }
 
     public ViewElement repostItem() {
-        return getRootMenuElements().get(2);
+        return findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
     }
 
     public ViewElement commentItem() {
