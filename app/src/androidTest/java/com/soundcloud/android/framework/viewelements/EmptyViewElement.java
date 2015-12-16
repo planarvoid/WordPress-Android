@@ -33,7 +33,7 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public ViewElement findAncestor(ViewElement root, With with) {
-        throw new ViewNotFoundException(selector);
+        return new EmptyViewElement("Ancestor with " + with);
     }
 
     @Override
