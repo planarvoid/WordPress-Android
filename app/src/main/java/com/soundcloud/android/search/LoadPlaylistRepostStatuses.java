@@ -66,7 +66,7 @@ class LoadPlaylistRepostStatuses extends Command<Iterable<PropertySet>, Map<Urn,
         Map<Urn, PropertySet> result = new HashMap<>();
         for (CursorReader reader : queryResult) {
             final Urn playlistUrn = Urn.forPlaylist(reader.getLong(SoundView._ID));
-            result.put(playlistUrn, PropertySet.from(PlaylistProperty.IS_REPOSTED.bind(isReposted(reader))));
+            result.put(playlistUrn, PropertySet.from(PlaylistProperty.IS_USER_REPOST.bind(isReposted(reader))));
         }
         return result;
     }

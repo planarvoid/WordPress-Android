@@ -113,7 +113,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     public void shouldIncludeLikedStatus() throws Exception {
         final PropertySet playlist1 = createPlaylistPostAt(POSTED_DATE_1);
         testFixtures().insertLike(new ApiLike(playlist1.get(PlaylistProperty.URN), new Date()));
-        playlist1.put(PlayableProperty.IS_LIKED, true);
+        playlist1.put(PlayableProperty.IS_USER_LIKE, true);
 
         storage.loadPostedPlaylists(1, Long.MAX_VALUE).subscribe(subscriber);
 
@@ -124,7 +124,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldIncludeUnlikedStatus() throws Exception {
         final PropertySet playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        playlist1.put(PlayableProperty.IS_LIKED, false);
+        playlist1.put(PlayableProperty.IS_USER_LIKE, false);
 
         storage.loadPostedPlaylists(1, Long.MAX_VALUE).subscribe(subscriber);
 
@@ -266,7 +266,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.LIKES_COUNT,
                 PlaylistProperty.IS_PRIVATE
         ).put(PostProperty.CREATED_AT, playlist.getCreatedAt())
-                .put(PlayableProperty.IS_LIKED, false);
+                .put(PlayableProperty.IS_USER_LIKE, false);
     }
 
     private ApiPlaylist createPlaylistAt(Date creationDate) {

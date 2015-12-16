@@ -280,14 +280,14 @@ public class LikesSyncerTest extends AndroidUnitTest {
     private PropertySet createLikedEntityChangedProperty(Urn urn) {
         return PropertySet.from(
                 PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_LIKED.bind(true)
+                PlayableProperty.IS_USER_LIKE.bind(true)
         );
     }
 
     private PropertySet createUnlikedEntityChangedProperty(Urn urn) {
         return PropertySet.from(
                 PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_LIKED.bind(false)
+                PlayableProperty.IS_USER_LIKE.bind(false)
         );
     }
 

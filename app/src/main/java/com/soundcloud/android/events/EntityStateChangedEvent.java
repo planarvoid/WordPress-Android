@@ -62,28 +62,28 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isTrackLikeEvent() && event.getNextChangeSet().get(TrackProperty.IS_LIKED);
+            return event.isTrackLikeEvent() && event.getNextChangeSet().get(TrackProperty.IS_USER_LIKE);
         }
     };
 
     public static final Func1<? super EntityStateChangedEvent, Boolean> IS_PLAYLIST_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isPlaylistLike() && event.getNextChangeSet().get(PlaylistProperty.IS_LIKED);
+            return event.isPlaylistLike() && event.getNextChangeSet().get(PlaylistProperty.IS_USER_LIKE);
         }
     };
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_UNLIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isTrackLikeEvent() && !event.getNextChangeSet().get(TrackProperty.IS_LIKED);
+            return event.isTrackLikeEvent() && !event.getNextChangeSet().get(TrackProperty.IS_USER_LIKE);
         }
     };
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_UNLIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isPlaylistLike() && !event.getNextChangeSet().get(PlaylistProperty.IS_LIKED);
+            return event.isPlaylistLike() && !event.getNextChangeSet().get(PlaylistProperty.IS_USER_LIKE);
         }
     };
 
@@ -125,7 +125,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static EntityStateChangedEvent fromLike(Urn urn, boolean liked, int likesCount) {
         return create(LIKE, PropertySet.from(
                 PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_LIKED.bind(liked),
+                PlayableProperty.IS_USER_LIKE.bind(liked),
                 PlayableProperty.LIKES_COUNT.bind(likesCount)));
     }
 
@@ -140,7 +140,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static EntityStateChangedEvent fromRepost(Urn urn, boolean reposted) {
         return fromRepost(PropertySet.from(
                 PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_REPOSTED.bind(reposted)));
+                PlayableProperty.IS_USER_REPOST.bind(reposted)));
     }
 
     public static EntityStateChangedEvent fromRepost(PropertySet newRepostState) {

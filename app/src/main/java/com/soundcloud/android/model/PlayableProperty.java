@@ -12,8 +12,8 @@ public class PlayableProperty extends EntityProperty {
     public static final Property<Date> CREATED_AT = Property.of(PlayableProperty.class, Date.class);
     public static final Property<Integer> LIKES_COUNT = Property.of(PlayableProperty.class, Integer.class);
     public static final Property<Integer> REPOSTS_COUNT = Property.of(PlayableProperty.class, Integer.class);
-    public static final Property<Boolean> IS_LIKED = Property.of(PlayableProperty.class, Boolean.class);
-    public static final Property<Boolean> IS_REPOSTED = Property.of(PlayableProperty.class, Boolean.class);
+    public static final Property<Boolean> IS_USER_LIKE = Property.of(PlayableProperty.class, Boolean.class);
+    public static final Property<Boolean> IS_USER_REPOST = Property.of(PlayableProperty.class, Boolean.class);
     public static final Property<Boolean> IS_PRIVATE = Property.of(PlayableProperty.class, Boolean.class);
     public static final Property<String> PERMALINK_URL = Property.of(PlayableProperty.class, String.class);
 }

@@ -136,7 +136,7 @@ public class UserProfileOperationsLikesTest {
     private void assertAllItemsEmittedWithLike() {
         assertAllItemsEmitted(
                 apiTrackLike.toPropertySet(),
-                apiPlaylistLike.toPropertySet().put(PlayableProperty.IS_LIKED, true)
+                apiPlaylistLike.toPropertySet().put(PlayableProperty.IS_USER_LIKE, true)
         );
     }
 
@@ -149,7 +149,7 @@ public class UserProfileOperationsLikesTest {
 
     @NotNull
     private Map<Urn, PropertySet> likedStatusForPlaylistLike(ApiPlaylist playlist2) {
-        final PropertySet playlistIsLikedStatus = PropertySet.from(PlaylistProperty.IS_LIKED.bind(true));
+        final PropertySet playlistIsLikedStatus = PropertySet.from(PlaylistProperty.IS_USER_LIKE.bind(true));
         return Collections.singletonMap(playlist2.getUrn(), playlistIsLikedStatus);
     }
 }

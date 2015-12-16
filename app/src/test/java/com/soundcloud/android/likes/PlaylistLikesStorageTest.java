@@ -174,7 +174,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.LIKES_COUNT.bind(playlist.get(PlaylistProperty.LIKES_COUNT)),
                 LikeProperty.CREATED_AT.bind((likedAt)),
                 PlaylistProperty.IS_PRIVATE.bind(playlist.get(PlaylistProperty.IS_PRIVATE)),
-                PlaylistProperty.IS_LIKED.bind(true),
+                PlaylistProperty.IS_USER_LIKE.bind(true),
                 OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(false));
     }
 

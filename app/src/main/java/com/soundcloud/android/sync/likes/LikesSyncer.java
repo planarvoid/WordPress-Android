@@ -118,7 +118,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         for (PropertySet like : likes) {
             changedEntities.add(PropertySet.from(
                     PlayableProperty.URN.bind(like.get(PlayableProperty.URN)),
-                    PlayableProperty.IS_LIKED.bind(isLiked)
+                    PlayableProperty.IS_USER_LIKE.bind(isLiked)
             ));
         }
         return changedEntities;

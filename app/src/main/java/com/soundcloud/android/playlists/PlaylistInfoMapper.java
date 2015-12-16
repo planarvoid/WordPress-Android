@@ -24,8 +24,8 @@ public class PlaylistInfoMapper extends OfflinePlaylistMapper {
         propertySet.put(PlaylistProperty.PLAY_DURATION, cursorReader.getLong(TableColumns.SoundView.DURATION));
         propertySet.put(PlaylistProperty.REPOSTS_COUNT, cursorReader.getInt(TableColumns.SoundView.REPOSTS_COUNT));
         propertySet.put(PlaylistProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.SoundView.CREATED_AT));
-        propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(TableColumns.SoundView.USER_LIKE));
-        propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(TableColumns.SoundView.USER_REPOST));
+        propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.getBoolean(TableColumns.SoundView.USER_LIKE));
+        propertySet.put(PlayableProperty.IS_USER_REPOST, cursorReader.getBoolean(TableColumns.SoundView.USER_REPOST));
         propertySet.put(PlaylistProperty.IS_POSTED, creatorUrn.equals(loggedInUserUrn));
 
         // we were not inserting this for a while, so we could have some remaining missing values. eventually this should always exist

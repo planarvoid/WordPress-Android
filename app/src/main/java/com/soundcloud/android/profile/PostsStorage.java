@@ -51,7 +51,7 @@ public class PostsStorage {
         @Override
         public List<PropertySet> call(List<PropertySet> propertySets, String username) {
             for (PropertySet propertySet : propertySets) {
-                if (propertySet.getOrElse(PlayableProperty.IS_REPOSTED, false)) {
+                if (propertySet.getOrElse(PlayableProperty.IS_USER_REPOST, false)) {
                     propertySet.put(PostProperty.REPOSTER, username);
                 }
             }
@@ -193,8 +193,8 @@ public class PostsStorage {
             propertySet.put(PlaylistProperty.TRACK_COUNT, readTrackCount(cursorReader));
             propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
             propertySet.put(PlaylistProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
-            propertySet.put(PlayableProperty.IS_LIKED, cursorReader.isNotNull(LIKED_ID));
-            propertySet.put(PlayableProperty.IS_REPOSTED, TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE)));
+            propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.isNotNull(LIKED_ID));
+            propertySet.put(PlayableProperty.IS_USER_REPOST, TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE)));
             propertySet.put(PostProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Posts.CREATED_AT));
             return propertySet;
         }
@@ -216,8 +216,8 @@ public class PostsStorage {
             propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.SoundView.PLAYBACK_COUNT));
             propertySet.put(TrackProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
             propertySet.put(TrackProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
-            propertySet.put(PlayableProperty.IS_LIKED, cursorReader.isNotNull(LIKED_ID));
-            propertySet.put(PlayableProperty.IS_REPOSTED, TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE)));
+            propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.isNotNull(LIKED_ID));
+            propertySet.put(PlayableProperty.IS_USER_REPOST, TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE)));
             propertySet.put(PostProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Posts.CREATED_AT));
 
             return propertySet;

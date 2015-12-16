@@ -118,7 +118,7 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
             if (post.get(PostProperty.IS_REPOST)) {
                 changedEntities.add(PropertySet.from(
                         PlayableProperty.URN.bind(post.get(PlayableProperty.URN)),
-                        PlayableProperty.IS_REPOSTED.bind(isReposted)
+                        PlayableProperty.IS_USER_REPOST.bind(isReposted)
                 ));
             }
         }

@@ -13,7 +13,7 @@ public class PostedPlaylistMapper extends OfflinePlaylistMapper {
     public PropertySet map(CursorReader cursorReader) {
         final PropertySet propertySet = super.map(cursorReader);
         propertySet.put(PostProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Posts.CREATED_AT));
-        propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(TableColumns.SoundView.USER_LIKE));
+        propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.getBoolean(TableColumns.SoundView.USER_LIKE));
         propertySet.put(PlayableProperty.CREATOR_URN, Urn.forUser(cursorReader.getLong(TableColumns.SoundView.USER_ID)));
         return propertySet;
     }

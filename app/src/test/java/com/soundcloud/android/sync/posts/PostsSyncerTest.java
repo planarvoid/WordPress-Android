@@ -129,14 +129,14 @@ public class PostsSyncerTest extends AndroidUnitTest {
     private PropertySet createRepostedEntityChangedProperty(Urn urn) {
         return PropertySet.from(
                 PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_REPOSTED.bind(true)
+                PlayableProperty.IS_USER_REPOST.bind(true)
         );
     }
 
     private PropertySet createUnrepostedEntityChangedProperty(Urn urn) {
         return PropertySet.from(
                 PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_REPOSTED.bind(false)
+                PlayableProperty.IS_USER_REPOST.bind(false)
         );
     }
 

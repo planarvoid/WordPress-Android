@@ -35,9 +35,9 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(TrackProperty.MONETIZABLE, cursorReader.getBoolean(SoundView.POLICIES_MONETIZABLE));
         propertySet.put(TrackProperty.BLOCKED, cursorReader.getBoolean(SoundView.POLICIES_BLOCKED));
         propertySet.put(TrackProperty.SNIPPED, cursorReader.getBoolean(SoundView.POLICIES_SNIPPED));
-        propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
+        propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.getBoolean(SoundView.USER_LIKE));
         propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(SoundView.PERMALINK_URL));
-        propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(SoundView.USER_REPOST));
+        propertySet.put(PlayableProperty.IS_USER_REPOST, cursorReader.getBoolean(SoundView.USER_REPOST));
         propertySet.put(PlayableProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(SoundView.SHARING)));
         propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundView.CREATED_AT));
 

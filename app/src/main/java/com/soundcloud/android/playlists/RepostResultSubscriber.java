@@ -37,7 +37,7 @@ public class RepostResultSubscriber extends DefaultSubscriber<PropertySet> {
     }
 
     private boolean isCorrectRepostStatus(PropertySet changeSet) {
-        final boolean reposted = changeSet.getOrElse(PlayableProperty.IS_REPOSTED, !repostStatus);
+        final boolean reposted = changeSet.getOrElse(PlayableProperty.IS_USER_REPOST, !repostStatus);
         return reposted == repostStatus;
     }
 }

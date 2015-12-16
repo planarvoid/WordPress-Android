@@ -11,7 +11,7 @@ public class LikedPlaylistMapper extends OfflinePlaylistMapper {
     public PropertySet map(CursorReader cursorReader) {
         final PropertySet propertySet = super.map(cursorReader);
         propertySet.put(LikeProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.CREATED_AT));
-        propertySet.put(PlaylistProperty.IS_LIKED, true);
+        propertySet.put(PlaylistProperty.IS_USER_LIKE, true);
         return propertySet;
     }
 }

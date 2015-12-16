@@ -21,8 +21,8 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
             TrackProperty.PLAY_DURATION.bind(0L),
             TrackProperty.FULL_DURATION.bind(0L),
             TrackProperty.WAVEFORM_URL.bind(ScTextUtils.EMPTY_STRING),
-            TrackProperty.IS_LIKED.bind(false),
-            TrackProperty.IS_REPOSTED.bind(false),
+            TrackProperty.IS_USER_LIKE.bind(false),
+            TrackProperty.IS_USER_REPOST.bind(false),
             TrackProperty.LIKES_COUNT.bind(0),
             TrackProperty.PERMALINK_URL.bind(ScTextUtils.EMPTY_STRING),
             TrackProperty.IS_PRIVATE.bind(false)
@@ -108,11 +108,11 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
     }
 
     boolean isUserLike() {
-        return source.get(PlayableProperty.IS_LIKED);
+        return source.get(PlayableProperty.IS_USER_LIKE);
     }
 
     public boolean isUserRepost() {
-        return source.get(PlayableProperty.IS_REPOSTED);
+        return source.get(PlayableProperty.IS_USER_REPOST);
     }
 
     int getLikeCount() {

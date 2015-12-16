@@ -186,7 +186,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)
-                .put(PlayableProperty.IS_LIKED, true);
+                .put(PlayableProperty.IS_USER_LIKE, true);
 
         verify(observer).onNext(playlistRepost);
         verify(observer).onCompleted();
@@ -200,7 +200,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)
-                .put(PlayableProperty.IS_REPOSTED, true);
+                .put(PlayableProperty.IS_USER_REPOST, true);
 
         verify(observer).onNext(playlistRepost);
         verify(observer).onCompleted();
@@ -311,9 +311,9 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.PLAY_DURATION.bind(track.getDuration()),
                 PlayableProperty.CREATOR_NAME.bind(track.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(track.getUser().getUrn()),
-                PlayableProperty.IS_LIKED.bind(false),
+                PlayableProperty.IS_USER_LIKE.bind(false),
                 PlayableProperty.LIKES_COUNT.bind(track.getLikesCount()),
-                PlayableProperty.IS_REPOSTED.bind(false),
+                PlayableProperty.IS_USER_REPOST.bind(false),
                 PlayableProperty.REPOSTS_COUNT.bind(track.getRepostsCount()),
                 PlayableProperty.IS_PRIVATE.bind(false),
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
@@ -328,11 +328,11 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.PLAY_DURATION.bind(playlist.getDuration()),
                 PlayableProperty.CREATOR_NAME.bind(playlist.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(playlist.getUser().getUrn()),
-                PlayableProperty.IS_LIKED.bind(false),
+                PlayableProperty.IS_USER_LIKE.bind(false),
                 PlayableProperty.LIKES_COUNT.bind(playlist.getStats().getLikesCount()),
-                PlayableProperty.IS_REPOSTED.bind(false),
+                PlayableProperty.IS_USER_REPOST.bind(false),
                 PlayableProperty.REPOSTS_COUNT.bind(playlist.getStats().getRepostsCount()),
-                PlayableProperty.IS_LIKED.bind(false),
+                PlayableProperty.IS_USER_LIKE.bind(false),
                 PlayableProperty.IS_PRIVATE.bind(false),
                 PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));
     }

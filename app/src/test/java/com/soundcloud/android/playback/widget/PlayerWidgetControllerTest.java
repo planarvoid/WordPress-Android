@@ -150,7 +150,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
-        assertThat(captor.getValue().get(PlayableProperty.IS_LIKED)).isTrue();
+        assertThat(captor.getValue().get(PlayableProperty.IS_USER_LIKE)).isTrue();
         assertThat(captor.getValue().get(AdProperty.IS_AUDIO_AD)).isFalse();
     }
 
@@ -167,7 +167,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
-        assertThat(captor.getValue().get(PlayableProperty.IS_LIKED)).isTrue();
+        assertThat(captor.getValue().get(PlayableProperty.IS_USER_LIKE)).isTrue();
         assertThat(captor.getValue().get(AdProperty.IS_AUDIO_AD)).isTrue();
     }
 
