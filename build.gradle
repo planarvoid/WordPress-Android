@@ -44,7 +44,3 @@ allprojects {
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
 }
-
-task clean {
-  delete "tmp/cached-robolectric-classes.jar"
-}

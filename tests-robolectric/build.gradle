@@ -96,3 +96,7 @@ FileCollection setupClasspath(FileCollection classPath) {
 
   return files(robolectricDependency) + classPath + files(androidDependency)
 }
+
+task clean << {
+  delete "$projectDir/tmp"
+}
