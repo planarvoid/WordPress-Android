@@ -32,6 +32,7 @@ public class CollectionsScreen extends Screen {
     }
 
     public ViewAllStationsScreen clickRecentStations() {
+        collectionsView().scrollToTop();
         recentStationsElement().click();
         return new ViewAllStationsScreen(testDriver);
     }
