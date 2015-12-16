@@ -2,6 +2,7 @@ package com.soundcloud.android.framework.helpers.mrlogga;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.HttpUtils;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -80,7 +81,7 @@ class MrLoggaLoggaClient {
     public MrLoggaResponse finishRecording() {
         final Request request = new Request.Builder()
                 .url(recordingEndpoint + ACTION_FINISH_RECORDING)
-                .post(null)
+                .post(HttpUtils.emptyRequestBody())
                 .build();
         return executeRequest(request);
     }
