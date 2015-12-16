@@ -1,15 +1,20 @@
 package com.soundcloud.android.configuration.experiments;
 
+import static com.soundcloud.android.configuration.experiments.ActiveExperiments.LISTENING_LAYER;
+
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 
 public class StreamDesignExperiment {
-    public static final String NAME = "android_stream_design";
-
+    private static final String NAME = "android_stream_design";
     private static final String VARIATION_LIST = "old_list_stream";
     private static final String VARIATION_CARDS = "new_card_stream";
+
+    public static final Experiment EXPERIMENT =
+            Experiment.create(LISTENING_LAYER, NAME, Arrays.asList(VARIATION_LIST, VARIATION_CARDS));
 
     private final ExperimentOperations experimentOperations;
     private final FeatureFlags featureFlags;

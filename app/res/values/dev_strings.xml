@@ -26,5 +26,11 @@
 
     <string name="dev_oauth_token_copied">OAuth token copied to clipboard</string>
 
+    <string name="dev_drawer_section_experiments">Active Experiments</string>
+    <string name="dev_drawer_section_experiments_enabled_prefix">Enabled: %s</string>
+    <string name="dev_drawer_section_experiment_default">(default)</string>
+    <string name="dev_drawer_section_experiments_key">experiments</string>
+    <string name="dev_drawer_section_experiments_layer_prefix_key">experiments_layer_%s_</string>
+
 
 </resources>

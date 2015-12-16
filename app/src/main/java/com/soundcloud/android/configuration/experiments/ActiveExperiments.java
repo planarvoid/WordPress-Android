@@ -6,13 +6,13 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 
-class ActiveExperiments {
+public class ActiveExperiments {
 
-    private static final String[] LAYERS = {"android_listening"};
+    public static final String LISTENING_LAYER = "android_listening";
+    public static final List<Experiment> ACTIVE_EXPERIMENTS =
+            Collections.singletonList(StreamDesignExperiment.EXPERIMENT);
 
-    private static final List<String> EXPERIMENTS = Collections.singletonList(
-            StreamDesignExperiment.NAME
-    );
+    private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
 
     private ApplicationProperties applicationProperties;
 
@@ -22,11 +22,18 @@ class ActiveExperiments {
     }
 
     public String[] getRequestLayers() {
-        return LAYERS;
+        return ACTIVE_LAYERS;
     }
 
     public boolean isActive(String experimentName) {
-        return EXPERIMENTS.contains(experimentName) && !applicationProperties.isDebugBuild();
+        if (!applicationProperties.isDebugBuild()) {
+            for (Experiment experiment : ACTIVE_EXPERIMENTS) {
+                if (experiment.getName().equals(experimentName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
