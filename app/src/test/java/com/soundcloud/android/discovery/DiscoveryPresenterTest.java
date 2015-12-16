@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -44,6 +45,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private DiscoveryOperations discoveryOperations;
     @Mock private DiscoveryAdapter adapter;
+    @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
     @Mock private FeatureFlags featureFlags;
@@ -63,7 +65,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         this.presenter = new DiscoveryPresenter(swipeRefreshAttacher, discoveryOperations,
-                adapter, expandPlayerSubscriberProvider, playbackInitiator, navigator, featureFlags);
+                adapter, imagePauseOnScrollListener, expandPlayerSubscriberProvider, playbackInitiator,
+                navigator, featureFlags);
 
         when(recommendationItemOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
         when(recommendationItemOne.getRecommendationUrn()).thenReturn(RECOMMENDATION_URN);

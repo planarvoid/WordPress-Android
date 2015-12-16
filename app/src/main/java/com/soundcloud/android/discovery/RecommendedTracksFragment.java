@@ -2,6 +2,8 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.presentation.RefreshableScreen;
+import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -13,11 +15,11 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class RecommendedTracksFragment extends LightCycleSupportFragment {
+public class RecommendedTracksFragment extends LightCycleSupportFragment implements RefreshableScreen {
 
     private static final String EXTRA_LOCAL_SEED_ID = "localSeedId";
 
-    @Inject @LightCycle RecommendedTracksPresenter recommendedTracksPresenter;
+    @Inject @LightCycle RecommendedTracksPresenter presenter;
 
     public RecommendedTracksFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -35,5 +37,15 @@ public class RecommendedTracksFragment extends LightCycleSupportFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+    }
+
+    @Override
+    public MultiSwipeRefreshLayout getRefreshLayout() {
+        return (MultiSwipeRefreshLayout) getView().findViewById(R.id.str_layout);
+    }
+
+    @Override
+    public View[] getRefreshableViews() {
+        return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
 }

@@ -42,6 +42,8 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
 
     private CompositeSubscription viewLifeCycle;
 
+    private long localSeedId;
+
     @Inject
     RecommendedTracksPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                DiscoveryOperations discoveryOperations,
@@ -66,10 +68,8 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,
-                        new UpdatePlayingTrackSubscriber(adapter)),
-                eventBus.subscribe(ENTITY_STATE_CHANGED,
-                        new UpdateEntityListSubscriber(adapter)));
+                eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
+                eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)));
     }
 
     @Override
@@ -85,15 +85,25 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
 
     @Override
     protected CollectionBinding<TrackItem> onBuildBinding(Bundle bundle) {
-        final long localSeedId = bundle.getLong(EXTRA_LOCAL_SEED_ID);
-        return CollectionBinding.from(discoveryOperations.recommendedTracksForSeed(localSeedId))
-                .withAdapter(adapter)
-                .build();
+        localSeedId = bundle.getLong(EXTRA_LOCAL_SEED_ID);
+        return createCollectionBinding();
+    }
+
+    @Override
+    protected CollectionBinding<TrackItem> onRefreshBinding() {
+        return createCollectionBinding();
     }
 
     @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
+    }
+
+    private CollectionBinding<TrackItem> createCollectionBinding() {
+        return CollectionBinding
+                .from(discoveryOperations.recommendedTracksForSeed(localSeedId))
+                .withAdapter(adapter)
+                .build();
     }
 
     private void playRecommendedTracks(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
