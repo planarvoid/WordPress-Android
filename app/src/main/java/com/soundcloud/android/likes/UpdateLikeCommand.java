@@ -4,6 +4,7 @@ import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.from;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -52,7 +53,13 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
                 .whereEq(SoundView._ID, params.targetUrn.getNumericId())
                 .whereEq(SoundView._TYPE, getSoundType(params.targetUrn)))
                 .first(Integer.class);
-        return params.addLike ? count + 1 : count - 1;
+
+        if (count == Consts.NOT_SET) {
+            return Consts.NOT_SET;
+        } else {
+            return params.addLike ? count + 1 : count - 1;
+        }
+
     }
 
     private ContentValues buildContentValuesForLike(UpdateLikeParams params) {
