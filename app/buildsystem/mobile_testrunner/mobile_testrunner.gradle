@@ -37,6 +37,7 @@ task runLollipopTests << {
           "log.tag.ApiSyncer": "DEBUG",
           "log.tag.Timeline": "DEBUG",
           "log.tag.BUG_4503": "DEBUG",
+          "log.tag.EventTracker": "DEBUG",
           "log.tag.SoundCloudApplication": "DEBUG"
           ]
 
