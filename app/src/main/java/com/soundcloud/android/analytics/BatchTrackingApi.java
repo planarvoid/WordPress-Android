@@ -66,7 +66,6 @@ public class BatchTrackingApi implements TrackingApi {
         try {
             final int status = response.code();
             Log.d(EventTracker.TAG, "Tracking event response: " + response.toString());
-
             if (isSuccessCodeOrIgnored(status)) {
                 successes.addAll(events);
             } else {
@@ -89,6 +88,7 @@ public class BatchTrackingApi implements TrackingApi {
 
     private RequestBody createBody(List<TrackingRecord> events) throws IOException, JSONException {
         final String body = new JSONArray(getEventJsonObjects(events)).toString();
+        Log.d(EventTracker.TAG, "event payload: " + body);
         return RequestBody.create(MediaType.parse(CONTENT_TYPE), body.getBytes(Charsets.UTF_8.name()));
     }
 
