@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.playlist;
 
 import static com.soundcloud.android.framework.TestUser.playlistUser;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
+import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -43,21 +44,11 @@ public class PlaylistDetailsTest extends ActivityTest<ResolveActivity> {
         assertThat(playlistDetailsScreen, is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible()));
     }
 
-    public void testHeaderPlayClickShouldNotOpenPlayer() {
+    public void testHeaderPlayClickShouldOpenPlayer() {
         VisualPlayerElement player = new VisualPlayerElement(solo);
         assertThat(player, is(not(visible())));
-        playlistDetailsScreen.clickHeaderPlay();
-        assertThat(player, is(visible()));
-
-        playlistDetailsScreen.clickHeaderPause();
-        assertThat(playlistDetailsScreen, is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible()));
-    }
-
-    public void testToggleStateIsNotCheckedAfterPausingPlayer() {
-        playlistDetailsScreen.clickHeaderPlay();
-        playlistDetailsScreen.clickHeaderPause();
-
-        assertThat(playlistDetailsScreen.isPlayToggleChecked(), is(false));
+        final VisualPlayerElement visualPlayer = playlistDetailsScreen.clickHeaderPlay().waitForExpandedPlayer();
+        assertThat(visualPlayer, is(expanded()));
     }
 
     public void disabled_testRemovingAndAddingTrackFromPlaylist() throws Exception {

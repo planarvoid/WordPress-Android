@@ -52,9 +52,10 @@ public class PlaylistDetailsScreen extends Screen {
         return !(tracksListElement().scrollToItem(With.text(title)) instanceof EmptyViewElement);
     }
 
-    public void clickHeaderPlay() {
+    public VisualPlayerElement clickHeaderPlay() {
         headerPlayButton().click();
         waiter.waitForPlaybackToBePlaying();
+        return new VisualPlayerElement(testDriver);
     }
 
     public void clickHeaderPause() {
