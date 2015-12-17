@@ -11,6 +11,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -195,7 +196,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
                                       int checkedStringId) {
-        final String buttonLabel = count < 0 ? "" : numberFormatter.format(count);
+        final String buttonLabel = count < 0 ? Strings.EMPTY : numberFormatter.format(count);
         button.setTextOn(buttonLabel);
         button.setTextOff(buttonLabel);
         button.setChecked(checked);

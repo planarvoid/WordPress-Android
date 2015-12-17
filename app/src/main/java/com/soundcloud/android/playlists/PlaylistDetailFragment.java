@@ -25,7 +25,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -193,7 +192,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private void playFromBeginning() {
-        playTracksAtPosition(0, new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+        playTracksAtPosition(0, expandPlayerSubscriberProvider.get());
     }
 
     private void addLifeCycleComponents() {

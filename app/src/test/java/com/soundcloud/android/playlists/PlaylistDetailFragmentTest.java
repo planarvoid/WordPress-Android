@@ -110,9 +110,6 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithTracks));
         when(offlinePlaybackOperations.playPlaylist(any(Urn.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(312L));
-
-//        fragment.onAttach(activity);
-//        activity.setIntent(intent);
     }
 
     @Test
