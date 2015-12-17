@@ -1,15 +1,12 @@
 package com.soundcloud.android.api.model;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.PostProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(SoundCloudTestRunner.class)
 public class ApiTrackPostTest {
 
     private final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
@@ -20,11 +17,11 @@ public class ApiTrackPostTest {
                 .put(PostProperty.IS_REPOST, false)
                 .put(PostProperty.CREATED_AT, apiTrack.getCreatedAt());
 
-        expect(new ApiTrackPost(apiTrack).toPropertySet()).toEqual(expected);
+        assertThat(new ApiTrackPost(apiTrack).toPropertySet()).isEqualTo(expected);
     }
 
     @Test
     public void trackRecordReturnsApiTrack() throws Exception {
-        expect(new ApiTrackPost(apiTrack).getTrackRecord()).toEqual(apiTrack);
+        assertThat(new ApiTrackPost(apiTrack).getTrackRecord()).isEqualTo(apiTrack);
     }
 }

@@ -1,15 +1,12 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-@RunWith(DefaultTestRunner.class)
 public class AndroidUtilsTest {
 
     @Test
@@ -23,7 +20,7 @@ public class AndroidUtilsTest {
         final String[] actual = AndroidUtils.returnKeysSortedByValue(map);
         final String[] expected = {"a", "b", "c", "d"};
 
-        expect(Arrays.equals(actual, expected)).toBeTrue();
+        assertThat(Arrays.equals(actual, expected)).isTrue();
     }
 
 }

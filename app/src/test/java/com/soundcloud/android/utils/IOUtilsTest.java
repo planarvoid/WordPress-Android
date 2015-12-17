@@ -1,6 +1,6 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +27,7 @@ public class IOUtilsTest {
         long spaceLeft = 20 * MB;
         long maxSpace = 60 * MB;
 
-        expect(IOUtils.getMaxUsableSpace(spaceLeft, maxSpace)).toEqual(20 * MB);
+        assertThat(IOUtils.getMaxUsableSpace(spaceLeft, maxSpace)).isEqualTo(20 * MB);
     }
 
     @Test
@@ -35,7 +35,7 @@ public class IOUtilsTest {
         long spaceLeft = 200 * MB;
         long maxSpace = 60 * MB;
 
-        expect(IOUtils.getMaxUsableSpace(spaceLeft, maxSpace)).toEqual(60 * MB);
+        assertThat(IOUtils.getMaxUsableSpace(spaceLeft, maxSpace)).isEqualTo(60 * MB);
     }
 
     @Test
@@ -43,46 +43,46 @@ public class IOUtilsTest {
         File folder1 = new File(getClass().getResource("io/folder1").getPath());
         File folder2 = new File(getClass().getResource("io/folder2").getPath());
 
-        expect(IOUtils.inMbFormatted(folder1, folder2)).toEqual("8.8");
+        assertThat(IOUtils.inMbFormatted(folder1, folder2)).isEqualTo("8.8");
     }
 
     @Test
     public void shouldGetMBFormatted() throws Exception {
-        expect(IOUtils.inMbFormatted(1024*1024)).toEqual("1");
-        expect(IOUtils.inMbFormatted(2.3d * 1024*1024)).toEqual("2.3");
+        assertThat(IOUtils.inMbFormatted(1024 * 1024)).isEqualTo("1");
+        assertThat(IOUtils.inMbFormatted(2.3d * 1024 * 1024)).isEqualTo("2.3");
     }
 
     @Test
     public void shouldAppendToFilename() throws Exception {
         File f = new File("/foo/bar/test.ogg");
-        expect(IOUtils.appendToFilename(f, "_processed").getAbsolutePath()).toEqual("/foo/bar/test_processed.ogg");
+        assertThat(IOUtils.appendToFilename(f, "_processed").getAbsolutePath()).isEqualTo("/foo/bar/test_processed.ogg");
 
         File g = new File("/foo/bar/test");
-        expect(IOUtils.appendToFilename(g, "_processed").getAbsolutePath()).toEqual("/foo/bar/test_processed");
+        assertThat(IOUtils.appendToFilename(g, "_processed").getAbsolutePath()).isEqualTo("/foo/bar/test_processed");
     }
 
     @Test
     public void shouldGetExtension() throws Exception {
-        expect(IOUtils.extension(new File("foo.ogg"))).toEqual("ogg");
-        expect(IOUtils.extension(new File("foo.baz.Ogg"))).toEqual("ogg");
-        expect(IOUtils.extension(new File("foo."))).toBeNull();
-        expect(IOUtils.extension(new File("foo"))).toBeNull();
+        assertThat(IOUtils.extension(new File("foo.ogg"))).isEqualTo("ogg");
+        assertThat(IOUtils.extension(new File("foo.baz.Ogg"))).isEqualTo("ogg");
+        assertThat(IOUtils.extension(new File("foo."))).isNull();
+        assertThat(IOUtils.extension(new File("foo"))).isNull();
     }
 
     @Test
     public void shouldChangeExtension() throws Exception {
-        expect(IOUtils.changeExtension(new File("test.ogg"), "wav").getName()).toEqual("test.wav");
-        expect(IOUtils.changeExtension(new File("test.ogg.baz"), "wav").getName()).toEqual("test.ogg.wav");
-        expect(IOUtils.changeExtension(new File("test"), "wav").getName()).toEqual("test.wav");
+        assertThat(IOUtils.changeExtension(new File("test.ogg"), "wav").getName()).isEqualTo("test.wav");
+        assertThat(IOUtils.changeExtension(new File("test.ogg.baz"), "wav").getName()).isEqualTo("test.ogg.wav");
+        assertThat(IOUtils.changeExtension(new File("test"), "wav").getName()).isEqualTo("test.wav");
     }
 
     @Test
     public void shouldGetDirSize() throws Exception {
-        expect(IOUtils.getDirSize(new File("no-existo"))).toEqual(0l);
-        expect(IOUtils.getDirSize(tempFolder.getRoot())).toEqual(0l);
+        assertThat(IOUtils.getDirSize(new File("no-existo"))).isEqualTo(0l);
+        assertThat(IOUtils.getDirSize(tempFolder.getRoot())).isEqualTo(0l);
         File f1 = tempFolder.newFile("aFile");
         File dir = new File(tempFolder.getRoot(), "aDir");
-        expect(dir.mkdir()).toBeTrue();
+        assertThat(dir.mkdir()).isTrue();
         File f2 = new File(dir, "nestedFile");
         OutputStream os = new FileOutputStream(f1);
         os.write(new byte[8192]);
@@ -90,15 +90,15 @@ public class IOUtilsTest {
         OutputStream os2 = new FileOutputStream(f2);
         os2.write(new byte[1024]);
         os2.close();
-        expect(IOUtils.getDirSize(tempFolder.getRoot())).toEqual(8192 + 1024l);
+        assertThat(IOUtils.getDirSize(tempFolder.getRoot())).isEqualTo(8192 + 1024l);
         tempFolder.delete();
     }
 
     @Test
     public void shouldRemoveExtension() throws Exception {
-        expect(IOUtils.removeExtension(new File("foo.ogg")).getName()).toEqual("foo");
-        expect(IOUtils.removeExtension(new File("foo.ogg.ogg")).getName()).toEqual("foo.ogg");
-        expect(IOUtils.removeExtension(new File("foo")).getName()).toEqual("foo");
+        assertThat(IOUtils.removeExtension(new File("foo.ogg")).getName()).isEqualTo("foo");
+        assertThat(IOUtils.removeExtension(new File("foo.ogg.ogg")).getName()).isEqualTo("foo.ogg");
+        assertThat(IOUtils.removeExtension(new File("foo")).getName()).isEqualTo("foo");
     }
 
     @Test
@@ -106,14 +106,14 @@ public class IOUtilsTest {
         tempFolder.newFile("file.txt");
         tempFolder.newFolder("folder1");
         tempFolder.newFile("folder1/file.txt");
-        tempFolder.newFolder("folder1/subFolder");
+        tempFolder.newFolder("folder1", "subFolder");
         tempFolder.newFile("folder1/subFolder/file1.txt");
         tempFolder.newFile("folder1/subFolder/file2.txt");
 
         IOUtils.cleanDir(tempFolder.getRoot());
 
-        expect(tempFolder.getRoot().exists()).toBeTrue();
-        expect(tempFolder.getRoot().list().length).toBe(0);
+        assertThat(tempFolder.getRoot().exists()).isTrue();
+        assertThat(tempFolder.getRoot().list().length).isEqualTo(0);
     }
 
     @Test
@@ -125,14 +125,14 @@ public class IOUtilsTest {
 
         IOUtils.cleanDirs(dir1, dir2);
 
-        expect(dir1.list().length).toBe(0);
-        expect(dir2.list().length).toBe(0);
+        assertThat(dir1.list().length).isEqualTo(0);
+        assertThat(dir2.list().length).isEqualTo(0);
     }
 
     @Test
     public void consumeContentShouldConsumeResponsePayload() throws IOException {
         InputStream payload = new ByteArrayInputStream(new byte[]{1, 3, 3, 7});
-        expect(payload.available()).toBe(4);
+        assertThat(payload.available()).isEqualTo(4);
 
         HttpURLConnection connection = mock(HttpURLConnection.class);
 
@@ -141,7 +141,7 @@ public class IOUtilsTest {
 
         IOUtils.consumeStream(connection);
 
-        expect(payload.available()).toBe(0);
+        assertThat(payload.available()).isEqualTo(0);
     }
 
     @Test

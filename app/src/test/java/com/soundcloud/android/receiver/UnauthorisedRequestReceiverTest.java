@@ -7,33 +7,29 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.dialog.TokenExpiredDialogFragment;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class UnauthorisedRequestReceiverTest {
 
     private UnauthorisedRequestReceiver receiver;
-    @Mock
-    private Context context;
-    @Mock
-    private UnauthorisedRequestRegistry registry;
-    @Mock
-    private FragmentManager fragmentManager;
-    @Mock
-    private Intent intent;
-    @Mock
-    private TokenExpiredDialogFragment tokenExpiredDialog;
+
+    @Mock private Context context;
+    @Mock private UnauthorisedRequestRegistry registry;
+    @Mock private FragmentManager fragmentManager;
+    @Mock private Intent intent;
+    @Mock private TokenExpiredDialogFragment tokenExpiredDialog;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         receiver = new UnauthorisedRequestReceiver(registry, fragmentManager, tokenExpiredDialog);
     }
 

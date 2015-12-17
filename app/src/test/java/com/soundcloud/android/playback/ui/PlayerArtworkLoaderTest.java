@@ -7,19 +7,15 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlayerArtworkLoaderTest {
+public class PlayerArtworkLoaderTest extends AndroidUnitTest {
 
     @Mock ImageOperations imageOperations;
     @Mock ImageView wrappedImageView;
@@ -28,23 +24,21 @@ public class PlayerArtworkLoaderTest {
     @Mock ViewVisibilityProvider viewVisibilityProvider;
 
     private PlayerArtworkLoader playerArtworkLoader;
-    private Resources resources = Robolectric.application.getResources();
-
 
     @Before
     public void setUp() throws Exception {
-        playerArtworkLoader = new PlayerArtworkLoader(imageOperations, Robolectric.application.getResources());
+        playerArtworkLoader = new PlayerArtworkLoader(imageOperations, resources());
     }
 
     @Test
-    public void loadArtworkLoadsArtworkThroughImageOperations() throws Exception {
+    public void loadArtworkLoadsArtworkThroughImageOperations() {
         final Urn urn = Urn.forTrack(123L);
-        final Bitmap cachedBitmap = Bitmap.createBitmap(0,0, Bitmap.Config.RGB_565);
-        when(imageOperations.getCachedListItemBitmap(resources, urn)).thenReturn(cachedBitmap);
+        final Bitmap cachedBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
+        when(imageOperations.getCachedListItemBitmap(resources(), urn)).thenReturn(cachedBitmap);
 
         playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, true, viewVisibilityProvider);
 
-        verify(imageOperations).displayInPlayer(urn, ApiImageSize.getFullImageSize(Robolectric.application.getResources()),
+        verify(imageOperations).displayInPlayer(urn, ApiImageSize.getFullImageSize(resources()),
                 wrappedImageView, cachedBitmap, true);
     }
 }

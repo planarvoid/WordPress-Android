@@ -1,6 +1,6 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
@@ -24,13 +24,12 @@ public class FiletimeComparatorTest {
 
         Collections.sort(files, new FiletimeComparator(true));
 
-        expect(files.get(0)).toEqual(f1);
-        expect(files.get(1)).toEqual(f2);
+        assertThat(files.get(0)).isEqualTo(f1);
+        assertThat(files.get(1)).isEqualTo(f2);
     }
 
-
     @Test
-    public void testLastModfifiedFileComparatorNewestFirst() throws Exception {
+    public void testLastModifiedFileComparatorNewestFirst() throws Exception {
         File f1 = File.createTempFile("test_f1", null);
         File f2 = File.createTempFile("test_f2", null);
 
@@ -41,7 +40,7 @@ public class FiletimeComparatorTest {
 
         Collections.sort(files, new FiletimeComparator(false));
 
-        expect(files.get(0)).toEqual(f2);
-        expect(files.get(1)).toEqual(f1);
+        assertThat(files.get(0)).isEqualTo(f2);
+        assertThat(files.get(1)).isEqualTo(f1);
     }
 }

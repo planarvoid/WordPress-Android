@@ -10,16 +10,16 @@ import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class PlayerOverlayControllerTest {
 
     public static final Urn TRACK_URN = Urn.forTrack(123L);
@@ -30,7 +30,7 @@ public class PlayerOverlayControllerTest {
     @Mock private AdOverlayController adOverlayController;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         controller = new PlayerOverlayController(overlay, overlayAnimator);
         when(adOverlayController.isNotVisible()).thenReturn(true);
     }
@@ -85,7 +85,7 @@ public class PlayerOverlayControllerTest {
     }
 
     @Test
-    public void shouldNotHideTheOverlayOnPlayingStateWhenAdOverlayDisplayed() throws Exception {
+    public void shouldNotHideTheOverlayOnPlayingStateWhenAdOverlayDisplayed() {
         controller.setAdOverlayShown(true);
 
         setPlayingState();
@@ -107,7 +107,7 @@ public class PlayerOverlayControllerTest {
     }
 
     @Test
-    public void shouldNotHideTheOverlayOnAdOverlayHiddenWhenIdle() throws Exception {
+    public void shouldNotHideTheOverlayOnAdOverlayHiddenWhenIdle() {
         setIdleState();
 
         controller.setAdOverlayShown(false);
@@ -116,7 +116,7 @@ public class PlayerOverlayControllerTest {
     }
 
     @Test
-    public void shouldShowTheOverlayOnAdOverlayShownWhenPlaying() throws Exception {
+    public void shouldShowTheOverlayOnAdOverlayShownWhenPlaying() {
         setPlayingState();
 
         controller.setAdOverlayShown(true);
@@ -125,7 +125,7 @@ public class PlayerOverlayControllerTest {
     }
 
     @Test
-    public void shouldShowTheOverlayOnAdOverlayShownWhenIdle() throws Exception {
+    public void shouldShowTheOverlayOnAdOverlayShownWhenIdle() {
         setIdleState();
 
         controller.setAdOverlayShown(true);

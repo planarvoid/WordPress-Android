@@ -1,20 +1,19 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.Expect.expect;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.legacy.Request;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(SoundCloudTestRunner.class)
-public class HttpUtilsTest {
+public class HttpUtilsTest extends AndroidUnitTest {
 
     @Test
     public void testAddQueryParams() {
         Request request = Request.to("/resource");
         HttpUtils.addQueryParams(request, "a", "1", "b", "2");
-        expect(request.queryString()).toEqual("a=1&b=2");
+        assertThat(request.queryString()).isEqualTo("a=1&b=2");
     }
 
     @Test
@@ -22,13 +21,13 @@ public class HttpUtilsTest {
         Request request = Request.to("/resource");
 
         HttpUtils.addQueryParams(request);
-        expect(request.queryString()).toEqual(Request.to("/resource").queryString());
+        assertThat(request.queryString()).isEqualTo(Request.to("/resource").queryString());
 
         HttpUtils.addQueryParams(request);
-        expect(request.queryString()).toEqual(Request.to("/resource").queryString());
+        assertThat(request.queryString()).isEqualTo(Request.to("/resource").queryString());
 
         HttpUtils.addQueryParams(request, new String[]{});
-        expect(request.queryString()).toEqual(Request.to("/resource").queryString());
+        assertThat(request.queryString()).isEqualTo(Request.to("/resource").queryString());
     }
 
     @Test(expected = IllegalArgumentException.class)
