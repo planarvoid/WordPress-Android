@@ -186,10 +186,12 @@ public class Han  {
         Point deviceSize = new Point();
         solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
 
-        final int screenWidth = deviceSize.x;
         final int screenHeight = deviceSize.y;
+        final float startY = (float) (screenHeight * 0.50);
+        final float stopY = 0;
+        final int steps = (int) startY / 10;
 
-        drag(screenWidth / 4, screenWidth / 2, screenHeight - TOOLBAR_HEIGHT, screenHeight / 2, 20);
+        drag(0, 0, startY, stopY, steps);
     }
 
     public void swipeDown() {
@@ -287,8 +289,6 @@ public class Han  {
                     }
                 }
         );
-        //This is needed as it does not seem that we are waiting for UI Thread to fully finish
-        sleep(500);
     }
 
     public boolean searchText(String text, boolean onlyVisible) {
@@ -341,7 +341,7 @@ public class Han  {
 
         boolean canHideKeyboard = inputMethodManager.hideSoftInputFromWindow(focusedView.getWindowToken(), 0);
         if (canHideKeyboard) {
-            inputMethodManager.showSoftInput(focusedView,  InputMethodManager.SHOW_IMPLICIT);
+            inputMethodManager.showSoftInput(focusedView, InputMethodManager.SHOW_IMPLICIT);
         }
         return canHideKeyboard;
     }

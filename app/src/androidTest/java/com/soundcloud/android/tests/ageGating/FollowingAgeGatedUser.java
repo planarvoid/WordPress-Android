@@ -27,7 +27,7 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
                 .goToDiscovery()
                 .clickSearch()
                 .doSearch("annoymouse")
-                .clickFirstUserItem()
+                .findAndClickFirstUserItem()
                 .clickFollowToggle();
 
         assertThat(annoyMouseUserScreen.areCurrentlyFollowing(), is(true));

@@ -25,12 +25,12 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
         final CollectionsScreen collectionsScreen = mainNavHelper.goToCollections();
 
         collectionsScreen
-                .getPlaylist(newPlaylist)
+                .scrollToPlaylistWithTitle(newPlaylist)
                 .clickOverflow()
                 .clickDelete()
                 .clickConfirm();
 
-        assertThat(collectionsScreen.getPlaylist(newPlaylist).isVisible(), is(false));
+        assertThat(collectionsScreen.getPlaylistWithTitle(newPlaylist).isVisible(), is(false));
     }
 
     public void testDeletePlaylistFromPlaylistDetails() {
@@ -39,13 +39,13 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
         final CollectionsScreen collectionsScreen = mainNavHelper.goToCollections();
 
         collectionsScreen
-                .getPlaylist(newPlaylist)
+                .scrollToPlaylistWithTitle(newPlaylist)
                 .click()
                 .clickPlaylistOverflowButton()
                 .clickDelete()
                 .clickConfirm();
 
-        assertThat(collectionsScreen.getPlaylist(newPlaylist).isVisible(), is(false));
+        assertThat(collectionsScreen.getPlaylistWithTitle(newPlaylist).isVisible(), is(false));
     }
 
     private String createNewPlaylist() {

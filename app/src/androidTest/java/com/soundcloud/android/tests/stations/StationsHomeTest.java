@@ -103,7 +103,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     private String startStationAndReturnTitle() {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
                 .goToCollections()
-                .clickPlaylistWithTitle("track-stations");
+                .scrollToAndClickPlaylistWithTitle("track-stations");
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
 

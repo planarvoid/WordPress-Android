@@ -26,7 +26,7 @@ public class NotFollowingForAgeUnspecifiedUser extends ActivityTest<LauncherActi
                 .goToDiscovery()
                 .clickSearch()
                 .doSearch("annoymouse")
-                .clickFirstUserItem()
+                .findAndClickFirstUserItem()
                 .clickFollowToggle();
 
         assertThat(annoyMouseUserScreen.areCurrentlyFollowing(), is(false));

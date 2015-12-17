@@ -33,7 +33,7 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
         startEventTracking();
 
         final VisualPlayerElement player = mainNavHelper.goToCollections()
-                .clickPlaylistWithTitle("Trigger Auto Test Playlist")
+                .scrollToAndClickPlaylistWithTitle("Trigger Auto Test Playlist")
                 .clickFirstTrackOverflowButton()
                 .clickPlayRelatedTracks();
 

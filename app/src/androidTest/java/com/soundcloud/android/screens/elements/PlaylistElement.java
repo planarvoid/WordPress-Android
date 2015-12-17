@@ -68,4 +68,19 @@ public class PlaylistElement {
     private String getText(ViewElement element) {
         return new TextElement(element).getText();
     }
+
+    public static With WithTitle(final Han testDriver, final String title) {
+        return new With() {
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return PlaylistElement.forCard(testDriver, view).getTitle().equals(title);
+            }
+
+            @Override
+            public String getSelector() {
+                return String.format("With title: %s", title);
+            }
+        };
+    }
 }

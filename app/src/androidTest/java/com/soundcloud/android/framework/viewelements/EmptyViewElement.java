@@ -32,6 +32,15 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
+    public ViewElement findElement(final With... withs) {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
+    public List<ViewElement> findElements(final With... withs) {
+        throw new ViewNotFoundException(selector);
+    }
+
     public ViewElement findAncestor(ViewElement root, With with) {
         return new EmptyViewElement("Ancestor with " + with);
     }
@@ -73,6 +82,11 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public boolean isFullyVisible() {
+        return false;
+    }
+
+    @Override
+    public boolean dragIntoFullVerticalVisibility() {
         return false;
     }
 

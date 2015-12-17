@@ -30,7 +30,7 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
         startEventTracking();
 
         final VisualPlayerElement player = mainNavHelper.goToCollections()
-                .clickPlaylistWithTitle("track-stations")
+                .scrollToAndClickPlaylistWithTitle("track-stations")
                 .clickFirstTrackOverflowButton()
                 .clickStartStation();
 

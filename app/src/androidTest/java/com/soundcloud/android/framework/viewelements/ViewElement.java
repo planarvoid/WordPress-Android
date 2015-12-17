@@ -18,6 +18,15 @@ public abstract class ViewElement {
 
     public abstract List<ViewElement> findElements(With with);
 
+    public abstract ViewElement findElement(final With... withs);
+
+    public abstract List<ViewElement> findElements(final With... withs);
+
+    public interface Criteria {
+        boolean isSatisfied(ViewElement viewElement);
+
+        String description();
+    }
     public abstract ViewElement findAncestor(ViewElement root, With with);
 
     public abstract boolean isAncestorOf(ViewElement child);
@@ -39,6 +48,8 @@ public abstract class ViewElement {
     public abstract boolean isVisible();
 
     public abstract boolean isFullyVisible();
+
+    public abstract boolean dragIntoFullVerticalVisibility();
 
     public abstract boolean isAnimating();
 

@@ -26,7 +26,7 @@ public class ByEmailAgeOfMajority extends SignUpTest {
                 .clickSearch()
                 .doSearch("annoymouse")
                 .goToPeopleTab()
-                .clickFirstUserItem();
+                .findAndClickFirstUserItem();
 
         assertThat(profileScreen.areCurrentlyFollowing(), is(false));
 

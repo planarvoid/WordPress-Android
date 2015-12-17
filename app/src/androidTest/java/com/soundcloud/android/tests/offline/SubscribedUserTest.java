@@ -39,8 +39,7 @@ public class SubscribedUserTest extends ActivityTest<MainActivity> {
     @BrokenScrollingTest
     public void testDownloadIsAvailableWhenTheyAccessPlaylists() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
-                .getPlaylists()
-                .get(0)
+                .scrollToFirstPlaylist()
                 .clickOverflow()
                 .getMakeAvailableOfflineItem();
 

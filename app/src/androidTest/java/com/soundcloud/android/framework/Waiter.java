@@ -298,11 +298,9 @@ public class Waiter {
     }
 
     private class NoProgressBarCondition implements Condition {
-        private final Class<ProgressBar> PROGRESS_CLASS = ProgressBar.class;
-
         @Override
         public boolean isSatisfied() {
-            return !solo.isElementDisplayed(With.classSimpleName(PROGRESS_CLASS.getSimpleName().toString()));
+            return !solo.isElementDisplayed(With.classSimpleName(ProgressBar.class.getSimpleName()));
         }
     }
 

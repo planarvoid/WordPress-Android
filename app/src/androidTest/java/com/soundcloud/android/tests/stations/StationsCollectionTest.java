@@ -46,7 +46,7 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     public void testStartedStationShouldBeAddedToRecentStations() {
         final String stationTrackTitle = startStationAndReturnTitle();
 
-        final ViewAllStationsScreen viewAllStationsScreen = collectionsScreen.clickRecentStations();
+        final ViewAllStationsScreen viewAllStationsScreen = mainNavHelper.goToCollections().clickRecentStations();
 
         assertThat(viewAllStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTrackTitle)));
         VisualPlayerElement player = viewAllStationsScreen.getFirstStation().click();
@@ -56,7 +56,7 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
 
     private String startStationAndReturnTitle() {
         final PlaylistDetailsScreen playlistDetailsScreen = collectionsScreen
-                .clickPlaylistWithTitle("track-stations");
+                .scrollToAndClickPlaylistWithTitle("track-stations");
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
 

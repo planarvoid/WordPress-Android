@@ -23,20 +23,20 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-public final class DefaultViewElement extends ViewElement {
-    private final Han testDriver;
+public class DefaultViewElement extends ViewElement {
     private final View view;
+    private final Han testDriver;
     private ViewFetcher viewFetcher;
-    private Waiter waiter;
+    protected Waiter waiter;
 
     public DefaultViewElement(View view, Han driver) {
-        waiter = new Waiter(driver);
         if (view == null) {
             throw new IllegalArgumentException("viewElement cannot be null");
         }
-        testDriver = driver;
-        viewFetcher = new ViewFetcher(view, driver);
         this.view = view;
+        this.testDriver = driver;
+        waiter = new Waiter(driver);
+        viewFetcher = new ViewFetcher(view, driver);
     }
 
     @Override
@@ -50,6 +50,15 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     @Override
+    public ViewElement findElement(final With... withs) {
+        return viewFetcher.findElement(withs);
+    }
+
+    @Override
+    public List<ViewElement> findElements(final With... withs) {
+        return viewFetcher.findElements(withs);
+    }
+
     public ViewElement findAncestor(ViewElement root, With with) {
         return viewFetcher.findAncestor(root.getView(), with);
     }
@@ -111,17 +120,17 @@ public final class DefaultViewElement extends ViewElement {
         }
         Log.i("CLICKEVENT", String.format("View rect: %s", getRect().flattenToString()));
         Log.i("CLICKEVENT", String.format("Clicking at: %s", getClickPoint()));
-        testDriver.clickOnScreen(getVisibleRect().exactCenterX(), getVisibleRect().exactCenterY()) ;
+        testDriver.clickOnScreen(getVisibleRect().exactCenterX(), getVisibleRect().exactCenterY());
     }
 
     private String getClickPoint() {
         return String.format("%d, %d", getVisibleRect().centerX(), getVisibleRect().centerY());
     }
 
-    private Rect getVisibleRect(){
+    private Rect getVisibleRect() {
         Rect visibleRect = new Rect();
-        if(view.getGlobalVisibleRect(visibleRect) == true) {
-            if(visibleRect.intersect(getRect())){
+        if (view.getGlobalVisibleRect(visibleRect)) {
+            if (visibleRect.intersect(getRect())) {
                 return visibleRect;
             }
             return getRect();
@@ -130,18 +139,48 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    public boolean isFullyVisible() {
+    public boolean dragIntoFullVerticalVisibility() {
+        if (!viewCanFitVerticallyOnScreen()) {
+            return false;
+        }
+
+        Rect visibleRect = getVisibleRect();
         Rect viewRect = getRect();
-        Log.i("CLICKEVENT", String.format("View rect: %s", getRect().flattenToString()));
-        return getVisibleRect().contains(viewRect.left, viewRect.top, viewRect.right, viewRect.bottom);
+
+        if (isFullyVisible(visibleRect, viewRect)) {
+            return true;
+        }
+
+        // bottom is cut off
+        if (visibleRect.bottom < viewRect.bottom) {
+            int screenBottom = visibleRect.bottom - 1; // account for zero-index
+            int heightOfNonVisibleSection = viewRect.bottom - visibleRect.bottom;
+            testDriver.drag(0, 0, screenBottom, screenBottom - heightOfNonVisibleSection, heightOfNonVisibleSection / 10);
+        }
+
+        return true;
+    }
+
+    private boolean viewCanFitVerticallyOnScreen() {
+        return getHeight() <= getScreenHeight();
+    }
+
+    private boolean isFullyVisible(Rect visibleRect, Rect viewRect) {
+        Log.i("CLICKEVENT", String.format("View rect: %s", viewRect.flattenToString()));
+        return visibleRect.contains(viewRect.left, viewRect.top, viewRect.right, viewRect.bottom);
+    }
+
+    @Override
+    public boolean isFullyVisible() {
+        return isFullyVisible(getVisibleRect(), getRect());
     }
 
     private Rect getScreenRect() {
-        return new Rect(0,0, getScreenWidth(), getScreenHeight());
+        return new Rect(0, 0, getScreenWidth(), getScreenHeight());
     }
 
     private Rect getRect() {
-        return new Rect(getLocation()[0], getLocation()[1], getLocation()[0] + view.getWidth(), getLocation()[1]+ view.getHeight());
+        return new Rect(getLocation()[0], getLocation()[1], getLocation()[0] + view.getWidth(), getLocation()[1] + view.getHeight());
     }
 
     @Override
@@ -235,10 +274,14 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    /* package */ View getView() { return view; }
+    /* package */ View getView() {
+        return view;
+    }
 
     @Override
-    /* package */ Han getTestDriver() { return testDriver; }
+    /* package */ Han getTestDriver() {
+        return testDriver;
+    }
 
     @Override
     public List<ViewElement> getChildren() {

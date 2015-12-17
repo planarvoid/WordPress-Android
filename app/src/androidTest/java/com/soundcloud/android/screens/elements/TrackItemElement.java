@@ -61,4 +61,19 @@ public class TrackItemElement {
 
         return new TrackItemMenuElement(testDriver);
     }
+
+    public static With WithReposter(final Han testDriver) {
+        return new With() {
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return new TrackItemElement(testDriver, view).hasReposter();
+            }
+
+            @Override
+            public String getSelector() {
+                return String.format("With reposter");
+            }
+        };
+    }
 }

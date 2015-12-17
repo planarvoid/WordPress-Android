@@ -28,7 +28,7 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
 
-        playlistScreen = mainNavHelper.goToCollections().clickPlaylistWithTitle("Geoblock Test");
+        playlistScreen = mainNavHelper.goToCollections().scrollToAndClickPlaylistWithTitle("Geoblock Test");
     }
 
     public void testSkipsBlockedTracks() throws Exception {

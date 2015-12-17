@@ -36,7 +36,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH);
 
         playlistDetailsScreen = mainNavHelper.goToCollections()
-                .clickPlaylistWithTitle("track-stations");
+                .scrollToAndClickPlaylistWithTitle("track-stations");
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
     }

@@ -91,19 +91,8 @@ public abstract class Screen {
     }
 
     protected ViewElement scrollListToItem(final With with) {
-        RecyclerViewElement recyclerView = testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
-        return recyclerView.scrollToItem(new RecyclerViewElement.Criteria() {
-            @Override
-            public boolean isSatisfied(ViewElement viewElement) {
-                return !(viewElement.findElement(with)
-                        instanceof com.soundcloud.android.framework.viewelements.EmptyViewElement);
-            }
-
-            @Override
-            public String description() {
-                return with.getSelector();
-            }
-        });
+        RecyclerViewElement recyclerViewElement = testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
+        return recyclerViewElement.scrollToItem(with);
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {

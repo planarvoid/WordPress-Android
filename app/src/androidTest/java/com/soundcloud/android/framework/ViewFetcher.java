@@ -16,6 +16,8 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -27,7 +29,7 @@ public class ViewFetcher {
     private Han testDriver;
     private View parentView;
     private ElementWaiter elementWaiter = new ElementWaiter();
-    private String TAG = getClass().getSimpleName().toString();
+    private String TAG = getClass().getSimpleName();
 
     public ViewFetcher(Han driver){
         testDriver = driver;
@@ -59,6 +61,71 @@ public class ViewFetcher {
             return elementWaiter.waitForElements(with);
         }
         return viewElements;
+    }
+
+    public ViewElement findElement(final With... withs) {
+        return findElements(withs).get(0);
+    }
+
+    public List<ViewElement> findElements(final With... withs) {
+        if (withs.length == 0) {
+            return emptyViewElementList("Zero arguments");
+        }
+
+        if (withs.length == 1) {
+            return findElements(withs[0]);
+        }
+
+        return findElements(withs[0], Arrays.copyOfRange(withs, 1, withs.length));
+    }
+
+    private List<ViewElement> findElements(With with, final With... withs) {
+        if (withs.length == 0) {
+            return emptyViewElementList("Not enough arguments");
+        }
+
+        List<ViewElement> results = Lists.newArrayList(filter(
+                findFullyVisibleElements(with),
+                new Predicate<ViewElement>() {
+                    @Override
+                    public boolean apply(ViewElement viewElement) {
+                        for (With with : withs) {
+                            if (!with.apply(viewElement)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }
+        ));
+
+        if (results.size() == 0) {
+            return  emptyViewElementList(failedToFindElementsMessage(withs));
+        }
+        return results;
+    }
+
+    private List<ViewElement> emptyViewElementList(String message) {
+        List<ViewElement> result = new ArrayList<>();
+        result.add(new EmptyViewElement(message));
+        return result;
+    }
+
+    private String failedToFindElementsMessage(With... withs) {
+        String result = "Unable to find element ";
+        for (With with : withs) {
+            result += with.getSelector() + ", ";
+        }
+        return result;
+    }
+
+    public List<ViewElement> findFullyVisibleElements(With with) {
+        return Lists.newArrayList(filter(findElements(with), new Predicate<ViewElement>() {
+            @Override
+            public boolean apply(ViewElement viewElement) {
+                return viewElement.isFullyVisible();
+            }
+        }));
     }
 
     public ViewElement findAncestor(View root, With with) {

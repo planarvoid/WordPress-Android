@@ -25,13 +25,14 @@ public class ProfileScreen extends Screen {
     public ProfileScreen(Han solo) {
         super(solo);
     }
+
     public ProfileScreen(Han solo, String username) {
         super(solo);
         waiter.waitForElement(new TextElement(userName()), username);
     }
 
     public VisualPlayerElement playTrack(int index) {
-        waiter.waitForContentAndRetryIfLoadingFailed();
+
         VisualPlayerElement visualPlayerElement = getTracks().get(index).click();
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
@@ -51,7 +52,7 @@ public class ProfileScreen extends Screen {
     public PlaylistDetailsScreen clickFirstPlaylistWithTracks() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         final List<PlaylistElement> playlists = getPlaylists();
-        for (PlaylistElement playlistElement : playlists){
+        for (PlaylistElement playlistElement : playlists) {
             final String trackCount = playlistElement.getTrackCount();
             if (Strings.isNotBlank(trackCount) && !trackCount.equalsIgnoreCase("0 tracks")) {
                 return playlistElement.click();
@@ -95,18 +96,11 @@ public class ProfileScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstRepostedTrack() {
-        final ViewElement viewElement = currentRecyclerView().scrollToItem(new RecyclerViewElement.Criteria() {
-                                                                               @Override
-                                                                               public boolean isSatisfied(ViewElement viewElement) {
-                                                                                   return viewElement.isElementDisplayed(With.id(R.id.reposter));
-                                                                               }
-
-                                                                               @Override
-                                                                               public String description() {
-                                                                                   return "HasReposter";
-                                                                               }
-                                                                           }
+        final ViewElement viewElement = currentRecyclerView().scrollToItem(
+                With.id(R.id.track_list_item),
+                TrackItemElement.WithReposter(testDriver)
         );
+
         viewElement.click();
         VisualPlayerElement visualPlayer = new VisualPlayerElement(testDriver);
         visualPlayer.waitForExpandedPlayer();
@@ -114,7 +108,7 @@ public class ProfileScreen extends Screen {
     }
 
     private RecyclerViewElement currentRecyclerView() {
-        return new RecyclerViewElement(testDriver.findElement(With.className(RecyclerView.class)), testDriver);
+        return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
     public TextElement description() {

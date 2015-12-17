@@ -133,7 +133,7 @@ public class StreamScreen extends Screen {
 
     }
 
-    private class NotPromotedTrackCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
+    private class NotPromotedTrackCriteria extends StreamCardsCriteria implements ViewElement.Criteria {
 
         public NotPromotedTrackCriteria(Han testDriver) {
             super(testDriver);
@@ -150,7 +150,7 @@ public class StreamScreen extends Screen {
         }
     }
 
-    private class NotPromotedPlaylistCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
+    private class NotPromotedPlaylistCriteria extends StreamCardsCriteria implements ViewElement.Criteria {
 
         public NotPromotedPlaylistCriteria(Han testDriver) {
             super(testDriver);
@@ -167,7 +167,7 @@ public class StreamScreen extends Screen {
         }
     }
 
-    private class PlaylistCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
+    private class PlaylistCriteria extends StreamCardsCriteria implements ViewElement.Criteria {
 
         public PlaylistCriteria(Han testDriver) {
             super(testDriver);
@@ -184,7 +184,7 @@ public class StreamScreen extends Screen {
         }
     }
 
-    private class TrackCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
+    private class TrackCriteria extends StreamCardsCriteria implements ViewElement.Criteria {
 
         public TrackCriteria(Han testDriver) {
             super(testDriver);
@@ -201,7 +201,7 @@ public class StreamScreen extends Screen {
         }
     }
 
-    private class RepostedTrackCriteria extends StreamCardsCriteria implements RecyclerViewElement.Criteria {
+    private class RepostedTrackCriteria extends StreamCardsCriteria implements ViewElement.Criteria {
 
         public RepostedTrackCriteria(Han testDriver) {
             super(testDriver);

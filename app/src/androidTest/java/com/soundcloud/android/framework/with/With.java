@@ -141,7 +141,7 @@ public abstract class With implements Predicate<ViewElement> {
 
         @Override
         public boolean apply(ViewElement viewElement) {
-            return viewElement.getViewClass().getName().toString().equals(className);
+            return viewElement.getViewClass().getName().equals(className);
         }
 
         @Override
@@ -159,7 +159,7 @@ public abstract class With implements Predicate<ViewElement> {
 
         @Override
         public boolean apply(ViewElement viewElement) {
-            return viewElement.getViewClass().getSimpleName().toString().equals(classSimpleName);
+            return viewElement.getViewClass().getSimpleName().equals(classSimpleName);
         }
 
         @Override

@@ -55,12 +55,11 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testPlaylistItemUpsellImpressionAndClick() {
-        PlaylistElement playlistAtPosition = mainNavHelper.goToCollections()
-                .getPlaylists().get(0);
+        PlaylistElement firstPlaylist = mainNavHelper.goToCollections().scrollToFirstPlaylist();
 
         startEventTracking();
 
-        UpgradeScreen upgradeScreen = playlistAtPosition
+        UpgradeScreen upgradeScreen = firstPlaylist
                 .clickOverflow()
                 .clickUpsell();
 

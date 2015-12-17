@@ -49,8 +49,7 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
         enableOfflineContent(context);
 
         mainNavHelper.goToCollections()
-                .getPlaylists()
-                .get(0)
+                .scrollToFirstPlaylist()
                 .clickOverflow()
                 .clickMakeAvailableOffline();
 
@@ -65,8 +64,7 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
         goBackOnlineDialog.clickContinue();
 
         ViewElement makeAvailableOfflineItem = mainNavHelper.goToCollections()
-                .getPlaylists()
-                .get(0)
+                .scrollToFirstPlaylist()
                 .clickOverflow()
                 .getMakeAvailableOfflineItem();
 

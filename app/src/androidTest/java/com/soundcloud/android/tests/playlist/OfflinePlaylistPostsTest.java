@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
+import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
@@ -32,16 +33,10 @@ public class OfflinePlaylistPostsTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadsPlaylistWhenMadeAvailableOffline() {
-        final CollectionsScreen playlistsScreen = mainNavHelper.goToCollections()
-                .getPlaylists()
-                .get(0)
-                .clickOverflow()
-                .clickMakeAvailableOffline();
+        final PlaylistElement firstPlaylist = mainNavHelper.goToCollections().scrollToFirstPlaylist();
+        firstPlaylist.clickOverflow().clickMakeAvailableOffline();
 
-        final DownloadImageViewElement downloadElement =
-                playlistsScreen.getPlaylists()
-                        .get(0)
-                        .downloadElement();
+        final DownloadImageViewElement downloadElement = firstPlaylist.downloadElement();
 
         assertTrue("Playlist should be requested or downloading",
                 downloadElement.isRequested() || downloadElement.isDownloaded() || downloadElement.isDownloading());

@@ -61,21 +61,19 @@ public class CollectionsPlaylistOptionsTest extends ActivityTest<MainActivity> {
     public void testSortsPlaylists() {
         navigateToCollections();
 
-        collectionsScreen = mainNavHelper.goToCollections();
-
-        final String firstPlaylistTitle = collectionsScreen.getFirstPlaylist().getTitle();
+        final String firstPlaylistTitle = collectionsScreen.scrollToFirstPlaylist().getTitle();
 
         collectionsScreen.clickPlaylistOptions()
                 .clickSortByTitle()
                 .clickDone();
 
-        assertThat(collectionsScreen.getFirstPlaylist().getTitle(), is(not(equalTo(firstPlaylistTitle))));
+        assertThat(collectionsScreen.scrollToFirstPlaylist().getTitle(), is(not(equalTo(firstPlaylistTitle))));
 
         collectionsScreen.clickPlaylistOptions()
                 .clickSortByCreatedAt()
                 .clickDone();
 
-        assertThat(collectionsScreen.getFirstPlaylist().getTitle(), is(equalTo(firstPlaylistTitle)));
+        assertThat(collectionsScreen.scrollToFirstPlaylist().getTitle(), is(equalTo(firstPlaylistTitle)));
     }
     
 }

@@ -53,12 +53,6 @@ public class SearchResultsScreen extends Screen {
     }
 
     // this seems more reliable than scrolling around the list waiting for a particular list element type
-    public ProfileScreen clickFirstUserItem() {
-        resultsList().getItemAt(0).click();
-        return new ProfileScreen(testDriver);
-    }
-
-    // this seems more reliable than scrolling around the list waiting for a particular list element type
     public PlaylistDetailsScreen clickFirstPlaylistItem() {
         resultsList().getItemAt(0).click();
         return new PlaylistDetailsScreen(testDriver);
