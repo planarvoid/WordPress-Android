@@ -36,10 +36,7 @@ public class ApiTrackLike implements PropertySetSource, TrackRecordHolder {
         if (!(o instanceof ApiTrackLike)) {
             return false;
         }
-        if (!apiTrack.equals(((ApiTrackLike) o).apiTrack)) {
-            return false;
-        }
-        return true;
+        return apiTrack.equals(((ApiTrackLike) o).apiTrack);
     }
 
     @Override

@@ -219,10 +219,7 @@ public class PlayQueueManager implements OriginProvider {
 
     private boolean isPlayableAtPosition(int i) {
         final PlayQueueItem playQueueItem = playQueue.getPlayQueueItem(i);
-        if (playQueueItem.isVideo() || !((TrackQueueItem) playQueueItem).isBlocked()) {
-            return true;
-        }
-        return false;
+        return playQueueItem.isVideo() || !((TrackQueueItem) playQueueItem).isBlocked();
     }
 
     public boolean moveToPreviousPlayableItem() {

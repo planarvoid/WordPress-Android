@@ -55,11 +55,8 @@ public class Link implements Parcelable {
 
         Link link = (Link) o;
 
-        if (href != null ? !href.equals(link.href) : link.href != null) {
-            return false;
-        }
+        return !(href != null ? !href.equals(link.href) : link.href != null);
 
-        return true;
     }
 
     @Override

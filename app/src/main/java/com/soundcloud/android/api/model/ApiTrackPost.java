@@ -37,10 +37,7 @@ public class ApiTrackPost implements PropertySetSource, TrackRecordHolder {
         if (!(o instanceof ApiTrackPost)) {
             return false;
         }
-        if (!apiTrack.equals(((ApiTrackPost) o).apiTrack)) {
-            return false;
-        }
-        return true;
+        return apiTrack.equals(((ApiTrackPost) o).apiTrack);
     }
 
     @Override

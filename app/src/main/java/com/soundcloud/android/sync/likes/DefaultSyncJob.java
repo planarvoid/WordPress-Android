@@ -47,10 +47,7 @@ public class DefaultSyncJob implements SyncJob {
         }
 
         DefaultSyncJob that = (DefaultSyncJob) o;
-        if (!syncer.equals(that.syncer)) {
-            return false;
-        }
-        return true;
+        return syncer.equals(that.syncer);
     }
 
     @Override

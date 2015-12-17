@@ -173,10 +173,7 @@ public class Token implements Serializable {
             if (refresh != null ? !refresh.equals(token.refresh) : token.refresh != null) {
                 return false;
             }
-            if (scope != null ? !scope.equals(token.scope) : token.scope != null) {
-                return false;
-            }
-            return true;
+            return !(scope != null ? !scope.equals(token.scope) : token.scope != null);
         } else {
             return super.equals(o);
         }

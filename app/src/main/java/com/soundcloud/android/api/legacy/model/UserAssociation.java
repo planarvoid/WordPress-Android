@@ -223,11 +223,8 @@ public class UserAssociation extends Association implements UserHolder {
         if (removedAt != null ? !removedAt.equals(that.removedAt) : that.removedAt != null) {
             return false;
         }
-        if (!user.equals(that.user)) {
-            return false;
-        }
+        return user.equals(that.user);
 
-        return true;
     }
 
     @Override

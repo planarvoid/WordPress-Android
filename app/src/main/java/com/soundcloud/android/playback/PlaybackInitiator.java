@@ -22,9 +22,6 @@ import java.util.Map;
 
 public class PlaybackInitiator {
 
-    public static final boolean WITH_RELATED = true;
-    public static final boolean WITHOUT_RELATED = false;
-
     private final PlayQueueManager playQueueManager;
     private final PlayQueueOperations playQueueOperations;
     private final PlaySessionController playSessionController;

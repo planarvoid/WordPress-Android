@@ -56,15 +56,12 @@ public class BulkInsertMap extends HashMap<Uri, Set<BulkInsertMap.ResourceValues
 
             ResourceValues that = (ResourceValues) o;
 
-            if (contentValues == null ? that.contentValues != null :
+            return !(contentValues == null ? that.contentValues != null :
                     (!contentValues.containsKey(TableColumns.ResourceTable._ID)
                             || !that.contentValues.containsKey(TableColumns.ResourceTable._ID)
                             || contentValues.get(TableColumns.ResourceTable._ID) != that.contentValues.get(TableColumns.ResourceTable._ID)
-                    )) {
-                return false;
-            }
+                    ));
 
-            return true;
         }
 
         @Override

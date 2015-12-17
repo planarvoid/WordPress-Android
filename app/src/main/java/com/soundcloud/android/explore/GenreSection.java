@@ -44,11 +44,8 @@ class GenreSection<T> {
         if (sectionId != section.sectionId) {
             return false;
         }
-        if (!items.equals(section.items)) {
-            return false;
-        }
+        return items.equals(section.items);
 
-        return true;
     }
 
     @Override

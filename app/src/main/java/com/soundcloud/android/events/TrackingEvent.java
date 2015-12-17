@@ -61,11 +61,8 @@ public class TrackingEvent {
         if (!attributes.equals(event.attributes)) {
             return false;
         }
-        if (!kind.equals(event.kind)) {
-            return false;
-        }
+        return kind.equals(event.kind);
 
-        return true;
     }
 
     @Override

@@ -36,10 +36,7 @@ public class ApiPlaylistLike implements PropertySetSource, PlaylistRecordHolder 
         if (!(o instanceof ApiPlaylistLike)) {
             return false;
         }
-        if (!apiPlaylist.equals(((ApiPlaylistLike) o).apiPlaylist)) {
-            return false;
-        }
-        return true;
+        return apiPlaylist.equals(((ApiPlaylistLike) o).apiPlaylist);
     }
 
     @Override

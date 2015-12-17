@@ -136,10 +136,7 @@ public class SyncStateManager {
 
     public boolean isContentDueForSync(SyncContent syncContent) {
         final LocalCollection lc = fromContent(syncContent.content.uri);
-        if (syncContent.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
-            return true;
-        }
-        return false;
+        return syncContent.shouldSync(lc.syncMisses(), lc.last_sync_success);
     }
 
     public void addChangeListener(@NotNull LocalCollection lc, @NotNull LocalCollection.OnChangeListener listener) {
