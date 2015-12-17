@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playback.NotificationTrack;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.java.collections.PropertySet;
@@ -48,9 +48,10 @@ public class PlaybackNotificationPresenter {
     }
 
     protected PendingIntent createPendingIntent(Context context) {
-        Intent intent = new Intent(context, MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
-                .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
+        final Intent intent = new Intent(context, LauncherActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
 
         Screen.NOTIFICATION.addToIntent(intent);
         Referrer.PLAYBACK_NOTIFICATION.addToIntent(intent);
