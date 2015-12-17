@@ -1,18 +1,16 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.animation.ObjectAnimator;
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TranslateXAnimatorTest {
+public class TranslateXAnimatorTest extends AndroidUnitTest {
 
     @Mock private View progressView;
 
@@ -26,13 +24,12 @@ public class TranslateXAnimatorTest {
     @Test
     public void createAnimatorCreatesAnimatorForProgressView() {
         ObjectAnimator animator = translateXAnimator.createAnimator(0f, 100f);
-        expect(animator.getTarget()).toBe(progressView);
+        assertThat(animator.getTarget()).isEqualTo(progressView);
     }
 
     @Test
     public void createAnimatorCreatesAnimatorForTranslateXProperty() {
         ObjectAnimator animator = translateXAnimator.createAnimator(0f, 100f);
-        expect(animator.getPropertyName()).toEqual("translationX");
+        assertThat(animator.getPropertyName()).isEqualTo("translationX");
     }
-
 }

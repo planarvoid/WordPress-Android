@@ -1,21 +1,19 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.robolectric.Robolectric;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ExpandPlayerSubscriberTest {
+public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
     private ExpandPlayerSubscriber subscriber;
 
     private TestEventBus eventBus;
@@ -31,18 +29,18 @@ public class ExpandPlayerSubscriberTest {
     public void expandsPlayerOnPlaybackResultSuccess() {
         subscriber.onNext(PlaybackResult.success());
 
-        Robolectric.runUiThreadTasksIncludingDelayedTasks();
-        expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).toBeTrue();
+        Robolectric.flushForegroundThreadScheduler();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).isTrue();
     }
 
     @Test
     public void emitsOpenPlayerOnPlaybackResultSuccess() {
         subscriber.onNext(PlaybackResult.success());
 
-        Robolectric.runUiThreadTasksIncludingDelayedTasks();
+        Robolectric.flushForegroundThreadScheduler();
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY);
-        expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+        assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
     @Test

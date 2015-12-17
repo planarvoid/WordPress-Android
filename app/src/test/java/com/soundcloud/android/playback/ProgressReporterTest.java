@@ -7,18 +7,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.cast.CastOperations;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import org.mockito.runners.MockitoJUnitRunner;
 import rx.schedulers.TimeInterval;
 import rx.subjects.PublishSubject;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ProgressReporterTest {
 
     public static final TimeInterval<Long> TIME_INTERVAL = new TimeInterval<>(3L, 2L);
@@ -35,6 +32,7 @@ public class ProgressReporterTest {
         progressReporter = new ProgressReporter(castOperations);
         progressReporter.setProgressPuller(progressPuller);
         subject = PublishSubject.create();
+
         when(castOperations.intervalForProgressPull()).thenReturn(subject);
     }
 

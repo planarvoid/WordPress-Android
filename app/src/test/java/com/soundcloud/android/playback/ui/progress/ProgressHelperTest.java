@@ -1,17 +1,17 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ProgressHelperTest {
 
     private static final int START_POSITION = 0;
@@ -30,19 +30,18 @@ public class ProgressHelperTest {
     @Test
     public void setValueFromProportionSetsValueWithProgressView() {
         progressHelper.setValueFromProportion(progressView, .5f);
-        expect(progressHelper.getProgressView()).toBe(progressView);
+        assertThat(progressHelper.getProgressView()).isEqualTo(progressView);
     }
 
     @Test
     public void setValueFromProportionSetsValueProportionalValue() {
         progressHelper.setValueFromProportion(progressView, .5f);
-        expect(progressHelper.getSetValue()).toEqual(50f);
+        assertThat(progressHelper.getSetValue()).isEqualTo(50f);
     }
 
     @Test
     public void getProgressFromPositionReturnsProgress() {
-        expect(progressHelper.getProgressFromPosition(30)).toEqual(.3f);
-
+        assertThat(progressHelper.getProgressFromPosition(30)).isEqualTo(.3f);
     }
 
     private static class TestProgressHelper extends ProgressHelper {

@@ -2,14 +2,14 @@ package com.soundcloud.android.playback.ui.progress;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ScrollXHelperTest {
 
     @Mock private View progressView;

@@ -5,19 +5,17 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.Context;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaybackNotificationPresenterTest {
+public class PlaybackNotificationPresenterTest extends AndroidUnitTest {
+
     private PlaybackNotificationPresenter presenter;
     private PropertySet trackProperties;
 

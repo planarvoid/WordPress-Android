@@ -1,23 +1,21 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
-public class TranslateXHelperTest {
+public class TranslateXHelperTest extends AndroidUnitTest {
 
     @Mock private View progressView;
 
     @Test
     public void createsTranslateXAnimator() {
-        expect(new TranslateXHelper(0, 0).createAnimator(progressView, .5f)).toBeInstanceOf(TranslateXAnimator.class);
+        assertThat(new TranslateXHelper(0, 0).createAnimator(progressView, .5f)).isInstanceOf(TranslateXAnimator.class);
     }
 
     @Test

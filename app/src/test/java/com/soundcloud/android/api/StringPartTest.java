@@ -9,5 +9,4 @@ public class StringPartTest {
     public void shouldDefineEqualsAndHashCode() {
         EqualsVerifier.forClass(StringPart.class).allFieldsShouldBeUsed().verify();
     }
-
 }

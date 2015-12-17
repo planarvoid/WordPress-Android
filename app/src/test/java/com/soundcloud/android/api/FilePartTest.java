@@ -9,5 +9,4 @@ public class FilePartTest {
     public void shouldDefineEqualsAndHashCode() {
         EqualsVerifier.forClass(FilePart.class).allFieldsShouldBeUsed().verify();
     }
-
 }

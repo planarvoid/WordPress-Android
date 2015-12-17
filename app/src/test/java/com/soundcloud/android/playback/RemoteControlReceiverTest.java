@@ -1,19 +1,17 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.playback.RemoteControlReceiver;
 import com.soundcloud.android.playback.external.PlaybackAction;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.shadows.ShadowSystemClock;
-import org.junit.After;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.DateProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -22,21 +20,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.KeyEvent;
 
-@RunWith(SoundCloudTestRunner.class)
-public class RemoteControlReceiverTest {
+public class RemoteControlReceiverTest extends AndroidUnitTest {
     private RemoteControlReceiver receiver;
+
     @Mock private Context context;
+    @Mock private DateProvider dateProvider;
     @Captor private ArgumentCaptor<Intent> captor;
 
     @Before
     public void setUp() throws Exception {
-        receiver = new RemoteControlReceiver();
+        receiver = new RemoteControlReceiver(dateProvider);
         receiver.resetLastClicked();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        ShadowSystemClock.reset();
     }
 
     @Test
@@ -60,7 +54,8 @@ public class RemoteControlReceiverTest {
     @Test
     public void shouldSendNextAndPlayActionBroadcastOnReceivingHeadSetHookDoubleClickEvent() throws Exception {
         receiveMediaIntent(KeyEvent.KEYCODE_HEADSETHOOK);
-        ShadowSystemClock.setUptimeMillis(300L);
+        when(dateProvider.getCurrentTime()).thenReturn(300L);
+
         receiveMediaIntent(KeyEvent.KEYCODE_HEADSETHOOK);
         verifyBroadcastedActions(PlaybackAction.TOGGLE_PLAYBACK,
                 PlaybackAction.NEXT,
@@ -70,7 +65,8 @@ public class RemoteControlReceiverTest {
     @Test
     public void shouldNotSendNextActionBroadcastOnReceivingHeadSetHookDoubleClickTooLongEvent() throws Exception {
         receiveMediaIntent(KeyEvent.KEYCODE_HEADSETHOOK);
-        ShadowSystemClock.setUptimeMillis(1000L);
+
+        when(dateProvider.getCurrentTime()).thenReturn(1000L);
         receiveMediaIntent(KeyEvent.KEYCODE_HEADSETHOOK);
         verifyBroadcastedActions(PlaybackAction.TOGGLE_PLAYBACK,
                 PlaybackAction.TOGGLE_PLAYBACK);
@@ -150,7 +146,7 @@ public class RemoteControlReceiverTest {
 
     private void verifyBroadcastedAction(final String playbackAction) {
         verify(context).sendBroadcast(captor.capture());
-        expect(captor.getValue().getAction()).toEqual(playbackAction);
+        assertThat(captor.getValue().getAction()).isEqualTo(playbackAction);
     }
 
     private void verifyBroadcastedActions(String... playbackActions) {
@@ -159,7 +155,7 @@ public class RemoteControlReceiverTest {
         verify(context, atLeast(playbackActions.length)).sendBroadcast(captor.capture());
 
         for (String action : playbackActions) {
-            expect(captor.getAllValues().get(index++).getAction()).toEqual(action);
+            assertThat(captor.getAllValues().get(index++).getAction()).isEqualTo(action);
         }
     }
 
@@ -169,6 +165,7 @@ public class RemoteControlReceiverTest {
     }
 
     private void expectExtraEqualsRemoteSource() {
-        expect(captor.getValue().getStringExtra(PlayControlEvent.EXTRA_EVENT_SOURCE)).toEqual(PlayControlEvent.SOURCE_REMOTE);
+        assertThat(captor.getValue().getStringExtra(PlayControlEvent.EXTRA_EVENT_SOURCE))
+                .isEqualTo(PlayControlEvent.SOURCE_REMOTE);
     }
 }

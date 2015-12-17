@@ -10,16 +10,14 @@ import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.res.Resources;
 
-@RunWith(SoundCloudTestRunner.class)
-public class StreamUrlBuilderTest {
+public class StreamUrlBuilderTest extends AndroidUnitTest {
 
     @Mock AccountOperations accountOperations;
     @Mock Token token;

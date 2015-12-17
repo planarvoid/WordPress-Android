@@ -3,16 +3,14 @@ package com.soundcloud.android.playback.ui.progress;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.os.Message;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SeekHandlerTest {
+public class SeekHandlerTest extends AndroidUnitTest {
 
     private static final float SEEK_POS = .5f;
 
