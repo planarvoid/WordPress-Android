@@ -112,15 +112,14 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
         }
     }
 
-    private Set<PropertySet> createChangedEntities(Set<PropertySet> posts, boolean isReposted) {
+    private Set<PropertySet> createChangedEntities(Set<PropertySet> posts, boolean isAdded) {
         Set<PropertySet> changedEntities = Sets.newHashSetWithExpectedSize(posts.size());
         for (PropertySet post : posts) {
-            if (post.get(PostProperty.IS_REPOST)) {
-                changedEntities.add(PropertySet.from(
-                        PlayableProperty.URN.bind(post.get(PlayableProperty.URN)),
-                        PlayableProperty.IS_USER_REPOST.bind(isReposted)
-                ));
-            }
+            final boolean isUserRepost = post.get(PostProperty.IS_REPOST) && isAdded;
+            changedEntities.add(PropertySet.from(
+                    PlayableProperty.URN.bind(post.get(PlayableProperty.URN)),
+                    PlayableProperty.IS_USER_REPOST.bind(isUserRepost)
+            ));
         }
         return changedEntities;
     }
