@@ -41,9 +41,9 @@
         android:layout_marginTop="4dp"
         android:visibility="gone" />
 
-    <ToggleButton
-        android:id="@+id/toggle_play_pause"
-        style="@style/PlaylistPlayToggle" />
+    <ImageButton
+        android:id="@+id/btn_play"
+        style="@style/PlaylistPlay" />
 
     <FrameLayout
         android:id="@+id/playlist_action_bar_holder"

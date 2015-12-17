@@ -88,9 +88,10 @@ public class PlaylistDetailActivity extends ScActivity {
         Urn urn = intent.getParcelableExtra(EXTRA_URN);
         PromotedSourceInfo promotedSourceInfo = intent.getParcelableExtra(EXTRA_PROMOTED_SOURCE_INFO);
         SearchQuerySourceInfo searchQuerySourceInfo = intent.getParcelableExtra(EXTRA_QUERY_SOURCE_INFO);
+        boolean autoplay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false);
         Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);
 
-        Fragment fragment = PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo);
+        Fragment fragment = PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 

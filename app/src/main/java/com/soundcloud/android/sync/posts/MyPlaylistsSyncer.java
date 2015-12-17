@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync.posts;
 
+import static com.soundcloud.android.events.EntityStateChangedEvent.fromPlaylistPushedToServer;
+
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -108,16 +110,18 @@ public class MyPlaylistsSyncer implements SyncStrategy {
 
             final ApiPlaylist newPlaylist = apiClient.fetchMappedResponse(request, ApiPlaylistWrapper.class).getApiPlaylist();
             replacePlaylist.with(Pair.create(playlistUrn, newPlaylist)).call();
-            publishPlaylistCreated(newPlaylist);
+            publishPlaylistCreated(playlistUrn, newPlaylist);
             postedPlaylistUrns.add(newPlaylist.getUrn());
         }
 
         return postedPlaylistUrns;
     }
 
-    private void publishPlaylistCreated(ApiPlaylist newPlaylist) {
+    private void publishPlaylistCreated(Urn localPlaylistUrn, ApiPlaylist newPlaylist) {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromCreatePlaylist(EntityMetadata.from(newPlaylist)));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistPushedToServer(newPlaylist.toPropertySet()));
+
+        final EntityStateChangedEvent event = fromPlaylistPushedToServer(localPlaylistUrn, newPlaylist.toPropertySet());
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
     }
 
     private Map<String, Object> createPlaylistBody(PropertySet localPlaylist, List<Urn> trackUrns) {

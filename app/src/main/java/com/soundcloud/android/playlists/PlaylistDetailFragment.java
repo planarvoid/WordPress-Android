@@ -25,8 +25,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -35,6 +33,7 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -53,11 +52,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -70,11 +69,20 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
     public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
+    public static final String EXTRA_AUTOPLAY = "autoplay";
 
     private final Func1<EntityStateChangedEvent, Boolean> IS_CURRENT_PLAYLIST_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.getKind() == EntityStateChangedEvent.PLAYLIST_DELETED
+                    && event.getFirstUrn().equals(getPlaylistUrn());
+        }
+    };
+
+    private final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_PUSHED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.getKind() == EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER
                     && event.getFirstUrn().equals(getPlaylistUrn());
         }
     };
@@ -105,24 +113,16 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private CompositeSubscription eventSubscription = new CompositeSubscription();
 
     private View headerUsernameText;
-    private ToggleButton playToggle;
+    private ImageButton playToggle;
     private PlaylistWithTracks playlistWithTracks;
 
     private boolean listShown;
     private boolean playOnLoad;
 
-    private final View.OnClickListener onPlayToggleClick = new View.OnClickListener() {
+    private final View.OnClickListener onPlayClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (playSessionController.shouldDisableSkipping()) {
-                playToggle.setChecked(false);
-            }
-
-            if (playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())) {
-                playSessionController.togglePlayback();
-            } else {
-                playFromBeginning();
-            }
+            playFromBeginning();
         }
     };
 
@@ -130,14 +130,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         @Override
         public void onClick(View v) {
             navigator.openProfile(getActivity(), playlistWithTracks.getCreatorUrn());
-        }
-    };
-
-    private final DefaultSubscriber<Player.StateTransition> playstateTransitionSubscriber = new DefaultSubscriber<Player.StateTransition>() {
-        @Override
-        public void onNext(Player.StateTransition event) {
-            playToggle.setChecked(playQueueManager.isCurrentCollection(getPlaylistUrn())
-                    && event.playSessionIsActive());
         }
     };
 
@@ -150,11 +142,12 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
     };
 
-    public static PlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo, PromotedSourceInfo promotedInfo) {
+    public static PlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo, PromotedSourceInfo promotedInfo, boolean autoplay) {
         final Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_URN, playlistUrn);
         bundle.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchInfo);
         bundle.putParcelable(EXTRA_PROMOTED_SOURCE_INFO, promotedInfo);
+        bundle.putBoolean(EXTRA_AUTOPLAY, autoplay);
         screen.addToBundle(bundle);
         PlaylistDetailFragment fragment = new PlaylistDetailFragment();
         fragment.setArguments(bundle);
@@ -199,7 +192,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private void playFromBeginning() {
-        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus));
+        playTracksAtPosition(0, expandPlayerSubscriberProvider.get());
     }
 
     private void addLifeCycleComponents() {
@@ -212,7 +205,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
         createLoadPlaylistObservable();
         if (savedInstanceState == null) {
-            playOnLoad = getActivity().getIntent().getBooleanExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, false);
+            playOnLoad = getArguments().getBoolean(EXTRA_AUTOPLAY, false);
         }
     }
 
@@ -262,8 +255,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        eventSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED,
-                playstateTransitionSubscriber));
         eventSubscription.add(
                 eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                         .filter(EntityStateChangedEvent.IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
@@ -274,6 +265,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                 .queue(ENTITY_STATE_CHANGED)
                 .filter(IS_CURRENT_PLAYLIST_DELETED)
                 .subscribe(new GoBackSubscriber()));
+
+        eventSubscription.add(eventBus
+                .queue(ENTITY_STATE_CHANGED)
+                .filter(IS_PLAYLIST_PUSHED_FILTER)
+                .subscribe(new PlaylistPushedSubscriber()));
     }
 
     @Override
@@ -291,10 +287,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private Urn getPlaylistUrn() {
-        // if possible, use the instance to get the ID as it can change during syncing
-        if (playlistWithTracks != null) {
-            return playlistWithTracks.getUrn();
-        }
         return getArguments().getParcelable(EXTRA_URN);
     }
 
@@ -335,8 +327,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
             }
         });
 
-        playToggle = (ToggleButton) detailsView.findViewById(R.id.toggle_play_pause);
-        playToggle.setOnClickListener(onPlayToggleClick);
+        playToggle = (ImageButton) detailsView.findViewById(R.id.btn_play);
+        playToggle.setOnClickListener(onPlayClick);
 
         headerUsernameText = detailsView.findViewById(R.id.username);
         headerUsernameText.setOnClickListener(onHeaderTextClick);
@@ -464,21 +456,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
     }
 
-    private final class ShowPlayerAfterPlaybackSubscriber extends ShowPlayerSubscriber {
-
-        public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus) {
-            super(eventBus, playbackToastHelper);
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            super.onError(e);
-            if (e instanceof IllegalStateException) {
-                playToggle.setChecked(false);
-            }
-        }
-    }
-
     private class GoBackSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
         public void onNext(EntityStateChangedEvent args) {
@@ -487,6 +464,15 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
             if (isAdded()) {
                 getActivity().finish();
             }
+        }
+    }
+
+    private class PlaylistPushedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+        @Override
+        public void onNext(EntityStateChangedEvent args) {
+            final PropertySet updatedPlaylist = args.getNextChangeSet();
+            playlistWithTracks.update(updatedPlaylist);
+            getArguments().putParcelable(EXTRA_URN, updatedPlaylist.get(PlaylistProperty.URN));
         }
     }
 }

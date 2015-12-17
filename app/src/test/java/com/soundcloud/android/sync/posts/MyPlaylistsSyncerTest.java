@@ -61,6 +61,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     @Mock private ApiClient apiClient;
     @Mock private EventBus eventBus;
 
+    private Urn localPlaylistUrn;
+
     @Before
     public void setUp() throws Exception {
         syncer = new MyPlaylistsSyncer(
@@ -141,7 +143,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
         EntityStateChangedEvent event = captor.getValue();
         assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER);
-        assertThat(event.getChangeMap().get(newPlaylist.getUrn())).isEqualTo(newPlaylist.toPropertySet());
+        assertThat(event.getChangeMap().get(localPlaylistUrn)).isEqualTo(newPlaylist.toPropertySet());
     }
 
     @Test
@@ -190,6 +192,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
     private ApiPlaylist setupNewPlaylistCreation() throws Exception {
         final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 1);
+        localPlaylistUrn = playlists.get(0).getUrn();
         final List<Urn> playlistTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
         final ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
 

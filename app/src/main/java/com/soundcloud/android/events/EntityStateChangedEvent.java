@@ -167,8 +167,9 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return create(PLAYLIST_DELETED, PropertySet.from(PlaylistProperty.URN.bind(playlist)));
     }
 
-    public static EntityStateChangedEvent fromPlaylistPushedToServer(PropertySet playlist) {
-        return create(PLAYLIST_PUSHED_TO_SERVER, playlist);
+    public static EntityStateChangedEvent fromPlaylistPushedToServer(Urn localUrn, PropertySet playlist) {
+        Map<Urn, PropertySet> changeMap = Collections.singletonMap(localUrn, playlist);
+        return new AutoValue_EntityStateChangedEvent(PLAYLIST_PUSHED_TO_SERVER, changeMap);
     }
 
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(Urn playlistUrn, int trackCount) {

@@ -104,14 +104,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playTrackShouldNotSendServiceIntentIfTrackAlreadyPlayingWithSameOrigin() {
-        when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
-        playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN));
-
-        verifyZeroInteractions(playSessionController);
-    }
-
-    @Test
     public void playTrackShouldPlayNewQueueIfTrackAlreadyPlayingWithDifferentContext() {
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get());
@@ -154,7 +146,18 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         when(playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn())).thenReturn(true);
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, playSessionSource).subscribe(observer);
 
-        verifyZeroInteractions(playSessionController);
+        verify(playSessionController, never()).playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class));
+    }
+
+    @Test
+    public void playTrackCallsPlayIfTrackAlreadyPlayingWithSameOriginAndSameCollectionUrn() {
+        when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
+        final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN);
+        when(playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn())).thenReturn(true);
+        playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, playSessionSource).subscribe(observer);
+
+        verify(playSessionController).play();
     }
 
     @Test

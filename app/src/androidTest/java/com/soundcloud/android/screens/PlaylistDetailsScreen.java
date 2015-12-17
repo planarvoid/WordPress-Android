@@ -53,17 +53,17 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public void clickHeaderPlay() {
-        headerPlayToggle().click();
+        headerPlayButton().click();
         waiter.waitForPlaybackToBePlaying();
     }
 
     public void clickHeaderPause() {
-        headerPlayToggle().click();
+        headerPlayButton().click();
         waiter.waitForPlaybackToBeIdle();
     }
 
     public boolean isPlayToggleChecked() {
-        return headerPlayToggle().isChecked();
+        return headerPlayButton().isChecked();
     }
 
     public void touchToggleLike() {
@@ -138,8 +138,8 @@ public class PlaylistDetailsScreen extends Screen {
         return new TextElement(testDriver.findElement(With.id(R.id.title)));
     }
 
-    private ViewElement headerPlayToggle() {
-        return testDriver.findElement(With.id(R.id.toggle_play_pause));
+    private ViewElement headerPlayButton() {
+        return testDriver.findElement(With.id(R.id.btn_play));
     }
 
     private ViewElement likeToggle() {

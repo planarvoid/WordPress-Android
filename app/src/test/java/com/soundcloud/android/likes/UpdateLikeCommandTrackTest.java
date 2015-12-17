@@ -4,10 +4,13 @@ import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,6 +44,21 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
 
         assertThat(newLikesCount).isEqualTo(35);
         databaseAssertions().assertLikesCount(targetUrn, 35);
+    }
+
+    @Test
+    public void doesNotUpdatesUnknownLikesCountInSoundsWhenLiked() throws Exception {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.getStats().setLikesCount(Consts.NOT_SET);
+        testFixtures().insertTrack(track);
+        targetUrn = track.getUrn();
+
+        databaseAssertions().assertLikesCount(targetUrn, -1);
+
+        final int newLikesCount = command.call(new UpdateLikeParams(targetUrn, true));
+
+        assertThat(newLikesCount).isEqualTo(-1);
+        databaseAssertions().assertLikesCount(targetUrn, -1);
     }
 
     @Test

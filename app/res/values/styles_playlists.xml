@@ -74,12 +74,12 @@
         <item name="android:textColor">@color/list_text_header</item>
     </style>
 
-    <style name="PlaylistPlayToggle" parent="CustomToggle">
+    <style name="PlaylistPlay">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:layout_centerInParent">true</item>
-        <item name="android:background">@drawable/btn_header_play_toggle</item>
+        <item name="android:background">@drawable/btn_header_play</item>
         <item name="android:visibility">gone</item>
     </style>
 

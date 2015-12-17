@@ -1,9 +1,9 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static org.assertj.android.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -21,6 +21,7 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
@@ -30,46 +31,38 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.PlaybackService;
-import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.presentation.ListItemAdapter;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.robolectric.shadows.support.v4.SupportFragmentTestUtil;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ToggleButton;
 
 import javax.inject.Provider;
 import java.util.Arrays;
 import java.util.Collections;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaylistDetailFragmentTest {
+public class PlaylistDetailFragmentTest extends AndroidUnitTest {
 
     private PlaylistDetailFragment fragment;
-    private FragmentActivity activity = new FragmentActivity();
     private PlaylistWithTracks playlistWithTracks;
     private TestEventBus eventBus = new TestEventBus();
 
@@ -86,7 +79,6 @@ public class PlaylistDetailFragmentTest {
     @Mock private ListItemAdapter<TrackItem> adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private Intent intent;
     @Mock private FeatureOperations featureOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private Navigator navigator;
@@ -110,19 +102,14 @@ public class PlaylistDetailFragmentTest {
                 navigator
         );
 
-        Robolectric.shadowOf(fragment).setActivity(activity);
-        Robolectric.shadowOf(fragment).setAttached(true);
-
         playlistWithTracks = createPlaylist();
 
         when(controllerProvider.create()).thenReturn(controller);
         when(controller.getAdapter()).thenReturn(adapter);
+        when(adapter.getViewTypeCount()).thenReturn(1);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithTracks));
         when(offlinePlaybackOperations.playPlaylist(any(Urn.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(312L));
-
-        fragment.onAttach(activity);
-        activity.setIntent(intent);
     }
 
     @Test
@@ -133,7 +120,7 @@ public class PlaylistDetailFragmentTest {
 
         list.getOnItemClickListener().onItemClick(list, mock(View.class), /* offset for header */ 1, 123);
 
-        verify(navigator).openUpgrade(activity);
+        verify(navigator).openUpgrade(fragment.getActivity());
     }
 
     @Test
@@ -166,7 +153,7 @@ public class PlaylistDetailFragmentTest {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(createPlaylistWithoutTracks()));
         View layout = createFragmentView();
 
-        expect(getToggleButton(layout).getVisibility()).toBe(View.GONE);
+        assertThat(getPlayButton(layout)).isNotVisible();
     }
 
     @Test
@@ -209,21 +196,18 @@ public class PlaylistDetailFragmentTest {
     public void shouldShowPlayToggleButtonWithTracks() {
         View layout = createFragmentView();
 
-        expect(getToggleButton(layout).getVisibility()).toBe(View.VISIBLE);
+        assertThat(getPlayButton(layout)).isVisible();
     }
 
     @Test
     public void shouldNotAutoPlayWithAutoPlaySetOnIntentIfPlaylistHasNoItems() {
-        when(intent.getBooleanExtra(eq(PlaylistDetailActivity.EXTRA_AUTO_PLAY), anyBoolean())).thenReturn(true);
         when(controller.getAdapter()).thenReturn(adapter);
-        createFragmentView();
+        createFragmentView(true);
         verifyNoMoreInteractions(playSessionController);
     }
 
     @Test
     public void shouldAutoPlayIfAutoPlaySetOnIntentIfPlaylistIsNotEmpty() {
-        when(intent.getBooleanExtra(eq(PlaylistDetailActivity.EXTRA_AUTO_PLAY), anyBoolean())).thenReturn(true);
-
         TrackItem playlistTrack = ModelFixtures.create(TrackItem.class);
         when(adapter.getItem(0)).thenReturn(playlistTrack);
 
@@ -231,7 +215,7 @@ public class PlaylistDetailFragmentTest {
 
         when(controller.hasTracks()).thenReturn(true);
 
-        createFragmentView();
+        createFragmentView(true);
 
         verify(offlinePlaybackOperations).playPlaylist(playlistWithTracks.getUrn(), playlistTrack.getEntityUrn(), 0, playSessionSource);
     }
@@ -243,72 +227,25 @@ public class PlaylistDetailFragmentTest {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithTracks, updatedPlaylistWithTracks));
         View layout = createFragmentView();
 
-        expect(getToggleButton(layout).getVisibility()).toBe(View.GONE);
+        assertThat(getPlayButton(layout)).isNotVisible();
     }
 
     @Test
-    public void shouldPlayPlaylistOnToggleToPlayState() {
+    public void shouldPlayPlaylistOnPlayClick() {
         final TrackItem playlistTrack = ModelFixtures.create(TrackItem.class);
         when(adapter.getItem(0)).thenReturn(playlistTrack);
         View layout = createFragmentView();
 
         final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
 
-        getToggleButton(layout).performClick();
+        getPlayButton(layout).performClick();
 
         verify(offlinePlaybackOperations).playPlaylist(playlistWithTracks.getUrn(), playlistTrack.getEntityUrn(), 0, playSessionSource);
     }
 
     @Test
-    public void shouldPlayPlaylistOnToggleToPauseState() {
-        when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(true);
-        View layout = createFragmentView();
-
-        getToggleButton(layout).performClick();
-
-        verify(playSessionController).togglePlayback();
-    }
-
-    @Test
-    public void shouldUncheckPlayToggleOnTogglePlayStateWhenSkippingIsDisabled() {
-        when(playSessionController.shouldDisableSkipping()).thenReturn(true);
-        when(adapter.getItem(0)).thenReturn(ModelFixtures.create(TrackItem.class));
-        View layout = createFragmentView();
-        ToggleButton toggleButton = getToggleButton(layout);
-
-        toggleButton.performClick();
-
-        expect(toggleButton.isChecked()).toBeFalse();
-    }
-
-    @Test
-    public void shouldSetToggleToPlayStateWhenPlayingCurrentPlaylistOnResume() {
-        when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(true);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.NOT_SET));
-
-        View layout = createFragmentView();
-        fragment.onResume();
-
-        expect(getToggleButton(layout).isChecked()).toBeTrue();
-    }
-
-    @Test
-    public void shouldNotSetToggleToPlayStateWhenPlayingDifferentPlaylistOnResume() {
-        when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(false);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.NOT_SET));
-
-        View layout = createFragmentView();
-        fragment.onResume();
-
-        expect(getToggleButton(layout).isChecked()).toBeFalse();
-    }
-
-    @Test
      public void engagementsControllerStartsListeningInOnStart() {
         createFragmentView();
-        fragment.onStart();
         verify(playlistEngagementsPresenter).onStart(fragment);
     }
 
@@ -391,7 +328,7 @@ public class PlaylistDetailFragmentTest {
 
     @Test
     public void clearsAndAddsAllItemsToAdapterWhenPlaylistIsReturned() {
-        expect(playlistWithTracks.getTracks().size()).toBeGreaterThan(0);
+        assertThat(playlistWithTracks.getTracks().size()).isGreaterThan(0);
         createFragmentView();
 
         verify(controller).setContent(playlistWithTracks, null);
@@ -400,8 +337,8 @@ public class PlaylistDetailFragmentTest {
     @Test
     public void clearsAndAddsAllItemsToAdapterForEachPlaylistWhenPlaylistIsEmittedMultipleTimes() {
         PlaylistWithTracks updatedPlaylistWithTracks = createPlaylist();
-        expect(playlistWithTracks.getTracks().size()).toBeGreaterThan(0);
-        expect(updatedPlaylistWithTracks.getTracks().size()).toBeGreaterThan(0);
+        assertThat(playlistWithTracks.getTracks().size()).isGreaterThan(0);
+        assertThat(updatedPlaylistWithTracks.getTracks().size()).isGreaterThan(0);
 
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(
                 Observable.from(Arrays.asList(playlistWithTracks, updatedPlaylistWithTracks)));
@@ -411,18 +348,6 @@ public class PlaylistDetailFragmentTest {
         InOrder inOrder = Mockito.inOrder(controller);
         inOrder.verify(controller).setContent(playlistWithTracks, null);
         inOrder.verify(controller).setContent(updatedPlaylistWithTracks, null);
-    }
-
-    @Test
-    public void showsToastErrorWhenContentAlreadyShownAndRefreshFails() {
-        when(playlistOperations.updatedPlaylistInfo(any(Urn.class))).thenReturn(
-                Observable.<PlaylistWithTracks>error(new Exception("cannot refresh")));
-        when(controller.hasContent()).thenReturn(true);
-
-        createFragmentView();
-        fragment.onRefresh();
-
-        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.connection_list_error);
     }
 
     @Test
@@ -451,36 +376,10 @@ public class PlaylistDetailFragmentTest {
     }
 
     @Test
-    public void shouldSetPlayingStateWhenPlaybackStateChanges() {
-        when(playQueueManager.isCurrentCollection(playlistWithTracks.getUrn())).thenReturn(true);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.NOT_SET));
-
-        View layout = createFragmentView();
-        fragment.onResume();
-
-        Robolectric.getShadowApplication().sendBroadcast(new Intent(PlaybackService.Broadcasts.PLAYSTATE_CHANGED));
-
-        expect(getToggleButton(layout).isChecked()).toBeTrue();
-    }
-
-    @Test
-    public void shouldSetPlayingStateWhenPlaybackMetaChanges() {
-        when(playQueueManager.isCurrentCollection(Urn.forPlaylist(123))).thenReturn(true);
-        View layout = createFragmentView();
-        fragment.onStart();
-
-        Robolectric.getShadowApplication().sendBroadcast(new Intent(PlaybackService.Broadcasts.META_CHANGED));
-
-        expect(getToggleButton(layout).isChecked()).toBeFalse();
-    }
-
-    @Test
     public void shouldForwardOnViewCreatedEventToController() {
-        Bundle savedInstanceState = new Bundle();
-        View layout = createFragmentView(savedInstanceState);
+        View layout = createFragmentView();
 
-        verify(controller).onViewCreated(layout, savedInstanceState);
+        verify(controller).onViewCreated(same(layout), any(Bundle.class));
     }
 
     @Test
@@ -495,28 +394,36 @@ public class PlaylistDetailFragmentTest {
     public void onCreateViewRecreatesPlaylistDetailsController() {
         createFragmentView();
 
-        fragment.onCreateView(activity.getLayoutInflater(), new RelativeLayout(activity), null);
+        fragment.onCreateView(fragment.getLayoutInflater(null), new RelativeLayout(fragment.getActivity()), null);
 
         verify(controllerProvider, times(2)).create();
     }
 
-    private View createFragmentView() {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(PlaylistDetailFragment.EXTRA_URN, playlistWithTracks.getUrn());
-        Screen.STREAM.addToBundle(bundle);
-        fragment.setArguments(bundle);
-        return createFragmentView(new Bundle());
+    @Test
+    public void entityStateChangedForPlaylistUpdateChangesUrn() {
+        createFragmentView();
+
+        final ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        final EntityStateChangedEvent event = EntityStateChangedEvent.fromPlaylistPushedToServer(
+                playlistWithTracks.getUrn(), newPlaylist.toPropertySet());
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
+
+        assertThat(fragment.getArguments().getParcelable(PlaylistDetailFragment.EXTRA_URN)).isEqualTo(newPlaylist.getUrn());
     }
 
-    private View createFragmentView(Bundle savedInstanceState) {
+    private View createFragmentView() {
+        return createFragmentView(true);
+    }
+
+    private View createFragmentView(boolean autoplay) {
         Bundle fragmentArguments = new Bundle();
         fragmentArguments.putParcelable(PlaylistDetailFragment.EXTRA_URN, playlistWithTracks.getUrn());
+        fragmentArguments.putBoolean(PlaylistDetailFragment.EXTRA_AUTOPLAY, autoplay);
         Screen.STREAM.addToBundle(fragmentArguments);
         fragment.setArguments(fragmentArguments);
-        fragment.onCreate(null);
-        View layout = fragment.onCreateView(activity.getLayoutInflater(), new RelativeLayout(activity), null);
-        fragment.onViewCreated(layout, savedInstanceState);
-        return layout;
+        SupportFragmentTestUtil.startVisibleFragment(fragment);
+        return fragment.getView();
     }
 
     private PlaylistWithTracks createPlaylist() {
@@ -531,8 +438,8 @@ public class PlaylistDetailFragmentTest {
                 Collections.<TrackItem>emptyList());
     }
 
-    private ToggleButton getToggleButton(View layout) {
-        return (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+    private ImageButton getPlayButton(View layout) {
+        return (ImageButton) layout.findViewById(R.id.btn_play);
     }
 
     private PlaySessionSource getPlaySessionSource() {
