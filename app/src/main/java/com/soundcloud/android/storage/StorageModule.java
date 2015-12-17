@@ -37,6 +37,7 @@ public class StorageModule {
     public static final String COLLECTIONS = "collections";
     public static final String STATIONS = "stations";
     public static final String SYNCER = "syncer";
+    public static final String STREAM = "stream";
 
     private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
     private static final String PREFS_DEVICE_MANAGEMENT = "device_management";
@@ -53,6 +54,7 @@ public class StorageModule {
     private static final String PREFS_COLLECTIONS = "collections";
     private static final String PREFS_STATIONS = "stations";
     private static final String PREFS_SYNCER = "syncer";
+    private static final String PREFS_STREAM = "stream";
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY)
@@ -113,7 +115,8 @@ public class StorageModule {
         return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
     }
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     @Named(FEATURES)
     public SharedPreferences provideFeaturePrefs(Context context, Obfuscator obfuscator) {
         return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURES, Context.MODE_PRIVATE), obfuscator);
@@ -123,6 +126,12 @@ public class StorageModule {
     @Named(STREAM_SYNC)
     public SharedPreferences provideStreamSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_STREAM_SYNC, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(STREAM)
+    public SharedPreferences provideStreamPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_STREAM, Context.MODE_PRIVATE);
     }
 
     @Provides

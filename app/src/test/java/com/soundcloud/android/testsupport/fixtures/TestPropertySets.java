@@ -343,4 +343,9 @@ public abstract class TestPropertySets {
     public static PropertySet midTierTrack() {
         return fromApiTrack(ModelFixtures.create(ApiTrack.class)).put(TrackProperty.SUB_MID_TIER, true);
     }
+
+    public static PropertySet upsellableTrack() {
+        return midTierTrack().put(TrackProperty.SNIPPED, true);
+    }
+
 }

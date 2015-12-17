@@ -16,7 +16,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class SoundStreamAdapter
+class SoundStreamAdapter
         extends PagingRecyclerItemAdapter<StreamItem, SoundStreamAdapter.SoundStreamViewHolder>
         implements NowPlayingAdapter {
 
@@ -25,25 +25,30 @@ public class SoundStreamAdapter
     private static final int FACEBOOK_INVITES_ITEM_TYPE = 2;
     private static final int STATIONS_ONBOARDING_STREAM_ITEM_TYPE = 3;
     private static final int FACEBOOK_CREATOR_INVITES_ITEM_TYPE = 4;
+    private static final int STREAM_UPSELL_ITEM_TYPE = 5;
 
     private final FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer;
     private final StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer;
     private final FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer;
+    private final UpsellNotificationItemRenderer upsellNotificationItemRenderer;
 
     @Inject
     public SoundStreamAdapter(StreamTrackItemRenderer trackItemRenderer,
                               StreamPlaylistItemRenderer playlistItemRenderer,
                               FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer,
                               StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer,
-                              FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer) {
+                              FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer,
+                              UpsellNotificationItemRenderer upsellNotificationItemRenderer) {
         super(new CellRendererBinding<>(TRACK_ITEM_TYPE, trackItemRenderer),
                 new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistItemRenderer),
                 new CellRendererBinding<>(FACEBOOK_INVITES_ITEM_TYPE, facebookListenerInvitesItemRenderer),
                 new CellRendererBinding<>(STATIONS_ONBOARDING_STREAM_ITEM_TYPE, stationsOnboardingStreamItemRenderer),
-                new CellRendererBinding<>(FACEBOOK_CREATOR_INVITES_ITEM_TYPE, facebookCreatorInvitesItemRenderer));
+                new CellRendererBinding<>(FACEBOOK_CREATOR_INVITES_ITEM_TYPE, facebookCreatorInvitesItemRenderer),
+                new CellRendererBinding<>(STREAM_UPSELL_ITEM_TYPE, upsellNotificationItemRenderer));
         this.facebookListenerInvitesItemRenderer = facebookListenerInvitesItemRenderer;
         this.facebookCreatorInvitesItemRenderer = facebookCreatorInvitesItemRenderer;
         this.stationsOnboardingStreamItemRenderer = stationsOnboardingStreamItemRenderer;
+        this.upsellNotificationItemRenderer = upsellNotificationItemRenderer;
     }
 
     @Override
@@ -61,6 +66,8 @@ public class SoundStreamAdapter
             return FACEBOOK_CREATOR_INVITES_ITEM_TYPE;
         } else if (urn.equals(StationOnboardingStreamItem.URN)) {
             return STATIONS_ONBOARDING_STREAM_ITEM_TYPE;
+        } else if (urn.equals(UpsellNotificationItem.URN)) {
+            return STREAM_UPSELL_ITEM_TYPE;
         } else {
             throw new IllegalArgumentException("unknown item type: " + item);
         }
@@ -98,6 +105,10 @@ public class SoundStreamAdapter
 
     void setOnStationsOnboardingStreamClickListener(StationsOnboardingStreamItemRenderer.Listener listener) {
         this.stationsOnboardingStreamItemRenderer.setListener(listener);
+    }
+
+    void setOnUpsellClickListener(UpsellNotificationItemRenderer.Listener listener) {
+        this.upsellNotificationItemRenderer.setListener(listener);
     }
 
 }
