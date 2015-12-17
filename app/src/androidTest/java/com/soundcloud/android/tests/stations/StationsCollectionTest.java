@@ -20,7 +20,6 @@ import com.soundcloud.android.tests.ActivityTest;
 @StationsSoftLaunchTest
 public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     private CollectionsScreen collectionsScreen;
-    private String stationNameInPlayer;
 
     public StationsCollectionTest() {
         super(LauncherActivity.class);
