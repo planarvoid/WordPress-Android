@@ -608,6 +608,7 @@
 
     <!-- __TABS -->
     <string name="tab_home">Home</string>
+    <string name="tab_stations">Stations</string>
     <string name="tab_discovery">Discovery</string>
     <string name="tab_collection">Collection</string>
     <string name="tab_you">More</string>
