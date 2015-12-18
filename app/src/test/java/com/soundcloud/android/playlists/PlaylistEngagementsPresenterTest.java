@@ -384,7 +384,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
-                .put(PlaylistProperty.IS_LIKED, true);
+                .put(PlaylistProperty.IS_USER_LIKE, true);
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
         verify(engagementsView, never()).hideOfflineContentOptions();
@@ -533,8 +533,8 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         playlist.setSharing(sharing);
         return playlist.toPropertySet()
                 .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, false)
-                .put(PlaylistProperty.IS_LIKED, false)
-                .put(PlaylistProperty.IS_REPOSTED, false)
+                .put(PlaylistProperty.IS_USER_LIKE, false)
+                .put(PlaylistProperty.IS_USER_REPOST, false)
                 .put(PlaylistProperty.IS_POSTED, false);
     }
 

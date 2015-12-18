@@ -56,7 +56,7 @@ public class PlaylistWithTracks {
     }
 
     public boolean isLikedByUser() {
-        return sourceSet.get(PlaylistProperty.IS_LIKED);
+        return sourceSet.get(PlaylistProperty.IS_USER_LIKE);
     }
 
     public int getRepostsCount() {
@@ -64,7 +64,7 @@ public class PlaylistWithTracks {
     }
 
     public boolean isRepostedByUser() {
-        return sourceSet.get(PlaylistProperty.IS_REPOSTED);
+        return sourceSet.get(PlaylistProperty.IS_USER_REPOST);
     }
 
     public boolean isPostedByUser() {

@@ -46,7 +46,7 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
                 PlayableProperty.TITLE.bind("title"),
                 PlayableProperty.CREATOR_NAME.bind("creator"),
                 PlayableProperty.LIKES_COUNT.bind(5),
-                PlayableProperty.IS_LIKED.bind(false),
+                PlayableProperty.IS_USER_LIKE.bind(false),
                 PlaylistProperty.TRACK_COUNT.bind(11)
         );
         playlistItem = PlaylistItem.from(propertySet);

@@ -67,7 +67,7 @@ public class LikeOperations {
                 return PropertySet.from(
                         PlayableProperty.URN.bind(targetUrn),
                         PlayableProperty.LIKES_COUNT.bind(newLikesCount),
-                        PlayableProperty.IS_LIKED.bind(addLike));
+                        PlayableProperty.IS_USER_LIKE.bind(addLike));
             }
         };
     }

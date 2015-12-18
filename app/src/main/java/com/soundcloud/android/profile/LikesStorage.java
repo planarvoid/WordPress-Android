@@ -120,7 +120,7 @@ public class LikesStorage {
             propertySet.put(PlaylistProperty.TRACK_COUNT, readTrackCount(cursorReader));
             propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
             propertySet.put(PlaylistProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
-            propertySet.put(PlayableProperty.IS_LIKED, true);
+            propertySet.put(PlayableProperty.IS_USER_LIKE, true);
             propertySet.put(LikeProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.CREATED_AT));
             return propertySet;
         }
@@ -142,7 +142,7 @@ public class LikesStorage {
             propertySet.put(TrackProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
             propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.SoundView.PLAYBACK_COUNT));
             propertySet.put(TrackProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
-            propertySet.put(PlayableProperty.IS_LIKED, true);
+            propertySet.put(PlayableProperty.IS_USER_LIKE, true);
             propertySet.put(LikeProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.CREATED_AT));
             return propertySet;
         }

@@ -272,15 +272,15 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final TrackPageHolder holder = getViewHolder(trackPage);
         final PropertySet changeSet = trackChangedEvent.getNextChangeSet();
 
-        if (changeSet.contains(PlayableProperty.IS_LIKED)) {
-            holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_LIKED));
+        if (changeSet.contains(PlayableProperty.IS_USER_LIKE)) {
+            holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_USER_LIKE));
         }
         if (changeSet.contains(PlayableProperty.LIKES_COUNT)) {
             setLikeCount(holder, changeSet.get(PlayableProperty.LIKES_COUNT));
         }
 
-        if (changeSet.contains(PlayableProperty.IS_REPOSTED)) {
-            final boolean isReposted = changeSet.get(PlayableProperty.IS_REPOSTED);
+        if (changeSet.contains(PlayableProperty.IS_USER_REPOST)) {
+            final boolean isReposted = changeSet.get(PlayableProperty.IS_USER_REPOST);
             holder.menuController.setIsUserRepost(isReposted);
 
             if (trackChangedEvent.getKind() == EntityStateChangedEvent.REPOST) {

@@ -154,7 +154,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldMergePlaylistLikedStatus() {
         Map<Urn, PropertySet> likeStatus = new HashMap<>(1);
-        likeStatus.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(true)));
+        likeStatus.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_USER_LIKE.bind(true)));
 
         SearchResult result = toSearchResult(buildPlaylistSummariesResponse());
         when(loadPlaylistLikedStatuses.call(result)).thenReturn(likeStatus);
@@ -168,7 +168,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldMergePlaylistNotLikedStatus() {
         Map<Urn, PropertySet> likeStatus = new HashMap<>(1);
-        likeStatus.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(false)));
+        likeStatus.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_USER_LIKE.bind(false)));
 
         SearchResult result = toSearchResult(buildPlaylistSummariesResponse());
         when(loadPlaylistLikedStatuses.call(result)).thenReturn(likeStatus);
@@ -182,7 +182,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldMergePlaylistRepostedStatus() {
         Map<Urn, PropertySet> repostStatus = new HashMap<>(1);
-        repostStatus.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_REPOSTED.bind(true)));
+        repostStatus.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_USER_REPOST.bind(true)));
 
         SearchResult result = toSearchResult(buildPlaylistSummariesResponse());
         when(loadPlaylistRepostStatuses.call(result)).thenReturn(repostStatus);
@@ -196,7 +196,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldMergePlaylistNotRepostedStatus() {
         Map<Urn, PropertySet> repostStatus = new HashMap<>(1);
-        repostStatus.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_REPOSTED.bind(false)));
+        repostStatus.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_USER_REPOST.bind(false)));
 
         SearchResult result = toSearchResult(buildPlaylistSummariesResponse());
         when(loadPlaylistRepostStatuses.call(result)).thenReturn(repostStatus);

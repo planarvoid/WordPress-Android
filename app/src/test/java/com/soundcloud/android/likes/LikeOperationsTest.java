@@ -77,7 +77,7 @@ public class LikeOperationsTest extends AndroidUnitTest {
 
         EntityStateChangedEvent event = eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED);
         assertThat(event.getFirstUrn()).isEqualTo(targetUrn);
-        assertThat(event.getNextChangeSet().contains(PlayableProperty.IS_LIKED)).isTrue();
+        assertThat(event.getNextChangeSet().contains(PlayableProperty.IS_USER_LIKE)).isTrue();
         assertThat(event.getNextChangeSet().contains(PlayableProperty.LIKES_COUNT)).isTrue();
     }
 

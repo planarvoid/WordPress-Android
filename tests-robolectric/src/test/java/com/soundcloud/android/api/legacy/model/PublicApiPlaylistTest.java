@@ -164,7 +164,7 @@ public class PublicApiPlaylistTest {
         expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual(playlist.getUsername());
         Expect.expect(propertySet.get(PlaylistProperty.TRACK_COUNT)).toEqual(playlist.getTrackCount());
         expect(propertySet.get(PlayableProperty.LIKES_COUNT)).toEqual(playlist.likes_count);
-        expect(propertySet.get(PlayableProperty.IS_LIKED)).toEqual(playlist.user_like);
+        expect(propertySet.get(PlayableProperty.IS_USER_LIKE)).toEqual(playlist.user_like);
         expect(propertySet.get(PlayableProperty.IS_PRIVATE)).toEqual(playlist.isPrivate());
     }
 

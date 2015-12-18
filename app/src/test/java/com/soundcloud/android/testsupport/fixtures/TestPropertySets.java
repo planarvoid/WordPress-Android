@@ -36,7 +36,7 @@ public abstract class TestPropertySets {
                 PlayableProperty.TITLE.bind("someone's favorite song"),
                 PlayableProperty.CREATOR_NAME.bind("someone's favorite band"),
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L)),
-                PlayableProperty.IS_LIKED.bind(false),
+                PlayableProperty.IS_USER_LIKE.bind(false),
                 AdProperty.IS_AUDIO_AD.bind(false)
         );
     }
@@ -53,12 +53,12 @@ public abstract class TestPropertySets {
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(456L)),
                 PlayableProperty.PLAY_DURATION.bind(20000L),
                 TrackProperty.FULL_DURATION.bind(30000L),
-                PlayableProperty.IS_LIKED.bind(true),
+                PlayableProperty.IS_USER_LIKE.bind(true),
                 PlayableProperty.LIKES_COUNT.bind(1),
                 PlayableProperty.REPOSTS_COUNT.bind(1),
                 PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
                 PlayableProperty.IS_PRIVATE.bind(false),
-                PlayableProperty.IS_REPOSTED.bind(false),
+                PlayableProperty.IS_USER_REPOST.bind(false),
                 PlayableProperty.CREATED_AT.bind(new Date())
         );
     }
@@ -70,7 +70,7 @@ public abstract class TestPropertySets {
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind(""),
                 PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
-                PlayableProperty.IS_REPOSTED.bind(true));
+                PlayableProperty.IS_USER_REPOST.bind(true));
     }
 
     public static PropertySet expectedTrackForListItem(Urn urn) {
@@ -234,18 +234,18 @@ public abstract class TestPropertySets {
                 TrackProperty.POLICY.bind(apiTrack.getPolicy()),
                 TrackProperty.BLOCKED.bind(apiTrack.isBlocked()),
                 TrackProperty.SNIPPED.bind(apiTrack.isSnipped()),
-                PlayableProperty.IS_LIKED.bind(isLiked),
+                PlayableProperty.IS_USER_LIKE.bind(isLiked),
                 PlayableProperty.PERMALINK_URL.bind(apiTrack.getPermalinkUrl()),
                 PlayableProperty.IS_PRIVATE.bind(isPrivate),
                 PlayableProperty.CREATED_AT.bind(apiTrack.getCreatedAt()),
-                PlayableProperty.IS_REPOSTED.bind(isReposted));
+                PlayableProperty.IS_USER_REPOST.bind(isReposted));
     }
 
     public static PropertySet likedEntityChangeSet(Urn targetUrn, int likesCount) {
         return PropertySet.from(
                 PlayableProperty.URN.bind(targetUrn),
                 PlayableProperty.LIKES_COUNT.bind(likesCount),
-                PlayableProperty.IS_LIKED.bind(true)
+                PlayableProperty.IS_USER_LIKE.bind(true)
         );
     }
 
@@ -253,7 +253,7 @@ public abstract class TestPropertySets {
         return PropertySet.from(
                 PlayableProperty.URN.bind(targetUrn),
                 PlayableProperty.LIKES_COUNT.bind(likesCount),
-                PlayableProperty.IS_LIKED.bind(false)
+                PlayableProperty.IS_USER_LIKE.bind(false)
         );
     }
 
@@ -269,8 +269,8 @@ public abstract class TestPropertySets {
                 PlayableProperty.PERMALINK_URL.bind(apiPlaylist.getPermalinkUrl()),
                 PlayableProperty.CREATED_AT.bind(apiPlaylist.getCreatedAt()),
                 PlayableProperty.IS_PRIVATE.bind(Sharing.PRIVATE.equals(apiPlaylist.getSharing())),
-                PlayableProperty.IS_LIKED.bind(isLiked),
-                PlayableProperty.IS_REPOSTED.bind(isReposted),
+                PlayableProperty.IS_USER_LIKE.bind(isLiked),
+                PlayableProperty.IS_USER_REPOST.bind(isReposted),
                 PlaylistProperty.IS_POSTED.bind(isPosted),
                 OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(markedForOffline),
                 PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()));

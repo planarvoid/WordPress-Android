@@ -354,14 +354,14 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                 final PropertySet changeSet = event.getNextChangeSet();
                 playlistWithTracks.update(changeSet);
 
-                if (changeSet.contains(PlaylistProperty.IS_LIKED)) {
+                if (changeSet.contains(PlaylistProperty.IS_USER_LIKE)) {
                     playlistEngagementsView.updateLikeItem(
                             changeSet.get(PlayableProperty.LIKES_COUNT),
-                            changeSet.get(PlayableProperty.IS_LIKED));
+                            changeSet.get(PlayableProperty.IS_USER_LIKE));
                 }
-                if (changeSet.contains(PlaylistProperty.IS_REPOSTED)) {
+                if (changeSet.contains(PlaylistProperty.IS_USER_REPOST)) {
                     playlistEngagementsView.showPublicOptions(
-                            changeSet.get(PlayableProperty.IS_REPOSTED));
+                            changeSet.get(PlayableProperty.IS_USER_REPOST));
                 }
                 if (changeSet.contains(Collection.IS_MARKED_FOR_OFFLINE)) {
                     updateOfflineAvailability();
