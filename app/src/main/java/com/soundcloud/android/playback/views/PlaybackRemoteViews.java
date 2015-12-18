@@ -24,10 +24,6 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
 
     public PlaybackRemoteViews(Parcel parcel) {
         super(parcel);
-        playBtnId = parcel.readInt();
-        pauseBtnId = parcel.readInt();
-        isPlaying = parcel.readByte() == 1;
-        track = parcel.readParcelable(PublicApiTrack.class.getClassLoader());
     }
 
     public void setCurrentTrackTitle(CharSequence title) {
@@ -53,12 +49,4 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
         setImageViewResource(R.id.toggle_playback, playing ? pauseBtnId : playBtnId);
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-        dest.writeInt(playBtnId);
-        dest.writeInt(pauseBtnId);
-        dest.writeByte((byte) (isPlaying ? 1 : 0));
-        dest.writeParcelable(track, 0);
-    }
 }
