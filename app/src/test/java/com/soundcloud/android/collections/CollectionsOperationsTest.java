@@ -66,7 +66,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     private PropertySet likedPlaylist1;
     private PropertySet likedPlaylist2;
     private TestEventBus eventBus;
-    private TestSubscriber<EntityStateChangedEvent> collectionChangedSubscriber = new TestSubscriber<>();
+    private TestSubscriber<Void> collectionChangedSubscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
@@ -106,7 +106,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(1), true, 1));
 
-        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forTrack(1), true, 1)));
+        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(1), false, 1));
 
-        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forTrack(1), false, 1)));
+        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), true, 1));
 
-        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), true, 1)));
+        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), false, 1));
 
-        collectionChangedSubscriber.assertReceivedOnNext(Arrays.asList(EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), false, 1)));
+        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -143,7 +143,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         final Urn localPlaylist = Urn.newLocalPlaylist();
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(localPlaylist));
 
-        collectionChangedSubscriber.assertReceivedOnNext(Collections.singletonList(EntityStateChangedEvent.fromPlaylistCreated(localPlaylist)));
+        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -153,8 +153,7 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
         final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), playlist));
 
-        collectionChangedSubscriber.assertReceivedOnNext(Collections.singletonList(
-                EntityStateChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), playlist)));
+        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
 
     @Test
@@ -332,34 +331,31 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onCollectionSyncedShouldSendAnEventWhenPlaylistSynced() {
-        final TestSubscriber<SyncResult> subscriber = new TestSubscriber<>();
-        operations.onCollectionSynced().subscribe(subscriber);
+    public void onCollectionChangedShouldSendAnEventWhenPlaylistSynced() {
+        final TestSubscriber<Void> subscriber = new TestSubscriber<>();
+        operations.onCollectionChanged().subscribe(subscriber);
 
-        final SyncResult syncResult = SyncResult.success(SyncActions.SYNC_PLAYLISTS, true);
-        eventBus.publish(EventQueue.SYNC_RESULT, syncResult);
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLISTS, true));
 
-        subscriber.assertValue(syncResult);
+        assertThat(subscriber.getOnNextEvents()).hasSize(1);
     }
 
     @Test
-    public void onCollectionSyncedShouldSendAnEventWhenStations() {
-        final TestSubscriber<SyncResult> subscriber = new TestSubscriber<>();
-        operations.onCollectionSynced().subscribe(subscriber);
+    public void onCollectionChangedShouldSendAnEventWhenStations() {
+        final TestSubscriber<Void> subscriber = new TestSubscriber<>();
+        operations.onCollectionChanged().subscribe(subscriber);
 
-        final SyncResult syncResult = SyncResult.success(StationsSyncRequestFactory.Actions.SYNC_STATIONS, true);
-        eventBus.publish(EventQueue.SYNC_RESULT, syncResult);
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(StationsSyncRequestFactory.Actions.SYNC_STATIONS, true));
 
-        subscriber.assertValue(syncResult);
+        assertThat(subscriber.getOnNextEvents()).hasSize(1);
     }
 
     @Test
-    public void onCollectionSyncedShouldNotSendAnEventWhenNoChange() {
-        final TestSubscriber<SyncResult> subscriber = new TestSubscriber<>();
-        operations.onCollectionSynced().subscribe(subscriber);
+    public void onCollectionChangedShouldNotSendAnEventWhenNoChange() {
+        final TestSubscriber<Void> subscriber = new TestSubscriber<>();
+        operations.onCollectionChanged().subscribe(subscriber);
 
-        final SyncResult syncResult = SyncResult.success(SyncActions.SYNC_PLAYLISTS, false);
-        eventBus.publish(EventQueue.SYNC_RESULT, syncResult);
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLISTS, false));
 
         subscriber.assertNoValues();
     }

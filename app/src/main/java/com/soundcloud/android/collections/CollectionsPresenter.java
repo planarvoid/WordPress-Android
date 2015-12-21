@@ -8,7 +8,6 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
@@ -66,9 +65,9 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
                 }
             };
 
-    private final Func1<SyncResult, Boolean> isNotRefreshing = new Func1<SyncResult, Boolean>() {
+    private final Func1<Void, Boolean> isNotRefreshing = new Func1<Void, Boolean>() {
         @Override
-        public Boolean call(SyncResult syncResult) {
+        public Boolean call(Void event) {
             return !swipeRefreshAttacher.isRefreshing();
         }
     };
@@ -211,9 +210,9 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         adapter.notifyItemRemoved(position);
     }
 
-    private class RefreshCollectionsSubscriber extends DefaultSubscriber<Object> {
+    private class RefreshCollectionsSubscriber extends DefaultSubscriber<Void> {
         @Override
-        public void onNext(Object ignored) {
+        public void onNext(Void ignored) {
             refreshCollections();
         }
     }
@@ -240,11 +239,8 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
         eventSubscriptions.unsubscribe();
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
-                collectionsOperations.onCollectionSynced()
-                        .filter(isNotRefreshing)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RefreshCollectionsSubscriber()),
                 collectionsOperations.onCollectionChanged()
+                        .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RefreshCollectionsSubscriber())
         );

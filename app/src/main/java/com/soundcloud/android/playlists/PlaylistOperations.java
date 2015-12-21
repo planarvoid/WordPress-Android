@@ -21,6 +21,7 @@ import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collection;
 import java.util.List;
 
 public class PlaylistOperations {
@@ -70,6 +71,13 @@ public class PlaylistOperations {
             return playlistWithTracks.isMissingMetaData()
                     ? Observable.<PlaylistWithTracks>error(new PlaylistOperations.PlaylistMissingException())
                     : Observable.just(playlistWithTracks);
+        }
+    };
+
+    private final Func1<Urn, Observable<PlaylistWithTracks>> toPlaylistWithTracks = new Func1<Urn, Observable<PlaylistWithTracks>>() {
+        @Override
+        public Observable<PlaylistWithTracks> call(Urn urn) {
+            return playlist(urn);
         }
     };
 
@@ -151,9 +159,15 @@ public class PlaylistOperations {
                 .subscribeOn(scheduler);
     }
 
+    public Observable<List<PlaylistWithTracks>> playlists(final Collection<Urn> playlists) {
+        return Observable
+                .from(playlists)
+                .flatMap(toPlaylistWithTracks)
+                .toList();
+    }
+
     public Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
-        final Observable<PlaylistWithTracks> loadObservable = createPlaylistInfoLoadObservable(playlistUrn);
-        return loadObservable.flatMap(syncIfNecessary(playlistUrn));
+        return createPlaylistInfoLoadObservable(playlistUrn).flatMap(syncIfNecessary(playlistUrn));
     }
 
     Observable<PlaylistWithTracks> updatedPlaylistInfo(final Urn playlistUrn) {

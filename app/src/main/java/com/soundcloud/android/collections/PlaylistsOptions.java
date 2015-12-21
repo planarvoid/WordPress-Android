@@ -5,6 +5,13 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class PlaylistsOptions {
 
+    static final PlaylistsOptions SHOW_ALL = new AutoValue_PlaylistsOptions.Builder()
+            .showLikes(true)
+            .showPosts(true)
+            .showOfflineOnly(false)
+            .sortByTitle(false)
+            .build();
+
     public static Builder builder() {
         return new AutoValue_PlaylistsOptions
                 .Builder()

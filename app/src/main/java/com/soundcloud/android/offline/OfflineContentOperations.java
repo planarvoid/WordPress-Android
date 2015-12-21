@@ -111,9 +111,7 @@ public class OfflineContentOperations {
     }
 
     public void enableOfflineCollection() {
-        offlineContentStorage
-                .storeOfflineCollectionEnabled();
-        // TODO : store all collection to offline requests
+        offlineContentStorage.storeOfflineCollectionEnabled();
     }
 
     public void disableOfflineCollection() {
@@ -171,6 +169,13 @@ public class OfflineContentOperations {
                 .subscribeOn(scheduler);
     }
 
+    Observable<Void> setOfflinePlaylists(final List<Urn> playlists) {
+        return offlineContentStorage
+                .setOfflinePlaylists(playlists)
+                .map(RxUtils.TO_VOID)
+                .subscribeOn(scheduler);
+    }
+
     public Observable<Boolean> getOfflineContentOrOfflineLikesStatusChanges() {
         return featureOperations.offlineContentEnabled().concatWith(getOfflineLikedTracksStatusChanges());
     }
@@ -179,6 +184,10 @@ public class OfflineContentOperations {
         return clearTrackDownloadsCommand.toObservable(null)
                 .doOnNext(publishOfflineContentRemoved)
                 .subscribeOn(scheduler);
+    }
+
+    Observable<Boolean> getOfflineCollectionStateChanges() {
+        return offlineContentStorage.getOfflineCollectionStateChanges();
     }
 
     private Action1<Urn> publishMarkedForOfflineChange(final Urn playlistUrn, final boolean isMarkedOffline) {

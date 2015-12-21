@@ -16,6 +16,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
@@ -23,6 +24,13 @@ import java.util.Date;
 public abstract class PlayableItem implements StreamItem {
 
     protected final PropertySet source;
+
+    public static final Function<PlaylistItem, Urn> TO_URN = new Function<PlaylistItem, Urn>() {
+        @Override
+        public Urn apply(PlaylistItem item) {
+            return item.getEntityUrn();
+        }
+    };
 
     public static PlayableItem from(PropertySet source) {
         final Urn urn = source.get(EntityProperty.URN);
