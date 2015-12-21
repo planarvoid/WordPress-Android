@@ -1,33 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    style="@style/OnboardingListItemNotificationLayout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <View style="@style/Divider.Background" />
-    <View style="@style/Divider.Section" />
 
-    <TextView
-        android:id="@+id/title"
-        style="@style/OnboardingListItemNotification.Title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/collections_without_stations_onboarding_title" />
+    <LinearLayout style="@style/OnboardingListItemNotificationLayout">
 
-    <TextView
-        android:id="@+id/description"
-        style="@style/OnboardingListItemNotification.Description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/collections_onboarding_description" />
+        <TextView
+            android:id="@+id/title"
+            style="@style/OnboardingListItemNotification.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/collections_without_stations_onboarding_title" />
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/close_button"
-        style="@style/OnboardingListItemNotificationCloseButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ok_got_it" />
+        <TextView
+            android:id="@+id/description"
+            style="@style/OnboardingListItemNotification.Description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/collections_onboarding_description" />
 
-    <View style="@style/Divider.Section" />
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/close_button"
+            style="@style/OnboardingListItemNotificationCloseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ok_got_it" />
+
+    </LinearLayout>
+
 </LinearLayout>

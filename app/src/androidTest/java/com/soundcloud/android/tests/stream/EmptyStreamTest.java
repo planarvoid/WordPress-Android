@@ -2,6 +2,9 @@ package com.soundcloud.android.tests.stream;
 
 
 import static com.soundcloud.android.framework.TestUser.emptyUser;
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
@@ -20,9 +23,18 @@ public class EmptyStreamTest extends ActivityTest<MainActivity> {
         emptyUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testShowsEmptyStreamScreen() {
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
         streamScreen = new StreamScreen(solo);
+    }
+
+    public void testShowsEmptyStreamScreen() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         assertTrue(streamScreen.emptyView().isVisible());
+    }
+
+    public void testClickOnPeopleToFollowOpensSearch() {
+        assertThat(streamScreen.clickOnFindPeopleToFollow(), is(visible()));
     }
 }
