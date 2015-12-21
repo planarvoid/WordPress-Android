@@ -108,4 +108,17 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
 
         verify(soundStreamNotifier).notifyUnseenItems();
     }
+
+    @Test
+    public void syncSuccessDoesNotCreateNotificationsWhenExperimentIsActive() throws Exception {
+        when(contentStats.getLastSeen(Content.ME_SOUND_STREAM)).thenReturn(1000L);
+        when(syncConfig.isServerSideNotifications()).thenReturn(true);
+
+        final Bundle resultData = new Bundle();
+        resultData.putBoolean(LIKES_URI_STRING, true);
+        syncServiceResultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
+
+        verify(soundStreamNotifier, never()).notifyUnseenItems();
+        verify(activitiesNotifier, never()).notifyUnseenItems(context());
+    }
 }

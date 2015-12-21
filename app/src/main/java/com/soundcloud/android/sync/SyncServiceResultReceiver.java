@@ -2,8 +2,8 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.stream.SoundStreamNotifier;
 import com.soundcloud.android.sync.activities.ActivitiesNotifier;
+import com.soundcloud.android.sync.stream.SoundStreamNotifier;
 import com.soundcloud.android.utils.Log;
 
 import android.annotation.SuppressLint;
@@ -78,7 +78,9 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
                 // notification related
                 if (syncConfig.shouldUpdateDashboard()) {
-                    createSystemNotification();
+                    if (!syncConfig.isServerSideNotifications()) {
+                        createSystemNotification();
+                    }
                 }
                 break;
             }
