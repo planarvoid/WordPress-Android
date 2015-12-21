@@ -10,7 +10,7 @@ import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 public class MainTabs extends Tabs {
 
     private enum Tab {
-        HOME, STATIONS, DISCOVERY, COLLECTION, YOU
+        HOME, DISCOVERY, STATIONS, COLLECTION, YOU
     }
 
     public MainTabs(Han solo) {
