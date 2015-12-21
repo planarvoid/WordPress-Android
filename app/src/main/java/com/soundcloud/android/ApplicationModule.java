@@ -114,8 +114,8 @@ public class ApplicationModule {
         if (featureFlags.isEnabled(Flag.STATIONS_HOME)) {
             return new NavigationModel(
                     new StreamNavigationTarget(),
-                    new StationsNavigationTarget(),
                     new DiscoveryNavigationTarget(),
+                    new StationsNavigationTarget(),
                     new CollectionNavigationTarget(),
                     new YouNavigationTarget());
         } else {
