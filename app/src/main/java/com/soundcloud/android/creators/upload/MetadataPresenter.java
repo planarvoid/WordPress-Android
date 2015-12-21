@@ -35,7 +35,7 @@ import javax.inject.Inject;
 public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
     public static final String RECORDING_KEY = "recording";
 
-    private Recording recording;
+    @Nullable private Recording recording;
     private MetadataFragment metadataFragment;
     private SoundRecorder recorder;
     private final ViewHelper viewHelper;
@@ -88,7 +88,9 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
 
     @Override
     public void onPause(Fragment fragment) {
-        recordingMetadata.mapToRecording(recording);
+        if (recording != null) {
+            recordingMetadata.mapToRecording(recording);
+        }
         super.onPause(fragment);
     }
 
