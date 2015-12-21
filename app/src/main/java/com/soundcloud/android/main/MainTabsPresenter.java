@@ -172,8 +172,11 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     private void openSearchScreen(final Intent intent) {
-        final Intent searchIntent = intent.getParcelableExtra(Navigator.EXTRA_SEARCH_INTENT);
-        navigator.openSearch(activity, searchIntent);
+        if (intent.hasExtra(Navigator.EXTRA_SEARCH_INTENT)) {
+            navigator.openSearch(activity, intent.<Intent>getParcelableExtra(Navigator.EXTRA_SEARCH_INTENT));
+        } else {
+            navigator.openSearch(activity);
+        }
     }
 
     private static TabLayout.ViewPagerOnTabSelectedListener tabSelectedListener(final ViewPager pager,

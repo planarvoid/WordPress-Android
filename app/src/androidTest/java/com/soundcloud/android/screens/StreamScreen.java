@@ -6,6 +6,7 @@ import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
 import com.soundcloud.android.screens.elements.PlaylistItemOverflowMenu;
 import com.soundcloud.android.screens.elements.StreamCardElement;
@@ -30,6 +31,12 @@ public class StreamScreen extends Screen {
     public StreamScreen scrollToBottomOfPage() {
         streamList().scrollToBottom();
         return this;
+    }
+
+    public SearchScreen clickOnFindPeopleToFollow() {
+        final With findPeopleToFollow = With.text(testDriver.getString(R.string.list_empty_stream_action));
+        testDriver.findElement(findPeopleToFollow).click();
+        return new SearchScreen(testDriver);
     }
 
     public UpgradeScreen clickMidTierTrackForUpgrade(String title) {
