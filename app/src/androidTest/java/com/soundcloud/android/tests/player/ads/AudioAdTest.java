@@ -66,10 +66,15 @@ public class AudioAdTest extends AdBaseTest {
     public void testDoesNotOpenTrackWhileAdIsPlaying() {
         swipeToAd();
         playerElement.pressBackToCollapse();
+        // Pause otherwise the adv. is too short and skip automatically.
+        playerElement.toggleFooterPlay();
+
         String footerTrackCreator = playerElement.getFooterTrackCreator();
-        playlistDetailsScreen
-                .scrollToBottom()
-                .clickFirstTrack();
+        playlistDetailsScreen.scrollToBottom();
+
+        // Play track adv. again. 
+        playerElement.toggleFooterPlay();
+        playlistDetailsScreen.clickFirstTrack();
 
         assertThat(playerElement, is(collapsed()));
         assertThat(playerElement.getFooterTrackCreator(), equalTo(footerTrackCreator));
