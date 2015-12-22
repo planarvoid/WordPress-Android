@@ -18,8 +18,7 @@ import android.view.View;
 import java.util.concurrent.TimeUnit;
 
 public class VisualPlayerElement extends Element {
-    private static final int AD_BUFFERING_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10L);
-    private static final int MILISECONDS_UNTIL_AD_DONE = (int) TimeUnit.SECONDS.toMillis(33L); // 30 secs + 3 buffering
+    private static final int MILISECONDS_UNTIL_AD_DONE =  (int) TimeUnit.SECONDS.toMillis(33L); // 30 secs + 3 buffering
 
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
     private final Condition IS_EXPANDED_CONDITION = new Condition() {
@@ -168,7 +167,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isExpanded() {
-        return getPlayerHeight() - getFullScreenHeight() == 0;
+        return  getPlayerHeight() - getFullScreenHeight() == 0;
     }
 
     public boolean isCollapsed() {
@@ -319,20 +318,12 @@ public class VisualPlayerElement extends Element {
     }
 
     public VisualPlayerElement waitForAdToBeSkippable() {
-        waiter.waitForElementToBeVisible(With.id(R.id.skip_ad), 15000);
+        waiter.waitForAdToBeComeSkippable(With.id(R.id.skip_ad));
         return this;
     }
 
     public void waitForAdToBeDone() {
         solo.sleep(MILISECONDS_UNTIL_AD_DONE);
-    }
-
-    public boolean waitForAdToStartPlaying() {
-        return waiter.waitForElementTextToChange(addSkipTime(), AD_BUFFERING_TIMEOUT);
-    }
-
-    private TextElement addSkipTime() {
-        return new TextElement(solo.findElement(With.id(R.id.time_until_skip)));
     }
 
     public VisualPlayerElement waitForSkipAdButton() {
@@ -400,7 +391,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isCenteredAd() {
-        return centeredAdArtwork().isVisible();
+       return centeredAdArtwork().isVisible();
     }
 
     public String errorReason() {
@@ -412,7 +403,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public void clickCenteredAdArtwork() {
-        centeredAdArtwork().click();
+       centeredAdArtwork().click();
     }
 
     public boolean isFullbleedAd() {

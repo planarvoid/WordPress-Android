@@ -71,7 +71,7 @@ public class Waiter {
 
             @Override
             public void run() {
-                solo.waitForCondition(condition, NETWORK_TIMEOUT);
+                solo.waitForCondition(condition, NETWORK_TIMEOUT );
             }
         });
 
@@ -124,7 +124,7 @@ public class Waiter {
     //TODO: We should have an error screen class defined
     private boolean retryIfFailed() {
         List<ViewElement> retryButtons = solo.findElements(With.id(R.id.ak_emptyview_btn_retry));
-        if (!retryButtons.isEmpty()) {
+        if (!retryButtons.isEmpty())   {
             ViewElement button = retryButtons.get(0);
             if (button.isVisible()) {
                 button.click();
@@ -185,6 +185,15 @@ public class Waiter {
         return solo.waitForCondition(new VisibleElementCondition(content), ELEMENT_TIMEOUT);
     }
 
+    public boolean waitForAdToBeComeSkippable(final With matcher) {
+        return solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return solo.findElement(matcher).isVisible();
+            }
+        }, 15000);
+    }
+
     public boolean waitForElement(final Class<? extends View> viewClass) {
         return solo.waitForCondition(new ByClassCondition(viewClass), TIMEOUT);
     }
@@ -203,10 +212,6 @@ public class Waiter {
 
     public boolean waitForElementTextToChange(TextElement textElement) {
         return solo.waitForCondition(new ElementTextChangeCondition(textElement), TWO_SECONDS);
-    }
-
-    public boolean waitForElementTextToChange(TextElement textElement, int timeout) {
-        return solo.waitForCondition(new ElementTextChangeCondition(textElement), timeout);
     }
 
     public boolean waitForElementTextToChange(TextElement textElement, String text) {
@@ -261,7 +266,7 @@ public class Waiter {
     }
 
     private class ByClassCondition implements Condition {
-        private Class<? extends View> viewClass;
+        private Class <? extends View> viewClass;
 
         ByClassCondition(Class<? extends View> viewClass) {
             this.viewClass = viewClass;
@@ -273,7 +278,7 @@ public class Waiter {
             Log.i(TAG, "FindViewByClass");
             ArrayList<? extends View> views = solo.getSolo().getCurrentViews(viewClass);
 
-            return (!views.isEmpty() && views.get(0).isShown());
+            return ( !views.isEmpty() && views.get(0).isShown());
         }
     }
 
@@ -302,7 +307,7 @@ public class Waiter {
     private class NoTextCondition implements Condition {
         private String searchedText;
 
-        private NoTextCondition(String text) {
+        private NoTextCondition (String text) {
             searchedText = text;
         }
 
@@ -346,7 +351,6 @@ public class Waiter {
             this.view = view;
             this.text = text;
         }
-
         @Override
         public boolean isSatisfied() {
             return view.getText().equals(text);
@@ -391,7 +395,7 @@ public class Waiter {
             text = textElement.getText();
         }
 
-        public ElementTextChangeCondition(TextElement textElement, String initialText) {
+        public ElementTextChangeCondition(TextElement textElement, String initialText ) {
             view = textElement;
             this.text = initialText;
         }

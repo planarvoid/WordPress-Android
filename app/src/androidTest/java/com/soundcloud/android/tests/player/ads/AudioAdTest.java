@@ -10,8 +10,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.screens.WhyAdsScreen;
+import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
@@ -28,7 +28,7 @@ public class AudioAdTest extends AdBaseTest {
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
 
-        if (playerElement.isFullbleedAd()) {
+        if (playerElement.isFullbleedAd()){
             playerElement.clickAdArtwork();
         }
 
@@ -47,10 +47,8 @@ public class AudioAdTest extends AdBaseTest {
         }
     }
 
-    public void testSkipShouldBeDisplayedWhenAdIsSkippable() {
+    public void skip_testSkipShouldBeDisplayedWhenAdIsSkippable() {
         swipeToAd();
-        assertTrue("Ad is playing", playerElement.waitForAdToStartPlaying());
-
         playerElement.waitForAdToBeSkippable();
         assertThat(playerElement, is(SkipAllowed()));
     }
@@ -67,8 +65,6 @@ public class AudioAdTest extends AdBaseTest {
 
     public void testDoesNotOpenTrackWhileAdIsPlaying() {
         swipeToAd();
-        assertTrue("Ad is playing", playerElement.waitForAdToStartPlaying());
-
         playerElement.pressBackToCollapse();
         String footerTrackCreator = playerElement.getFooterTrackCreator();
         playlistDetailsScreen
