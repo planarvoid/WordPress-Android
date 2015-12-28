@@ -490,6 +490,10 @@ public class PlayQueueManager implements OriginProvider {
         publishQueueUpdate();
     }
 
+    public void removeVideo(PlayQueueItem item) {
+        playQueue.removeItemAtPosition(playQueue.indexOfPlayQueueItem(item));
+    }
+
     public void insertAudioAd(PlayQueueItem beforeItem, Urn trackUrn, AudioAd audioAd, boolean shouldPersist){
         playQueue.insertAudioAd(playQueue.indexOfPlayQueueItem(beforeItem), trackUrn, audioAd, shouldPersist);
         publishQueueUpdate();

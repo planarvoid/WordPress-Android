@@ -131,6 +131,15 @@ public class PlayQueueTest extends AndroidUnitTest {
     }
 
     @Test
+    public void removesItemAtPosition() {
+        playQueue.removeItemAtPosition(2);
+
+        assertThat(playQueue).hasSize(2);
+        assertTrackQueueItem(playQueue.getPlayQueueItem(0), Urn.forTrack(1L));
+        assertTrackQueueItem(playQueue.getPlayQueueItem(1), Urn.forTrack(2L));
+    }
+
+    @Test
     public void shouldReportCorrectSize() {
         assertThat(playQueue.size()).isEqualTo(3);
     }

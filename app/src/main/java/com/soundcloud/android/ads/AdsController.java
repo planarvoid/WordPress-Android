@@ -184,13 +184,14 @@ public class AdsController {
     }
 
     public void reconfigureAdForNextTrack() {
-        final Optional<ApiAudioAd> nextTrackAudioAd = getAudioAdForNextTrack();
-
-        if (playQueueManager.hasNextItem() &&
-                !adsOperations.isNextItemAd() &&
-                nextTrackAudioAd.isPresent() &&
-            !isForeground) {
-            adsOperations.insertAudioAd(playQueueManager.getNextPlayQueueItem(), nextTrackAudioAd.get());
+        if (!isForeground && adsForNextTrack.isPresent() && playQueueManager.hasNextItem()) {
+            final ApiAdsForTrack ads = adsForNextTrack.get();
+            final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
+            if (AdsOperations.isVideoAd(nextItem)) {
+                replaceVideoAdForNextTrack(ads, nextItem);
+            } else if (!AdsOperations.isAudioAd(nextItem) && ads.audioAd().isPresent()) {
+                adsOperations.insertAudioAd(nextItem, ads.audioAd().get());
+            }
         }
     }
 
@@ -203,14 +204,15 @@ public class AdsController {
         }
     }
 
-    private Optional<ApiAudioAd> getAudioAdForNextTrack() {
-        if (adsForNextTrack.isPresent()) {
-            ApiAdsForTrack ads = adsForNextTrack.get();
-            if (ads.audioAd().isPresent()) {
-                return ads.audioAd();
-            }
+    private void replaceVideoAdForNextTrack(ApiAdsForTrack ads, PlayQueueItem videoItem) {
+        adsOperations.removeVideoAd(videoItem);
+        if (ads.audioAd().isPresent()) {
+            adsOperations.insertAudioAd(playQueueManager.getNextPlayQueueItem(), ads.audioAd().get());
+        } else if (ads.interstitialAd().isPresent()) {
+            adsOperations.applyInterstitialToTrack(playQueueManager.getNextPlayQueueItem(), ads);
+        } else { // There is no ad that we can replace with so remove the video ad and publish a queue change
+            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueueManager.getCollectionUrn()));
         }
-        return Optional.absent();
     }
 
     private boolean alreadyFetchedAdForTrack(PlayQueueItem playQueueItem) {

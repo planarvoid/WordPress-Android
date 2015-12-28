@@ -118,6 +118,10 @@ public class AdsOperations {
         playQueueManager.insertVideo(monetizableItem, videoData);
     }
 
+    void removeVideoAd(PlayQueueItem videoAdItem) {
+        playQueueManager.removeVideo(videoAdItem);
+    }
+
     void insertAudioAd(PlayQueueItem monetizableItem, ApiAudioAd apiAudioAd) {
         final AudioAd audioAdData = AudioAd.create(apiAudioAd, monetizableItem.getUrn());
 

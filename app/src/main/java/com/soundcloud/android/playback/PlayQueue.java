@@ -76,6 +76,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         insertPlayQueueItem(position, new VideoQueueItem(videoAd));
     }
 
+    public void removeItemAtPosition(int position) {
+        this.playQueueItems.remove(position);
+    }
+
     public boolean hasPreviousItem(int position) {
         return position > 0 && !playQueueItems.isEmpty();
     }

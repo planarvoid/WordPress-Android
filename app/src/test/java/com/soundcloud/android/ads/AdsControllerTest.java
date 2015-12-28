@@ -23,6 +23,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
+import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -45,6 +46,7 @@ import rx.subjects.PublishSubject;
 import android.support.v7.app.AppCompatActivity;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 public class AdsControllerTest extends AndroidUnitTest {
@@ -152,7 +154,54 @@ public class AdsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void configureAdForNextTrackInsertsAudioAd() {
+    public void configureAdForNextTrackReplacesVideoAdWithAudioAdWhenAppInBackground() {
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
+        insertFullAdsForNextTrack();
+
+        when(adsOperations.isNextItemAd()).thenReturn(true);
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(videoItem, nextPlayQueueItem);
+
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
+        adsController.reconfigureAdForNextTrack();
+
+        verify(adsOperations).removeVideoAd(videoItem);
+        verify(adsOperations).insertAudioAd(nextPlayQueueItem, apiAdsForTrack.audioAd().get());
+    }
+
+    @Test
+    public void configureAdForNextTrackReplacesVideoAdWithInterstitialWhenAppInBackgroundAndNoAudioAdAvailable() {
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
+        final ApiAdsForTrack interstitialAdForTrack = AdFixtures.interstitialAdsForTrack();
+        insertAdsForNextTrack(Observable.just(interstitialAdForTrack));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
+
+        when(adsOperations.isNextItemAd()).thenReturn(true);
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(videoItem, nextPlayQueueItem);
+
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
+        adsController.reconfigureAdForNextTrack();
+
+        verify(adsOperations).removeVideoAd(videoItem);
+        verify(adsOperations).applyInterstitialToTrack(nextPlayQueueItem, interstitialAdForTrack);
+    }
+
+    @Test
+    public void configureAdForNextTrackRemovesVideoAdWhenAppInBackgroundAndNoOtherAdsAvailable() {
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
+        insertAdsForNextTrack(Observable.just(new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList())));
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
+
+        when(adsOperations.isNextItemAd()).thenReturn(true);
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(videoItem, nextPlayQueueItem);
+
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
+        adsController.reconfigureAdForNextTrack();
+
+        verify(adsOperations).removeVideoAd(videoItem);
+    }
+
+    @Test
+    public void configureAdForNextTrackInsertsAudioAdWhenAppInBackgroundAndTheresNoExistingAdInPlayQueue() {
         insertFullAdsForNextTrack();
 
         when(adsOperations.isNextItemAd()).thenReturn(false);
@@ -188,9 +237,10 @@ public class AdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void configureAdForNextTrackDoesNotReplaceAnExistingAudioAd() {
+        final PlayQueueItem audioAd = TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L)));
         insertFullAdsForNextTrack();
 
-        when(adsOperations.isNextItemAd()).thenReturn(true);
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(audioAd);
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
 
         adsController.reconfigureAdForNextTrack();
@@ -534,12 +584,15 @@ public class AdsControllerTest extends AndroidUnitTest {
     }
 
     private void insertFullAdsForNextTrack() {
-        when(playQueueManager.hasNextItem()).thenReturn(true);
-        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
-        when(adsOperations.ads(nextTrackUrn)).thenReturn(Observable.just(apiAdsForTrack));
-
-        adsController.subscribe();
+        insertAdsForNextTrack(Observable.just(apiAdsForTrack));
         final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(currentTrackUrn, AudioAd.create(apiAdsForTrack.audioAd().get(), currentTrackUrn));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
+    }
+
+    private void insertAdsForNextTrack(Observable<ApiAdsForTrack> ads) {
+        when(playQueueManager.hasNextItem()).thenReturn(true);
+        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
+        when(adsOperations.ads(nextTrackUrn)).thenReturn(ads);
+        adsController.subscribe();
     }
 }
