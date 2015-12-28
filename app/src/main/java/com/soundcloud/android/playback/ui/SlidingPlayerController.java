@@ -100,7 +100,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         slidingPanel.setPanelState(PanelState.HIDDEN);
     }
 
-    private void lock() {
+    private void lockExpanded() {
         if (!isExpanded()) {
             expand();
         }
@@ -167,7 +167,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         expand();
         notifyExpandedState();
         if (shouldLockPlayer) {
-            lock();
+            lockExpanded();
         }
     }
 
@@ -200,8 +200,8 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
                 expand();
             } else if (event.isCollapse()) {
                 collapse();
-            } else if (event.isLock()) {
-                lock();
+            } else if (event.isLockExpanded()) {
+                lockExpanded();
             } else if (event.isUnlock()) {
                 unlock();
             }

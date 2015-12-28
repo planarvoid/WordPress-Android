@@ -149,7 +149,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     @Test
     public void locksPlayerAsExpandedWhenLockEventIsReceived() {
         controller.onResume(activity);
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayerExpanded());
 
         verify(slidingPanel).setPanelState(PanelState.EXPANDED);
         verify(slidingPanel).setTouchEnabled(false);
@@ -159,7 +159,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     public void locksPlayerDoesntExpandAlreadyExpandedPlayerWhenLockEventIsReceived() {
         when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
         controller.onResume(activity);
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayerExpanded());
 
         verify(slidingPanel, never()).setPanelState(PanelState.EXPANDED);
         verify(slidingPanel).setTouchEnabled(false);
