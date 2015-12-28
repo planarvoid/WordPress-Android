@@ -11,6 +11,8 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.PlayerUpsellImpressionController;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
@@ -64,6 +66,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final ErrorViewController.Factory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
     private final Resources resources;
+    private final PlayerUpsellImpressionController upsellImpressionController;
 
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
@@ -79,7 +82,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               AdOverlayControllerFactory adOverlayControllerFactory,
                               ErrorViewController.Factory errorControllerFactory,
                               CastConnectionHelper castConnectionHelper,
-                              Resources resources) {
+                              Resources resources,
+                              PlayerUpsellImpressionController upsellImpressionController) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -92,6 +96,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.errorControllerFactory = errorControllerFactory;
         this.castConnectionHelper = castConnectionHelper;
         this.resources = resources;
+        this.upsellImpressionController = upsellImpressionController;
     }
 
     @Override
@@ -167,7 +172,11 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         if (featureOperations.upsellMidTier()) {
             holder.previewIndicator.setVisibility(trackState.isSnipped() ? View.VISIBLE : View.GONE);
-            holder.upsellButton.setVisibility(trackState.isSnipped() ? View.VISIBLE : View.GONE);
+            holder.upsellButton.setVisibility(trackState.shouldUpsell() ? View.VISIBLE : View.GONE);
+        } else {
+            // being defensive...
+            holder.previewIndicator.setVisibility(View.GONE);
+            holder.upsellButton.setVisibility(View.GONE);
         }
 
         if (blocked) {
@@ -201,6 +210,13 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     @Override
     public void setCastDeviceName(View view, String deviceName) {
         getViewHolder(view).castDeviceName.setText(deviceName);
+    }
+
+    @Override
+    public void onViewSelected(View view, PlayQueueItem playQueueItem, boolean isExpanded) {
+        if (isExpanded && getViewHolder(view).upsellButton.getVisibility() == View.VISIBLE) {
+            upsellImpressionController.recordUpsellViewed(playQueueItem);
+        }
     }
 
     public void setAdOverlay(View view, OverlayAdData adData) {
@@ -428,10 +444,13 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     @Override
-    public void setExpanded(View trackView) {
+    public void setExpanded(View trackView, PlayQueueItem playQueueItem, boolean isSelected) {
         onPlayerSlide(trackView, 1);
         getViewHolder(trackView).waveformController.setExpanded();
         getViewHolder(trackView).adOverlayController.setExpanded();
+        if (isSelected && getViewHolder(trackView).upsellButton.getVisibility() == View.VISIBLE) {
+            upsellImpressionController.recordUpsellViewed(playQueueItem);
+        }
     }
 
     @Override

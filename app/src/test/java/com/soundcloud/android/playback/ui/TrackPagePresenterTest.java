@@ -15,13 +15,15 @@ import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.LeaveBehindAd;
-import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.PlayerUpsellImpressionController;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
@@ -29,6 +31,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -78,10 +81,12 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureFlags featureFlags;
+    @Mock private PlayerUpsellImpressionController upsellImpressionController;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
+    private TrackQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123));
 
     private TrackPagePresenter presenter;
     private View trackView;
@@ -92,7 +97,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         ViewGroup container = new FrameLayout(context());
         presenter = new TrackPagePresenter(waveformOperations, featureOperations, listener, numberFormatter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, adOverlayControllerFactory,
-                errorControllerFactory, castConnectionHelper, resources());
+                errorControllerFactory, castConnectionHelper, resources(), upsellImpressionController);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
@@ -120,19 +125,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void playingStateSetsToggleChecked() {
         presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
         assertThat(getHolder(trackView).footerPlayToggle).isChecked();
-    }
-
-    @Test
-    public void bindItemViewOnSnippetShowsSnippedAndUpsell() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
-        final PropertySet source = TestPropertySets.expectedTrackForPlayer();
-        source.put(TrackProperty.SNIPPED, true);
-        final PlayerTrackState trackState = new PlayerTrackState(source, true, true, viewVisibilityProvider);
-
-        presenter.bindItemView(trackView, trackState);
-
-        assertThat(getHolder(trackView).previewIndicator).isVisible();
-        assertThat(getHolder(trackView).upsellButton).isVisible();
     }
 
     @Test
@@ -307,7 +299,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setExpandedShouldHideFooterControl() {
-        presenter.setExpanded(trackView);
+        presenter.setExpanded(trackView, playQueueItem, true);
         assertThat(getHolder(trackView).footer).isGone();
     }
 
@@ -649,6 +641,98 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         verify(artworkController).cancelProgressAnimations();
     }
 
+    @Test
+    public void bindingSnippedTrackWithoutUpsellFeatureHidesPreviewIcon() {
+        when(featureOperations.upsellMidTier()).thenReturn(false);
+        bindSnippedTrack();
+
+        assertThat(getHolder(trackView).previewIndicator).isGone();
+    }
+
+    @Test
+    public void bindingUpsellTrackWithoutUpsellFeatureHidesUpsellIcon() {
+        when(featureOperations.upsellMidTier()).thenReturn(false);
+        bindUpsellableTrack();
+
+        assertThat(getHolder(trackView).previewIndicator).isGone();
+    }
+
+    @Test
+    public void bindingSnippedTrackWhileAllowingUpsellFeatureShowsPreviewIcon() {
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        bindSnippedTrack();
+
+        assertThat(getHolder(trackView).previewIndicator).isVisible();
+    }
+
+    @Test
+    public void bindingUpsellableTrackWhileAllowingUpsellFeatureShowsUpsell() {
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        bindUpsellableTrack();
+
+        assertThat(getHolder(trackView).upsellButton).isVisible();
+    }
+
+    @Test
+    public void onViewSelectedWhileExpandedWithUpsellableTrackRecordsImpression() {
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        bindUpsellableTrack();
+
+        presenter.onViewSelected(trackView, playQueueItem, true);
+
+        verify(upsellImpressionController).recordUpsellViewed(playQueueItem);
+    }
+
+    @Test
+    public void onViewSelectedWhileCollapsedWithUpsellableTrackDoesNotRecordImpression() {
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        bindUpsellableTrack();
+
+        presenter.onViewSelected(trackView, playQueueItem, false);
+
+        verify(upsellImpressionController, never()).recordUpsellViewed(any(PlayQueueItem.class));
+    }
+
+    @Test
+    public void onViewSelectedWhileExpandedWithNormalTrackDoesNotRecordImpression() {
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        populateTrackPage();
+
+        presenter.onViewSelected(trackView, playQueueItem, true);
+
+        verify(upsellImpressionController, never()).recordUpsellViewed(any(PlayQueueItem.class));
+    }
+
+    @Test
+    public void setExpandedWithUpsellableTrackWhileSelectedRecordsImpression() {
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        bindUpsellableTrack();
+
+        presenter.setExpanded(trackView, playQueueItem, true);
+
+        verify(upsellImpressionController).recordUpsellViewed(playQueueItem);
+    }
+
+    @Test
+    public void setExpandedWithUpsellableTrackWhileNotSelectedDoesNotRecordImpression() {
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        bindUpsellableTrack();
+
+        presenter.setExpanded(trackView, playQueueItem, false);
+
+        verify(upsellImpressionController, never()).recordUpsellViewed(any(PlayQueueItem.class));
+    }
+
+    @Test
+    public void setExpandedWithNormalTrackWhileSelectedDoesNotRecordImpression() {
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+        populateTrackPage();
+
+        presenter.setExpanded(trackView, playQueueItem, true);
+
+        verify(upsellImpressionController, never()).recordUpsellViewed(any(PlayQueueItem.class));
+    }
+
     private TrackPageHolder getHolder(View trackView) {
         return (TrackPageHolder) trackView.getTag();
     }
@@ -656,5 +740,16 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     private void populateTrackPage() {
         presenter.bindItemView(trackView, new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(), true, true,
                 viewVisibilityProvider));
+    }
+
+    private void bindSnippedTrack() {
+        final PropertySet snippedTrack = TestPropertySets.expectedTrackForPlayer().put(TrackProperty.SNIPPED, true);
+        presenter.bindItemView(trackView, new PlayerTrackState(snippedTrack, true, true, viewVisibilityProvider));
+    }
+
+    private void bindUpsellableTrack() {
+        presenter.bindItemView(trackView,
+                new PlayerTrackState(TestPropertySets.upsellableTrackForPlayer(), true, true,
+                        viewVisibilityProvider));
     }
 }

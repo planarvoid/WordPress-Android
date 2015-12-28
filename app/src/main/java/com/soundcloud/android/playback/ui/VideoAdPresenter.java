@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
@@ -14,10 +15,9 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.inject.Inject;
 
 class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
@@ -116,13 +116,18 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
     }
 
     @Override
-    public void setExpanded(View adPage) {
+    public void setExpanded(View trackPage, PlayQueueItem playQueueItem, boolean isSelected) {
         // no-op (video player locked)
     }
 
     @Override
     public void onPlayerSlide(View adPage, float position) {
         // no-op (video player locked)
+    }
+
+    @Override
+    public void onViewSelected(View view, PlayQueueItem value, boolean isExpanded) {
+        // no-op
     }
 
     private Holder getViewHolder(View videoPage) {
