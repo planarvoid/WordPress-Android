@@ -16,7 +16,6 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
@@ -59,7 +58,6 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineOperations;
     @Mock private AccountOperations accountOperations;
-    @Mock private StreamDesignExperiment streamExperiment;
     @Mock private Navigator navigator;
     @Mock private MenuItem menuItem;
     @Mock private FeatureFlags featureFlags;

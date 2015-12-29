@@ -31,11 +31,13 @@ public class SoundStreamAdapter
     private final FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer;
 
     @Inject
-    public SoundStreamAdapter(StreamCellRendererProvider rendererProvider, FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer,
+    public SoundStreamAdapter(StreamTrackItemRenderer trackItemRenderer,
+                              StreamPlaylistItemRenderer playlistItemRenderer,
+                              FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer,
                               StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer,
                               FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer) {
-        super(new CellRendererBinding<>(TRACK_ITEM_TYPE, rendererProvider.getTrackItemRenderer()),
-                new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, rendererProvider.getPlaylistItemRenderer()),
+        super(new CellRendererBinding<>(TRACK_ITEM_TYPE, trackItemRenderer),
+                new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistItemRenderer),
                 new CellRendererBinding<>(FACEBOOK_INVITES_ITEM_TYPE, facebookListenerInvitesItemRenderer),
                 new CellRendererBinding<>(STATIONS_ONBOARDING_STREAM_ITEM_TYPE, stationsOnboardingStreamItemRenderer),
                 new CellRendererBinding<>(FACEBOOK_CREATOR_INVITES_ITEM_TYPE, facebookCreatorInvitesItemRenderer));
