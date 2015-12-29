@@ -352,7 +352,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
                 TrackProperty.PERMALINK_URL.bind(getPermalinkUrl()),
                 TrackProperty.MONETIZABLE.bind(isMonetizable()),
                 TrackProperty.BLOCKED.bind(isBlocked()),
-                TrackProperty.SNIPPED.bind(isBlocked()),
+                TrackProperty.SNIPPED.bind(isSnipped()),
                 TrackProperty.SYNCABLE.bind(isSyncable()),
                 TrackProperty.POLICY.bind(getPolicy()),
                 TrackProperty.PLAY_COUNT.bind(getStats().getPlaybackCount()),
