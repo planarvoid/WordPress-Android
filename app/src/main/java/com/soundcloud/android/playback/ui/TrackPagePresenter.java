@@ -122,7 +122,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 listener.onGotoUser(activityContext, userUrn);
                 break;
             case R.id.upsell_button:
-                listener.onUpsell(view.getContext());
+                listener.onUpsell(view.getContext(), (Urn) view.getTag());
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID: "
@@ -169,6 +169,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final boolean blocked = trackState.isBlocked();
         holder.artworkView.setEnabled(!blocked);
         updatePlayButton(holder, blocked);
+
+        holder.upsellButton.setTag(trackState.getUrn());
 
         if (featureOperations.upsellMidTier()) {
             holder.previewIndicator.setVisibility(trackState.isSnipped() ? View.VISIBLE : View.GONE);
