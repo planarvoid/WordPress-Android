@@ -3,10 +3,16 @@ package com.soundcloud.android.testsupport.fixtures;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaylistQueueItem;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
 
 public class TestPlayQueueItem {
+
+    public static PlaylistQueueItem createPlaylist(Urn itemUrn) {
+        return new PlaylistQueueItem.Builder(itemUrn).build();
+    }
+
     public static TrackQueueItem createTrack(Urn itemUrn) {
         return new TrackQueueItem.Builder(itemUrn).build();
     }

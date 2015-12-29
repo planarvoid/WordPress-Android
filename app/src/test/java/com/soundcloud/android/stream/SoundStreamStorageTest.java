@@ -284,19 +284,21 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void tracksForPlaybackLoadsUrnsOfAllTrackItemsInSoundStream() {
+    public void playbackItemsLoadsUrnsOfAllPlaybackItemsInSoundStream() {
         final ApiTrack trackOne = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(trackOne.getId(), TIMESTAMP);
         final ApiTrack trackTwo = testFixtures().insertTrack();
         final ApiUser reposter = testFixtures().insertUser();
         testFixtures().insertStreamTrackRepost(trackTwo.getId(), TIMESTAMP - 1, reposter.getId());
-        testFixtures().insertStreamPlaylistPost(testFixtures().insertPlaylist().getId(), TIMESTAMP - 2);
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        testFixtures().insertStreamPlaylistPost(apiPlaylist.getId(), TIMESTAMP - 2);
 
         TestObserver<PropertySet> observer = new TestObserver<>();
-        storage.tracksForPlayback().subscribe(observer);
+        storage.playbackItems().subscribe(observer);
         assertThat(observer.getOnNextEvents()).containsExactly(
                 trackOne.getUrn().toPropertySet(),
-                trackTwo.getUrn().toPropertySet().put(PostProperty.REPOSTER_URN, reposter.getUrn()));
+                trackTwo.getUrn().toPropertySet().put(PostProperty.REPOSTER_URN, reposter.getUrn()),
+                apiPlaylist.getUrn().toPropertySet());
     }
 
     private PropertySet createTrackPropertySet(final ApiTrack track) {

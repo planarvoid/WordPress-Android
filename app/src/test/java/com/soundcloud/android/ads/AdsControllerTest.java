@@ -105,6 +105,17 @@ public class AdsControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void trackChangeEventDoesNotFetchAdForPlaylistQueueItem() throws CreateModelException {
+        when(playQueueManager.hasNextItem()).thenReturn(true);
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(TestPlayQueueItem.createPlaylist(Urn.forTrack(123)));
+        when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.<PropertySet>empty());
+        adsController.subscribe();
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
+        verify(adsOperations, never()).ads(any(Urn.class));
+    }
+
+    @Test
     public void trackChangeEventDoesNotFetchTrackFromStorageIfAlreadyTryingToFetchAd() throws CreateModelException {
         when(playQueueManager.hasNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.<PropertySet>empty());

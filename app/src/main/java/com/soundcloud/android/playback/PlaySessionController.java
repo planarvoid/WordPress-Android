@@ -22,6 +22,9 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playlists.PlaylistOperations;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.SettingKey;
@@ -31,7 +34,9 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.rx.PropertySetFunctions;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
@@ -41,17 +46,23 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
@@ -61,7 +72,7 @@ public class PlaySessionController {
 
     @VisibleForTesting
     static final int RECOMMENDED_LOAD_TOLERANCE = 5;
-    public static final int SKIP_REPORT_TOLERANCE = 1000;
+    static final int PLAYLIST_LOOKAHEAD_COUNT = 10;
 
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private static final long SEEK_POSITION_RESET = 0L;
@@ -69,6 +80,7 @@ public class PlaySessionController {
     private final Resources resources;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
+    private final PlaylistOperations playlistOperations;
     private final AdsController adsController;
     private final PlayQueueOperations playQueueOperations;
     private final TrackRepository trackRepository;
@@ -83,6 +95,7 @@ public class PlaySessionController {
     private final PlaybackToastHelper playbackToastHelper;
     private final AccountOperations accountOperations;
     private final StationsOperations stationsOperations;
+    private final FeatureFlags featureFlags;
 
     private final Func1<Bitmap, Bitmap> copyBitmap = new Func1<Bitmap, Bitmap>() {
         @Override
@@ -100,10 +113,13 @@ public class PlaySessionController {
 
     private Subscription currentTrackSubscription = RxUtils.invalidSubscription();
     private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();
+    private CompositeSubscription loadPlaylistsSubscription = new CompositeSubscription();
     private Subscription subscription = RxUtils.invalidSubscription();
 
     private PropertySet currentPlayQueueTrack; // the track that is currently set in the queue
     private boolean stopContinuousPlayback; // killswitch. If the api returns no tracks, stop asking for them
+
+    private Set<Urn> playlistLoads = new HashSet<>();
 
     private final Action0 stopLoadingPreviousTrack = new Action0() {
         @Override
@@ -159,7 +175,7 @@ public class PlaySessionController {
     public PlaySessionController(Resources resources,
                                  EventBus eventBus,
                                  AdsOperations adsOperations,
-                                 AdsController adsController,
+                                 PlaylistOperations playlistOperations, AdsController adsController,
                                  PlayQueueManager playQueueManager,
                                  TrackRepository trackRepository,
                                  Lazy<IRemoteAudioManager> audioManager,
@@ -172,10 +188,12 @@ public class PlaySessionController {
                                  Provider<PlaybackStrategy> playbackStrategyProvider,
                                  PlaybackToastHelper playbackToastHelper,
                                  AccountOperations accountOperations,
-                                 StationsOperations stationsOperations) {
+                                 StationsOperations stationsOperations,
+                                 FeatureFlags featureFlags) {
         this.resources = resources;
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
+        this.playlistOperations = playlistOperations;
         this.adsController = adsController;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
@@ -186,6 +204,7 @@ public class PlaySessionController {
         this.playbackToastHelper = playbackToastHelper;
         this.accountOperations = accountOperations;
         this.stationsOperations = stationsOperations;
+        this.featureFlags = featureFlags;
         this.audioManager = audioManager.get();
         this.imageOperations = imageOperations;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -195,7 +214,6 @@ public class PlaySessionController {
     public void subscribe() {
         eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackSubscriber());
         eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
-
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .filter(PlayStateFunctions.IS_NOT_DEFAULT_STATE)
                 .doOnNext(updateAudioManager)
@@ -328,6 +346,8 @@ public class PlaySessionController {
         public void onNext(PlayQueueEvent event) {
             if (event.isNewQueue()) {
                 loadRecommendedSubscription.unsubscribe();
+                loadPlaylistsSubscription.unsubscribe();
+                loadPlaylistsSubscription = new CompositeSubscription();
                 stopContinuousPlayback = false;
             }
         }
@@ -336,6 +356,15 @@ public class PlaySessionController {
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
+            if (featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)){
+                final Collection<Urn> playlists = getUpcomingPlaylists();
+                for (final Urn playlist : playlists) {
+                    if (!playlistLoads.contains(playlist)) {
+                        loadPlaylistTracks(playlist);
+                    }
+                }
+            }
+
             if (withinRecommendedFetchTolerance() && isNotAlreadyLoadingRecommendations()) {
                 final PlayQueueItem lastPlayQueueItem = playQueueManager.getLastPlayQueueItem();
                 if (currentQueueAllowsRecommendations() && lastPlayQueueItem.isTrack()) {
@@ -368,6 +397,39 @@ public class PlaySessionController {
                 playCurrent();
             }
         }
+
+        private void loadPlaylistTracks(final Urn playlist) {
+            playlistLoads.add(playlist);
+            loadPlaylistsSubscription.add(playlistOperations.trackUrnsForPlayback(playlist)
+                    .doOnTerminate(removePlaylistLoad(playlist))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new DefaultSubscriber<List<Urn>>() {
+                        @Override
+                        public void onNext(List<Urn> args) {
+                            playQueueManager.insertPlaylistTracks(playlist, args);
+                        }
+                    }));
+        }
+
+        @NonNull
+        private Action0 removePlaylistLoad(final Urn playlist) {
+            return new Action0() {
+                @Override
+                public void call() {
+                    playlistLoads.remove(playlist);
+                }
+            };
+        }
+    }
+
+    private Collection<Urn> getUpcomingPlaylists() {
+        final List<Urn> upcomingPlayQueueItems = playQueueManager.getUpcomingPlayQueueItems(PLAYLIST_LOOKAHEAD_COUNT);
+        return MoreCollections.filter(upcomingPlayQueueItems, new Predicate<Urn>() {
+            @Override
+            public boolean apply(Urn input) {
+                return input.isPlaylist();
+            }
+        });
     }
 
     private boolean currentQueueAllowsRecommendations() {

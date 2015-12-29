@@ -18,8 +18,10 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,6 +32,7 @@ import rx.functions.Action1;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -90,8 +93,29 @@ public class PlayQueueManager implements OriginProvider {
         setPosition(playQueue.indexOfPlayQueueItem(playQueueItem), true);
     }
 
-    public List<PlayQueueItem> getPlayQueueItems() {
-        return Lists.newArrayList(playQueue);
+    public List<PlayQueueItem> getPlayQueueItems(Predicate<PlayQueueItem> predicate) {
+        return Lists.newArrayList(Iterables.filter(playQueue, predicate));
+    }
+
+    public List<Urn> getUpcomingPlayQueueItems(int count) {
+        if (hasNextItem()) {
+            final int nextPosition = currentPosition + 1;
+            return playQueue.getItemUrns(nextPosition, nextPosition + count);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public void insertPlaylistTracks(Urn playlistUrn, List<Urn> tracks) {
+        for (PlayQueueItem item : playQueue.itemsWithUrn(playlistUrn)) {
+            EntityQueueItem entityQueueItem = (EntityQueueItem) item;
+            List<PlayQueueItem> items = new ArrayList<>(tracks.size());
+            for (Urn track : tracks) {
+                items.add(new TrackQueueItem.Builder(track).copySource(entityQueueItem).build());
+            }
+            playQueue.replaceItem(playQueue.indexOfPlayQueueItem(item), items);
+        }
+        publishQueueUpdate();
     }
 
     private void logEmptyPlayQueues(PlayQueue playQueue, PlaySessionSource playSessionSource) {

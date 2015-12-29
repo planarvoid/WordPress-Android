@@ -53,9 +53,9 @@ public class PlaybackInitiator {
         return playTracksList(playQueue, initialTrack, position, playSessionSource);
     }
 
-    public Observable<PlaybackResult> playPosts(Observable<List<PropertySet>> allTracks, Urn initialTrack, int position,
+    public Observable<PlaybackResult> playPosts(Observable<List<PropertySet>> playables, Urn initialTrack, int position,
                                                  PlaySessionSource playSessionSource) {
-        final Observable<PlayQueue> playQueue = allTracks.flatMap(tracksToPlayQueue(playSessionSource));
+        final Observable<PlayQueue> playQueue = playables.flatMap(playablesToPlayQueue(playSessionSource));
         return playTracksList(playQueue, initialTrack, position, playSessionSource);
     }
 
@@ -129,7 +129,7 @@ public class PlaybackInitiator {
         }
     }
 
-    private Func1<List<PropertySet>, Observable<PlayQueue>> tracksToPlayQueue(final PlaySessionSource playSessionSource) {
+    private Func1<List<PropertySet>, Observable<PlayQueue>> playablesToPlayQueue(final PlaySessionSource playSessionSource) {
         return new Func1<List<PropertySet>, Observable<PlayQueue>>() {
             @Override
             public Observable<PlayQueue> call(final List<PropertySet> propertySets) {
@@ -140,7 +140,7 @@ public class PlaybackInitiator {
                             .flatMap(new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
                         @Override
                         public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracksMap) {
-                            return Observable.just(PlayQueue.fromTrackList(propertySets, playSessionSource, blockedTracksMap));
+                            return Observable.just(PlayQueue.fromPlayableList(propertySets, playSessionSource, blockedTracksMap));
                         }
                     });
                 }

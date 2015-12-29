@@ -1,6 +1,7 @@
 package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.rx.RxUtils.continueWith;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -43,16 +44,22 @@ public class TrackRepository {
     }
 
     public Observable<PropertySet> track(final Urn trackUrn) {
+        checkTrackUrn(trackUrn);
         return trackFromStorage(trackUrn)
                 .onErrorResumeNext(syncThenLoadTrack(trackUrn, trackFromStorage(trackUrn)))
                 .flatMap(syncIfEmpty(trackUrn));
     }
 
     Observable<PropertySet> fullTrackWithUpdate(final Urn trackUrn) {
+        checkTrackUrn(trackUrn);
         return Observable.concat(
                 fullTrackFromStorage(trackUrn),
                 syncThenLoadTrack(trackUrn, fullTrackFromStorage(trackUrn)).doOnNext(publishTrackChanged)
         );
+    }
+
+    private void checkTrackUrn(Urn trackUrn) {
+        checkArgument(trackUrn.isTrack(), "Trying to sync track without a valid track urn");
     }
 
     private Func1<PropertySet, Observable<PropertySet>> syncIfEmpty(final Urn trackUrn) {

@@ -69,10 +69,11 @@ public class AdsController {
         }
     };
 
-    private final Func1<Object, Boolean> shouldFetchAudioAdForNextTrack = new Func1<Object, Boolean>() {
+    private final Func1<Object, Boolean> shouldFetchAudioAdForNextItem = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
             return playQueueManager.hasNextItem()
+                    && playQueueManager.getNextPlayQueueItem().isTrack()
                     && !adsOperations.isNextItemAd()
                     && !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getNextPlayQueueItem());
@@ -166,7 +167,7 @@ public class AdsController {
                 .subscribe(new FetchAdForCurrentTrackSubscriber());
 
         queueChangeForAd
-                .filter(shouldFetchAudioAdForNextTrack)
+                .filter(shouldFetchAudioAdForNextItem)
                 .subscribe(new FetchAdForNextTrackSubscriber());
 
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)

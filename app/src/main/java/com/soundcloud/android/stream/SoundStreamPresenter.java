@@ -163,7 +163,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     }
 
     private void handleListItemClick(View view, int position, ListItem item) {
-        itemClickListener.onPostClick(streamOperations.trackUrnsForPlayback(), view, position, item);
+        itemClickListener.onPostClick(streamOperations.urnsForPlayback(), view, position, item);
     }
 
     private void publishPromotedItemClickEvent(PromotedListItem item) {

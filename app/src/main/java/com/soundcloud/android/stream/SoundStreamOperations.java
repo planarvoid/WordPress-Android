@@ -192,9 +192,9 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
                 .doOnNext(promotedImpressionAction);
     }
 
-    public Observable<List<PropertySet>> trackUrnsForPlayback() {
+    public Observable<List<PropertySet>> urnsForPlayback() {
         return soundStreamStorage
-                .tracksForPlayback()
+                .playbackItems()
                 .subscribeOn(scheduler)
                 .toList();
     }

@@ -123,7 +123,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 Arrays.asList(clickedTrack.getEntityUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);
-        when(streamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
+        when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
 
@@ -137,7 +137,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 Arrays.asList(clickedTrack.getEntityUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);
-        when(streamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
+        when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
 
@@ -151,7 +151,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 Arrays.asList(clickedPlaylist.getEntityUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);
-        when(streamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
+        when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
 
@@ -167,7 +167,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                         Urn.forTrack(634L).toPropertySet()));
 
         when(adapter.getItem(0)).thenReturn(playlistItem);
-        when(streamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
+        when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
 
