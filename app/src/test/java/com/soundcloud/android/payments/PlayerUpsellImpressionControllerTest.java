@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackQueueItem;
@@ -50,9 +49,18 @@ public class PlayerUpsellImpressionControllerTest extends AndroidUnitTest {
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
     }
 
+    @Test
+    public void firesSecondImpressionForSamePlayQueueItemWhenNotConsecutive() {
+        playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123));
+        controller.recordUpsellViewed(playQueueItem);
+        controller.recordUpsellViewed(TestPlayQueueItem.createTrack(Urn.forTrack(321)));
+        controller.recordUpsellViewed(playQueueItem);
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(3);
+    }
+
     private void assertImpressionFired() {
-        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isInstanceOf(UpgradeTrackingEvent.class);
+        UpgradeTrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeTrackingEvent.class);
         assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION);
         assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1017");
         assertThat(event.get(AdTrackingKeys.KEY_PAGE_URN)).isEqualTo(Urn.forTrack(123).toString());

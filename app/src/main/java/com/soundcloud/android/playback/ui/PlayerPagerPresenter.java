@@ -607,11 +607,14 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         final int kind = event.getKind();
         if (kind == PlayerUIEvent.PLAYER_EXPANDED) {
             final PlayQueueItem playQueueItem = pagesInPlayer.get(view);
-            final boolean isSelected = selectedPage != Consts.NOT_SET && playQueueItem.equals(currentPlayQueue.get(selectedPage));
-            presenter.setExpanded(view, playQueueItem, isSelected);
+            presenter.setExpanded(view, playQueueItem, isCurrentPagerPage(playQueueItem));
         } else if (kind == PlayerUIEvent.PLAYER_COLLAPSED) {
             presenter.setCollapsed(view);
         }
+    }
+
+    private boolean isCurrentPagerPage(PlayQueueItem playQueueItem) {
+        return selectedPage != Consts.NOT_SET && playQueueItem.equals(currentPlayQueue.get(selectedPage));
     }
 
     private class TrackPagerAdapter extends PagerAdapter {
