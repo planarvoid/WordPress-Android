@@ -41,6 +41,10 @@ public abstract class TestPropertySets {
         );
     }
 
+    public static PropertySet upsellableTrackForPlayer() {
+        return expectedTrackForPlayer().put(TrackProperty.SNIPPED, true).put(TrackProperty.SUB_MID_TIER, true);
+    }
+
     public static PropertySet expectedTrackForPlayer() {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),

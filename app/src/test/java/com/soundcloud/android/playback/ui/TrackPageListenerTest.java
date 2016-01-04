@@ -15,6 +15,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -156,5 +157,18 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(navigator).openProfile(any(Context.class), eq(userUrn));
+    }
+
+    @Test
+    public void onUpsellStartsUpsellFlow() {
+        listener.onUpsell(context(), Urn.forTrack(123));
+        verify(navigator).openUpgrade(context());
+    }
+
+    @Test
+    public void onUpsellTracksUpsellClick() {
+        listener.onUpsell(context(), Urn.forTrack(123));
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING))
+                .isEqualTo(UpgradeTrackingEvent.forPlayerClick(Urn.forTrack(123)));
     }
 }

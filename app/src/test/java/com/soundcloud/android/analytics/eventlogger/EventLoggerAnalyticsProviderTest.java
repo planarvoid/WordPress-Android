@@ -333,7 +333,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUpsellEvent() {
-        UpgradeTrackingEvent event = UpgradeTrackingEvent.forNavClick();
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forSettingsClick();
         when(dataBuilderv0.build(event)).thenReturn("ForUpsellEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);

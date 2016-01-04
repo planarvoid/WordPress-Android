@@ -51,6 +51,7 @@ import org.mockito.Mockito;
 import rx.Observable;
 
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -78,6 +79,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private PlayerTrackPager playerTrackPager;
 
     @Captor private ArgumentCaptor<SkipListener> skipListenerArgumentCaptor;
+    @Captor private ArgumentCaptor<ViewPager.SimpleOnPageChangeListener> pageChangeListenerArgumentCaptor;
     @Mock private ViewGroup container;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
 
@@ -358,7 +360,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         View currentTrackView = getPageView();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
-        verify(trackPagePresenter).setExpanded(currentTrackView);
+        verify(trackPagePresenter).setExpanded(currentTrackView, playQueue.get(0), true);
     }
 
     @Test
@@ -646,6 +648,50 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         verify(trackPagePresenter, never()).clearAdOverlay(viewForOtherTrack);
 
     }
+
+    @Test
+    public void pageSelectedCallsPresenterWithSelectedPage() {
+        final View view = getPageView();
+        verify(playerTrackPager).addOnPageChangeListener(pageChangeListenerArgumentCaptor.capture());
+
+        pageChangeListenerArgumentCaptor.getValue().onPageSelected(0);
+
+        verify(trackPagePresenter, times(2)).onViewSelected(view, playQueue.get(0), false);
+    }
+
+    @Test
+    public void pageSelectedCallsPresenterWithSelectedPageWhileExpanded() {
+        final View view = getPageView();
+        verify(playerTrackPager).addOnPageChangeListener(pageChangeListenerArgumentCaptor.capture());
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        pageChangeListenerArgumentCaptor.getValue().onPageSelected(0);
+
+        verify(trackPagePresenter).onViewSelected(view, playQueue.get(0), true);
+    }
+
+    @Test
+    public void expandedEventCallsPresenterWithSelectedState() {
+        final View view = getPageView();
+        verify(playerTrackPager).addOnPageChangeListener(pageChangeListenerArgumentCaptor.capture());
+        pageChangeListenerArgumentCaptor.getValue().onPageSelected(0);
+
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        verify(trackPagePresenter).setExpanded(view, playQueue.get(0), true);
+    }
+
+    @Test
+    public void gettingPageWithSelectedItemCallsOnViewSelected() {
+        verify(playerTrackPager).addOnPageChangeListener(pageChangeListenerArgumentCaptor.capture());
+        pageChangeListenerArgumentCaptor.getValue().onPageSelected(0);
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        View currentPageView = getPageView();
+
+        verify(trackPagePresenter).onViewSelected(currentPageView, playQueue.get(0), true);
+    }
+
 
     private View getVideoAdPageView() {
         return (View) adapter.instantiateItem(container, 0);

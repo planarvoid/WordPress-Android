@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.model.Urn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -26,19 +27,21 @@ public class UpgradeTrackingEventTest {
     }
 
     @Test
-    public void createsEventForNavImpression() {
-        UpgradeTrackingEvent event = UpgradeTrackingEvent.forNavImpression();
+    public void createsEventForPlayerImpression() {
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlayerImpression(Urn.forTrack(123));
 
         assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION);
-        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1007");
+        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1017");
+        assertThat(event.get(AdTrackingKeys.KEY_PAGE_URN)).isEqualTo(Urn.forTrack(123).toString());
     }
 
     @Test
     public void createsEventForNavClick() {
-        UpgradeTrackingEvent event = UpgradeTrackingEvent.forNavClick();
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlayerClick(Urn.forTrack(123));
 
         assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_CLICK);
-        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1007");
+        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1017");
+        assertThat(event.get(AdTrackingKeys.KEY_PAGE_URN)).isEqualTo(Urn.forTrack(123).toString());
     }
 
     @Test

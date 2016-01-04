@@ -1,6 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.analytics.TrackingCode;
+import com.soundcloud.android.model.Urn;
 import org.jetbrains.annotations.NotNull;
 
 public final class UpgradeTrackingEvent extends TrackingEvent {
@@ -28,16 +29,18 @@ public final class UpgradeTrackingEvent extends TrackingEvent {
         return new UpgradeTrackingEvent(KIND_UPSELL_CLICK, TrackingCode.UPSELL_WHY_ADS);
     }
 
-    public static UpgradeTrackingEvent forNavImpression() {
-        return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPSELL_NAV);
-    }
-
-    public static UpgradeTrackingEvent forNavClick() {
-        return new UpgradeTrackingEvent(KIND_UPSELL_CLICK, TrackingCode.UPSELL_NAV);
-    }
-
     public static UpgradeTrackingEvent forSettingsImpression() {
         return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPSELL_SETTINGS);
+    }
+
+    public static UpgradeTrackingEvent forPlayerImpression(Urn trackUrn) {
+        return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPSELL_PLAYER)
+                .put(AdTrackingKeys.KEY_PAGE_URN, trackUrn.toString());
+    }
+
+    public static UpgradeTrackingEvent forPlayerClick(Urn trackUrn) {
+        return new UpgradeTrackingEvent(KIND_UPSELL_CLICK, TrackingCode.UPSELL_PLAYER)
+                .put(AdTrackingKeys.KEY_PAGE_URN, trackUrn.toString());
     }
 
     public static UpgradeTrackingEvent forSettingsClick() {
