@@ -7,6 +7,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.LocaleHeaderFormatter;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
@@ -15,6 +16,7 @@ import android.content.Context;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @Module(complete = false, library = true)
@@ -33,11 +35,17 @@ public class ApiModule {
                                       AdIdHelper adIdHelper,
                                       OAuth oAuth,
                                       UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                                      AccountOperations accountOperations) {
+                                      AccountOperations accountOperations,
+                                      LocaleHeaderFormatter localeHeaderFormatter) {
         ApiClient apiClient = new ApiClient(httpClient, urlBuilder, jsonTransformer, deviceHelper, adIdHelper,
-                oAuth, unauthorisedRequestRegistry, accountOperations);
+                oAuth, unauthorisedRequestRegistry, accountOperations, localeHeaderFormatter);
         apiClient.setAssertBackgroundThread(true);
         return apiClient;
+    }
+
+    @Provides
+    public Locale provideDefaultLocale() {
+        return Locale.getDefault();
     }
 
     @Provides

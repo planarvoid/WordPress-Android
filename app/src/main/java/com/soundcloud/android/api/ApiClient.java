@@ -9,6 +9,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.LocaleHeaderFormatter;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.MultiMap;
@@ -43,13 +44,14 @@ public class ApiClient {
     private final OAuth oAuth;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     private final AccountOperations accountOperations;
+    private final LocaleHeaderFormatter localeHeaderFormatter;
 
     private boolean assertBackgroundThread;
 
     public ApiClient(OkHttpClient httpClient, ApiUrlBuilder urlBuilder,
                      JsonTransformer jsonTransformer, DeviceHelper deviceHelper, AdIdHelper adIdHelper,
                      OAuth oAuth, UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                     AccountOperations accountOperations) {
+                     AccountOperations accountOperations, LocaleHeaderFormatter localeHeaderFormatter) {
         this.httpClient = httpClient;
         this.urlBuilder = urlBuilder;
         this.jsonTransformer = jsonTransformer;
@@ -58,6 +60,7 @@ public class ApiClient {
         this.oAuth = oAuth;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.accountOperations = accountOperations;
+        this.localeHeaderFormatter = localeHeaderFormatter;
     }
 
     public void setAssertBackgroundThread(boolean assertBackgroundThread) {
@@ -123,12 +126,15 @@ public class ApiClient {
         builder.header(HttpHeaders.ACCEPT, request.getAcceptMediaType());
         builder.header(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
         builder.header(ApiHeaders.APP_VERSION, String.valueOf(BuildConfig.VERSION_CODE));
-
-        if (accountOperations.getSoundCloudToken().valid()) {
-            builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
+        final Optional<String> locale = localeHeaderFormatter.getFormattedLocale();
+        if (locale.isPresent()) {
+            builder.header(ApiHeaders.DEVICE_LOCALE, locale.get());
         }
 
         // user identifiers
+        if (accountOperations.getSoundCloudToken().valid()) {
+            builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
+        }
         builder.header(ApiHeaders.UDID, deviceHelper.getUdid());
         final Optional<String> maybeAdId = adIdHelper.getAdId();
         if (maybeAdId.isPresent()) {
