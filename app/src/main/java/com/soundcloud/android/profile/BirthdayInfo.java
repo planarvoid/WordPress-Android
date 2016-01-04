@@ -8,6 +8,8 @@ import java.util.Calendar;
 public class BirthdayInfo implements Serializable {
 
     private static final long serialVersionUID = 3051966333050380486L;
+    private static final int VALID_AGE = 13;
+    private static final Calendar calendar = Calendar.getInstance();
 
     public final int age;
 
@@ -20,15 +22,15 @@ public class BirthdayInfo implements Serializable {
         this.age = age;
     }
 
-    public int getMonth(){
-        return Calendar.getInstance().get(Calendar.MONTH);
+    public int getMonth() {
+        return calendar.get(Calendar.MONTH) + 1;
     }
 
-    public int getYear(){
-        return Calendar.getInstance().get(Calendar.YEAR) - age;
+    public int getYear() {
+        return calendar.get(Calendar.YEAR) - age;
     }
 
-    public boolean isValid(){
-        return age >= 13;
+    public boolean isValid() {
+        return age >= VALID_AGE;
     }
 }
