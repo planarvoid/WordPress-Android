@@ -34,4 +34,6 @@ interface ProfileApi {
     Observable<ModelCollection<ApiUser>> userFollowers(Urn user);
 
     Observable<ModelCollection<ApiUser>> userFollowers(String nextPageLink);
+
+    Observable<ApiUserProfile> userProfile(Urn user);
 }

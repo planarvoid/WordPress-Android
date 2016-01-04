@@ -10,7 +10,7 @@ import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.Nullable;
 
-public class ApiPostHolder {
+public class ApiPostHolder implements PropertySetSourceHolder {
 
     @Nullable private final ApiTrackPost trackPost;
     @Nullable private final ApiTrackRepost trackRepost;
@@ -28,7 +28,7 @@ public class ApiPostHolder {
         this.playlistRepost = playlistRepost;
     }
 
-    Optional<PropertySetSource> getPost() {
+    public Optional<PropertySetSource> getItem() {
         if (trackPost != null) {
             return Optional.<PropertySetSource>of(trackPost);
         } else if (trackRepost != null) {

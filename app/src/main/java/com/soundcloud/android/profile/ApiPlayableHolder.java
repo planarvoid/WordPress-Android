@@ -8,19 +8,19 @@ import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.Nullable;
 
-public class ApiLikeHolder {
+public class ApiPlayableHolder implements PropertySetSourceHolder {
 
     @Nullable private final ApiTrack track;
     @Nullable private final ApiPlaylist playlist;
 
-    public ApiLikeHolder(@JsonProperty("track") ApiTrack track,
-                         @JsonProperty("playlist") ApiPlaylist playlist) {
+    public ApiPlayableHolder(@JsonProperty("track") ApiTrack track,
+                             @JsonProperty("playlist") ApiPlaylist playlist) {
 
         this.track = track;
         this.playlist = playlist;
     }
 
-    Optional<PropertySetSource> getLike() {
+    public Optional<PropertySetSource> getItem() {
         if (track != null) {
             return Optional.<PropertySetSource>of(track);
         } else if (playlist != null) {

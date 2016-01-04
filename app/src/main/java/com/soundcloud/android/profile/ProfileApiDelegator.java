@@ -71,4 +71,9 @@ public class ProfileApiDelegator implements ProfileApi {
     public Observable<ModelCollection<ApiUser>> userFollowers(String nextPageLink) {
         return profileApiPublic.get().userFollowers(nextPageLink);
     }
+
+    @Override
+    public Observable<ApiUserProfile> userProfile(Urn user) {
+        return profileApiMobile.get().userProfile(user);
+    }
 }

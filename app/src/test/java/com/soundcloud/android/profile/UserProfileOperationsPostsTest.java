@@ -59,6 +59,7 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
     @Mock private UserRepository userRepository;
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
+    @Mock private StoreProfileCommand storeProfileCommand;
 
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
@@ -81,8 +82,14 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
-                writeMixedRecordsCommand);
+        operations = new UserProfileOperations(
+                profileApi,
+                Schedulers.immediate(),
+                loadPlaylistLikedStatuses,
+                userRepository,
+                writeMixedRecordsCommand,
+                storeProfileCommand);
+
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
     }
 

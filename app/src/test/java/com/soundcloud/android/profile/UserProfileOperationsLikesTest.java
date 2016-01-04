@@ -48,6 +48,7 @@ public class UserProfileOperationsLikesTest {
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
+    @Mock private StoreProfileCommand storeProfileCommand;
 
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
@@ -63,8 +64,13 @@ public class UserProfileOperationsLikesTest {
 
     @Before
     public void setUp() {
-        operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
-                writeMixedRecordsCommand);
+        operations = new UserProfileOperations(
+                profileApi,
+                Schedulers.immediate(),
+                loadPlaylistLikedStatuses,
+                userRepository,
+                writeMixedRecordsCommand,
+                storeProfileCommand);
     }
 
     @Test

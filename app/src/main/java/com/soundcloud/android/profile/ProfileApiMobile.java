@@ -23,8 +23,8 @@ public class ProfileApiMobile implements ProfileApi {
     private final TypeToken<ModelCollection<ApiPostHolder>> apiPostHolderToken =
             new TypeToken<ModelCollection<ApiPostHolder>>() {};
 
-    private final TypeToken<ModelCollection<ApiLikeHolder>> apiLikeHolderToken =
-            new TypeToken<ModelCollection<ApiLikeHolder>>() {};
+    private final TypeToken<ModelCollection<ApiPlayableHolder>> apiLikeHolderToken =
+            new TypeToken<ModelCollection<ApiPlayableHolder>>() {};
 
     private static final Func1<ModelCollection<ApiPostHolder>, ModelCollection<PropertySetSource>> POST_HOLDER_TO_POST_COLLECTION =
             new Func1<ModelCollection<ApiPostHolder>, ModelCollection<PropertySetSource>>() {
@@ -33,7 +33,7 @@ public class ProfileApiMobile implements ProfileApi {
             final List<ApiPostHolder> collection = postItemHolderCollection.getCollection();
             List<PropertySetSource> posts = new ArrayList<>(collection.size());
             for (ApiPostHolder postHolder : collection) {
-                final Optional<PropertySetSource> post = postHolder.getPost();
+                final Optional<PropertySetSource> post = postHolder.getItem();
                 if (post.isPresent()) {
                     posts.add(post.get());
                 }
@@ -42,19 +42,19 @@ public class ProfileApiMobile implements ProfileApi {
         }
     };
 
-    private static final Func1<ModelCollection<ApiLikeHolder>, ModelCollection<PropertySetSource>> LIKE_HOLDER_TO_LIKES_COLLECTION =
-            new Func1<ModelCollection<ApiLikeHolder>, ModelCollection<PropertySetSource>>() {
+    private static final Func1<ModelCollection<ApiPlayableHolder>, ModelCollection<PropertySetSource>> LIKE_HOLDER_TO_LIKES_COLLECTION =
+            new Func1<ModelCollection<ApiPlayableHolder>, ModelCollection<PropertySetSource>>() {
                 @Override
-                public ModelCollection<PropertySetSource> call(ModelCollection<ApiLikeHolder> postItemHolderCollection) {
-                    final List<ApiLikeHolder> collection = postItemHolderCollection.getCollection();
+                public ModelCollection<PropertySetSource> call(ModelCollection<ApiPlayableHolder> likeHolderCollection) {
+                    final List<ApiPlayableHolder> collection = likeHolderCollection.getCollection();
                     List<PropertySetSource> likes = new ArrayList<>(collection.size());
-                    for (ApiLikeHolder postHolder : collection) {
-                        final Optional<PropertySetSource> like = postHolder.getLike();
+                    for (ApiPlayableHolder likeHolder : collection) {
+                        final Optional<PropertySetSource> like = likeHolder.getItem();
                         if (like.isPresent()) {
                             likes.add(like.get());
                         }
                     }
-                    return new ModelCollection(likes, postItemHolderCollection.getLinks());
+                    return new ModelCollection(likes, likeHolderCollection.getLinks());
                 }
             };
 
@@ -134,5 +134,15 @@ public class ProfileApiMobile implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowers(String nextPageLink) {
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public Observable<ApiUserProfile> userProfile(Urn user) {
+        final ApiRequest request = ApiRequest
+                .get(ApiEndpoints.PROFILE.path(user))
+                .forPrivateApi(1)
+                .build();
+
+        return apiClientRx.mappedResponse(request, ApiUserProfile.class);
     }
 }

@@ -32,11 +32,11 @@ public class ProfileApiMobileLikeTest extends AndroidUnitTest {
     private final TestSubscriber<ModelCollection<PropertySetSource>> subscriber = new TestSubscriber<>();
     private final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
-    private final ModelCollection<ApiLikeHolder> apiLikeHolder = new ModelCollection<>(
+    private final ModelCollection<ApiPlayableHolder> apiLikeHolder = new ModelCollection<>(
             Arrays.asList(
-                    new ApiLikeHolder(apiTrack, null),
-                    new ApiLikeHolder(null, apiPlaylist),
-                    new ApiLikeHolder(null, null)), // unkown type, futureproofing
+                    new ApiPlayableHolder(apiTrack, null),
+                    new ApiPlayableHolder(null, apiPlaylist),
+                    new ApiPlayableHolder(null, null)), // unkown type, futureproofing
             NEXT_HREF);
 
     @Before
@@ -46,7 +46,7 @@ public class ProfileApiMobileLikeTest extends AndroidUnitTest {
 
     @Test
     public void returnsUserPostsByUrnFromApi() {
-        final Observable<ModelCollection<ApiLikeHolder>> results = Observable.just(apiLikeHolder);
+        final Observable<ModelCollection<ApiPlayableHolder>> results = Observable.just(apiLikeHolder);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/liked_tracks_and_playlists")
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 isA(TypeToken.class))).thenReturn(results);
@@ -57,7 +57,7 @@ public class ProfileApiMobileLikeTest extends AndroidUnitTest {
 
     @Test
     public void returnsUserPostsByNextPageLinkFromApi() {
-        final Observable<ModelCollection<ApiLikeHolder>> results = Observable.just(apiLikeHolder);
+        final Observable<ModelCollection<ApiPlayableHolder>> results = Observable.just(apiLikeHolder);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 isA(TypeToken.class))).thenReturn(results);

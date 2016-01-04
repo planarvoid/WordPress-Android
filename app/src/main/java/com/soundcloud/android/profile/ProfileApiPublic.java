@@ -102,6 +102,11 @@ public class ProfileApiPublic implements ProfileApi {
         return getUsers(pageLink);
     }
 
+    @Override
+    public Observable<ApiUserProfile> userProfile(Urn user) {
+        throw new UnsupportedOperationException("User Profile will not be supported by Public API");
+    }
+
     @NotNull
     private Observable<ModelCollection<ApiPlaylist>> getPlaylists(String path) {
         final ApiRequest request = ApiRequest.get(path)
