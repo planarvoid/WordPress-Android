@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -167,8 +168,12 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onUpsellTracksUpsellClick() {
-        listener.onUpsell(context(), Urn.forTrack(123));
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING))
-                .isEqualTo(UpgradeTrackingEvent.forPlayerClick(Urn.forTrack(123)));
+        final Urn track = Urn.forTrack(123);
+
+        listener.onUpsell(context(), track);
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_CLICK);
+        assertThat(event.get(AdTrackingKeys.KEY_PAGE_URN)).isEqualTo(track.toString());
     }
 }
