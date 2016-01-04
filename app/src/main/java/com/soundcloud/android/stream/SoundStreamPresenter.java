@@ -8,7 +8,6 @@ import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerShow
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -55,7 +54,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter invitesDialogPresenter;
-    private final StreamDesignExperiment streamDesignExperiment;
     private final MixedItemClickListener itemClickListener;
     private final StationsOperations stationsOperations;
 
@@ -70,29 +68,19 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
                          SwipeRefreshAttacher swipeRefreshAttacher,
                          EventBus eventBus,
                          MixedItemClickListener.Factory itemClickListenerFactory,
-                         FacebookInvitesDialogPresenter invitesDialogPresenter,
-                         StreamDesignExperiment streamDesignExperiment) {
-        super(swipeRefreshAttacher, getRecyclerOptions(streamDesignExperiment));
+                         FacebookInvitesDialogPresenter invitesDialogPresenter) {
+        super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build());
         this.streamOperations = streamOperations;
         this.adapter = adapter;
         this.stationsOperations = stationsOperations;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
-        this.streamDesignExperiment = streamDesignExperiment;
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
 
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnFacebookCreatorInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
-    }
-
-    private static Options getRecyclerOptions(StreamDesignExperiment experiment) {
-        if (experiment.isCardDesign()) {
-            return Options.staggeredGrid(R.integer.grids_num_columns).build();
-        } else {
-            return Options.list().build();
-        }
     }
 
     @Override
@@ -137,9 +125,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
 
     private void addScrollListeners() {
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
-        if (streamDesignExperiment.isCardDesign()) {
-            getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
-        }
+        getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
     }
 
     @Override

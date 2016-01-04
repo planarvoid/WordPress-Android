@@ -2,7 +2,6 @@ package com.soundcloud.android.stream;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -19,7 +18,6 @@ import javax.inject.Inject;
 public class SoundStreamFragment extends LightCycleSupportFragment implements RefreshableScreen, ScrollContent {
 
     @Inject @LightCycle SoundStreamPresenter presenter;
-    @Inject StreamDesignExperiment experiment;
 
     public SoundStreamFragment() {
         setRetainInstance(true);
@@ -47,7 +45,6 @@ public class SoundStreamFragment extends LightCycleSupportFragment implements Re
     }
 
     private int getLayoutResource() {
-        return experiment.isCardDesign()
-                ? R.layout.recyclerview_with_refresh_and_page_bg : R.layout.default_recyclerview_with_refresh;
+        return R.layout.recyclerview_with_refresh_and_page_bg;
     }
 }
