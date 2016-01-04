@@ -121,6 +121,6 @@ public abstract class PlayableItem implements StreamItem {
     @Override
     public boolean isUpsellable() {
         return source.getOrElse(TrackProperty.SNIPPED, false)
-                && source.getOrElse(TrackProperty.SUB_MID_TIER, false);
+                && source.getOrElse(TrackProperty.SUB_HIGH_TIER, false);
     }
 }
