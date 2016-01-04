@@ -6,7 +6,6 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueueFunctions;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -14,7 +13,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.functions.Func2;
 
 import android.support.v7.app.AppCompatActivity;
@@ -28,39 +26,31 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     private final AdsOperations adsOperations;
 
     private Subscription subscription = RxUtils.invalidSubscription();
-    private Urn lastSeenAdTrack = Urn.NOT_SET;
+    private Urn lastSeenAdUrn = Urn.NOT_SET;
 
-    private final Func1<State, Boolean> isNewAudioAd = new Func1<State, Boolean>() {
+    private final Action1<PlayerState> setAdHasBeenSeen = new Action1<PlayerState>() {
         @Override
-        public Boolean call(State state) {
-            return state.isAudioAd && !lastSeenAdTrack.equals(state.trackUrn);
-        }
-    };
-
-    private final Action1<State> setAdHasBeenSeen = new Action1<State>() {
-
-        @Override
-        public void call(State state) {
-            if (isPlayerExpandedWithAd(state)) {
-                lastSeenAdTrack = state.trackUrn;
-            } else if (!isDifferentTrack(state)) {
-                lastSeenAdTrack = Urn.NOT_SET;
+        public void call(PlayerState playerState) {
+            if (isPlayerExpandedWithAd(playerState)) {
+                lastSeenAdUrn = playerState.itemUrn;
+            } else if (!isDifferentTrack(playerState)) {
+                lastSeenAdUrn = Urn.NOT_SET;
             }
         }
 
-        private boolean isPlayerExpandedWithAd(State state) {
-            return state.playerUIEventKind == PlayerUIEvent.PLAYER_EXPANDED && state.isAudioAd;
+        private boolean isPlayerExpandedWithAd(PlayerState playerState) {
+            return playerState.playerUIEventKind == PlayerUIEvent.PLAYER_EXPANDED && playerState.isAd;
         }
 
-        private boolean isDifferentTrack(State state) {
-            return lastSeenAdTrack.equals(state.trackUrn);
+        private boolean isDifferentTrack(PlayerState playerState) {
+            return lastSeenAdUrn.equals(playerState.itemUrn);
         }
     };
 
-    private final Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, State> combine = new Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, State>() {
+    private final Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, PlayerState> toPlayerState = new Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, PlayerState>() {
         @Override
-        public State call(CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
-            return new State(adsOperations.isCurrentItemAudioAd(),
+        public PlayerState call(CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
+            return new PlayerState(adsOperations.isCurrentItemAd(),
                     currentItemEvent.getCurrentPlayQueueItem().getUrn(),
                     playerUIEvent.getKind());
         }
@@ -76,11 +66,10 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     public void onResume(AppCompatActivity activity) {
         subscription = Observable
                 .combineLatest(
-                        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM),
+                        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
                         eventBus.queue(EventQueue.PLAYER_UI),
-                        combine)
+                        toPlayerState)
                 .doOnNext(setAdHasBeenSeen)
-                .filter(isNewAudioAd)
                 .subscribe(new PlayQueueSubscriber());
     }
 
@@ -89,23 +78,31 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         subscription.unsubscribe();
     }
 
-    private final class PlayQueueSubscriber extends DefaultSubscriber<State> {
+    private final class PlayQueueSubscriber extends DefaultSubscriber<PlayerState> {
         @Override
-        public void onNext(State event) {
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY));
-            lastSeenAdTrack = event.trackUrn;
+        public void onNext(PlayerState event) {
+            if (adsOperations.isCurrentItemVideoAd()) {
+                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayerExpanded());
+                lastSeenAdUrn = event.itemUrn;
+            } else {
+                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
+                if (adsOperations.isCurrentItemAudioAd() && !lastSeenAdUrn.equals(event.itemUrn)) {
+                    eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+                    eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY));
+                    lastSeenAdUrn = event.itemUrn;
+                }
+            }
         }
     }
 
-    private static class State {
-        private final boolean isAudioAd;
-        private final Urn trackUrn;
+    private static class PlayerState {
+        private final boolean isAd;
+        private final Urn itemUrn;
         private final int playerUIEventKind;
 
-        public State(boolean isAudioAd, Urn trackUrn, int playerUIEventKind) {
-            this.isAudioAd = isAudioAd;
-            this.trackUrn = trackUrn;
+        public PlayerState(boolean isAd, Urn itemUrn, int playerUIEventKind) {
+            this.isAd = isAd;
+            this.itemUrn = itemUrn;
             this.playerUIEventKind = playerUIEventKind;
         }
     }
