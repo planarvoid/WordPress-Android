@@ -33,9 +33,9 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     private static final long TIMESTAMP = 1000L;
 
-    private SoundStreamStorage storage;
-
     @Mock private Observer<PropertySet> observer;
+
+    private SoundStreamStorage storage;
 
     @Before
     public void setup() {
@@ -55,7 +55,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void promotedTrackIsNotDeduplicatedWithSameTrack() throws Exception {
+    public void promotedTrackIsNotDeduplicatedWithSameTrack() {
         final ApiTrack track = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
         ApiTrack promotedTrack = testFixtures().insertPromotedStreamTrack(track, TIMESTAMP);

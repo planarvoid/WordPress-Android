@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/stream_upsell"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout style="@style/OnboardingListItemNotificationLayout">
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/OnboardingListItemNotification.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/upsell_stream_upgrade_title" />
+
+        <TextView
+            android:id="@+id/description"
+            style="@style/OnboardingListItemNotification.Description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/upsell_stream_upgrade_description" />
+
+        <com.soundcloud.android.playback.ui.view.RoundedColorButton
+            android:id="@+id/invite_button"
+            style="@style/ListItemNotificationButton"
+            android:text="@string/upsell_stream_start_trial_button" />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/close_button"
+        style="@style/ListItemNotificationCloseButton" />
+
+</FrameLayout>

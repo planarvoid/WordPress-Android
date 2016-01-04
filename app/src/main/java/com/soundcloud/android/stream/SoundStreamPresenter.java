@@ -7,6 +7,7 @@ import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerDism
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerShown;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -44,10 +45,11 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
-        implements FacebookListenerInvitesItemRenderer.Listener,
+public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> implements
+        FacebookListenerInvitesItemRenderer.Listener,
         StationsOnboardingStreamItemRenderer.Listener,
-        FacebookCreatorInvitesItemRenderer.Listener {
+        FacebookCreatorInvitesItemRenderer.Listener,
+        UpsellNotificationItemRenderer.Listener {
 
     private final SoundStreamOperations streamOperations;
     private final SoundStreamAdapter adapter;
@@ -56,6 +58,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
     private final FacebookInvitesDialogPresenter invitesDialogPresenter;
     private final MixedItemClickListener itemClickListener;
     private final StationsOperations stationsOperations;
+    private final Navigator navigator;
 
     private CompositeSubscription viewLifeCycle;
     private Fragment fragment;
@@ -68,7 +71,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
                          SwipeRefreshAttacher swipeRefreshAttacher,
                          EventBus eventBus,
                          MixedItemClickListener.Factory itemClickListenerFactory,
-                         FacebookInvitesDialogPresenter invitesDialogPresenter) {
+                         FacebookInvitesDialogPresenter invitesDialogPresenter,
+                         Navigator navigator) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build());
         this.streamOperations = streamOperations;
         this.adapter = adapter;
@@ -76,11 +80,14 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
+        this.navigator = navigator;
+        
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
 
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnFacebookCreatorInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
+        adapter.setOnUpsellClickListener(this);
     }
 
     @Override
@@ -88,12 +95,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
         super.onCreate(fragment, bundle);
         this.fragment = fragment;
         getBinding().connect();
-    }
-
-    @Override
-    public void onStationOnboardingItemClosed(int position) {
-        stationsOperations.disableOnboarding();
-        removeItem(position);
     }
 
     @Override
@@ -228,6 +229,23 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void onStationOnboardingItemClosed(int position) {
+        stationsOperations.disableOnboarding();
+        removeItem(position);
+    }
+
+    @Override
+    public void onUpsellItemDismissed(int position) {
+        streamOperations.disableUpsell();
+        removeItem(position);
+    }
+
+    @Override
+    public void onUpsellItemClicked() {
+        navigator.openUpgrade(fragment.getActivity());
     }
 
     private void removeItem(int position) {

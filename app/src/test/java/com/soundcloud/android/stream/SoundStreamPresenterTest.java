@@ -78,7 +78,9 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 swipeRefreshAttacher,
                 eventBus,
                 itemClickListenerFactory,
-                facebookInvitesDialogPresenter);
+                facebookInvitesDialogPresenter,
+                navigator);
+
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);
@@ -261,10 +263,25 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStationOnboardingItemClosedDiableOnboarding() {
+    public void onStationOnboardingItemClosedDisableOnboarding() {
         presenter.onStationOnboardingItemClosed(0);
 
         verify(stationsOperations).disableOnboarding();
+    }
+
+    @Test
+    public void onUpsellItemDismissedUpsellsGetDisabled() {
+        presenter.onUpsellItemDismissed(0);
+
+        verify(streamOperations).disableUpsell();
+    }
+
+    @Test
+    public void onUpsellItemClickedOpensUpgradeScreen() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onUpsellItemClicked();
+
+        verify(navigator).openUpgrade(fragmentRule.getActivity());
     }
 
 }
