@@ -35,7 +35,7 @@
     <!-- @Todo from l10n: please explain -->
     <string name="account_one_active">You can only have one active account</string>
     <string name="comments">Comments</string>
-    <string name="display_name">Display name</string>
+    <string name="display_name">Name</string>
     <!-- @Todo from l10n: probably move to non-final since related to offline sync? -->
     <string name="unlimited">unlimited</string>
 
