@@ -16,6 +16,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -270,6 +271,21 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadingStreamItemIncludesSnippedFlag() {
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setSnipped(true);
+        testFixtures().insertTrack(track);
+        testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
+
+        storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
+
+        final PropertySet snippedTrack = createTrackPropertySet(track);
+
+        verify(observer).onNext(snippedTrack);
+        verify(observer).onCompleted();
+    }
+
+    @Test
     public void shouldExcludeOrphanedRecordsInActivityView() {
         final ApiTrack deletedTrack = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(deletedTrack.getId(), TIMESTAMP);
@@ -318,6 +334,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.IS_PRIVATE.bind(false),
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
                 TrackProperty.SUB_HIGH_TIER.bind(track.isSubHighTier().get()));
+                TrackProperty.SNIPPED.bind(track.isSnipped()));
     }
 
     private PropertySet createPlaylistPropertySet(ApiPlaylist playlist) {
