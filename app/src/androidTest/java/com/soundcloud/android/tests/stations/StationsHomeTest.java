@@ -6,13 +6,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
+import com.soundcloud.android.framework.annotation.Issue;
 import com.soundcloud.android.framework.annotation.StationsTabTest;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.StationsScreen;
 import com.soundcloud.android.screens.ViewAllStationsScreen;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
@@ -21,7 +20,6 @@ import com.soundcloud.android.tests.ActivityTest;
 
 @StationsTabTest
 public class StationsHomeTest extends ActivityTest<LauncherActivity> {
-    private StationsScreen stationsScreen;
 
     public StationsHomeTest() {
         super(LauncherActivity.class);
@@ -36,31 +34,28 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     protected void setUp() throws Exception {
         super.setUp();
         setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH, Flag.STATIONS_HOME);
-
-        stationsScreen = mainNavHelper.goToStationsHome();
     }
 
     public void testSavedStationsIsAvailable() {
-        assertTrue(stationsScreen.getSavedStationsBucket().isVisible());
+        assertTrue(mainNavHelper.goToStationsHome().getSavedStationsBucket().isVisible());
     }
 
     public void testRecentStationsBucket() {
-        assertTrue(stationsScreen.getRecentStationsBucket().isVisible());
+        assertTrue(mainNavHelper.goToStationsHome().getRecentStationsBucket().isVisible());
     }
 
     public void testTrackRecommendationsIsAvailable() {
-        assertTrue(stationsScreen.getTrackRecommendationsBucket().isVisible());
+        assertTrue(mainNavHelper.goToStationsHome().getTrackRecommendationsBucket().isVisible());
     }
 
     public void testCuratorRecommendationsIsAvailable() {
-        assertTrue(stationsScreen.getCuratorRecommendationsBucket().isVisible());
+        assertTrue(mainNavHelper.goToStationsHome().getCuratorRecommendationsBucket().isVisible());
     }
 
     public void testGenreRecommendationsIsAvailable() {
-        assertTrue(stationsScreen.getGenreRecommendationsBucket().isVisible());
+        assertTrue(mainNavHelper.goToStationsHome().getGenreRecommendationsBucket().isVisible());
     }
 
-    @BrokenScrollingTest
     public void testStartedStationShouldBeAddedToRecentStations() {
         final String stationTitle = startStationAndReturnTitle();
 
@@ -73,8 +68,8 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
         assertThat(viewAllStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTitle)));
     }
 
-    @BrokenScrollingTest
-    public void testStartStationFromBucket() throws Exception {
+    @Issue(ref="https://github.com/soundcloud/SoundCloud-Android/issues/4578")
+    public void testStartStationFromBucket() {
         final String stationTitle = startStationAndReturnTitle();
 
         final VisualPlayerElement player = mainNavHelper
@@ -86,8 +81,8 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
         assertThat(player, is(visible()));
     }
 
-    @BrokenScrollingTest
-    public void testStartStationFromViewAllStations() throws Exception {
+    @Issue(ref="https://github.com/soundcloud/SoundCloud-Android/issues/4578")
+    public void testStartStationFromViewAllStations() {
         final String stationTitle = startStationAndReturnTitle();
 
         final VisualPlayerElement player = mainNavHelper
