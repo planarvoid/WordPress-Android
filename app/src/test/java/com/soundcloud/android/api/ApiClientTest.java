@@ -22,6 +22,7 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.LocaleHeaderFormatter;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.optional.Optional;
@@ -56,6 +57,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Mock private OAuth oAuth;
     @Mock private Call httpCall;
     @Mock private AccountOperations accountOperations;
+    @Mock private LocaleHeaderFormatter localeHeaderFormatter;
 
     @Captor private ArgumentCaptor<Request> apiRequestCaptor;
     @Captor private ArgumentCaptor<com.squareup.okhttp.Request> httpRequestCaptor;
@@ -70,8 +72,9 @@ public class ApiClientTest extends AndroidUnitTest {
         when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
         when(httpClient.newCall(httpRequestCaptor.capture())).thenReturn(httpCall);
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
+        when(localeHeaderFormatter.getFormattedLocale()).thenReturn(Optional.of("fr-CA"));
         apiClient = new ApiClient(httpClient, apiUrlBuilder, jsonTransformer,
-                deviceHelper, adIdHelper, oAuth, unauthorisedRequestRegistry, accountOperations);
+                deviceHelper, adIdHelper, oAuth, unauthorisedRequestRegistry, accountOperations, localeHeaderFormatter);
     }
 
     @Test
@@ -96,6 +99,30 @@ public class ApiClientTest extends AndroidUnitTest {
 
         assertThat(response.isSuccess()).isTrue();
         assertThat(httpRequestCaptor.getValue().header("User-Agent")).isEqualTo("agent");
+    }
+
+    @Test
+    public void shouldSendDeviceLocaleHeader() throws Exception {
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        mockSuccessfulResponseFor(request);
+
+        ApiResponse response = apiClient.fetchResponse(request);
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(httpRequestCaptor.getValue().header("Device-Locale")).isEqualTo("fr-CA");
+    }
+
+    @Test
+    public void shouldOmitDeviceLocaleHeaderIfLocaleUnavailable() throws Exception {
+        when(localeHeaderFormatter.getFormattedLocale()).thenReturn(Optional.<String>absent());
+
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        mockSuccessfulResponseFor(request);
+
+        ApiResponse response = apiClient.fetchResponse(request);
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(httpRequestCaptor.getValue().header("Device-Locale")).isNull();
     }
 
     @Test
