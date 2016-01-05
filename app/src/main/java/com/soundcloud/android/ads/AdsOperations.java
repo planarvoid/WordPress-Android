@@ -137,13 +137,14 @@ public class AdsOperations {
     }
 
     void replaceUpcomingVideoAd(ApiAdsForTrack ads, VideoQueueItem videoItem) {
+        final boolean hasAudioAd = ads.audioAd().isPresent();
+        final boolean hasInterstitial = ads.interstitialAd().isPresent();
         // Don't publish queue change if we can swap another ad in. Queue change will be published on insert.
-        final boolean shouldPublishQueueChange = !ads.audioAd().isPresent() &&
-                                                 !ads.interstitialAd().isPresent();
+        final boolean shouldPublishQueueChange = !hasAudioAd && !hasInterstitial;
         playQueueManager.removeUpcomingItem(videoItem, shouldPublishQueueChange);
-        if (ads.audioAd().isPresent()) {
+        if (hasAudioAd) {
             insertAudioAd(playQueueManager.getNextPlayQueueItem(), ads.audioAd().get());
-        } else if (ads.interstitialAd().isPresent()) {
+        } else if (hasInterstitial) {
             applyInterstitialToTrack(playQueueManager.getNextPlayQueueItem(), ads);
         }
     }
