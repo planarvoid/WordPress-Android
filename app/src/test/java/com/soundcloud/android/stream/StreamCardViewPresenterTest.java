@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +11,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
@@ -18,6 +20,8 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -48,6 +52,8 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private StreamItemViewHolder itemView;
     @Mock private View view;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private FeatureOperations featureOperations;
 
     private Date createdAtStream = new Date();
     private StreamCardViewPresenter presenter;
@@ -55,7 +61,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new StreamCardViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
-                navigator, resources(), imageOperations);
+                navigator, resources(), imageOperations, featureFlags, featureOperations);
     }
 
     @Test
@@ -199,6 +205,28 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
                         any(ImageView.class));
     }
 
+    @Test
+    public void bindsPreviewIndicatorForSnippedForMidTierUpsell() {
+        when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
+        when(featureOperations.upsellMidTier()).thenReturn(true);
+
+        TrackItem trackItem = upsellableTrack();
+        presenter.bind(itemView, trackItem);
+
+        verify(itemView).togglePreviewIndicator(trackItem.isSnipped());
+    }
+
+    @Test
+    public void doesNotBindPreviewIndicatorWhenShouldNotUpsellMidTier() {
+        when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
+        when(featureOperations.upsellMidTier()).thenReturn(false);
+
+        TrackItem trackItem = upsellableTrack();
+        presenter.bind(itemView, trackItem);
+
+        verify(itemView, never()).togglePreviewIndicator(trackItem.isSnipped());
+    }
+
     private PlaylistItem postedPlaylist() {
         final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
         playlist.put(SoundStreamProperty.CREATED_AT, createdAtStream);
@@ -229,6 +257,13 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
                 PostProperty.REPOSTER_URN.bind(Urn.forUser(123L))
         ));
         return trackItem;
+    }
+
+    private TrackItem upsellableTrack() {
+        final PropertySet track = TestPropertySets.upsellableTrack();
+        track.put(SoundStreamProperty.CREATED_AT, createdAtStream);
+
+        return TrackItem.from(track);
     }
 
     private String repostedString() {
