@@ -11,6 +11,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlayerFunctions;
+import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -188,7 +189,7 @@ public class AdsController {
             final ApiAdsForTrack ads = adsForNextTrack.get();
             final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
             if (AdsOperations.isVideoAd(nextItem)) {
-                replaceVideoAdForNextTrack(ads, nextItem);
+                adsOperations.replaceUpcomingVideoAd(ads, (VideoQueueItem) nextItem);
             } else if (!AdsOperations.isAudioAd(nextItem) && ads.audioAd().isPresent()) {
                 adsOperations.insertAudioAd(nextItem, ads.audioAd().get());
             }
@@ -201,17 +202,6 @@ public class AdsController {
             if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
                 ((OverlayAdData) monetizableAdData.get()).setMetaAdCompleted();
             }
-        }
-    }
-
-    private void replaceVideoAdForNextTrack(ApiAdsForTrack ads, PlayQueueItem videoItem) {
-        adsOperations.removeVideoAd(videoItem);
-        if (ads.audioAd().isPresent()) {
-            adsOperations.insertAudioAd(playQueueManager.getNextPlayQueueItem(), ads.audioAd().get());
-        } else if (ads.interstitialAd().isPresent()) {
-            adsOperations.applyInterstitialToTrack(playQueueManager.getNextPlayQueueItem(), ads);
-        } else { // There is no ad that we can replace with so remove the video ad and publish a queue change
-            eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueueManager.getCollectionUrn()));
         }
     }
 

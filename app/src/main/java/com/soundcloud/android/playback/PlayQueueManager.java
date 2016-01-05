@@ -485,13 +485,19 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
+    public void removeUpcomingItem(PlayQueueItem item, boolean shouldPublishQueueChange) {
+        final int indexToRemove = playQueue.indexOfPlayQueueItem(item);
+        if (indexToRemove > currentPosition) {
+            playQueue.removeItemAtPosition(indexToRemove);
+            if (shouldPublishQueueChange) {
+                publishQueueUpdate();
+            }
+        }
+    }
+
     public void insertVideo(PlayQueueItem beforeItem, VideoAd videoAd){
         playQueue.insertVideo(playQueue.indexOfPlayQueueItem(beforeItem), videoAd);
         publishQueueUpdate();
-    }
-
-    public void removeVideo(PlayQueueItem item) {
-        playQueue.removeItemAtPosition(playQueue.indexOfPlayQueueItem(item));
     }
 
     public void insertAudioAd(PlayQueueItem beforeItem, Urn trackUrn, AudioAd audioAd, boolean shouldPersist){
