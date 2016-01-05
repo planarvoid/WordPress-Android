@@ -1,5 +1,8 @@
 package com.soundcloud.android.screens.elements;
 
+import static com.soundcloud.android.framework.with.With.contentDescription;
+
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.screens.CollectionsScreen;
 import com.soundcloud.android.screens.StationsScreen;
@@ -9,36 +12,32 @@ import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 
 public class MainTabs extends Tabs {
 
-    private enum Tab {
-        HOME, DISCOVERY, STATIONS, COLLECTION, YOU
-    }
-
     public MainTabs(Han solo) {
         super(solo);
     }
 
     public StreamScreen clickHome() {
-        getTabAt(Tab.HOME.ordinal()).click();
+        getTabWith(contentDescription(testDriver.getString(R.string.tab_home))).click();
         return new StreamScreen(testDriver);
     }
 
     public StationsScreen clickStationsHome() {
-        getTabAt(Tab.STATIONS.ordinal()).click();
+        getTabWith(contentDescription(testDriver.getString(R.string.tab_stations))).click();
         return new StationsScreen(testDriver);
     }
 
     public DiscoveryScreen clickDiscovery() {
-        getTabAt(Tab.DISCOVERY.ordinal()).click();
+        getTabWith(contentDescription(testDriver.getString(R.string.tab_discovery))).click();
         return new DiscoveryScreen(testDriver);
     }
 
     public CollectionsScreen clickCollections() {
-        getTabAt(Tab.COLLECTION.ordinal()).click();
+        getTabWith(contentDescription(testDriver.getString(R.string.tab_collection))).click();
         return new CollectionsScreen(testDriver);
     }
 
     public YouScreen clickYou() {
-        getTabAt(Tab.YOU.ordinal()).click();
+        getTabWith(contentDescription(testDriver.getString(R.string.tab_you))).click();
         return new YouScreen(testDriver);
     }
 }

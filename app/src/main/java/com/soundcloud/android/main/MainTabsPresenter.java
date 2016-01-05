@@ -157,15 +157,15 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
         tabBar.removeAllTabs();
         for (int pageIndex = 0; pageIndex < tabCount; pageIndex++) {
             TabLayout.Tab tab = tabBar.newTab();
-            tab.setCustomView(createTabViewFor(navigationModel.getItem(pageIndex).getIcon()));
-            tab.setContentDescription(navigationModel.getItem(pageIndex).getName());
+            tab.setCustomView(createTabViewFor(navigationModel.getItem(pageIndex)));
             tabBar.addTab(tab, pageIndex, pageIndex == currentItem);
         }
     }
 
-    private View createTabViewFor(@DrawableRes int icon) {
+    private View createTabViewFor(@DrawableRes NavigationModel.Target target) {
         ImageView view = new ImageView(activity);
-        view.setImageResource(icon);
+        view.setImageResource(target.getIcon());
+        view.setContentDescription(activity.getString(target.getName()));
         int tabPadding = (int) view.getContext().getResources().getDimension(R.dimen.fixed_tab_padding);
         view.setPadding(tabPadding, 0, tabPadding, 0);
         return view;
