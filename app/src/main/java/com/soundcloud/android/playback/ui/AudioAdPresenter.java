@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.rx.RxUtils;
@@ -128,8 +129,8 @@ class AudioAdPresenter extends AdPagePresenter implements View.OnClickListener {
     }
 
     @Override
-    public void setExpanded(View trackView) {
-        onPlayerSlide(trackView, 1);
+    public void setExpanded(View trackPage, PlayQueueItem playQueueItem, boolean isSelected) {
+        // no-op
     }
 
     @Override
@@ -138,6 +139,11 @@ class AudioAdPresenter extends AdPagePresenter implements View.OnClickListener {
         helper.configureViewsFromSlide(slideOffset, holder.footer, holder.close, holder.playerOverlayController);
         holder.close.setVisibility(slideOffset > 0 ? View.VISIBLE : View.GONE);
         holder.whyAds.setEnabled(slideOffset > 0);
+    }
+
+    @Override
+    public void onViewSelected(View view, PlayQueueItem value, boolean isExpanded) {
+        // no-op
     }
 
     private void resetAdImageLayouts(Holder holder) {

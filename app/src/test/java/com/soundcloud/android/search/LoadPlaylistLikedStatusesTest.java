@@ -37,8 +37,8 @@ public class LoadPlaylistLikedStatusesTest extends StorageIntegrationTest {
         final Map<Urn, PropertySet> likedStatuses = command.call(input);
 
         assertThat(likedStatuses).hasSize(2);
-        assertThat(likedStatuses.get(likedPlaylist.getUrn()).get(PlaylistProperty.IS_LIKED)).isTrue();
-        assertThat(likedStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_LIKED)).isFalse();
+        assertThat(likedStatuses.get(likedPlaylist.getUrn()).get(PlaylistProperty.IS_USER_LIKE)).isTrue();
+        assertThat(likedStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_USER_LIKE)).isFalse();
     }
 
     @Test
@@ -49,8 +49,8 @@ public class LoadPlaylistLikedStatusesTest extends StorageIntegrationTest {
 
         final Map<Urn, PropertySet> likedStatuses = command.call(input);
 
-        assertThat(likedStatuses.get(likedPlaylist.getUrn()).get(PlaylistProperty.IS_LIKED)).isTrue();
-        assertThat(likedStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_LIKED)).isFalse();
+        assertThat(likedStatuses.get(likedPlaylist.getUrn()).get(PlaylistProperty.IS_USER_LIKE)).isTrue();
+        assertThat(likedStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_USER_LIKE)).isFalse();
         assertThat(likedStatuses.containsKey(track.getUrn())).isFalse();
     }
 

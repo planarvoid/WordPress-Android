@@ -57,7 +57,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
                 PlayableProperty.TITLE.bind("title"),
                 PlayableProperty.CREATOR_NAME.bind("creator"),
                 PlayableProperty.LIKES_COUNT.bind(5),
-                PlayableProperty.IS_LIKED.bind(false),
+                PlayableProperty.IS_USER_LIKE.bind(false),
                 PlaylistProperty.TRACK_COUNT.bind(11)
         );
         playlistItem = PlaylistItem.from(propertySet);
@@ -118,7 +118,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
         assertThat(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).isEqualTo(0);
 
-        propertySet.put(PlayableProperty.IS_LIKED, true);
+        propertySet.put(PlayableProperty.IS_USER_LIKE, true);
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
         assertThat(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).isEqualTo(1);
     }

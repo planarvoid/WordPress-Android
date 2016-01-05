@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.ads.AdsOperations.hasAdOverlay;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
@@ -44,6 +45,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -101,12 +103,22 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             return !currentItem.isEmpty() && currentItem.getUrn().equals(progressEvent.getUrn());
         }
     };
+
     private static final Func2<AdData, PropertySet, PlayerItem> TO_PLAYER_AD = new Func2<AdData, PropertySet, PlayerItem>() {
         @Override
         public PlayerItem call(AdData adData, PropertySet trackProperties) {
             return new PlayerAd((PlayerAdData) adData, trackProperties);
         }
     };
+
+    private final ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
+        @Override
+        public void onPageSelected(int position) {
+            notifySelectedView(position);
+        }
+    };
+
+    private int selectedPage = Consts.NOT_SET;
 
     @Inject
     PlayerPagerPresenter(PlayQueueManager playQueueManager,
@@ -159,6 +171,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     @Override
     public void onViewCreated(PlayerFragment fragment, View view, Bundle savedInstanceState) {
         final PlayerTrackPager trackPager = (PlayerTrackPager) view.findViewById(R.id.player_track_pager);
+        trackPager.addOnPageChangeListener(pageChangeListener);
+        selectedPage = trackPager.getCurrentItem();
 
         viewVisibilityProvider = new PlayerViewVisibilityProvider(trackPager);
         trackPager.setPageMargin(view.getResources().getDimensionPixelSize(R.dimen.player_pager_spacing));
@@ -241,6 +255,9 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
             pagePresenter(entry.getValue()).onDestroyView(entry.getKey());
         }
+
+        final PlayerTrackPager trackPager = (PlayerTrackPager) playerFragment.getView().findViewById(R.id.player_track_pager);
+        trackPager.removeOnPageChangeListener(pageChangeListener);
 
         castConnectionHelper.removeOnConnectionChangeListener(this);
         skipListener = null;
@@ -589,10 +606,15 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private void configurePageFromUiEvent(PlayerUIEvent event, PlayerPagePresenter presenter, View view) {
         final int kind = event.getKind();
         if (kind == PlayerUIEvent.PLAYER_EXPANDED) {
-            presenter.setExpanded(view);
+            final PlayQueueItem playQueueItem = pagesInPlayer.get(view);
+            presenter.setExpanded(view, playQueueItem, isCurrentPagerPage(playQueueItem));
         } else if (kind == PlayerUIEvent.PLAYER_COLLAPSED) {
             presenter.setCollapsed(view);
         }
+    }
+
+    private boolean isCurrentPagerPage(PlayQueueItem playQueueItem) {
+        return selectedPage != Consts.NOT_SET && playQueueItem.equals(currentPlayQueue.get(selectedPage));
     }
 
     private class TrackPagerAdapter extends PagerAdapter {
@@ -628,6 +650,11 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
             configureInitialPageState(view);
             container.addView(view);
+
+            final PlayQueueItem playQueueItem = currentPlayQueue.get(position);
+            if (playQueueManager.isCurrentItem(playQueueItem)) {
+                pagePresenter(playQueueItem).onViewSelected(view, playQueueItem, isExpanded());
+            }
             return view;
         }
 
@@ -681,5 +708,21 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         public boolean isViewFromObject(View view, Object object) {
             return view.equals(object);
         }
+    }
+
+    private boolean isExpanded() {
+        return lastPlayerUIEvent != null && lastPlayerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
+    }
+
+    private void notifySelectedView(int position) {
+        final PlayQueueItem playQueueItem = currentPlayQueue.get(position);
+        for (Map.Entry<View, PlayQueueItem> playQueueItemEntry : pagesInPlayer.entrySet()) {
+            if (playQueueItem.equals(playQueueItemEntry.getValue())) {
+                final View view = playQueueItemEntry.getKey();
+                final PlayerPagePresenter presenter = pagePresenter(pagesInPlayer.get(view));
+                presenter.onViewSelected(view, playQueueItemEntry.getValue(), isExpanded());
+            }
+        }
+        selectedPage = position;
     }
 }

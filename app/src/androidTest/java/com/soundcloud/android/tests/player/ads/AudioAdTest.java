@@ -67,6 +67,7 @@ public class AudioAdTest extends AdBaseTest {
         swipeToAd();
         playerElement.pressBackToCollapse();
         String footerTrackCreator = playerElement.getFooterTrackCreator();
+        waiter.waitForPlaybackToBePlaying();
         playlistDetailsScreen
                 .scrollToBottom()
                 .clickFirstTrack();

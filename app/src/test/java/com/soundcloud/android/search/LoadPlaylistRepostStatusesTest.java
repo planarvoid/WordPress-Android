@@ -36,8 +36,8 @@ public class LoadPlaylistRepostStatusesTest extends StorageIntegrationTest {
         Map<Urn, PropertySet> repostStatuses = command.call(input);
 
         assertThat(repostStatuses).hasSize(2);
-        assertThat(repostStatuses.get(repostedPlaylist.getUrn()).get(PlaylistProperty.IS_REPOSTED)).isTrue();
-        assertThat(repostStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_REPOSTED)).isFalse();
+        assertThat(repostStatuses.get(repostedPlaylist.getUrn()).get(PlaylistProperty.IS_USER_REPOST)).isTrue();
+        assertThat(repostStatuses.get(playlist.getUrn()).get(PlaylistProperty.IS_USER_REPOST)).isFalse();
     }
 
     @Test

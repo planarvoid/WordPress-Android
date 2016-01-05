@@ -104,7 +104,7 @@
             <com.soundcloud.android.view.JaggedTextView
                 android:id="@+id/track_page_title"
                 style="@style/PlayerTitle"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="3dp" />
         </LinearLayout>
 
         <com.soundcloud.android.view.JaggedTextView

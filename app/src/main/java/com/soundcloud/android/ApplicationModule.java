@@ -36,8 +36,11 @@ import com.soundcloud.android.playback.notification.NotificationBuilder;
 import com.soundcloud.android.playback.notification.RichNotificationBuilder;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.search.DiscoveryNavigationTarget;
+import com.soundcloud.android.stations.StationsNavigationTarget;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.stream.StreamNavigationTarget;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -107,12 +110,21 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public NavigationModel navigationModel() {
-        return new NavigationModel(
-                new StreamNavigationTarget(),
-                new DiscoveryNavigationTarget(),
-                new CollectionNavigationTarget(),
-                new YouNavigationTarget());
+    public NavigationModel navigationModel(FeatureFlags featureFlags) {
+        if (featureFlags.isEnabled(Flag.STATIONS_HOME)) {
+            return new NavigationModel(
+                    new StreamNavigationTarget(),
+                    new DiscoveryNavigationTarget(),
+                    new StationsNavigationTarget(),
+                    new CollectionNavigationTarget(),
+                    new YouNavigationTarget());
+        } else {
+            return new NavigationModel(
+                    new StreamNavigationTarget(),
+                    new DiscoveryNavigationTarget(),
+                    new CollectionNavigationTarget(),
+                    new YouNavigationTarget());
+        }
     }
 
     @Provides

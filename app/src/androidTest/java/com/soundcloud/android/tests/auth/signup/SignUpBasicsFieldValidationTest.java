@@ -8,31 +8,32 @@ import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class SignUpBasicsFieldValidationTest extends SignUpTest {
 
-    public void testDoneButtonEnabledWithValidInput() throws Exception {
-        signUpMethodScreen = homeScreen.clickSignUpButton();
-        signUpBasicsScreen = signupMethodScreen.clickByEmailButton();
+    public void testDoneButtonEnabledWithValidInput() {
+        signUpBasicsScreen = homeScreen
+                .clickSignUpButton()
+                .clickByEmailButton();
 
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
 
-        signUpBasicsScreen.typeEmail("slawomir@aol.com");
-        signUpBasicsScreen.typePassword("password123");
+        signUpBasicsScreen
+                .typeEmail("slawomir@aol.com")
+                .typePassword("password123");
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
 
         signUpBasicsScreen.typeAge(21);
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+        assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
 
         // gender is optional, so done button should stay enabled
         signUpBasicsScreen.chooseGender("Female");
-
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+        assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
 
         signUpBasicsScreen.chooseGender("Custom");
         signUpBasicsScreen.typeCustomGender("Intersex");
 
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+        assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
     }
 
-    public void testDoneButtonNotEnabledWithInvalidInput() throws Exception {
+    public void testDoneButtonNotEnabledWithInvalidInput() {
         startWithValidSignupInput();
 
         // missing email
@@ -40,40 +41,42 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
 
         signUpBasicsScreen.typeEmail("slawomir@aol.com");
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+        assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
 
         // missing password
         signUpBasicsScreen.clearPassword();
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
 
         signUpBasicsScreen.typePassword("password123");
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+        assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
     }
 
-    public void testToastShownForInvalidBirthYears() throws Exception {
+    public void testToastShownForInvalidBirthYears() {
         startWithValidSignupInput();
 
         // birth year too low
         signUpBasicsScreen.clearAge();
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
+
         signUpBasicsScreen.typeAge(12);
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+        assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
+
         signUpBasicsScreen.signup();
         assertTrue(waiter.expectToastWithText(toastObserver, solo.getString(R.string.authentication_error_age_not_valid)));
     }
 
     private void startWithValidSignupInput() {
-        signUpMethodScreen = homeScreen.clickSignUpButton();
-        signUpBasicsScreen = signupMethodScreen.clickByEmailButton();
+        signUpBasicsScreen = homeScreen.clickSignUpButton().clickByEmailButton();
 
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
 
         // start from a valid set
-        signUpBasicsScreen.typeEmail("slawomir@aol.com");
-        signUpBasicsScreen.typePassword("password123");
-        signUpBasicsScreen.typeAge(21);
+        signUpBasicsScreen
+                .typeEmail("slawomir@aol.com")
+                .typePassword("password123")
+                .typeAge(21);
 
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+        assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
     }
 
     @Override

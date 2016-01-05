@@ -10,6 +10,8 @@ import java.util.Date;
 
 public class NotificationItem implements StreamItem {
 
+    private final Date CREATED_AT = new Date();
+
     @Override
     public ListItem update(PropertySet sourceSet) {
         return this;
@@ -31,6 +33,11 @@ public class NotificationItem implements StreamItem {
 
     @Override
     public Date getCreatedAt() {
-        return new Date();
+        return CREATED_AT;
+    }
+
+    @Override
+    public boolean isUpsellable() {
+        return false;
     }
 }

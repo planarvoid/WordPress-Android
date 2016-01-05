@@ -175,12 +175,12 @@ public class SoundStreamStorage implements TimelineStorage {
         }
 
         private void addUserLike(CursorReader cursorReader, PropertySet propertySet) {
-            propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
+            propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.getBoolean(SoundView.USER_LIKE));
             propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
         }
 
         private void addUserRepost(CursorReader cursorReader, PropertySet propertySet) {
-            propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(SoundView.USER_REPOST));
+            propertySet.put(PlayableProperty.IS_USER_REPOST, cursorReader.getBoolean(SoundView.USER_REPOST));
             propertySet.put(PlayableProperty.REPOSTS_COUNT, cursorReader.getInt(SoundView.REPOSTS_COUNT));
         }
 

@@ -95,7 +95,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(track.get(PlayableProperty.IS_LIKED)).isTrue();
+        assertThat(track.get(PlayableProperty.IS_USER_LIKE)).isTrue();
     }
 
     @Test
@@ -104,7 +104,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        assertThat(track.get(PlayableProperty.IS_LIKED)).isFalse();
+        assertThat(track.get(PlayableProperty.IS_USER_LIKE)).isFalse();
     }
 
     @Test

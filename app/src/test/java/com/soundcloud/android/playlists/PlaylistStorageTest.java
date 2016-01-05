@@ -137,8 +137,8 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                         PlayableProperty.PERMALINK_URL,
                         PlayableProperty.CREATED_AT,
                         PlayableProperty.IS_PRIVATE,
-                        PlayableProperty.IS_LIKED,
-                        PlayableProperty.IS_REPOSTED,
+                        PlayableProperty.IS_USER_LIKE,
+                        PlayableProperty.IS_USER_REPOST,
                         PlaylistProperty.IS_POSTED,
                         OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE,
                         PlaylistProperty.TRACK_COUNT

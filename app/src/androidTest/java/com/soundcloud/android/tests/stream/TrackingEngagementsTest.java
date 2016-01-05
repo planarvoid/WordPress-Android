@@ -9,7 +9,6 @@ import com.soundcloud.android.framework.annotation.Issue;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -36,8 +35,6 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.NEW_STREAM);
-
         super.setUp();
         mainNavHelper.goToStream();
         streamScreen = new StreamScreen(solo);

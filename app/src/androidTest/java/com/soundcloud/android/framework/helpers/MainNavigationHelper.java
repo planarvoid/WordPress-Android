@@ -72,6 +72,6 @@ public class MainNavigationHelper {
     }
 
     public StationsScreen goToStationsHome() {
-        throw new UnsupportedOperationException("There is no stations home in tabs");
+        return mainTabs().clickStationsHome();
     }
 }

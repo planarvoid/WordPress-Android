@@ -13,6 +13,7 @@ import com.soundcloud.android.stream.SoundStreamProperty;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -85,11 +86,11 @@ public abstract class PlayableItem implements StreamItem {
     }
 
     public boolean isLiked() {
-        return source.getOrElse(PlayableProperty.IS_LIKED, false);
+        return source.getOrElse(PlayableProperty.IS_USER_LIKE, false);
     }
 
     public boolean isReposted() {
-        return source.getOrElse(PlayableProperty.IS_REPOSTED, false);
+        return source.getOrElse(PlayableProperty.IS_USER_REPOST, false);
     }
 
     public boolean isRepost() {
@@ -115,5 +116,11 @@ public abstract class PlayableItem implements StreamItem {
 
     public PropertySet getSource() {
         return source;
+    }
+
+    @Override
+    public boolean isUpsellable() {
+        return source.getOrElse(TrackProperty.SNIPPED, false)
+                && source.getOrElse(TrackProperty.SUB_MID_TIER, false);
     }
 }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.offline;
 
-import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetPolicyCheckTime;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.setPolicyCheckTime;
@@ -85,18 +84,6 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
 
         goBackOnlineDialog.clickContinue();
         assertThat("Go back online dialog should be dismissed", goBackOnlineDialog, is(not(visible())));
-    }
-
-    public void testDoesNotDisplayGoBackOnlineWhenOfflineContentDisabled() {
-        disableOfflineContent(context);
-        final BasicSettingsScreen settingsScreen = mainNavHelper.goToBasicSettings();
-
-        networkManagerClient.switchWifiOff();
-        offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
-                context, getPreviousDate(27, TimeUnit.DAYS).getTime());
-        resetPolicyCheckTime(context);
-
-        assertThat(settingsScreen.goBackAndDisplayGoBackOnlineDialog(), not(visible()));
     }
 
     public void testDisplaysGoBackOnlineOnlyOnceADay() {

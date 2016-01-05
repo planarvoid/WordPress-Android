@@ -5,7 +5,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -29,14 +28,12 @@ public class FacebookListenerInvitesItemRendererTest extends AndroidUnitTest {
     @Mock private FacebookApi facebookApi;
     @Mock private ImageOperations imageOperations;
     @Mock private FacebookInvitesStorage invitesStorage;
-    @Mock private StreamDesignExperiment streamDesignExperiment;
 
     private View itemView;
 
     @Before
     public void setup() {
-        when(streamDesignExperiment.isCardDesign()).thenReturn(true);
-        renderer = new FacebookListenerInvitesItemRenderer(imageOperations, invitesStorage, facebookApi, streamDesignExperiment);
+        renderer = new FacebookListenerInvitesItemRenderer(imageOperations, invitesStorage, facebookApi);
         itemView = LayoutInflater.from(context()).inflate(R.layout.facebook_invites_notification_card, new FrameLayout(context()), false);
     }
 

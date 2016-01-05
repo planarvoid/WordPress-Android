@@ -103,11 +103,7 @@ public class OnboardActivity extends FragmentActivity
     private static final String BUNDLE_ACCEPT_TERMS = "BUNDLE_ACCEPT_TERMS";
     private static final String LAST_GOOGLE_ACCT_USED = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
     private static final String LOGIN_DIALOG_TAG = "login_dialog";
-    private final ViewPager.OnPageChangeListener onTourPageChange = new ViewPager.OnPageChangeListener() {
-        @Override
-        public void onPageScrolled(int i, float v, int i1) {
-        }
-
+    private final ViewPager.OnPageChangeListener onTourPageChange = new ViewPager.SimpleOnPageChangeListener() {
         @Override
         public void onPageSelected(int selected) {
             RadioGroup group = (RadioGroup) findViewById(R.id.rdo_tour_step);
@@ -116,10 +112,6 @@ public class OnboardActivity extends FragmentActivity
                 RadioButton button = (RadioButton) group.getChildAt(i);
                 button.setChecked(i == selected);
             }
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int i) {
         }
     };
 

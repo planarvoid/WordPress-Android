@@ -1,7 +1,6 @@
 package com.soundcloud.android.facebookinvites;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -21,11 +20,12 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<Faceboo
     private final ImageOperations imageOperations;
     private final FacebookInvitesStorage facebookInvitesStorage;
     private final FacebookApi facebookApi;
-    private final StreamDesignExperiment experiment;
 
     public interface Listener {
         void onListenerInvitesLoaded(FacebookInvitesItem item);
+
         void onListenerInvitesDismiss(int position);
+
         void onListenerInvitesClicked(int position);
     }
 
@@ -34,20 +34,16 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<Faceboo
     @Inject
     public FacebookListenerInvitesItemRenderer(ImageOperations imageOperations,
                                                FacebookInvitesStorage facebookInvitesStorage,
-                                               FacebookApi facebookApi,
-                                               StreamDesignExperiment experiment) {
+                                               FacebookApi facebookApi) {
         this.imageOperations = imageOperations;
         this.facebookInvitesStorage = facebookInvitesStorage;
         this.facebookApi = facebookApi;
-        this.experiment = experiment;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(
-                experiment.isCardDesign() ?
-                        R.layout.facebook_invites_notification_card :
-                        R.layout.facebook_invites_notification_list_item, parent, false);
+        return LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.facebook_invites_notification_card, parent, false);
     }
 
     @Override
@@ -56,7 +52,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<Faceboo
         itemView.setEnabled(false);
         setClickListeners(itemView, position);
 
-        if(item.getFacebookFriendPictureUrls().isPresent()) {
+        if (item.getFacebookFriendPictureUrls().isPresent()) {
             setContent(itemView, item);
         } else {
             setLoading(itemView);

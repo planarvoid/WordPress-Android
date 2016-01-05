@@ -154,6 +154,10 @@ public class AdsOperations {
         return isAudioAd(playQueueManager.getCurrentPlayQueueItem());
     }
 
+    public boolean isCurrentItemVideoAd() {
+        return isVideoAd(playQueueManager.getCurrentPlayQueueItem());
+    }
+
     public static boolean isAd(PlayQueueItem playQueueItem) {
         return isAudioAd(playQueueItem) || isVideoAd(playQueueItem);
     }

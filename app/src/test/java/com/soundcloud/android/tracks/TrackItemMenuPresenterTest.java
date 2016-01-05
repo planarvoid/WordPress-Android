@@ -12,7 +12,6 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
-import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -49,7 +48,6 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock PlaybackInitiator playbackInitiator;
     @Mock PlaybackToastHelper playbackToastHelper;
     @Mock FeatureFlags featureFlags;
-    @Mock StreamDesignExperiment streamExperiment;
     @Mock StartStationPresenter startStationPresenter;
     @Mock Context context;
     @Mock FragmentActivity activity;

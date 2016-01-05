@@ -163,9 +163,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             case UIEvent.KIND_UNLIKE:
             case UIEvent.KIND_REPOST:
             case UIEvent.KIND_UNREPOST:
-                trackEvent(event.getTimestamp(),
-                        featureFlags.isEnabled(Flag.NEW_ENGAGEMENTS_TRACKING)
-                                ? dataBuilderV1.get().buildForUIEvent(event) : dataBuilderV0.get().build(event));
+                trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             case UIEvent.KIND_OFFLINE_LIKES_ADD:
             case UIEvent.KIND_OFFLINE_LIKES_REMOVE:

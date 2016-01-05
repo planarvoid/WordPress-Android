@@ -27,7 +27,7 @@ android {
       resValue "string", "adjust_environment", "sandbox"
       resValue "string", "gcm_gateway_id", ""
       resValue "string", "new_relic_app_token", "AA6cf074186892fc0ca95fdfd742fdf987222b6331"
-      resValue "bool", "new_relic_enabled", "true"
+      resValue "bool", "new_relic_enabled", "false"
 
       resValue "bool", "google_plus_enabled", "true"
 

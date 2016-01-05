@@ -71,7 +71,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
                 PlayableProperty.URN.bind(TRACK_URN),
-                PlayableProperty.IS_REPOSTED.bind(true),
+                PlayableProperty.IS_USER_REPOST.bind(true),
                 PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
         ));
     }
@@ -85,7 +85,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
                 PlayableProperty.URN.bind(PLAYLIST_URN),
-                PlayableProperty.IS_REPOSTED.bind(true),
+                PlayableProperty.IS_USER_REPOST.bind(true),
                 PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
         ));
     }
@@ -103,7 +103,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_REPOSTED.bind(true),
+                        PlayableProperty.IS_USER_REPOST.bind(true),
                         PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
                 )
         );
@@ -135,7 +135,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_REPOSTED.bind(false)
+                        PlayableProperty.IS_USER_REPOST.bind(false)
                 )
         );
     }
@@ -151,7 +151,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         assertThat(testObserver.getOnNextEvents()).containsExactly(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_REPOSTED.bind(false),
+                        PlayableProperty.IS_USER_REPOST.bind(false),
                         PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
                 ));
     }
@@ -169,7 +169,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_REPOSTED.bind(false),
+                        PlayableProperty.IS_USER_REPOST.bind(false),
                         PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
                 )
         );
@@ -184,7 +184,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
                 PlayableProperty.URN.bind(TRACK_URN),
-                PlayableProperty.IS_REPOSTED.bind(false),
+                PlayableProperty.IS_USER_REPOST.bind(false),
                 PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
         ));
     }
@@ -198,7 +198,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         assertThat(testObserver.getOnNextEvents()).containsExactly(PropertySet.from(
                 PlayableProperty.URN.bind(PLAYLIST_URN),
-                PlayableProperty.IS_REPOSTED.bind(false),
+                PlayableProperty.IS_USER_REPOST.bind(false),
                 PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
         ));
     }
@@ -216,7 +216,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_REPOSTED.bind(false),
+                        PlayableProperty.IS_USER_REPOST.bind(false),
                         PlayableProperty.REPOSTS_COUNT.bind(UNPOST_COUNT)
                 )
         );
@@ -234,7 +234,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_REPOSTED.bind(true)
+                        PlayableProperty.IS_USER_REPOST.bind(true)
                 )
         );
     }
@@ -250,7 +250,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         assertThat(testObserver.getOnNextEvents()).containsExactly(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_REPOSTED.bind(true),
+                        PlayableProperty.IS_USER_REPOST.bind(true),
                         PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
                 ));
     }
@@ -268,7 +268,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         assertThat(event.getChangeMap().get(TRACK_URN)).isEqualTo(
                 PropertySet.from(
                         PlayableProperty.URN.bind(TRACK_URN),
-                        PlayableProperty.IS_REPOSTED.bind(true),
+                        PlayableProperty.IS_USER_REPOST.bind(true),
                         PlayableProperty.REPOSTS_COUNT.bind(REPOST_COUNT)
                 )
         );

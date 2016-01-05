@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.comscore.utils.Storage;
 import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.ads.AdIdHelper;
@@ -369,6 +370,18 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(StorageModule.FACEBOOK_INVITES)
+    SharedPreferences provideFacebookInvites() {
+        return mock(SharedPreferences.class);
+    }
+
+    @Provides
+    @Named(StorageModule.STREAM)
+    SharedPreferences provideStreamSharedPreferences() {
+        return mock(SharedPreferences.class);
+    }
+
+    @Provides
     DailyUpdateScheduler providePolicyUpdateScheduler() {
         return mock(DailyUpdateScheduler.class);
     }
@@ -387,5 +400,6 @@ public class TestApplicationModule {
     Navigator provideNavigator() {
         return mock(Navigator.class);
     }
+
 }
 

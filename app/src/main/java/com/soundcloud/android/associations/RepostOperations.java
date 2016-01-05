@@ -98,7 +98,7 @@ public class RepostOperations {
             public void call(Throwable throwable) {
                 PropertySet changeSet = PropertySet.from(
                         PlayableProperty.URN.bind(soundUrn),
-                        PlayableProperty.IS_REPOSTED.bind(addRepost));
+                        PlayableProperty.IS_USER_REPOST.bind(addRepost));
                 publishEntityStateChanged.call(changeSet);
             }
         };
@@ -110,7 +110,7 @@ public class RepostOperations {
             public PropertySet call(Integer repostCount) {
                 return PropertySet.from(
                         PlayableProperty.URN.bind(soundUrn),
-                        PlayableProperty.IS_REPOSTED.bind(addRepost),
+                        PlayableProperty.IS_USER_REPOST.bind(addRepost),
                         PlayableProperty.REPOSTS_COUNT.bind(repostCount));
             }
         };

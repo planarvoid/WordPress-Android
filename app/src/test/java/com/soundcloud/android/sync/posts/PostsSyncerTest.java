@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync.posts;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-
+import static com.soundcloud.android.events.EntityStateChangedEvent.fromSync;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -18,6 +17,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.collections.Sets;
@@ -108,16 +108,12 @@ public class PostsSyncerTest extends AndroidUnitTest {
         final Urn remotePostUrn = Urn.forPlaylist(456L);
         PropertySet post2 = createPost(remotePostUrn, new Date(200L), true);
 
-        // ignored, as they are not reposts
-        final PropertySet ignoredLocalPost = createPost(Urn.forPlaylist(7L), new Date(100L), false);
-        final PropertySet ignoredRemotePost = createPost(Urn.forPlaylist(8L), new Date(100L), false);
-
-        withLocalPlaylistPosts(post1, ignoredLocalPost);
-        withRemotePlaylistPosts(post2, ignoredRemotePost);
+        withLocalPlaylistPosts(post1);
+        withRemotePlaylistPosts(post2);
 
         assertThat(syncer.call()).isTrue();
 
-        final EntityStateChangedEvent expectedEntityChangedSet = EntityStateChangedEvent.fromSync(
+        final EntityStateChangedEvent expectedEntityChangedSet = fromSync(
                 Sets.newHashSet(
                         createRepostedEntityChangedProperty(remotePostUrn),
                         createUnrepostedEntityChangedProperty(localPostUrn)
@@ -126,17 +122,45 @@ public class PostsSyncerTest extends AndroidUnitTest {
         assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(expectedEntityChangedSet);
     }
 
+    @Test
+    public void sendsEntityChangedEventsForPostAddition() throws Exception {
+        final PropertySet newPost = createPost(Urn.forPlaylist(7L), new Date(100L), false);
+        final PropertySet expectedEntity = newPost
+                .slice(PlayableProperty.URN)
+                .put(PlayableProperty.IS_USER_REPOST, false);
+
+        withLocalPlaylistPosts();
+        withRemotePlaylistPosts(newPost);
+
+        assertThat(syncer.call()).isTrue();
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(fromSync(expectedEntity));
+    }
+
+    @Test
+    public void sendsEntityChangedEventsForPostRemoval() throws Exception {
+        final PropertySet postToDelete = createPost(Urn.forPlaylist(7L), new Date(100L), false);
+        final PropertySet expectedEntity = postToDelete
+                .slice(PlayableProperty.URN)
+                .put(PlayableProperty.IS_USER_REPOST, false);
+
+        withLocalPlaylistPosts(postToDelete);
+        withRemotePlaylistPosts();
+
+        assertThat(syncer.call()).isTrue();
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(fromSync(expectedEntity));
+    }
+
     private PropertySet createRepostedEntityChangedProperty(Urn urn) {
         return PropertySet.from(
                 PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_REPOSTED.bind(true)
+                PlayableProperty.IS_USER_REPOST.bind(true)
         );
     }
 
     private PropertySet createUnrepostedEntityChangedProperty(Urn urn) {
         return PropertySet.from(
                 PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_REPOSTED.bind(false)
+                PlayableProperty.IS_USER_REPOST.bind(false)
         );
     }
 

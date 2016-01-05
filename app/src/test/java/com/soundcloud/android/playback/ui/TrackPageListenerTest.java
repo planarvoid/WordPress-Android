@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -15,6 +16,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -156,5 +158,22 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(navigator).openProfile(any(Context.class), eq(userUrn));
+    }
+
+    @Test
+    public void onUpsellStartsUpsellFlow() {
+        listener.onUpsell(context(), Urn.forTrack(123));
+        verify(navigator).openUpgrade(context());
+    }
+
+    @Test
+    public void onUpsellTracksUpsellClick() {
+        final Urn track = Urn.forTrack(123);
+
+        listener.onUpsell(context(), track);
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_CLICK);
+        assertThat(event.get(AdTrackingKeys.KEY_PAGE_URN)).isEqualTo(track.toString());
     }
 }

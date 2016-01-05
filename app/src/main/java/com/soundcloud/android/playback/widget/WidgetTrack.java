@@ -31,7 +31,7 @@ class WidgetTrack {
     }
 
     boolean isUserLike() {
-        return source.get(PlayableProperty.IS_LIKED);
+        return source.get(PlayableProperty.IS_USER_LIKE);
     }
 
     boolean isAudioAd() {

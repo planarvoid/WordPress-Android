@@ -7,8 +7,8 @@ import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerDism
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerShown;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -45,19 +45,20 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
-        implements FacebookListenerInvitesItemRenderer.Listener,
+public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> implements
+        FacebookListenerInvitesItemRenderer.Listener,
         StationsOnboardingStreamItemRenderer.Listener,
-        FacebookCreatorInvitesItemRenderer.Listener {
+        FacebookCreatorInvitesItemRenderer.Listener,
+        UpsellNotificationItemRenderer.Listener {
 
     private final SoundStreamOperations streamOperations;
     private final SoundStreamAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final EventBus eventBus;
     private final FacebookInvitesDialogPresenter invitesDialogPresenter;
-    private final StreamDesignExperiment streamDesignExperiment;
     private final MixedItemClickListener itemClickListener;
     private final StationsOperations stationsOperations;
+    private final Navigator navigator;
 
     private CompositeSubscription viewLifeCycle;
     private Fragment fragment;
@@ -71,28 +72,22 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
                          EventBus eventBus,
                          MixedItemClickListener.Factory itemClickListenerFactory,
                          FacebookInvitesDialogPresenter invitesDialogPresenter,
-                         StreamDesignExperiment streamDesignExperiment) {
-        super(swipeRefreshAttacher, getRecyclerOptions(streamDesignExperiment));
+                         Navigator navigator) {
+        super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build());
         this.streamOperations = streamOperations;
         this.adapter = adapter;
         this.stationsOperations = stationsOperations;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
-        this.streamDesignExperiment = streamDesignExperiment;
+        this.navigator = navigator;
+        
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
 
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnFacebookCreatorInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
-    }
-
-    private static Options getRecyclerOptions(StreamDesignExperiment experiment) {
-        if (experiment.isCardDesign()) {
-            return Options.staggeredGrid(R.integer.grids_num_columns).build();
-        } else {
-            return Options.list().build();
-        }
+        adapter.setOnUpsellClickListener(this);
     }
 
     @Override
@@ -100,12 +95,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
         super.onCreate(fragment, bundle);
         this.fragment = fragment;
         getBinding().connect();
-    }
-
-    @Override
-    public void onStationOnboardingItemClosed(int position) {
-        stationsOperations.disableOnboarding();
-        removeItem(position);
     }
 
     @Override
@@ -137,9 +126,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
 
     private void addScrollListeners() {
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
-        if (streamDesignExperiment.isCardDesign()) {
-            getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
-        }
+        getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
     }
 
     @Override
@@ -242,6 +229,23 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem>
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void onStationOnboardingItemClosed(int position) {
+        stationsOperations.disableOnboarding();
+        removeItem(position);
+    }
+
+    @Override
+    public void onUpsellItemDismissed(int position) {
+        streamOperations.disableUpsell();
+        removeItem(position);
+    }
+
+    @Override
+    public void onUpsellItemClicked() {
+        navigator.openUpgrade(fragment.getActivity());
     }
 
     private void removeItem(int position) {

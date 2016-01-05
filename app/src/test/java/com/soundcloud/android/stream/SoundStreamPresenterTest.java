@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.experiments.StreamDesignExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -64,7 +63,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     @Mock private StationsOperations stationsOperations;
-    @Mock private StreamDesignExperiment streamExperiment;
     @Mock private View view;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -80,7 +78,9 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 swipeRefreshAttacher,
                 eventBus,
                 itemClickListenerFactory,
-                facebookInvitesDialogPresenter, streamExperiment);
+                facebookInvitesDialogPresenter,
+                navigator);
+
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);
@@ -263,10 +263,25 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStationOnboardingItemClosedDiableOnboarding() {
+    public void onStationOnboardingItemClosedDisableOnboarding() {
         presenter.onStationOnboardingItemClosed(0);
 
         verify(stationsOperations).disableOnboarding();
+    }
+
+    @Test
+    public void onUpsellItemDismissedUpsellsGetDisabled() {
+        presenter.onUpsellItemDismissed(0);
+
+        verify(streamOperations).disableUpsell();
+    }
+
+    @Test
+    public void onUpsellItemClickedOpensUpgradeScreen() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onUpsellItemClicked();
+
+        verify(navigator).openUpgrade(fragmentRule.getActivity());
     }
 
 }

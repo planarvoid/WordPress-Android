@@ -2,11 +2,12 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.external.PlaybackAction;
+import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.SystemClockDateProvider;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
 import android.support.annotation.VisibleForTesting;
 import android.view.KeyEvent;
 
@@ -17,6 +18,17 @@ public class RemoteControlReceiver extends BroadcastReceiver {
     private static final int DOUBLE_CLICK_DELAY = 400;
     private static long lastClicked = -DOUBLE_CLICK_DELAY;
 
+    private final DateProvider dateProvider;
+
+    public RemoteControlReceiver() {
+        this.dateProvider = new SystemClockDateProvider();
+    }
+
+    @VisibleForTesting
+    RemoteControlReceiver(DateProvider dateProvider){
+        this.dateProvider = dateProvider;
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
@@ -25,7 +37,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                 switch (event.getKeyCode()) {
                     case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                     case KeyEvent.KEYCODE_HEADSETHOOK:
-                        long time = SystemClock.uptimeMillis();
+                        long time = dateProvider.getCurrentTime();
 
                         if(time - lastClicked < DOUBLE_CLICK_DELAY) {
                             sendPlaybackAction(context, PlaybackAction.NEXT);

@@ -18,6 +18,7 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.stream.SoundStreamOperations;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
@@ -53,12 +54,14 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private PlanStorage planStorage;
     @Mock private StationsOperations stationsOperations;
     @Mock private CollectionsOperations collectionsOperations;
+    @Mock private SoundStreamOperations soundStreamOperations;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(legacyUserAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, syncCleanupAction, planStorage,
-                removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations, collectionsOperations);
+                removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations,
+                collectionsOperations, soundStreamOperations);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -178,5 +181,11 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldRemoveCollectionsStorage() {
         action.call();
         verify(collectionsOperations).clearData();
+    }
+
+    @Test
+    public void shouldRemoveUpsellPreferences() {
+        action.call();
+        verify(soundStreamOperations).clearData();
     }
 }

@@ -64,7 +64,7 @@ public class LoadPlaylistLikedStatuses extends Command<Iterable<PropertySet>, Ma
         Map<Urn,PropertySet> likedMap = new HashMap<>();
         for (CursorReader reader : result) {
             final Urn playlistUrn = Urn.forPlaylist(reader.getLong(TableColumns.SoundView._ID));
-            likedMap.put(playlistUrn, PropertySet.from(PlaylistProperty.IS_LIKED.bind(reader.getBoolean(COLUMN_IS_LIKED))));
+            likedMap.put(playlistUrn, PropertySet.from(PlaylistProperty.IS_USER_LIKE.bind(reader.getBoolean(COLUMN_IS_LIKED))));
         }
         return likedMap;
     }

@@ -335,8 +335,8 @@ public class PublicApiTrackTest {
         expect(propertySet.get(TrackProperty.PLAY_COUNT)).toEqual(track.playback_count);
         expect(propertySet.get(PlayableProperty.LIKES_COUNT)).toEqual(track.likes_count);
         expect(propertySet.get(PlayableProperty.REPOSTS_COUNT)).toEqual(track.reposts_count);
-        expect(propertySet.get(PlayableProperty.IS_LIKED)).toEqual(track.user_like);
-        expect(propertySet.get(PlayableProperty.IS_REPOSTED)).toEqual(track.user_repost);
+        expect(propertySet.get(PlayableProperty.IS_USER_LIKE)).toEqual(track.user_like);
+        expect(propertySet.get(PlayableProperty.IS_USER_REPOST)).toEqual(track.user_repost);
         expect(propertySet.get(PlayableProperty.CREATED_AT)).toEqual(track.created_at);
         expect(propertySet.get(TrackProperty.COMMENTS_COUNT)).toEqual(track.comment_count);
         return propertySet;
