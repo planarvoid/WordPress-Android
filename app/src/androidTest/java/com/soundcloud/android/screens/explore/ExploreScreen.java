@@ -1,5 +1,7 @@
 package com.soundcloud.android.screens.explore;
 
+import static com.soundcloud.android.framework.with.With.text;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
@@ -13,9 +15,7 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.AppCompatTextView;
-import android.view.View;
 import android.widget.GridView;
-import android.widget.TextView;
 
 public class ExploreScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -88,7 +88,7 @@ public class ExploreScreen extends Screen {
     }
 
     private void touchTab(String tabText) {
-        tabs().getTabWithText(tabText).click();
+        tabs().getTabWith(text(tabText)).click();
     }
 
     public String currentTabTitle() {

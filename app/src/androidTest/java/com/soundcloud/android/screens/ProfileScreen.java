@@ -1,5 +1,7 @@
 package com.soundcloud.android.screens;
 
+import static com.soundcloud.android.framework.with.With.text;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
@@ -132,19 +134,19 @@ public class ProfileScreen extends Screen {
     }
 
     public ProfileScreen touchInfoTab() {
-        tabs().getTabWithText(testDriver.getString(R.string.tab_title_user_info)).click();
+        tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_info))).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }
 
     public ProfileScreen touchPlaylistsTab() {
-        tabs().getTabWithText(testDriver.getString(R.string.tab_title_user_playlists)).click();
+        tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_playlists))).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }
 
     public ProfileScreen touchLikesTab() {
-        tabs().getTabWithText(testDriver.getString(R.string.tab_title_user_likes)).click();
+        tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_likes))).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }
@@ -152,8 +154,8 @@ public class ProfileScreen extends Screen {
     public ProfileScreen touchFollowingsTab() {
         final Tabs tabs = tabs();
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
-        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_likes)).click();
-        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followings)).click();
+        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_likes))).click();
+        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followings))).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }
@@ -161,8 +163,8 @@ public class ProfileScreen extends Screen {
     public ProfileScreen touchFollowersTab() {
         final Tabs tabs = tabs();
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
-        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_likes)).click();
-        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followers)).click();
+        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_likes))).click();
+        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followers))).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }

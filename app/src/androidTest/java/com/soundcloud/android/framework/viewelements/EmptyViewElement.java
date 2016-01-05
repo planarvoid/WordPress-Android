@@ -141,6 +141,11 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
+    public CharSequence getContentDescription() {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
     public ViewParent getParent() {
         throw new ViewNotFoundException(selector);
     }

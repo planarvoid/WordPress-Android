@@ -14,6 +14,7 @@ public class StationsScreen extends Screen {
     public StationsScreen(Han solo) {
         super(solo);
         waiter.waitForFragmentByTag("stations_fragment");
+        pullToRefresh();
     }
 
     @Override

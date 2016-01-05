@@ -45,6 +45,8 @@ public abstract class ViewElement {
 
     public abstract int getId();
 
+    public abstract CharSequence getContentDescription();
+
     public abstract boolean isVisible();
 
     public abstract boolean isFullyVisible();

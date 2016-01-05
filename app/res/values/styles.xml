@@ -261,18 +261,24 @@
     </style>
 
     <style name="FacebookCreatorInvitesImage">
-        <item name="android:layout_width">112dp</item>
-        <item name="android:layout_height">112dp</item>
+        <item name="android:layout_width">88dp</item>
+        <item name="android:layout_height">88dp</item>
+        <item name="android:layout_marginTop">13dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
         <item name="android:scaleType">centerCrop</item>
     </style>
 
     <style name="FacebookCreatorInvitesTitle" parent="ListItemNotificationCenteredText">
-        <item name="android:textSize">16sp</item>
-        <item name="android:layout_margin">24dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_margin">21dp</item>
     </style>
 
     <style name="FacebookInvitesFriendImageOverlap" parent="FacebookInvitesFriendImage">
         <item name="android:layout_marginLeft">-16dp</item>
+    </style>
+
+    <style name="FacebookCreatorInvitesButton" parent="ListItemNotificationButton">
+        <item name="android:paddingBottom">1dp</item>
     </style>
 
     <!-- Onboarding Cards -->

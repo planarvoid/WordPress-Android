@@ -6,8 +6,7 @@
     <ImageView
         android:id="@+id/artwork"
         style="@style/FacebookCreatorInvitesImage"
-        tools:background="@color/gray_background"
-        />
+        tools:background="@color/gray_background" />
 
     <TextView
         android:id="@+id/facebook_invite_text"
