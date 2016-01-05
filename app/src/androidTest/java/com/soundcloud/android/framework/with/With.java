@@ -32,6 +32,10 @@ public abstract class With implements Predicate<ViewElement> {
         return new WithTextContaining(text);
     }
 
+    public static With contentDescription(String description) {
+        return new WithContentDescription(description);
+    }
+
     public static With className (Class<? extends View> classToSearch) {
         return new WithClass(classToSearch);
     }
@@ -89,6 +93,24 @@ public abstract class With implements Predicate<ViewElement> {
         @Override
         public String getSelector() {
             return String.format("With text: %s", searchedText );
+        }
+    }
+
+    static class WithContentDescription extends With {
+        private final String description;
+
+        WithContentDescription(String description) {
+            this.description = description;
+        }
+
+        @Override
+        public boolean apply(ViewElement viewElement) {
+            return description.equals(viewElement.getContentDescription());
+        }
+
+        @Override
+        public String getSelector() {
+            return String.format("With content description: %s", description);
         }
     }
 

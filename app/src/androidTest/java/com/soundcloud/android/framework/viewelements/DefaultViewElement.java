@@ -230,6 +230,11 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
+    public CharSequence getContentDescription() {
+        return view.getContentDescription();
+    }
+
+    @Override
     public ViewParent getParent() {
         return view.getParent();
     }

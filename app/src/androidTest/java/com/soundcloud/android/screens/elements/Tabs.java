@@ -20,8 +20,8 @@ public class Tabs {
         waiter.waitForElementCondition(new TabsVisibleCondition(this));
     }
 
-    public ViewElement getTabWithText(String tabText) {
-        return container().findElement(With.text(tabText));
+    public ViewElement getTabWith(With matcher) {
+        return container().findElement(matcher);
     }
 
     public ViewElement getTabAt(int index) {
