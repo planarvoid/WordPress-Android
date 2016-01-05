@@ -33,7 +33,10 @@ public class OfflinePlaylistPostsTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadsPlaylistWhenMadeAvailableOffline() {
-        final PlaylistElement firstPlaylist = mainNavHelper.goToCollections().scrollToFirstPlaylist();
+        CollectionsScreen collectionsScreen = mainNavHelper.goToCollections();
+        collectionsScreen.pullToRefresh();
+
+        final PlaylistElement firstPlaylist = collectionsScreen.scrollToPlaylistWithTitle("Offline playlist");
         firstPlaylist.clickOverflow().clickMakeAvailableOffline();
 
         final DownloadImageViewElement downloadElement = firstPlaylist.downloadElement();
