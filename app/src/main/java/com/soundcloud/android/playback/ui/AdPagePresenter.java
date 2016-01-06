@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -69,6 +70,19 @@ abstract class AdPagePresenter implements PlayerPagePresenter<PlayerAd> {
     void setVisibility(boolean visible, Iterable<View> views) {
         for (View v : views) {
             v.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        }
+    }
+
+    void setAnimation(Iterable<View> views, Animation animation) {
+        for (View v : views) {
+            v.startAnimation(animation);
+            v.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    void clearAnimation(Iterable<View> views) {
+        for (View v : views) {
+            v.clearAnimation();
         }
     }
 
