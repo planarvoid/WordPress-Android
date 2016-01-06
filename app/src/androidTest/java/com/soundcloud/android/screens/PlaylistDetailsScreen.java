@@ -86,13 +86,6 @@ public class PlaylistDetailsScreen extends Screen {
         return clickFirstTrackOverflowButton().clickStartStation();
     }
 
-    public UpgradeScreen clickMidTierTrackForUpgrade(int index) {
-        trackItemElements()
-                .get(index)
-                .click();
-        return new UpgradeScreen(testDriver);
-    }
-
     public PlaylistDetailsScreen scrollToFirstTrackItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.scrollListToLine(1);

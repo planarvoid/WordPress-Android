@@ -1,9 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static org.mockito.AdditionalMatchers.not;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -109,27 +107,6 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void itemClickOnHighTierTrackDoesNotUpsellIfUserCannotUpgrade() {
-        final TrackItem track1 = new TrackItem(TestPropertySets.highTierTrack());
-        final TrackItem track2 = ModelFixtures.create(TrackItem.class);
-        List<ListItem> items = Arrays.asList(
-                ModelFixtures.create(PlaylistItem.class),
-                track1,
-                ModelFixtures.create(PlaylistItem.class),
-                track2,
-                ModelFixtures.create(UserItem.class)
-        );
-
-        final List<Urn> trackList = Arrays.asList(track1.getEntityUrn(), track2.getEntityUrn());
-        final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackInitiator.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
-
-        listener.onItemClick(items, view, 3);
-
-        verify(navigator, never()).openUpgrade(any(Context.class));
-    }
-
-    @Test
     public void itemClickOnPlaylistSendsPlaylistDetailIntent() {
         final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
         List<ListItem> items = Arrays.asList(
@@ -186,18 +163,6 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void itemClickOnLocalMidTierTrackDoesNotShowUpgradeIfUserCannotUpgrade() {
-        final TrackItem midTierTrack = new TrackItem(TestPropertySets.highTierTrack());
-        final Observable<List<Urn>> tracklist = Observable.empty();
-        final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackInitiator.playTracks(tracklist, midTierTrack.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
-
-        listener.onItemClick(Observable.<List<Urn>>empty(), view, 1, midTierTrack);
-
-        verify(navigator, never()).openUpgrade(any(Context.class));
-    }
-
-    @Test
     public void itemClickOnLocalPlaylistSendsPlaylistDetailIntent() {
         final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
         List<Urn> items = Arrays.asList(Urn.forTrack(123L), playlistItem.getEntityUrn());
@@ -228,18 +193,6 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         verify(expandPlayerSubscriber).onNext(playbackResult);
         verify(expandPlayerSubscriber).onCompleted();
-    }
-
-    @Test
-    public void postItemClickOnLocalMidTierTrackDoesNotShowUpgradeIfUserCannotUpgrade() {
-        final TrackItem midTierTrack = new TrackItem(TestPropertySets.highTierTrack());
-        final Observable<List<PropertySet>> tracklist = Observable.empty();
-        final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackInitiator.playPosts(tracklist, midTierTrack.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
-
-        listener.onPostClick(Observable.<List<PropertySet>>empty(), view, 1, midTierTrack);
-
-        verify(navigator, never()).openUpgrade(any(Context.class));
     }
 
     @Test

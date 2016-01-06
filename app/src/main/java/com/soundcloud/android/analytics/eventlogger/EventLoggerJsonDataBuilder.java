@@ -9,7 +9,6 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.ForegroundEvent;
-import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -197,23 +196,6 @@ public class EventLoggerJsonDataBuilder {
                 .impressionObject(event.get(AdTrackingKeys.KEY_AD_TRACK_URN))
                 .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD);
-    }
-
-    public String build(MidTierTrackEvent event) {
-        switch (event.getKind()) {
-            case MidTierTrackEvent.KIND_IMPRESSION:
-                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                        .pageName(event.getPageName())
-                        .impressionName("consumer_sub_track")
-                        .impressionObject(String.valueOf(event.getTrackUrn())));
-            case MidTierTrackEvent.KIND_CLICK:
-                return transform(buildBaseEvent(CLICK_EVENT, event)
-                        .pageName(event.getPageName())
-                        .clickName("consumer_sub_track")
-                        .clickObject(String.valueOf(event.getTrackUrn())));
-            default:
-                throw new IllegalStateException("Unexpected MidTierTrackEvent type: " + event);
-        }
     }
 
     public String build(PromotedTrackingEvent event) {

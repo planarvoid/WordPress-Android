@@ -38,12 +38,6 @@ public class TrackLikesScreen extends Screen {
         return this;
     }
 
-    public UpgradeScreen clickMidTierTrackForUpgrade(int index) {
-        tracks().get(index)
-                .click();
-        return new UpgradeScreen(testDriver);
-    }
-
     public VisualPlayerElement clickTrack(int index) {
         VisualPlayerElement visualPlayerElement = tracks()
                 .get(index)

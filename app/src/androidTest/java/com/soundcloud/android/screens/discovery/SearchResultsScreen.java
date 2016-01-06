@@ -9,7 +9,6 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.SearchTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -102,11 +101,6 @@ public class SearchResultsScreen extends Screen {
     public DiscoveryScreen goBack() {
         testDriver.goBack();
         return new DiscoveryScreen(testDriver);
-    }
-
-    public UpgradeScreen clickMidTierTrackForUpgrade(String name) {
-        testDriver.findElement(With.textContaining(name)).click();
-        return new UpgradeScreen(testDriver);
     }
 
     public List<PlaylistElement> getPlaylists() {
