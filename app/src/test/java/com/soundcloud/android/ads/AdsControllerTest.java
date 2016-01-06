@@ -497,9 +497,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         final LeaveBehindAd monetizableAdData = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(monetizableAdData));
 
-        adsController.subscribe();
-
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.complete());
+        adsController.onPlayStateTransition(TestPlayStates.complete());
 
         assertThat(monetizableAdData.isMetaAdCompleted()).isTrue();
     }
