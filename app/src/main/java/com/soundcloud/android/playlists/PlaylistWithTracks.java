@@ -6,6 +6,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,6 +14,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class PlaylistWithTracks {
+
+    public static final Function<PlaylistWithTracks, Urn> TO_URN = new Function<PlaylistWithTracks, Urn>() {
+        @Override
+        public Urn apply(PlaylistWithTracks playlist) {
+            return playlist.getUrn();
+        }
+    };
 
     @NotNull private final PropertySet sourceSet;
     @NotNull private final List<TrackItem> tracks;

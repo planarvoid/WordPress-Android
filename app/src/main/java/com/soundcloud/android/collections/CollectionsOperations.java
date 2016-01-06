@@ -5,9 +5,8 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.stations.StationRecord;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
@@ -18,6 +17,8 @@ import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stations.StationsSyncRequestFactory;
@@ -198,14 +199,11 @@ public class CollectionsOperations {
         this.collectionsOptionsStorage = collectionsOptionsStorage;
     }
 
-    Observable<SyncResult> onCollectionSynced() {
-        return eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_COLLECTION_SYNC_EVENT);
-    }
-
-    public Observable<EntityStateChangedEvent> onCollectionChanged() {
-        return eventBus
-                .queue(ENTITY_STATE_CHANGED)
-                .filter(IS_COLLECTION_CHANGE_FILTER);
+    public Observable<Void> onCollectionChanged() {
+        return Observable.merge(
+                eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER),
+                eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_COLLECTION_SYNC_EVENT)
+        ).map(RxUtils.TO_VOID);
     }
 
     Observable<MyCollections> collections(final PlaylistsOptions options) {
@@ -215,6 +213,10 @@ public class CollectionsOperations {
                 recentStations().materialize(),
                 TO_MY_COLLECTIONS_OR_ERROR
         ).dematerialize();
+    }
+
+    public Observable<List<PlaylistItem>> myPlaylists() {
+        return myPlaylists(PlaylistsOptions.SHOW_ALL);
     }
 
     private Observable<List<PlaylistItem>> myPlaylists(final PlaylistsOptions options) {

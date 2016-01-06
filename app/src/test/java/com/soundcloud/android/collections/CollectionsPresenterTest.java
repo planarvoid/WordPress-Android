@@ -8,11 +8,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -52,8 +50,7 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(Observable.<MyCollections>empty());
-        when(collectionsOperations.onCollectionSynced()).thenReturn(Observable.<SyncResult>empty());
-        when(collectionsOperations.onCollectionChanged()).thenReturn(Observable.<EntityStateChangedEvent>empty());
+        when(collectionsOperations.onCollectionChanged()).thenReturn(Observable.<Void>empty());
         options = PlaylistsOptions.builder().build();
         when(collectionsOptionsStorage.getLastOrDefault()).thenReturn(options);
         presenter = new CollectionsPresenter(swipeRefreshAttacher, collectionsOperations, collectionsOptionsStorage, adapter, optionsPresenter, resources(), eventBus);
@@ -211,42 +208,42 @@ public class CollectionsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onCollectionSyncedShouldNotRefreshUntilAfterFirstLoad() {
-        final PublishSubject<SyncResult> collectionSyncedBus = PublishSubject.create();
-        when(collectionsOperations.onCollectionSynced()).thenReturn(collectionSyncedBus);
+    public void onCollectionChangedShouldNotRefreshUntilAfterFirstLoad() {
+        final PublishSubject<Void> collectionSyncedBus = PublishSubject.create();
+        when(collectionsOperations.onCollectionChanged()).thenReturn(collectionSyncedBus);
         when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(PublishSubject.<MyCollections>create());
         presenter.onCreate(fragment, null);
         reset(collectionsOperations);
 
-        collectionSyncedBus.onNext(SyncResult.success("syncResult", true));
+        collectionSyncedBus.onNext(null);
 
         verify(collectionsOperations, never()).collections(any(PlaylistsOptions.class));
     }
 
     @Test
-    public void onCollectionSyncedShouldRefresh() {
+    public void onCollectionChangedShouldRefresh() {
         setupDefaultCollection();
-        final PublishSubject<SyncResult> collectionSyncedBus = PublishSubject.create();
-        when(collectionsOperations.onCollectionSynced()).thenReturn(collectionSyncedBus);
+        final PublishSubject<Void> collectionSyncedBus = PublishSubject.create();
+        when(collectionsOperations.onCollectionChanged()).thenReturn(collectionSyncedBus);
 
         presenter.onCreate(fragment, null);
         reset(collectionsOperations);
 
-        collectionSyncedBus.onNext(SyncResult.success("syncResult", true));
+        collectionSyncedBus.onNext(null);
 
         verify(collectionsOperations).collections(any(PlaylistsOptions.class));
     }
 
     @Test
-    public void onCollectionSyncedShouldNotRefreshWhenAlreadyRefreshing() {
-        final PublishSubject<SyncResult> collectionSyncedBus = PublishSubject.create();
-        when(collectionsOperations.onCollectionSynced()).thenReturn(collectionSyncedBus);
+    public void onCollectionChangedShouldNotRefreshWhenAlreadyRefreshing() {
+        final PublishSubject<Void> collectionSyncedBus = PublishSubject.create();
+        when(collectionsOperations.onCollectionChanged()).thenReturn(collectionSyncedBus);
         when(collectionsOperations.collections(any(PlaylistsOptions.class))).thenReturn(PublishSubject.<MyCollections>create());
         when(swipeRefreshAttacher.isRefreshing()).thenReturn(true);
         presenter.onCreate(fragment, null);
         reset(collectionsOperations);
 
-        collectionSyncedBus.onNext(SyncResult.success("syncResult", true));
+        collectionSyncedBus.onNext(null);
         verify(collectionsOperations, never()).collections(any(PlaylistsOptions.class));
     }
 

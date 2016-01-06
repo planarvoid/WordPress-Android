@@ -125,6 +125,26 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void setPlaylistAvailableOfflinePublishChangeState() {
+        final List<Urn> expectedOfflinePlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
+        final List<PropertySet> changeSet = Arrays.asList(
+                PropertySet.from(
+                        PlaylistProperty.URN.bind(Urn.forPlaylist(123L)),
+                        OfflineProperty.OFFLINE_STATE.bind(OfflineState.REQUESTED)
+                ),
+                PropertySet.from(
+                        PlaylistProperty.URN.bind(Urn.forPlaylist(789L)),
+                        OfflineProperty.OFFLINE_STATE.bind(OfflineState.NO_OFFLINE)
+                )
+        );
+        when(offlineContentStorage.setOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(changeSet));
+
+        operations.setOfflinePlaylists(expectedOfflinePlaylists).subscribe();
+
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).contains(EntityStateChangedEvent.fromOfflineProperties(changeSet));
+    }
+
+    @Test
     public void makePlaylistAvailableOfflineStoresAsOfflineContent() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(offlineContentStorage.storeAsOfflinePlaylist(playlistUrn)).thenReturn(Observable.just(changeResult));
