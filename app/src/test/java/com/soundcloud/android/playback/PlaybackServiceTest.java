@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
@@ -22,7 +23,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +53,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Mock private Player.StateTransition stateTransition;
     @Mock private PlaybackNotificationController playbackNotificationController;
     @Mock private PlaybackSessionAnalyticsController analyticsController;
+    @Mock private AdsController adsController;
     @Mock private AdsOperations adsOperations;
 
     @Before
@@ -60,7 +61,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService = new PlaybackService(eventBus,
                 accountOperations, streamPlayer,playbackReceiverFactory,
                 InjectionSupport.lazyOf(remoteAudioManager), playbackNotificationController,
-                analyticsController, adsOperations);
+                analyticsController, adsOperations, adsController);
 
         when(playbackReceiverFactory.create(playbackService, accountOperations, eventBus)).thenReturn(playbackReceiver);
     }
@@ -199,6 +200,19 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onPlaystateChanged(stateTransition);
 
         assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED)).isEmpty();
+    }
+
+    @Test
+    public void shouldForwardPlayerStateTransitionToAdsController() {
+        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
+
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+
+        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, track, 0, 123);
+        playbackService.onPlaystateChanged(stateTransition);
+
+        verify(adsController).onPlayStateTransition(stateTransition);
     }
 
     @Test

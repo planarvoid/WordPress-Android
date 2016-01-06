@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -41,6 +42,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
     @Inject PlaybackNotificationController playbackNotificationController;
     @Inject PlaybackSessionAnalyticsController analyticsController;
+    @Inject AdsController adsController;
     @Inject AdsOperations adsOperations;
 
     private Optional<PlaybackItem> currentPlaybackItem = Optional.absent();
@@ -60,7 +62,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     StreamPlayer streamPlayer,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
                     PlaybackNotificationController playbackNotificationController,
-                    PlaybackSessionAnalyticsController analyticsController, AdsOperations adsOperations) {
+                    PlaybackSessionAnalyticsController analyticsController,
+                    AdsOperations adsOperations,
+                    AdsController adsController) {
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.streamPlayer = streamPlayer;
@@ -69,6 +73,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         this.playbackNotificationController = playbackNotificationController;
         this.analyticsController = analyticsController;
         this.adsOperations = adsOperations;
+        this.adsController = adsController;
     }
 
     @Override
@@ -186,6 +191,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             if (currentPlaybackItem.get().getPlaybackType() != PlaybackType.VIDEO_DEFAULT) {
                 analyticsController.onStateTransition(stateTransition);
             }
+            adsController.onPlayStateTransition(stateTransition);
             eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
         }
     }

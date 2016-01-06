@@ -175,9 +175,6 @@ public class AdsController {
                 .filter(isBufferingAudioAd)
                 .subscribe(new SkipFailedAdSubscriber());
 
-        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .subscribe(new LeaveBehindSubscriber());
-
         visualAdImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
         adOverlayImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
 
@@ -193,6 +190,15 @@ public class AdsController {
                 nextTrackAudioAd.isPresent() &&
             !isForeground) {
             adsOperations.insertAudioAd(playQueueManager.getNextPlayQueueItem(), nextTrackAudioAd.get());
+        }
+    }
+
+    public void onPlayStateTransition(Player.StateTransition stateTransition) {
+        if (adsOperations.isCurrentItemAudioAd() && stateTransition.trackEnded()) {
+            final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
+            if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
+                ((OverlayAdData) monetizableAdData.get()).setMetaAdCompleted();
+            }
         }
     }
 
@@ -319,18 +325,6 @@ public class AdsController {
                             playQueueManager.autoMoveToNextPlayableItem();
                         }
                     });
-        }
-    }
-
-    private class LeaveBehindSubscriber extends DefaultSubscriber<Player.StateTransition> {
-        @Override
-        public void onNext(Player.StateTransition state) {
-            if (adsOperations.isCurrentItemAudioAd() && state.trackEnded()) {
-                final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
-                if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
-                    ((OverlayAdData) monetizableAdData.get()).setMetaAdCompleted();
-                }
-            }
         }
     }
 
