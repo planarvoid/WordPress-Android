@@ -1,9 +1,5 @@
 package com.soundcloud.android.profile;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -11,9 +7,10 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.Banana;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.InsertResult;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +19,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WriteMixedRecordsCommandTest {
@@ -74,7 +75,7 @@ public class WriteMixedRecordsCommandTest {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
-        final List<PropertySetSource> apiPlaylists = Arrays.asList(apiPlaylist,apiTrack,apiUser);
+        final List<Banana> apiPlaylists = Arrays.asList(apiPlaylist,apiTrack,apiUser);
 
         when(storePlaylistsCommand.call(Arrays.asList(apiPlaylist))).thenReturn(new InsertResult(1));
         when(storeTracksCommand.call(Arrays.asList(apiTrack))).thenReturn(new InsertResult(1));
@@ -116,7 +117,7 @@ public class WriteMixedRecordsCommandTest {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
-        final List<PropertySetSource> apiPlaylists = Arrays.asList(apiPlaylist,apiTrack,apiUser);
+        final List<Banana> apiPlaylists = Arrays.asList(apiPlaylist,apiTrack,apiUser);
 
         when(storePlaylistsCommand.call(Arrays.asList(apiPlaylist))).thenReturn(new InsertResult(1));
         when(storeTracksCommand.call(Arrays.asList(apiTrack))).thenReturn(new InsertResult(1));

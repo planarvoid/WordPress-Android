@@ -1,26 +1,28 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.when;
-
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.Banana;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.util.Arrays;
+
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
-import java.util.Arrays;
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.when;
 
 public class ProfileApiMobileLikeTest extends AndroidUnitTest {
 
@@ -29,7 +31,7 @@ public class ProfileApiMobileLikeTest extends AndroidUnitTest {
     @Mock private ApiClientRx apiClientRx;
 
     private ProfileApiMobile api;
-    private final TestSubscriber<ModelCollection<PropertySetSource>> subscriber = new TestSubscriber<>();
+    private final TestSubscriber<ModelCollection<Banana>> subscriber = new TestSubscriber<>();
     private final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
     private final ModelCollection<ApiPlayableHolder> apiLikeHolder = new ModelCollection<>(

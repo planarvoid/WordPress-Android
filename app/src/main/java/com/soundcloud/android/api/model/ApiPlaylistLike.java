@@ -1,14 +1,14 @@
 package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.Banana;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistRecordHolder;
 import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
-public class ApiPlaylistLike implements PropertySetSource, PlaylistRecordHolder {
+public class ApiPlaylistLike implements Banana, PlaylistRecordHolder {
 
     private final ApiPlaylist apiPlaylist;
     private final Date createdAt;

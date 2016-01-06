@@ -3,37 +3,35 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.Banana;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
-import org.jetbrains.annotations.NotNull;
-import rx.Observable;
-import rx.functions.Func1;
 
-import javax.inject.Inject;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import rx.Observable;
+import rx.functions.Func1;
+
 public class ProfileApiMobile implements ProfileApi {
 
-    private final TypeToken<ModelCollection<ApiPostHolder>> apiPostHolderToken =
-            new TypeToken<ModelCollection<ApiPostHolder>>() {};
+    private final TypeToken<ModelCollection<BananaHolder>> holderToken =
+            new TypeToken<ModelCollection<BananaHolder>>() {};
 
-    private final TypeToken<ModelCollection<ApiPlayableHolder>> apiLikeHolderToken =
-            new TypeToken<ModelCollection<ApiPlayableHolder>>() {};
-
-    private static final Func1<ModelCollection<ApiPostHolder>, ModelCollection<PropertySetSource>> POST_HOLDER_TO_POST_COLLECTION =
-            new Func1<ModelCollection<ApiPostHolder>, ModelCollection<PropertySetSource>>() {
+    private static final Func1<ModelCollection<BananaHolder>, ModelCollection<Banana>> HOLDER_TO_BANANA =
+            new Func1<ModelCollection<BananaHolder>, ModelCollection<Banana>>() {
         @Override
-        public ModelCollection<PropertySetSource> call(ModelCollection<ApiPostHolder> postItemHolderCollection) {
-            final List<ApiPostHolder> collection = postItemHolderCollection.getCollection();
-            List<PropertySetSource> posts = new ArrayList<>(collection.size());
-            for (ApiPostHolder postHolder : collection) {
-                final Optional<PropertySetSource> post = postHolder.getItem();
+        public ModelCollection<Banana> call(ModelCollection<BananaHolder> postItemHolderCollection) {
+            final List<BananaHolder> collection = postItemHolderCollection.getCollection();
+            List<Banana> posts = new ArrayList<>(collection.size());
+            for (BananaHolder postHolder : collection) {
+                final Optional<Banana> post = postHolder.getItem();
                 if (post.isPresent()) {
                     posts.add(post.get());
                 }
@@ -41,23 +39,6 @@ public class ProfileApiMobile implements ProfileApi {
             return new ModelCollection(posts, postItemHolderCollection.getLinks());
         }
     };
-
-    private static final Func1<ModelCollection<ApiPlayableHolder>, ModelCollection<PropertySetSource>> LIKE_HOLDER_TO_LIKES_COLLECTION =
-            new Func1<ModelCollection<ApiPlayableHolder>, ModelCollection<PropertySetSource>>() {
-                @Override
-                public ModelCollection<PropertySetSource> call(ModelCollection<ApiPlayableHolder> likeHolderCollection) {
-                    final List<ApiPlayableHolder> collection = likeHolderCollection.getCollection();
-                    List<PropertySetSource> likes = new ArrayList<>(collection.size());
-                    for (ApiPlayableHolder likeHolder : collection) {
-                        final Optional<PropertySetSource> like = likeHolder.getItem();
-                        if (like.isPresent()) {
-                            likes.add(like.get());
-                        }
-                    }
-                    return new ModelCollection(likes, likeHolderCollection.getLinks());
-                }
-            };
-
 
     private final ApiClientRx apiClientRx;
 
@@ -67,72 +48,72 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userPosts(Urn user) {
+    public Observable<ModelCollection<Banana>> userPosts(Urn user) {
         return getPostsCollection(ApiEndpoints.USER_POSTS.path(user));
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userPosts(String nextPageLink) {
+    public Observable<ModelCollection<Banana>> userPosts(String nextPageLink) {
         return getPostsCollection(nextPageLink);
     }
 
     @NotNull
-    private Observable<ModelCollection<PropertySetSource>> getPostsCollection(String path) {
+    private Observable<ModelCollection<Banana>> getPostsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi(1)
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
-        return apiClientRx.mappedResponse(request, apiPostHolderToken).map(POST_HOLDER_TO_POST_COLLECTION);
+        return apiClientRx.mappedResponse(request, holderToken).map(HOLDER_TO_BANANA);
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(Urn user) {
+    public Observable<ModelCollection<Banana>> userPlaylists(Urn user) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(String nextPageLink) {
+    public Observable<ModelCollection<Banana>> userPlaylists(String nextPageLink) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userLikes(Urn user) {
+    public Observable<ModelCollection<Banana>> userLikes(Urn user) {
         return getLikesCollection(ApiEndpoints.USER_LIKES.path(user));
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userLikes(String nextPageLink) {
+    public Observable<ModelCollection<Banana>> userLikes(String nextPageLink) {
         return getLikesCollection(nextPageLink);
     }
 
     @NotNull
-    private Observable<ModelCollection<PropertySetSource>> getLikesCollection(String path) {
+    private Observable<ModelCollection<Banana>> getLikesCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi(1)
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
-        return apiClientRx.mappedResponse(request, apiLikeHolderToken).map(LIKE_HOLDER_TO_LIKES_COLLECTION);
+        return apiClientRx.mappedResponse(request, holderToken).map(HOLDER_TO_BANANA);
     }
 
     @Override
-    public Observable<ModelCollection<ApiUser>> userFollowings(Urn user) {
+    public Observable<ModelCollection<Banana>> userFollowings(Urn user) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<ApiUser>> userFollowings(String nextPageLink) {
+    public Observable<ModelCollection<Banana>> userFollowings(String nextPageLink) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<ApiUser>> userFollowers(Urn user) {
+    public Observable<ModelCollection<Banana>> userFollowers(Urn user) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<ApiUser>> userFollowers(String nextPageLink) {
+    public Observable<ModelCollection<Banana>> userFollowers(String nextPageLink) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

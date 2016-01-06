@@ -1,13 +1,11 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.java.collections.Lists.transform;
-
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.Banana;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistRecordHolder;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -18,10 +16,13 @@ import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.inject.Inject;
+
+import static com.soundcloud.java.collections.Lists.transform;
 
 public class StoreProfileCommand extends Command<UserProfileRecord, Boolean> {
     private static final Function<TrackRecordHolder, TrackRecord> TRACK_RECORD_HOLDER_TO_TRACK_RECORD = new Function<TrackRecordHolder, TrackRecord>() {
@@ -78,12 +79,12 @@ public class StoreProfileCommand extends Command<UserProfileRecord, Boolean> {
                 storeUsersCommand.call(users).success());
     }
 
-    private static Pair<List<TrackRecord>, List<PlaylistRecord>> GET_PLAYABLES_FROM_PROPERTY_SET_SOURCE_HOLDER(ModelCollection<? extends PropertySetSourceHolder> propertySetSourceHolders) {
+    private static Pair<List<TrackRecord>, List<PlaylistRecord>> GET_PLAYABLES_FROM_PROPERTY_SET_SOURCE_HOLDER(ModelCollection<? extends BananaHolder> propertySetSourceHolders) {
         List<TrackRecord> tracks = new ArrayList<>();
         List<PlaylistRecord> playlists = new ArrayList<>();
 
-        for (PropertySetSourceHolder propertySetSourceHolder : propertySetSourceHolders) {
-            final Optional<PropertySetSource> propertySetSource = propertySetSourceHolder.getItem();
+        for (BananaHolder bananaHolder : propertySetSourceHolders) {
+            final Optional<Banana> propertySetSource = bananaHolder.getItem();
 
             if (propertySetSource.isPresent()) {
                 if (propertySetSource.get() instanceof TrackRecordHolder) {

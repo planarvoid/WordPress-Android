@@ -1,16 +1,16 @@
 package com.soundcloud.android.profile;
 
+import android.support.annotation.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiPlaylistRepost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiTrackRepost;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.Banana;
 import com.soundcloud.java.optional.Optional;
 
-import android.support.annotation.Nullable;
-
-public class ApiPostHolder implements PropertySetSourceHolder {
+public class ApiPostHolder implements BananaHolder {
 
     @Nullable private final ApiTrackPost trackPost;
     @Nullable private final ApiTrackRepost trackRepost;
@@ -28,15 +28,15 @@ public class ApiPostHolder implements PropertySetSourceHolder {
         this.playlistRepost = playlistRepost;
     }
 
-    public Optional<PropertySetSource> getItem() {
+    public Optional<Banana> getItem() {
         if (trackPost != null) {
-            return Optional.<PropertySetSource>of(trackPost);
+            return Optional.<Banana>of(trackPost);
         } else if (trackRepost != null) {
-            return Optional.<PropertySetSource>of(trackRepost);
+            return Optional.<Banana>of(trackRepost);
         } else if (playlistPost != null) {
-            return Optional.<PropertySetSource>of(playlistPost);
+            return Optional.<Banana>of(playlistPost);
         } else if (playlistRepost != null) {
-            return Optional.<PropertySetSource>of(playlistRepost);
+            return Optional.<Banana>of(playlistRepost);
         } else {
             return Optional.absent();
         }

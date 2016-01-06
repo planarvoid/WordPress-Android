@@ -1,18 +1,16 @@
 package com.soundcloud.android.profile;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.model.Banana;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,13 +18,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import rx.Observable;
-import rx.observers.TestObserver;
-import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import rx.Observable;
+import rx.observers.TestObserver;
+import rx.schedulers.Schedulers;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserProfileOperationsFollowingsAndFollowersTest {
@@ -41,14 +44,14 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Mock private UserRepository userRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
-    @Captor private ArgumentCaptor<Iterable<PropertySetSource>> userCaptor;
+    @Captor private ArgumentCaptor<Iterable<Banana>> userCaptor;
 
     private final ApiUser apiUser1 = ModelFixtures.create(ApiUser.class);
     private final ApiUser apiUser2 = ModelFixtures.create(ApiUser.class);
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
-    final ModelCollection<ApiUser> page = new ModelCollection<>(
-            Arrays.asList(
+    final ModelCollection<Banana> page = new ModelCollection<>(
+            Arrays.<Banana>asList(
                     apiUser1,
                     apiUser2
             ),

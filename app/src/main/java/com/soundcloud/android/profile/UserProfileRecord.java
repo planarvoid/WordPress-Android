@@ -8,7 +8,7 @@ import com.soundcloud.android.users.UserRecord;
 public interface UserProfileRecord {
     UserRecord getUser();
 
-    ModelCollection<? extends PropertySetSourceHolder> getSpotlight();
+    ModelCollection<? extends BananaHolder> getSpotlight();
 
     ModelCollection<? extends TrackRecordHolder> getTracks();
 
@@ -16,7 +16,7 @@ public interface UserProfileRecord {
 
     ModelCollection<? extends PlaylistRecordHolder> getPlaylists();
 
-    ModelCollection<? extends PropertySetSourceHolder> getReposts();
+    ModelCollection<? extends BananaHolder> getReposts();
 
-    ModelCollection<? extends PropertySetSourceHolder> getLikes();
+    ModelCollection<? extends BananaHolder> getLikes();
 }

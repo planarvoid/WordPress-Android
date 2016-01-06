@@ -36,7 +36,7 @@ abstract class ApiUserProfile implements UserProfileRecord {
 
     public abstract UserRecord getUser();
 
-    public abstract ModelCollection<? extends PropertySetSourceHolder> getSpotlight();
+    public abstract ModelCollection<? extends BananaHolder> getSpotlight();
 
     public abstract ModelCollection<? extends TrackRecordHolder> getTracks();
 
@@ -44,7 +44,7 @@ abstract class ApiUserProfile implements UserProfileRecord {
 
     public abstract ModelCollection<? extends PlaylistRecordHolder> getPlaylists();
 
-    public abstract ModelCollection<? extends PropertySetSourceHolder> getReposts();
+    public abstract ModelCollection<? extends BananaHolder> getReposts();
 
-    public abstract ModelCollection<? extends PropertySetSourceHolder> getLikes();
+    public abstract ModelCollection<? extends BananaHolder> getLikes();
 }
