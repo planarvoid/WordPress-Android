@@ -112,9 +112,9 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void itemClickOnMidTierTrackWhenUserCanUpgradeShowsUpgrade() {
-        final TrackItem track1 = new TrackItem(TestPropertySets.midTierTrack());
-        final TrackItem track2 = ModelFixtures.create(TrackItem.class);
+    public void itemClickOnHighTierTrackWhenUserCanUpgradeShowsUpgrade() {
+        final TrackItem track1 = new TrackItem(TestPropertySets.highTierTrack());
+        final TrackItem track2 = new TrackItem(TestPropertySets.highTierTrack());
         List<ListItem> items = Arrays.asList(
                 ModelFixtures.create(PlaylistItem.class),
                 track1,
@@ -123,7 +123,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                 ModelFixtures.create(UserItem.class)
         );
 
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
         listener.onItemClick(items, view, 3);
 
@@ -131,8 +131,8 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void itemClickOnMidTierTrackDoesNotUpsellIfUserCannotUpgrade() {
-        final TrackItem track1 = new TrackItem(TestPropertySets.midTierTrack());
+    public void itemClickOnHighTierTrackDoesNotUpsellIfUserCannotUpgrade() {
+        final TrackItem track1 = new TrackItem(TestPropertySets.highTierTrack());
         final TrackItem track2 = ModelFixtures.create(TrackItem.class);
         List<ListItem> items = Arrays.asList(
                 ModelFixtures.create(PlaylistItem.class),
@@ -209,16 +209,16 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnLocalMidTierTrackWhenUserCanUpgradeShowsUpgrade() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
-        listener.onItemClick(Observable.<List<Urn>>empty(), view, 1, new TrackItem(TestPropertySets.midTierTrack()));
+        listener.onItemClick(Observable.<List<Urn>>empty(), view, 1, new TrackItem(TestPropertySets.highTierTrack()));
 
         verify(navigator).openUpgrade(context);
     }
 
     @Test
     public void itemClickOnLocalMidTierTrackDoesNotShowUpgradeIfUserCannotUpgrade() {
-        final TrackItem midTierTrack = new TrackItem(TestPropertySets.midTierTrack());
+        final TrackItem midTierTrack = new TrackItem(TestPropertySets.highTierTrack());
         final Observable<List<Urn>> tracklist = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
         when(playbackInitiator.playTracks(tracklist, midTierTrack.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
@@ -263,16 +263,16 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void postItemClickOnLocalMidTierTrackWhenUserCanUpgradeShowsUpgrade() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
-        listener.onPostClick(Observable.<List<PropertySet>>empty(), view, 1, new TrackItem(TestPropertySets.midTierTrack()));
+        listener.onPostClick(Observable.<List<PropertySet>>empty(), view, 1, new TrackItem(TestPropertySets.highTierTrack()));
 
         verify(navigator).openUpgrade(context);
     }
 
     @Test
     public void postItemClickOnLocalMidTierTrackDoesNotShowUpgradeIfUserCannotUpgrade() {
-        final TrackItem midTierTrack = new TrackItem(TestPropertySets.midTierTrack());
+        final TrackItem midTierTrack = new TrackItem(TestPropertySets.highTierTrack());
         final Observable<List<PropertySet>> tracklist = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
         when(playbackInitiator.playPosts(tracklist, midTierTrack.getEntityUrn(), 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));

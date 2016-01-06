@@ -172,7 +172,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         holder.upsellButton.setTag(trackState.getUrn());
 
-        if (featureOperations.upsellMidTier()) {
+        if (featureOperations.upsellHighTier()) {
             holder.previewIndicator.setVisibility(trackState.isSnipped() ? View.VISIBLE : View.GONE);
             holder.upsellButton.setVisibility(trackState.shouldUpsell() ? View.VISIBLE : View.GONE);
         } else {

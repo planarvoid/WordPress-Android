@@ -107,7 +107,7 @@ public class PaywallImpressionControllerTest extends AndroidUnitTest {
 
     @Test
     public void onChildViewAttachedFiresImpressionEventForMidTierTrackIfNotDeduplicating() {
-        final PropertySet midTierTrack = TestPropertySets.midTierTrack();
+        final PropertySet midTierTrack = TestPropertySets.highTierTrack();
         attachItemView(TrackItem.from(midTierTrack));
 
         final MidTierTrackEvent event1 = (MidTierTrackEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -117,7 +117,7 @@ public class PaywallImpressionControllerTest extends AndroidUnitTest {
 
     @Test
     public void onChildViewAttachedDoesNotFireImpressionEventForMidTierTrackIfDeduplicating() {
-        final PropertySet midTierTrack = TestPropertySets.midTierTrack();
+        final PropertySet midTierTrack = TestPropertySets.highTierTrack();
         when(handler.hasMessages(PaywallImpressionController.HANDLER_MESSAGE, midTierTrack.get(TrackProperty.URN))).thenReturn(true);
 
         attachItemView(TrackItem.from(midTierTrack));
@@ -127,7 +127,7 @@ public class PaywallImpressionControllerTest extends AndroidUnitTest {
 
     @Test
     public void onChildViewDetachedSendsItemToDeduplicationHandler() {
-        final PropertySet midTierTrack = TestPropertySets.midTierTrack();
+        final PropertySet midTierTrack = TestPropertySets.highTierTrack();
 
         detachItemView(TrackItem.from(midTierTrack));
 
@@ -148,7 +148,7 @@ public class PaywallImpressionControllerTest extends AndroidUnitTest {
     @Test //fixes: https://github.com/soundcloud/SoundCloud-Android/issues/3562
     public void onChildViewAttachedFromWindowDoesNotCrashWhenItemNotFound() {
         when(((ItemAdapter)itemAdapter).getItems()).thenReturn(Collections.singletonList(1)); // track was removed by unliking
-        final PropertySet midTierTrack = TestPropertySets.midTierTrack();
+        final PropertySet midTierTrack = TestPropertySets.highTierTrack();
 
         attachItemView(TrackItem.from(midTierTrack));
 
@@ -158,7 +158,7 @@ public class PaywallImpressionControllerTest extends AndroidUnitTest {
     @Test //fixes: https://github.com/soundcloud/SoundCloud-Android/issues/3413
     public void onChildViewDetachedFromWindowDoesNotCrashWhenItemNotFound() {
         when(((ItemAdapter)itemAdapter).getItems()).thenReturn(Collections.singletonList(1)); // track was removed by unliking
-        final PropertySet midTierTrack = TestPropertySets.midTierTrack();
+        final PropertySet midTierTrack = TestPropertySets.highTierTrack();
 
         detachItemView(TrackItem.from(midTierTrack));
 

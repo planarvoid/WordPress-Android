@@ -101,7 +101,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             showPromoted(itemView, (PromotedTrackItem) track);
         } else if (track.isPlaying() || track.getEntityUrn().equals(playingTrack)) {
             itemView.showNowPlaying();
-        } else if (track.isMidTier() && featureOperations.upsellMidTier()) {
+        } else if (track.isHighTier() && featureOperations.upsellHighTier()) {
             itemView.showUpsell();
         } else if (featureOperations.isOfflineContentEnabled() && track.isUnavailableOffline()) {
             itemView.showNotAvailableOffline();

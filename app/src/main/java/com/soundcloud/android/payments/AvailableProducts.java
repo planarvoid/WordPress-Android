@@ -8,13 +8,13 @@ import java.util.List;
 
 class AvailableProducts {
 
-    private static final String MID_TIER = "mid_tier";
+    private static final String HIGH_TIER = "high_tier";
 
     public static final Func1<AvailableProducts, Product> TO_PRODUCT = new Func1<AvailableProducts, Product>() {
         @Override
         public Product call(AvailableProducts availableProducts) {
             for (Product product : availableProducts.products) {
-                if (product.planId.equals(MID_TIER)) {
+                if (product.planId.equals(HIGH_TIER)) {
                     return product;
                 }
             }

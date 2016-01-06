@@ -369,7 +369,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private boolean shouldShowUpsell(TrackItem item) {
-        return item.isMidTier() && featureOperations.upsellMidTier();
+        return item.isHighTier() && featureOperations.upsellHighTier();
     }
 
     private PlaySessionSource getPlaySessionSource() {

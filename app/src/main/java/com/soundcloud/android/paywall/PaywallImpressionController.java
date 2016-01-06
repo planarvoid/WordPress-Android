@@ -99,7 +99,7 @@ public class PaywallImpressionController implements RecyclerView.OnChildAttachSt
     }
 
     private boolean isMidTierTrack(ListItem item) {
-        return item instanceof TrackItem && ((TrackItem) item).isMidTier();
+        return item instanceof TrackItem && ((TrackItem) item).isHighTier();
     }
 
     private void addToDeduplicateHandler(ListItem item) {

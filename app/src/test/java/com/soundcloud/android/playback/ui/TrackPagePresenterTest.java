@@ -643,7 +643,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindingSnippedTrackWithoutUpsellFeatureHidesPreviewIcon() {
-        when(featureOperations.upsellMidTier()).thenReturn(false);
+        when(featureOperations.upsellHighTier()).thenReturn(false);
         bindSnippedTrack();
 
         assertThat(getHolder(trackView).previewIndicator).isGone();
@@ -651,7 +651,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindingUpsellTrackWithoutUpsellFeatureHidesUpsellIcon() {
-        when(featureOperations.upsellMidTier()).thenReturn(false);
+        when(featureOperations.upsellHighTier()).thenReturn(false);
         bindUpsellableTrack();
 
         assertThat(getHolder(trackView).previewIndicator).isGone();
@@ -659,7 +659,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindingSnippedTrackWhileAllowingUpsellFeatureShowsPreviewIcon() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         bindSnippedTrack();
 
         assertThat(getHolder(trackView).previewIndicator).isVisible();
@@ -667,7 +667,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindingUpsellableTrackWhileAllowingUpsellFeatureShowsUpsell() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         final PropertySet track = bindUpsellableTrack();
 
         final TrackPageHolder holder = getHolder(trackView);
@@ -677,7 +677,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewSelectedWhileExpandedWithUpsellableTrackRecordsImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         bindUpsellableTrack();
 
         presenter.onViewSelected(trackView, playQueueItem, true);
@@ -687,7 +687,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewSelectedWhileCollapsedWithUpsellableTrackDoesNotRecordImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         bindUpsellableTrack();
 
         presenter.onViewSelected(trackView, playQueueItem, false);
@@ -697,7 +697,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewSelectedWhileExpandedWithNormalTrackDoesNotRecordImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         populateTrackPage();
 
         presenter.onViewSelected(trackView, playQueueItem, true);
@@ -707,7 +707,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setExpandedWithUpsellableTrackWhileSelectedRecordsImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         bindUpsellableTrack();
 
         presenter.setExpanded(trackView, playQueueItem, true);
@@ -717,7 +717,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setExpandedWithUpsellableTrackWhileNotSelectedDoesNotRecordImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         bindUpsellableTrack();
 
         presenter.setExpanded(trackView, playQueueItem, false);
@@ -727,7 +727,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setExpandedWithNormalTrackWhileSelectedDoesNotRecordImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         populateTrackPage();
 
         presenter.setExpanded(trackView, playQueueItem, true);

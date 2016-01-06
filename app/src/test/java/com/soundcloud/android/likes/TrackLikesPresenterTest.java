@@ -130,9 +130,9 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowUpsellOnMidTierItemClick() {
-        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
+        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.highTierTrack());
 
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
@@ -144,7 +144,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotShowUpsellOnMidTierItemClickWhenUserCannotUpgrade() {
-        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
+        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.highTierTrack());
         setupPlaybackConditions(clickedTrack);
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);
@@ -158,9 +158,9 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSendUpsellEventOnMidTierItemClick() {
-        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
+        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.highTierTrack());
 
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
@@ -174,7 +174,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSendUpsellEventOnMidTierItemClickWhenUserCannotUpgrade() {
-        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
+        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.highTierTrack());
         setupPlaybackConditions(clickedTrack);
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);

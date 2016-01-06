@@ -75,7 +75,7 @@ class LikesMenuPresenter {
     public void onPrepareOptionsMenu(Menu menu) {
         if (featureOperations.isOfflineContentOrUpsellEnabled()) {
             configureOfflineContentMenu(menu);
-            if (featureOperations.upsellMidTier()) {
+            if (featureOperations.upsellOfflineContent()) {
                 eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesImpression());
             }
         }

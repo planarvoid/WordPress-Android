@@ -63,7 +63,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
         if (featureOperations.isOfflineContentEnabled()) {
             addPreferencesFromResource(R.xml.settings_offline);
             setupOffline();
-        } else if (featureOperations.upsellMidTier()) {
+        } else if (featureOperations.upsellHighTier()) {
             addPreferencesFromResource(R.xml.settings_subscribe);
             setupUpsell();
         } else {

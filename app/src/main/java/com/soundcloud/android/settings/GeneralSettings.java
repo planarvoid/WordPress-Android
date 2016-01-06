@@ -74,7 +74,7 @@ class GeneralSettings implements OnPreferenceClickListener {
     private void setupOfflineSync(PreferenceFragment settings) {
         if (featureOperations.isOfflineContentEnabled() || offlineContentOperations.hasOfflineContent()) {
             addOfflineSettings(settings);
-        } else if (featureOperations.upsellMidTier()) {
+        } else if (featureOperations.upsellHighTier()) {
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsImpression());
             addOfflineSettings(settings);
         }
@@ -97,7 +97,7 @@ class GeneralSettings implements OnPreferenceClickListener {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         parent.startActivity(new Intent(parent, OfflineSettingsActivity.class));
-                        if (featureOperations.upsellMidTier()) {
+                        if (featureOperations.upsellHighTier()) {
                             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsClick());
                         }
                         return true;

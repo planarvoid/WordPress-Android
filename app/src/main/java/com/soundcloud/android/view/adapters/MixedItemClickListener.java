@@ -134,7 +134,7 @@ public class MixedItemClickListener {
     }
 
     private boolean shouldShowUpsell(TrackItem item) {
-        return item.isMidTier() && featureOperations.upsellMidTier();
+        return item.isHighTier() && featureOperations.upsellHighTier();
     }
 
     public static class Factory {
