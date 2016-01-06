@@ -29,6 +29,7 @@ import java.util.Locale;
 class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
 
     interface OnPremiumContentClickListener {
+        void onPremiumContentHelpClicked(Context context);
         void onPremiumItemClicked(View view, List<ListItem> premiumItems);
         void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource);
     }
@@ -84,6 +85,8 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
                     Collections.singletonList(UserItem.from(premiumItemSource)));
         }
 
+        getView(itemView, R.id.premium_item_container).setOnClickListener(null);
+        getView(itemView, R.id.help).setOnClickListener(new HelpClickListener(premiumContentListener));
         getView(itemView, R.id.view_all_container).setOnClickListener(new ViewAllClickListener(premiumContentListener, premiumItems));
 
         final TextView resultsCountTextView = getTextView(itemView, R.id.results_count);
@@ -165,6 +168,21 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
         public void onClick(View view) {
             if (listener != null) {
                 listener.onPremiumContentViewAllClicked(view.getContext(), premiumItems.get(0).getSourceSet());
+            }
+        }
+    }
+
+    private static class HelpClickListener implements View.OnClickListener {
+        private final OnPremiumContentClickListener listener;
+
+        private HelpClickListener(OnPremiumContentClickListener listener) {
+            this.listener = listener;
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (listener != null) {
+                listener.onPremiumContentHelpClicked(view.getContext());
             }
         }
     }

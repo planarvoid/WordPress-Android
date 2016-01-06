@@ -4,6 +4,8 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.search.PlayFromVoiceSearchActivity;
 import com.soundcloud.android.search.PlaylistResultsFragment;
+import com.soundcloud.android.search.SearchPremiumResultsActivity;
+import com.soundcloud.android.search.SearchPremiumResultsFragment;
 import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import dagger.Module;
@@ -17,11 +19,13 @@ import java.util.Random;
                 RecommendedTracksActivity.class,
                 RecommendedTracksFragment.class,
                 SearchActivity.class,
+                SearchPremiumResultsActivity.class,
                 PlaylistDiscoveryActivity.class,
                 TabbedSearchFragment.class,
                 SearchResultsFragment.class,
                 PlaylistResultsFragment.class,
-                PlayFromVoiceSearchActivity.class
+                PlayFromVoiceSearchActivity.class,
+                SearchPremiumResultsFragment.class
         }, includes = AssociationsModule.class)
 public class DiscoveryModule {
 

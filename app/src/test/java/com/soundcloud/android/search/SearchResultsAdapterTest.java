@@ -35,6 +35,8 @@ import java.util.List;
 
 public class SearchResultsAdapterTest extends AndroidUnitTest {
 
+    private static final int SEARCH_RESULTS_COUNT = 100;
+
     @Mock private FeatureFlags featureFlags;
     @Mock private FollowableUserItemRenderer userRenderer;
     @Mock private TrackItemRenderer trackRenderer;
@@ -92,6 +94,6 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
     }
 
     private SearchPremiumItem dummySearchPremiumItem() {
-        return new SearchPremiumItem(Collections.<PropertySet>emptyList());
+        return new SearchPremiumItem(Collections.<PropertySet>emptyList(), SEARCH_RESULTS_COUNT);
     }
 }

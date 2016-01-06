@@ -10,7 +10,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -48,17 +47,18 @@ class SearchOperations {
     static final Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
             new Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult>() {
                 @Override
-                public SearchResult call(SearchModelCollection<? extends PropertySetSource> propertySetSources) {
-                    final List<? extends PropertySetSource> collection = propertySetSources.getCollection();
-                    final Optional<Link> nextLink = propertySetSources.getNextLink();
-                    final Optional<Urn> queryUrn = propertySetSources.getQueryUrn();
-                    final Optional<? extends ModelCollection<? extends PropertySetSource>> premiumContent =
-                            propertySetSources.premiumContent();
+                public SearchResult call(SearchModelCollection<? extends PropertySetSource> searchCollection) {
+                    final List<? extends PropertySetSource> collection = searchCollection.getCollection();
+                    final Optional<Link> nextLink = searchCollection.getNextLink();
+                    final Optional<Urn> queryUrn = searchCollection.getQueryUrn();
+                    final Optional<? extends SearchModelCollection<? extends PropertySetSource>> premiumContent =
+                            searchCollection.premiumContent();
                     if (premiumContent.isPresent()) {
-                        final ModelCollection<? extends PropertySetSource> premiumItems = premiumContent.get();
+                        final SearchModelCollection<? extends PropertySetSource> premiumItems = premiumContent.get();
                         final SearchResult premiumSearchResult = new SearchResult(premiumItems.getCollection(),
-                                premiumItems.getNextLink(), premiumItems.getQueryUrn());
-                        return new SearchResult(collection, nextLink, queryUrn, Optional.of(premiumSearchResult));
+                                premiumItems.getNextLink(), premiumItems.getQueryUrn(), premiumItems.resultsCount());
+                        return new SearchResult(collection, nextLink, queryUrn, Optional.of(premiumSearchResult),
+                                searchCollection.resultsCount());
                     }
                     return new SearchResult(collection, nextLink, queryUrn);
                 }

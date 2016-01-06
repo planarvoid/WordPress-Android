@@ -1,9 +1,10 @@
-package com.soundcloud.android.discovery;
+package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -14,22 +15,23 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 
-public class RecommendedTracksFragment extends LightCycleSupportFragment implements RefreshableScreen {
+public class SearchPremiumResultsFragment extends LightCycleSupportFragment implements RefreshableScreen {
 
-    private static final String EXTRA_LOCAL_SEED_ID = "localSeedId";
+    private static final String EXTRA_PREMIUM_CONTENT_RESULTS = "searchPremiumContent";
 
-    @Inject @LightCycle RecommendedTracksPresenter presenter;
+    @Inject @LightCycle SearchPremiumResultsPresenter presenter;
 
-    public RecommendedTracksFragment() {
+    public SearchPremiumResultsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
     }
 
-    static RecommendedTracksFragment create(long localSeedId) {
+    static SearchPremiumResultsFragment create(ArrayList<PropertySet> premiumContentSourceSet) {
         final Bundle bundle = new Bundle();
-        bundle.putLong(EXTRA_LOCAL_SEED_ID, localSeedId);
-        final RecommendedTracksFragment fragment = new RecommendedTracksFragment();
+        bundle.putParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS, premiumContentSourceSet);
+        final SearchPremiumResultsFragment fragment = new SearchPremiumResultsFragment();
         fragment.setArguments(bundle);
         return fragment;
     }

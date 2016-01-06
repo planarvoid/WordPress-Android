@@ -99,7 +99,7 @@ public class SearchItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildPremiumItem() {
-        ListItem listItem = SearchItem.buildPremiumItem(Collections.<PropertySet>emptyList());
+        ListItem listItem = SearchItem.buildPremiumItem(Collections.<PropertySet>emptyList(), 100);
 
         assertThat(listItem).isInstanceOf(SearchPremiumItem.class);
     }

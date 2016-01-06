@@ -31,6 +31,8 @@ import java.util.List;
 
 public class SearchPremiumContentRendererTest extends AndroidUnitTest {
 
+    private static final int SEARCH_RESULTS_COUNT = 100;
+
     private SearchPremiumContentRenderer renderer;
 
     @Mock private TrackItemRenderer trackRenderer;
@@ -77,6 +79,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forTrack(123L)));
 
         assertThat(trackItemView.getVisibility()).isEqualTo(VISIBLE);
+        assertThat(trackItemView.hasOnClickListeners()).isTrue();
         assertThat(playListItemView.getVisibility()).isEqualTo(GONE);
         assertThat(userItemView.getVisibility()).isEqualTo(GONE);
         verify(trackRenderer).bindItemView(eq(0), eq(trackItemView), anyList());
@@ -88,6 +91,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forPlaylist(123L)));
 
         assertThat(playListItemView.getVisibility()).isEqualTo(VISIBLE);
+        assertThat(playListItemView.hasOnClickListeners()).isTrue();
         assertThat(trackItemView.getVisibility()).isEqualTo(GONE);
         assertThat(userItemView.getVisibility()).isEqualTo(GONE);
         verify(playlistRenderer).bindItemView(eq(0), eq(playListItemView), anyList());
@@ -99,19 +103,14 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forUser(123L)));
 
         assertThat(userItemView.getVisibility()).isEqualTo(VISIBLE);
+        assertThat(userItemView.hasOnClickListeners()).isTrue();
         assertThat(playListItemView.getVisibility()).isEqualTo(GONE);
         assertThat(trackItemView.getVisibility()).isEqualTo(GONE);
         verify(userRenderer).bindItemView(eq(0), eq(userItemView), anyList());
     }
 
-    @Test
-    public void shouldSetClickListenersToListItemViews() {
-        renderer.createItemView(new FrameLayout(context()));
-        renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forTrack(123L)));
-    }
-
     private List<SearchPremiumItem> buildSearchPremiumItem(Urn urn) {
         final List<PropertySet> propertySets = Collections.singletonList(PropertySet.create().put(EntityProperty.URN, urn));
-        return Collections.singletonList(new SearchPremiumItem(propertySets));
+        return Collections.singletonList(new SearchPremiumItem(propertySets, SEARCH_RESULTS_COUNT));
     }
 }

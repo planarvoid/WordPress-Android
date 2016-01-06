@@ -40,7 +40,6 @@ public class RecommendedTracksActivity extends ScActivity {
         } else {
             throw new IllegalStateException("Invalid recommendation local seed id");
         }
-
     }
 
     @Override
