@@ -22,7 +22,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center|end"
-        android:layout_marginLeft="@dimen/playlist_overflow_button_margin_left"
-        android:layout_marginRight="@dimen/playlist_overflow_button_margin_right" />
+        android:layout_marginLeft="@dimen/playlist_overflow_button_margin_left" />
 
 </LinearLayout>
