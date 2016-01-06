@@ -15,6 +15,7 @@ import android.support.v4.util.ArrayMap;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @AutoValue
@@ -48,7 +49,14 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isSingularChange() && event.getFirstUrn().isPlaylist() && event.getKind() == MARKED_FOR_OFFLINE;
+            if (event.getKind() == MARKED_FOR_OFFLINE) {
+                for (PropertySet propertySet : event.getChangeMap().values()) {
+                    if (propertySet.get(EntityProperty.URN).isPlaylist()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     };
 
@@ -145,6 +153,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static EntityStateChangedEvent fromRepost(PropertySet newRepostState) {
         return create(REPOST, newRepostState);
+    }
+
+    public static EntityStateChangedEvent fromOfflineProperties(List<PropertySet> properties) {
+        return create(MARKED_FOR_OFFLINE, properties);
     }
 
     public static EntityStateChangedEvent fromMarkedForOffline(Urn urn, boolean isMarkedForOffline) {
