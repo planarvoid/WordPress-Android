@@ -124,12 +124,6 @@ class OfflineStatePublisher {
         }
     }
 
-    private void publishTrackUnavailable(DownloadState result) {
-        Log.d(TAG, "unavailable");
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.unavailable(result.request.isLiked(), Collections.singletonList(result.getTrack())));
-    }
-
     private void publishRelatedQueuedCollectionsAsRequested(DownloadQueue queue, DownloadState result) {
         final List<Urn> requested = queue.getRequested(result);
         final boolean likedTrackRequested = queue.isLikedTrackRequested();

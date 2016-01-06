@@ -48,10 +48,6 @@ public final class CurrentDownloadEvent {
         return create(OfflineState.DOWNLOADED, requests);
     }
 
-    public static CurrentDownloadEvent unavailable(boolean isLikedTrack, List<Urn> urns) {
-        return new CurrentDownloadEvent(OfflineState.UNAVAILABLE, isLikedTrack, urns);
-    }
-
     public static CurrentDownloadEvent unavailable(List<DownloadRequest> requests) {
         return create(OfflineState.UNAVAILABLE, requests);
     }
