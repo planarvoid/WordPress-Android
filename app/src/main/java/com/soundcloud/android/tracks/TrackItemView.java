@@ -22,7 +22,6 @@ public class TrackItemView {
     private final TextView reposter;
     private final View nowPlaying;
     private final View privateIndicator;
-    private final View upsell;
     private final TextView promoted;
     private final TextView notAvailableOffline;
     private OverflowListener overflowListener;
@@ -36,7 +35,6 @@ public class TrackItemView {
         reposter = (TextView) view.findViewById(R.id.reposter);
         nowPlaying = view.findViewById(R.id.now_playing);
         privateIndicator = view.findViewById(R.id.private_indicator);
-        upsell = view.findViewById(R.id.upsell);
         promoted = (TextView) view.findViewById(R.id.promoted_track);
         notAvailableOffline = (TextView) view.findViewById(R.id.not_available_offline);
 
@@ -87,7 +85,6 @@ public class TrackItemView {
         playCount.setVisibility(View.INVISIBLE);
         nowPlaying.setVisibility(View.INVISIBLE);
         privateIndicator.setVisibility(View.GONE);
-        upsell.setVisibility(View.INVISIBLE);
         promoted.setVisibility(View.GONE);
         notAvailableOffline.setVisibility(View.GONE);
         ViewUtils.unsetTouchClickable(promoted);
@@ -96,10 +93,6 @@ public class TrackItemView {
     public void showPlaycount(String playcount) {
         playCount.setText(playcount);
         playCount.setVisibility(View.VISIBLE);
-    }
-
-    public void showUpsell() {
-        upsell.setVisibility(View.VISIBLE);
     }
 
     public void hideReposter() {
