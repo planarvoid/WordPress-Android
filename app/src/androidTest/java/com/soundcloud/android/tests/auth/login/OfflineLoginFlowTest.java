@@ -7,6 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.framework.annotation.GoogleAccountTest;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.auth.LoginErrorScreen;
 import com.soundcloud.android.tests.auth.LoginTest;
@@ -36,6 +37,7 @@ public class OfflineLoginFlowTest extends LoginTest {
         assertThat(loginErrorScreen.errorMessage(), is(solo.getString(R.string.authentication_error_no_connection_message)));
     }
 
+    @GoogleAccountTest
     public void testLoginWithGooglePlusAccountWithoutNetworkConnection() {
         LoginErrorScreen loginErrorScreen = homeScreen
                 .clickLogInButton()
