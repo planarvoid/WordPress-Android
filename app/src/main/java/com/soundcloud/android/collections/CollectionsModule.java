@@ -6,7 +6,8 @@ import dagger.Module;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 CollectionsFragment.class,
-                CollectionPreviewView.class
+                CollectionPreviewView.class,
+                OfflineOnboardingActivity.class
         }
 )
 public class CollectionsModule {

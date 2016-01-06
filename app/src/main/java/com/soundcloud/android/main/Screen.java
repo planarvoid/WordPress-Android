@@ -26,6 +26,7 @@ public enum Screen {
     COLLECTIONS("collection:overview"),
     LIKES("collection:likes"),
     PLAYLISTS("collection:playlists"),
+    OFFLINE_ONBOARDING("collection:offline_onboarding"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),

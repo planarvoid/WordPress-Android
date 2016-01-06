@@ -153,7 +153,6 @@ public class NavigatorTest extends AndroidUnitTest {
                 .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
                 .containsScreen(Screen.WIDGET)
                 .opensActivity(ProfileActivity.class);
-
     }
 
     @Test

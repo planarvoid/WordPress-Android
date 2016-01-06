@@ -4,6 +4,7 @@ import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.collections.OfflineOnboardingActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -113,6 +114,10 @@ public class Navigator {
         context.startActivity(new Intent(context, SettingsActivity.class));
     }
 
+    public void openOfflineOnboarding(Context context) {
+        context.startActivity(new Intent(context, OfflineOnboardingActivity.class));
+    }
+
     @Deprecated // use method that passes Screen, remove this after tabs
     public void openRecord(Context context) {
         context.startActivity(createRecordIntent(context, null));
@@ -149,6 +154,10 @@ public class Navigator {
 
     public void openStream(Context context, Screen screen) {
         context.startActivity(createStreamIntent(screen));
+    }
+
+    public void openCollection(Context context) {
+        context.startActivity(new Intent(Actions.COLLECTION).setFlags(FLAGS_TOP));
     }
 
     public void openLauncher(Context context) {

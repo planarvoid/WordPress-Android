@@ -40,7 +40,7 @@
 
     <string name="payments_sign_out">Sign out</string>
 
-    <!-- __OFFLINE_SYNC -->
+    <!-- __OFFLINE SYNC -->
     <string name="offline_track_not_available">Track is not available offline</string>
     <string name="offline_update_completed_title">All tracks synced!</string>
     <string name="offline_update_completed_message">Ready for offline listening!</string>
@@ -58,6 +58,15 @@
     <string name="no_network_connection">no network connection</string>
     <string name="no_wifi_connection">no Wi-Fi connection</string>
     <string name="offline_not_available_offline">Not available offline</string>
+
+    <!-- __OFFLINE ONBOARDING -->
+    <string name="offline_onboarding">Decide how you\'d like to save offline</string>
+    <string name="selective_sync_title">Selective sync</string>
+    <string name="selective_sync_body">Make your likes or playlists available offline on a case-by-case basis. Just tap the three dots and save offline.</string>
+    <string name="auto_sync_title">Automatic sync</string>
+    <string name="auto_sync_body">Make all your current and future likes and playlists available offline automatically.</string>
+    <string name="selective_sync_button">Ok, got it</string>
+    <string name="auto_sync_button">Save everything now</string>
 
     <!-- __OFFLINE SETTINGS -->
     <string name="pref_offline_settings">Offline Sync Settings</string>
