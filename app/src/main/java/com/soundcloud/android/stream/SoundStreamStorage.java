@@ -49,7 +49,7 @@ public class SoundStreamStorage implements TimelineStorage {
             SoundView.SHARING,
             field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
             SoundView.POLICIES_SNIPPED,
-            SoundView.POLICIES_SUB_MID_TIER,
+            SoundView.POLICIES_SUB_HIGH_TIER,
             SoundStreamView.REPOSTER_USERNAME,
             SoundStreamView.REPOSTER_ID,
             exists(likeQuery()).as(SoundView.USER_LIKE),

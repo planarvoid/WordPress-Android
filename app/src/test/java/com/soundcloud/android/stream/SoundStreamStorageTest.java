@@ -333,7 +333,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.REPOSTS_COUNT.bind(track.getRepostsCount()),
                 PlayableProperty.IS_PRIVATE.bind(false),
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
-                TrackProperty.SUB_HIGH_TIER.bind(track.isSubHighTier().get()));
+                TrackProperty.SUB_HIGH_TIER.bind(track.isSubHighTier().get()),
                 TrackProperty.SNIPPED.bind(track.isSnipped()));
     }
 

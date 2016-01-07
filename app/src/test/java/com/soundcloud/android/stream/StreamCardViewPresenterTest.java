@@ -208,7 +208,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Test
     public void bindsPreviewIndicatorForSnippedForMidTierUpsell() {
         when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
         TrackItem trackItem = upsellableTrack();
         presenter.bind(itemView, trackItem);
@@ -219,7 +219,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Test
     public void doesNotBindPreviewIndicatorWhenShouldNotUpsellMidTier() {
         when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
-        when(featureOperations.upsellMidTier()).thenReturn(false);
+        when(featureOperations.upsellHighTier()).thenReturn(false);
 
         TrackItem trackItem = upsellableTrack();
         presenter.bind(itemView, trackItem);

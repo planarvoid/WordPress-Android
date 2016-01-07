@@ -74,7 +74,7 @@ class StreamCardViewPresenter {
         itemView.setArtist(playableItem.getCreatorName());
         itemView.setArtistClickable(new ProfileClickViewListener(playableItem.getCreatorUrn()));
 
-        if (featureFlags.isEnabled(Flag.UPSELL_IN_STREAM) && featureOperations.upsellMidTier()) {
+        if (featureFlags.isEnabled(Flag.UPSELL_IN_STREAM) && featureOperations.upsellHighTier()) {
             itemView.togglePreviewIndicator(playableItem.isSnipped());
         }
     }
