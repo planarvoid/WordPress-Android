@@ -5,11 +5,10 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
-
-import javax.inject.Inject;
-
 import dagger.Lazy;
 import rx.Observable;
+
+import javax.inject.Inject;
 
 public class ProfileApiDelegator implements ProfileApi {
 

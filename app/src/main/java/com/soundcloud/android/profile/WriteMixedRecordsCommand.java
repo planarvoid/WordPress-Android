@@ -12,10 +12,9 @@ import com.soundcloud.android.tracks.TrackRecordHolder;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.users.UserRecordHolder;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 public class WriteMixedRecordsCommand extends Command<Iterable<? extends RecordHolder>, Boolean> {
 

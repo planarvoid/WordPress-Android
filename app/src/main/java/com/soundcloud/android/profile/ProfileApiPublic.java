@@ -13,16 +13,13 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.reflect.TypeToken;
-
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import rx.Observable;
 import rx.functions.Func1;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProfileApiPublic implements ProfileApi {
 

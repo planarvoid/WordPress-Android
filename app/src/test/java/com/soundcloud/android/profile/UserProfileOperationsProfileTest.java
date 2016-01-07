@@ -1,21 +1,19 @@
 package com.soundcloud.android.profile;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserRepository;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class UserProfileOperationsProfileTest extends AndroidUnitTest {
     private static final ApiUserProfile USER_PROFILE = new UserProfileFixtures.Builder().build();

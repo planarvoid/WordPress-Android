@@ -1,12 +1,12 @@
 package com.soundcloud.android.profile;
 
-import android.support.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.java.optional.Optional;
+
+import android.support.annotation.Nullable;
 
 public class ApiPlayableSource implements ApiEntityHolderSource {
 

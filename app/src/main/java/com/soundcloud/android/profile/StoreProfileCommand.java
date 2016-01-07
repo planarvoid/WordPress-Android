@@ -9,11 +9,10 @@ import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.inject.Inject;
 
 public class StoreProfileCommand extends Command<ApiUserProfile, Boolean> {
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;

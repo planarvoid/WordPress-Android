@@ -1,15 +1,14 @@
 package com.soundcloud.android.profile;
 
-import android.support.annotation.VisibleForTesting;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
-
 import rx.Observable;
+
+import android.support.annotation.VisibleForTesting;
 
 
 interface ProfileApi {

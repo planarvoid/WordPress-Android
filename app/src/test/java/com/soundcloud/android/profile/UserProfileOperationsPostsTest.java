@@ -1,6 +1,9 @@
 package com.soundcloud.android.profile;
 
-import android.support.annotation.NonNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
@@ -27,27 +30,22 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
-
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import rx.Observable;
+import rx.observers.TestObserver;
+import rx.observers.TestSubscriber;
+import rx.schedulers.Schedulers;
+
+import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import rx.Observable;
-import rx.observers.TestObserver;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class UserProfileOperationsPostsTest extends AndroidUnitTest {
 

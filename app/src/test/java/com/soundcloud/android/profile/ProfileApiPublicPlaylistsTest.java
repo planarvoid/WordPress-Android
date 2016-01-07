@@ -1,5 +1,11 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -12,21 +18,13 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import java.util.Arrays;
-
 import rx.Observable;
 import rx.observers.TestObserver;
 
-import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.when;
+import java.util.Arrays;
 
 public class ProfileApiPublicPlaylistsTest extends AndroidUnitTest {
 

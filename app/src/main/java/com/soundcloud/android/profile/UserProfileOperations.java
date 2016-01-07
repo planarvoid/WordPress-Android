@@ -17,19 +17,17 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.Pager.PagingFunction;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.functions.Func1;
 import rx.functions.Func2;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 class UserProfileOperations {
 
