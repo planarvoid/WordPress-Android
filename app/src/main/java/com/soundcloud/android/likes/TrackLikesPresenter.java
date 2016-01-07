@@ -4,17 +4,14 @@ import static com.soundcloud.android.events.EventQueue.CURRENT_DOWNLOAD;
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.paywall.PaywallImpressionController;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -56,13 +53,11 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
     private final TrackLikeOperations likeOperations;
     private final FeatureOperations featureOperations;
-    private final Navigator navigator;
     private final OfflinePlaybackOperations playbackOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final PagedTracksRecyclerItemAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
-    private final PaywallImpressionController paywallImpressionController;
 
     private CompositeSubscription viewLifeCycle;
 
@@ -79,9 +74,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
                         SwipeRefreshAttacher swipeRefreshAttacher,
                         FeatureOperations featureOperations,
-                        Navigator navigator,
-                        CollapsingScrollHelper scrollHelper,
-                        PaywallImpressionController paywallImpressionController) {
+                        CollapsingScrollHelper scrollHelper) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackOperations;
@@ -91,9 +84,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
-        this.navigator = navigator;
         this.scrollHelper = scrollHelper;
-        this.paywallImpressionController = paywallImpressionController;
     }
 
     @Override
@@ -164,8 +155,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
                         .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
         );
 
-        paywallImpressionController.attachRecyclerView(getRecyclerView());
-
         entityStateChangedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER)
                 .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
@@ -176,7 +165,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     @Override
     public void onDestroyView(Fragment fragment) {
         // TODO create subscription light cycle
-        paywallImpressionController.detachRecyclerView(getRecyclerView());
         entityStateChangedSubscription.unsubscribe();
         collectionSubscription.unsubscribe();
         viewLifeCycle.unsubscribe();
@@ -191,9 +179,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
         if (item == null) {
             String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + position;
             ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
-        } else if (shouldShowUpsell(item)) {
-            eventBus.publish(EventQueue.TRACKING, MidTierTrackEvent.forClick(item.getEntityUrn(), Screen.LIKES.name()));
-            navigator.openUpgrade(view.getContext());
         } else {
             Urn initialTrack = item.getEntityUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.LIKES);
@@ -201,10 +186,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
                     .playLikes(initialTrack, position, playSessionSource)
                     .subscribe(expandPlayerSubscriberProvider.get());
         }
-    }
-
-    private boolean shouldShowUpsell(TrackItem item) {
-        return item.isHighTier() && featureOperations.upsellHighTier();
     }
 
     @Override

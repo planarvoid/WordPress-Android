@@ -39,12 +39,6 @@ public class StreamScreen extends Screen {
         return new SearchScreen(testDriver);
     }
 
-    public UpgradeScreen clickMidTierTrackForUpgrade(String title) {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.findElement(With.textContaining(title)).click();
-        return new UpgradeScreen(testDriver);
-    }
-
     public StreamCardElement scrollToFirstNotPromotedPlaylist() {
         return new StreamCardElement(testDriver, streamList().scrollToItem(new NotPromotedPlaylistCriteria(testDriver)));
     }
