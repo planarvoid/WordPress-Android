@@ -3,11 +3,11 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.model.Banana;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -38,7 +38,7 @@ public class ProfileApiPublicFollowingsAndFollowersTest extends AndroidUnitTest 
     @Mock private StoreUsersCommand storeUsersCommand;
 
     private ProfileApiPublic api;
-    private final TestObserver<ModelCollection<Banana>> observer = new TestObserver<>();
+    private final TestObserver<ModelCollection<ApiUser>> observer = new TestObserver<>();
     private final PublicApiUser publicApiUser1 = ModelFixtures.create(PublicApiUser.class);
     private final PublicApiUser publicApiUser2 = ModelFixtures.create(PublicApiUser.class);
     private final CollectionHolder<PublicApiUser> publicApiCollection = new CollectionHolder<>(

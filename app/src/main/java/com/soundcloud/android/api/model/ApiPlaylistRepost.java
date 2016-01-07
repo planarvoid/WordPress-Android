@@ -2,7 +2,7 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.Banana;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistRecordHolder;
@@ -10,7 +10,7 @@ import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
-public class ApiPlaylistRepost implements Banana, PlaylistRecordHolder {
+public class ApiPlaylistRepost implements ApiEntityHolder, PlaylistRecordHolder {
 
     private final ApiPlaylist apiPlaylist;
     private final Date createdAt;

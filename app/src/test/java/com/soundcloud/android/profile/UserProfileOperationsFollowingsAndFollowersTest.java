@@ -3,7 +3,7 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.model.Banana;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
@@ -44,14 +44,14 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Mock private UserRepository userRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
-    @Captor private ArgumentCaptor<Iterable<Banana>> userCaptor;
+    @Captor private ArgumentCaptor<Iterable<ApiEntityHolder>> userCaptor;
 
     private final ApiUser apiUser1 = ModelFixtures.create(ApiUser.class);
     private final ApiUser apiUser2 = ModelFixtures.create(ApiUser.class);
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
-    final ModelCollection<Banana> page = new ModelCollection<>(
-            Arrays.<Banana>asList(
+    final ModelCollection<ApiUser> page = new ModelCollection<>(
+            Arrays.asList(
                     apiUser1,
                     apiUser2
             ),

@@ -30,24 +30,24 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreTheTracksFromTheUsersSpotlight() {
-        final ApiPlayableHolder spotlightTrack = ModelFixtures.apiTrackHolder();
-        final ModelCollection<ApiPlayableHolder> spotlight = new ModelCollection<>(Collections.singletonList(spotlightTrack));
+        final ApiPlayableSource spotlightTrack = ModelFixtures.apiTrackHolder();
+        final ModelCollection<ApiPlayableSource> spotlight = new ModelCollection<>(Collections.singletonList(spotlightTrack));
         final ApiUserProfile profile = new UserProfileFixtures.Builder().spotlight(spotlight).build();
 
         storeProfileCommand.call(profile);
 
-        databaseAssertions().assertTrackInserted(((TrackRecord) spotlightTrack.getItem().get()));
+        databaseAssertions().assertTrackInserted(((TrackRecord) spotlightTrack.getEntityHolder().get()));
     }
 
     @Test
     public void shouldStoreThePlaylistsFromTheUsersSpotlight() {
-        final ApiPlayableHolder spotlightPlaylist = ModelFixtures.apiPlaylistHolder();
-        final ModelCollection<ApiPlayableHolder> spotlight = new ModelCollection<>(Collections.singletonList(spotlightPlaylist));
+        final ApiPlayableSource spotlightPlaylist = ModelFixtures.apiPlaylistHolder();
+        final ModelCollection<ApiPlayableSource> spotlight = new ModelCollection<>(Collections.singletonList(spotlightPlaylist));
         final ApiUserProfile profile = new UserProfileFixtures.Builder().spotlight(spotlight).build();
 
         storeProfileCommand.call(profile);
 
-        databaseAssertions().assertPlaylistInserted(((PlaylistRecord) spotlightPlaylist.getItem().get()).getUrn());
+        databaseAssertions().assertPlaylistInserted(((PlaylistRecord) spotlightPlaylist.getEntityHolder().get()).getUrn());
     }
 
     @Test
@@ -85,46 +85,46 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldStoreTheTracksFromTheUsersReposts() {
-        final ApiPlayableHolder trackRepost = ModelFixtures.apiTrackHolder();
-        final ModelCollection<ApiPlayableHolder> reposts = new ModelCollection<>(Collections.singletonList(trackRepost));
+        final ApiPlayableSource trackRepost = ModelFixtures.apiTrackHolder();
+        final ModelCollection<ApiPlayableSource> reposts = new ModelCollection<>(Collections.singletonList(trackRepost));
         final ApiUserProfile profile = new UserProfileFixtures.Builder().reposts(reposts).build();
 
         storeProfileCommand.call(profile);
 
-        databaseAssertions().assertTrackInserted(((TrackRecord) trackRepost.getItem().get()));
+        databaseAssertions().assertTrackInserted(((TrackRecord) trackRepost.getEntityHolder().get()));
     }
 
     @Test
     public void shouldStoreThePlaylistsFromTheUsersReposts() {
-        final ApiPlayableHolder playlistRepost = ModelFixtures.apiPlaylistHolder();
-        final ModelCollection<ApiPlayableHolder> reposts = new ModelCollection<>(Collections.singletonList(playlistRepost));
+        final ApiPlayableSource playlistRepost = ModelFixtures.apiPlaylistHolder();
+        final ModelCollection<ApiPlayableSource> reposts = new ModelCollection<>(Collections.singletonList(playlistRepost));
         final ApiUserProfile profile = new UserProfileFixtures.Builder().reposts(reposts).build();
 
         storeProfileCommand.call(profile);
 
-        databaseAssertions().assertPlaylistInserted(((PlaylistRecord) playlistRepost.getItem().get()).getUrn());
+        databaseAssertions().assertPlaylistInserted(((PlaylistRecord) playlistRepost.getEntityHolder().get()).getUrn());
     }
 
     @Test
     public void shouldStoreTheTracksFromTheUsersLikes() {
-        final ApiPlayableHolder trackLike = ModelFixtures.apiTrackHolder();
-        final ModelCollection<ApiPlayableHolder> likes = new ModelCollection<>(Collections.singletonList(trackLike));
+        final ApiPlayableSource trackLike = ModelFixtures.apiTrackHolder();
+        final ModelCollection<ApiPlayableSource> likes = new ModelCollection<>(Collections.singletonList(trackLike));
         final ApiUserProfile profile = new UserProfileFixtures.Builder().likes(likes).build();
 
         storeProfileCommand.call(profile);
 
-        databaseAssertions().assertTrackInserted(((TrackRecord) trackLike.getItem().get()));
+        databaseAssertions().assertTrackInserted(((TrackRecord) trackLike.getEntityHolder().get()));
     }
 
     @Test
     public void shouldStoreThePlaylistsFromTheUsersLikes() {
-        final ApiPlayableHolder playlistLike = ModelFixtures.apiPlaylistHolder();
-        final ModelCollection<ApiPlayableHolder> likes = new ModelCollection<>(Collections.singletonList(playlistLike));
+        final ApiPlayableSource playlistLike = ModelFixtures.apiPlaylistHolder();
+        final ModelCollection<ApiPlayableSource> likes = new ModelCollection<>(Collections.singletonList(playlistLike));
         final ApiUserProfile profile = new UserProfileFixtures.Builder().likes(likes).build();
 
         storeProfileCommand.call(profile);
 
-        databaseAssertions().assertPlaylistInserted(((PlaylistRecord) playlistLike.getItem().get()).getUrn());
+        databaseAssertions().assertPlaylistInserted(((PlaylistRecord) playlistLike.getEntityHolder().get()).getUrn());
     }
 
     @Test

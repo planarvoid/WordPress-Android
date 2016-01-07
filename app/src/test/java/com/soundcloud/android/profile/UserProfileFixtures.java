@@ -9,9 +9,9 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import java.util.Collections;
 
 class UserProfileFixtures {
-    private static ModelCollection<ApiPlayableHolder> getEmptySpotlight() {
+    private static ModelCollection<ApiPlayableSource> getEmptySpotlight() {
         return new ModelCollection<>(
-                Collections.<ApiPlayableHolder>emptyList()
+                Collections.<ApiPlayableSource>emptyList()
         );
     }
 
@@ -33,33 +33,33 @@ class UserProfileFixtures {
         );
     }
 
-    private static ModelCollection<ApiPlayableHolder> getEmptyReposts() {
+    private static ModelCollection<ApiPlayableSource> getEmptyReposts() {
         return new ModelCollection<>(
-                Collections.<ApiPlayableHolder>emptyList()
+                Collections.<ApiPlayableSource>emptyList()
         );
     }
 
-    private static ModelCollection<ApiPlayableHolder> getEmptyLikes() {
+    private static ModelCollection<ApiPlayableSource> getEmptyLikes() {
         return new ModelCollection<>(
-                Collections.<ApiPlayableHolder>emptyList()
+                Collections.<ApiPlayableSource>emptyList()
         );
     }
 
     static class Builder {
         private ApiUser user = ModelFixtures.create(ApiUser.class);
-        private ModelCollection<ApiPlayableHolder> spotlight = getEmptySpotlight();
+        private ModelCollection<ApiPlayableSource> spotlight = getEmptySpotlight();
         private ModelCollection<ApiTrackPost> tracks = getEmptyTracks();
         private ModelCollection<ApiPlaylistPost> releases = getEmptyReleases();
         private ModelCollection<ApiPlaylistPost> playlists = getEmptyPlaylists();
-        private ModelCollection<ApiPlayableHolder> reposts = getEmptyReposts();
-        private ModelCollection<ApiPlayableHolder> likes = getEmptyLikes();
+        private ModelCollection<ApiPlayableSource> reposts = getEmptyReposts();
+        private ModelCollection<ApiPlayableSource> likes = getEmptyLikes();
 
         Builder user(ApiUser user) {
             this.user = user;
             return this;
         }
 
-        Builder spotlight(ModelCollection<ApiPlayableHolder> spotlight) {
+        Builder spotlight(ModelCollection<ApiPlayableSource> spotlight) {
             this.spotlight = spotlight;
             return this;
         }
@@ -79,12 +79,12 @@ class UserProfileFixtures {
             return this;
         }
 
-        Builder reposts(ModelCollection<ApiPlayableHolder> reposts) {
+        Builder reposts(ModelCollection<ApiPlayableSource> reposts) {
             this.reposts = reposts;
             return this;
         }
 
-        Builder likes(ModelCollection<ApiPlayableHolder> likes) {
+        Builder likes(ModelCollection<ApiPlayableSource> likes) {
             this.likes = likes;
             return this;
         }

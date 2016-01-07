@@ -5,7 +5,7 @@ import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.model.Banana;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistRecordHolder;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -79,12 +79,12 @@ public class StoreProfileCommand extends Command<UserProfileRecord, Boolean> {
                 storeUsersCommand.call(users).success());
     }
 
-    private static Pair<List<TrackRecord>, List<PlaylistRecord>> GET_PLAYABLES_FROM_PROPERTY_SET_SOURCE_HOLDER(ModelCollection<? extends BananaHolder> propertySetSourceHolders) {
+    private static Pair<List<TrackRecord>, List<PlaylistRecord>> GET_PLAYABLES_FROM_PROPERTY_SET_SOURCE_HOLDER(ModelCollection<? extends ApiEntityHolderSource> propertySetSourceHolders) {
         List<TrackRecord> tracks = new ArrayList<>();
         List<PlaylistRecord> playlists = new ArrayList<>();
 
-        for (BananaHolder bananaHolder : propertySetSourceHolders) {
-            final Optional<Banana> propertySetSource = bananaHolder.getItem();
+        for (ApiEntityHolderSource apiEntityHolderSource : propertySetSourceHolders) {
+            final Optional<ApiEntityHolder> propertySetSource = apiEntityHolderSource.getEntityHolder();
 
             if (propertySetSource.isPresent()) {
                 if (propertySetSource.get() instanceof TrackRecordHolder) {

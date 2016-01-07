@@ -2,7 +2,7 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.Banana;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackRecordHolder;
@@ -10,7 +10,7 @@ import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
-public class ApiTrackRepost implements Banana, TrackRecordHolder {
+public class ApiTrackRepost implements ApiEntityHolder, TrackRecordHolder {
 
     private final ApiTrack apiTrack;
     private final Date createdAt;

@@ -3,7 +3,6 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.model.Banana;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -55,8 +54,8 @@ public class UserProfileOperationsPlaylistsTest {
     private final ApiPlaylist apiPlaylist2 = ModelFixtures.create(ApiPlaylist.class);
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
-    final ModelCollection<Banana> page = new ModelCollection<>(
-            Arrays.<Banana>asList(
+    final ModelCollection<ApiPlaylist> page = new ModelCollection<>(
+            Arrays.asList(
                     apiPlaylist1,
                     apiPlaylist2
             ),

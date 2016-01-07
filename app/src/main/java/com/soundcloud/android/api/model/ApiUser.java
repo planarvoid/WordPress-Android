@@ -1,7 +1,7 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.Banana;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRecord;
@@ -12,7 +12,7 @@ import com.soundcloud.java.optional.Optional;
 
 import org.jetbrains.annotations.Nullable;
 
-public class ApiUser implements Banana, UserRecord, UserRecordHolder {
+public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
 
     private Urn urn;
     @Nullable private String country;

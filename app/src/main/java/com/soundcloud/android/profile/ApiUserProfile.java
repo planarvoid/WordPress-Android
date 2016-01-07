@@ -16,12 +16,12 @@ abstract class ApiUserProfile implements UserProfileRecord {
     @JsonCreator
     public static ApiUserProfile create(
             @JsonProperty("user") ApiUser user,
-            @JsonProperty("spotlight") ModelCollection<ApiPlayableHolder> spotlight,
+            @JsonProperty("spotlight") ModelCollection<ApiPlayableSource> spotlight,
             @JsonProperty("tracks") ModelCollection<ApiTrackPost> tracks,
             @JsonProperty("releases") ModelCollection<ApiPlaylistPost> releases,
             @JsonProperty("playlists") ModelCollection<ApiPlaylistPost> playlists,
-            @JsonProperty("reposts") ModelCollection<ApiPlayableHolder> reposts,
-            @JsonProperty("likes") ModelCollection<ApiPlayableHolder> likes) {
+            @JsonProperty("reposts") ModelCollection<ApiPlayableSource> reposts,
+            @JsonProperty("likes") ModelCollection<ApiPlayableSource> likes) {
 
         return new AutoValue_ApiUserProfile(
                 user,
@@ -36,7 +36,7 @@ abstract class ApiUserProfile implements UserProfileRecord {
 
     public abstract UserRecord getUser();
 
-    public abstract ModelCollection<? extends BananaHolder> getSpotlight();
+    public abstract ModelCollection<? extends ApiEntityHolderSource> getSpotlight();
 
     public abstract ModelCollection<? extends TrackRecordHolder> getTracks();
 
@@ -44,7 +44,7 @@ abstract class ApiUserProfile implements UserProfileRecord {
 
     public abstract ModelCollection<? extends PlaylistRecordHolder> getPlaylists();
 
-    public abstract ModelCollection<? extends BananaHolder> getReposts();
+    public abstract ModelCollection<? extends ApiEntityHolderSource> getReposts();
 
-    public abstract ModelCollection<? extends BananaHolder> getLikes();
+    public abstract ModelCollection<? extends ApiEntityHolderSource> getLikes();
 }

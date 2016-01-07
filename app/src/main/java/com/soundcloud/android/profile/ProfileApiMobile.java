@@ -3,8 +3,10 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.Banana;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -21,17 +23,17 @@ import rx.functions.Func1;
 
 public class ProfileApiMobile implements ProfileApi {
 
-    private final TypeToken<ModelCollection<BananaHolder>> holderToken =
-            new TypeToken<ModelCollection<BananaHolder>>() {};
+    private final TypeToken<ModelCollection<ApiEntityHolderSource>> holderToken =
+            new TypeToken<ModelCollection<ApiEntityHolderSource>>() {};
 
-    private static final Func1<ModelCollection<BananaHolder>, ModelCollection<Banana>> HOLDER_TO_BANANA =
-            new Func1<ModelCollection<BananaHolder>, ModelCollection<Banana>>() {
+    private static final Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>> HOLDER_TO_BANANA =
+            new Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>>() {
         @Override
-        public ModelCollection<Banana> call(ModelCollection<BananaHolder> postItemHolderCollection) {
-            final List<BananaHolder> collection = postItemHolderCollection.getCollection();
-            List<Banana> posts = new ArrayList<>(collection.size());
-            for (BananaHolder postHolder : collection) {
-                final Optional<Banana> post = postHolder.getItem();
+        public ModelCollection<ApiEntityHolder> call(ModelCollection<ApiEntityHolderSource> postItemHolderCollection) {
+            final List<ApiEntityHolderSource> collection = postItemHolderCollection.getCollection();
+            List<ApiEntityHolder> posts = new ArrayList<>(collection.size());
+            for (ApiEntityHolderSource postHolder : collection) {
+                final Optional<ApiEntityHolder> post = postHolder.getEntityHolder();
                 if (post.isPresent()) {
                     posts.add(post.get());
                 }
@@ -48,17 +50,17 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<Banana>> userPosts(Urn user) {
+    public Observable<ModelCollection<ApiEntityHolder>> userPosts(Urn user) {
         return getPostsCollection(ApiEndpoints.USER_POSTS.path(user));
     }
 
     @Override
-    public Observable<ModelCollection<Banana>> userPosts(String nextPageLink) {
+    public Observable<ModelCollection<ApiEntityHolder>> userPosts(String nextPageLink) {
         return getPostsCollection(nextPageLink);
     }
 
     @NotNull
-    private Observable<ModelCollection<Banana>> getPostsCollection(String path) {
+    private Observable<ModelCollection<ApiEntityHolder>> getPostsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi(1)
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
@@ -68,27 +70,27 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<Banana>> userPlaylists(Urn user) {
+    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(Urn user) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<Banana>> userPlaylists(String nextPageLink) {
+    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(String nextPageLink) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<Banana>> userLikes(Urn user) {
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
         return getLikesCollection(ApiEndpoints.USER_LIKES.path(user));
     }
 
     @Override
-    public Observable<ModelCollection<Banana>> userLikes(String nextPageLink) {
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
         return getLikesCollection(nextPageLink);
     }
 
     @NotNull
-    private Observable<ModelCollection<Banana>> getLikesCollection(String path) {
+    private Observable<ModelCollection<ApiEntityHolder>> getLikesCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi(1)
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
@@ -98,22 +100,22 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<Banana>> userFollowings(Urn user) {
+    public Observable<ModelCollection<ApiUser>> userFollowings(Urn user) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<Banana>> userFollowings(String nextPageLink) {
+    public Observable<ModelCollection<ApiUser>> userFollowings(String nextPageLink) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<Banana>> userFollowers(Urn user) {
+    public Observable<ModelCollection<ApiUser>> userFollowers(Urn user) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<Banana>> userFollowers(String nextPageLink) {
+    public Observable<ModelCollection<ApiUser>> userFollowers(String nextPageLink) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

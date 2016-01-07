@@ -35,7 +35,7 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
             case TAB_TRENDING_AUDIO:
                 return ExploreTracksFragment.create(ExploreGenre.POPULAR_AUDIO_CATEGORY, Screen.EXPLORE_TRENDING_AUDIO);
             default:
-                throw new IllegalArgumentException("Unexpected position for getItem " + position);
+                throw new IllegalArgumentException("Unexpected position for getEntityHolder " + position);
         }
     }
 

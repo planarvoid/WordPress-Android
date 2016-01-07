@@ -1,14 +1,14 @@
 package com.soundcloud.android.sync.posts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.Banana;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
-public class ApiPost implements Banana {
+public class ApiPost implements ApiEntityHolder {
 
     private final Urn targetUrn;
     private final Date createdAt;
