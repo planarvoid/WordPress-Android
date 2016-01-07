@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.profile;
 
-import static com.soundcloud.android.framework.TestUser.defaultUser;
+import static com.soundcloud.android.framework.TestUser.playerUser;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -22,7 +22,7 @@ public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
 
     @Override
     protected void logInHelper() {
-        defaultUser.logIn(getInstrumentation().getTargetContext());
+        playerUser.logIn(getInstrumentation().getTargetContext());
     }
 
     @Override
@@ -37,11 +37,10 @@ public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
         assertThat(solo.getString(R.string.new_empty_user_posts_message), is(screen.emptyViewMessage()));
     }
 
-    // ignore until we refactor the fragment
-    public void ignore_testShowsEmptyLikesViewView() {
+    public void testShowsEmptyLikesViewView() {
         ProfileScreen profileScreen = screen.touchLikesTab();
 
-        assertThat("This user has no likes.", is(profileScreen.emptyViewMessage()));
+        assertThat(solo.getString(R.string.new_empty_user_likes_text), is(profileScreen.emptyViewMessage()));
     }
 
 }
