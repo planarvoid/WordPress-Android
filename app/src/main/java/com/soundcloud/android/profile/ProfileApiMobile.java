@@ -26,7 +26,7 @@ public class ProfileApiMobile implements ProfileApi {
     private final TypeToken<ModelCollection<ApiEntityHolderSource>> holderToken =
             new TypeToken<ModelCollection<ApiEntityHolderSource>>() {};
 
-    private static final Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>> HOLDER_TO_BANANA =
+    private static final Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>> SOURCE_TO_HOLDER =
             new Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>>() {
         @Override
         public ModelCollection<ApiEntityHolder> call(ModelCollection<ApiEntityHolderSource> postItemHolderCollection) {
@@ -66,7 +66,7 @@ public class ProfileApiMobile implements ProfileApi {
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
-        return apiClientRx.mappedResponse(request, holderToken).map(HOLDER_TO_BANANA);
+        return apiClientRx.mappedResponse(request, holderToken).map(SOURCE_TO_HOLDER);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ProfileApiMobile implements ProfileApi {
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
-        return apiClientRx.mappedResponse(request, holderToken).map(HOLDER_TO_BANANA);
+        return apiClientRx.mappedResponse(request, holderToken).map(SOURCE_TO_HOLDER);
     }
 
     @Override
