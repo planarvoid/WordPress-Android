@@ -6,53 +6,15 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 
-import java.util.Collections;
-
 class UserProfileFixtures {
-    private static ModelCollection<ApiPlayableSource> getEmptySpotlight() {
-        return new ModelCollection<>(
-                Collections.<ApiPlayableSource>emptyList()
-        );
-    }
-
-    private static ModelCollection<ApiTrackPost> getEmptyTracks() {
-        return new ModelCollection<>(
-                Collections.<ApiTrackPost>emptyList()
-        );
-    }
-
-    private static ModelCollection<ApiPlaylistPost> getEmptyReleases() {
-        return new ModelCollection<>(
-                Collections.<ApiPlaylistPost>emptyList()
-        );
-    }
-
-    private static ModelCollection<ApiPlaylistPost> getEmptyPlaylists() {
-        return new ModelCollection<>(
-                Collections.<ApiPlaylistPost>emptyList()
-        );
-    }
-
-    private static ModelCollection<ApiPlayableSource> getEmptyReposts() {
-        return new ModelCollection<>(
-                Collections.<ApiPlayableSource>emptyList()
-        );
-    }
-
-    private static ModelCollection<ApiPlayableSource> getEmptyLikes() {
-        return new ModelCollection<>(
-                Collections.<ApiPlayableSource>emptyList()
-        );
-    }
-
     static class Builder {
         private ApiUser user = ModelFixtures.create(ApiUser.class);
-        private ModelCollection<ApiPlayableSource> spotlight = getEmptySpotlight();
-        private ModelCollection<ApiTrackPost> tracks = getEmptyTracks();
-        private ModelCollection<ApiPlaylistPost> releases = getEmptyReleases();
-        private ModelCollection<ApiPlaylistPost> playlists = getEmptyPlaylists();
-        private ModelCollection<ApiPlayableSource> reposts = getEmptyReposts();
-        private ModelCollection<ApiPlayableSource> likes = getEmptyLikes();
+        private ModelCollection<ApiPlayableSource> spotlight = null;
+        private ModelCollection<ApiTrackPost> tracks = null;
+        private ModelCollection<ApiPlaylistPost> releases = null;
+        private ModelCollection<ApiPlaylistPost> playlists = null;
+        private ModelCollection<ApiPlayableSource> reposts = null;
+        private ModelCollection<ApiPlayableSource> likes = null;
 
         Builder user(ApiUser user) {
             this.user = user;

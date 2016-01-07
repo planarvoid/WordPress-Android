@@ -1,5 +1,7 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.api.model.ApiPlaylistPost;
+import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.ApiEntityHolder;
@@ -23,30 +25,37 @@ public class StoreProfileCommand extends Command<ApiUserProfile, Boolean> {
 
     @Override
     public Boolean call(ApiUserProfile profile) {
+        final ModelCollection<ApiPlayableSource> defaultPlayableSourceModelCollection = new ModelCollection<>();
+        final List<RecordHolder> emptyList = Collections.emptyList();
+
+        final Optional<ModelCollection<ApiTrackPost>> tracks = profile.getTracks();
+        final Optional<ModelCollection<ApiPlaylistPost>> releases = profile.getReleases();
+        final Optional<ModelCollection<ApiPlaylistPost>> playlists = profile.getPlaylists();
+
         Iterable<RecordHolder> entities = Iterables.concat(
                 Collections.singletonList(profile.getUser()),
-                TO_RECORD_HOLDERS(profile.getSpotlight()),
-                profile.getTracks().getCollection(),
-                profile.getReleases().getCollection(),
-                profile.getPlaylists().getCollection(),
-                TO_RECORD_HOLDERS(profile.getReposts()),
-                TO_RECORD_HOLDERS(profile.getLikes())
+                TO_RECORD_HOLDERS(profile.getSpotlight().or(defaultPlayableSourceModelCollection)),
+                tracks.isPresent() ? tracks.get().getCollection() : emptyList,
+                releases.isPresent() ? releases.get().getCollection() : emptyList,
+                playlists.isPresent() ? playlists.get().getCollection() : emptyList,
+                TO_RECORD_HOLDERS(profile.getReposts().or(defaultPlayableSourceModelCollection)),
+                TO_RECORD_HOLDERS(profile.getLikes().or(defaultPlayableSourceModelCollection))
                 );
 
         return writeMixedRecordsCommand.call(entities);
     }
 
     private static List<RecordHolder> TO_RECORD_HOLDERS(ModelCollection<? extends ApiEntityHolderSource> entityHolderSources) {
-        List<RecordHolder> entities = new ArrayList<>();
+        List<RecordHolder> recordHolders = new ArrayList<>();
 
         for (ApiEntityHolderSource entityHolderSource : entityHolderSources) {
             final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
 
             if (entityHolder.isPresent()) {
-                entities.add(entityHolder.get());
+                recordHolders.add(entityHolder.get());
             }
         }
 
-        return entities;
+        return recordHolders;
     }
 }

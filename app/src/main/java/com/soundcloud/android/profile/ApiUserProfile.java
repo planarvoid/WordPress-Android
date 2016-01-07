@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.java.optional.Optional;
 
 @AutoValue
 abstract class ApiUserProfile {
@@ -22,26 +23,26 @@ abstract class ApiUserProfile {
 
         return new AutoValue_ApiUserProfile(
                 user,
-                spotlight,
-                tracks,
-                releases,
-                playlists,
-                reposts,
-                likes
+                Optional.fromNullable(spotlight),
+                Optional.fromNullable(tracks),
+                Optional.fromNullable(releases),
+                Optional.fromNullable(playlists),
+                Optional.fromNullable(reposts),
+                Optional.fromNullable(likes)
         );
     }
 
     public abstract ApiUser getUser();
 
-    public abstract ModelCollection<? extends ApiEntityHolderSource> getSpotlight();
+    public abstract Optional<ModelCollection<ApiPlayableSource>> getSpotlight();
 
-    public abstract ModelCollection<ApiTrackPost> getTracks();
+    public abstract Optional<ModelCollection<ApiTrackPost>> getTracks();
 
-    public abstract ModelCollection<ApiPlaylistPost> getReleases();
+    public abstract Optional<ModelCollection<ApiPlaylistPost>> getReleases();
 
-    public abstract ModelCollection<ApiPlaylistPost> getPlaylists();
+    public abstract Optional<ModelCollection<ApiPlaylistPost>> getPlaylists();
 
-    public abstract ModelCollection<? extends ApiEntityHolderSource> getReposts();
+    public abstract Optional<ModelCollection<ApiPlayableSource>> getReposts();
 
-    public abstract ModelCollection<? extends ApiEntityHolderSource> getLikes();
+    public abstract Optional<ModelCollection<ApiPlayableSource>> getLikes();
 }
