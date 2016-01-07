@@ -22,7 +22,6 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stations.StationsSyncRequestFactory;
-import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
@@ -146,12 +145,11 @@ public class CollectionsOperations {
                 }
     };
 
-    private static final Func1<SyncResult, Boolean> IS_COLLECTION_SYNC_EVENT = new Func1<SyncResult, Boolean>() {
+    private static final Func1<SyncResult, Boolean> IS_STATIONS_SYNC_EVENT = new Func1<SyncResult, Boolean>() {
         @Override
         public Boolean call(SyncResult syncResult) {
             switch (syncResult.getAction()) {
                 case StationsSyncRequestFactory.Actions.SYNC_STATIONS:
-                case SyncActions.SYNC_PLAYLISTS:
                     return syncResult.wasChanged();
                 default:
                     return false;
@@ -202,7 +200,7 @@ public class CollectionsOperations {
     public Observable<Void> onCollectionChanged() {
         return Observable.merge(
                 eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER),
-                eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_COLLECTION_SYNC_EVENT)
+                eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_STATIONS_SYNC_EVENT)
         ).map(RxUtils.TO_VOID);
     }
 

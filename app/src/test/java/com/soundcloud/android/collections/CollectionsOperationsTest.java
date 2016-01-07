@@ -331,16 +331,6 @@ public class CollectionsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onCollectionChangedShouldSendAnEventWhenPlaylistSynced() {
-        final TestSubscriber<Void> subscriber = new TestSubscriber<>();
-        operations.onCollectionChanged().subscribe(subscriber);
-
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLISTS, true));
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-    }
-
-    @Test
     public void onCollectionChangedShouldSendAnEventWhenStations() {
         final TestSubscriber<Void> subscriber = new TestSubscriber<>();
         operations.onCollectionChanged().subscribe(subscriber);
