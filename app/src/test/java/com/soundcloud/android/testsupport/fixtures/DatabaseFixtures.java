@@ -58,13 +58,6 @@ public class DatabaseFixtures {
         return track;
     }
 
-    public ApiTrack insertSnippedTrack() {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setSnipped(true);
-        insertTrack(track);
-        return track;
-    }
-
     public void insertTrack(ApiTrack track) {
         insertUser(track.getUser());
         ContentValues cv = new ContentValues();

@@ -5,4 +5,7 @@
     <dimen name="record_progress_icon_width">100px</dimen>
     <dimen name="share_progress_icon_height">100px</dimen>
 
+    <dimen name="cards_artwork_inner_padding">12dp</dimen>
+    <dimen name="cards_artwork_bottom_inner_padding">16dp</dimen>
+
 </resources>

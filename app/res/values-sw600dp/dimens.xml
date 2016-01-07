@@ -21,7 +21,7 @@
     <dimen name="fixed_tab_padding">40dp</dimen>
 
     <!-- stream -->
-    <dimen name="stream_header_min_height">72dp</dimen>
+    <dimen name="cards_header_min_height">72dp</dimen>
 
     <!-- card grids -->
     <dimen name="grids_padding_left_right">8dp</dimen>

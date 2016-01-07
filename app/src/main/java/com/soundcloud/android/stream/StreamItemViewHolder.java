@@ -3,9 +3,7 @@ package com.soundcloud.android.stream;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
 import com.soundcloud.android.view.adapters.CardViewHolder;
 
@@ -40,6 +38,7 @@ public class StreamItemViewHolder implements CardViewHolder {
     @Bind(R.id.overflow_button) View overflowButton;
 
     @Nullable @Bind(R.id.toggle_repost) ToggleButton repostButton;
+    @Nullable @Bind(R.id.preview_indicator) TextView previewIndicator;
 
     private OverflowListener overflowListener;
     private CardEngagementClickListener clickListener;
@@ -167,6 +166,12 @@ public class StreamItemViewHolder implements CardViewHolder {
     public void togglePrivateIndicator(boolean isPrivate) {
         privateIndicator.setVisibility(isPrivate ? View.VISIBLE : View.GONE);
         privateSeparator.setVisibility(isPrivate ? View.VISIBLE : View.GONE);
+    }
+
+    public void togglePreviewIndicator(boolean isUpsellable) {
+        if (previewIndicator != null) {
+            previewIndicator.setVisibility(isUpsellable ? View.VISIBLE : View.GONE);
+        }
     }
 
     public void showDuration(String playlistDuration) {
