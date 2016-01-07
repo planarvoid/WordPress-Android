@@ -48,7 +48,6 @@ public class UserProfileOperationsProfileTest extends AndroidUnitTest {
     public void userProfileCallsApiAndStoresResponse() {
         operations.userProfile(USER_URN).subscribe(subscriber);
 
-        verify(profileApi).userProfile(USER_URN);
         verify(storeProfileCommand).call(USER_PROFILE);
     }
 }
