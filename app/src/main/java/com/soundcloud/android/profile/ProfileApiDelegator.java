@@ -3,7 +3,7 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import dagger.Lazy;
 import rx.Observable;
@@ -23,12 +23,12 @@ public class ProfileApiDelegator implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userPosts(Urn user) {
+    public Observable<ModelCollection<ApiEntityHolder>> userPosts(Urn user) {
         return profileApiMobile.get().userPosts(user);
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userPosts(String nextPageLink) {
+    public Observable<ModelCollection<ApiEntityHolder>> userPosts(String nextPageLink) {
         return profileApiMobile.get().userPosts(nextPageLink);
     }
 
@@ -43,12 +43,12 @@ public class ProfileApiDelegator implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userLikes(Urn user) {
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
         return profileApiMobile.get().userLikes(user);
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userLikes(String nextPageLink) {
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
         return profileApiMobile.get().userLikes(nextPageLink);
     }
 
@@ -70,5 +70,10 @@ public class ProfileApiDelegator implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowers(String nextPageLink) {
         return profileApiPublic.get().userFollowers(nextPageLink);
+    }
+
+    @Override
+    public Observable<ApiUserProfile> userProfile(Urn user) {
+        return profileApiMobile.get().userProfile(user);
     }
 }

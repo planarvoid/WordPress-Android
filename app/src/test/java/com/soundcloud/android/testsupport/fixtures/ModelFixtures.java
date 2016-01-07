@@ -32,6 +32,7 @@ import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineTrackContext;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.policies.ApiPolicyInfo;
+import com.soundcloud.android.profile.ApiPlayableSource;
 import com.soundcloud.android.sync.activities.ApiActivityItem;
 import com.soundcloud.android.sync.activities.ApiPlaylistLikeActivity;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
@@ -126,6 +127,14 @@ public class ModelFixtures {
 
     public static ApiLike apiPlaylistLike(ApiPlaylist apiPlaylist) {
         return new ApiLike(apiPlaylist.getUrn(), new Date());
+    }
+
+    public static ApiPlayableSource apiTrackHolder() {
+        return new ApiPlayableSource(ModelFixtures.create(ApiTrack.class), null);
+    }
+
+    public static ApiPlayableSource apiPlaylistHolder() {
+        return new ApiPlayableSource(null, ModelFixtures.create(ApiPlaylist.class));
     }
 
     public static ApiPlaylistWithTracks apiPlaylistWithNoTracks() {

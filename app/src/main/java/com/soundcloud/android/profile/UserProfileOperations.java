@@ -44,6 +44,7 @@ class UserProfileOperations {
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final UserRepository userRepository;
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;
+    private final StoreProfileCommand storeProfileCommand;
 
     private final Func1<PagedRemoteCollection, PagedRemoteCollection> mergePlayableInfo =
             new Func1<PagedRemoteCollection, PagedRemoteCollection>() {
@@ -79,12 +80,14 @@ class UserProfileOperations {
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
                           UserRepository userRepository,
-                          WriteMixedRecordsCommand writeMixedRecordsCommand) {
+                          WriteMixedRecordsCommand writeMixedRecordsCommand,
+                          StoreProfileCommand storeProfileCommand) {
         this.profileApi = profileApi;
         this.scheduler = scheduler;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.userRepository = userRepository;
         this.writeMixedRecordsCommand = writeMixedRecordsCommand;
+        this.storeProfileCommand = storeProfileCommand;
     }
 
     public Observable<ProfileUser> getLocalProfileUser(Urn user) {
@@ -228,6 +231,13 @@ class UserProfileOperations {
         });
     }
 
+    // TODO: Upcoming Work will Return a ViewModel instead of ApiUserProfile
+    public Observable<ApiUserProfile> userProfile(Urn user) {
+        return profileApi.userProfile(user)
+                .doOnNext(storeProfileCommand.toAction())
+                .subscribeOn(scheduler);
+    }
+
     public Observable<PagedRemoteCollection> pagedFollowers(Urn user) {
         return profileApi
                 .userFollowers(user)
@@ -248,7 +258,7 @@ class UserProfileOperations {
         });
     }
 
-    private PagingFunction<PagedRemoteCollection>pagingFunction(final Command<String,
+    private PagingFunction<PagedRemoteCollection> pagingFunction(final Command<String,
             Observable<PagedRemoteCollection>> nextPage) {
         return new PagingFunction<PagedRemoteCollection>() {
             @Override

@@ -69,6 +69,9 @@ public enum ApiEndpoints {
     PLAYLIST_ADD_TRACK("/playlists/%s/tracks"),
     PLAYLIST_REMOVE_TRACK("/playlists/%s/tracks/%s"),
 
+    // profile
+    PROFILE("/users/%s/profile/v2"),
+
     // stations
     STATION("/stations/%s/station_and_tracks"),
     STATIONS("/stations"),

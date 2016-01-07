@@ -2,7 +2,7 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -15,7 +15,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 import java.util.List;
 
-public final class ApiTrack implements PropertySetSource, TrackRecord, TrackRecordHolder {
+public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecordHolder {
 
     private Urn urn;
     private String title;

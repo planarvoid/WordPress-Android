@@ -10,7 +10,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -53,22 +53,22 @@ public class ProfileApiPublic implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userPosts(Urn user) {
+    public Observable<ModelCollection<ApiEntityHolder>> userPosts(Urn user) {
         throw new UnsupportedOperationException("User posts are no longer supported via Public API");
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userPosts(String pageLink) {
+    public Observable<ModelCollection<ApiEntityHolder>> userPosts(String pageLink) {
         throw new UnsupportedOperationException("User posts are no longer supported via Public API");
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userLikes(Urn user) {
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
         throw new UnsupportedOperationException("User likes are no longer supported via Public API");
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userLikes(String pageLink) {
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String pageLink) {
         throw new UnsupportedOperationException("User likes are no longer supported via Public API");
     }
 
@@ -100,6 +100,11 @@ public class ProfileApiPublic implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowers(String pageLink) {
         return getUsers(pageLink);
+    }
+
+    @Override
+    public Observable<ApiUserProfile> userProfile(Urn user) {
+        throw new UnsupportedOperationException("User Profile will not be supported by Public API");
     }
 
     @NotNull

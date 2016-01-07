@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
@@ -40,7 +41,8 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
-    @Captor private ArgumentCaptor<Iterable<PropertySetSource>> userCaptor;
+    @Mock private StoreProfileCommand storeProfileCommand;
+    @Captor private ArgumentCaptor<Iterable<ApiEntityHolder>> userCaptor;
 
     private final ApiUser apiUser1 = ModelFixtures.create(ApiUser.class);
     private final ApiUser apiUser2 = ModelFixtures.create(ApiUser.class);
@@ -55,8 +57,13 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
     @Before
     public void setUp() {
-        operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
-                writeMixedRecordsCommand);
+        operations = new UserProfileOperations(
+                profileApi,
+                Schedulers.immediate(),
+                loadPlaylistLikedStatuses,
+                userRepository,
+                writeMixedRecordsCommand,
+                storeProfileCommand);
     }
 
     @Test

@@ -114,6 +114,7 @@ import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.sync.likes.ApiLike;
+import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.waveform.WaveformSerializer;
@@ -147,9 +148,9 @@ public class DatabaseAssertions {
         assertPlayableUserInserted(playlist.getUser());
     }
 
-    public void assertTrackInserted(ApiTrack track) {
+    public void assertTrackInserted(TrackRecord track) {
         final Query query = from(Sounds.name())
-                .whereEq(_ID, track.getId())
+                .whereEq(_ID, track.getUrn().getNumericId())
                 .whereEq(_TYPE, TYPE_TRACK)
                 .whereEq(TITLE, track.getTitle())
                 .whereEq(DURATION, track.getDuration())
@@ -162,10 +163,10 @@ public class DatabaseAssertions {
                 .whereEq(SHARING, track.getSharing().value())
                 .whereEq(USER_ID, track.getUser().getUrn().getNumericId())
                 .whereEq(COMMENTABLE, track.isCommentable())
-                .whereEq(LIKES_COUNT, track.getStats().getLikesCount())
-                .whereEq(REPOSTS_COUNT, track.getStats().getRepostsCount())
-                .whereEq(PLAYBACK_COUNT, track.getStats().getPlaybackCount())
-                .whereEq(COMMENT_COUNT, track.getStats().getCommentsCount());
+                .whereEq(LIKES_COUNT, track.getLikesCount())
+                .whereEq(REPOSTS_COUNT, track.getRepostsCount())
+                .whereEq(PLAYBACK_COUNT, track.getPlaybackCount())
+                .whereEq(COMMENT_COUNT, track.getCommentsCount());
         if (track.getDescription().isPresent()) {
             query.whereEq(DESCRIPTION, track.getDescription().get());
         }
@@ -303,9 +304,9 @@ public class DatabaseAssertions {
                 .whereNull(UPDATED_LOCALLY_AT))).counts(1);
     }
 
-    private void assertTrackPolicyInserted(ApiTrack track) {
+    private void assertTrackPolicyInserted(TrackRecord track) {
         final Query query = from(TrackPolicies.name())
-                .whereEq(TableColumns.TrackPolicies.TRACK_ID, track.getId())
+                .whereEq(TableColumns.TrackPolicies.TRACK_ID, track.getUrn().getNumericId())
                 .whereEq(MONETIZABLE, track.isMonetizable())
                 .whereEq(BLOCKED, track.isBlocked())
                 .whereEq(SNIPPED, track.isSnipped())

@@ -14,6 +14,7 @@ import com.soundcloud.android.api.model.ApiTrackRepost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PropertySetSource;
@@ -59,6 +60,7 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
     @Mock private UserRepository userRepository;
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
+    @Mock private StoreProfileCommand storeProfileCommand;
 
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
@@ -69,7 +71,7 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
     private final ApiPlaylistPost apiPlaylistPost = new ApiPlaylistPost(apiPlaylist1);
     private final ApiPlaylistRepost apiPlaylistRepost = new ApiPlaylistRepost(apiPlaylist2, new Date());
 
-    final ModelCollection<PropertySetSource> page = new ModelCollection<>(
+    final ModelCollection<ApiEntityHolder> page = new ModelCollection<>(
             Arrays.asList(
                     apiTrackPost,
                     apiTrackRepost,
@@ -81,8 +83,14 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
-                writeMixedRecordsCommand);
+        operations = new UserProfileOperations(
+                profileApi,
+                Schedulers.immediate(),
+                loadPlaylistLikedStatuses,
+                userRepository,
+                writeMixedRecordsCommand,
+                storeProfileCommand);
+
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
     }
 

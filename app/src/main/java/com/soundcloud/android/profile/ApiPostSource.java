@@ -5,19 +5,18 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiPlaylistRepost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiTrackRepost;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.Nullable;
 
-public class ApiPostHolder {
-
+public class ApiPostSource implements ApiEntityHolderSource {
     @Nullable private final ApiTrackPost trackPost;
     @Nullable private final ApiTrackRepost trackRepost;
     @Nullable private final ApiPlaylistPost playlistPost;
     @Nullable private final ApiPlaylistRepost playlistRepost;
 
-    public ApiPostHolder(@JsonProperty("track_post") ApiTrackPost trackPost,
+    public ApiPostSource(@JsonProperty("track_post") ApiTrackPost trackPost,
                          @JsonProperty("track_repost") ApiTrackRepost trackRepost,
                          @JsonProperty("playlist_post") ApiPlaylistPost playlistPost,
                          @JsonProperty("playlist_repost") ApiPlaylistRepost playlistRepost) {
@@ -28,15 +27,15 @@ public class ApiPostHolder {
         this.playlistRepost = playlistRepost;
     }
 
-    Optional<PropertySetSource> getPost() {
+    public Optional<ApiEntityHolder> getEntityHolder() {
         if (trackPost != null) {
-            return Optional.<PropertySetSource>of(trackPost);
+            return Optional.<ApiEntityHolder>of(trackPost);
         } else if (trackRepost != null) {
-            return Optional.<PropertySetSource>of(trackRepost);
+            return Optional.<ApiEntityHolder>of(trackRepost);
         } else if (playlistPost != null) {
-            return Optional.<PropertySetSource>of(playlistPost);
+            return Optional.<ApiEntityHolder>of(playlistPost);
         } else if (playlistRepost != null) {
-            return Optional.<PropertySetSource>of(playlistRepost);
+            return Optional.<ApiEntityHolder>of(playlistRepost);
         } else {
             return Optional.absent();
         }

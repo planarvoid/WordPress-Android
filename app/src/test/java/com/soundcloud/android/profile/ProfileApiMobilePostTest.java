@@ -13,7 +13,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiTrackRepost;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -35,16 +35,16 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
     @Mock private ApiClientRx apiClientRx;
 
     private ProfileApiMobile api;
-    private final TestSubscriber<ModelCollection<PropertySetSource>> subscriber = new TestSubscriber<>();
+    private final TestSubscriber<ModelCollection<ApiEntityHolder>> subscriber = new TestSubscriber<>();
     private final ApiTrack apiTrack =  ModelFixtures.create(ApiTrack.class);
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
-    private final ModelCollection<ApiPostHolder> apiMobileHolder = new ModelCollection<>(
+    private final ModelCollection<ApiPostSource> apiMobileHolder = new ModelCollection<>(
             Arrays.asList(
-                    new ApiPostHolder(new ApiTrackPost(apiTrack), null, null, null),
-                    new ApiPostHolder(null, new ApiTrackRepost(apiTrack, REPOST_DATE), null, null),
-                    new ApiPostHolder(null, null, new ApiPlaylistPost(apiPlaylist), null),
-                    new ApiPostHolder(null, null, null, new ApiPlaylistRepost(apiPlaylist, REPOST_DATE)),
-                    new ApiPostHolder(null, null, null, null)), // unkown type, futureproofing
+                    new ApiPostSource(new ApiTrackPost(apiTrack), null, null, null),
+                    new ApiPostSource(null, new ApiTrackRepost(apiTrack, REPOST_DATE), null, null),
+                    new ApiPostSource(null, null, new ApiPlaylistPost(apiPlaylist), null),
+                    new ApiPostSource(null, null, null, new ApiPlaylistRepost(apiPlaylist, REPOST_DATE)),
+                    new ApiPostSource(null, null, null, null)), // unkown type, futureproofing
             NEXT_HREF);
 
     @Before
@@ -54,7 +54,7 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
 
     @Test
     public void returnsUserPostsByUrnFromApi() {
-        final Observable<ModelCollection<ApiPostHolder>> results = Observable.just(apiMobileHolder);
+        final Observable<ModelCollection<ApiPostSource>> results = Observable.just(apiMobileHolder);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/posted_and_reposted_tracks_and_playlists")
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 isA(TypeToken.class))).thenReturn(results);
@@ -65,7 +65,7 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
 
     @Test
     public void returnsUserPostsByNextPageLinkFromApi() {
-        final Observable<ModelCollection<ApiPostHolder>> results = Observable.just(apiMobileHolder);
+        final Observable<ModelCollection<ApiPostSource>> results = Observable.just(apiMobileHolder);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 isA(TypeToken.class))).thenReturn(results);

@@ -37,7 +37,7 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
             case TAB_PEOPLE:
                 return SearchResultsFragment.create(SearchOperations.TYPE_USERS, query, false);
             default:
-                throw new IllegalArgumentException("Unexpected position for getItem " + position);
+                throw new IllegalArgumentException("Unexpected position for getEntityHolder " + position);
         }
     }
 

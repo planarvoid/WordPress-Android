@@ -6,7 +6,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -20,44 +20,24 @@ import java.util.List;
 
 public class ProfileApiMobile implements ProfileApi {
 
-    private final TypeToken<ModelCollection<ApiPostHolder>> apiPostHolderToken =
-            new TypeToken<ModelCollection<ApiPostHolder>>() {};
+    private final TypeToken<ModelCollection<ApiEntityHolderSource>> holderToken =
+            new TypeToken<ModelCollection<ApiEntityHolderSource>>() {};
 
-    private final TypeToken<ModelCollection<ApiLikeHolder>> apiLikeHolderToken =
-            new TypeToken<ModelCollection<ApiLikeHolder>>() {};
-
-    private static final Func1<ModelCollection<ApiPostHolder>, ModelCollection<PropertySetSource>> POST_HOLDER_TO_POST_COLLECTION =
-            new Func1<ModelCollection<ApiPostHolder>, ModelCollection<PropertySetSource>>() {
+    private static final Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>> SOURCE_TO_HOLDER =
+            new Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>>() {
         @Override
-        public ModelCollection<PropertySetSource> call(ModelCollection<ApiPostHolder> postItemHolderCollection) {
-            final List<ApiPostHolder> collection = postItemHolderCollection.getCollection();
-            List<PropertySetSource> posts = new ArrayList<>(collection.size());
-            for (ApiPostHolder postHolder : collection) {
-                final Optional<PropertySetSource> post = postHolder.getPost();
-                if (post.isPresent()) {
-                    posts.add(post.get());
+        public ModelCollection<ApiEntityHolder> call(ModelCollection<ApiEntityHolderSource> modelCollection) {
+            final List<ApiEntityHolderSource> collection = modelCollection.getCollection();
+            List<ApiEntityHolder> entityHolders = new ArrayList<>();
+            for (ApiEntityHolderSource entityHolderSource : collection) {
+                final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
+                if (entityHolder.isPresent()) {
+                    entityHolders.add(entityHolder.get());
                 }
             }
-            return new ModelCollection(posts, postItemHolderCollection.getLinks());
+            return new ModelCollection(entityHolders, modelCollection.getLinks());
         }
     };
-
-    private static final Func1<ModelCollection<ApiLikeHolder>, ModelCollection<PropertySetSource>> LIKE_HOLDER_TO_LIKES_COLLECTION =
-            new Func1<ModelCollection<ApiLikeHolder>, ModelCollection<PropertySetSource>>() {
-                @Override
-                public ModelCollection<PropertySetSource> call(ModelCollection<ApiLikeHolder> postItemHolderCollection) {
-                    final List<ApiLikeHolder> collection = postItemHolderCollection.getCollection();
-                    List<PropertySetSource> likes = new ArrayList<>(collection.size());
-                    for (ApiLikeHolder postHolder : collection) {
-                        final Optional<PropertySetSource> like = postHolder.getLike();
-                        if (like.isPresent()) {
-                            likes.add(like.get());
-                        }
-                    }
-                    return new ModelCollection(likes, postItemHolderCollection.getLinks());
-                }
-            };
-
 
     private final ApiClientRx apiClientRx;
 
@@ -67,23 +47,23 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userPosts(Urn user) {
+    public Observable<ModelCollection<ApiEntityHolder>> userPosts(Urn user) {
         return getPostsCollection(ApiEndpoints.USER_POSTS.path(user));
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userPosts(String nextPageLink) {
+    public Observable<ModelCollection<ApiEntityHolder>> userPosts(String nextPageLink) {
         return getPostsCollection(nextPageLink);
     }
 
     @NotNull
-    private Observable<ModelCollection<PropertySetSource>> getPostsCollection(String path) {
+    private Observable<ModelCollection<ApiEntityHolder>> getPostsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi(1)
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
-        return apiClientRx.mappedResponse(request, apiPostHolderToken).map(POST_HOLDER_TO_POST_COLLECTION);
+        return apiClientRx.mappedResponse(request, holderToken).map(SOURCE_TO_HOLDER);
     }
 
     @Override
@@ -97,23 +77,23 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userLikes(Urn user) {
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
         return getLikesCollection(ApiEndpoints.USER_LIKES.path(user));
     }
 
     @Override
-    public Observable<ModelCollection<PropertySetSource>> userLikes(String nextPageLink) {
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
         return getLikesCollection(nextPageLink);
     }
 
     @NotNull
-    private Observable<ModelCollection<PropertySetSource>> getLikesCollection(String path) {
+    private Observable<ModelCollection<ApiEntityHolder>> getLikesCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi(1)
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
-        return apiClientRx.mappedResponse(request, apiLikeHolderToken).map(LIKE_HOLDER_TO_LIKES_COLLECTION);
+        return apiClientRx.mappedResponse(request, holderToken).map(SOURCE_TO_HOLDER);
     }
 
     @Override
@@ -134,5 +114,15 @@ public class ProfileApiMobile implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiUser>> userFollowers(String nextPageLink) {
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public Observable<ApiUserProfile> userProfile(Urn user) {
+        final ApiRequest request = ApiRequest
+                .get(ApiEndpoints.PROFILE.path(user))
+                .forPrivateApi(1)
+                .build();
+
+        return apiClientRx.mappedResponse(request, ApiUserProfile.class);
     }
 }
