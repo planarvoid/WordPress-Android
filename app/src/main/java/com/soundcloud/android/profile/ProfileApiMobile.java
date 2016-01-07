@@ -26,16 +26,16 @@ public class ProfileApiMobile implements ProfileApi {
     private static final Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>> SOURCE_TO_HOLDER =
             new Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>>() {
         @Override
-        public ModelCollection<ApiEntityHolder> call(ModelCollection<ApiEntityHolderSource> postItemHolderCollection) {
-            final List<ApiEntityHolderSource> collection = postItemHolderCollection.getCollection();
-            List<ApiEntityHolder> posts = new ArrayList<>(collection.size());
-            for (ApiEntityHolderSource postHolder : collection) {
-                final Optional<ApiEntityHolder> post = postHolder.getEntityHolder();
-                if (post.isPresent()) {
-                    posts.add(post.get());
+        public ModelCollection<ApiEntityHolder> call(ModelCollection<ApiEntityHolderSource> modelCollection) {
+            final List<ApiEntityHolderSource> collection = modelCollection.getCollection();
+            List<ApiEntityHolder> entityHolders = new ArrayList<>();
+            for (ApiEntityHolderSource entityHolderSource : collection) {
+                final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
+                if (entityHolder.isPresent()) {
+                    entityHolders.add(entityHolder.get());
                 }
             }
-            return new ModelCollection(posts, postItemHolderCollection.getLinks());
+            return new ModelCollection(entityHolders, modelCollection.getLinks());
         }
     };
 
