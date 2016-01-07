@@ -147,7 +147,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewElement leaveBehind() {
-        return solo.findElement(With.id(R.id.leave_behind));
+        return solo.findElement(With.id(R.id.leave_behind_image));
     }
 
     private ViewElement interstitial() {
@@ -337,7 +337,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public VisualPlayerElement waitForLeaveBehindToLoad() {
-        waiter.waitForElement(R.id.leave_behind);
+        waiter.waitForElement(R.id.leave_behind_image);
         return this;
     }
 

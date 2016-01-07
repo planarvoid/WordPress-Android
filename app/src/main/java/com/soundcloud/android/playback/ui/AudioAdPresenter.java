@@ -130,7 +130,7 @@ class AudioAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
     @Override
     public void setExpanded(View trackPage, PlayQueueItem playQueueItem, boolean isSelected) {
-        // no-op
+        onPlayerSlide(trackPage, 1);
     }
 
     @Override
