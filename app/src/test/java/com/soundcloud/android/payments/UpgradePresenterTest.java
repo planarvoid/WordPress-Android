@@ -45,7 +45,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     @Mock private ActionBar actionBar;
     @Captor private ArgumentCaptor<UpgradeView.Listener> listenerCaptor;
 
-    private UpgradePresenter controller;
+    private UpgradePresenter presenter;
 
     private TestObserver testObserver;
 
@@ -53,19 +53,19 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void setUp() {
         testObserver = new TestObserver();
         when(activity.getSupportFragmentManager()).thenReturn(mock(FragmentManager.class));
-        controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationManager, upgradeView, new TestEventBus());
+        presenter = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationManager, upgradeView, new TestEventBus());
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
 
     @Test
     public void onCreateConnectsPaymentOperations() {
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
         verify(paymentOperations).connect(activity);
     }
 
     @Test
     public void onCreateBindsErrorHandler() {
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
         verify(paymentErrorPresenter).setActivity(activity);
     }
 
@@ -74,7 +74,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         setupExpectedProductDetails();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, null));
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(upgradeView).showBuyButton(PRICE);
     }
@@ -84,7 +84,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         setupExpectedProductDetails();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, null));
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(upgradeView).showBuyButton(PRICE);
     }
@@ -93,7 +93,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void onCreateWithPurchaseStateDoesNotShowBuyButton() {
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(), null));
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(upgradeView, never()).showBuyButton(anyString());
     }
@@ -104,7 +104,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         Throwable error = new Throwable();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>error(error), null));
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(paymentErrorPresenter).onError(error);
     }
@@ -114,7 +114,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         setupSuccessfulConnection();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, Observable.just(PurchaseStatus.SUCCESS)));
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(upgradeView).showSuccess();
         verify(configurationManager).updateUntilPlanChanged();
@@ -125,16 +125,16 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         setupSuccessfulConnection();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, Observable.just(PurchaseStatus.VERIFY_TIMEOUT)));
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(paymentErrorPresenter).showVerifyTimeout();
     }
 
     @Test
     public void getStateWithNoObservablesReturnsEmptyTransactionState() {
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
-        final TransactionState state = controller.getState();
+        final TransactionState state = presenter.getState();
 
         assertThat(state.isTransactionInProgress()).isFalse();
     }
@@ -145,9 +145,9 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         Observable<String> purchase = Observable.just("token");
         when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(purchase);
 
-        controller.onCreate(activity, null);
-        controller.startPurchase();
-        final TransactionState state = controller.getState();
+        presenter.onCreate(activity, null);
+        presenter.startPurchase();
+        final TransactionState state = presenter.getState();
 
         assertThat(state.isRetrievingStatus()).isFalse();
         state.purchase().subscribe(testObserver);
@@ -161,9 +161,9 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         when(paymentOperations.queryStatus()).thenReturn(status);
         when(paymentOperations.queryProduct()).thenReturn(Observable.<ProductStatus>never());
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
-        final TransactionState state = controller.getState();
+        final TransactionState state = presenter.getState();
         assertThat(state.isRetrievingStatus()).isTrue();
         state.status().subscribe(testObserver);
         assertThat(testObserver.getOnNextEvents()).containsExactly(PurchaseStatus.NONE);
@@ -176,9 +176,9 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(Observable.just("token"));
         when(paymentOperations.verify(success.getPayload())).thenReturn(status);
 
-        controller.handleBillingResult(success);
+        presenter.handleBillingResult(success);
 
-        final TransactionState state = controller.getState();
+        final TransactionState state = presenter.getState();
         assertThat(state.isRetrievingStatus()).isTrue();
         state.status().subscribe(testObserver);
         assertThat(testObserver.getOnNextEvents()).containsExactly(PurchaseStatus.SUCCESS);
@@ -186,7 +186,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
 
     @Test
     public void onDestroyDisconnectsPaymentOperations() {
-        controller.onDestroy(activity);
+        presenter.onDestroy(activity);
         verify(paymentOperations).disconnect();
     }
 
@@ -195,8 +195,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         BillingResult billingResult = TestBillingResults.success();
         when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.PENDING));
 
-        controller.onCreate(activity, null);
-        controller.handleBillingResult(billingResult);
+        presenter.onCreate(activity, null);
+        presenter.handleBillingResult(billingResult);
 
         verify(paymentOperations).verify(billingResult.getPayload());
     }
@@ -205,8 +205,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void cancelsTransactionForPlayBillingFailure() {
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
 
-        controller.onCreate(activity, null);
-        controller.handleBillingResult(TestBillingResults.cancelled());
+        presenter.onCreate(activity, null);
+        presenter.handleBillingResult(TestBillingResults.cancelled());
 
         verify(paymentOperations).cancel("payment failed");
         verify(paymentErrorPresenter).showCancelled();
@@ -216,8 +216,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void cancelsTransactionPlayBillingError() {
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
 
-        controller.onCreate(activity, null);
-        controller.handleBillingResult(TestBillingResults.error());
+        presenter.onCreate(activity, null);
+        presenter.handleBillingResult(TestBillingResults.error());
 
         verify(paymentOperations).cancel(anyString());
     }
@@ -227,9 +227,9 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         setupExpectedProductDetails();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(), null));
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
-        controller.handleBillingResult(TestBillingResults.cancelled());
+        presenter.handleBillingResult(TestBillingResults.cancelled());
 
         verify(upgradeView).showBuyButton(PRICE);
     }
@@ -238,7 +238,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void doesNotQueryProductDetailsIfBillingIsNotSupported() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.UNSUPPORTED));
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(paymentOperations, never()).queryProduct();
         verify(paymentErrorPresenter).showBillingUnavailable();
@@ -249,7 +249,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(Observable.<PurchaseStatus>empty());
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(paymentOperations).queryStatus();
     }
@@ -260,7 +260,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
         when(paymentOperations.queryProduct()).thenReturn(Observable.<ProductStatus>never());
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(paymentOperations).queryProduct();
     }
@@ -269,7 +269,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void displayBuyButtonWhenPurchaseStatusIsNone() {
         setupExpectedProductDetails();
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(upgradeView).showBuyButton(PRICE);
     }
@@ -278,7 +278,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void disablesBuyButtonWhenClicked() {
         ProductDetails details = setupExpectedProductDetails();
         when(paymentOperations.purchase(details.getId())).thenReturn(Observable.just("token"));
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
         listenerCaptor.getValue().startPurchase();
@@ -291,7 +291,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         ProductDetails details = setupExpectedProductDetails();
         Exception exception = new Exception();
         when(paymentOperations.purchase(details.getId())).thenReturn(Observable.<String>error(exception));
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
         listenerCaptor.getValue().startPurchase();
@@ -305,8 +305,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         setupExpectedProductDetails();
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.just(new ApiResponse(null, 200, null)));
 
-        controller.onCreate(activity, null);
-        controller.handleBillingResult(TestBillingResults.cancelled());
+        presenter.onCreate(activity, null);
+        presenter.handleBillingResult(TestBillingResults.cancelled());
 
         verify(upgradeView).enableBuyButton();
     }
@@ -317,8 +317,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         PublishSubject subject = PublishSubject.create();
         when(paymentOperations.cancel(result.getFailReason())).thenReturn(subject);
 
-        controller.onCreate(activity, null);
-        controller.handleBillingResult(TestBillingResults.cancelled());
+        presenter.onCreate(activity, null);
+        presenter.handleBillingResult(TestBillingResults.cancelled());
 
         assertThat(subject.hasObservers()).isTrue();
     }
@@ -329,7 +329,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
         when(paymentOperations.queryProduct()).thenReturn(Observable.just(ProductStatus.fromNoProduct()));
 
-        controller.onCreate(activity, null);
+        presenter.onCreate(activity, null);
 
         verify(paymentErrorPresenter).showConnectionError();
     }
@@ -338,8 +338,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void requestsConfigurationUpdateWhenPurchaseIsSuccess() {
         when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.SUCCESS));
 
-        controller.onCreate(activity, null);
-        controller.handleBillingResult(TestBillingResults.success());
+        presenter.onCreate(activity, null);
+        presenter.handleBillingResult(TestBillingResults.success());
 
         verify(configurationManager).updateUntilPlanChanged();
     }
@@ -348,8 +348,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void startsSuccessActivityWhenPurchaseIsSuccess() {
         when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.SUCCESS));
 
-        controller.onCreate(activity, null);
-        controller.handleBillingResult(TestBillingResults.success());
+        presenter.onCreate(activity, null);
+        presenter.handleBillingResult(TestBillingResults.success());
 
         verify(upgradeView).showSuccess();
     }
@@ -358,8 +358,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void displaysErrorOnVerificationFail() {
         when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.VERIFY_FAIL));
 
-        controller.onCreate(activity, null);
-        controller.handleBillingResult(TestBillingResults.success());
+        presenter.onCreate(activity, null);
+        presenter.handleBillingResult(TestBillingResults.success());
 
         verify(paymentErrorPresenter).showVerifyFail();
     }
@@ -368,8 +368,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void displaysErrorOnVerificationTimeout() {
         when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.VERIFY_TIMEOUT));
 
-        controller.onCreate(activity, null);
-        controller.handleBillingResult(TestBillingResults.success());
+        presenter.onCreate(activity, null);
+        presenter.handleBillingResult(TestBillingResults.success());
 
         verify(paymentErrorPresenter).showVerifyTimeout();
     }
