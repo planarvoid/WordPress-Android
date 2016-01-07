@@ -5,9 +5,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
-public class PlaylistQueueItem extends EntityQueueItem {
+public class PlaylistQueueItem extends PlayableQueueItem {
 
-    PlaylistQueueItem(Urn trackUrn,
+    PlaylistQueueItem(Urn playlistUrn,
                       Urn reposter,
                       Urn relatedEntity,
                       String source,
@@ -17,7 +17,7 @@ public class PlaylistQueueItem extends EntityQueueItem {
                       Urn sourceUrn,
                       Urn queryUrn,
                       boolean blocked) {
-        super(trackUrn, reposter, source, sourceVersion, queryUrn, relatedEntity, blocked, shouldPersist, sourceUrn, adData);
+        super(playlistUrn, reposter, source, sourceVersion, queryUrn, relatedEntity, blocked, shouldPersist, sourceUrn, adData);
     }
 
     @Override
@@ -25,7 +25,7 @@ public class PlaylistQueueItem extends EntityQueueItem {
         return Kind.PLAYLIST;
     }
 
-    public static class Builder extends EntityQueueItem.Builder<Builder> {
+    public static class Builder extends PlayableQueueItem.Builder<Builder> {
 
         public Builder(Urn track) {
             super(track);

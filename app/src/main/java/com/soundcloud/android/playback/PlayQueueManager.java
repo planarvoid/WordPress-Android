@@ -108,10 +108,10 @@ public class PlayQueueManager implements OriginProvider {
 
     public void insertPlaylistTracks(Urn playlistUrn, List<Urn> tracks) {
         for (PlayQueueItem item : playQueue.itemsWithUrn(playlistUrn)) {
-            EntityQueueItem entityQueueItem = (EntityQueueItem) item;
+            PlayableQueueItem playableQueueItem = (PlayableQueueItem) item;
             List<PlayQueueItem> items = new ArrayList<>(tracks.size());
             for (Urn track : tracks) {
-                items.add(new TrackQueueItem.Builder(track).copySource(entityQueueItem).build());
+                items.add(new TrackQueueItem.Builder(track).copySource(playableQueueItem).build());
             }
             playQueue.replaceItem(playQueue.indexOfPlayQueueItem(item), items);
         }

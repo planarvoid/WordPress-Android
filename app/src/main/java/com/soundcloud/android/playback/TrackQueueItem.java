@@ -6,7 +6,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
-public class TrackQueueItem extends EntityQueueItem {
+public class TrackQueueItem extends PlayableQueueItem {
 
         private TrackQueueItem(Urn trackUrn,
                    Urn reposter,
@@ -41,7 +41,7 @@ public class TrackQueueItem extends EntityQueueItem {
                 .toString();
     }
 
-    public static class Builder extends EntityQueueItem.Builder<Builder> {
+    public static class Builder extends PlayableQueueItem.Builder<Builder> {
 
         public Builder(Urn track) {
             super(track);

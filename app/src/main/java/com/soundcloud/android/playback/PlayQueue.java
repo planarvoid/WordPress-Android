@@ -293,7 +293,6 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
                 } else if (playable.get(EntityProperty.URN).isPlaylist()) {
                     return new PlaylistQueueItem.Builder(playable)
                             .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
-                            .blocked(Boolean.TRUE.equals(blockedTracks.get(playable.get(TrackProperty.URN))))
                             .build();
                 } else {
                     throw new IllegalArgumentException("Unrecognized playable sent for playback " + playable);

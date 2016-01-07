@@ -1,14 +1,14 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
-public abstract class EntityQueueItem extends PlayQueueItem {
+public abstract class PlayableQueueItem extends PlayQueueItem {
 
     protected final Urn urn;
     protected final Urn reposter;
@@ -20,7 +20,7 @@ public abstract class EntityQueueItem extends PlayQueueItem {
     protected final boolean shouldPersist;
     protected final boolean blocked;
 
-    public EntityQueueItem(Urn urn, Urn reposter, String source, String sourceVersion, Urn queryUrn, Urn relatedEntity, boolean blocked, boolean shouldPersist, Urn sourceUrn, Optional<AdData> adData) {
+    public PlayableQueueItem(Urn urn, Urn reposter, String source, String sourceVersion, Urn queryUrn, Urn relatedEntity, boolean blocked, boolean shouldPersist, Urn sourceUrn, Optional<AdData> adData) {
         this.sourceVersion = sourceVersion;
         this.source = source;
         this.queryUrn = queryUrn;
@@ -76,21 +76,21 @@ public abstract class EntityQueueItem extends PlayQueueItem {
         protected final Urn playable;
         protected final Urn reposter;
         protected boolean blocked;
-        protected String source = ScTextUtils.EMPTY_STRING;
-        protected String sourceVersion = ScTextUtils.EMPTY_STRING;
+        protected String source = Strings.EMPTY;
+        protected String sourceVersion = Strings.EMPTY;
         protected Optional<AdData> adData = Optional.absent();
         protected Urn relatedEntity = Urn.NOT_SET;
         protected Urn sourceUrn = Urn.NOT_SET;
         protected Urn queryUrn = Urn.NOT_SET;
         protected boolean shouldPersist = true;
 
-        public Builder(Urn track) {
-            this(track, Urn.NOT_SET);
+        public Builder(Urn entityUrn) {
+            this(entityUrn, Urn.NOT_SET);
         }
 
-        public Builder(PropertySet track) {
-            this(track.get(TrackProperty.URN),
-                    track.getOrElse(PostProperty.REPOSTER_URN, Urn.NOT_SET));
+        public Builder(PropertySet entity) {
+            this(entity.get(EntityProperty.URN),
+                    entity.getOrElse(PostProperty.REPOSTER_URN, Urn.NOT_SET));
         }
 
         public Builder(Urn playable, Urn reposter) {
@@ -112,11 +112,11 @@ public abstract class EntityQueueItem extends PlayQueueItem {
             return getThis();
         }
 
-        public T copySource(EntityQueueItem entityQueueItem) {
-            this.source = entityQueueItem.getSource();
-            this.sourceVersion = entityQueueItem.getSourceVersion();
-            this.sourceUrn = entityQueueItem.getSourceUrn();
-            this.queryUrn = entityQueueItem.getQueryUrn();
+        public T copySource(PlayableQueueItem playableQueueItem) {
+            this.source = playableQueueItem.getSource();
+            this.sourceVersion = playableQueueItem.getSourceVersion();
+            this.sourceUrn = playableQueueItem.getSourceUrn();
+            this.queryUrn = playableQueueItem.getQueryUrn();
             return getThis();
         }
 

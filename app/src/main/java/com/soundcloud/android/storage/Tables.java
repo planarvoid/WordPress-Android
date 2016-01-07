@@ -62,7 +62,8 @@ public interface Tables {
 
         public static final PlayQueue TABLE = new PlayQueue();
 
-        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
+        public static final Column ENTITY_ID = Column.create(TABLE, "entity_id");
+        public static final Column ENTITY_TYPE = Column.create(TABLE, "entity_type");
         public static final Column REPOSTER_ID = Column.create(TABLE, "reposter_id");
         public static final Column RELATED_ENTITY = Column.create(TABLE, "related_entity");
         public static final Column SOURCE = Column.create(TABLE, "source");
@@ -70,9 +71,13 @@ public interface Tables {
         public static final Column SOURCE_URN = Column.create(TABLE, "source_urn");
         public static final Column QUERY_URN = Column.create(TABLE, "query_urn");
 
+        public static final int ENTITY_TYPE_TRACK = 0;
+        public static final int ENTITY_TYPE_PLAYLIST = 1;
+
         static final String SQL = "CREATE TABLE IF NOT EXISTS PlayQueue (" +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "track_id INTEGER," +
+                "entity_id INTEGER," +
+                "entity_type INTEGER," +
                 "reposter_id INTEGER," +
                 "related_entity TEXT," +
                 "source TEXT," +
