@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.rx.RxUtils.returning;
 
 import com.soundcloud.android.ApplicationModule;
@@ -131,14 +132,22 @@ public class OfflineContentOperations {
     }
 
     public Observable<Void> disableOfflineLikedTracks() {
-        return offlineContentStorage.storeOfflineLikesDisabled()
+        // TODO : DO NOT MERGE THIS
+        return offlineContentStorage
+                .isOfflineLikesEnabled()
+                .filter(RxUtils.IS_TRUE)
+                .flatMap(continueWith(offlineContentStorage.storeOfflineLikesDisabled()))
                 .map(RxUtils.TO_VOID)
                 .doOnNext(publishLikesMarkedForOfflineChange(false))
                 .subscribeOn(scheduler);
     }
 
     public Observable<Void> enableOfflineLikedTracks() {
-        return offlineContentStorage.storeOfflineLikesEnabled()
+        // TODO : DO NOT MERGE THIS
+        return offlineContentStorage
+                .isOfflineLikesEnabled()
+                .filter(RxUtils.IS_FALSE)
+                .flatMap(continueWith(offlineContentStorage.storeOfflineLikesEnabled()))
                 .map(RxUtils.TO_VOID)
                 .doOnNext(publishLikesMarkedForOfflineChange(true))
                 .subscribeOn(scheduler);

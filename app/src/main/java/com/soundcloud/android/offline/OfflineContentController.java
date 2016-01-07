@@ -169,6 +169,7 @@ public class OfflineContentController {
                         offlineContentOperations.getOfflineCollectionStateChanges().filter(RxUtils.IS_TRUE)
                 )
                 .map(RxUtils.TO_VOID)
+                .flatMap(continueWith(offlineContentOperations.enableOfflineLikedTracks()))
                 .flatMap(continueWith(setPlaylistsCollectionAsOffline()));
     }
 
