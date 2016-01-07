@@ -182,14 +182,14 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist, 1);
         final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrack(apiPlaylist, 2);
 
-        testFixtures().insertPolicyMidTierMonetizable(apiTrack3.getUrn());
+        testFixtures().insertPolicyHighTierMonetizable(apiTrack3.getUrn());
 
         final List<PropertySet> tracks = playlistTracksStorage.playlistTracks(apiPlaylist.getUrn()).toBlocking().single();
 
         assertThat(tracks).containsExactly(
                 fromApiTrack(apiTrack1),
                 fromApiTrack(apiTrack2),
-                expectedMidTierMonetizableTrackFor(apiTrack3)
+                expectedHighTierMonetizableTrackFor(apiTrack3)
         );
     }
 
@@ -238,7 +238,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 TrackProperty.IS_PRIVATE.bind(apiTrack.isPrivate()),
                 TrackProperty.CREATOR_NAME.bind(apiTrack.getUserName()),
                 TrackProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
-                TrackProperty.SUB_MID_TIER.bind(false)
+                TrackProperty.SUB_HIGH_TIER.bind(apiTrack.isSubHighTier().get())
         );
     }
 
@@ -266,8 +266,8 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 isTrackAdded);
     }
 
-    private PropertySet expectedMidTierMonetizableTrackFor(ApiTrack track) {
-        return fromApiTrack(track).put(TrackProperty.SUB_MID_TIER, true);
+    private PropertySet expectedHighTierMonetizableTrackFor(ApiTrack track) {
+        return fromApiTrack(track).put(TrackProperty.SUB_HIGH_TIER, true);
     }
 
 }

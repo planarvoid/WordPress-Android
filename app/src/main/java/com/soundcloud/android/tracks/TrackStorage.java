@@ -63,6 +63,7 @@ class TrackStorage {
                         TableColumns.SoundView.POLICIES_BLOCKED,
                         TableColumns.SoundView.POLICIES_SNIPPED,
                         TableColumns.SoundView.POLICIES_POLICY,
+                        TableColumns.SoundView.POLICIES_SUB_HIGH_TIER,
                         TableColumns.SoundView.PERMALINK_URL,
                         TableColumns.SoundView.SHARING,
                         TableColumns.SoundView.CREATED_AT,

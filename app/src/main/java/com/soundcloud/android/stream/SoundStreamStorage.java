@@ -48,7 +48,7 @@ public class SoundStreamStorage implements TimelineStorage {
             SoundView.REPOSTS_COUNT,
             SoundView.SHARING,
             field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
-            SoundView.POLICIES_SUB_MID_TIER,
+            SoundView.POLICIES_SUB_HIGH_TIER,
             SoundStreamView.REPOSTER_USERNAME,
             SoundStreamView.REPOSTER_ID,
             exists(likeQuery()).as(SoundView.USER_LIKE),
@@ -156,8 +156,8 @@ public class SoundStreamStorage implements TimelineStorage {
             addOptionalTrackCount(cursorReader, propertySet);
             addOptionalReposter(cursorReader, propertySet);
 
-            if (cursorReader.isNotNull(SoundView.POLICIES_SUB_MID_TIER)) {
-                propertySet.put(TrackProperty.SUB_MID_TIER, cursorReader.getBoolean(SoundView.POLICIES_SUB_MID_TIER));
+            if (cursorReader.isNotNull(SoundView.POLICIES_SUB_HIGH_TIER)) {
+                propertySet.put(TrackProperty.SUB_HIGH_TIER, cursorReader.getBoolean(SoundView.POLICIES_SUB_HIGH_TIER));
             }
 
             return propertySet;

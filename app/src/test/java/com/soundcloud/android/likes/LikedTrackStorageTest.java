@@ -44,7 +44,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
         testFixtures().insertCompletedTrackDownload(track1.get(TrackProperty.URN), 100L, 300L);
         testFixtures().insertTrackDownloadPendingRemoval(track2.get(TrackProperty.URN), 100L, 300L);
         testFixtures().insertTrackPendingDownload(track3.get(TrackProperty.URN), 200L);
-        testFixtures().insertPolicyMidTierMonetizable(track4.get(TrackProperty.URN));
+        testFixtures().insertPolicyHighTierMonetizable(track4.get(TrackProperty.URN));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
         storage.loadTrackLikes(4, Long.MAX_VALUE).subscribe(testListObserver);
 
         testListObserver.assertValue(Arrays.asList(
-                expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4),
+                expectedHighTierMonetizableLikedTrackFor(track4, LIKED_DATE_4),
                 expectedRequestedLikedTrackFor(track3, LIKED_DATE_3),
                 expectedRemovedLikedTrackFor(track2, LIKED_DATE_2),
                 expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1)));
@@ -63,7 +63,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
         storage.loadTrackLikes(1, Long.MAX_VALUE).subscribe(testListObserver);
 
         testListObserver.assertValue(
-                Collections.singletonList(expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4)));
+                Collections.singletonList(expectedHighTierMonetizableLikedTrackFor(track4, LIKED_DATE_4)));
     }
 
     @Test
@@ -124,10 +124,10 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadLikedTrackLoadsMidTierMonetizableTrackIncludingPolicy() {
+    public void loadLikedTrackLoadsHighTierMonetizableTrackIncludingPolicy() {
         storage.loadTrackLike(track4.get(TrackProperty.URN)).subscribe(testObserver);
 
-        testObserver.assertValue(expectedMidTierMonetizableLikedTrackFor(track4, LIKED_DATE_4));
+        testObserver.assertValue(expectedHighTierMonetizableLikedTrackFor(track4, LIKED_DATE_4));
     }
 
     @Test
@@ -156,8 +156,8 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
         return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
     }
 
-    private PropertySet expectedMidTierMonetizableLikedTrackFor(PropertySet track, Date likedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.SUB_MID_TIER, true);
+    private PropertySet expectedHighTierMonetizableLikedTrackFor(PropertySet track, Date likedAt) {
+        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.SUB_HIGH_TIER, true);
     }
 
     private PropertySet expectedUnavailableLikedTrackFor(PropertySet track, Date likedAt) {
@@ -175,6 +175,6 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
                 TrackProperty.LIKES_COUNT.bind(track.get(TrackProperty.LIKES_COUNT)),
                 LikeProperty.CREATED_AT.bind((likedAt)),
                 TrackProperty.IS_PRIVATE.bind(track.get(TrackProperty.IS_PRIVATE)),
-                TrackProperty.SUB_MID_TIER.bind(false));
+                TrackProperty.SUB_HIGH_TIER.bind(track.get(TrackProperty.SUB_HIGH_TIER)));
     }
 }

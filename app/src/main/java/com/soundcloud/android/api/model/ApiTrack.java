@@ -341,6 +341,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
 
     @Override
     public PropertySet toPropertySet() {
+        final Optional<Boolean> subHighTier = isSubHighTier();
         final PropertySet propertySet = PropertySet.from(
                 TrackProperty.URN.bind(getUrn()),
                 TrackProperty.TITLE.bind(getTitle()),
@@ -355,6 +356,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
                 TrackProperty.SNIPPED.bind(isSnipped()),
                 TrackProperty.SYNCABLE.bind(isSyncable()),
                 TrackProperty.POLICY.bind(getPolicy()),
+                TrackProperty.SUB_HIGH_TIER.bind(subHighTier.isPresent() ? subHighTier.get() : false),
                 TrackProperty.PLAY_COUNT.bind(getStats().getPlaybackCount()),
                 TrackProperty.COMMENTS_COUNT.bind(getStats().getCommentsCount()),
                 TrackProperty.LIKES_COUNT.bind(getStats().getLikesCount()),

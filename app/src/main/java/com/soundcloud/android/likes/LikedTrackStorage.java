@@ -68,7 +68,7 @@ public class LikedTrackStorage {
                         TrackDownloads.DOWNLOADED_AT,
                         TrackDownloads.UNAVAILABLE_AT,
                         TrackDownloads.REMOVED_AT,
-                        TableColumns.TrackPolicies.SUB_MID_TIER,
+                        TableColumns.TrackPolicies.SUB_HIGH_TIER,
                         field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
                         OfflineContent._ID)
 

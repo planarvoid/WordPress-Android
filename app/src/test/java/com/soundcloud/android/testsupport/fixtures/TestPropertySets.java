@@ -42,7 +42,7 @@ public abstract class TestPropertySets {
     }
 
     public static PropertySet upsellableTrackForPlayer() {
-        return expectedTrackForPlayer().put(TrackProperty.SNIPPED, true).put(TrackProperty.SUB_MID_TIER, true);
+        return expectedTrackForPlayer().put(TrackProperty.SNIPPED, true).put(TrackProperty.SUB_HIGH_TIER, true);
     }
 
     public static PropertySet expectedTrackForPlayer() {
@@ -238,6 +238,7 @@ public abstract class TestPropertySets {
                 TrackProperty.POLICY.bind(apiTrack.getPolicy()),
                 TrackProperty.BLOCKED.bind(apiTrack.isBlocked()),
                 TrackProperty.SNIPPED.bind(apiTrack.isSnipped()),
+                TrackProperty.SUB_HIGH_TIER.bind(apiTrack.isSubHighTier().get()),
                 PlayableProperty.IS_USER_LIKE.bind(isLiked),
                 PlayableProperty.PERMALINK_URL.bind(apiTrack.getPermalinkUrl()),
                 PlayableProperty.IS_PRIVATE.bind(isPrivate),

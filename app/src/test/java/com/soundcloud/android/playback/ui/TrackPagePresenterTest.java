@@ -650,9 +650,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindingUpsellTrackWithoutUpsellFeatureHidesUpsellIcon() {
+    public void bindingUpsellableHighTierTrackWithoutUpsellFeatureHidesUpsellIcon() {
         when(featureOperations.upsellHighTier()).thenReturn(false);
-        bindUpsellableTrack();
+        bindUpsellableHighTierTrack();
 
         assertThat(getHolder(trackView).previewIndicator).isGone();
     }
@@ -666,9 +666,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindingUpsellableTrackWhileAllowingUpsellFeatureShowsUpsell() {
+    public void bindingUpsellableHighTierTrackWhileAllowingUpsellFeatureShowsUpsell() {
         when(featureOperations.upsellHighTier()).thenReturn(true);
-        final PropertySet track = bindUpsellableTrack();
+        final PropertySet track = bindUpsellableHighTierTrack();
 
         final TrackPageHolder holder = getHolder(trackView);
         assertThat(holder.upsellButton).isVisible();
@@ -676,9 +676,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onViewSelectedWhileExpandedWithUpsellableTrackRecordsImpression() {
+    public void onViewSelectedWhileExpandedWithUpsellableHighTierTrackRecordsImpression() {
         when(featureOperations.upsellHighTier()).thenReturn(true);
-        bindUpsellableTrack();
+        bindUpsellableHighTierTrack();
 
         presenter.onViewSelected(trackView, playQueueItem, true);
 
@@ -686,9 +686,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onViewSelectedWhileCollapsedWithUpsellableTrackDoesNotRecordImpression() {
+    public void onViewSelectedWhileCollapsedWithUpsellableHighTierTrackDoesNotRecordImpression() {
         when(featureOperations.upsellHighTier()).thenReturn(true);
-        bindUpsellableTrack();
+        bindUpsellableHighTierTrack();
 
         presenter.onViewSelected(trackView, playQueueItem, false);
 
@@ -706,9 +706,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setExpandedWithUpsellableTrackWhileSelectedRecordsImpression() {
+    public void setExpandedWithUpsellableHighTierTrackWhileSelectedRecordsImpression() {
         when(featureOperations.upsellHighTier()).thenReturn(true);
-        bindUpsellableTrack();
+        bindUpsellableHighTierTrack();
 
         presenter.setExpanded(trackView, playQueueItem, true);
 
@@ -718,7 +718,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Test
     public void setExpandedWithUpsellableTrackWhileNotSelectedDoesNotRecordImpression() {
         when(featureOperations.upsellHighTier()).thenReturn(true);
-        bindUpsellableTrack();
+        bindUpsellableHighTierTrack();
 
         presenter.setExpanded(trackView, playQueueItem, false);
 
@@ -749,7 +749,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         presenter.bindItemView(trackView, new PlayerTrackState(snippedTrack, true, true, viewVisibilityProvider));
     }
 
-    private PropertySet bindUpsellableTrack() {
+    private PropertySet bindUpsellableHighTierTrack() {
         final PropertySet source = TestPropertySets.upsellableTrackForPlayer();
         presenter.bindItemView(trackView,
                 new PlayerTrackState(source, true, true,
