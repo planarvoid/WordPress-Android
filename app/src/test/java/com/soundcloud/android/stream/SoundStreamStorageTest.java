@@ -259,13 +259,13 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     public void loadingStreamItemsIncludesTierInformation() {
         final ApiTrack track = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
-        testFixtures().insertPolicyMidTierMonetizable(track.getUrn());
+        testFixtures().insertPolicyHighTierMonetizable(track.getUrn());
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final PropertySet midTierTrackPost = createTrackPropertySet(track).put(TrackProperty.SUB_MID_TIER, true);
+        final PropertySet highTierTrackPost = createTrackPropertySet(track).put(TrackProperty.SUB_HIGH_TIER, true);
 
-        verify(observer).onNext(midTierTrackPost);
+        verify(observer).onNext(highTierTrackPost);
         verify(observer).onCompleted();
     }
 
@@ -317,7 +317,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.REPOSTS_COUNT.bind(track.getRepostsCount()),
                 PlayableProperty.IS_PRIVATE.bind(false),
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
-                TrackProperty.SUB_MID_TIER.bind(false));
+                TrackProperty.SUB_HIGH_TIER.bind(track.isSubHighTier().get()));
     }
 
     private PropertySet createPlaylistPropertySet(ApiPlaylist playlist) {

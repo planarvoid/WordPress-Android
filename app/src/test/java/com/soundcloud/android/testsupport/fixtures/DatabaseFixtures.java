@@ -177,6 +177,8 @@ public class DatabaseFixtures {
         cv.put(TableColumns.TrackPolicies.BLOCKED, track.isBlocked());
         cv.put(TableColumns.TrackPolicies.SNIPPED, track.isSnipped());
         cv.put(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable());
+        cv.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, track.isSubHighTier().get());
+        cv.put(TableColumns.TrackPolicies.SUB_MID_TIER, track.isSubMidTier().get());
         cv.put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 
         insertInto(Table.TrackPolicies, cv);
@@ -626,19 +628,21 @@ public class DatabaseFixtures {
         cv.put(TableColumns.TrackPolicies.POLICY, "BLOCK");
         cv.put(TableColumns.TrackPolicies.MONETIZABLE, false);
         cv.put(TableColumns.TrackPolicies.SYNCABLE, false);
+        cv.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, true);
+        cv.put(TableColumns.TrackPolicies.SYNCABLE, false);
         cv.put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 
         insertInto(Table.TrackPolicies, cv);
     }
 
-    public void insertPolicyMidTierMonetizable(Urn urn) {
+    public void insertPolicyHighTierMonetizable(Urn urn) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackPolicies.TRACK_ID, urn.getNumericId());
         cv.put(TableColumns.TrackPolicies.POLICY, "SNIP");
         cv.put(TableColumns.TrackPolicies.MONETIZABLE, true);
-        cv.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, "SUB_MID_TIER");
-        cv.put(TableColumns.TrackPolicies.SUB_MID_TIER, true);
-        cv.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, false);
+        cv.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, "SUB_HIGH_TIER");
+        cv.put(TableColumns.TrackPolicies.SUB_MID_TIER, false);
+        cv.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, true);
         cv.put(TableColumns.TrackPolicies.SYNCABLE, false);
 
         insertInto(Table.TrackPolicies, cv);

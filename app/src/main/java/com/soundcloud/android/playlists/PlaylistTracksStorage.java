@@ -97,7 +97,7 @@ class PlaylistTracksStorage {
                         TrackDownloads.REQUESTED_AT,
                         TrackDownloads.DOWNLOADED_AT,
                         TrackDownloads.UNAVAILABLE_AT,
-                        TrackPolicies.SUB_MID_TIER,
+                        TrackPolicies.SUB_HIGH_TIER,
                         TrackDownloads.REMOVED_AT,
                         OfflineContent._ID)
 
