@@ -7,12 +7,9 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.playlists.PlaylistRecordHolder;
-import com.soundcloud.android.tracks.TrackRecordHolder;
-import com.soundcloud.android.users.UserRecord;
 
 @AutoValue
-abstract class ApiUserProfile implements UserProfileRecord {
+abstract class ApiUserProfile {
     @JsonCreator
     public static ApiUserProfile create(
             @JsonProperty("user") ApiUser user,
@@ -34,15 +31,15 @@ abstract class ApiUserProfile implements UserProfileRecord {
         );
     }
 
-    public abstract UserRecord getUser();
+    public abstract ApiUser getUser();
 
     public abstract ModelCollection<? extends ApiEntityHolderSource> getSpotlight();
 
-    public abstract ModelCollection<? extends TrackRecordHolder> getTracks();
+    public abstract ModelCollection<ApiTrackPost> getTracks();
 
-    public abstract ModelCollection<? extends PlaylistRecordHolder> getReleases();
+    public abstract ModelCollection<ApiPlaylistPost> getReleases();
 
-    public abstract ModelCollection<? extends PlaylistRecordHolder> getPlaylists();
+    public abstract ModelCollection<ApiPlaylistPost> getPlaylists();
 
     public abstract ModelCollection<? extends ApiEntityHolderSource> getReposts();
 

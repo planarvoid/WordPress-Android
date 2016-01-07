@@ -1,8 +1,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.playlists.PlaylistRecordHolder;
-import com.soundcloud.android.tracks.TrackRecordHolder;
+import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.users.UserRecord;
 
 public interface UserProfileRecord {
@@ -10,11 +9,11 @@ public interface UserProfileRecord {
 
     ModelCollection<? extends ApiEntityHolderSource> getSpotlight();
 
-    ModelCollection<? extends TrackRecordHolder> getTracks();
+    ModelCollection<? extends RecordHolder> getTracks();
 
-    ModelCollection<? extends PlaylistRecordHolder> getReleases();
+    ModelCollection<? extends RecordHolder> getReleases();
 
-    ModelCollection<? extends PlaylistRecordHolder> getPlaylists();
+    ModelCollection<? extends RecordHolder> getPlaylists();
 
     ModelCollection<? extends ApiEntityHolderSource> getReposts();
 
