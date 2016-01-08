@@ -99,7 +99,7 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
     @Test
     public void syncSuccessOnStreamCreatesNotification() throws Exception {
         when(contentStats.getLastSeen(Content.ME_SOUND_STREAM)).thenReturn(1000L);
-        when(syncConfig.shouldUpdateDashboard(context())).thenReturn(true);
+        when(syncConfig.shouldUpdateDashboard()).thenReturn(true);
         when(syncConfig.isIncomingEnabled()).thenReturn(true);
 
         final Bundle resultData = new Bundle();

@@ -183,7 +183,7 @@ public class SyncAdapterService extends Service {
 
         final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
         final ArrayList<Uri> urisToSync = new ArrayList<>();
-        if (syncConfig.shouldUpdateDashboard(app)) {
+        if (syncConfig.shouldUpdateDashboard()) {
             if (syncConfig.isIncomingEnabled() &&
                     (manual || syncStateManager.isContentDueForSync(SyncContent.MySoundStream))) {
                 urisToSync.add(Content.ME_SOUND_STREAM.uri);
@@ -194,7 +194,7 @@ public class SyncAdapterService extends Service {
             }
         }
 
-        if (manual || syncConfig.shouldSyncCollections(app)) {
+        if (manual || syncConfig.shouldSyncCollections()) {
             final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, manual);
             Log.d(TAG, "collection due for sync:" + dueForSync);
             urisToSync.addAll(dueForSync);

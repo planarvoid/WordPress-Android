@@ -77,7 +77,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
                 SyncContent.updateCollections(syncStateManager, resultData);
 
                 // notification related
-                if (syncConfig.shouldUpdateDashboard(context)) {
+                if (syncConfig.shouldUpdateDashboard()) {
                     createSystemNotification();
                 }
                 break;

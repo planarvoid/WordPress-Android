@@ -27,11 +27,13 @@ public class SyncConfig {
 
     private final SharedPreferences sharedPreferences;
     private final CurrentDateProvider dateProvider;
+    private final Context context;
 
     @Inject
-    public SyncConfig(SharedPreferences sharedPreferences, CurrentDateProvider dateProvider) {
+    public SyncConfig(SharedPreferences sharedPreferences, CurrentDateProvider dateProvider, Context context) {
         this.sharedPreferences = sharedPreferences;
         this.dateProvider = dateProvider;
+        this.context = context;
     }
 
     public boolean isNotificationsWifiOnlyEnabled() {
@@ -75,12 +77,12 @@ public class SyncConfig {
         }
     }
 
-    public boolean shouldUpdateDashboard(Context c) {
-        return !isNotificationsWifiOnlyEnabled() || IOUtils.isWifiConnected(c);
+    public boolean shouldUpdateDashboard() {
+        return !isNotificationsWifiOnlyEnabled() || IOUtils.isWifiConnected(context);
     }
 
-    public boolean shouldSyncCollections(Context c) {
-        return !isSyncWifiOnlyEnabled() || IOUtils.isWifiConnected(c);
+    public boolean shouldSyncCollections() {
+        return !isSyncWifiOnlyEnabled() || IOUtils.isWifiConnected(context);
     }
 
     public boolean shouldSync(String prefKey, long max) {
