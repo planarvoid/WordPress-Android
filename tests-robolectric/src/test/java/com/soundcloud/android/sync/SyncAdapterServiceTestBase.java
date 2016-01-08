@@ -120,11 +120,12 @@ public abstract class SyncAdapterServiceTestBase {
                 Mockito.mock(SoundStreamNotifier.class),
                 Mockito.mock(ActivitiesNotifier.class),
                 new SyncStateManager(Robolectric.application),
-                new ContentStats(app));
+                new ContentStats(app),
+                Mockito.mock(SyncConfig.class));
 
         SyncAdapterService.performSync(
                 app,
-                extras, result, token, null, syncServiceResultReceiverFactory, Mockito.mock(MyLikesStateProvider.class), Mockito.mock(PlaylistStorage.class));
+                extras, result, token, null, syncServiceResultReceiverFactory, Mockito.mock(MyLikesStateProvider.class), Mockito.mock(PlaylistStorage.class), Mockito.mock(SyncConfig.class));
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 

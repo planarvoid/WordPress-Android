@@ -31,13 +31,14 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
     @Mock private SyncStateManager syncStateManager;
     @Mock private ContentStats contentStats;
     @Mock private SyncServiceResultReceiver.OnResultListener onResultListener;
+    @Mock private SyncConfig syncConfig;
 
     private SyncResult syncResult = new SyncResult();
 
     @Before
     public void setUp() throws Exception {
         syncServiceResultReceiver = new SyncServiceResultReceiver.Factory(context(), soundStreamNotifier,
-                activitiesNotifier, syncStateManager, contentStats)
+                activitiesNotifier, syncStateManager, contentStats, syncConfig)
                 .create(syncResult, onResultListener);
     }
 
@@ -98,6 +99,8 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
     @Test
     public void syncSuccessOnStreamCreatesNotification() throws Exception {
         when(contentStats.getLastSeen(Content.ME_SOUND_STREAM)).thenReturn(1000L);
+        when(syncConfig.shouldUpdateDashboard()).thenReturn(true);
+        when(syncConfig.isIncomingEnabled()).thenReturn(true);
 
         final Bundle resultData = new Bundle();
         resultData.putBoolean(LIKES_URI_STRING, true);

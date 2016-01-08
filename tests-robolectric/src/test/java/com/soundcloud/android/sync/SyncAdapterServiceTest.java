@@ -72,7 +72,8 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
         final MyLikesStateProvider myLikesStateProvider = Mockito.mock(MyLikesStateProvider.class);
         final SyncServiceResultReceiver.Factory resultReceiverFactory = Mockito.mock(SyncServiceResultReceiver.Factory.class);
         final PlaylistStorage playlistStorage = Mockito.mock(PlaylistStorage.class);
-        expect(SyncAdapterService.performSync(application, null, syncResult, null, null, resultReceiverFactory, myLikesStateProvider, playlistStorage)).toBeFalse();
+        final SyncConfig syncConfig = Mockito.mock(SyncConfig.class);
+        expect(SyncAdapterService.performSync(application, null, syncResult, null, null, resultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig)).toBeFalse();
         expect(syncResult.stats.numAuthExceptions).toBeGreaterThan(0L);
     }
 }
