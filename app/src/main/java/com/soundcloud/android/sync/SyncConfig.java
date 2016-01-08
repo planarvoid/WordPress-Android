@@ -8,17 +8,17 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
 public class SyncConfig {
-    public static final long DEFAULT_SYNC_DELAY = 3600L; // interval between syncs
+    public static final long DEFAULT_SYNC_DELAY = TimeUnit.HOURS.toSeconds(1); // interval between syncs
 
-    static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 60 * 60 * 1000 * 4L; // 4h
+    static final long DEFAULT_NOTIFICATIONS_FREQUENCY = TimeUnit.HOURS.toMillis(4);
 
-    static final long DEFAULT_STALE_TIME    = 60 * 60 * 1000;         // 1 hr in ms
-    static final long TRACK_STALE_TIME      = DEFAULT_STALE_TIME;
-    static final long ACTIVITY_STALE_TIME   = DEFAULT_STALE_TIME * 6;
-    static final long USER_STALE_TIME       = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
-    static final long PLAYLIST_STALE_TIME   = DEFAULT_STALE_TIME * 6;
+    static final long TRACK_STALE_TIME      = TimeUnit.HOURS.toMillis(1);
+    static final long ACTIVITY_STALE_TIME   = TimeUnit.HOURS.toMillis(6);
+    static final long USER_STALE_TIME       = TimeUnit.HOURS.toMillis(12);
+    static final long PLAYLIST_STALE_TIME   = TimeUnit.HOURS.toMillis(6);
 
     static int[] DEFAULT_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24};
     static int[] USER_BACKOFF_MULTIPLIERS = new int[]{1, 2, 3};
