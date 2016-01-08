@@ -98,6 +98,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".collections.OfflineOnboardingActivity" />
+
         <activity android:name=".search.PlayFromVoiceSearchActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
             <intent-filter android:priority="1">
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH"/>
