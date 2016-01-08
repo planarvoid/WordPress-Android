@@ -1,7 +1,5 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.api.model.ApiPlaylistPost;
-import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.ApiEntityHolder;
@@ -14,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class StoreProfileCommand extends Command<ApiUserProfile, Boolean> {
+public class StoreProfileCommand extends Command<UserProfileRecord, Boolean> {
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;
 
     @Inject
@@ -23,22 +21,24 @@ public class StoreProfileCommand extends Command<ApiUserProfile, Boolean> {
     }
 
     @Override
-    public Boolean call(ApiUserProfile profile) {
-        final ModelCollection<ApiPlayableSource> defaultPlayableSourceModelCollection = new ModelCollection<>();
+    public Boolean call(UserProfileRecord profile) {
         final List<RecordHolder> emptyList = Collections.emptyList();
 
-        final Optional<ModelCollection<ApiTrackPost>> tracks = profile.getTracks();
-        final Optional<ModelCollection<ApiPlaylistPost>> releases = profile.getReleases();
-        final Optional<ModelCollection<ApiPlaylistPost>> playlists = profile.getPlaylists();
+        final ModelCollection<? extends ApiEntityHolderSource> spotlight = profile.getSpotlight();
+        final ModelCollection<? extends ApiEntityHolder> tracks = profile.getTracks();
+        final ModelCollection<? extends ApiEntityHolder> releases = profile.getReleases();
+        final ModelCollection<? extends ApiEntityHolder> playlists = profile.getPlaylists();
+        final ModelCollection<? extends ApiEntityHolderSource> reposts = profile.getReposts();
+        final ModelCollection<? extends ApiEntityHolderSource> likes = profile.getLikes();
 
         Iterable<RecordHolder> entities = Iterables.concat(
-                Collections.singletonList(profile.getUser()),
-                TO_RECORD_HOLDERS(profile.getSpotlight().or(defaultPlayableSourceModelCollection)),
-                tracks.isPresent() ? tracks.get().getCollection() : emptyList,
-                releases.isPresent() ? releases.get().getCollection() : emptyList,
-                playlists.isPresent() ? playlists.get().getCollection() : emptyList,
-                TO_RECORD_HOLDERS(profile.getReposts().or(defaultPlayableSourceModelCollection)),
-                TO_RECORD_HOLDERS(profile.getLikes().or(defaultPlayableSourceModelCollection))
+                Collections.singletonList((RecordHolder) profile.getUser()),
+                TO_RECORD_HOLDERS(spotlight),
+                tracks.getCollection(),
+                releases.getCollection(),
+                playlists.getCollection(),
+                TO_RECORD_HOLDERS(reposts),
+                TO_RECORD_HOLDERS(likes)
                 );
 
         return writeMixedRecordsCommand.call(entities);

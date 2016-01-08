@@ -6,15 +6,29 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 
+import java.util.Collections;
+
 class UserProfileFixtures {
+    private static ModelCollection<ApiPlayableSource> emptyPlayableSources() {
+        return new ModelCollection<>(Collections.<ApiPlayableSource>emptyList());
+    }
+
+    private static ModelCollection<ApiTrackPost> emptyTrackPosts() {
+        return new ModelCollection<>(Collections.<ApiTrackPost>emptyList());
+    }
+
+    private static ModelCollection<ApiPlaylistPost> emptyPlaylistPosts() {
+        return new ModelCollection<>(Collections.<ApiPlaylistPost>emptyList());
+    }
+
     static class Builder {
         private ApiUser user = ModelFixtures.create(ApiUser.class);
-        private ModelCollection<ApiPlayableSource> spotlight = null;
-        private ModelCollection<ApiTrackPost> tracks = null;
-        private ModelCollection<ApiPlaylistPost> releases = null;
-        private ModelCollection<ApiPlaylistPost> playlists = null;
-        private ModelCollection<ApiPlayableSource> reposts = null;
-        private ModelCollection<ApiPlayableSource> likes = null;
+        private ModelCollection<ApiPlayableSource> spotlight = emptyPlayableSources();
+        private ModelCollection<ApiTrackPost> tracks = emptyTrackPosts();
+        private ModelCollection<ApiPlaylistPost> releases = emptyPlaylistPosts();
+        private ModelCollection<ApiPlaylistPost> playlists = emptyPlaylistPosts();
+        private ModelCollection<ApiPlayableSource> reposts = emptyPlayableSources();
+        private ModelCollection<ApiPlayableSource> likes = emptyPlayableSources();
 
         Builder user(ApiUser user) {
             this.user = user;

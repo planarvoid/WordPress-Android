@@ -7,6 +7,7 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,11 +17,8 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
 public class UserProfileOperationsProfileTest extends AndroidUnitTest {
-    private static final ApiUserProfile USER_PROFILE = new UserProfileFixtures.Builder().build();
-    private static final Urn USER_URN = USER_PROFILE.getUser().getUrn();
-
     private UserProfileOperations operations;
-    final TestSubscriber<ApiUserProfile> subscriber = new TestSubscriber<>();
+    private TestSubscriber<UserProfileRecord> subscriber;
 
     @Mock private ProfileApi profileApi;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
@@ -39,13 +37,17 @@ public class UserProfileOperationsProfileTest extends AndroidUnitTest {
                 writeMixedRecordsCommand,
                 storeProfileCommand);
 
-        when(profileApi.userProfile(USER_URN)).thenReturn(Observable.just(USER_PROFILE));
+        subscriber = new TestSubscriber<>();
     }
 
     @Test
     public void userProfileCallsApiAndStoresResponse() {
-        operations.userProfile(USER_URN).subscribe(subscriber);
+        final ApiUserProfile profile = new UserProfileFixtures.Builder().build();
+        final Urn userUrn = profile.getUser().toPropertySet().get(UserProperty.URN);
+        when(profileApi.userProfile(userUrn)).thenReturn(Observable.just(profile));
 
-        verify(storeProfileCommand).call(USER_PROFILE);
+        operations.userProfile(userUrn).subscribe(subscriber);
+
+        verify(storeProfileCommand).call(profile);
     }
 }
