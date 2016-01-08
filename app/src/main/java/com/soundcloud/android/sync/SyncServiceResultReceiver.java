@@ -25,6 +25,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
     private final ActivitiesNotifier activitiesNotifier;
     private final SyncStateManager syncStateManager;
     private final ContentStats contentStats;
+    private final SyncConfig syncConfig;
     private final SyncResult result;
     private final Context context;
     private final OnResultListener listener;
@@ -35,12 +36,14 @@ class SyncServiceResultReceiver extends ResultReceiver {
                                       ActivitiesNotifier activitiesNotifier,
                                       SyncStateManager syncStateManager,
                                       ContentStats contentStats,
+                                      SyncConfig syncConfig,
                                       SyncResult result,
                                       OnResultListener listener) {
         super(new Handler());
         this.activitiesNotifier = activitiesNotifier;
         this.syncStateManager = syncStateManager;
         this.contentStats = contentStats;
+        this.syncConfig = syncConfig;
         this.result = result;
         this.context = context;
         this.soundStreamNotifier = soundStreamNotifier;
@@ -74,7 +77,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
                 SyncContent.updateCollections(syncStateManager, resultData);
 
                 // notification related
-                if (SyncConfig.shouldUpdateDashboard(context)) {
+                if (syncConfig.shouldUpdateDashboard(context)) {
                     createSystemNotification();
                 }
                 break;
@@ -83,11 +86,11 @@ class SyncServiceResultReceiver extends ResultReceiver {
     }
 
     private void createSystemNotification() {
-        final long frequency = SyncConfig.getNotificationsFrequency(context);
+        final long frequency = syncConfig.getNotificationsFrequency();
         final long delta = System.currentTimeMillis() - contentStats.getLastNotified(Content.ME_SOUND_STREAM);
 
         // deliver incoming sounds, if the user has enabled this
-        if (SyncConfig.isIncomingEnabled(context)) {
+        if (syncConfig.isIncomingEnabled()) {
             if (delta > frequency) {
                 soundStreamNotifier.notifyUnseenItems();
             } else {
@@ -96,7 +99,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
         }
 
         // deliver incoming activities, if the user has enabled this
-        if (SyncConfig.isActivitySyncEnabled(context)) {
+        if (syncConfig.isActivitySyncEnabled()) {
             activitiesNotifier.notifyUnseenItems(context);
         }
     }
@@ -111,21 +114,23 @@ class SyncServiceResultReceiver extends ResultReceiver {
         private final ActivitiesNotifier activitiesNotifier;
         private final SyncStateManager syncStateManager;
         private final ContentStats contentStats;
+        private final SyncConfig syncConfig;
 
         @Inject
         public Factory(Context context, SoundStreamNotifier streamNotifier,
                        ActivitiesNotifier activitiesNotifier, SyncStateManager syncStateManager,
-                       ContentStats contentStats) {
+                       ContentStats contentStats, SyncConfig syncConfig) {
             this.context = context;
             this.streamNotifier = streamNotifier;
             this.activitiesNotifier = activitiesNotifier;
             this.syncStateManager = syncStateManager;
             this.contentStats = contentStats;
+            this.syncConfig = syncConfig;
         }
 
         public SyncServiceResultReceiver create(SyncResult result, OnResultListener listener) {
             return new SyncServiceResultReceiver(context, streamNotifier, activitiesNotifier,
-                    syncStateManager, contentStats, result, listener);
+                    syncStateManager, contentStats, syncConfig, result, listener);
         }
     }
 }
