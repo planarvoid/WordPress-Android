@@ -17,6 +17,8 @@
     <string name="upgrade_feature_3_description">Directly support creators and SoundCloud</string>
     <string name="upgrade_success_title">Welcome to SoundCloud CS!</string>
     <string name="upgrade_success_description">You are now able to enjoy SoundCloud offline and ad-free</string>
+    <string name="upgrade_success_ok">Ok, got it</string>
+    <string name="upgrade_success_more">More about offline listening</string>
 
     <!-- __PAYMENTS -->
     <string name="payments_error_title_unavailable">Product unavailable</string>

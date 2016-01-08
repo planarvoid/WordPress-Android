@@ -9,8 +9,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.configuration.ConfigurationManager;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
@@ -40,6 +42,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     @Mock private PaymentErrorView paymentErrorView;
     @Mock private UpgradeView upgradeView;
     @Mock private ConfigurationManager configurationManager;
+    @Mock private Navigator navigator;
 
     @Mock private AppCompatActivity activity;
     @Mock private ActionBar actionBar;
@@ -53,7 +56,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void setUp() {
         testObserver = new TestObserver();
         when(activity.getSupportFragmentManager()).thenReturn(mock(FragmentManager.class));
-        presenter = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationManager, upgradeView, new TestEventBus());
+        presenter = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationManager, upgradeView, new TestEventBus(), navigator);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
 
@@ -298,6 +301,28 @@ public class UpgradePresenterTest extends AndroidUnitTest {
 
         verify(paymentErrorPresenter).onError(exception);
         verify(upgradeView).enableBuyButton();
+    }
+
+    @Test
+    public void goesToStreamOnDoneClick() {
+        presenter.onCreate(activity, null);
+
+        verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
+        listenerCaptor.getValue().done();
+
+        verify(navigator).openStream(activity, Screen.UPGRADE);
+        verify(activity).finish();
+    }
+
+    @Test
+    public void goesToOfflineOnboardingOnMoreInfoClick() {
+        presenter.onCreate(activity, null);
+
+        verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
+        listenerCaptor.getValue().moreInfo();
+
+        verify(navigator).openOfflineOnboarding(activity);
+        verify(activity).finish();
     }
 
     @Test

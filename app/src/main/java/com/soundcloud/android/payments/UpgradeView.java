@@ -20,9 +20,14 @@ class UpgradeView  {
     @Bind(R.id.success_header) View successHeader;
     @Bind(R.id.upgrade_buy) Button buyButton;
     @Bind(R.id.upgrade_loading) View loading;
+    @Bind(R.id.success_footer) View successFooter;
+    @Bind(R.id.success_ok) Button successOk;
+    @Bind(R.id.success_more) Button successMore;
 
     interface Listener {
         void startPurchase();
+        void done();
+        void moreInfo();
     }
 
     @Inject
@@ -36,17 +41,33 @@ class UpgradeView  {
     }
 
     private void setListener(final Listener listener) {
-        buyButton.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.startPurchase();
+                switch (v.getId()) {
+                    case R.id.upgrade_buy:
+                        listener.startPurchase();
+                        break;
+                    case R.id.success_ok:
+                        listener.done();
+                        break;
+                    case R.id.success_more:
+                        listener.moreInfo();
+                        break;
+                    default:
+                        break;
+                }
             }
-        });
+        };
+        buyButton.setOnClickListener(clickListener);
+        successOk.setOnClickListener(clickListener);
+        successMore.setOnClickListener(clickListener);
     }
 
     public void showSuccess() {
         upgradeHeader.setVisibility(View.GONE);
         successHeader.setVisibility(View.VISIBLE);
+        successFooter.setVisibility(View.VISIBLE);
     }
 
     public void enableBuyButton() {
