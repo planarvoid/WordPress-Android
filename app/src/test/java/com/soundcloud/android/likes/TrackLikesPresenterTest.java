@@ -1,6 +1,8 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.offline.OfflineContentChangedEvent.downloading;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -12,10 +14,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadRequest;
+import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -155,14 +156,13 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldUpdateAdapterWhenLikedTrackDownloaded() {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        final DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(track.getUrn());
-        final OfflineContentChangedEvent downloadingEvent = OfflineContentChangedEvent.downloading(downloadRequest);
+        final OfflineContentChangedEvent downloadingEvent = downloading(singletonList(track.getUrn()), true);
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         reset(adapter);
 
-        when(adapter.getItems()).thenReturn(Collections.singletonList(TrackItem.from(track)));
+        when(adapter.getItems()).thenReturn(singletonList(TrackItem.from(track)));
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadingEvent);
 
         verify(adapter).notifyDataSetChanged();

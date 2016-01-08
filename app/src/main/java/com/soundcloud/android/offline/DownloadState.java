@@ -71,6 +71,10 @@ public final class DownloadState {
         return new DownloadState(Status.ERROR, request);
     }
 
+    public boolean isInProgress() {
+        return status == Status.PROGRESS;
+    }
+
     public boolean isSuccess() {
         return status == Status.SUCCESS;
     }

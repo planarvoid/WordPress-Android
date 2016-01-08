@@ -165,7 +165,6 @@ public class CollectionOperations {
                 case EntityStateChangedEvent.LIKE:
                 case EntityStateChangedEvent.PLAYLIST_CREATED:
                 case EntityStateChangedEvent.PLAYLIST_DELETED:
-                case EntityStateChangedEvent.MARKED_FOR_OFFLINE:
                 case EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER:
                 case EntityStateChangedEvent.RECENT_STATION_UPDATED:
                     return true;
@@ -272,7 +271,7 @@ public class CollectionOperations {
     }
 
     private Observable<List<Urn>> loadTracksLiked() {
-        return loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler);
+        return loadLikedTrackUrnsCommand.toObservable(null).subscribeOn(scheduler);
     }
 
     private Observable<List<StationRecord>> recentStations() {

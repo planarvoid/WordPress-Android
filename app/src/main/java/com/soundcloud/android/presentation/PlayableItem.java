@@ -63,8 +63,8 @@ public abstract class PlayableItem implements StreamItem {
     }
 
     @Override
-    public PlayableItem update(PropertySet trackData) {
-        this.source.update(trackData);
+    public PlayableItem update(PropertySet playableData) {
+        this.source.update(playableData);
         return this;
     }
 

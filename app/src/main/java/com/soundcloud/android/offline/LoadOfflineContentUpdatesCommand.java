@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadRequest>, OfflineContentUpdates> {
+class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, OfflineContentUpdates> {
 
     private static final long PENDING_REMOVAL_DELAY = TimeUnit.MINUTES.toMillis(3);
 
@@ -76,30 +76,33 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
     }
 
     @Override
-    public OfflineContentUpdates call(final Collection<DownloadRequest> userExpectedContent) {
-        final List<DownloadRequest> downloadable = newArrayList(MoreCollections.filter(userExpectedContent, IS_SYNCABLE));
-        final Collection<DownloadRequest> creatorOptOut = MoreCollections.filter(userExpectedContent, IS_NOT_SYNCABLE);
+    public OfflineContentUpdates call(final ExpectedOfflineContent userExpectedContent) {
+        final Collection<DownloadRequest> expectedTracks = userExpectedContent.requests;
+        final List<DownloadRequest> expectedTracksSyncable = newArrayList(MoreCollections.filter(expectedTracks, IS_SYNCABLE));
 
-        final List<Urn> requested = getDownloadRequests();
-        final List<Urn> downloaded = getDownloaded();
-        final List<Urn> pendingRemovals = getPendingRemovals();
-        final List<Urn> previousUnavailable = getMarkedAsUnavailable();
+        final List<Urn> actualRequestedTracks = getTrackDownloadRequests();
+        final List<Urn> actualDownloadedTracks = getTracksDownloaded();
+        final List<Urn> actualPendingRemovalsTracks = getTrackPendingRemovals();
+        final List<Urn> actualUnavailableTracks = getTracksMarkedAsUnavailable();
 
-        final Collection<DownloadRequest> tracksToRestore = getTracksToRestore(downloadable, pendingRemovals);
-        final Collection<DownloadRequest> newPendingDownloads = getNewPendingDownloads(downloadable, requested, downloaded, tracksToRestore);
-        final Collection<DownloadRequest> allDownloadRequests = getAllDownloadRequests(downloadable, pendingRemovals, tracksToRestore, downloaded);
-        final List<Urn> newPendingRemovals = getNewPendingRemovals(userExpectedContent, downloaded, previousUnavailable, requested);
+        final Collection<Urn> expectedTracksSyncableUrns = toUrns(expectedTracksSyncable);
+        final Collection<Urn> tracksToRestore = getTracksToRestore(expectedTracksSyncableUrns, actualPendingRemovalsTracks);
+        final Collection<Urn> newTracksToDownload = getNewPendingDownloads(expectedTracksSyncableUrns, actualRequestedTracks, actualDownloadedTracks, tracksToRestore);
+        final Collection<Urn> unavailableTracks = toUrns(MoreCollections.filter(expectedTracks, IS_NOT_SYNCABLE));
+        final Collection<DownloadRequest> tracksToDownload = getAllDownloadRequests(expectedTracksSyncable, actualPendingRemovalsTracks, tracksToRestore, actualDownloadedTracks);
+        final List<Urn> tracksToRemove = getNewTrackPendingRemovals(expectedTracks, actualDownloadedTracks, actualUnavailableTracks, actualRequestedTracks);
 
-        return new OfflineContentUpdates(
-                newArrayList(allDownloadRequests),
-                newArrayList(newPendingDownloads),
-                newArrayList(tracksToRestore),
-                newArrayList(creatorOptOut),
-                newPendingRemovals
-        );
+        return OfflineContentUpdates.builder()
+                .unavailableTracks(newArrayList(unavailableTracks))
+                .tracksToDownload(newArrayList(tracksToDownload))
+                .newTracksToDownload(newArrayList(newTracksToDownload))
+                .tracksToRestore(newArrayList(tracksToRestore))
+                .tracksToRemove(tracksToRemove)
+                .userExpectedOfflineContent(userExpectedContent)
+                .build();
     }
 
-    private List<Urn> getMarkedAsUnavailable() {
+    private List<Urn> getTracksMarkedAsUnavailable() {
         Query query = Query
                 .from(TrackDownloads.TABLE)
                 .whereNotNull(TrackDownloads.UNAVAILABLE_AT);
@@ -107,7 +110,7 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
-    private List<Urn> getDownloadRequests() {
+    private List<Urn> getTrackDownloadRequests() {
         final Where isPendingDownloads = filter()
                 .whereNull(REMOVED_AT)
                 .whereNull(DOWNLOADED_AT)
@@ -118,14 +121,14 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
                 .toList(new TrackUrnMapper());
     }
 
-    private List<Urn> getDownloaded() {
+    private List<Urn> getTracksDownloaded() {
         final Query query = Query.from(TrackDownloads.TABLE)
                 .whereNotNull(DOWNLOADED_AT)
                 .whereNull(REMOVED_AT);
         return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
-    private List<Urn> getPendingRemovals() {
+    private List<Urn> getTrackPendingRemovals() {
         final long pendingRemovalThreshold = dateProvider.getCurrentDate().getTime() - PENDING_REMOVAL_DELAY;
 
         final Query query = Query
@@ -136,45 +139,47 @@ class LoadOfflineContentUpdatesCommand extends Command<Collection<DownloadReques
         return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
-    private List<Urn> getNewPendingRemovals(Collection<DownloadRequest> expectedContent, List<Urn> downloaded,
-                                            Collection<Urn> unavailable, Collection<Urn> requested) {
-        Collection<Urn> expectedTracks = MoreCollections.transform(expectedContent, TO_URN);
-        return newArrayList(subtract(add(downloaded, requested, unavailable), expectedTracks));
+    private List<Urn> getNewTrackPendingRemovals(Collection<DownloadRequest> expectedContent, List<Urn> downloaded,
+                                                 Collection<Urn> unavailable, Collection<Urn> requested) {
+        return newArrayList(subtract(add(downloaded, requested, unavailable), toUrns(expectedContent)));
     }
 
-    private Collection<DownloadRequest> getTracksToRestore(Collection<DownloadRequest> expectedContent,
-                                                           final List<Urn> pendingRemovals) {
-        return MoreCollections.filter(expectedContent, new Predicate<DownloadRequest>() {
+    private Collection<Urn> toUrns(Collection<DownloadRequest> expectedContent) {
+        return MoreCollections.transform(expectedContent, TO_URN);
+    }
+
+    private Collection<Urn> getTracksToRestore(Collection<Urn> expectedContent, final List<Urn> pendingRemovals) {
+        return MoreCollections.filter(expectedContent, new Predicate<Urn>() {
             @Override
-            public boolean apply(DownloadRequest request) {
-                return pendingRemovals.contains(request.getTrack());
+            public boolean apply(Urn track) {
+                return pendingRemovals.contains(track);
             }
         });
     }
 
-    private Collection<DownloadRequest> getNewPendingDownloads(Collection<DownloadRequest> expectedContent,
+    private Collection<Urn> getNewPendingDownloads(Collection<Urn> expectedContent,
                                                                final List<Urn> pendingDownloads,
                                                                final List<Urn> downloadedTracks,
-                                                               final Collection<DownloadRequest> tracksToRestore) {
-        return MoreCollections.filter(expectedContent, new Predicate<DownloadRequest>() {
+                                                               final Collection<Urn> tracksToRestore) {
+        return MoreCollections.filter(expectedContent, new Predicate<Urn>() {
             @Override
-            public boolean apply(DownloadRequest request) {
-                return !pendingDownloads.contains(request.getTrack()) &&
-                        !downloadedTracks.contains(request.getTrack()) &&
-                        !tracksToRestore.contains(request);
+            public boolean apply(Urn track) {
+                return !pendingDownloads.contains(track) &&
+                        !downloadedTracks.contains(track) &&
+                        !tracksToRestore.contains(track);
             }
         });
     }
 
     private Collection<DownloadRequest> getAllDownloadRequests(Collection<DownloadRequest> expectedRequests,
                                                                final List<Urn> downloadedTracks,
-                                                               final Collection<DownloadRequest> tracksToRestore,
+                                                               final Collection<Urn> tracksToRestore,
                                                                final List<Urn> downloadedContent) {
         return MoreCollections.filter(expectedRequests, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {
                 return !downloadedTracks.contains(request.getTrack()) &&
-                        !tracksToRestore.contains(request) &&
+                        !tracksToRestore.contains(request.getTrack()) &&
                         !downloadedContent.contains(request.getTrack());
             }
         });

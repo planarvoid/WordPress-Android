@@ -1,10 +1,11 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.offline.OfflineContentChangedEvent.downloaded;
+import static com.soundcloud.android.offline.OfflineContentChangedEvent.requested;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -53,9 +54,9 @@ public class TrackOfflineStateProviderTest extends AndroidUnitTest {
     public void providesStatesFromEventBus() {
         trackOfflineStateProvider.subscribe();
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.downloaded(true, Collections.singletonList(REQUESTED_TRACK)));
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.downloadRequested(true, Collections.singletonList(UNAVAILABLE_TRACK)));
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.downloaded(false, Collections.singletonList(TRACK_3)));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloaded(Collections.singletonList(REQUESTED_TRACK), true));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(Collections.singletonList(UNAVAILABLE_TRACK), true));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloaded(Collections.singletonList(TRACK_3), false));
 
         assertThat(trackOfflineStateProvider.getOfflineState(REQUESTED_TRACK)).isSameAs(OfflineState.DOWNLOADED);
         assertThat(trackOfflineStateProvider.getOfflineState(UNAVAILABLE_TRACK)).isSameAs(OfflineState.REQUESTED);

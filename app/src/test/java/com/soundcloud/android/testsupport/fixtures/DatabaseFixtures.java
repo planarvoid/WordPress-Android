@@ -528,6 +528,12 @@ public class DatabaseFixtures {
         insertInto(Table.Posts, cv);
     }
 
+    public ApiPlaylist insertPostedPlaylist(Date postedAt) {
+        ApiPlaylist apiPlaylist = insertPlaylistWithCreatedAt(postedAt);
+        insertPlaylistPost(apiPlaylist.getUrn().getNumericId(), postedAt.getTime(), false);
+        return apiPlaylist;
+    }
+
     public void insertStreamTrackPost(ApiStreamItem apiStreamItem) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, apiStreamItem.getTrack().get().getId());

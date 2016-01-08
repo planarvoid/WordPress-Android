@@ -3,24 +3,20 @@ package com.soundcloud.android.offline;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import rx.observers.TestObserver;
-import rx.observers.TestSubscriber;
-
-import java.util.Collections;
-import java.util.List;
 
 public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest {
 
     private OfflineContentStorage contentStorage;
+    @Mock private IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand;
 
     @Before
     public void setUp() {
-        contentStorage = new OfflineContentStorage(propellerRx(), null);
+        contentStorage = new OfflineContentStorage(propellerRx(), null, isOfflineLikedTracksEnabledCommand);
     }
 
     @Test
@@ -29,16 +25,16 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
 
         contentStorage.storeAsOfflinePlaylist(playlistUrn).subscribe();
 
-        databaseAssertions().assertPlaylistMarkedForOfflineSync(playlistUrn);
+        databaseAssertions().assertIsOfflinePlaylist(playlistUrn);
     }
 
     @Test
-    public void removesPlaylistFromOfflineContentTable() {
+    public void removePlaylistFromOffline() {
         final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
 
-        contentStorage.removeFromOfflinePlaylists(playlistUrn).subscribe();
+        contentStorage.removePlaylistFromOffline(playlistUrn).subscribe();
 
-        databaseAssertions().assertPlaylistNotMarkedForOfflineSync(playlistUrn);
+        databaseAssertions().assertIsNotOfflinePlaylist(playlistUrn);
     }
 
     @Test
@@ -61,76 +57,33 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
     }
 
     @Test
-    public void storeOfflineLikesEnabledWritesToOfflineContentTable() {
-        contentStorage.storeOfflineLikesEnabled().subscribe();
+    public void storeLikedTrackCollectionAsOffline() {
+        contentStorage.storeLikedTrackCollection().subscribe();
 
-        databaseAssertions().assertOfflineLikesEnabled();
+        databaseAssertions().assertLikedTracksIsOffline();
     }
 
     @Test
-    public void storeOfflineLikesDisabledWritesToOfflineContentTable() {
-        contentStorage.storeOfflineLikesDisabled().subscribe();
+    public void removeLikedTracksFromOffline() {
+        testFixtures().insertLikesMarkedForOfflineSync();
 
-        databaseAssertions().assertOfflineLikesDisabled();
+        contentStorage.deleteLikedTrackCollection().subscribe();
+
+        databaseAssertions().assertLikedTracksIsNotOffline();
     }
 
     @Test
-    public void isOfflineLikesEnabledReturnsStoredValue() {
-        final TestObserver<Boolean> testObserver = new TestObserver<>();
+    public void deleteLikedTrackCollectionFromTable() {
+        contentStorage.deleteLikedTrackCollection().subscribe();
 
-        contentStorage.storeOfflineLikesEnabled().subscribe();
-        contentStorage.isOfflineLikesEnabled().subscribe(testObserver);
-
-        testObserver.assertReceivedOnNext(singletonList(true));
+        databaseAssertions().assertLikedTracksIsNotOffline();
     }
 
     @Test
-    public void isOfflineLikesEnabledReturnsFalseWhenNothingStoredInDB() {
-        final TestObserver<Boolean> testObserver = new TestObserver<>();
+    public void addOfflinePlaylists() {
+        final Urn expectedPlaylist = Urn.forPlaylist(345L);
+        contentStorage.addOfflinePlaylists(singletonList(expectedPlaylist)).subscribe();
 
-        contentStorage.isOfflineLikesEnabled().subscribe(testObserver);
-
-        testObserver.assertReceivedOnNext(singletonList(false));
-    }
-
-    @Test
-    public void resetOfflinePlaylistsWithEmptyContentEmitsEmptyList() {
-        final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
-
-        contentStorage.setOfflinePlaylists(Collections.<Urn>emptyList()).subscribe(subscriber);
-
-        subscriber.assertValue(Collections.<PropertySet>emptyList());
-    }
-
-    @Test
-    public void resetOfflinePlaylistsEmitsAddedPlaylists() {
-        final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
-        final Urn expectedUrn = Urn.forPlaylist(123L);
-
-        contentStorage.setOfflinePlaylists(singletonList(expectedUrn)).subscribe(subscriber);
-
-        subscriber.assertValue(
-                Collections.singletonList(PropertySet.from(
-                        PlaylistProperty.URN.bind(expectedUrn),
-                        OfflineProperty.OFFLINE_STATE.bind(OfflineState.REQUESTED)
-                ))
-        );
-        databaseAssertions().assertPlaylistMarkedForOfflineSync(expectedUrn);
-    }
-
-    @Test
-    public void resetOfflinePlaylistsEmitsDeletedPlaylists() {
-        final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
-        final Urn playlistToDelete = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
-
-        contentStorage.setOfflinePlaylists(Collections.<Urn>emptyList()).subscribe(subscriber);
-
-        subscriber.assertValue(
-                Collections.singletonList(PropertySet.from(
-                        PlaylistProperty.URN.bind(playlistToDelete),
-                        OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE)
-                ))
-        );
-        databaseAssertions().assertPlaylistNotMarkedForOfflineSync(playlistToDelete);
+        databaseAssertions().assertIsOfflinePlaylist(expectedPlaylist);
     }
 }

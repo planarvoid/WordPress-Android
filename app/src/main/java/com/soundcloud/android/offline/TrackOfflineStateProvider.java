@@ -2,7 +2,6 @@ package com.soundcloud.android.offline;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -60,10 +59,10 @@ public class TrackOfflineStateProvider {
 
     private final class ContentChangedSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
         @Override
-        public void onNext(OfflineContentChangedEvent args) {
-            for (Urn urn : args.entities) {
+        public void onNext(OfflineContentChangedEvent event) {
+            for (Urn urn : event.entities) {
                 if (urn.isTrack()) {
-                    offlineStates.put(urn, args.kind);
+                    offlineStates.put(urn, event.state);
                 }
             }
         }

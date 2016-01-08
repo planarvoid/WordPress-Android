@@ -3,6 +3,7 @@ package com.soundcloud.android.collection;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.main.Screen;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import rx.Observable;
 
 import android.support.v7.app.AppCompatActivity;
 
@@ -29,6 +31,7 @@ public class OfflineOnboardingPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
+        when(offlineContentOperations.enableOfflineCollection()).thenReturn(Observable.<Void>empty());
         presenter = new OfflineOnboardingPresenter(onboardingView, navigator, offlineContentOperations);
     }
 

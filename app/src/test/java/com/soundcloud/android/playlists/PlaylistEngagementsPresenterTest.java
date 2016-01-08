@@ -1,5 +1,9 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.offline.OfflineContentChangedEvent.downloaded;
+import static com.soundcloud.android.offline.OfflineContentChangedEvent.downloading;
+import static com.soundcloud.android.offline.OfflineContentChangedEvent.removed;
+import static com.soundcloud.android.offline.OfflineContentChangedEvent.requested;
 import static com.soundcloud.android.playlists.PlaylistEngagementsView.OnEngagementListener;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,6 +11,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -21,7 +26,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -29,7 +33,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineProperty;
@@ -41,12 +44,14 @@ import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.subjects.PublishSubject;
@@ -56,11 +61,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.ViewGroup;
 
+import java.util.Arrays;
+
 public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
     private PlaylistEngagementsPresenter controller;
     private PlaylistWithTracks playlistWithTracks;
-    private PublishSubject<Urn> publishSubject;
+    private PublishSubject<ChangeResult> publishSubject;
     private TestEventBus eventBus;
 
     @Mock private RepostOperations repostOperations;
@@ -267,7 +274,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(playlistWithTracks.getUrn(), true));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(singletonList(playlistWithTracks.getUrn()), false));
 
         verify(engagementsView).setOfflineOptionsMenu(true);
     }
@@ -277,7 +284,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(playlistWithTracks.getUrn(), false));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(playlistWithTracks.getUrn()));
 
         verify(engagementsView).setOfflineOptionsMenu(false);
     }
@@ -406,8 +413,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
         reset(engagementsView);
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                OfflineContentChangedEvent.downloadRemoved(singletonList(playlistWithTracks.getUrn())));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(playlistWithTracks.getUrn()));
 
         verify(engagementsView).showOfflineState(OfflineState.NOT_OFFLINE);
     }
@@ -417,8 +423,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                OfflineContentChangedEvent.downloadRequested(false, singletonList(playlistWithTracks.getUrn())));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(singletonList(playlistWithTracks.getUrn()), false));
 
         verify(engagementsView).showOfflineState(OfflineState.REQUESTED);
     }
@@ -429,9 +434,8 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        final DownloadRequest request = ModelFixtures.downloadRequestFromPlaylists(track, true, singletonList(playlistWithTracks.getUrn()));
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.downloading(request));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloading(Arrays.asList(track.getUrn(), playlistWithTracks.getUrn()), true));
 
         verify(engagementsView).showOfflineState(OfflineState.DOWNLOADING);
     }
@@ -439,19 +443,20 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Test
     public void setDownloadedStateWhenCurrentDownloadEmitsDownloaded() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
-
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                OfflineContentChangedEvent.downloaded(false, singletonList(playlistWithTracks.getUrn())));
+                downloaded(singletonList(playlistWithTracks.getUrn()), false));
 
-        verify(engagementsView).showOfflineState(OfflineState.DOWNLOADED);
+        final InOrder inOrder = inOrder(engagementsView);
+        inOrder.verify(engagementsView).showOfflineState(OfflineState.NOT_OFFLINE);
+        inOrder.verify(engagementsView).showOfflineState(OfflineState.DOWNLOADED);
     }
 
     @Test
     public void ignoreDownloadStateWhenCurrentDownloadEmitsAnUnrelatedEvent() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                OfflineContentChangedEvent.downloaded(false, singletonList(Urn.forPlaylist(999999L))));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloaded(singletonList(Urn.forPlaylist(12344443212L)), false));
 
         verify(engagementsView, never()).showOfflineState(OfflineState.DOWNLOADED);
     }

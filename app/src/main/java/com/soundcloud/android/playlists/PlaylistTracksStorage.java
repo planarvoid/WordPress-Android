@@ -5,25 +5,19 @@ import static com.soundcloud.android.playlists.PlaylistMapper.readSoundUrn;
 import static com.soundcloud.android.playlists.PlaylistMapper.readTrackCount;
 import static com.soundcloud.android.rx.RxUtils.returning;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
-import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
 import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
-import static com.soundcloud.android.storage.TableColumns.TrackPolicies;
-import static com.soundcloud.android.storage.TableColumns.Users;
-import static com.soundcloud.android.storage.Tables.TrackDownloads;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
-import static com.soundcloud.propeller.query.Query.Order.ASC;
 import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
@@ -31,13 +25,11 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
 import android.content.ContentValues;
-import android.provider.BaseColumns;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -45,12 +37,17 @@ import java.util.List;
 class PlaylistTracksStorage {
     private static final String IS_TRACK_ALREADY_ADDED = "track_exists_in_playlist";
 
+    private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
     private final AccountOperations accountOperations;
 
     @Inject
-    PlaylistTracksStorage(PropellerRx propellerRx, CurrentDateProvider dateProvider, AccountOperations accountOperations) {
+    PlaylistTracksStorage(PropellerRx propellerRx,
+                          LoadPlaylistTracksCommand loadPlaylistTracksCommand,
+                          CurrentDateProvider dateProvider,
+                          AccountOperations accountOperations) {
+        this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
         this.accountOperations = accountOperations;
@@ -78,45 +75,7 @@ class PlaylistTracksStorage {
     }
 
     Observable<List<PropertySet>> playlistTracks(Urn playlistUrn) {
-        return propellerRx.query(getPlaylistTracksQuery(playlistUrn)).map(new PlaylistTrackItemMapper()).toList();
-    }
-
-    private Query getPlaylistTracksQuery(Urn playlistUrn) {
-        final String fullSoundIdColumn = Table.Sounds.field(Sounds._ID);
-        return Query.from(Table.PlaylistTracks.name())
-                .select(
-                        field(fullSoundIdColumn).as(BaseColumns._ID),
-                        Sounds.TITLE,
-                        Sounds.USER_ID,
-                        Users.USERNAME,
-                        Sounds.DURATION,
-                        Sounds.FULL_DURATION,
-                        Sounds.PLAYBACK_COUNT,
-                        Sounds.LIKES_COUNT,
-                        Sounds.SHARING,
-                        TrackDownloads.REQUESTED_AT,
-                        TrackDownloads.DOWNLOADED_AT,
-                        TrackDownloads.UNAVAILABLE_AT,
-                        TrackPolicies.SUB_HIGH_TIER,
-                        TrackDownloads.REMOVED_AT,
-                        OfflineContent._ID)
-
-                .innerJoin(Table.Sounds.name(), Table.PlaylistTracks.field(PlaylistTracks.TRACK_ID), fullSoundIdColumn)
-                .innerJoin(Table.Users.name(), Table.Sounds.field(Sounds.USER_ID), Table.Users.field(Users._ID))
-                .leftJoin(TrackDownloads.TABLE.name(), fullSoundIdColumn, TrackDownloads._ID.qualifiedName())
-                .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TrackPolicies.TRACK_ID))
-                .leftJoin(OfflineContent.TABLE, offlinePlaylistFilter())
-
-                .whereEq(Table.Sounds.field(Sounds._TYPE), Sounds.TYPE_TRACK)
-                .whereEq(Table.PlaylistTracks.field(PlaylistTracks.PLAYLIST_ID), playlistUrn.getNumericId())
-                .order(Table.PlaylistTracks.field(POSITION), ASC)
-                .whereNull(Table.PlaylistTracks.field(PlaylistTracks.REMOVED_AT));
-    }
-
-    private Where offlinePlaylistFilter() {
-        return filter()
-                .whereEq(OfflineContent._ID, PlaylistTracks.PLAYLIST_ID)
-                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
+        return loadPlaylistTracksCommand.toObservable(playlistUrn);
     }
 
     private Query queryPlaylistsWithTrackExistStatus(Urn trackUrn) {

@@ -37,34 +37,27 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.bulkUpsert(TrackDownloads.TABLE,
-                        buildContentValuesForRemoval(requests.newRemovedTracks)));
-
-                step(propeller.bulkUpsert(TrackDownloads.TABLE,
-                        buildContentValuesForDownloaded(requests.newRestoredRequests)));
-
-                step(propeller.bulkUpsert(TrackDownloads.TABLE,
-                            buildContentValuesForPendingDownload(requests.newDownloadRequests)));
-
-                step(propeller.bulkUpsert(TrackDownloads.TABLE,
-                        buildOptOutContentValues(requests.creatorOptOutRequests)));
+                step(propeller.bulkUpsert(TrackDownloads.TABLE, forRemoval(requests.tracksToRemove())));
+                step(propeller.bulkUpsert(TrackDownloads.TABLE, forDownloaded(requests.tracksToRestore())));
+                step(propeller.bulkUpsert(TrackDownloads.TABLE, forPendingDownload(requests.newTracksToDownload())));
+                step(propeller.bulkUpsert(TrackDownloads.TABLE, forUnavailable(requests.unavailableTracks())));
             }
         });
     }
 
-    private List<ContentValues> buildOptOutContentValues(Collection<DownloadRequest> creatorOptOut) {
+    private List<ContentValues> forUnavailable(Collection<Urn> creatorOptOut) {
         List<ContentValues> contentValues = new ArrayList<>(creatorOptOut.size());
-        for (DownloadRequest optOuts : creatorOptOut) {
+        for (Urn track : creatorOptOut) {
             contentValues.add(ContentValuesBuilder.values(3)
                     .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime())
                     .put(TrackDownloads.REQUESTED_AT, null)
-                    .put(TrackDownloads._ID, optOuts.getTrack().getNumericId())
+                    .put(TrackDownloads._ID, track.getNumericId())
                     .get());
         }
         return contentValues;
     }
 
-    private List<ContentValues> buildContentValuesForRemoval(List<Urn> removedTracks) {
+    private List<ContentValues> forRemoval(List<Urn> removedTracks) {
         List<ContentValues> contentValues = new ArrayList<>(removedTracks.size());
         for (Urn track : removedTracks) {
             contentValues.add(ContentValuesBuilder
@@ -76,12 +69,12 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         return contentValues;
     }
 
-    private List<ContentValues> buildContentValuesForDownloaded(List<DownloadRequest> downloadedTracks) {
+    private List<ContentValues> forDownloaded(List<Urn> downloadedTracks) {
         List<ContentValues> contentValues = new ArrayList<>(downloadedTracks.size());
-        for (DownloadRequest request : downloadedTracks) {
+        for (Urn track : downloadedTracks) {
             contentValues.add(ContentValuesBuilder
                     .values(4)
-                    .put(_ID, request.getTrack().getNumericId())
+                    .put(_ID, track.getNumericId())
                     .put(UNAVAILABLE_AT, null)
                     .put(REMOVED_AT, null)
                     .put(DOWNLOADED_AT, dateProvider.getCurrentTime())
@@ -90,12 +83,12 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         return contentValues;
     }
 
-    private List<ContentValues> buildContentValuesForPendingDownload(List<DownloadRequest> pendingDownloads) {
+    private List<ContentValues> forPendingDownload(List<Urn> pendingDownloads) {
         List<ContentValues> contentValues = new ArrayList<>(pendingDownloads.size());
-        for (DownloadRequest request : pendingDownloads) {
+        for (Urn track : pendingDownloads) {
             contentValues.add(ContentValuesBuilder
                     .values()
-                    .put(_ID, request.getTrack().getNumericId())
+                    .put(_ID, track.getNumericId())
                     .put(REQUESTED_AT, dateProvider.getCurrentTime())
                     .put(REMOVED_AT, null)
                     .put(DOWNLOADED_AT, null)

@@ -25,7 +25,13 @@ public final class PlaylistQueries {
             .select(TrackDownloads._ID.qualifiedName())
             .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.qualifiedName())
             .joinOn(SoundView.field(TableColumns.SoundView._ID), PlaylistTracks.field(PLAYLIST_ID))
-            .where(OfflineFilters.OFFLINE_TRACK_FILTER);
+            .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER);
+
+    public static final Query HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER = Query.from(TrackDownloads.TABLE)
+            .select(TrackDownloads._ID.qualifiedName())
+            .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.qualifiedName())
+            .joinOn(SoundView.field(TableColumns.SoundView._ID), PlaylistTracks.field(PLAYLIST_ID))
+            .where(OfflineFilters.UNAVAILABLE_OFFLINE_TRACK_FILTER);
 
     public static final Query IS_MARKED_FOR_OFFLINE_QUERY = Query
             .from(OfflineContent.TABLE.name(), Table.Sounds.name())

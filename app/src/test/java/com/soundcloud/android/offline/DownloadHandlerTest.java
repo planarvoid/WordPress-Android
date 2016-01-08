@@ -1,16 +1,15 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.DownloadHandler.MainHandler;
 import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.DownloadHandler.Listener;
 import com.soundcloud.android.offline.DownloadOperations.DownloadProgressListener;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -26,7 +25,7 @@ import android.os.Message;
 
 public class DownloadHandlerTest extends AndroidUnitTest {
 
-    @Mock MainHandler mainHandler;
+    @Mock Listener listener;
     @Mock DownloadOperations downloadOperations;
     @Mock TrackDownloadsStorage tracksStorage;
     @Mock SecureFileStorage secureFileStorage;
@@ -61,12 +60,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
         notEnoughSpaceMessage = createMessage(downloadRequest);
         cancelMessage = createMessage(downloadRequest);
 
-        handler = new DownloadHandler(mainHandler, downloadOperations, secureFileStorage, tracksStorage);
-        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_SUCCESS, successResult)).thenReturn(successMessage);
-        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, failedResult)).thenReturn(failureMessage);
-        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, notEnoughSpaceResult))
-                .thenReturn(notEnoughSpaceMessage);
-        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_CANCEL, cancelledResult)).thenReturn(cancelMessage);
+        handler = new DownloadHandler(listener, downloadOperations, secureFileStorage, tracksStorage);
 
         when(writeResult.success()).thenReturn(true);
         when(tracksStorage.storeCompletedDownload(any(DownloadState.class))).thenReturn(writeResult);
@@ -75,14 +69,12 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void sendsProgressOfZeroWhenStarting() {
-        when(mainHandler.obtainMessage(eq(MainHandler.ACTION_DOWNLOAD_PROGRESS), any())).thenReturn(progressMessage);
         when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
         ArgumentCaptor<DownloadState> stateArgumentCaptor = ArgumentCaptor.forClass(DownloadState.class);
 
         handler.handleMessage(successMessage);
 
-        verify(mainHandler).sendMessage(progressMessage);
-        verify(mainHandler).obtainMessage(eq(MainHandler.ACTION_DOWNLOAD_PROGRESS), stateArgumentCaptor.capture());
+        verify(listener).onProgress(stateArgumentCaptor.capture());
         assertThat(stateArgumentCaptor.getValue().getProgress()).isEqualTo(0L);
     }
 
@@ -94,14 +86,11 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
         handler.handleMessage(successMessage);
         verify(downloadOperations).download(same(downloadRequest), listenerArgumentCaptor.capture());
-        Mockito.reset(mainHandler);
-
-        when(mainHandler.obtainMessage(eq(MainHandler.ACTION_DOWNLOAD_PROGRESS), any())).thenReturn(progressMessage);
+        Mockito.reset(listener);
 
         listenerArgumentCaptor.getValue().onProgress(123L);
 
-        verify(mainHandler).sendMessage(progressMessage);
-        verify(mainHandler).obtainMessage(eq(MainHandler.ACTION_DOWNLOAD_PROGRESS), stateArgumentCaptor.capture());
+        verify(listener).onProgress(stateArgumentCaptor.capture());
         assertThat(stateArgumentCaptor.getValue().getProgress()).isEqualTo(123L);
     }
 
@@ -129,7 +118,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
         handler.handleMessage(successMessage);
 
-        verify(mainHandler).sendMessage(successMessage);
+        verify(listener).onSuccess(successResult);
     }
 
     @Test
@@ -138,7 +127,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
         handler.handleMessage(cancelMessage);
 
-        verify(mainHandler).sendMessage(cancelMessage);
+        verify(listener).onCancel(cancelledResult);
     }
 
     @Test
@@ -147,7 +136,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
         handler.handleMessage(notEnoughSpaceMessage);
 
-        verify(mainHandler).sendMessage(notEnoughSpaceMessage);
+        verify(listener).onError(notEnoughSpaceResult);
     }
 
     @Test
@@ -156,7 +145,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
         handler.handleMessage(failureMessage);
 
-        verify(mainHandler).sendMessage(failureMessage);
+        verify(listener).onError(failedResult);
     }
 
     @Test

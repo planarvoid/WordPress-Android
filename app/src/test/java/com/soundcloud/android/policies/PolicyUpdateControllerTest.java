@@ -3,7 +3,6 @@ package com.soundcloud.android.policies;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -11,23 +10,18 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class PolicyUpdateControllerTest extends AndroidUnitTest {
@@ -64,7 +58,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.<List<Urn>>empty());
+        when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.<Void>empty());
         when(policyOperations.getMostRecentPolicyUpdateTimestamp()).thenReturn(Observable.<Long>empty());
 
         online27DaysAgo = now - TimeUnit.DAYS.toMillis(27L);
@@ -119,7 +113,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
     @Test
     public void deletesOfflineContentWhenLastUpdate30DaysAgo() {
-        final PublishSubject<List<Urn>> clearOfflineContentSubject = PublishSubject.create();
+        final PublishSubject<Void> clearOfflineContentSubject = PublishSubject.create();
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
         when(policySettingsStorage.getLastPolicyCheckTime()).thenReturn(yesterday);
         when(policyOperations.getMostRecentPolicyUpdateTimestamp())
@@ -132,7 +126,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
     @Test
     public void deletesOfflineContentWhenLastUpdate33DaysAgo() {
-        final PublishSubject<List<Urn>> clearOfflineContentSubject = PublishSubject.create();
+        final PublishSubject<Void> clearOfflineContentSubject = PublishSubject.create();
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
         when(policySettingsStorage.getLastPolicyCheckTime()).thenReturn(yesterday);
         when(policyOperations.getMostRecentPolicyUpdateTimestamp())

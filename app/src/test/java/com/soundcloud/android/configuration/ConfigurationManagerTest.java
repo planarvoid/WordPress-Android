@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -20,7 +19,6 @@ import rx.subjects.PublishSubject;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 public class ConfigurationManagerTest extends AndroidUnitTest {
 
@@ -55,7 +53,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
         when(configurationOperations.update()).thenReturn(Observable.just(configurationWithDeviceConflict));
 
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
-        final PublishSubject<List<Urn>> clearOfflineContentSubject = PublishSubject.create();
+        final PublishSubject<Void> clearOfflineContentSubject = PublishSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
 

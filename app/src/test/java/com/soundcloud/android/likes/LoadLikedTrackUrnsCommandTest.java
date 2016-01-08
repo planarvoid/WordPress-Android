@@ -27,7 +27,7 @@ public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest {
         ApiTrack track = testFixtures().insertLikedTrack(new Date(100));
         testFixtures().insertLikedTrackPendingRemoval(new Date(200)); // must not be returned
 
-        List<Urn> trackLikes = command.call();
+        List<Urn> trackLikes = command.call(null);
 
         assertThat(trackLikes).containsExactly(track.getUrn());
     }
@@ -36,7 +36,7 @@ public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest {
     public void shouldNotLoadPlaylistLikes() throws Exception {
         testFixtures().insertLikedPlaylist(new Date(100));
 
-        List<Urn> playlistLikes = command.call();
+        List<Urn> playlistLikes = command.call(null);
         assertThat(playlistLikes).isEmpty();
     }
 
@@ -46,7 +46,7 @@ public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest {
         // insert a track like with the same ID as the playlist to test that we are joining on tracks only
         testFixtures().insertLike(apiPlaylist.getId(), TableColumns.Sounds.TYPE_TRACK, new Date());
 
-        List<Urn> trackLikes = command.call();
+        List<Urn> trackLikes = command.call(null);
 
         assertThat(trackLikes).isEmpty();
     }

@@ -7,14 +7,14 @@ import com.soundcloud.java.collections.PropertySet;
 import java.util.concurrent.TimeUnit;
 
 public class PlaylistWithTracksTests {
-    public static PlaylistWithTracks createPlaylistWithTracks(Urn urn) {
 
-        final PropertySet metadata = PropertySet.from(
-                PlaylistProperty.URN.bind(urn),
-                PlaylistProperty.PLAY_DURATION.bind(TimeUnit.SECONDS.toMillis(60))
-        );
-
-        return new PlaylistWithTracks(metadata, ModelFixtures.trackItems(2));
+    public static PlaylistWithTracks createPlaylistWithTracks(Urn playlist) {
+        return new PlaylistWithTracks(
+                PropertySet.from(
+                        PlaylistProperty.URN.bind(playlist),
+                        PlaylistProperty.PLAY_DURATION.bind(TimeUnit.SECONDS.toMillis(60))
+                ),
+                ModelFixtures.trackItems(2));
     }
 
 }

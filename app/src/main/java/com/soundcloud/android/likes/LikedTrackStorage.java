@@ -1,8 +1,8 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.likes.LoadLikedTracksCommand.trackLikeQuery;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.TableColumns.Likes.CREATED_AT;
-import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
 
@@ -10,14 +10,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.OfflineContent;
-import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
-
-import android.provider.BaseColumns;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -49,37 +46,7 @@ public class LikedTrackStorage {
     }
 
     private Query buildQuery(Urn input) {
-        return LikedTrackStorage.trackLikeQuery().whereEq(Table.Likes.field(TableColumns.Likes._ID), input.getNumericId());
-    }
-
-    static Query trackLikeQuery() {
-        final String fullSoundIdColumn = Table.Sounds.field(TableColumns.Sounds._ID);
-        return Query.from(Table.Likes.name(), Table.Sounds.name(), Table.Users.name())
-                .select(
-                        field(fullSoundIdColumn).as(BaseColumns._ID),
-                        TableColumns.Sounds.TITLE,
-                        TableColumns.Users.USERNAME,
-                        TableColumns.Sounds.DURATION,
-                        TableColumns.Sounds.FULL_DURATION,
-                        TableColumns.Sounds.PLAYBACK_COUNT,
-                        TableColumns.Sounds.LIKES_COUNT,
-                        TableColumns.Sounds.SHARING,
-                        TrackDownloads.REQUESTED_AT,
-                        TrackDownloads.DOWNLOADED_AT,
-                        TrackDownloads.UNAVAILABLE_AT,
-                        TrackDownloads.REMOVED_AT,
-                        TableColumns.TrackPolicies.SUB_HIGH_TIER,
-                        field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
-                        OfflineContent._ID)
-
-                .leftJoin(OfflineContent.TABLE, offlineLikesFilter())
-                .leftJoin(TrackDownloads.TABLE.name(), fullSoundIdColumn, TrackDownloads._ID.qualifiedName())
-                .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
-                .joinOn(Table.Likes.field(TableColumns.Likes._ID), fullSoundIdColumn)
-                .joinOn(Table.Sounds.field(TableColumns.Sounds.USER_ID), Table.Users.field(TableColumns.Users._ID))
-
-                .whereEq(Table.Likes.field(TableColumns.Likes._TYPE), TableColumns.Sounds.TYPE_TRACK)
-                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+        return trackLikeQuery().whereEq(Table.Likes.field(TableColumns.Likes._ID), input.getNumericId());
     }
 
     static Where offlineLikesFilter() {

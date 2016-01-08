@@ -5,7 +5,7 @@ import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
 
-import com.soundcloud.android.commands.LegacyCommand;
+import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -19,7 +19,7 @@ import android.provider.BaseColumns;
 import javax.inject.Inject;
 import java.util.List;
 
-public class LoadLikedTrackUrnsCommand extends LegacyCommand<Object, List<Urn>, LoadLikedTrackUrnsCommand> {
+public class LoadLikedTrackUrnsCommand extends Command<Void, List<Urn>> {
 
     private final PropellerDatabase database;
 
@@ -29,7 +29,7 @@ public class LoadLikedTrackUrnsCommand extends LegacyCommand<Object, List<Urn>, 
     }
 
     @Override
-    public List<Urn> call() throws Exception {
+    public List<Urn> call(Void input) {
         final Where whereTrackDataExists = filter()
                 .whereEq(Table.Likes.field(TableColumns.Likes._ID), Table.Sounds.field(TableColumns.Sounds._ID))
                 .whereEq(Table.Likes.field(TableColumns.Likes._TYPE), Table.Sounds.field(TableColumns.Sounds._TYPE));

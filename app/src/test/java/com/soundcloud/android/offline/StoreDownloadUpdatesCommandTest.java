@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import static java.util.Collections.singletonList;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -7,8 +9,6 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collections;
 
 public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
 
@@ -30,12 +30,9 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     public void storeRemovedTracksAsPendingRemoval() {
         testFixtures().insertCompletedTrackDownload(TRACK, 0, NOW);
 
-        final OfflineContentUpdates offlineContentUpdates = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.singletonList(TRACK));
+        final OfflineContentUpdates offlineContentUpdates = OfflineContentUpdates.builder()
+                .tracksToRemove(singletonList(TRACK))
+                .build();
 
         command.call(offlineContentUpdates);
 
@@ -44,27 +41,21 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void storesNewDownloadRequestsAsPendingDownload() {
-        final OfflineContentUpdates offlineContentUpdates = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.singletonList(request),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList());
+        final OfflineContentUpdates offlineContentUpdates = OfflineContentUpdates.builder()
+                .newTracksToDownload(singletonList(TRACK))
+                .build();
 
         command.call(offlineContentUpdates);
 
-        databaseAssertions().assertDownloadRequestsInserted(Collections.singletonList(TRACK));
+        databaseAssertions().assertDownloadRequestsInserted(singletonList(TRACK));
     }
 
     @Test
     public void storesRestoredRequestsAsDownloaded() {
         testFixtures().insertTrackDownloadPendingRemoval(TRACK, 1L, 2L);
-        final OfflineContentUpdates offlineContentUpdates = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.singletonList(request),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList());
+        final OfflineContentUpdates offlineContentUpdates = OfflineContentUpdates.builder()
+                .tracksToRestore(singletonList(request.getTrack()))
+                .build();
 
         command.call(offlineContentUpdates);
 
@@ -75,12 +66,9 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     public void marksAsUnavailableOfflineCreatorOptOutTracks() {
         final DownloadRequest creatorOptOut = ModelFixtures.creatorOptOutRequest(TRACK);
 
-        final OfflineContentUpdates offlineContentUpdates = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.singletonList(creatorOptOut),
-                Collections.<Urn>emptyList());
+        final OfflineContentUpdates offlineContentUpdates = OfflineContentUpdates.builder()
+                .unavailableTracks(singletonList(creatorOptOut.getTrack()))
+                .build();
 
         command.call(offlineContentUpdates);
 

@@ -126,7 +126,7 @@ public class TrackLikeOperations {
     }
 
     public Observable<List<Urn>> likedTrackUrns() {
-        return loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler);
+        return loadLikedTrackUrnsCommand.toObservable(null).subscribeOn(scheduler);
     }
 
 }

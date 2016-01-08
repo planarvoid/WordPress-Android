@@ -4,7 +4,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.strings.Strings;
-import org.jetbrains.annotations.Nullable;
 
 import android.support.annotation.NonNull;
 
@@ -13,6 +12,13 @@ import java.util.List;
 
 public final class Urns {
 
+    public static final Function<Urn, Long> TO_ID = new Function<Urn, Long>() {
+        @Override
+        public Long apply(Urn urn) {
+            return urn.getNumericId();
+        }
+    };
+    
     private static final Function<Urn, String> URN_TO_STRING = new Function<Urn, String>() {
         @Override
         public String apply(Urn input) {
@@ -41,14 +47,8 @@ public final class Urns {
     }
 
     @NonNull
-    public static List<Long> toIds(List urns) {
-        return Lists.transform(urns, new Function<Urn, Long>() {
-            @Nullable
-            @Override
-            public Long apply(Urn input) {
-                return input.getNumericId();
-            }
-        });
+    public static List<Long> toIds(List<Urn> urns) {
+        return Lists.transform(urns, TO_ID);
     }
 
     private Urns() {
