@@ -20,14 +20,17 @@ import java.util.List;
 
 public class ProfileApiMobile implements ProfileApi {
 
-    private final TypeToken<ModelCollection<ApiEntityHolderSource>> holderToken =
-            new TypeToken<ModelCollection<ApiEntityHolderSource>>() {};
+    private final TypeToken<ModelCollection<ApiPostSource>> postSourceToken =
+            new TypeToken<ModelCollection<ApiPostSource>>() {};
 
-    private static final Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>> SOURCE_TO_HOLDER =
-            new Func1<ModelCollection<ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>>() {
+    private final TypeToken<ModelCollection<ApiPlayableSource>> playableSourceToken =
+            new TypeToken<ModelCollection<ApiPlayableSource>>() {};
+
+    private static final Func1<ModelCollection<? extends ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>> SOURCE_TO_HOLDER =
+            new Func1<ModelCollection<? extends ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>>() {
         @Override
-        public ModelCollection<ApiEntityHolder> call(ModelCollection<ApiEntityHolderSource> modelCollection) {
-            final List<ApiEntityHolderSource> collection = modelCollection.getCollection();
+        public ModelCollection<ApiEntityHolder> call(ModelCollection<? extends ApiEntityHolderSource> modelCollection) {
+            final List<? extends ApiEntityHolderSource> collection = modelCollection.getCollection();
             List<ApiEntityHolder> entityHolders = new ArrayList<>();
             for (ApiEntityHolderSource entityHolderSource : collection) {
                 final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
@@ -63,7 +66,7 @@ public class ProfileApiMobile implements ProfileApi {
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
-        return apiClientRx.mappedResponse(request, holderToken).map(SOURCE_TO_HOLDER);
+        return apiClientRx.mappedResponse(request, postSourceToken).map(SOURCE_TO_HOLDER);
     }
 
     @Override
@@ -93,7 +96,7 @@ public class ProfileApiMobile implements ProfileApi {
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
-        return apiClientRx.mappedResponse(request, holderToken).map(SOURCE_TO_HOLDER);
+        return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);
     }
 
     @Override
