@@ -139,23 +139,26 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldReconfigureAdIfTrackSkipFromNotification() {
+    public void shouldReconfigureAdAndAttemptAdDeliveryEventPublishIfTrackSkipFromNotification() {
         controller.handleAction(PlaybackAction.NEXT, PlayControlEvent.SOURCE_NOTIFICATION);
 
         verify(adsController).reconfigureAdForNextTrack();
+        verify(adsController).publishAdDeliveryEventIfUpcoming();
     }
 
     @Test
-    public void shouldReconfigureAdIfTrackSkipFromWidget() {
+    public void shouldReconfigureAdAndAttemptAdDeliveryEventPublishIfTrackSkipFromWidget() {
         controller.handleAction(PlaybackAction.NEXT, PlayControlEvent.SOURCE_WIDGET);
 
         verify(adsController).reconfigureAdForNextTrack();
+        verify(adsController).publishAdDeliveryEventIfUpcoming();
     }
 
     @Test
-    public void shouldReconfigureAdIfTrackSkipFromLockScreen() {
+    public void shouldReconfigureAdAndAttemptAdDeliveryEventPublishIfTrackSkipFromLockScreen() {
         controller.handleAction(PlaybackAction.NEXT, PlayControlEvent.SOURCE_REMOTE);
 
         verify(adsController).reconfigureAdForNextTrack();
+        verify(adsController).publishAdDeliveryEventIfUpcoming();
     }
 }

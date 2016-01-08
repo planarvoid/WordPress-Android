@@ -14,6 +14,8 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
+import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
@@ -344,6 +346,31 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForCollectionEvent");
+    }
+
+    @Test
+    public void shouldTrackAdDeliveryEvents() {
+        AdsReceived adsReceived = new AdsReceived(Urn.NOT_SET, Urn.NOT_SET, Urn.NOT_SET);
+        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Urn.forTrack(123), Urn.NOT_SET, "endpoint", adsReceived, false, false);
+        when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdDeliveredEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("AdDeliveredEvent");
+    }
+
+    @Test
+    public void shouldTrackAdFetchFailedEvents() {
+        AdDeliveryEvent event = AdDeliveryEvent.adsRequestFailed(Urn.forTrack(123), "endpoint", false);
+        when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdFetchFailedEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("AdFetchFailedEvent");
     }
 
     @Test

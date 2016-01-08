@@ -8,6 +8,8 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -17,6 +19,8 @@ import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBus;
+
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -35,6 +39,7 @@ public class AdsOperations {
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
     private final FeatureFlags featureFlags;
+    private final EventBus eventBus;
     private final Action1<ApiAdsForTrack> cacheAudioAdTrack = new Action1<ApiAdsForTrack>() {
         @Override
         public void call(ApiAdsForTrack apiAdsForTrack) {
@@ -49,21 +54,22 @@ public class AdsOperations {
     @Inject
     AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager,
                   ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                  FeatureFlags featureFlags) {
+                  EventBus eventBus, FeatureFlags featureFlags) {
         this.storeTracksCommand = storeTracksCommand;
         this.playQueueManager = playQueueManager;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
+        this.eventBus = eventBus;
         this.featureFlags = featureFlags;
     }
 
-    public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {
+    public Observable<ApiAdsForTrack> ads(Urn sourceUrn, boolean inForeground) {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
         final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi(1);
 
         return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
                 .subscribeOn(scheduler)
-                .doOnError(logFailedAds(sourceUrn))
+                .doOnError(logFailedAds(sourceUrn, endpoint, inForeground))
                 .doOnNext(logAds(sourceUrn))
                 .doOnNext(cacheAudioAdTrack);
     }
@@ -77,11 +83,12 @@ public class AdsOperations {
         };
     }
 
-    private Action1<Throwable> logFailedAds(final Urn sourceUrn) {
+    private Action1<Throwable> logFailedAds(final Urn sourceUrn, final String endpoint, final boolean inForeground) {
         return new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
                 Log.i(ADS_TAG, "Failed to retrieve ads for " + sourceUrn.toString(), throwable);
+                eventBus.publish(EventQueue.TRACKING, AdDeliveryEvent.adsRequestFailed(sourceUrn, endpoint, inForeground));
             }
         };
     }
@@ -206,4 +213,5 @@ public class AdsOperations {
     public Optional<AdData> getNextTrackAdData() {
         return playQueueManager.getNextPlayQueueItem().getAdData();
     }
+
 }

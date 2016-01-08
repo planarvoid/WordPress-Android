@@ -597,6 +597,13 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void settingPlayQueueItemAttemptsAdDeliveryEventPublishIfTrackChanged() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(321L)));
+        controller.setCurrentPlayQueueItem(trackPlayQueueItem);
+        verify(adsController).publishAdDeliveryEventIfUpcoming();
+    }
+
+    @Test
     public void settingPlayQueueItemDoesNotPublishAdSkippedTrackingEventWhenTrackNotAnAd() {
         controller.setCurrentPlayQueueItem(trackPlayQueueItem);
 

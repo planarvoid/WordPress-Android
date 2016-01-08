@@ -41,6 +41,12 @@ class EventLoggerParam {
     static final String IMPRESSION_OBJECT = "impression_object";
     static final String IMPRESSION_CATEGORY = "impression_category";
     static final String PROMOTED_BY = "promoted_by";
+    static final String IN_FOREGROUND = "in_foreground";
+    static final String AD_REQUEST_MADE = "request_made";
+    static final String AD_REQUEST_SUCCESS = "request_success";
+    static final String AD_REQUEST_ENDPOINT = "request_endpoint";
+    static final String AD_SELECTION_OPTIMIZED = "selection_optimized";
+    static final String ADS_RECEIVED= "ads_received";
 
     // performance & error event params
     static final String LATENCY = "latency";

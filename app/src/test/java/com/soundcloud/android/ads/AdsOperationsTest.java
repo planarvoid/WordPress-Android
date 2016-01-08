@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQ
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -25,6 +26,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,11 +52,12 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private FeatureFlags featureFlags;
+    @Mock private EventBus eventBus;
     @Captor private ArgumentCaptor<List> listArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), featureFlags);
+        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), eventBus, featureFlags);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
 
@@ -68,7 +71,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        assertThat(adsOperations.ads(TRACK_URN).toBlocking().first()).isEqualTo(fullAdsForTrack);
+        assertThat(adsOperations.ads(TRACK_URN, true).toBlocking().first()).isEqualTo(fullAdsForTrack);
     }
 
     @Test
@@ -76,7 +79,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        adsOperations.ads(TRACK_URN).subscribe();
+        adsOperations.ads(TRACK_URN, true).subscribe();
 
         verify(storeTracksCommand).call(Arrays.asList(fullAdsForTrack.audioAd().get().getApiTrack()));
     }
