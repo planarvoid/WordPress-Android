@@ -884,6 +884,29 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.getQueueItemsRemaining()).isEqualTo(2);
     }
 
+    @Test
+    public void insertPlaylistTracksInsertsTracksInPlaceOfAllPlaylistInstances() {
+        final List<Urn> urns = Arrays.asList(Urn.forPlaylist(123), Urn.forPlaylist(123));
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(urns, playlistSessionSource), playlistSessionSource);
+
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(2);
+
+        final Urn track1 = Urn.forTrack(1);
+        final Urn track2 = Urn.forTrack(2);
+        playQueueManager.insertPlaylistTracks(Urn.forPlaylist(123), Arrays.asList(track1, track2));
+
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(4);
+        assertThat(playQueueManager.getCurrentPlayQueueItem().getUrn()).isEqualTo(track1);
+        assertThat(playQueueManager.moveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPlayQueueItem().getUrn()).isEqualTo(track2);
+        assertThat(playQueueManager.moveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPlayQueueItem().getUrn()).isEqualTo(track1);
+        assertThat(playQueueManager.moveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPlayQueueItem().getUrn()).isEqualTo(track2);
+
+    }
+
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {
         assertThat(playQueueManager.getQueueSize()).isEqualTo(playQueue.size());
         for (int i = 0; i < playQueueManager.getQueueSize(); i++) {

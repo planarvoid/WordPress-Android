@@ -45,6 +45,7 @@ import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -364,6 +365,17 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         operations.clearData();
 
         verify(upsellOperations).clearData();
+    }
+
+    @Test
+    public void urnsForPlaybackReturnsUrnsFromStorage() {
+        final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
+        final PropertySet propertySet = PropertySet.from(EntityProperty.URN.bind(Urn.forTrack(123)));
+        when(soundStreamStorage.playbackItems()).thenReturn(Observable.just(propertySet));
+
+        operations.urnsForPlayback().subscribe(subscriber);
+
+        subscriber.assertReceivedOnNext(Arrays.asList(Arrays.asList(propertySet)));
     }
 
     @Override

@@ -30,6 +30,7 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +78,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     public void setUp() {
         controller = new PlayerPresenter(playerPagerPresenter, eventBus,
                 playQueueManager, playSessionController, playerPagerScrollListener, adsOperations);
-        when(playQueueManager.getPlayQueueItems()).thenReturn(fullPlayQueue);
+        when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(fullPlayQueue);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TRACK_PLAY_QUEUE_ITEM);
         when(playerPagerPresenter.getCurrentPlayQueue()).thenReturn(fullPlayQueue);
         when(container.findViewById(anyInt())).thenReturn(viewPager);

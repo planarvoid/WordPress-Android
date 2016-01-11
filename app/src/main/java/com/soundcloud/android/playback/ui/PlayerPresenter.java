@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleBinder;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -34,7 +35,6 @@ import android.os.Message;
 import android.view.View;
 
 import javax.inject.Inject;
-import java.util.List;
 
 class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment> {
 
@@ -50,6 +50,12 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     private final Observable<PlaybackProgressEvent> checkAdProgress;
     private final PlayerPagerScrollListener playerPagerScrollListener;
+    private final Predicate<PlayQueueItem> playableItemsPredicate = new Predicate<PlayQueueItem>() {
+        @Override
+        public boolean apply(PlayQueueItem input) {
+            return input.isTrack() || input.isVideo();
+        }
+    };
     private CompositeSubscription subscription = new CompositeSubscription();
     private Subscription unblockPagerSubscription = RxUtils.invalidSubscription();
     private Handler changeTracksHandler;
@@ -208,14 +214,8 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         playerPagerScrollListener.initialize(trackPager, presenter);
     }
 
-    private void setQueuePosition(int position) {
-        boolean isAdjacentTrack = Math.abs(trackPager.getCurrentItem() - position) <= 1;
-        trackPager.setCurrentItem(position, isAdjacentTrack);
-    }
-
     private void setFullQueue() {
-        final List<PlayQueueItem> playQueueItems = playQueueManager.getPlayQueueItems();
-        presenter.setCurrentPlayQueue(playQueueItems);
+        presenter.setCurrentPlayQueue(playQueueManager.getPlayQueueItems(playableItemsPredicate));
         trackPager.setCurrentItem(getIndexOfCurrentPlayQueueitem(), false);
         setPlayQueueAfterScroll = false;
     }

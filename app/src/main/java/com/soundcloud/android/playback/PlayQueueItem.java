@@ -15,12 +15,16 @@ public abstract class PlayQueueItem {
 
     public static final PlayQueueItem EMPTY = new Empty();
 
-    enum Kind {EMPTY, TRACK, VIDEO}
+    enum Kind {EMPTY, TRACK, PLAYLIST, VIDEO}
 
     private Optional<AdData> adData;
 
     public boolean isTrack() {
         return this.getKind() == Kind.TRACK;
+    }
+
+    public boolean isPlaylist() {
+        return this.getKind() == Kind.PLAYLIST;
     }
 
     public boolean isVideo() {

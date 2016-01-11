@@ -9,10 +9,12 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
@@ -45,9 +47,9 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return new PlayQueue(playQueueItemsFromIds(trackUrns, playSessionSource, blockedTracks));
     }
 
-    public static PlayQueue fromTrackList(List<PropertySet> tracks, PlaySessionSource playSessionSource,
-                                          Map<Urn, Boolean> blockedTracks) {
-        return new PlayQueue(playQueueItemsFromTracks(tracks, playSessionSource, blockedTracks));
+    public static PlayQueue fromPlayableList(List<PropertySet> playables, PlaySessionSource playSessionSource,
+                                             Map<Urn, Boolean> blockedTracks) {
+        return new PlayQueue(playQueueItemsFromPlayables(playables, playSessionSource, blockedTracks));
     }
 
     public PlayQueue copy() {
@@ -99,17 +101,17 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return !playQueueItems.isEmpty();
     }
 
-    @Deprecated
     public Urn getUrn(int position) {
         checkElementIndex(position, size());
+        return playQueueItems.get(position).getUrn();
+    }
 
-        final PlayQueueItem playQueueItem = playQueueItems.get(position);
-        return playQueueItem.isTrack() ?
-                playQueueItem.getUrn() : Urn.NOT_SET;
+    public Iterable<? extends PlayQueueItem> itemsWithUrn(final Urn urn) {
+        return Lists.newArrayList(Iterables.filter(playQueueItems, isMatchingItem(urn)));
     }
 
     public int indexOfTrackUrn(final Urn trackUrn) {
-        return Iterables.indexOf(playQueueItems, isMatchingItem(trackUrn));
+        return Iterables.indexOf(playQueueItems, isMatchingTrackItem(trackUrn));
     }
 
     int indexOfPlayQueueItem(final PlayQueueItem playQueueItem) {
@@ -118,7 +120,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public int indexOfTrackUrn(int startPosition, final Urn urn) {
         final List<PlayQueueItem> subList = playQueueItems.subList(startPosition, this.playQueueItems.size());
-        final int index = Iterables.indexOf(subList, isMatchingItem(urn));
+        final int index = Iterables.indexOf(subList, isMatchingTrackItem(urn));
         if (index >= 0) {
             return index + startPosition;
         } else {
@@ -140,6 +142,15 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     private Predicate<PlayQueueItem> isMatchingItem(final Urn urn) {
+        return new Predicate<PlayQueueItem>() {
+            @Override
+            public boolean apply(PlayQueueItem input) {
+                return input.getUrn().equals(urn);
+            }
+        };
+    }
+
+    private Predicate<PlayQueueItem> isMatchingTrackItem(final Urn urn) {
         return new Predicate<PlayQueueItem>() {
             @Override
             public boolean apply(PlayQueueItem input) {
@@ -165,6 +176,15 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
             }
         }
         return trackItemUrns;
+    }
+
+    public List<Urn> getItemUrns(int from, int count) {
+        final int to = Math.min(size(), from + count);
+        final List<Urn> itemUrns = new ArrayList<>(to - from);
+        for (int i = from; i < to; i++){
+            itemUrns.add(getUrn(i));
+        }
+        return itemUrns;
     }
 
     public boolean shouldPersistItemAt(int position) {
@@ -225,6 +245,12 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         playQueueItems.add(position, playQueueItem);
     }
 
+    void replaceItem(int position, List<PlayQueueItem> newItems) {
+        checkArgument(position >= 0 && position < size(), String.format("Cannot replace item at position:%d, size:%d", position, newItems.size()));
+        playQueueItems.remove(position);
+        playQueueItems.addAll(position, newItems);
+    }
+
     void addPlayQueueItem(PlayQueueItem playQueueItem) {
         playQueueItems.add(playQueueItem);
     }
@@ -251,16 +277,27 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         }));
     }
 
-    private static List<PlayQueueItem> playQueueItemsFromTracks(List<PropertySet> trackIds,
-                                                                final PlaySessionSource playSessionSource,
-                                                                final Map<Urn, Boolean> blockedTracks) {
-        return newArrayList(transform(trackIds, new Function<PropertySet, PlayQueueItem>() {
+    private static List<PlayQueueItem> playQueueItemsFromPlayables(List<PropertySet> playables,
+                                                                   final PlaySessionSource playSessionSource,
+                                                                   final Map<Urn, Boolean> blockedTracks) {
+        return newArrayList(transform(playables, new Function<PropertySet, PlayQueueItem>() {
             @Override
-            public PlayQueueItem apply(PropertySet track) {
-                return new TrackQueueItem.Builder(track)
-                        .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
-                        .blocked(Boolean.TRUE.equals(blockedTracks.get(track.get(TrackProperty.URN))))
-                        .build();
+            public PlayQueueItem apply(PropertySet playable) {
+
+                if (playable.get(EntityProperty.URN).isTrack()){
+                    return new TrackQueueItem.Builder(playable)
+                            .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                            .blocked(Boolean.TRUE.equals(blockedTracks.get(playable.get(TrackProperty.URN))))
+                            .build();
+
+                } else if (playable.get(EntityProperty.URN).isPlaylist()) {
+                    return new PlaylistQueueItem.Builder(playable)
+                            .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                            .build();
+                } else {
+                    throw new IllegalArgumentException("Unrecognized playable sent for playback " + playable);
+                }
+
             }
         }));
     }

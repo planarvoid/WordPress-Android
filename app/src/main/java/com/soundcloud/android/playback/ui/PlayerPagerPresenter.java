@@ -622,7 +622,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         @Override
         public int getItemPosition(Object object) {
             if (isTrackView(object)) {
-                return POSITION_NONE;
+                final int index = currentPlayQueue.indexOf(pagesInPlayer.get(object));
+                return index >= 0 ? index : POSITION_NONE;
             } else {
                 return getPagerAdViewPosition();
             }
