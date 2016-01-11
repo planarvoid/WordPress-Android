@@ -33,7 +33,7 @@ expected_events:
     ts: '[0-9]+'
     in_playlist: soundcloud:playlists:[0-9]+
     playlist_position: 0
-    reason: pause
+    pause_reason: pause
     anonymous_id: (\w|-)+
     connection_type: wifi
     track: soundcloud:tracks:[0-9]+

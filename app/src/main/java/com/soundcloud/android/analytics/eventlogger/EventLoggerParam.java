@@ -58,7 +58,7 @@ class EventLoggerParam {
     static final String CLICK_TARGET = "click_target";
     static final String CLICK_CATEGORY = "click_category";
     static final String CLICK_ATTRIBUTES = "click_attributes";
-    static final String REASON = "reason";
+    static final String PAUSE_REASON = "pause_reason";
     static final String OVERFLOW_MENU = "overflow_menu";
 
     // search tracking
