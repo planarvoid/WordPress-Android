@@ -37,20 +37,20 @@ public class AppboySyncNotificationsExperiment {
         this.scheduler = scheduler;
     }
 
-    public boolean isClientSideNotifications() {
-        switch (experimentOperations.getExperimentVariant(NAME)) {
-            case VARIATION_SERVER_SIDE:
-                return false;
-            case VARIATION_CLIENT_SIDE:
-            default:
-                return true;
-        }
-    }
-
     public Observable<Boolean> configure() {
         return experimentOperations.loadAssignment()
                 .map(updateConfig())
                 .subscribeOn(scheduler);
+    }
+
+    private boolean isServerSideNotifications() {
+        switch (experimentOperations.getExperimentVariant(NAME)) {
+            case VARIATION_SERVER_SIDE:
+                return true;
+            case VARIATION_CLIENT_SIDE:
+            default:
+                return false;
+        }
     }
 
     private Func1<Assignment, Boolean> updateConfig() {
@@ -58,12 +58,14 @@ public class AppboySyncNotificationsExperiment {
             @Override
             public Boolean call(Assignment assignment) {
                 boolean wasServerSide = syncConfig.isServerSideNotifications();
-                boolean isServerSide = !isClientSideNotifications();
+                boolean isServerSide = isServerSideNotifications();
 
-                if (wasServerSide && !isServerSide) {
-                    disableServerSideNotifications();
-                } else if (!wasServerSide && isServerSide) {
-                    enableServerSideNotifications();
+                if (wasServerSide != isServerSide) {
+                    if (isServerSide) {
+                        enableServerSideNotifications();
+                    } else {
+                        disableServerSideNotifications();
+                    }
                 }
 
                 return isServerSide;
