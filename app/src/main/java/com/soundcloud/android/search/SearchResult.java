@@ -16,8 +16,14 @@ class SearchResult implements Iterable<PropertySet> {
     private final List<PropertySet> items;
     final Optional<Link> nextHref;
     final Optional<Urn> queryUrn;
+    private final Optional<SearchResult> premiumContent;
 
     SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn) {
+        this(items, nextHref, queryUrn, Optional.<SearchResult>absent());
+    }
+
+    SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn,
+                 Optional<SearchResult> premiumContent) {
         int emptyItems = 0;
         this.items = new ArrayList<>(items.size());
         for (PropertySetSource source : items) {
@@ -29,6 +35,7 @@ class SearchResult implements Iterable<PropertySet> {
         }
         this.nextHref = nextHref;
         this.queryUrn = queryUrn;
+        this.premiumContent = premiumContent;
         if (emptyItems > 0) {
             ErrorUtils.handleSilentException(getMissingItemException(items, nextHref, emptyItems));
         }
@@ -50,6 +57,10 @@ class SearchResult implements Iterable<PropertySet> {
 
     public List<PropertySet> getItems() {
         return items;
+    }
+
+    public Optional<SearchResult> getPremiumContent() {
+        return premiumContent;
     }
 
     @Override

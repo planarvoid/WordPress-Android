@@ -7,6 +7,7 @@ import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.PropellerWriteException;
 
 import javax.inject.Inject;
@@ -34,12 +35,15 @@ class CacheUniversalSearchCommand extends LegacyCommand<Iterable<ApiUniversalSea
         List<ApiTrack> tracks = new ArrayList<>();
 
         for (ApiUniversalSearchItem result : input) {
-            if (result.isUser()) {
-                users.add(result.getUser());
-            } else if (result.isPlaylist()) {
-                playlists.add(result.getPlaylist());
-            } else if (result.isTrack()) {
-                tracks.add(result.getTrack());
+            final Optional<ApiUser> user = result.user();
+            final Optional<ApiPlaylist> playlist = result.playlist();
+            final Optional<ApiTrack> track = result.track();
+            if (user.isPresent()) {
+                users.add(user.get());
+            } else if (playlist.isPresent()) {
+                playlists.add(playlist.get());
+            } else if (track.isPresent()) {
+                tracks.add(track.get());
             }
         }
 

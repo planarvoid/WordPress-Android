@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/premium_item_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View style="@style/Divider.Background" />
+    <View style="@style/Divider.Section" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/results_count"
+        style="@style/Search.PremiumContent.Text"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/discovery_cell_text_height"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/discovery_cell_text_padding"
+        tools:text="Found 57 SoundCloud Go Results" />
+
+    <View
+        android:id="@+id/results_count_section"
+        style="@style/Divider.Section" />
+
+    <View style="@style/Divider.Section" />
+
+    <RelativeLayout
+        android:id="@+id/view_all_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="?android:attr/selectableItemBackground">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/view_all"
+            style="@style/Search.PremiumContent.Text.ViewAll"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/discovery_cell_text_height"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:paddingBottom="@dimen/discovery_cell_text_view_all_padding"
+            android:text="@string/search_premium_content_view_all"
+            tools:text="VIEW ALL SOUNDCLOUD GO RESULTS" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_toRightOf="@id/view_all"
+            android:gravity="center"
+            android:paddingLeft="@dimen/discovery_cell_image_view_all_padding"
+            android:paddingRight="@dimen/discovery_cell_image_view_all_padding"
+            android:src="@drawable/chevron" />
+
+    </RelativeLayout>
+
+    <View style="@style/Divider.Section" />
+    <View style="@style/Divider.Background" />
+    <View style="@style/Divider.Section" />
+
+</LinearLayout>
