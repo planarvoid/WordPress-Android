@@ -11,6 +11,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlayerFunctions;
+import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -184,13 +185,14 @@ public class AdsController {
     }
 
     public void reconfigureAdForNextTrack() {
-        final Optional<ApiAudioAd> nextTrackAudioAd = getAudioAdForNextTrack();
-
-        if (playQueueManager.hasNextItem() &&
-                !adsOperations.isNextItemAd() &&
-                nextTrackAudioAd.isPresent() &&
-            !isForeground) {
-            adsOperations.insertAudioAd(playQueueManager.getNextPlayQueueItem(), nextTrackAudioAd.get());
+        if (!isForeground && adsForNextTrack.isPresent() && playQueueManager.hasNextItem()) {
+            final ApiAdsForTrack ads = adsForNextTrack.get();
+            final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
+            if (AdsOperations.isVideoAd(nextItem)) {
+                adsOperations.replaceUpcomingVideoAd(ads, (VideoQueueItem) nextItem);
+            } else if (!AdsOperations.isAudioAd(nextItem) && ads.audioAd().isPresent()) {
+                adsOperations.insertAudioAd(nextItem, ads.audioAd().get());
+            }
         }
     }
 
@@ -201,16 +203,6 @@ public class AdsController {
                 ((OverlayAdData) monetizableAdData.get()).setMetaAdCompleted();
             }
         }
-    }
-
-    private Optional<ApiAudioAd> getAudioAdForNextTrack() {
-        if (adsForNextTrack.isPresent()) {
-            ApiAdsForTrack ads = adsForNextTrack.get();
-            if (ads.audioAd().isPresent()) {
-                return ads.audioAd();
-            }
-        }
-        return Optional.absent();
     }
 
     private boolean alreadyFetchedAdForTrack(PlayQueueItem playQueueItem) {

@@ -13,6 +13,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.optional.Optional;
@@ -109,7 +110,6 @@ public class AdsOperations {
         final InterstitialAd interstitialData = InterstitialAd.create(apiInterstitial, monetizableItem.getUrn());
         monetizableItem.setAdData(Optional.<AdData>of(interstitialData));
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueueManager.getCollectionUrn()));
-
     }
 
     void insertVideoAd(PlayQueueItem monetizableItem, ApiVideoAd apiVideoAd) {
@@ -134,6 +134,19 @@ public class AdsOperations {
         final LeaveBehindAd leaveBehindAd = LeaveBehindAd.create(apiAudioAd.getLeaveBehind(), apiAudioAd.getApiTrack().getUrn());
         monetizableItem.setAdData(Optional.<AdData>of(leaveBehindAd));
         playQueueManager.insertAudioAd(monetizableItem, audioAdTrack, audioAdData, false);
+    }
+
+    void replaceUpcomingVideoAd(ApiAdsForTrack ads, VideoQueueItem videoItem) {
+        final boolean hasAudioAd = ads.audioAd().isPresent();
+        final boolean hasInterstitial = ads.interstitialAd().isPresent();
+        // Don't publish queue change if we can swap another ad in. Queue change will be published on insert.
+        final boolean shouldPublishQueueChange = !hasAudioAd && !hasInterstitial;
+        playQueueManager.removeUpcomingItem(videoItem, shouldPublishQueueChange);
+        if (hasAudioAd) {
+            insertAudioAd(playQueueManager.getNextPlayQueueItem(), ads.audioAd().get());
+        } else if (hasInterstitial) {
+            applyInterstitialToTrack(playQueueManager.getNextPlayQueueItem(), ads);
+        }
     }
 
     public boolean isCurrentItemAd() {

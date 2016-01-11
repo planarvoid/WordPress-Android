@@ -904,7 +904,50 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.getCurrentPlayQueueItem().getUrn()).isEqualTo(track1);
         assertThat(playQueueManager.moveToNextPlayableItem()).isTrue();
         assertThat(playQueueManager.getCurrentPlayQueueItem().getUrn()).isEqualTo(track2);
+    }
 
+    public void removeUpcomingItemDoesNotRemoveCurrentItem() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
+        final int currentPosition = playQueueManager.getCurrentPosition();
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource), playlistSessionSource);
+        playQueueManager.removeUpcomingItem(playQueueManager.getPlayQueueItemAtPosition(currentPosition), false);
+
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(3);
+    }
+
+    @Test
+    public void removeUpcomingItemDoesNothingWhenPlayQueueItemNotFound() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
+        final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L));
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource), playlistSessionSource);
+        playQueueManager.removeUpcomingItem(trackItem, false);
+
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(3);
+    }
+
+    @Test
+    public void removeUpcomingItemRemovesItemIfItsUpcoming() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource), playlistSessionSource);
+        playQueueManager.removeUpcomingItem(playQueueManager.getPlayQueueItemAtPosition(1), false);
+
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(2);
+        assertThat(playQueueManager.getCurrentQueueTrackUrns()).isEqualTo(TestUrns.createTrackUrns(1L, 3L));
+    }
+
+    @Test
+    public void removeUpcomingItemRemovesItemIfItsUpcomingAndQueuePublishRequested() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource), playlistSessionSource);
+        playQueueManager.removeUpcomingItem(playQueueManager.getPlayQueueItemAtPosition(1), true);
+
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(2);
+        assertThat(playQueueManager.getCurrentQueueTrackUrns()).isEqualTo(TestUrns.createTrackUrns(1L, 3L));
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).isQueueUpdate()).isTrue();
     }
 
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {
