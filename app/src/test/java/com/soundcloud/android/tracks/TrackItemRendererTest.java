@@ -13,6 +13,8 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -69,7 +71,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         when(trackItemView.getImage()).thenReturn(imageView);
         when(trackItemView.getContext()).thenReturn(context());
         when(imageView.getContext()).thenReturn(context());
-        when(itemView.getContext()).thenReturn(context());
+        when(itemView.getResources()).thenReturn(resources());
         when(itemView.getTag()).thenReturn(trackItemView);
     }
 
@@ -81,11 +83,31 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldBindDurationToView() {
+    public void shouldBindDurationToViewAndHideOtherLabelsIfTrackIsNeitherSnippedNorPrivate() {
+        trackItem = TrackItem.from(propertySet.put(TrackProperty.SNIPPED, false).put(TrackProperty.IS_PRIVATE, false));
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
-        verify(trackItemView).setDuration("3:47");
+        verify(trackItemView).hideInfoViewsRight();
+        verify(trackItemView).showDuration("3:47");
+    }
 
+    @Test
+    public void shouldShowPreviewLabelAndHideOtherLabelsIfTrackIsSnippedAndUserUpsellable() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        trackItem = TrackItem.from(propertySet.put(TrackProperty.SNIPPED, true));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
+
+        verify(trackItemView).hideInfoViewsRight();
+        verify(trackItemView).showPreviewLabel();
+    }
+
+    @Test
+    public void shouldShowPrivateLabelAndHideOtherLabelsIfTrackIsPrivate() {
+        propertySet.put(TrackProperty.IS_PRIVATE, true);
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
+
+        verify(trackItemView).hideInfoViewsRight();
+        verify(trackItemView).showPrivateIndicator();
     }
 
     @Test
@@ -103,19 +125,31 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldShowPrivateIndicatorIfTrackIsPrivate() {
-        propertySet.put(TrackProperty.IS_PRIVATE, true);
-        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
-
-        verify(trackItemView).showPrivateIndicator();
-    }
-
-    @Test
     public void shouldHighlightCurrentlyPlayingTrack() {
-        renderer.setPlayingTrack(Urn.forTrack(123));
+        trackItem.setIsPlaying(true);
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         verify(trackItemView).showNowPlaying();
+    }
+
+    @Test
+    public void shouldShowTrackGeoBlockedLabel() {
+        propertySet.put(TrackProperty.BLOCKED, true);
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
+
+        verify(trackItemView).showGeoBlocked();
+    }
+
+    @Test
+    public void blockedStateShouldTakePrecedenceOverOtherAdditionalStates() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        trackItem.setIsPlaying(true);
+        propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
+
+        propertySet.put(TrackProperty.BLOCKED, true);
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
+
+        verify(trackItemView).showGeoBlocked();
     }
 
     @Test
@@ -123,7 +157,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
         verify(imageOperations).displayInAdapterView(
                 Urn.forTrack(123),
-                ApiImageSize.getListItemImageSize(itemView.getContext()),
+                ApiImageSize.getListItemImageSize(itemView.getResources()),
                 imageView);
     }
 

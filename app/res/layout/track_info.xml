@@ -39,7 +39,7 @@
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/private_indicator"
-                style="@style/ListPrivateIndicator"
+                style="@style/ListItemText.Private.LeftAligned"
                 android:layout_marginBottom="10dp"
                 android:layout_marginLeft="@dimen/track_info_interior_padding_horizontal"
                 android:layout_marginTop="10dp"
