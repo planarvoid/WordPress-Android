@@ -259,7 +259,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
     public void shouldProvideResultPager() {
         final SearchModelCollection<ApiPlaylist> firstPage = new SearchModelCollection<>(
                 Collections.singletonList(playlist),
-                Collections.singletonMap(SearchModelCollection.NEXT_LINK_REL, new Link("http://api-mobile.sc.com/next"))
+                Collections.singletonMap(ModelCollection.NEXT_LINK_REL, new Link("http://api-mobile.sc.com/next"))
         );
         final SearchModelCollection<ApiPlaylist> lastPage = new SearchModelCollection<>(Collections.singletonList(playlist));
 

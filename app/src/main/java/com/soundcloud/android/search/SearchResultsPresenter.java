@@ -12,7 +12,6 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -57,8 +56,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
                 searchItems.add(SearchItem.buildPremiumItem(premiumContent.get().getItems()));
             }
             for (PropertySet source : sourceSetsItems) {
-                final SearchItem searchItem = SearchItem.fromUrn(source.get(EntityProperty.URN));
-                searchItems.add(searchItem.build(source));
+                searchItems.add(SearchItem.fromPropertySet(source).build());
             }
             return searchItems;
         }

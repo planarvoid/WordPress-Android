@@ -145,8 +145,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
                 final List<PropertySet> propertySets = premiumItems.get(0).getSourceSet();
                 final List<ListItem> premiumItemList = new ArrayList<>(propertySets.size());
                 for (PropertySet source : propertySets) {
-                    final SearchItem listItem = SearchItem.fromUrn(source.get(EntityProperty.URN));
-                    premiumItemList.add(listItem.build(source));
+                    premiumItemList.add(SearchItem.fromPropertySet(source).build());
                 }
                 listener.onPremiumItemClicked(view, premiumItemList);
             }
