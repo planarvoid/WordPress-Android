@@ -107,7 +107,9 @@ Click the Play button in Android Studio (next to app at the top) and it should r
 
 ## Running tests
 
-### Robolectric tests on command line
+**Note:** Read the [Wiki](https://github.com/soundcloud/SoundCloud-Android/wiki) pages on testing first!
+
+### Unit tests on command line
 
 You can run all or individual unit tests using Gradle. `cd` into the parent module, then run
 
@@ -123,7 +125,7 @@ to run all tests inside a class, or
 
 to run one single test.
 
-### Robolectric tests in Android Studio
+### Unit tests in Android Studio
 
 Add a file `local.properties` to the app directory containing the path to the Android SDK:
 
