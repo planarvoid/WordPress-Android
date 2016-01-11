@@ -288,7 +288,7 @@
         <item name="android:paddingLeft">24dp</item>
         <item name="android:paddingRight">24dp</item>
         <item name="android:paddingTop">32dp</item>
-        <item name="android:paddingBottom">20dp</item>
+        <item name="android:paddingBottom">12dp</item>
     </style>
 
     <style name="OnboardingListItemNotification.Title" parent="OnboardingListItemNotificationCenteredText">
@@ -310,9 +310,8 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:layout_gravity">end</item>
         <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingRight">8dp</item>
-        <item name="android:paddingLeft">8dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginRight">8dp</item>
         <item name="android:textColor">@color/sc_orange</item>
         <item name="android:drawableLeft">@drawable/ic_check_mark</item>
