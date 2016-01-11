@@ -357,6 +357,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void setsExpandedModeOnSubscribeForExpandPlayerEvent() {
+        verify(playerTrackPager).addOnPageChangeListener(pageChangeListenerArgumentCaptor.capture());
+        pageChangeListenerArgumentCaptor.getValue().onPageSelected(0);
         View currentTrackView = getPageView();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
