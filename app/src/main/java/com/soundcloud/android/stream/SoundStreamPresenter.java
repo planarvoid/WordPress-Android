@@ -12,6 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
@@ -246,6 +247,12 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     @Override
     public void onUpsellItemClicked() {
         navigator.openUpgrade(fragment.getActivity());
+        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forStreamClick());
+    }
+
+    @Override
+    public void onUpsellItemCreated() {
+        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forStreamImpression());
     }
 
     private void removeItem(int position) {
