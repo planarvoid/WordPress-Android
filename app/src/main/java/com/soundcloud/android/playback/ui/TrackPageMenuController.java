@@ -82,6 +82,11 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     @Override
+    public void clearProgress() {
+        setProgress(PlaybackProgress.empty());
+    }
+
+    @Override
     public void scrubStateChanged(int newScrubState) {
         // We only care about position
     }

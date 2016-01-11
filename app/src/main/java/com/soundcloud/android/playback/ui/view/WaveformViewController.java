@@ -114,6 +114,14 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         }
     }
 
+    @Override
+    public void clearProgress() {
+        latestProgress = PlaybackProgress.empty();
+        leftProgressController.reset();
+        rightProgressController.reset();
+        dragProgressController.reset();
+    }
+
     private void setProgressInternal() {
         if (fullDuration > 0 && !latestProgress.isEmpty()) {
             leftProgressController.setPlaybackProgress(latestProgress, fullDuration);

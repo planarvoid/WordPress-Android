@@ -229,12 +229,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playingStateWithOtherTrackResetProgress() {
+    public void playingStateWithOtherTrackClearsProgress() {
         presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), false, true);
 
-        verify(waveformViewController).setProgress(progressArgumentCaptor.capture());
-        assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(0);
-        assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(0);
+        verify(waveformViewController).clearProgress();
     }
 
     @Test
@@ -253,12 +251,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bufferingStateWithOtherTrackResetProgress() {
+    public void bufferingStateWithOtherTrackClearsProgress() {
         presenter.setPlayState(trackView, TestPlayStates.buffering(), false, true);
 
-        verify(waveformViewController).setProgress(progressArgumentCaptor.capture());
-        assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(0);
-        assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(0);
+        verify(waveformViewController).clearProgress();
     }
 
     @Test

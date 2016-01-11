@@ -128,6 +128,11 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         }
     }
 
+    @Override
+    public void clearProgress() {
+        setProgress(PlaybackProgress.empty());
+    }
+
     public void setBufferingMode(boolean isBuffering) {
         if (isBuffering != inBufferingMode) {
             this.inBufferingMode = isBuffering;

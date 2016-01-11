@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.RepostOperations;
@@ -148,6 +149,14 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setProgress(new PlaybackProgress(20000, 40000));
 
         verify(popupMenuWrapper).setItemText(R.id.comment, "Comment at 0:20");
+    }
+
+    @Test
+    public void clearProgressSetsCommentTimeToZeroInMenu() {
+        controller.setProgress(new PlaybackProgress(20000, 40000));
+        controller.clearProgress();
+
+        verify(popupMenuWrapper, times(2)).setItemText(R.id.comment, "Comment at 0:00");
     }
 
     @Test

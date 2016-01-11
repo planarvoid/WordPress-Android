@@ -79,4 +79,14 @@ public class TimestampViewTest extends AndroidUnitTest {
         assertThat(durationView).hasText("1:52");
     }
 
+    @Test
+    public void clearProgressSetsTimeToZero() {
+        timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
+        timestampView.setProgress(new PlaybackProgress(SECONDS_5, MINUTES_10));
+        timestampView.clearProgress();
+
+        assertThat(progressView).hasText("0:00");
+        assertThat(durationView).hasText("10:00");
+
+    }
 }
