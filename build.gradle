@@ -1,4 +1,5 @@
 def buildSrcDir = 'buildsystem'
+apply from: "${buildSrcDir}/setup.gradle"
 apply from: "${buildSrcDir}/dependencies.gradle"
 
 buildscript {
