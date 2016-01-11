@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests.settings;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
@@ -9,6 +11,7 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.YouScreen;
+import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
@@ -39,6 +42,30 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         enableOfflineContent(context);
 
         youScreen = mainNavHelper.goToYou();
+    }
+
+    public void testDisableSyncCollectionIsCancellable() {
+        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
+        assertTrue(offlineSettingsScreen.isVisible());
+
+        OfflineSettingsScreen screen = offlineSettingsScreen.toggleSyncCollectionOn();
+        screen.toggleSyncCollectionOff().clickCancel();
+
+        assertThat(screen.isOfflineCollectionChecked(), is(true));
+    }
+
+    public void testEnableSyncCollectionTriggersSync() {
+        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
+        assertTrue(offlineSettingsScreen.isVisible());
+
+        offlineSettingsScreen.toggleSyncCollectionOn();
+
+        solo.goBack();
+        final DownloadImageViewElement downloadElement = mainNavHelper.goToCollections()
+                .scrollToFirstPlaylist()
+                .downloadElement();
+
+        assertThat(downloadElement.isVisible(), is(true));
     }
 
     public void testOfflineLimitSlider() {
