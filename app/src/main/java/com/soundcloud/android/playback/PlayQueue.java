@@ -44,7 +44,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public static PlayQueue fromTrackUrnList(List<Urn> trackUrns, PlaySessionSource playSessionSource,
                                              Map<Urn, Boolean> blockedTracks) {
-        return new PlayQueue(playQueueItemsFromIds(trackUrns, playSessionSource, blockedTracks));
+        return new PlayQueue(playQueueItemsFromUrns(trackUrns, playSessionSource, blockedTracks));
     }
 
     public static PlayQueue fromPlayableList(List<PropertySet> playables, PlaySessionSource playSessionSource,
@@ -267,16 +267,25 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return transform(playQueueItems, toHashes);
     }
 
-    private static List<PlayQueueItem> playQueueItemsFromIds(List<Urn> trackIds,
-                                                             final PlaySessionSource playSessionSource,
-                                                             final Map<Urn, Boolean> blockedTracks) {
-        return newArrayList(transform(trackIds, new Function<Urn, PlayQueueItem>() {
+    private static List<PlayQueueItem> playQueueItemsFromUrns(List<Urn> urns,
+                                                              final PlaySessionSource playSessionSource,
+                                                              final Map<Urn, Boolean> blockedTracks) {
+        return newArrayList(transform(urns, new Function<Urn, PlayQueueItem>() {
             @Override
-            public PlayQueueItem apply(Urn track) {
-                return new TrackQueueItem.Builder(track)
-                        .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
-                        .blocked(Boolean.TRUE.equals(blockedTracks.get(track)))
-                        .build();
+            public PlayQueueItem apply(Urn playable) {
+                if (playable.isTrack()){
+                    return new TrackQueueItem.Builder(playable)
+                            .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                            .blocked(Boolean.TRUE.equals(blockedTracks.get(playable)))
+                            .build();
+
+                } else if (playable.isPlaylist()) {
+                    return new PlaylistQueueItem.Builder(playable)
+                            .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                            .build();
+                } else {
+                    throw new IllegalArgumentException("Unrecognized playable sent for playback " + playable);
+                }
             }
         }));
     }

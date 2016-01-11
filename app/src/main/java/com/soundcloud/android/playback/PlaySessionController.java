@@ -348,6 +348,7 @@ public class PlaySessionController {
                 loadRecommendedSubscription.unsubscribe();
                 loadPlaylistsSubscription.unsubscribe();
                 loadPlaylistsSubscription = new CompositeSubscription();
+                playlistLoads.clear();
                 stopContinuousPlayback = false;
             }
         }

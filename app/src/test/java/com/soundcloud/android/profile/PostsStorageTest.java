@@ -54,7 +54,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAllTrackPostsForPlayback() {
+    public void shouldLoadAllPostsForPlayback() {
         post1 = createPlaylistPostAt(POSTED_DATE_1);
         post2 = createTrackPostAt(POSTED_DATE_2);
         post3 = createTrackRepostAt(POSTED_DATE_3);
@@ -64,8 +64,10 @@ public class PostsStorageTest extends StorageIntegrationTest {
 
         subscriber.assertValue(
                 Arrays.asList(
+                        post4.slice(PlaylistProperty.URN).put(PostProperty.REPOSTER_URN, user.getUrn()),
                         post3.slice(TrackProperty.URN).put(PostProperty.REPOSTER_URN, user.getUrn()),
-                        post2.slice(TrackProperty.URN))
+                        post2.slice(TrackProperty.URN),
+                        post1.slice(TrackProperty.URN))
         );
     }
 

@@ -309,12 +309,12 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void playTracksWithNonEmptyTrackListPlaysNewQueue() {
         PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN);
-        final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3);
+        final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3, Urn.forPlaylist(1));
         playbackInitiator
                 .playTracks(Observable.just(tracksToPlay), TRACK3, 2, playSessionSource)
                 .subscribe(observer);
 
-        final PlayQueue expectedPlayQueue = TestPlayQueue.fromUrns(playSessionSource, TRACK1, TRACK2, TRACK3);
+        final PlayQueue expectedPlayQueue = TestPlayQueue.fromUrns(playSessionSource, TRACK1, TRACK2, TRACK3, Urn.forPlaylist(1));
         assertPlayNewQueue(playSessionController, expectedPlayQueue,
                 TRACK3, 2, playSessionSource);
     }
