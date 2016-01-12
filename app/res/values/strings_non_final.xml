@@ -89,6 +89,8 @@
     <string name="pref_offline_remove_all_offline_content_description">This will remove all the content you have made available offline from your device</string>
     <string name="offline_cannot_set_limit_below_usage">Limit cannot be set below current storage usage.</string>
     <string name="sign_out_description_offline">You will have to re-connect your SoundCloud account. All tracks selected for offline listening will be removed from this device.</string>
+    <string name="disable_offline_collection_title">Stop automatically saving offline?</string>
+    <string name="disable_offline_collection_body">This will keep future tracks and playlists from being synced automatically.</string>
 
     <!-- __DEVICE MANAGEMENT -->
     <string name="device_management_limit">You\'ve reached the registered device limit</string>

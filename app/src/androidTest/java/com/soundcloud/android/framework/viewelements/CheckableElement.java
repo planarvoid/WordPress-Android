@@ -2,14 +2,15 @@ package com.soundcloud.android.framework.viewelements;
 
 import com.soundcloud.android.framework.Han;
 
-import android.widget.RadioButton;
+import android.view.View;
+import android.widget.Checkable;
 
-public class RadioButtonElement {
-    protected final RadioButton view;
+public class CheckableElement {
+    protected final Checkable view;
     private final Han testDriver;
 
-    public RadioButtonElement(ViewElement element) {
-        this.view = (RadioButton) element.getView();
+    public CheckableElement(ViewElement element) {
+        this.view = (Checkable) element.getView();
         this.testDriver = element.getTestDriver();
     }
 
@@ -18,6 +19,6 @@ public class RadioButtonElement {
     }
 
     public void click() {
-        testDriver.clickOnView(view);
+        testDriver.clickOnView((View) view);
     }
 }

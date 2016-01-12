@@ -12,6 +12,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.dialog.ImageAlertDialog;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -116,7 +117,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
                 if (((boolean) newValue)) {
                     offlineContentOperations.enableOfflineCollection();
                 } else {
-                    offlineContentOperations.disableOfflineCollection();
+                    confirmDisableOfflineCollection();
                 }
                 return true;
             case OFFLINE_STORAGE_LIMIT:
@@ -131,6 +132,31 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
             default:
                 return false;
         }
+    }
+
+    private void confirmDisableOfflineCollection() {
+        new ImageAlertDialog(getActivity())
+                .setContent(R.drawable.dialog_payment_error,
+                        R.string.disable_offline_collection_title,
+                        R.string.disable_offline_collection_body)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        offlineContentOperations.disableOfflineCollection();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setOfflineCollectionChecked();
+                    }
+                })
+                .show();
+    }
+
+    private void setOfflineCollectionChecked() {
+        TwoStatePreference offlineCollection = (TwoStatePreference) findPreference(OFFLINE_COLLECTION);
+        offlineCollection.setChecked(true);
     }
 
     private void onUpdateStorageLimit(long limit) {
