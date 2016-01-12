@@ -15,6 +15,7 @@ public class InterstitialTest extends AdBaseTest {
         return TestConsts.INTERSTITIAL_PLAYLIST_URI;
     }
 
+    @Ignore
     public void testShouldShowInterstitial() {
         playerElement.swipeNext(); // to monetizableTrack
         assertTrue(playerElement.waitForPlayState());
