@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.collections.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -121,14 +122,18 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                 saveOffline();
                 return true;
             case R.id.make_offline_unavailable:
-                removeFromOffline();
+                removeFromOffline(toFragmentManager(context));
                 return true;
             case R.id.delete_playlist:
-                deletePlaylist(((FragmentActivity) context).getSupportFragmentManager());
+                deletePlaylist(toFragmentManager(context));
                 return true;
             default:
                 return false;
         }
+    }
+
+    private FragmentManager toFragmentManager(Context context) {
+        return ((FragmentActivity) context).getSupportFragmentManager();
     }
 
     private void saveOffline() {
@@ -138,11 +143,15 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                         screenProvider.getLastScreenTag(), playlist.getEntityUrn(), getPromotedSourceIfExists()));
     }
 
-    private void removeFromOffline() {
-        fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn()));
-        eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromRemoveOfflinePlaylist(
-                        screenProvider.getLastScreenTag(), playlist.getEntityUrn(), getPromotedSourceIfExists()));
+    private void removeFromOffline(FragmentManager fragmentManager) {
+        if (offlineContentOperations.isOfflineCollectionEnabled()) {
+            ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlist.getEntityUrn(), getPromotedSourceIfExists());
+        } else {
+            fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn()));
+            eventBus.publish(EventQueue.TRACKING,
+                    UIEvent.fromRemoveOfflinePlaylist(
+                            screenProvider.getLastScreenTag(), playlist.getEntityUrn(), getPromotedSourceIfExists()));
+        }
     }
 
     private void deletePlaylist(FragmentManager fragmentManager) {

@@ -48,6 +48,7 @@ import android.view.View;
 public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Mock private Context context;
+    @Mock private FragmentActivity activity;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private PlaylistOperations playlistOperations;
@@ -203,7 +204,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
 
         presenter.show(button, playlist, menuOptions);
-        presenter.onMenuItemClick(menuItem, context);
+        presenter.onMenuItemClick(menuItem, activity);
 
         assertThat(offlineObservable.hasObservers()).isTrue();
     }
@@ -213,7 +214,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
 
         presenter.show(button, playlist, menuOptions);
-        presenter.onMenuItemClick(menuItem, context);
+        presenter.onMenuItemClick(menuItem, activity);
 
         TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE);

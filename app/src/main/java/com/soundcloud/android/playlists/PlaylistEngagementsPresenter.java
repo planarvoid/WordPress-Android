@@ -9,6 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.collections.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityMetadata;
@@ -22,7 +23,6 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineState;
@@ -36,7 +36,6 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
-import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
@@ -238,12 +237,15 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     @Override
     public void onMakeOfflineAvailable(boolean isMarkedForOffline) {
-        Observable<Urn> observable = isMarkedForOffline
-                ? offlineOperations.makePlaylistAvailableOffline(playlistWithTracks.getUrn())
-                : offlineOperations.makePlaylistUnavailableOffline(playlistWithTracks.getUrn());
-        fireAndForget(observable);
-
-        eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(isMarkedForOffline));
+        if (isMarkedForOffline) {
+            fireAndForget(offlineOperations.makePlaylistAvailableOffline(playlistWithTracks.getUrn()));
+            eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(true));
+        } else if (offlineOperations.isOfflineCollectionEnabled()) {
+            ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlistWithTracks.getUrn(), playSessionSourceInfo.getPromotedSourceInfo());
+        } else {
+            fireAndForget(offlineOperations.makePlaylistUnavailableOffline(playlistWithTracks.getUrn()));
+            eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(false));
+        }
     }
 
     private TrackingEvent getOfflinePlaylistTrackingEvent(boolean isMarkedForOffline) {
