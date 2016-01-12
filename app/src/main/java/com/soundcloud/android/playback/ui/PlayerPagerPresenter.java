@@ -624,10 +624,15 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         public int getItemPosition(Object object) {
             if (isTrackView(object)) {
                 final int index = currentPlayQueue.indexOf(pagesInPlayer.get(object));
-                return index >= 0 ? index : POSITION_NONE;
+                // always re-instantiate first + last items for nav. button visibility concerns
+                return isValidMiddleItem(index) ? index : POSITION_NONE;
             } else {
                 return getPagerAdViewPosition();
             }
+        }
+
+        private boolean isValidMiddleItem(int index) {
+            return index > 0 && index < currentPlayQueue.size() - 1;
         }
 
         @Override
