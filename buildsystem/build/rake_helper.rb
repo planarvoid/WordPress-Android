@@ -13,7 +13,6 @@ module Build
     def tasks
       build_task
       device_tasks
-      codestyle_task
       analysis_tasks
 
       namespace :upload do
@@ -84,20 +83,6 @@ module Build
       desc "installs tha application on device"
       task :install => Build.apk_path do
         adb.install
-      end
-    end
-
-    def codestyle_task
-      desc "set up shared codestyle in Android Studio"
-      task :setup_codestyle do
-        template = File.join(Rake.original_dir, '.idea-codestyle.xml')
-        pref_dirs = Dir.glob(ENV['HOME'] +'/Library/Preferences/*AndroidStudio*').
-          map { |d| d + '/codestyles' }.
-          select { |d| File.directory?(d) }
-
-        pref_dirs.each do |dir|
-          sh "ln -sf #{template} #{dir}/SoundCloud-Android.xml"
-        end
       end
     end
 
