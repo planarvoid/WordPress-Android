@@ -48,7 +48,7 @@ public class TimestampViewTest extends AndroidUnitTest {
         timestampView.setProgress(new PlaybackProgress(SECONDS_5, MINUTES_10));
 
         assertThat(progressView).hasText("0:05");
-        assertThat(durationView).hasText("10:00");
+        assertThat(durationView).hasText("11:00");
     }
 
     @Test
@@ -66,7 +66,7 @@ public class TimestampViewTest extends AndroidUnitTest {
         timestampView.setInitialProgress(MINUTES_11, MINUTES_10);
 
         assertThat(progressView).hasText("0:00");
-        assertThat(durationView).hasText("10:00");
+        assertThat(durationView).hasText("11:00");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class TimestampViewTest extends AndroidUnitTest {
         timestampView.displayScrubPosition(0.2f, .26296297f);
 
         assertThat(progressView).hasText("0:30");
-        assertThat(durationView).hasText("1:52");
+        assertThat(durationView).hasText("11:00");
     }
 
     @Test
@@ -86,7 +86,7 @@ public class TimestampViewTest extends AndroidUnitTest {
         timestampView.clearProgress();
 
         assertThat(progressView).hasText("0:00");
-        assertThat(durationView).hasText("10:00");
+        assertThat(durationView).hasText("11:00");
 
     }
 }

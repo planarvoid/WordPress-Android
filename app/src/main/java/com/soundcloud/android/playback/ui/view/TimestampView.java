@@ -118,7 +118,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         this.playableDuration = playableDuration;
         this.duration = duration;
         progressText.setText(format(0));
-        durationText.setText(format(duration));
+        durationText.setText(format(playableDuration));
     }
 
     @Override
