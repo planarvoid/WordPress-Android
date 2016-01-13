@@ -24,6 +24,11 @@ public class PlaylistOverflowMenu extends PopupMenuElement {
         return new PlaylistDetailsScreen(testDriver);
     }
 
+    public PlaylistDetailsScreen clickMakeUnavailableOffline() {
+        getMakeUnvailableOfflineItem().click();
+        return new PlaylistDetailsScreen(testDriver);
+    }
+
     public UpgradeScreen clickUpsell() {
         getMakeAvailableOfflineItem().click();
         return new UpgradeScreen(testDriver);
@@ -31,6 +36,10 @@ public class PlaylistOverflowMenu extends PopupMenuElement {
 
     public ViewElement getMakeAvailableOfflineItem() {
         return findElement(With.text(testDriver.getString(R.string.make_offline_available)));
+    }
+
+    public ViewElement getMakeUnvailableOfflineItem() {
+        return findElement(With.text(testDriver.getString(R.string.make_offline_unavailable)));
     }
 
     public ConfirmDeletePlaylistScreen clickDelete() {

@@ -132,7 +132,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         }
     }
 
-    private FragmentManager toFragmentManager(Context context) {
+    private static FragmentManager toFragmentManager(Context context) {
         return ((FragmentActivity) context).getSupportFragmentManager();
     }
 
