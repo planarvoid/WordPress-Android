@@ -137,7 +137,15 @@ public class SignupDetailsLayout extends RelativeLayout {
         setImage((File) bundle.getSerializable(BUNDLE_FILE));
     }
 
-    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    public void onSave() {
+        if (getUserDetailsHandler() != null) {
+            final EditText username = (EditText) findViewById(R.id.txt_username);
+            getUserDetailsHandler().onSubmitUserDetails(username.getText().toString(), avatarFile);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected void onFinishInflate() {
         super.onFinishInflate();
 
@@ -165,9 +173,7 @@ public class SignupDetailsLayout extends RelativeLayout {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getUserDetailsHandler() != null) {
-                    getUserDetailsHandler().onSubmitUserDetails(username.getText().toString(), avatarFile);
-                }
+                onSave();
             }
         });
 

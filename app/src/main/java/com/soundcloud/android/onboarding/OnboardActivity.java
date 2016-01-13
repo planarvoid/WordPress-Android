@@ -45,11 +45,8 @@ import com.soundcloud.android.onboarding.auth.SignupMethodLayout;
 import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
-import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
-import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.BugReporter;
@@ -355,26 +352,6 @@ public class OnboardActivity extends FragmentActivity
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.savedUserInfo(username, avatarFile));
     }
 
-    public void onSkipUserDetails() {
-        new AuthTask(getApp(), new LegacyUserStorage()) {
-            @Override
-            protected AuthTaskResult doInBackground(Bundle... params) {
-                addAccount(user, oldCloudAPI.getToken(), SignupVia.API);
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(AuthTaskResult result) {
-                onAuthTaskComplete(user, SignupVia.API, false);
-            }
-        }.execute();
-        eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.skippedUserInfo());
-    }
-
-    private SoundCloudApplication getApp() {
-        return ((SoundCloudApplication) getApplication());
-    }
-
     @Override
     public FragmentActivity getFragmentActivity() {
         return this;
@@ -395,7 +372,7 @@ public class OnboardActivity extends FragmentActivity
                 break;
 
             case SIGN_UP_DETAILS:
-                onSkipUserDetails();
+                getSignUpDetailsLayout().onSave();
                 break;
 
             case PHOTOS:
