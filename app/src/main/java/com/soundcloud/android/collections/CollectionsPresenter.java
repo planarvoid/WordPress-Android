@@ -22,11 +22,11 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -247,7 +247,9 @@ public class CollectionsPresenter extends RecyclerViewPresenter<CollectionsItem>
     }
 
     private void showError() {
-        Snackbar.make(getRecyclerView(), R.string.collections_loading_error, Snackbar.LENGTH_LONG).show();
+        Toast.makeText(getRecyclerView().getContext(),
+                R.string.collections_loading_error,
+                Toast.LENGTH_LONG).show();
     }
 
 }
