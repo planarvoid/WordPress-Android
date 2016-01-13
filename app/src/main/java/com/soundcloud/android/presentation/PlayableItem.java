@@ -25,9 +25,9 @@ public abstract class PlayableItem implements StreamItem {
 
     protected final PropertySet source;
 
-    public static final Function<PlaylistItem, Urn> TO_URN = new Function<PlaylistItem, Urn>() {
+    public static final Function<PlayableItem, Urn> TO_URN = new Function<PlayableItem, Urn>() {
         @Override
-        public Urn apply(PlaylistItem item) {
+        public Urn apply(PlayableItem item) {
             return item.getEntityUrn();
         }
     };

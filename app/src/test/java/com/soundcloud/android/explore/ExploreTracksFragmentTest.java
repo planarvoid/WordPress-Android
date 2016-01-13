@@ -2,6 +2,7 @@ package com.soundcloud.android.explore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.times;
@@ -13,7 +14,6 @@ import static rx.Observable.just;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -34,7 +34,9 @@ import rx.subjects.PublishSubject;
 
 import android.os.Bundle;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class ExploreTracksFragmentTest extends AndroidUnitTest {
 
@@ -54,7 +56,7 @@ public class ExploreTracksFragmentTest extends AndroidUnitTest {
         when(exploreTracksOperations.pager()).thenReturn(TestPager.<SuggestedTracksCollection>pagerWithSinglePage());
         Observable<SuggestedTracksCollection> observable = Observable.just(new SuggestedTracksCollection(Collections.<ApiTrack>emptyList(), null, null, "1.0"));
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class))).thenReturn(observable);
-        when(playbackInitiator.playTrackWithRecommendationsLegacy(any(Urn.class), any(PlaySessionSource.class)))
+        when(playbackInitiator.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
         fragment = new ExploreTracksFragment(adapter, playbackInitiator, exploreTracksOperations,
                 pullToRefreshController, listViewController, TestSubscribers.expandPlayerSubscriber());
@@ -107,12 +109,12 @@ public class ExploreTracksFragmentTest extends AndroidUnitTest {
     @Test
     public void shouldPlaySelectedTrackWhenItemClicked() throws CreateModelException {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        when(adapter.getItem(0)).thenReturn(TrackItem.from(track));
+        when(adapter.getItems()).thenReturn(Arrays.asList(TrackItem.from(track)));
 
         fragment.onItemClick(null, null, 0, 0);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource("screen");
-        verify(playbackInitiator).playTrackWithRecommendationsLegacy(track.getUrn(), playSessionSource);
+        verify(playbackInitiator).playTracks(Arrays.asList(track.getUrn()), 0, playSessionSource);
     }
 
     @Test
@@ -121,13 +123,13 @@ public class ExploreTracksFragmentTest extends AndroidUnitTest {
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class)))
                 .thenReturn(just(collection));
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        when(adapter.getItem(0)).thenReturn(TrackItem.from(track));
+        when(adapter.getItems()).thenReturn(Arrays.asList(TrackItem.from(track)));
 
         fragment.onCreate(null);
         fragment.onItemClick(null, null, 0, 0);
 
         final PlaySessionSource playSessionSource = PlaySessionSource.forExplore("screen", "1.0");
-        verify(playbackInitiator).playTrackWithRecommendationsLegacy(track.getUrn(), playSessionSource);
+        verify(playbackInitiator).playTracks(Arrays.asList(track.getUrn()), 0, playSessionSource);
     }
 
 }
