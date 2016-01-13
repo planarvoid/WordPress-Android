@@ -30,11 +30,11 @@ public class HomeScreen extends Screen {
     }
 
     private ViewElement signUpButton() {
-        return bottomBar().findElement(With.id(R.id.signup_btn));
+        return bottomBar().findElement(With.id(R.id.btn_create_account));
     }
 
     private ViewElement logInButton() {
-       return bottomBar().findElement(With.id(R.id.login_btn));
+       return bottomBar().findElement(With.id(R.id.btn_login));
     }
 
     @Override

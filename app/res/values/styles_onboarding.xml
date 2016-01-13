@@ -46,10 +46,21 @@
         <item name="android:minWidth">100dp</item>
     </style>
 
-    <style name="Onboarding.SignupButton" parent="Onboarding.BottomButton">
-        <item name="android:layout_marginRight">16dp</item>
-        <item name="android:background">@drawable/signup_create_account_button</item>
+    <style name="Onboarding.LoginCreateAccountBar">
+        <item name="android:layout_marginBottom">38dp</item>
+        <item name="android:layout_marginTop">25dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="Onboarding.CreateAccountButton" parent="Onboarding.Button">
+        <item name="android:background">@drawable/create_account_button</item>
         <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Onboarding.LoginButton" parent="Onboarding.Button">
+        <item name="android:background">@drawable/login_button</item>
+        <item name="android:layout_marginLeft">24dp</item>
     </style>
 
     <style name="Onboarding.SocialButton" parent="Onboarding.Button">
@@ -70,34 +81,10 @@
         <item name="android:background">@drawable/btn_google_plus</item>
     </style>
 
-    <style name="Onboarding.CallToAction.Base" parent="BlackOverlayText">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
-    </style>
-
-    <style name="Onboarding.CallToAction" parent="Onboarding.CallToAction.Base">
-
-    </style>
-
-    <style name="Onboarding.Headline.Base" parent="Onboarding.CallToAction">
-        <item name="android:paddingTop">1sp</item>
-
-        <item name="android:textSize">22sp</item>
-        <item name="android:textStyle">bold</item>
-
+    <style name="Onboarding.Headline" parent="Onboarding">
+        <item name="android:textSize">26sp</item>
+        <item name="android:textColor">@color/white</item>
         <item name="custom_font">fonts/Interstate-Regular.ttf</item>
-    </style>
-
-    <style name="Onboarding.Headline" parent="Onboarding.Headline.Base">
-
-    </style>
-
-    <style name="Onboarding.RadioButton" parent="@android:style/Widget.CompoundButton.RadioButton">
-        <item name="android:button">@drawable/tour_radio_button</item>
-        <item name="android:layout_width">6dp</item>
-        <item name="android:layout_height">6dp</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:layout_marginRight">8dp</item>
     </style>
 
     <style name="txt_tour_title" parent="txt_tour_start">
@@ -322,11 +309,7 @@
     </style>
 
     <style name="TourOverlayTextHolderLayout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:padding">16dp</item>
-        <item name="android:layout_marginBottom">@dimen/tour_bottom_bar_height</item>
         <item name="android:layout_alignParentBottom">true</item>
     </style>
 

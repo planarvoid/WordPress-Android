@@ -60,10 +60,12 @@ import android.accounts.AccountManager;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
@@ -271,14 +273,15 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void showBackground() {
-        ImageView bgImageView = (ImageView) findViewById(R.id.tour_background_image);
-        bgImageView.setImageDrawable(getDrawable(background_image));
+        ImageView bgImageView = (ImageView) findViewById(R.id.landing_background_image);
+        final Drawable drawable = ResourcesCompat.getDrawable(getResources(), background_image, null);
+        bgImageView.setImageDrawable(drawable);
         showView(bgImageView, true);
     }
 
     private void setButtonListeners() {
-        findViewById(R.id.login_btn).setOnClickListener(onLoginButtonClick);
-        findViewById(R.id.signup_btn).setOnClickListener(onSignupButtonClick);
+        findViewById(R.id.btn_login).setOnClickListener(onLoginButtonClick);
+        findViewById(R.id.btn_create_account).setOnClickListener(onSignupButtonClick);
     }
 
     @Override
@@ -625,7 +628,7 @@ public class OnboardActivity extends FragmentActivity
         final int resultCode = activityResult.resultCode;
         final Intent intent = activityResult.intent;
 
-        if (FacebookSdk.isFacebookRequestCode(requestCode)){
+        if (FacebookSdk.isFacebookRequestCode(requestCode)) {
             facebookCallbackManager.onActivityResult(requestCode, resultCode, intent);
         }
 
@@ -852,7 +855,7 @@ public class OnboardActivity extends FragmentActivity
                 .setMessage(TextUtils.isEmpty(message) ? getString(R.string.authentication_signup_error_message) : message)
                 .setPositiveButton(android.R.string.ok, null);
 
-        if (allowUserFeedback){
+        if (allowUserFeedback) {
             showDialogWithFeedbackAndTrackEvent(dialogBuilder, OnboardingEvent.signupGeneralError());
         } else {
             showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupExistingEmail());

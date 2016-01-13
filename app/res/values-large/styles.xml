@@ -4,14 +4,6 @@
         <item name="android:layout_width">420dp</item>
     </style>
 
-    <style name="Onboarding.CallToAction" parent="Onboarding.CallToAction.Base">
-        <item name="android:textSize">25sp</item>
-    </style>
-
-    <style name="Onboarding.Headline" parent="Onboarding.Headline.Base">
-        <item name="android:textSize">35sp</item>
-    </style>
-
     <style name="SignUp.ScrollView" parent="SignUp.ScrollViewBase">
         <item name="android:layout_width">wrap_content</item>
     </style>

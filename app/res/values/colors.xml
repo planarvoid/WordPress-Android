@@ -33,7 +33,7 @@
     <color name="card_full_image_border">#f2f2f2</color>
 
     <!-- Player -->
-    <color name="player_gradient_start">#4c000000</color>
+    <color name="dark_gradient_start">#4c000000</color>
     <color name="player_user_text">#c5c5c5</color>
     <color name="player_cast_device_name">#ffffff</color>
 

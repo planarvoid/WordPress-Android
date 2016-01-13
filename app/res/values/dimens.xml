@@ -19,8 +19,8 @@
     <dimen name="record_progress_icon_width">67px</dimen>
     <dimen name="share_progress_icon_height">67px</dimen>
 
-    <dimen name="tour_bottom_bar_height">40dp</dimen>
-    <dimen name="tour_bottom_radio_height">32dp</dimen>
+    <dimen name="landing_bottom_bar_height">35dp</dimen>
+    <dimen name="onboarding_bottom_bar_height">40dp</dimen>
     <dimen name="tour_buttons_height">48dp</dimen>
 
     <dimen name="tour_logo_dimension">110dp</dimen>

@@ -218,7 +218,7 @@
 
     <!-- __LANDING -->
     <string name="landing_title">Find music you love.</string>
-    <string name="landing_sub_title">Discover new artists</string>
+    <string name="landing_sub_title">Discover new artists.</string>
     <string name="signup_button">Sign up with your email address</string>
     <string name="login_header">Or sign in with your account</string>
 
