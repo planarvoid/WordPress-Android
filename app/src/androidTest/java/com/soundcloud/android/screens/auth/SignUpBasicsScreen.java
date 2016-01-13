@@ -115,7 +115,7 @@ public class SignUpBasicsScreen extends Screen {
         return new SignUpSpamDialogElement(testDriver);
     }
 
-    public EmailOptInScreen skipSignUpDetails() {
+    public EmailOptInScreen saveSignUpDetails() {
         saveButton().click();
         return new EmailOptInScreen(testDriver);
     }
