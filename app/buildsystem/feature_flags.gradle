@@ -100,7 +100,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_SEARCH_RESULTS_HIGH_TIER, TRUE
       buildConfigField BOOLEAN, FEATURE_UPSELL_IN_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_PLAYER_UPSELL_TRACKING, TRUE
-      buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, FALSE
@@ -112,6 +111,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
+      buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE
     }
 
     end2end {
