@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+    <ImageView style="@style/SignUp.Background"
+        android:id="@+id/tour_background_image"/>
+
+    <LinearLayout
+        style="@style/TourOverlayTextHolderLayout"
+        android:id="@+id/onboarding_text">
+        <TextView
+            style="@style/Onboarding.Headline"
+            android:text="@string/landing_title"/>
+        <TextView
+            style="@style/Onboarding.CallToAction"
+            android:text="@string/landing_sub_title" />
+    </LinearLayout>
+</RelativeLayout>

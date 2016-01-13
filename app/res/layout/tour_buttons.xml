@@ -3,12 +3,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
     <Button android:id="@+id/signup_btn"
-            style="@style/Tour.SignupButton"
+            style="@style/Onboarding.SignupButton"
             android:text="@string/authentication_sign_up"/>
 
     <Button android:id="@+id/login_btn"
             android:layout_toRightOf="@+id/signup_btn"
-            style="@style/Tour.BottomButton"
+            style="@style/Onboarding.BottomButton"
             android:layout_width="wrap_content"
             android:text="@string/authentication_log_in"/>
 

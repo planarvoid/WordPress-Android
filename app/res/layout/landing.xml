@@ -5,13 +5,12 @@
                 android:layout_height="match_parent">
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="match_parent">
-        <com.soundcloud.android.onboarding.ParallaxPager android:id="@+id/tour_view"
-                                                        android:layout_width="match_parent"
-                                                        android:layout_height="match_parent"/>
+
+        <include layout="@layout/landing_engagement" />
+
         <ImageView android:id="@+id/tour_logo"
                    android:layout_width="@dimen/tour_logo_dimension"
                    android:layout_height="@dimen/tour_logo_dimension"
-                   android:tag="foreground"
                    android:src="@drawable/tour_logo"
                    android:layout_alignParentTop="true"
                    android:layout_alignParentLeft="true"
@@ -19,18 +18,15 @@
                    android:layout_marginTop="16dp" />
     </RelativeLayout>
 
-    <LinearLayout android:id="@+id/tour_bottom_bar"
-                  android:layout_width="match_parent"
-                  android:layout_height="@dimen/tour_bottom_bar_height"
-                  android:orientation="vertical"
-                  android:tag="foreground"
-                  android:layout_alignParentBottom="true"
-                  android:visibility="gone"
-                  android:layout_margin="16dp">
-
-        <include layout="@layout/tour_radio_group"/>
-        <include layout="@layout/tour_buttons"/>
-    </LinearLayout>
+    <include
+        android:id="@+id/tour_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tour_bottom_bar_height"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"
+        android:layout_margin="16dp"
+        layout="@layout/tour_buttons"/>
 
     <View android:id="@+id/overlay_bg"
           style="@style/SignUp.Overlay"/>
@@ -66,8 +62,4 @@
             </FrameLayout>
         </ScrollView>
     </RelativeLayout>
-    <View android:id="@+id/splash"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:background="@drawable/splash_screen"/>
 </RelativeLayout>

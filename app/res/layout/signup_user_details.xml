@@ -70,7 +70,7 @@
 
             <Button
                 android:id="@+id/btn_save"
-                style="@style/Tour.NextButton"
+                style="@style/Onboarding.NextButton"
                 android:layout_height="@dimen/tour_buttons_height"
                 android:text="@string/btn_save" />
         </LinearLayout>
