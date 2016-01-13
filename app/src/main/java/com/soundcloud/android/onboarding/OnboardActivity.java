@@ -17,7 +17,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
@@ -29,6 +28,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
 import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
@@ -355,7 +355,6 @@ public class OnboardActivity extends FragmentActivity
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.savedUserInfo(username, avatarFile));
     }
 
-    @Override
     public void onSkipUserDetails() {
         new AuthTask(getApp(), new LegacyUserStorage()) {
             @Override
