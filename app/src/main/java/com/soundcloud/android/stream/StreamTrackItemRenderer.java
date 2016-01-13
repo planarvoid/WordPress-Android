@@ -5,7 +5,6 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -17,24 +16,23 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
-
 import java.util.List;
 
 class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
 
     private final CondensedNumberFormatter numberFormatter;
     private final TrackItemMenuPresenter menuPresenter;
-    private final StreamCardViewPresenter cardViewPresenter;
+    private final StreamCardViewPresenter streamCardViewPresenter;
     private final CardEngagementsPresenter engagementsPresenter;
 
     @Inject
     public StreamTrackItemRenderer(CondensedNumberFormatter numberFormatter,
                                    TrackItemMenuPresenter menuPresenter,
                                    CardEngagementsPresenter engagementsPresenter,
-                                   StreamCardViewPresenter cardViewPresenter) {
+                                   StreamCardViewPresenter streamCardViewPresenter) {
         this.numberFormatter = numberFormatter;
         this.menuPresenter = menuPresenter;
-        this.cardViewPresenter = cardViewPresenter;
+        this.streamCardViewPresenter = streamCardViewPresenter;
         this.engagementsPresenter = engagementsPresenter;
     }
 
@@ -51,7 +49,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         StreamItemViewHolder trackView = (StreamItemViewHolder) itemView.getTag();
         trackView.resetAdditionalInformation();
 
-        cardViewPresenter.bind(trackView, track);
+        streamCardViewPresenter.bind(trackView, track);
         engagementsPresenter.bind(trackView, track, getEventContextMetadata());
 
         showPlayCountOrNowPlaying(trackView, track);

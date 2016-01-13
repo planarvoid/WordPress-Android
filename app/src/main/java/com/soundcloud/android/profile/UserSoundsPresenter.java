@@ -155,7 +155,9 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsBucket> {
     }
 
     @Override
-    protected void onItemClicked(View view, int position) {}
+    protected void onItemClicked(View view, int position) {
+        System.out.println("Hello");
+    }
 
     @Override
     protected EmptyView.Status handleError(Throwable error) {

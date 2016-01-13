@@ -3,11 +3,15 @@ package com.soundcloud.android.profile;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.android.view.adapters.PlaylistCardRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
+import com.soundcloud.android.view.adapters.TrackCardRenderer;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 
@@ -23,23 +27,25 @@ import java.util.List;
 public class UserSoundsBucketRenderer implements CellRenderer<UserSoundsBucket> {
     private final TrackItemRenderer trackItemRenderer;
     private final PlaylistItemRenderer playlistItemRenderer;
-    private final ImageOperations imageOperations;
+    private final TrackCardRenderer trackCardRenderer;
+    private final PlaylistCardRenderer playlistCardRenderer;
     private final Resources resources;
 
     private TextView heading;
     private ViewGroup holder;
     private TextView viewAll;
-    private LayoutInflater layoutInflater;
 
     @Inject
     UserSoundsBucketRenderer(
             TrackItemRenderer trackItemRenderer,
             PlaylistItemRenderer playlistItemRenderer,
-            ImageOperations imageOperations,
+            TrackCardRenderer trackCardRenderer,
+            PlaylistCardRenderer playlistCardRenderer,
             Resources resources) {
         this.trackItemRenderer = trackItemRenderer;
         this.playlistItemRenderer = playlistItemRenderer;
-        this.imageOperations = imageOperations;
+        this.trackCardRenderer = trackCardRenderer;
+        this.playlistCardRenderer = playlistCardRenderer;
         this.resources = resources;
     }
 
@@ -59,7 +65,7 @@ public class UserSoundsBucketRenderer implements CellRenderer<UserSoundsBucket> 
         final UserSoundsBucket bucket = buckets.get(position);
 
         bindTitle(bucket.getTitle());
-        bindListItems(bucket.getPagedRemoteCollection());
+        bindListItems(bucket.getPagedRemoteCollection(), bucket.getCollectionType());
         bindViewAll(bucket);
     }
 
@@ -93,16 +99,49 @@ public class UserSoundsBucketRenderer implements CellRenderer<UserSoundsBucket> 
         heading.setText(title);
     }
 
-    private void bindListItems(PagedRemoteCollection pagedRemoteCollection) {
+    private void bindListItems(PagedRemoteCollection pagedRemoteCollection, int collectionType) {
         clearListItems();
 
         for (PropertySet item : pagedRemoteCollection) {
-            createAndBindPlayableView(PlayableItem.from(item));
+            final boolean isTrack = item.get(EntityProperty.URN).isTrack();
+            final boolean shouldRenderCard = shouldRenderCard(collectionType);
+
+            if (isTrack) {
+                createAndBindTrackView(TrackItem.from(item), shouldRenderCard);
+            } else {
+                createAndBindPlaylistView(PlaylistItem.from(item), shouldRenderCard);
+            }
         }
     }
 
-    // Temporary for now! Simply renders the title of the playable.
-    // In the next PR, this will actually render the correct items.
+    private void createAndBindTrackView(TrackItem track, boolean shouldRenderCard) {
+        if (shouldRenderCard) {
+            createAndBindTrackCardView(track);
+        } else {
+            createAndBindPlayableView(track);
+        }
+    }
+
+    private void createAndBindTrackCardView(TrackItem track) {
+        final View itemView = trackCardRenderer.createItemView(holder);
+        trackCardRenderer.bindTrackView(track, itemView);
+        holder.addView(itemView);
+    }
+
+    private void createAndBindPlaylistView(PlaylistItem playableItem, boolean shouldRenderCard) {
+        if (shouldRenderCard) {
+            createAndBindPlaylistCardView(playableItem);
+        } else {
+            createAndBindPlayableView(playableItem);
+        }
+    }
+
+    private void createAndBindPlaylistCardView(PlaylistItem playlist) {
+        final View itemView = playlistCardRenderer.createItemView(holder);
+        playlistCardRenderer.bindPlaylistCardView(playlist, itemView);
+        holder.addView(itemView);
+    }
+
     private void createAndBindPlayableView(PlayableItem playableItem) {
         final TextView textView = new TextView(holder.getContext());
         textView.setText(playableItem.getTitle());
@@ -111,5 +150,14 @@ public class UserSoundsBucketRenderer implements CellRenderer<UserSoundsBucket> 
 
     private void clearListItems() {
         holder.removeAllViews();
+    }
+
+    private boolean shouldRenderCard(int collectionType) {
+        switch (collectionType) {
+            case UserSoundsTypes.SPOTLIGHT:
+                return true;
+            default:
+                return false;
+        }
     }
 }

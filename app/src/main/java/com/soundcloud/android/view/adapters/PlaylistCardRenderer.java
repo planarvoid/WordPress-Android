@@ -67,7 +67,10 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
-        final PlaylistItem playlist = playlists.get(position);
+        bindPlaylistCardView(playlists.get(position), itemView);
+    }
+
+    public void bindPlaylistCardView(PlaylistItem playlist, View itemView) {
         PlaylistViewHolder viewHolder = (PlaylistViewHolder) itemView.getTag();
 
         bindArtworkView(viewHolder, playlist);
