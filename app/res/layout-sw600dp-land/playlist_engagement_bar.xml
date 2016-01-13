@@ -27,6 +27,6 @@
 
     <Button
         android:id="@+id/playlist_details_overflow_button"
-        style="@style/PlayerMoreBase.PlayerMore" />
+        style="@style/PlayerMore" />
 
 </LinearLayout>
