@@ -120,7 +120,6 @@ public class PostsStorage {
                 .innerJoin(SoundView.name(),
                         on(SoundView.field(TableColumns.SoundView._ID), Posts.field(TableColumns.Posts.TARGET_ID))
                                 .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Posts.field(TableColumns.Posts.TARGET_TYPE)))
-                .whereEq(SoundView.field(TableColumns.SoundView._TYPE), TableColumns.Sounds.TYPE_TRACK)
                 .groupBy(SoundView.field(TableColumns.SoundView._ID) + "," + SoundView.field(TableColumns.SoundView._TYPE))
                 .order(Table.Posts.field(TableColumns.Posts.CREATED_AT), DESC);
     }
