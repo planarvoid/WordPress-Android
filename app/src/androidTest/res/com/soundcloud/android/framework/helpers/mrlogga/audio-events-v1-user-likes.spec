@@ -8,10 +8,10 @@ expected_events:
     trigger: manual
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
-    protocol: hls
+    protocol: (hls|https)
     ts: '[0-9]+'
     track: soundcloud:tracks:[0-9]+
-    player_type: Skippy
+    player_type: (Skippy|MediaPlayer)
     action: play
     client_id: '3152'
     anonymous_id: (\w|-)+
@@ -27,13 +27,13 @@ expected_events:
   name: audio
   params:
     trigger: manual
-    protocol: hls
+    protocol: (hls|https)
     ts: '[0-9]+'
     pause_reason: pause
     anonymous_id: (\w|-)+
     connection_type: wifi
     track: soundcloud:tracks:[0-9]+
-    player_type: Skippy
+    player_type: (Skippy|MediaPlayer)
     action: pause
     client_id: '3152'
     page_name: users:likes
