@@ -31,7 +31,7 @@ public class SignUpMethodScreen extends Screen {
 
     public void acceptTerms() {
         acceptTermsButton().click();
-        waiter.waitForElement(R.id.btn_skip);
+        waiter.waitForElement(R.id.btn_save);
     }
 
     private ViewElement acceptTermsButton() {

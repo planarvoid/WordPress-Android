@@ -69,13 +69,6 @@
             android:layout_marginTop="10dip">
 
             <Button
-                android:id="@+id/btn_skip"
-                style="@style/Tour.NextButton"
-                android:layout_height="@dimen/tour_buttons_height"
-                android:layout_marginRight="10dip"
-                android:text="@string/btn_skip" />
-
-            <Button
                 android:id="@+id/btn_save"
                 style="@style/Tour.NextButton"
                 android:layout_height="@dimen/tour_buttons_height"
