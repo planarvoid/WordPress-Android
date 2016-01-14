@@ -8,7 +8,7 @@ import com.soundcloud.java.optional.Optional;
 public class VideoQueueItem extends PlayQueueItem {
 
     public VideoQueueItem(VideoAd adData) {
-      super.setAdData(Optional.<AdData>of(adData));
+      this.adData = Optional.<AdData>of(adData);
     }
 
     @Override
