@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.collections.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -56,19 +57,31 @@ class LikesMenuPresenter {
     public boolean onOptionsItemSelected(MenuItem menuItem, Context context, FragmentManager fragmentManager) {
         switch (menuItem.getItemId()) {
             case R.id.action_make_offline_available:
-                if (featureOperations.isOfflineContentEnabled()) {
-                    syncLikesDialogProvider.get().show(fragmentManager);
-                } else {
-                    navigator.openUpgrade(context);
-                    eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesClick());
-                }
+                makeOfflineAvailable(context, fragmentManager);
                 return true;
             case R.id.action_make_offline_unavailable:
-                fireAndForget(offlineOperations.disableOfflineLikedTracks());
-                eventBus.publish(EventQueue.TRACKING, UIEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
+                makeOfflineUnavailable(fragmentManager);
                 return true;
             default:
                 return false;
+        }
+    }
+
+    private void makeOfflineAvailable(Context context, FragmentManager fragmentManager) {
+        if (featureOperations.isOfflineContentEnabled()) {
+            syncLikesDialogProvider.get().show(fragmentManager);
+        } else {
+            navigator.openUpgrade(context);
+            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesClick());
+        }
+    }
+
+    private void makeOfflineUnavailable(FragmentManager fragmentManager) {
+        if (offlineOperations.isOfflineCollectionEnabled()) {
+            ConfirmRemoveOfflineDialogFragment.showForLikes(fragmentManager);
+        } else {
+            fireAndForget(offlineOperations.disableOfflineLikedTracks());
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
         }
     }
 

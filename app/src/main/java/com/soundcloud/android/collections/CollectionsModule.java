@@ -7,7 +7,8 @@ import dagger.Module;
         injects = {
                 CollectionsFragment.class,
                 CollectionPreviewView.class,
-                OfflineOnboardingActivity.class
+                OfflineOnboardingActivity.class,
+                ConfirmRemoveOfflineDialogFragment.class
         }
 )
 public class CollectionsModule {
