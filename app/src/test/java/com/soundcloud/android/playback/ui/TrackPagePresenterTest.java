@@ -36,7 +36,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
@@ -51,8 +50,6 @@ import org.robolectric.shadows.ShadowToast;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-
-import java.util.Locale;
 
 public class TrackPagePresenterTest extends AndroidUnitTest {
 
@@ -82,10 +79,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
+    @Mock private LikeButtonPresenter likeButtonPresenter;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
-    private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private TrackQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123));
 
     private TrackPagePresenter presenter;
@@ -95,7 +92,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         ViewGroup container = new FrameLayout(context());
-        presenter = new TrackPagePresenter(waveformOperations, featureOperations, listener, numberFormatter, waveformFactory,
+        presenter = new TrackPagePresenter(waveformOperations, featureOperations, listener, likeButtonPresenter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, adOverlayControllerFactory,
                 errorControllerFactory, castConnectionHelper, resources(), upsellImpressionController);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
@@ -118,7 +115,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void bindItemViewSetsInitialLikeStatesFromTrackData() {
         populateTrackPage();
         assertThat(getHolder(trackView).likeToggle).isChecked();
-        assertThat(getHolder(trackView).likeToggle).hasText("1");
+        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 1);
     }
 
     @Test
@@ -372,7 +369,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
-        assertThat(getHolder(trackView).likeToggle).hasText("9,999");
+        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 9999);
     }
 
     @Test

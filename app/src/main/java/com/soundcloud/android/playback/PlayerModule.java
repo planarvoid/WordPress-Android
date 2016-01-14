@@ -5,9 +5,13 @@ import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.playback.ui.BlurringPlayerArtworkLoader;
+import com.soundcloud.android.playback.ui.CompatLikeButtonPresenter;
+import com.soundcloud.android.playback.ui.LikeButtonPresenter;
+import com.soundcloud.android.playback.ui.MaterialLikeButtonPresenter;
 import com.soundcloud.android.playback.ui.PlayerArtworkLoader;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.view.WaveformView;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
@@ -35,6 +39,15 @@ public class PlayerModule {
             return new BlurringPlayerArtworkLoader(imageOperations, resources, graphicsScheduler);
         } else {
             return new PlayerArtworkLoader(imageOperations, resources);
+        }
+    }
+
+    @Provides
+    public LikeButtonPresenter provideLikeButtonPresenter(CondensedNumberFormatter numberFormatter) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return new MaterialLikeButtonPresenter(numberFormatter);
+        } else {
+            return new CompatLikeButtonPresenter(numberFormatter);
         }
     }
 }
