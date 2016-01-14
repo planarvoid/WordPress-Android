@@ -126,6 +126,8 @@ to run all tests inside a class, or
 
 to run one single test.
 
+**NOTE: for the legacy tests in tests-robolectric to run, you need to install the Android SDK platform v22 via the SDK manager**
+
 ### Unit tests in Android Studio
 
 Add a file `local.properties` to the app directory containing the path to the Android SDK:
