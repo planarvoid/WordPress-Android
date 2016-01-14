@@ -40,7 +40,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROM
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REASON;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPOSTER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOUND;
@@ -271,7 +271,7 @@ class EventLoggerEventData {
     }
 
     public EventLoggerEventData reason(String stopReason) {
-        addToPayload(REASON, stopReason);
+        addToPayload(PAUSE_REASON, stopReason);
         return this;
     }
 

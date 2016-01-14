@@ -24,7 +24,7 @@ expected_events:
     trigger: manual
     protocol: hls
     ts: '[0-9]+'
-    reason: pause
+    pause_reason: pause
     anonymous_id: (\w|-)+
     connection_type: wifi
     duration: '[0-9]+'

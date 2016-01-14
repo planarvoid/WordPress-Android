@@ -330,7 +330,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                 .action("pause")
                 .playheadPosition(12L)
-                .reason("buffering")
+                .reason("buffer_underrun")
                 .trigger("manual")
                 .source("source")
                 .sourceVersion("source-version")

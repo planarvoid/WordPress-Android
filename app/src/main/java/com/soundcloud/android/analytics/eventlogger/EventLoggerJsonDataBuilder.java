@@ -431,7 +431,7 @@ public class EventLoggerJsonDataBuilder {
             case PlaybackSessionEvent.STOP_REASON_PAUSE:
                 return "pause";
             case PlaybackSessionEvent.STOP_REASON_BUFFERING:
-                return "buffering";
+                return "buffer_underrun";
             case PlaybackSessionEvent.STOP_REASON_SKIP:
                 return "skip";
             case PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED:

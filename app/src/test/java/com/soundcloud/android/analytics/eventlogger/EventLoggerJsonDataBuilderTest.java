@@ -536,7 +536,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .duration(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .sound("soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId())
                 .action("stop")
-                .reason("buffering")
+                .reason("buffer_underrun")
                 .trigger("manual")
                 .source("source")
                 .sourceVersion("source-version")
