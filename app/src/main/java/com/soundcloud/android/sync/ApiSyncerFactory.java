@@ -6,7 +6,6 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.activities.ActivitiesSyncer;
 import com.soundcloud.android.sync.affiliations.MyFollowingsSyncer;
@@ -99,11 +98,7 @@ public class ApiSyncerFactory {
                 return lazyMyPostsSyncer.get();
 
             case TRACK:
-                if (featureFlags.isEnabled(Flag.TRACK_SYNC_APIMOBILE)) {
-                    return lazyTrackSyncer.get();
-                } else {
-                    return new ApiSyncer(context, context.getContentResolver());
-                }
+                return lazyTrackSyncer.get();
 
             default:
                 return new ApiSyncer(context, context.getContentResolver());
