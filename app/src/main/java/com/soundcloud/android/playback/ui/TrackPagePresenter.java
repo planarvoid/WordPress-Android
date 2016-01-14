@@ -268,7 +268,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.timestamp.setBufferingMode(isCurrentTrack && stateTransition.isBuffering());
 
         if (stateTransition.playSessionIsActive() && !isCurrentTrack) {
-            setProgressInternal(trackPage, PlaybackProgress.empty());
+            for (ProgressAware view : getViewHolder(trackPage).progressAwareViews) {
+                view.clearProgress();
+            }
         }
         configureAdOverlay(stateTransition, isCurrentTrack, isForeground, holder);
     }
@@ -421,13 +423,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     @Override
     public void setProgress(View trackPage, PlaybackProgress progress) {
         if (!progress.isEmpty()) {
-            setProgressInternal(trackPage, progress);
-        }
-    }
-
-    private void setProgressInternal(View trackPage, PlaybackProgress progress) {
-        for (ProgressAware view : getViewHolder(trackPage).progressAwareViews) {
-            view.setProgress(progress);
+            for (ProgressAware view : getViewHolder(trackPage).progressAwareViews) {
+                view.setProgress(progress);
+            }
         }
     }
 

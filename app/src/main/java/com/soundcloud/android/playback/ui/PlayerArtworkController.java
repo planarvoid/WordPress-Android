@@ -65,6 +65,11 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         }
     }
 
+    @Override
+    public void clearProgress() {
+        setProgress(PlaybackProgress.empty());
+    }
+
     public void showPlayingState(PlaybackProgress progress) {
         latestProgress = progress;
         isPlaying = true;
