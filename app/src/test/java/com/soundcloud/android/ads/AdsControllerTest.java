@@ -53,7 +53,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     private final Urn currentTrackUrn = Urn.forTrack(122L);
     private final PlayQueueItem currentPlayQueueItem = TestPlayQueueItem.createTrack(currentTrackUrn);
     private final Urn nextTrackUrn = Urn.forTrack(456L);
-    private final PlayQueueItem nextPlayQueueItem = TestPlayQueueItem.createTrack(nextTrackUrn);
+    private final TrackQueueItem nextPlayQueueItem = TestPlayQueueItem.createTrack(nextTrackUrn);
 
     private final PropertySet currentMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(currentTrackUrn), TrackProperty.MONETIZABLE.bind(true));
     private final PropertySet nextMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn), TrackProperty.MONETIZABLE.bind(true));
@@ -118,7 +118,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void trackChangeEventDoesNotFetchTrackFromStorageIfAlreadyTryingToFetchAd() throws CreateModelException {
-        when(playQueueManager.hasNextItem()).thenReturn(true);
+        when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.<PropertySet>empty());
         adsController.subscribe();
 
@@ -130,7 +130,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void playQueueUpdateEventInsertsAudioAdIntoPlayQueue() throws CreateModelException {
-        when(playQueueManager.hasNextItem()).thenReturn(true);
+        when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
         when(adsOperations.ads(nextTrackUrn)).thenReturn(Observable.just(apiAdsForTrack));
         adsController.subscribe();
@@ -187,7 +187,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.reconfigureAdForNextTrack();
 
-        verify(adsOperations, never()).insertAudioAd(any(PlayQueueItem.class), any(ApiAudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackQueueItem.class), any(ApiAudioAd.class));
     }
 
     @Test
@@ -211,7 +211,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.reconfigureAdForNextTrack();
 
-        verify(adsOperations, never()).insertAudioAd(any(PlayQueueItem.class), any(ApiAudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackQueueItem.class), any(ApiAudioAd.class));
     }
 
     @Test
@@ -221,7 +221,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.reconfigureAdForNextTrack();
 
-        verify(adsOperations, never()).insertAudioAd(any(PlayQueueItem.class), any(ApiAudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackQueueItem.class), any(ApiAudioAd.class));
     }
 
     @Test
@@ -322,7 +322,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     public void trackChangeClearsAllAdsWhenAddingNewAd() {
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
         when(adsOperations.ads(nextTrackUrn)).thenReturn(Observable.just(apiAdsForTrack));
-        when(playQueueManager.hasNextItem()).thenReturn(true);
+        when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -397,7 +397,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     public void unsubscribeFromNextAdFetchOnPlayQueueEventIfNextTrackIsNowCurrentTrackAndStale() {
         final PublishSubject<ApiAdsForTrack> adsObservable1 = PublishSubject.create();
         final PublishSubject<ApiAdsForTrack> adsObservable2 = PublishSubject.create();
-        when(playQueueManager.hasNextItem()).thenReturn(true);
+        when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
         when(adsOperations.ads(nextTrackUrn)).thenReturn(adsObservable1, adsObservable2);
 
@@ -550,7 +550,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     }
 
     private void insertFullAdsForNextTrack() {
-        when(playQueueManager.hasNextItem()).thenReturn(true);
+        when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
         when(adsOperations.ads(nextTrackUrn)).thenReturn(Observable.just(apiAdsForTrack));
         adsController.subscribe();

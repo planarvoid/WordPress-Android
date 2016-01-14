@@ -88,6 +88,10 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return position < playQueueItems.size() - 1;
     }
 
+    public boolean hasTrackAsNextItem(int position) {
+        return hasNextItem(position) && playQueueItems.get(position + 1) instanceof TrackQueueItem;
+    }
+
     @Override
     public Iterator<PlayQueueItem> iterator() {
         return playQueueItems.iterator();
@@ -198,11 +202,6 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     public Optional<AdData> getAdData(int position) {
         checkElementIndex(position, size());
         return playQueueItems.get(position).getAdData();
-    }
-
-    public void setAdData(int position, Optional<AdData> adData) {
-        checkElementIndex(position, size());
-        playQueueItems.get(position).setAdData(adData);
     }
 
     public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracks) {

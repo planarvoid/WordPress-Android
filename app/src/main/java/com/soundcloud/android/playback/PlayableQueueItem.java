@@ -30,7 +30,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
         this.reposter = reposter;
         this.relatedEntity = relatedEntity;
         this.urn = urn;
-        super.setAdData(adData);
+        this.adData = adData;
     }
 
     public Urn getUrn() {
@@ -74,7 +74,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
 
     public static abstract class Builder <T extends Builder<T>> {
         protected final Urn playable;
-        protected final Urn reposter;
+        protected Urn reposter;
         protected boolean blocked;
         protected String source = Strings.EMPTY;
         protected String sourceVersion = Strings.EMPTY;
