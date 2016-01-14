@@ -6,7 +6,9 @@ import static com.appboy.push.AppboyNotificationUtils.APPBOY_NOTIFICATION_RECEIV
 import com.appboy.AppboyGcmReceiver;
 import com.appboy.Constants;
 import com.appboy.push.AppboyNotificationUtils;
+import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.main.Screen;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -40,8 +42,19 @@ public class AppboyBroadcastReceiver extends BroadcastReceiver {
         if (intent.getStringExtra(Constants.APPBOY_PUSH_DEEP_LINK_KEY) != null) {
             startDeepLinkActivities(context, intent, extras);
         } else {
-            context.startActivity(getStartActivityIntent(context, extras));
+            startMainActivity(context, extras);
         }
+    }
+
+    private void startMainActivity(Context context, Bundle extras) {
+        Intent startActivityIntent = getStartActivityIntent(context, extras);
+        addReferrerAndScreenToIntent(startActivityIntent);
+        context.startActivity(startActivityIntent);
+    }
+
+    private void addReferrerAndScreenToIntent(Intent startActivityIntent) {
+        Referrer.APPBOY_NOTIFICATION.addToIntent(startActivityIntent);
+        Screen.NOTIFICATION.addToIntent(startActivityIntent);
     }
 
     private void startDeepLinkActivities(Context context, Intent intent, Bundle extras) {
@@ -53,7 +66,9 @@ public class AppboyBroadcastReceiver extends BroadcastReceiver {
 
     private Intent getUriIntent(Intent intent, Bundle extras) {
         Uri uri = Uri.parse(intent.getStringExtra(Constants.APPBOY_PUSH_DEEP_LINK_KEY));
-        return new Intent(Intent.ACTION_VIEW, uri).putExtras(extras);
+        Intent uriIntent = new Intent(Intent.ACTION_VIEW, uri).putExtras(extras);
+        addReferrerAndScreenToIntent(uriIntent);
+        return uriIntent;
     }
 
     private void handleNotificationReceived(Intent intent) {

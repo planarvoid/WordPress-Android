@@ -161,4 +161,12 @@ public class ReferrerResolverTest extends AndroidUnitTest {
         assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.GOOGLE_CRAWLER);
     }
 
+    @Test
+    public void shouldDetectIntentReferrer() throws Exception {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
+        Referrer.APPBOY_NOTIFICATION.addToIntent(intent);
+
+        assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.APPBOY_NOTIFICATION);
+    }
+
 }

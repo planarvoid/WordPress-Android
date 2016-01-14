@@ -39,7 +39,9 @@ class ReferrerResolver {
 
     public Referrer getReferrerFromIntent(Intent intent, Resources resources) {
         try {
-            if (isOriginIntent(intent)) {
+            if (Referrer.hasReferrer(intent)) {
+                return Referrer.fromIntent(intent);
+            } else if (isOriginIntent(intent)) {
                 return referrerFromOrigin(intent);
             } else if (isFacebookIntent(intent, resources)) {
                 return Referrer.FACEBOOK;
