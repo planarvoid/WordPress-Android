@@ -274,6 +274,12 @@ public class TestUser {
             "s0undcl0ud_HT2016",
             "1-21686-190275390-0cf52de1bed061",
             190275390);
+    public static final TestUser freeMonetizedUserStream = new TestUser(
+            "user-712335208",
+            "sc.ht.listener1@gmail.com",
+            "s0undcl0ud_HT2016",
+            "1-21686-197818552-f855a13009456a",
+            197818552);
 
     // not used directly in a test, but user info is kept here for documentation
     public static final TestUser adUser = new TestUser("scandroidad1", "scandroidtestad1@gmail.com", "scandtest", "");

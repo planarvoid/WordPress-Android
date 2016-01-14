@@ -22,8 +22,8 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
     }
 
     @Override
-    protected void beforeStartActivity() {
-        super.beforeStartActivity();
+    protected void beforeLogIn() {
+        super.beforeLogIn();
 
         final Context context = getInstrumentation().getTargetContext();
         final MrLoggaLoggaClient client = new MrLoggaLoggaClient(context,

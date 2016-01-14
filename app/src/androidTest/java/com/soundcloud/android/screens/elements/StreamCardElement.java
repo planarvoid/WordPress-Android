@@ -71,6 +71,10 @@ public class StreamCardElement {
         return wrapped.isElementDisplayed(With.id(R.id.promoted_item));
     }
 
+    public boolean isPreview() {
+        return wrapped.isElementDisplayed(With.id(R.id.preview_indicator));
+    }
+
     public boolean hasPromoter() {
         return wrapped.findElement(With.id(R.id.promoter)).isVisible();
     }
@@ -104,5 +108,19 @@ public class StreamCardElement {
 
     private ViewElement overflowButton() {
         return wrapped.findElement(With.id(R.id.overflow_button));
+    }
+
+    public static With WithPreview(final Han testDriver){
+        return new With() {
+            @Override
+            public String getSelector() {
+                return "With preview indicator";
+            }
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return new StreamCardElement(testDriver, view).isPreview();
+            }
+        };
     }
 }
