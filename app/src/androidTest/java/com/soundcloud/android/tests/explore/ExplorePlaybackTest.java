@@ -11,13 +11,13 @@ import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class ExploreRecommendationsTest extends ActivityTest<MainActivity> {
+public class ExplorePlaybackTest extends ActivityTest<MainActivity> {
     private ExploreScreen exploreScreen;
     private ExploreGenreCategoryScreen categoryScreen;
 
     private VisualPlayerElement playerScreen;
 
-    public ExploreRecommendationsTest() {
+    public ExplorePlaybackTest() {
         super(MainActivity.class);
     }
 
@@ -34,21 +34,25 @@ public class ExploreRecommendationsTest extends ActivityTest<MainActivity> {
 
     public void testPlayingTrendingMusicTrack() {
         exploreScreen.touchTrendingMusicTab();
-        String trackName = exploreScreen.getTrackTitle(1);
-        playerScreen = exploreScreen.playPopularTrack(1);
+        String trackName = exploreScreen.getTrackTitle(0);
+        String trackName2 = exploreScreen.getTrackTitle(1);
+
+        playerScreen = exploreScreen.playPopularTrack(0);
         assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName)));
+
+        playerScreen.swipeNext();
+        assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName2)));
     }
 
-    public void testPlayingExploreElectronicTrack() {
+    public void testPlayingExploreGenreTrack() {
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
-        String trackName = categoryScreen.getTrackTitle(1);
-        playerScreen = categoryScreen.playTrack(1);
+        String trackName = categoryScreen.getTrackTitle(0);
+        String trackName2 = categoryScreen.getTrackTitle(1);
+        playerScreen = categoryScreen.playTrack(0);
         assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName)));
 
-        // make sure recommendations load
         playerScreen.swipeNext();
-        // TODO: this produces false positives when the item is not found
-        assertNotSame(trackName, playerScreen.getTrackTitle());
+        assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName2)));
     }
 }
