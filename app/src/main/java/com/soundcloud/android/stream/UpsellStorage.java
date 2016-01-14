@@ -8,9 +8,12 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.concurrent.TimeUnit;
 
 class UpsellStorage {
-    private static final String UPSELL_DISMISSED = "upsell_dismissed";
+
+    static final String UPSELL_DISMISSED = "upsell_dismissed";
+    static final long UPSELL_REAPPEAR_DELAY_IN_HOURS = 48;
 
     private final SharedPreferences sharedPreferences;
     private final DateProvider dateProvider;
@@ -25,13 +28,23 @@ class UpsellStorage {
         sharedPreferences.edit().clear().apply();
     }
 
-    public boolean wasUpsellDismissed() {
-        return sharedPreferences.contains(UPSELL_DISMISSED);
-    }
-
     public void setUpsellDismissed() {
         sharedPreferences.edit()
                 .putLong(UPSELL_DISMISSED, dateProvider.getCurrentTime())
                 .apply();
     }
+
+    public boolean canDisplayUpsell() {
+        return !wasUpsellDismissed() || canDisplayAgain();
+    }
+
+    private boolean wasUpsellDismissed() {
+        return sharedPreferences.contains(UPSELL_DISMISSED);
+    }
+
+    private boolean canDisplayAgain() {
+        long lastDisplayedMillis = dateProvider.getCurrentTime() - sharedPreferences.getLong(UPSELL_DISMISSED, dateProvider.getCurrentTime());
+        return TimeUnit.MILLISECONDS.toHours(lastDisplayedMillis) >= UPSELL_REAPPEAR_DELAY_IN_HOURS;
+    }
+
 }
