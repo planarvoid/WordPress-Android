@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -41,6 +42,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
     @Inject EventBus eventBus;
     @Inject ApplicationProperties properties;
     @Inject FeatureOperations featureOperations;
+    @Inject OfflineContentOperations offlineContentOperations;
 
     @Bind(android.R.id.edit) EditText input;
     @Bind(R.id.chk_private) CheckBox privacy;
@@ -72,7 +74,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View dialogView = View.inflate(getActivity(), R.layout.dialog_create_new_playlist, null);
         ButterKnife.bind(this, dialogView);
-        setChecksVisibility();
+        setOfflineVisibility();
 
         return new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.create_new_playlist)
@@ -94,9 +96,10 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
                 .create();
     }
 
-    private void setChecksVisibility() {
-        if (!featureOperations.isOfflineContentEnabled()) {
-            offline.setVisibility(View.GONE);
+    private void setOfflineVisibility() {
+        if (featureOperations.isOfflineContentEnabled()
+                && !offlineContentOperations.isOfflineCollectionEnabled()) {
+            offline.setVisibility(View.VISIBLE);
         }
     }
 
