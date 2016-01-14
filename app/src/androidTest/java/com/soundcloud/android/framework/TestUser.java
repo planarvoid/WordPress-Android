@@ -224,7 +224,7 @@ public class TestUser {
             "onePlaylistUser",
             "onePlaylistuser@gmail.com",
             "passwordyeah88",
-            "1-21686-151356674-d2d856e5f8f931",
+            "1-21686-151356674-b019d504fbb087",
             151356674);
     public static final TestUser profileEntryUser = new TestUser(
             "sc-profile-entry-user",
