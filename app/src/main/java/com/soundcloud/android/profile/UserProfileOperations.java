@@ -231,8 +231,7 @@ class UserProfileOperations {
         });
     }
 
-    // TODO: Upcoming Work will Return a ViewModel instead of ApiUserProfile
-    public Observable<ApiUserProfile> userProfile(Urn user) {
+    public Observable<? extends UserProfileRecord> userProfile(Urn user) {
         return profileApi.userProfile(user)
                 .doOnNext(storeProfileCommand.toAction())
                 .subscribeOn(scheduler);

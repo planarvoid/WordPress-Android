@@ -12,6 +12,7 @@ import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.users.UserRecord;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,6 +29,15 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
         final WriteMixedRecordsCommand writeMixedRecordsCommand = new WriteMixedRecordsCommand(storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
 
         storeProfileCommand = new StoreProfileCommand(writeMixedRecordsCommand);
+    }
+
+    @Test
+    public void shouldStoreTheUser() {
+        final ApiUserProfile profile = new UserProfileFixtures.Builder().build();
+
+        storeProfileCommand.call(profile);
+
+        databaseAssertions().assertUserInserted((UserRecord) profile.getUser());
     }
 
     @Test
@@ -127,14 +137,5 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
         storeProfileCommand.call(profile);
 
         databaseAssertions().assertPlaylistInserted(((PlaylistRecord) playlistLike.getEntityHolder().get()).getUrn());
-    }
-
-    @Test
-    public void shouldStoreTheUser() {
-        final ApiUserProfile profile = new UserProfileFixtures.Builder().build();
-
-        storeProfileCommand.call(profile);
-
-        databaseAssertions().assertUserInserted(profile.getUser());
     }
 }

@@ -7,10 +7,10 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.java.optional.Optional;
+import com.soundcloud.android.model.ApiEntityHolder;
 
 @AutoValue
-abstract class ApiUserProfile {
+abstract class ApiUserProfile implements UserProfileRecord {
     @JsonCreator
     public static ApiUserProfile create(
             @JsonProperty("user") ApiUser user,
@@ -23,26 +23,26 @@ abstract class ApiUserProfile {
 
         return new AutoValue_ApiUserProfile(
                 user,
-                Optional.fromNullable(spotlight),
-                Optional.fromNullable(tracks),
-                Optional.fromNullable(releases),
-                Optional.fromNullable(playlists),
-                Optional.fromNullable(reposts),
-                Optional.fromNullable(likes)
+                spotlight,
+                tracks,
+                releases,
+                playlists,
+                reposts,
+                likes
         );
     }
 
-    public abstract ApiUser getUser();
+    public abstract ApiEntityHolder getUser();
 
-    public abstract Optional<ModelCollection<ApiPlayableSource>> getSpotlight();
+    public abstract ModelCollection<? extends ApiEntityHolderSource> getSpotlight();
 
-    public abstract Optional<ModelCollection<ApiTrackPost>> getTracks();
+    public abstract ModelCollection<? extends ApiEntityHolder> getTracks();
 
-    public abstract Optional<ModelCollection<ApiPlaylistPost>> getReleases();
+    public abstract ModelCollection<? extends ApiEntityHolder> getReleases();
 
-    public abstract Optional<ModelCollection<ApiPlaylistPost>> getPlaylists();
+    public abstract ModelCollection<? extends ApiEntityHolder> getPlaylists();
 
-    public abstract Optional<ModelCollection<ApiPlayableSource>> getReposts();
+    public abstract ModelCollection<? extends ApiEntityHolderSource> getReposts();
 
-    public abstract Optional<ModelCollection<ApiPlayableSource>> getLikes();
+    public abstract ModelCollection<? extends ApiEntityHolderSource> getLikes();
 }

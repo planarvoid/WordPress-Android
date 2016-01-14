@@ -29,5 +29,4 @@ public class ApiPlayableSource implements ApiEntityHolderSource {
             return Optional.absent();
         }
     }
-
 }
