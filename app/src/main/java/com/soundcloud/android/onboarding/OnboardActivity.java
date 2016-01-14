@@ -60,23 +60,23 @@ import android.accounts.AccountManager;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Animation;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.ImageView;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.Random;
 
 public class OnboardActivity extends FragmentActivity
         implements AuthTaskFragment.OnAuthResultListener, LoginLayout.LoginHandler,
@@ -84,6 +84,8 @@ public class OnboardActivity extends FragmentActivity
         AcceptTermsLayout.AcceptTermsHandler, SignupBasicsLayout.SignUpBasicsHandler,
         GenderPickerDialogFragment.CallbackProvider, FacebookSessionCallback.FacebookLoginCallbacks {
 
+
+    private static final int[] BACKGROUND_IMAGES = new int[]{R.drawable.onboard_background_ago, R.drawable.onboard_background_simz};
 
     protected enum OnboardingState {
         PHOTOS, LOGIN, SIGN_UP_METHOD, SIGN_UP_BASICS, SIGN_UP_DETAILS, ACCEPT_TERMS
@@ -100,19 +102,8 @@ public class OnboardActivity extends FragmentActivity
     private static final String BUNDLE_ACCEPT_TERMS = "BUNDLE_ACCEPT_TERMS";
     private static final String LAST_GOOGLE_ACCT_USED = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
     private static final String LOGIN_DIALOG_TAG = "login_dialog";
-    private final ViewPager.OnPageChangeListener onTourPageChange = new ViewPager.SimpleOnPageChangeListener() {
-        @Override
-        public void onPageSelected(int selected) {
-            RadioGroup group = (RadioGroup) findViewById(R.id.rdo_tour_step);
 
-            for (int i = 0; i < group.getChildCount(); i++) {
-                RadioButton button = (RadioButton) group.getChildAt(i);
-                button.setChecked(i == selected);
-            }
-        }
-    };
-
-
+    private final int background_image;
     private OnboardingState lastAuthState;
     private OnboardingState state = OnboardingState.PHOTOS;
     private String lastGoogleAccountSelected;
@@ -120,7 +111,6 @@ public class OnboardActivity extends FragmentActivity
     @Nullable private PublicApiUser user;
 
     private View photoBottomBar, photoLogo;
-    private ViewPager photoPager;
 
     private View overlayBg, overlayHolder;
     @Nullable private LoginLayout loginLayout;
@@ -183,7 +173,6 @@ public class OnboardActivity extends FragmentActivity
             }
         }
     };
-    private TourPhotoPagerAdapter photosAdapter;
 
     @Inject FacebookSdk facebookSdk;
     @Inject CallbackManager facebookCallbackManager;
@@ -199,6 +188,7 @@ public class OnboardActivity extends FragmentActivity
 
     public OnboardActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        background_image = BACKGROUND_IMAGES[new Random().nextInt(2)];
     }
 
     @VisibleForTesting
@@ -218,18 +208,19 @@ public class OnboardActivity extends FragmentActivity
         this.facebookSdk = facebookSdk;
         this.facebookLoginManager = facebookLoginManager;
         this.facebookCallbackManager = facebookCallbackManager;
+        background_image = BACKGROUND_IMAGES[new Random().nextInt(2)];
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.start);
+        setContentView(R.layout.landing);
 
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this));
 
         unpackAccountAuthenticatorResponse(getIntent());
         unpackDeeplink(getIntent());
-        showPhotos(savedInstanceState != null);
+        setupViews(savedInstanceState != null);
         setButtonListeners();
         checkForDeviceConflict();
         setupFacebookCallback();
@@ -259,18 +250,15 @@ public class OnboardActivity extends FragmentActivity
         }
     }
 
-    private void showPhotos(boolean isConfigChange) {
+    private void setupViews(boolean isConfigChange) {
         overridePendingTransition(0, 0);
+
+        showBackground();
 
         photoBottomBar = findViewById(R.id.tour_bottom_bar);
         photoLogo = findViewById(R.id.tour_logo);
-        photoPager = (ViewPager) findViewById(R.id.tour_view);
         overlayBg = findViewById(R.id.overlay_bg);
         overlayHolder = findViewById(R.id.overlay_holder);
-
-        photosAdapter = new TourPhotoPagerAdapter(this);
-
-        buildPhotoPager(photosAdapter);
 
         setState(OnboardingState.PHOTOS);
 
@@ -278,27 +266,22 @@ public class OnboardActivity extends FragmentActivity
             trackTourScreen();
         }
 
-        final View splash = findViewById(R.id.splash);
-        splash.setVisibility(isConfigChange ? View.GONE : View.VISIBLE);
-
         if (isConfigChange) {
             overlayBg.setVisibility(View.GONE);
             overlayHolder.setVisibility(View.GONE);
         }
-
-        final PhotoLoadHandler photoLoadHandler = new PhotoLoadHandler(this, splash);
-        photosAdapter.load(this, photoLoadHandler);
     }
 
-    private void buildPhotoPager(PagerAdapter photosAdapter) {
-        photoPager.setAdapter(photosAdapter);
-        photoPager.setCurrentItem(0);
-        photoPager.setOnPageChangeListener(onTourPageChange);
+    private void showBackground() {
+        ImageView bgImageView = (ImageView) findViewById(R.id.landing_background_image);
+        final Drawable drawable = ResourcesCompat.getDrawable(getResources(), background_image, null);
+        bgImageView.setImageDrawable(drawable);
+        showView(bgImageView, true);
     }
 
     private void setButtonListeners() {
-        findViewById(R.id.login_btn).setOnClickListener(onLoginButtonClick);
-        findViewById(R.id.signup_btn).setOnClickListener(onSignupButtonClick);
+        findViewById(R.id.btn_login).setOnClickListener(onLoginButtonClick);
+        findViewById(R.id.btn_create_account).setOnClickListener(onSignupButtonClick);
     }
 
     @Override
@@ -575,12 +558,6 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        photosAdapter.onDestroy();
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -651,7 +628,7 @@ public class OnboardActivity extends FragmentActivity
         final int resultCode = activityResult.resultCode;
         final Intent intent = activityResult.intent;
 
-        if (FacebookSdk.isFacebookRequestCode(requestCode)){
+        if (FacebookSdk.isFacebookRequestCode(requestCode)) {
             facebookCallbackManager.onActivityResult(requestCode, resultCode, intent);
         }
 
@@ -781,7 +758,7 @@ public class OnboardActivity extends FragmentActivity
         showView(photoLogo, animated);
         hideView(overlayBg, animated);
 
-        photosAdapter.hideViewsOfLayout(photoPager.getCurrentItem());
+        showView(findViewById(R.id.onboarding_text), false);
 
         if (animated && overlayHolder.getVisibility() == View.VISIBLE) {
             hideView(overlayHolder, hideScrollViewListener);
@@ -795,7 +772,7 @@ public class OnboardActivity extends FragmentActivity
         hideView(photoLogo, animated);
 
         // hide foreground views
-        photosAdapter.showViewsOfLayout(photoPager.getCurrentItem(), animated);
+        hideView(findViewById(R.id.onboarding_text), animated);
 
         showView(overlayHolder, animated);
         showView(overlayBg, animated);
@@ -878,7 +855,7 @@ public class OnboardActivity extends FragmentActivity
                 .setMessage(TextUtils.isEmpty(message) ? getString(R.string.authentication_signup_error_message) : message)
                 .setPositiveButton(android.R.string.ok, null);
 
-        if (allowUserFeedback){
+        if (allowUserFeedback) {
             showDialogWithFeedbackAndTrackEvent(dialogBuilder, OnboardingEvent.signupGeneralError());
         } else {
             showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupExistingEmail());

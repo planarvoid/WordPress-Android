@@ -14,8 +14,8 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="Tour"/>
-    <style name="Tour.Button">
+    <style name="Onboarding"/>
+    <style name="Onboarding.Button">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/tour_buttons_height</item>
         <item name="android:layout_weight">1</item>
@@ -32,27 +32,38 @@
         <item name="android:background">@drawable/signup_next_button</item>
     </style>
 
-    <style name="Tour.NextButton" parent="Tour.Button">
+    <style name="Onboarding.NextButton" parent="Onboarding.Button">
         <item name="android:textAllCaps">true</item>
         <item name="android:background">@drawable/signup_next_button</item>
     </style>
 
-    <style name="Tour.CancelButton" parent="Tour.Button">
+    <style name="Onboarding.CancelButton" parent="Onboarding.Button">
         <item name="android:textAllCaps">true</item>
         <item name="android:background">@drawable/signup_cancel_button</item>
     </style>
 
-    <style name="Tour.BottomButton" parent="Tour.Button">
+    <style name="Onboarding.BottomButton" parent="Onboarding.Button">
         <item name="android:minWidth">100dp</item>
     </style>
 
-    <style name="Tour.SignupButton" parent="Tour.BottomButton">
-        <item name="android:layout_marginRight">16dp</item>
-        <item name="android:background">@drawable/signup_create_account_button</item>
+    <style name="Onboarding.LoginCreateAccountBar">
+        <item name="android:layout_marginBottom">38dp</item>
+        <item name="android:layout_marginTop">25dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="Onboarding.CreateAccountButton" parent="Onboarding.Button">
+        <item name="android:background">@drawable/create_account_button</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="Tour.SocialButton" parent="Tour.Button">
+    <style name="Onboarding.LoginButton" parent="Onboarding.Button">
+        <item name="android:background">@drawable/login_button</item>
+        <item name="android:layout_marginLeft">24dp</item>
+    </style>
+
+    <style name="Onboarding.SocialButton" parent="Onboarding.Button">
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -62,42 +73,18 @@
         <item name="android:paddingLeft">43dp</item>
     </style>
 
-    <style name="Tour.FacebookButton" parent="Tour.SocialButton">
+    <style name="Onboarding.FacebookButton" parent="Onboarding.SocialButton">
         <item name="android:background">@drawable/btn_facebook</item>
     </style>
 
-    <style name="Tour.GooglePlusButton" parent="Tour.SocialButton">
+    <style name="Onboarding.GooglePlusButton" parent="Onboarding.SocialButton">
         <item name="android:background">@drawable/btn_google_plus</item>
     </style>
 
-    <style name="Tour.CallToAction.Base" parent="BlackOverlayText">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
-    </style>
-
-    <style name="Tour.CallToAction" parent="Tour.CallToAction.Base">
-
-    </style>
-
-    <style name="Tour.Headline.Base" parent="Tour.CallToAction">
-        <item name="android:paddingTop">1sp</item>
-
-        <item name="android:textSize">22sp</item>
-        <item name="android:textStyle">bold</item>
-
+    <style name="Onboarding.Headline" parent="Onboarding">
+        <item name="android:textSize">26sp</item>
+        <item name="android:textColor">@color/white</item>
         <item name="custom_font">fonts/Interstate-Regular.ttf</item>
-    </style>
-
-    <style name="Tour.Headline" parent="Tour.Headline.Base">
-
-    </style>
-
-    <style name="Tour.RadioButton" parent="@android:style/Widget.CompoundButton.RadioButton">
-        <item name="android:button">@drawable/tour_radio_button</item>
-        <item name="android:layout_width">6dp</item>
-        <item name="android:layout_height">6dp</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:layout_marginRight">8dp</item>
     </style>
 
     <style name="txt_tour_title" parent="txt_tour_start">
@@ -142,7 +129,7 @@
     <style name="SignUp.Background">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:scaleType">matrix</item>
+        <item name="android:scaleType">centerCrop</item>
     </style>
 
     <style name="SignUp.Overlay">
@@ -322,12 +309,7 @@
     </style>
 
     <style name="TourOverlayTextHolderLayout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:padding">16dp</item>
-        <item name="android:tag">parallax</item>
-        <item name="android:layout_marginBottom">@dimen/tour_bottom_bar_height</item>
         <item name="android:layout_alignParentBottom">true</item>
     </style>
 

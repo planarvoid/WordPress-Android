@@ -216,15 +216,11 @@
     <string name="onboarding_gender_option_nopref">Prefer not to say</string>
     <string name="ok_got_it">OK, got it</string>
 
-    <!-- __TOUR -->
-    <string name="tour_title_1">Hear the world’s sounds</string>
-    <string name="tour_text_1">Explore the largest community\nof artists, bands, podcasters and\ncreators of music &amp; audio</string>
-    <string name="tour_title_2">Discover</string>
-    <string name="tour_text_2">All kinds of new and\nunique music &amp; audio</string>
-    <string name="tour_title_3">Connect &amp; Share</string>
-    <string name="tour_text_3">Find music &amp; audio creators\nto hear and follow,\nshare the sounds you love</string>
-    <string name="tour_signup_button">Sign up with your email address</string>
-    <string name="tour_login_header">Or sign in with your account</string>
+    <!-- __LANDING -->
+    <string name="landing_title">Find music you love.</string>
+    <string name="landing_sub_title">Discover new artists.</string>
+    <string name="signup_button">Sign up with your email address</string>
+    <string name="login_header">Or sign in with your account</string>
 
     <!-- __ONBOARDING CATEGORIES -->
     <string tools:ignore="UnusedResources" name="category_facebook_friends">Facebook Friends</string>

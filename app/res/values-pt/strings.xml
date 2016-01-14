@@ -173,15 +173,9 @@
   <string name="onboarding_gender_option_custom">Personalizar</string>
   <string name="onboarding_gender_option_nopref">Prefere não dizer</string>
   <string name="ok_got_it">OK, entendi</string>
-  <!--__TOUR-->
-  <string name="tour_title_1">Ouvir os sons do mundo</string>
-  <string name="tour_text_1">Explore a maior comunidade\nde artistas, bandas, podcasters e\nprodutores de música e áudio</string>
-  <string name="tour_title_2">Descobrir</string>
-  <string name="tour_text_2">Todos os tipos de música e áudio novos e exclusivos</string>
-  <string name="tour_title_3">Conectar e compartilhar</string>
-  <string name="tour_text_3">Descubra produtores de áudio e música\npara ouvir e seguir,\ncompartilhe as faixas que você gosta</string>
-  <string name="tour_signup_button">Faça a inscrição com seu endereço de email</string>
-  <string name="tour_login_header">Ou logue-se com a sua conta</string>
+  <!--__ONBOARDING-->
+  <string name="signup_button">Faça a inscrição com seu endereço de email</string>
+  <string name="login_header">Ou logue-se com a sua conta</string>
   <!--__ONBOARDING CATEGORIES-->
   <string tools:ignore="UnusedResources" name="category_facebook_friends">Amigos do Facebook</string>
   <string tools:ignore="UnusedResources" name="category_facebook_likes">Curtidas do Facebook</string>

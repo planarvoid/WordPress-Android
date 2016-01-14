@@ -149,15 +149,9 @@
   <string name="onboarding_gender_option_custom">Tersuai</string>
   <string name="onboarding_gender_option_nopref">Tidak ingin menjawab</string>
   <string name="ok_got_it">Ok, saya mengerti</string>
-  <!--__TOUR-->
-  <string name="tour_title_1">Dengarkan suara dunia</string>
-  <string name="tour_text_1">Jelajahi komunitas terbesar\nartis, band, podcaster, dan\n pencipta musik &amp; audio</string>
-  <string name="tour_title_2">Temukan</string>
-  <string name="tour_text_2">Semua musik &amp; audio\nyang baru dan unik</string>
-  <string name="tour_title_3">Terhubung &amp; Berbagi</string>
-  <string name="tour_text_3">Temukan musik &amp; kreator audio\nuntuk didengarkan dan diikuti,\nberbagi suara yang kamu senangi</string>
-  <string name="tour_signup_button">Masuk dengan alamat surelmu</string>
-  <string name="tour_login_header">Atau masuklah dengan akun Anda</string>
+  <!--__LANDING-->
+  <string name="signup_button">Masuk dengan alamat surelmu</string>
+  <string name="login_header">Atau masuklah dengan akun Anda</string>
   <!--__ONBOARDING CATEGORIES-->
   <string tools:ignore="UnusedResources" name="category_facebook_friends">Teman Facebook</string>
   <string tools:ignore="UnusedResources" name="category_facebook_likes">Suka Facebook</string>
