@@ -4,7 +4,7 @@ import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.collections.OfflineOnboardingActivity;
+import com.soundcloud.android.collection.OfflineOnboardingActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;

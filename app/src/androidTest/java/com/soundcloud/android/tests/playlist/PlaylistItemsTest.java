@@ -6,7 +6,7 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
@@ -71,9 +71,9 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
     }
 
     private void assertPlaylistContainsTrack(String trackTitle) {
-        final CollectionsScreen collectionsScreen = mainNavHelper.goToCollections();
-        collectionsScreen.pullToRefresh();
-        PlaylistDetailsScreen playlistDetailsScreen = collectionsScreen.scrollToAndClickPlaylistWithTitle(playlist);
+        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
+        collectionScreen.pullToRefresh();
+        PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.scrollToAndClickPlaylistWithTitle(playlist);
 
         assertThat(playlistDetailsScreen.getTitle(), is(playlist));
         assertThat(playlistDetailsScreen.containsTrackWithTitle(trackTitle), is(true));

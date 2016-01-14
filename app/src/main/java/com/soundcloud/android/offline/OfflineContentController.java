@@ -6,7 +6,7 @@ import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIK
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.collections.CollectionsOperations;
+import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
@@ -40,7 +40,7 @@ import java.util.Set;
 public class OfflineContentController {
 
     private final Context context;
-    private final CollectionsOperations collectionsOperations;
+    private final CollectionOperations collectionOperations;
     private final Scheduler scheduler;
     private final OfflineContentOperations offlineContentOperations;
     private final PlaylistOperations playlistOperations;
@@ -129,11 +129,11 @@ public class OfflineContentController {
                                     OfflineSettingsStorage settingsStorage,
                                     PlaylistOperations playlistOperations,
                                     OfflineContentOperations offlineContentOperations,
-                                    CollectionsOperations collectionsOperations,
+                                    CollectionOperations collectionOperations,
                                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.context = context;
         this.eventBus = eventBus;
-        this.collectionsOperations = collectionsOperations;
+        this.collectionOperations = collectionOperations;
         this.scheduler = scheduler;
         this.playlistOperations = playlistOperations;
         this.offlineContentOperations = offlineContentOperations;
@@ -165,7 +165,7 @@ public class OfflineContentController {
     private Observable<?> offlineCollectionsEvents() {
         return Observable
                 .merge(
-                        collectionsOperations.onCollectionChanged().filter(isOfflineCollectionEnabled),
+                        collectionOperations.onCollectionChanged().filter(isOfflineCollectionEnabled),
                         offlineContentOperations.getOfflineCollectionStateChanges().filter(RxUtils.IS_TRUE)
                 )
                 .map(RxUtils.TO_VOID)
@@ -173,7 +173,7 @@ public class OfflineContentController {
     }
 
     private Observable<?> setPlaylistsCollectionAsOffline() {
-        return collectionsOperations.myPlaylists().map(TO_URN)
+        return collectionOperations.myPlaylists().map(TO_URN)
                 .flatMap(syncPlaylistsIfNecessary)
                 .flatMap(setOfflinePlaylists);
     }

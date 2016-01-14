@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -22,30 +22,30 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
 
     public void testDeletePlaylistFromOverFlowMenu() {
         final String newPlaylist = createNewPlaylist();
-        final CollectionsScreen collectionsScreen = mainNavHelper.goToCollections();
+        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
 
-        collectionsScreen
+        collectionScreen
                 .scrollToPlaylistWithTitle(newPlaylist)
                 .clickOverflow()
                 .clickDelete()
                 .clickConfirm();
 
-        assertThat(collectionsScreen.getPlaylistWithTitle(newPlaylist).isVisible(), is(false));
+        assertThat(collectionScreen.getPlaylistWithTitle(newPlaylist).isVisible(), is(false));
     }
 
     public void testDeletePlaylistFromPlaylistDetails() {
         final String newPlaylist = createNewPlaylist();
 
-        final CollectionsScreen collectionsScreen = mainNavHelper.goToCollections();
+        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
 
-        collectionsScreen
+        collectionScreen
                 .scrollToPlaylistWithTitle(newPlaylist)
                 .click()
                 .clickPlaylistOverflowButton()
                 .clickDelete()
                 .clickConfirm();
 
-        assertThat(collectionsScreen.getPlaylistWithTitle(newPlaylist).isVisible(), is(false));
+        assertThat(collectionScreen.getPlaylistWithTitle(newPlaylist).isVisible(), is(false));
     }
 
     private String createNewPlaylist() {

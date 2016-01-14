@@ -10,7 +10,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.StationsSoftLaunchTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ViewAllStationsScreen;
 import com.soundcloud.android.screens.elements.TrackItemElement;
@@ -19,7 +19,7 @@ import com.soundcloud.android.tests.ActivityTest;
 
 @StationsSoftLaunchTest
 public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
-    private CollectionsScreen collectionsScreen;
+    private CollectionScreen collectionScreen;
 
     public StationsCollectionTest() {
         super(LauncherActivity.class);
@@ -35,11 +35,11 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
         super.setUp();
         setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH);
 
-        collectionsScreen = mainNavHelper.goToCollections();
+        collectionScreen = mainNavHelper.goToCollections();
     }
 
     public void testRecentStationsBucket() {
-        assertTrue(collectionsScreen.clickRecentStations().isVisible());
+        assertTrue(collectionScreen.clickRecentStations().isVisible());
     }
 
     public void testStartedStationShouldBeAddedToRecentStations() {
@@ -54,7 +54,7 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     }
 
     private String startStationAndReturnTitle() {
-        final PlaylistDetailsScreen playlistDetailsScreen = collectionsScreen
+        final PlaylistDetailsScreen playlistDetailsScreen = collectionScreen
                 .scrollToAndClickPlaylistWithTitle("track-stations");
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();

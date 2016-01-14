@@ -256,7 +256,7 @@ public class TestUser {
             "stations123",
             "1-21686-161646357-100b22e7b6ccd2",
             161646357);
-    public static final TestUser collectionsUser = new TestUser(
+    public static final TestUser collectionUser = new TestUser(
             "evilcollections",
             "collections+test@soundcloud.com",
             "collections123",

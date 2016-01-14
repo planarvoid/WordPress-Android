@@ -9,7 +9,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
-import com.soundcloud.android.collections.ConfirmRemoveOfflineDialogFragment;
+import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;

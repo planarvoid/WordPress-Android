@@ -12,7 +12,7 @@ import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.settings.SettingKey;
@@ -26,7 +26,7 @@ public class PlaylistAutoplayRecommendationsTest extends TrackingActivityTest<Ma
     public static final String TEST_PLAYLIST_AUTO_RECOMMENDATION = "audio-events-v1-my-playlist-auto-recommendation";
     public static final String TEST_PLAYLIST_AUTO_RECOMMENDATION_OFF = "audio-events-v1-my-playlist-auto-recommendation-off";
 
-    private CollectionsScreen collectionsScreen;
+    private CollectionScreen collectionScreen;
 
     public PlaylistAutoplayRecommendationsTest() {
         super(MainActivity.class);
@@ -41,7 +41,7 @@ public class PlaylistAutoplayRecommendationsTest extends TrackingActivityTest<Ma
     protected void setUp() throws Exception {
         setRequiredEnabledFeatures(Flag.EVENTLOGGER_AUDIO_V1);
         super.setUp();
-        collectionsScreen = mainNavHelper.goToCollections();
+        collectionScreen = mainNavHelper.goToCollections();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class PlaylistAutoplayRecommendationsTest extends TrackingActivityTest<Ma
 
     @CollectionsTest
     public void testAutoPlaysRecommendationsAfterPlaylist() {
-        final PlaylistDetailsScreen playlistDetailsScreen = collectionsScreen.clickOnFirstPlaylist();
+        final PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.clickOnFirstPlaylist();
 
         startEventTracking();
 
@@ -76,7 +76,7 @@ public class PlaylistAutoplayRecommendationsTest extends TrackingActivityTest<Ma
     public void testDoesNotAutoPlaysRecommendationsAfterPlaylistIfSettingOff() {
         setAutoPlayEnabled(false);
 
-        final PlaylistDetailsScreen playlistDetailsScreen = collectionsScreen.clickOnFirstPlaylist();
+        final PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.clickOnFirstPlaylist();
 
         startEventTracking();
 

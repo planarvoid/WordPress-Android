@@ -5,7 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.collections.ConfirmRemoveOfflineDialogFragment;
+import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;

@@ -5,7 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.ConfirmDeletePlaylistScreen;
 import com.soundcloud.android.screens.ConfirmDisableSyncCollectionScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
@@ -16,14 +16,14 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
         super(testDriver);
     }
 
-    public CollectionsScreen clickMakeAvailableOffline() {
+    public CollectionScreen clickMakeAvailableOffline() {
         getMakeAvailableOfflineItem().click();
-        return new CollectionsScreen(testDriver);
+        return new CollectionScreen(testDriver);
     }
 
-    public CollectionsScreen clickMakeUnavailableOffline() {
+    public CollectionScreen clickMakeUnavailableOffline() {
         getMakeUnavailableOfflineItem().click();
-        return new CollectionsScreen(testDriver);
+        return new CollectionScreen(testDriver);
     }
 
     public ConfirmDisableSyncCollectionScreen clickMakeUnavailableOfflineToDisableSyncCollection() {

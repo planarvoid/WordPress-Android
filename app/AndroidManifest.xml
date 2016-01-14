@@ -98,7 +98,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".collections.OfflineOnboardingActivity" />
+        <activity android:name=".collection.OfflineOnboardingActivity" />
 
         <activity android:name=".search.PlayFromVoiceSearchActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
             <intent-filter android:priority="1">

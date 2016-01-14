@@ -12,7 +12,7 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
 import com.soundcloud.android.cast.NoOpCastConnectionHelper;
-import com.soundcloud.android.collections.CollectionNavigationTarget;
+import com.soundcloud.android.collection.CollectionNavigationTarget;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageProcessor;

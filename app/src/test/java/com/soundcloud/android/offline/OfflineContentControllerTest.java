@@ -9,7 +9,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.collections.CollectionsOperations;
+import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
@@ -49,7 +49,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     @Mock private PlaylistOperations playlistOperations;
     @Mock private PlaylistWithTracks playlistWithTracks;
     @Mock private OfflineContentOperations offlineContentOperations;
-    @Mock private CollectionsOperations collectionsOperations;
+    @Mock private CollectionOperations collectionOperations;
     @Mock private Context context;
 
     private OfflineContentController controller;
@@ -70,12 +70,12 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         when(settingsStorage.getWifiOnlyOfflineSyncStateChange()).thenReturn(wifiOnlyToggleSetting);
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(offlineLikeToggle);
         when(playlistOperations.playlists(Collections.singleton(PLAYLIST))).thenReturn(Observable.just(Collections.singletonList(playlistWithTracks)));
-        when(collectionsOperations.onCollectionChanged()).thenReturn(onCollectionChanged);
-        when(collectionsOperations.myPlaylists()).thenReturn(Observable.<List<PlaylistItem>>empty());
+        when(collectionOperations.onCollectionChanged()).thenReturn(onCollectionChanged);
+        when(collectionOperations.myPlaylists()).thenReturn(Observable.<List<PlaylistItem>>empty());
         when(offlineContentOperations.getOfflineCollectionStateChanges()).thenReturn(offlineCollectionStateChanges);
         when(offlineContentOperations.setOfflinePlaylists(anyList())).thenReturn(Observable.empty());
         controller = new OfflineContentController(context, eventBus, settingsStorage,
-                playlistOperations, offlineContentOperations, collectionsOperations, Schedulers.immediate());
+                playlistOperations, offlineContentOperations, collectionOperations, Schedulers.immediate());
 
     }
 
@@ -333,7 +333,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         for (Urn urn : playlists) {
             playlistsItemCollection.add(createPlaylistItem(urn));
         }
-        when(collectionsOperations.myPlaylists()).thenReturn(Observable.just(playlistsItemCollection));
+        when(collectionOperations.myPlaylists()).thenReturn(Observable.just(playlistsItemCollection));
 
         final List<PlaylistWithTracks> playlistsWithTracksCollection = new ArrayList<>();
         for (Urn urn : playlists) {

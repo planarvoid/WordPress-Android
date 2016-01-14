@@ -3,7 +3,7 @@ package com.soundcloud.android.framework.helpers;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.BasicSettingsScreen;
-import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -31,7 +31,7 @@ public class MainNavigationHelper {
         return mainTabs().clickYou().clickActivitiesLink();
     }
 
-    public CollectionsScreen goToCollections() {
+    public CollectionScreen goToCollections() {
         return mainTabs().clickCollections();
     }
 
