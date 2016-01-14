@@ -170,19 +170,19 @@ public class TestUser {
             "scandsubscribe",
             "scandsubscribe@gmail.com",
             "s0undcl0ud",
-            "1-21686-122411702-898b219a1aa93b",
+            "1-21686-122411702-cccdf2735af1f8",
             122411702);
     public static final TestUser likesUser = new TestUser(
             "sctestlike",
             "soundcloudtestlike@gmail.com",
             "passwordyeah77",
-            "1-21686-135116976-69f8860c057085",
+            "1-21686-135116976-bec8398cf46615",
             135116976);
     public static final TestUser likesActionUser = new TestUser(
             "scLikesActionUser",
             "sclikesactionuser@gmail.com",
             "s0undcl0ud",
-            "1-21686-149021931-ccab8f7526b50a",
+            "1-21686-149021931-eca5c50b2dbb28",
             149021931);
     public static final TestUser offlineUser = new TestUser(
             "sctestoffline",
@@ -212,13 +212,13 @@ public class TestUser {
             "childuserblah",
             "childuserblah@soundcloud.com",
             "passwordyeah88",
-            "1-21686-150380114-32bf6d4a14a26e",
+            "1-21686-150380114-b3af250571e838",
             150380114); // 13 years in 2015
     public static final TestUser playlistLikesUser = new TestUser(
             "playlist-likes-user",
             "playlist-likes-user@soundcloud.com",
             "passwordyeah",
-            "1-21686-151205360-cfaa357a323a00",
+            "1-21686-151205360-cbe46d4f5819e0",
             151205360);
     public static final TestUser addToPlaylistUser = new TestUser(
             "onePlaylistUser",
@@ -260,7 +260,7 @@ public class TestUser {
             "evilcollections",
             "collections+test@soundcloud.com",
             "collections123",
-            "1-21686-173627179-0c377461461630",
+            "1-21686-173627179-fc9f4c61bcba8b",
             173627179);
     public static final TestUser freeNonMonetizedUser = new TestUser(
             "unmonetizeable",
@@ -272,7 +272,7 @@ public class TestUser {
             "Monetizeable",
             "sc.ht.android.monetized.free@gmail.com",
             "s0undcl0ud_HT2016",
-            "1-21686-190275390-352784f263ea42",
+            "1-21686-190275390-0cf52de1bed061",
             190275390);
 
     // not used directly in a test, but user info is kept here for documentation
