@@ -62,9 +62,10 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         networkManagerClient.bind();
         networkManagerClient.switchWifiOn();
 
-        beforeStartActivity();
+        beforeLogIn();
         logIn();
         observeToasts();
+        beforeStartActivity();
         getActivity();
 
 
@@ -74,6 +75,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     }
 
     protected void beforeStartActivity() {}
+
+    protected void beforeLogIn() {}
 
     @Override
     protected void tearDown() throws Exception {

@@ -72,7 +72,7 @@ public class TrackItemElement {
 
             @Override
             public String getSelector() {
-                return String.format("With reposter");
+                return "With reposter";
             }
         };
     }

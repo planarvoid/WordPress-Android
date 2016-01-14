@@ -10,6 +10,7 @@ import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
 import com.soundcloud.android.screens.elements.PlaylistItemOverflowMenu;
 import com.soundcloud.android.screens.elements.StreamCardElement;
+import com.soundcloud.android.screens.elements.StreamUpsellCardElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.java.collections.Lists;
@@ -52,6 +53,16 @@ public class StreamScreen extends Screen {
         return new StreamCardElement(testDriver, streamList().scrollToItem(new TrackCriteria(testDriver)));
     }
 
+    public StreamCardElement scrollToFirstSnippedTrack() {
+        return new StreamCardElement(testDriver, streamList()
+                .scrollToItem(With.id(R.id.track_list_item), StreamCardElement.WithPreview(testDriver)));
+    }
+
+    public StreamUpsellCardElement scrollToUpsell() {
+        return new StreamUpsellCardElement(testDriver, streamList()
+            .scrollToItem(With.id(R.id.stream_upsell)));
+    }
+
     public VisualPlayerElement clickFirstTrackCard() {
         scrollToFirstTrack().click();
         return new VisualPlayerElement(testDriver);
@@ -66,7 +77,7 @@ public class StreamScreen extends Screen {
     }
 
     public StreamCardElement scrollToFirstPlaylistTrackCard() {
-        return new StreamCardElement(testDriver,  streamList().scrollToItem(new PlaylistCriteria(testDriver)));
+        return new StreamCardElement(testDriver, streamList().scrollToItem(new PlaylistCriteria(testDriver)));
     }
 
     public StreamCardElement scrollToFirstRepostedTrack() {

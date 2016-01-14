@@ -27,6 +27,7 @@
     <color name="list_text_created_at">#c9c9c9</color>
     <color name="list_text_track_user">#828282</color>
     <color name="list_text_header">#666666</color>
+
     <!-- New cells -->
     <color name="list_primary">#333333</color>
     <color name="list_secondary">#999999</color>
@@ -103,6 +104,7 @@
     <color name="usage_bar_free">#ffffff</color>
 
     <color name="user_image_border_color">#1a000000</color>
+    <color name="snipped_indicator_background">#1a000000</color>
 
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>
