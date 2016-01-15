@@ -2,6 +2,7 @@ package com.soundcloud.android.testsupport.assertions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.java.checks.Preconditions;
 import org.assertj.core.api.AbstractAssert;
@@ -77,6 +78,15 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
         assertThat(Screen.fromIntent(actual))
                 .overridingErrorMessage(errorMessage("Intent does not contain Screen: " + screen.name()))
                 .isEqualTo(screen);
+        return this;
+    }
+
+    public IntentAssert containsReferrer(Referrer referrer) {
+        Preconditions.checkNotNull(referrer);
+        isNotNull();
+        assertThat(Referrer.fromIntent(actual))
+                .overridingErrorMessage(errorMessage("Intent does not contain Referrer: " + referrer.name()))
+                .isEqualTo(referrer);
         return this;
     }
 

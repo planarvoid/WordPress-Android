@@ -1,16 +1,12 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -26,7 +22,6 @@ public class MainActivity extends ScActivity {
 
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
-    @Inject EventBus eventBus;
 
     @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle PlayerController playerController;
@@ -67,7 +62,6 @@ public class MainActivity extends ScActivity {
     protected void onNewIntent(Intent intent) {
         redirectToResolverIfNecessary(intent);
         super.onNewIntent(intent);
-        trackForegroundEvent(intent);
         setIntent(intent);
     }
 
@@ -83,12 +77,6 @@ public class MainActivity extends ScActivity {
     private void redirectFacebookDeeplinkToResolver(Uri data) {
         startActivity(new Intent(this, ResolveActivity.class).setAction(Intent.ACTION_VIEW).setData(data));
         finish();
-    }
-
-    private void trackForegroundEvent(Intent intent) {
-        if (Referrer.hasReferrer(intent) && Screen.hasScreen(intent)) {
-            eventBus.publish(EventQueue.TRACKING, ForegroundEvent.open(Screen.fromIntent(intent), Referrer.fromIntent(intent)));
-        }
     }
 
     @Override
