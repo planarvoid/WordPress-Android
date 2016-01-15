@@ -6,7 +6,6 @@ import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.PlaylistCardRenderer;
@@ -15,6 +14,7 @@ import com.soundcloud.android.view.adapters.TrackCardRenderer;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -116,36 +116,54 @@ public class UserSoundsBucketRenderer implements CellRenderer<UserSoundsBucket> 
 
     private void createAndBindTrackView(TrackItem track, boolean shouldRenderCard) {
         if (shouldRenderCard) {
-            createAndBindTrackCardView(track);
+            createAndBindTrackCard(track);
         } else {
-            createAndBindPlayableView(track);
+            createAndBindTrackItem(track);
         }
     }
 
-    private void createAndBindTrackCardView(TrackItem track) {
+    private void createAndBindTrackCard(TrackItem track) {
         final View itemView = trackCardRenderer.createItemView(holder);
-        trackCardRenderer.bindTrackView(track, itemView);
+        trackCardRenderer.bindTrackCard(track, itemView, 0);
         holder.addView(itemView);
+        addCardDivider(itemView);
     }
 
     private void createAndBindPlaylistView(PlaylistItem playableItem, boolean shouldRenderCard) {
         if (shouldRenderCard) {
-            createAndBindPlaylistCardView(playableItem);
+            createAndBindPlaylistCard(playableItem);
         } else {
-            createAndBindPlayableView(playableItem);
+            createAndBindPlaylistItem(playableItem);
         }
     }
 
-    private void createAndBindPlaylistCardView(PlaylistItem playlist) {
-        final View itemView = playlistCardRenderer.createItemView(holder);
-        playlistCardRenderer.bindPlaylistCardView(playlist, itemView);
+    private void createAndBindPlaylistItem(PlaylistItem playlist) {
+        final View itemView = playlistItemRenderer.createItemView(holder);
+        playlistItemRenderer.bindPlaylistView(playlist, itemView);
+        itemView.setBackground(itemView.getContext().getDrawable(R.drawable.divider_bottom));
         holder.addView(itemView);
     }
 
-    private void createAndBindPlayableView(PlayableItem playableItem) {
-        final TextView textView = new TextView(holder.getContext());
-        textView.setText(playableItem.getTitle());
-        holder.addView(textView);
+    private void createAndBindPlaylistCard(PlaylistItem playlist) {
+        final View itemView = playlistCardRenderer.createItemView(holder);
+        playlistCardRenderer.bindPlaylistCardView(playlist, itemView);
+        holder.addView(itemView);
+        addCardDivider(itemView);
+    }
+
+    private void addCardDivider(View itemView) {
+        final Context context = itemView.getContext();
+        final View divider = new View(context);
+        divider.setBackground(context.getDrawable(R.color.playlist_background));
+        divider.setMinimumHeight(context.getResources().getDimensionPixelOffset(R.dimen.profile_card_divider));
+        holder.addView(divider);
+    }
+
+    private void createAndBindTrackItem(TrackItem track) {
+        final View itemView = trackItemRenderer.createItemView(holder);
+        trackItemRenderer.bindTrackView(track, itemView, 0);
+        itemView.setBackground(itemView.getContext().getDrawable(R.drawable.divider_bottom));
+        holder.addView(itemView);
     }
 
     private void clearListItems() {

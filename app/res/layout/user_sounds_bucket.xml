@@ -7,7 +7,7 @@
 
     <TextView
         android:id="@+id/heading"
-        android:textSize="24sp"
+        style="@style/Profile.Sounds.Bucket.Heading"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
@@ -16,12 +16,14 @@
         android:id="@+id/thumbnail_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         android:orientation="vertical">
 
     </LinearLayout>
 
     <TextView
         android:id="@+id/view_all"
+        style="@style/Profile.Sounds.Bucket.ViewAll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone" />

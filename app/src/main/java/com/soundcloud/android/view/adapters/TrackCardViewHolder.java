@@ -96,7 +96,6 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
     public void resetAdditionalInformation() {
         playCount.setVisibility(View.GONE);
         nowPlaying.setVisibility(View.GONE);
-        duration.setVisibility(View.GONE);
 
         if (repostButton != null) {
             repostButton.setVisibility(View.GONE);

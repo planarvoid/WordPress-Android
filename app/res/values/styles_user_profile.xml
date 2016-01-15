@@ -143,4 +143,25 @@
         <item name="android:visibility">gone</item>
     </style>
 
+    <style name="Profile.Sounds" />
+
+    <style name="Profile.Sounds.Bucket" />
+
+    <style name="Profile.Sounds.Bucket.Heading">
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:padding">14sp</item>
+        <item name="android:textColor">@color/user_sounds_bucket_header</item>
+    </style>
+
+    <style name="Profile.Sounds.Bucket.ViewAll">
+        <item name="android:singleLine">true</item>
+        <item name="android:padding">14sp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/list_primary</item>
+        <item name="android:background">@drawable/divider_bottom</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
 </resources>

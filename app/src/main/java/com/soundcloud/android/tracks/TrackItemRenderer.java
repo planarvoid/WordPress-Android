@@ -65,6 +65,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     @Override
     public void bindItemView(int position, View itemView, List<TrackItem> trackItems) {
         final TrackItem track = trackItems.get(position);
+        bindTrackView(track, itemView, position);
+    }
+
+    public void bindTrackView(TrackItem track, View itemView, int position) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(track.getCreatorName());
         trackItemView.setTitle(track.getTitle());

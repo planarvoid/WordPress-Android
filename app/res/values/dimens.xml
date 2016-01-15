@@ -133,6 +133,7 @@
     <!-- Profile -->
     <dimen name="profile_image_dimen">104dp</dimen>
     <dimen name="profile_tabs_padding">38dp</dimen>
+    <dimen name="profile_card_divider">16dp</dimen>
 
     <!-- Widget -->
     <dimen name="widget_player_width">272dp</dimen>

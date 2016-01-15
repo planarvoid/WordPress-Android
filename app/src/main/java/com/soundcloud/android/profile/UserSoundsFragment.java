@@ -41,7 +41,10 @@ public class UserSoundsFragment extends ScrollableProfileFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+        final View fragmentView = inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+        fragmentView.setBackgroundColor(getResources().getColor(R.color.page_background));
+        fragmentView.setPadding(0, 0, 0, getContext().getResources().getDimensionPixelOffset(R.dimen.profile_card_divider));
+        return fragmentView;
     }
 
     @Override

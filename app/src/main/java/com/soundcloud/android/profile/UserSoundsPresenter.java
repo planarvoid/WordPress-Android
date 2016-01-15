@@ -99,7 +99,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsBucket> {
                         UserSoundsAdapter adapter,
                         UserProfileOperations operations,
                         Resources resources) {
-        super(swipeRefreshAttacher);
+        super(swipeRefreshAttacher, Options.custom().useDividers(Options.DividerMode.NONE).build());
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.operations = operations;

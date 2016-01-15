@@ -1,6 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
@@ -64,11 +63,10 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
 
     @Override
     public void bindItemView(final int position, View itemView, List<TrackItem> trackItems) {
-        final TrackItem track = trackItems.get(position);
-        bindTrackView(track, itemView);
+        bindTrackCard(trackItems.get(position), itemView, position);
     }
 
-    public void bindTrackView(final TrackItem track, final View itemView) {
+    public void bindTrackCard(final TrackItem track, final View itemView, final int position) {
         TrackCardViewHolder viewHolder = (TrackCardViewHolder) itemView.getTag();
         viewHolder.resetAdditionalInformation();
 
@@ -79,7 +77,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
         viewHolder.overflowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View overflowButton) {
-                menuPresenter.show((FragmentActivity) itemView.getContext(), itemView, track, Consts.NOT_SET);
+                menuPresenter.show((FragmentActivity) itemView.getContext(), itemView, track, position);
             }
         });
     }

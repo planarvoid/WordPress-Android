@@ -143,6 +143,11 @@
     <color name="stations_bucket_action_background">#828282</color>
     <color name="stations_bucket_action_text">#e5e5e5</color>
 
+    <!-- Profile -->
+    <color name="user_sounds_bucket_header">#666666</color>
+    <color name="user_sounds_divider">#e5e5e5</color>
+
+
     <!-- Collections -->
     <color name="collections_options_dialog_header">#b3b3b3</color>
     <color name="collections_kill_filter_text_color">#999999</color>
