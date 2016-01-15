@@ -55,6 +55,16 @@ public class TrackQueueItem extends PlayableQueueItem {
             super(playable, reposter);
         }
 
+        public Builder(TrackQueueItem monetizableItem) {
+            super(monetizableItem.urn);
+            reposter = monetizableItem.reposter;
+            relatedEntity = monetizableItem.relatedEntity;
+            shouldPersist = monetizableItem.shouldPersist;
+            blocked = monetizableItem.blocked;
+            adData = monetizableItem.adData;
+            copySource(monetizableItem);
+        }
+
         @Override
         protected Builder getThis() {
             return this;

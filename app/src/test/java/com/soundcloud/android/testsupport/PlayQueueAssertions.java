@@ -10,6 +10,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlayableQueueItem;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
@@ -49,6 +50,18 @@ public class PlayQueueAssertions {
         assertThat(playQueueItem1.getKind()).isEqualTo(playQueueItem2.getKind());
         assertThat(playQueueItem1.getUrn()).isEqualTo(playQueueItem2.getUrn());
         assertThat(playQueueItem1.getAdData()).isEqualTo(playQueueItem2.getAdData());
+        assertThat(playQueueItem1.shouldPersist()).isEqualTo(playQueueItem2.shouldPersist());
+
+        if (playQueueItem1 instanceof PlayableQueueItem) {
+            assertThat(((PlayableQueueItem) playQueueItem1).getQueryUrn())
+                    .isEqualTo(((PlayableQueueItem) playQueueItem2).getQueryUrn());
+            assertThat(((PlayableQueueItem) playQueueItem1).getRelatedEntity())
+                    .isEqualTo(((PlayableQueueItem) playQueueItem2).getRelatedEntity());
+            assertThat(((PlayableQueueItem) playQueueItem1).getSource())
+                    .isEqualTo(((PlayableQueueItem) playQueueItem2).getSource());
+            assertThat(((PlayableQueueItem) playQueueItem1).getSourceVersion())
+                    .isEqualTo(((PlayableQueueItem) playQueueItem2).getSourceVersion());
+        }
     }
 
 }

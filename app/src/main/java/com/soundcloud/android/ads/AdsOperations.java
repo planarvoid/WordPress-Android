@@ -13,6 +13,7 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -27,6 +28,7 @@ import android.util.Log;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class AdsOperations {
 
@@ -91,49 +93,69 @@ public class AdsOperations {
     public void applyAdToUpcomingTrack(ApiAdsForTrack ads) {
         final PlayQueueItem monetizableItem = playQueueManager.getNextPlayQueueItem();
 
-        if (featureFlags.isEnabled(Flag.VIDEO_ADS) && ads.videoAd().isPresent()) {
-            insertVideoAd(monetizableItem, ads.videoAd().get());
-        } else if (ads.interstitialAd().isPresent()) {
-            applyInterstitialAd(ads.interstitialAd().get(), monetizableItem);
-        } else if (ads.audioAd().isPresent()) {
-            insertAudioAd(monetizableItem, ads.audioAd().get());
+        if (monetizableItem instanceof TrackQueueItem) {
+            TrackQueueItem trackQueueItem = (TrackQueueItem) monetizableItem;
+            if (featureFlags.isEnabled(Flag.VIDEO_ADS) && ads.videoAd().isPresent()) {
+                insertVideoAd(trackQueueItem, ads.videoAd().get());
+            } else if (ads.interstitialAd().isPresent()) {
+                applyInterstitialAd(ads.interstitialAd().get(), trackQueueItem);
+            } else if (ads.audioAd().isPresent()) {
+                insertAudioAd(trackQueueItem, ads.audioAd().get());
+            }
         }
+
     }
 
     public void applyInterstitialToTrack(PlayQueueItem playQueueItem, ApiAdsForTrack ads) {
-        if (ads.interstitialAd().isPresent()) {
-            applyInterstitialAd(ads.interstitialAd().get(), playQueueItem);
+        if (playQueueItem instanceof TrackQueueItem && ads.interstitialAd().isPresent()) {
+            applyInterstitialAd(ads.interstitialAd().get(), (TrackQueueItem) playQueueItem);
         }
     }
 
-    private void applyInterstitialAd(ApiInterstitial apiInterstitial, PlayQueueItem monetizableItem) {
+    private void applyInterstitialAd(ApiInterstitial apiInterstitial, TrackQueueItem monetizableItem) {
         final InterstitialAd interstitialData = InterstitialAd.create(apiInterstitial, monetizableItem.getUrn());
-        monetizableItem.setAdData(Optional.<AdData>of(interstitialData));
+        final TrackQueueItem interstitialItem = new TrackQueueItem.Builder(monetizableItem)
+                .withAdData(interstitialData).build();
+        playQueueManager.replace(monetizableItem, Collections.<PlayQueueItem>singletonList(interstitialItem));
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueueManager.getCollectionUrn()));
     }
 
-    void insertVideoAd(PlayQueueItem monetizableItem, ApiVideoAd apiVideoAd) {
+    void insertVideoAd(TrackQueueItem monetizableItem, ApiVideoAd apiVideoAd) {
         final VideoAd videoData = VideoAd.create(apiVideoAd, monetizableItem.getUrn());
-        monetizableItem.setAdData(Optional.<AdData>absent());
-        playQueueManager.insertVideo(monetizableItem, videoData);
+        final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem).build();
+        final VideoQueueItem videoItem = new VideoQueueItem(videoData);
+        playQueueManager.replace(monetizableItem, Arrays.asList(videoItem, newMonetizableItem));
     }
 
-    void insertAudioAd(PlayQueueItem monetizableItem, ApiAudioAd apiAudioAd) {
+    void insertAudioAd(TrackQueueItem monetizableItem, ApiAudioAd apiAudioAd) {
         final AudioAd audioAdData = AudioAd.create(apiAudioAd, monetizableItem.getUrn());
 
         if (apiAudioAd.hasApiLeaveBehind()) {
             insertAudioAdWithLeaveBehind(apiAudioAd, audioAdData, monetizableItem);
         } else {
-            monetizableItem.setAdData(Optional.<AdData>absent());
-            playQueueManager.insertAudioAd(monetizableItem, apiAudioAd.getApiTrack().getUrn(), audioAdData, false);
+            insertAudioAdiWithoutLeaveBehind(monetizableItem, apiAudioAd, audioAdData);
         }
     }
 
-    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, AudioAd audioAdData, PlayQueueItem monetizableItem) {
-        final Urn audioAdTrack = apiAudioAd.getApiTrack().getUrn();
+    private void insertAudioAdiWithoutLeaveBehind(TrackQueueItem monetizableItem, ApiAudioAd apiAudioAd, AudioAd audioAdData) {
+        final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem).build();
+        final TrackQueueItem audioAdItem = new TrackQueueItem.Builder(apiAudioAd.getApiTrack().getUrn())
+                .withAdData(audioAdData)
+                .persist(false)
+                .build();
+        playQueueManager.replace(monetizableItem, Arrays.<PlayQueueItem>asList(audioAdItem, newMonetizableItem));
+    }
+
+    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, AudioAd audioAdData, TrackQueueItem monetizableItem) {
         final LeaveBehindAd leaveBehindAd = LeaveBehindAd.create(apiAudioAd.getLeaveBehind(), apiAudioAd.getApiTrack().getUrn());
-        monetizableItem.setAdData(Optional.<AdData>of(leaveBehindAd));
-        playQueueManager.insertAudioAd(monetizableItem, audioAdTrack, audioAdData, false);
+        final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem)
+                .withAdData(leaveBehindAd).build();
+        final TrackQueueItem audioAdItem = new TrackQueueItem.Builder(apiAudioAd.getApiTrack().getUrn())
+                .withAdData(audioAdData)
+                .persist(false)
+                .build();
+
+        playQueueManager.replace(monetizableItem, Arrays.<PlayQueueItem>asList(audioAdItem, newMonetizableItem));
     }
 
     void replaceUpcomingVideoAd(ApiAdsForTrack ads, VideoQueueItem videoItem) {
@@ -143,7 +165,7 @@ public class AdsOperations {
         final boolean shouldPublishQueueChange = !hasAudioAd && !hasInterstitial;
         playQueueManager.removeUpcomingItem(videoItem, shouldPublishQueueChange);
         if (hasAudioAd) {
-            insertAudioAd(playQueueManager.getNextPlayQueueItem(), ads.audioAd().get());
+            insertAudioAd((TrackQueueItem) playQueueManager.getNextPlayQueueItem(), ads.audioAd().get());
         } else if (hasInterstitial) {
             applyInterstitialToTrack(playQueueManager.getNextPlayQueueItem(), ads);
         }
