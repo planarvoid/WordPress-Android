@@ -21,8 +21,6 @@ class MrLoggaLoggaClient {
     private static final String PARAM_ANONYMOUS_ID = "anonymous_id";
     private static final String PARAM_SCENARIO_ID = "scenario_id";
 
-    private static final String recordingEndpoint = "http://localhost:4567/";
-
     private static final String ACTION_START_LOGGING = "start_logging";
     private static final String ACTION_FINISH_LOGGING = "finish_logging";
     private static final String ACTION_VALIDATION = "validation";
@@ -70,7 +68,7 @@ class MrLoggaLoggaClient {
     @SuppressWarnings("unused")
     public MrLoggaResponse startRecording(String scenarioId) {
         final Request request = new Request.Builder()
-                .url(recordingEndpoint + ACTION_START_RECORDING)
+                .url(loggingEndpoint + ACTION_START_RECORDING)
                 .post(RequestBody.create(MEDIA_TYPE_PLAIN_TEXT, scenarioId))
                 .build();
         return executeRequest(request);
@@ -79,7 +77,7 @@ class MrLoggaLoggaClient {
     @SuppressWarnings("unused")
     public MrLoggaResponse finishRecording() {
         final Request request = new Request.Builder()
-                .url(recordingEndpoint + ACTION_FINISH_RECORDING)
+                .url(loggingEndpoint + ACTION_FINISH_RECORDING)
                 .post(null)
                 .build();
         return executeRequest(request);
