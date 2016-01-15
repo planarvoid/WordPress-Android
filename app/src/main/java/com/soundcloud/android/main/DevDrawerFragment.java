@@ -11,9 +11,11 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -81,7 +83,7 @@ public class DevDrawerFragment extends PreferenceFragment {
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        android.os.Process.killProcess(android.os.Process.myPid());
+                        restartApp();
                         return true;
                     }
                 });
@@ -120,6 +122,15 @@ public class DevDrawerFragment extends PreferenceFragment {
                     }
                 });
 
+    }
+
+    private void restartApp() {
+        final Activity context = getActivity();
+        Intent launchActivity = new Intent(context, LauncherActivity.class);
+        launchActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(launchActivity);
+        context.finish();
+        System.exit(0);
     }
 
     private void copyTokenToClipboard() {
