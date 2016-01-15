@@ -653,6 +653,27 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void moveToNextPlayableItemSkipsPlaylist() {
+        final Map<Urn, Boolean> blockedMap = new HashMap<>();
+        blockedMap.put(Urn.forTrack(2L), true);
+        blockedMap.put(Urn.forTrack(3L), true);
+        blockedMap.put(Urn.forTrack(4L), false);
+
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 4L), playlistSessionSource, blockedMap), playlistSessionSource);
+
+        final List<PlayQueueItem> playQueueItems = Arrays.<PlayQueueItem>asList(
+                TestPlayQueueItem.createTrack(Urn.forTrack(1)),
+                TestPlayQueueItem.createPlaylist(Urn.forTrack(1)),
+                TestPlayQueueItem.createTrack(Urn.forTrack(2))
+        );
+        playQueueManager.setNewPlayQueue(new PlayQueue(playQueueItems), playlistSessionSource, 0);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
+    }
+
+    @Test
     public void moveToNextPlayableItemReturnsFalseIfNoNextItem() {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L)), playlistSessionSource);
         assertThat(playQueueManager.autoMoveToNextPlayableItem()).isFalse();
