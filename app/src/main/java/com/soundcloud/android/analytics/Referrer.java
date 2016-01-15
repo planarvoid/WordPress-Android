@@ -14,6 +14,7 @@ public enum Referrer {
     MOBI("mobi"),
     GOOGLE("google"),
     GOOGLE_PLUS("google_plus"),
+    APPBOY_NOTIFICATION("appboy_notification"),
     STREAM_NOTIFICATION("stream_notification"),
     ACTIVITIES_NOTIFICATION("activities_notification"),
     PLAYBACK_NOTIFICATION("playback_notification"),
