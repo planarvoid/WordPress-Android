@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.player;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -57,6 +58,19 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
         assertThat(visualPlayerElement.errorReason(), is("Not available yet in your country"));
         assertThat(visualPlayerElement.swipeNext().isExpandedPlayerPaused(), is(true));
     }
+
+    public void testSwipeForwardToBlockedTrackCanStartStation() throws Exception {
+        final VisualPlayerElement visualPlayerElement = playlistScreen.clickFirstTrack()
+                .waitForExpandedPlayer()
+                .swipeNext();
+
+        String originalTitle = visualPlayerElement.getTrackTitle();
+
+        visualPlayerElement.startStationFromUnplayableTrack().swipeNext();
+
+        assertThat(visualPlayerElement.getTrackPageContext(), containsString(originalTitle));
+    }
+
 
     public void testPlayGeoBlockedTrackShowsError() {
         // this should eventually be clickFirstBlockedTrack() when the UI is there

@@ -66,6 +66,11 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
+    public VisualPlayerElement startStationFromUnplayableTrack() {
+        solo.findElement(With.text(solo.getString(R.string.stations_start_track_station))).click();
+        return this;
+    }
+
     private ViewElement playButton() {
         return solo.findElement(With.id(R.id.player_play));
     }

@@ -61,7 +61,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackPageMenuController.Factory trackMenuControllerFactory;
     private final AdOverlayControllerFactory adOverlayControllerFactory;
-    private final ErrorViewController.Factory errorControllerFactory;
+    private final ErrorViewControllerFactory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
@@ -78,7 +78,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackPageMenuController.Factory trackMenuControllerFactory,
                               AdOverlayControllerFactory adOverlayControllerFactory,
-                              ErrorViewController.Factory errorControllerFactory,
+                              ErrorViewControllerFactory errorControllerFactory,
                               CastConnectionHelper castConnectionHelper,
                               Resources resources,
                               PlayerUpsellImpressionController upsellImpressionController) {
@@ -179,6 +179,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             holder.upsellButton.setVisibility(View.GONE);
         }
 
+        holder.errorViewController.setUrn(trackState.getUrn());
         if (blocked) {
             holder.errorViewController.showError(ErrorViewController.ErrorState.BLOCKED);
         } else {

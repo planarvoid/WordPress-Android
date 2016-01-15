@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +29,7 @@ public class ErrorViewControllerTest extends AndroidUnitTest {
 
     private ErrorViewController errorViewController;
     private View errorLayout;
+    private StartStationPresenter startStationPresenter;
 
     @Before
     public void setUp() throws Exception {
@@ -41,7 +43,7 @@ public class ErrorViewControllerTest extends AndroidUnitTest {
 
         when(trackPage.findViewById(R.id.track_page_error_stub)).thenReturn(errorStub);
         when(trackPage.getTag()).thenReturn(holder);
-        errorViewController = new ErrorViewController(trackPage);
+        errorViewController = new ErrorViewController(startStationPresenter, trackPage);
     }
 
     @Test
@@ -85,6 +87,27 @@ public class ErrorViewControllerTest extends AndroidUnitTest {
 
         String expected = resources().getString(R.string.playback_error_blocked);
         assertThat((TextView) errorLayout.findViewById(R.id.playback_error_reason)).hasText(expected);
+    }
+
+    @Test
+    public void showErrorShowsStationsButtonForBlockedError() {
+        errorViewController.showError(ErrorViewController.ErrorState.BLOCKED);
+
+        assertThat((TextView) errorLayout.findViewById(R.id.playback_error_station_button)).isVisible();
+    }
+
+    @Test
+    public void showErrorHidesStationsButtonForUnplayableError() {
+        errorViewController.showError(ErrorViewController.ErrorState.UNPLAYABLE);
+
+        assertThat((TextView) errorLayout.findViewById(R.id.playback_error_station_button)).isNotVisible();
+    }
+
+    @Test
+    public void showErrorHidesStationsButtonForConnectionError() {
+        errorViewController.showError(ErrorViewController.ErrorState.FAILED);
+
+        assertThat((TextView) errorLayout.findViewById(R.id.playback_error_station_button)).isNotVisible();
     }
 
     @Test
