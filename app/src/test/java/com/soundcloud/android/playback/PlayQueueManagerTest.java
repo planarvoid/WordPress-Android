@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -411,10 +412,10 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void saveProgressUpdatesSavePositionWithoutNonPersistentTracks() throws CreateModelException {
-        final TrackQueueItem nonPersistedItem = new TrackQueueItem.Builder(Urn.forTrack(4L)).persist(false).build();
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(3L));
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource, 1);
-        playQueueManager.replace(playQueueManager.getNextPlayQueueItem(), Arrays.<PlayQueueItem>asList(nonPersistedItem));
-        playQueueManager.setPosition(2, true);
+        playQueueManager.insertAudioAd(playQueueManager.getNextPlayQueueItem(), Urn.forTrack(2L), audioAd, false);
+        playQueueManager.setPosition(3, true);
 
         playQueueManager.saveCurrentProgress(12L);
 
@@ -426,17 +427,17 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPersistentTrack() throws CreateModelException {
-        final TrackQueueItem nonPersistedItem = new TrackQueueItem.Builder(Urn.forTrack(4L)).persist(false).build();
-        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource, 0);
-        playQueueManager.replace(playQueueManager.getNextPlayQueueItem(), Arrays.<PlayQueueItem>asList(nonPersistedItem));
-        playQueueManager.setPosition(1, true);
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(3L));
+        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource, 1);
+        playQueueManager.insertAudioAd(playQueueManager.getNextPlayQueueItem(), Urn.forTrack(1L), audioAd, false);
+        playQueueManager.setPosition(2, true);
 
         playQueueManager.saveCurrentProgress(12L);
 
         InOrder inOrder = Mockito.inOrder(playQueueOperations);
         // Saves first time when we call setNewPlayQueue
-        inOrder.verify(playQueueOperations).savePositionInfo(eq(0), any(Urn.class), any(PlaySessionSource.class), anyLong());
-        inOrder.verify(playQueueOperations).savePositionInfo(eq(1), any(Urn.class), any(PlaySessionSource.class), eq(0L));
+        inOrder.verify(playQueueOperations).savePositionInfo(eq(1), any(Urn.class), any(PlaySessionSource.class), anyLong());
+        inOrder.verify(playQueueOperations).savePositionInfo(eq(2), any(Urn.class), any(PlaySessionSource.class), eq(0L));
     }
 
     @Test

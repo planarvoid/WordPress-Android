@@ -11,7 +11,6 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlayerFunctions;
-import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -74,7 +73,7 @@ public class AdsController {
     private final Func1<Object, Boolean> shouldFetchAudioAdForNextItem = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
-            return playQueueManager.hasTrackAsNextItem()
+            return playQueueManager.hasNextItem()
                     && playQueueManager.getNextPlayQueueItem().isTrack()
                     && !adsOperations.isNextItemAd()
                     && !adsOperations.isCurrentItemAd()
@@ -186,13 +185,13 @@ public class AdsController {
     }
 
     public void reconfigureAdForNextTrack() {
-        if (!isForeground && adsForNextTrack.isPresent() && playQueueManager.hasTrackAsNextItem()) {
+        if (!isForeground && adsForNextTrack.isPresent() && playQueueManager.hasNextItem()) {
             final ApiAdsForTrack ads = adsForNextTrack.get();
             final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
             if (AdsOperations.isVideoAd(nextItem)) {
                 adsOperations.replaceUpcomingVideoAd(ads, (VideoQueueItem) nextItem);
             } else if (!AdsOperations.isAudioAd(nextItem) && ads.audioAd().isPresent()) {
-                adsOperations.insertAudioAd((TrackQueueItem) nextItem, ads.audioAd().get());
+                adsOperations.insertAudioAd(nextItem, ads.audioAd().get());
             }
         }
     }

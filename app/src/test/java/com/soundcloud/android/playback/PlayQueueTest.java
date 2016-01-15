@@ -170,16 +170,6 @@ public class PlayQueueTest extends AndroidUnitTest {
     }
 
     @Test
-    public void hasTrackAsNextItemIsTrueIfTrackNext() {
-        assertThat(playQueue.hasTrackAsNextItem(0)).isTrue();
-    }
-
-    @Test
-    public void hasTrackAsNextItemIsFalseIfTrackNotNext() {
-        assertThat(playQueue.hasTrackAsNextItem(1)).isFalse();
-    }
-
-    @Test
     public void getUrnReturnsUrnForGivenPosition() throws Exception {
         assertThat(playQueue.getUrn(1)).isEqualTo(Urn.forTrack(2L));
     }

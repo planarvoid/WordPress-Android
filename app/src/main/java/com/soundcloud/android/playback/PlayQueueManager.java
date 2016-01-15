@@ -6,6 +6,8 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdFunctions;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -116,10 +118,6 @@ public class PlayQueueManager implements OriginProvider {
         publishQueueUpdate();
     }
 
-    public void replace(PlayQueueItem oldItem, List<PlayQueueItem> newItems) {
-        playQueue.replaceItem(playQueue.indexOfPlayQueueItem(oldItem), newItems);
-    }
-
     private void logEmptyPlayQueues(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         if (playQueue.isEmpty()) {
             ErrorUtils.handleSilentException(new IllegalStateException("Setting empty play queue"),
@@ -202,10 +200,6 @@ public class PlayQueueManager implements OriginProvider {
 
     public boolean hasNextItem() {
         return playQueue.hasNextItem(currentPosition);
-    }
-
-    public boolean hasTrackAsNextItem() {
-        return playQueue.hasTrackAsNextItem(currentPosition);
     }
 
     public boolean hasPreviousItem() {
@@ -499,5 +493,15 @@ public class PlayQueueManager implements OriginProvider {
                 publishQueueUpdate();
             }
         }
+    }
+
+    public void insertVideo(PlayQueueItem beforeItem, VideoAd videoAd){
+        playQueue.insertVideo(playQueue.indexOfPlayQueueItem(beforeItem), videoAd);
+        publishQueueUpdate();
+    }
+
+    public void insertAudioAd(PlayQueueItem beforeItem, Urn trackUrn, AudioAd audioAd, boolean shouldPersist){
+        playQueue.insertAudioAd(playQueue.indexOfPlayQueueItem(beforeItem), trackUrn, audioAd, shouldPersist);
+        publishQueueUpdate();
     }
 }
