@@ -619,7 +619,7 @@
     <string name="you_view_public_profile">View public profile</string>
     <string name="you_app_version">App version %s</string>
 
-    <!-- NEW STREAM -->
+    <!-- __NEW STREAM -->
     <string name="stream_playlist_header_text">%1$s %2$s a playlist</string>
     <string name="stream_track_header_text">%1$s %2$s a track</string>
     <string name="stream_posted_action">posted</string>
