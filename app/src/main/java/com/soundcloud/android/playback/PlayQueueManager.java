@@ -118,6 +118,7 @@ public class PlayQueueManager implements OriginProvider {
 
     public void replace(PlayQueueItem oldItem, List<PlayQueueItem> newItems) {
         playQueue.replaceItem(playQueue.indexOfPlayQueueItem(oldItem), newItems);
+        publishQueueUpdate();
     }
 
     private void logEmptyPlayQueues(PlayQueue playQueue, PlaySessionSource playSessionSource) {

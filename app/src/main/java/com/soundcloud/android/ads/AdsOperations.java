@@ -8,7 +8,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -117,7 +116,6 @@ public class AdsOperations {
         final TrackQueueItem interstitialItem = new TrackQueueItem.Builder(monetizableItem)
                 .withAdData(interstitialData).build();
         playQueueManager.replace(monetizableItem, Collections.<PlayQueueItem>singletonList(interstitialItem));
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(playQueueManager.getCollectionUrn()));
     }
 
     void insertVideoAd(TrackQueueItem monetizableItem, ApiVideoAd apiVideoAd) {

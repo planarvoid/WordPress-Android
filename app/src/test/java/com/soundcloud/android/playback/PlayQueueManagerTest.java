@@ -440,7 +440,30 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getPlayProgressInfoReturnsLastSavedProgressInfo() {
+    public void replaceReplacesPlayQueueItems() {
+        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource, 1);
+
+        final TrackQueueItem replacementItem1 = TestPlayQueueItem.createTrack(Urn.forTrack(4L));
+        final TrackQueueItem replacementItem2 = TestPlayQueueItem.createTrack(Urn.forTrack(4L));
+        playQueueManager.replace(playQueueManager.getCurrentPlayQueueItem(), Arrays.<PlayQueueItem>asList(replacementItem1, replacementItem2));
+
+        assertThat(playQueueManager.getCurrentPlayQueueItem()).isSameAs(replacementItem1);
+        assertThat(playQueueManager.getNextPlayQueueItem()).isSameAs(replacementItem2);
+    }
+
+    @Test
+    public void replacePublishesQueueUpdateEvent() {
+        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource, 1);
+
+        final TrackQueueItem replacementItem1 = TestPlayQueueItem.createTrack(Urn.forTrack(4L));
+        final TrackQueueItem replacementItem2 = TestPlayQueueItem.createTrack(Urn.forTrack(4L));
+        playQueueManager.replace(playQueueManager.getCurrentPlayQueueItem(), Arrays.<PlayQueueItem>asList(replacementItem1, replacementItem2));
+
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).isQueueUpdate()).isTrue();
+    }
+
+    @Test
+    public void getPlayProgressIsfoReturnsLastSavedProgressInfo() {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(123L)), playlistSessionSource);
         playQueueManager.saveCurrentProgress(456L);
         assertThat(playQueueManager.wasLastSavedTrack(Urn.forTrack(123L))).isTrue();

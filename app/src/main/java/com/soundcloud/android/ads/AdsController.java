@@ -75,7 +75,6 @@ public class AdsController {
         @Override
         public Boolean call(Object event) {
             return playQueueManager.hasTrackAsNextItem()
-                    && playQueueManager.getNextPlayQueueItem().isTrack()
                     && !adsOperations.isNextItemAd()
                     && !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getNextPlayQueueItem());
@@ -85,7 +84,8 @@ public class AdsController {
     private final Func1<Object, Boolean> shouldFetchInterstitialForCurrentTrack = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
-            return !adsOperations.isCurrentItemAd()
+            return playQueueManager.getCurrentPlayQueueItem().isTrack()
+                    && !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getCurrentPlayQueueItem());
         }
     };
