@@ -134,9 +134,9 @@
 
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Remove ads</string>
-    <string name="upsell_stream_start_trial_button">Start your free 30-day trial</string>
-    <string name="upsell_stream_upgrade_title">Upgrade to SoundCloud Go</string>
-    <string name="upsell_stream_upgrade_description">Get premium tracks in full, listen offline\nand remove ads for only $9.99/month</string>
+    <string name="upsell_stream_start_trial_button">Upgrade now</string>
+    <string name="upsell_stream_upgrade_title">Get SoundCloud Go</string>
+    <string name="upsell_stream_upgrade_description">Offline. Ad-free. Full catalog.</string>
     <string name="upsell_track_preview">Preview</string>
     <string name="upsell_track_geo_blocked">Not yet available in your region</string>
 
