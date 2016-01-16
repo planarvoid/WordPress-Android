@@ -94,7 +94,7 @@ public class PlaylistWithTracks {
     }
 
     OfflineState getDownloadState() {
-        return sourceSet.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
+        return sourceSet.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }
 
     private long getCombinedTrackDurations() {

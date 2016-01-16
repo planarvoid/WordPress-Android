@@ -68,7 +68,7 @@ public class TrackItem extends PlayableItem {
     }
 
     public OfflineState getDownloadedState() {
-        return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
+        return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }
 
     public boolean isBlocked() {

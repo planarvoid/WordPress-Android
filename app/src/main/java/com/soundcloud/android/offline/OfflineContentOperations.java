@@ -4,7 +4,7 @@ import static com.soundcloud.android.rx.RxUtils.returning;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -47,7 +47,7 @@ public class OfflineContentOperations {
             if (event.getNextChangeSet().getOrElse(OfflineProperty.Collection.OFFLINE_LIKES, false)) {
                 return OfflineState.REQUESTED;
             } else {
-                return OfflineState.NO_OFFLINE;
+                return OfflineState.NOT_OFFLINE;
             }
         }
     };
@@ -75,7 +75,7 @@ public class OfflineContentOperations {
             if (enabled) {
                 return tracksStorage.getLikesOfflineState();
             } else {
-                return Observable.just(OfflineState.NO_OFFLINE);
+                return Observable.just(OfflineState.NOT_OFFLINE);
             }
         }
     };
@@ -83,7 +83,7 @@ public class OfflineContentOperations {
     private final Action1<List<Urn>> publishOfflineContentRemoved = new Action1<List<Urn>>() {
         @Override
         public void call(List<Urn> urns) {
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.offlineContentRemoved(urns));
+            eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.offlineContentRemoved(urns));
         }
     };
 

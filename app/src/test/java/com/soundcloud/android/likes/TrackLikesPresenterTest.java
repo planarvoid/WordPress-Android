@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
@@ -156,14 +156,14 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     public void shouldUpdateAdapterWhenLikedTrackDownloaded() {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         final DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(track.getUrn());
-        final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(downloadRequest);
+        final OfflineContentChangedEvent downloadingEvent = OfflineContentChangedEvent.downloading(downloadRequest);
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         reset(adapter);
 
         when(adapter.getItems()).thenReturn(Collections.singletonList(TrackItem.from(track)));
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadingEvent);
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadingEvent);
 
         verify(adapter).notifyDataSetChanged();
     }

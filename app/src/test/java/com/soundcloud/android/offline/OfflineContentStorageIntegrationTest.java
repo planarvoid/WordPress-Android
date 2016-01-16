@@ -128,7 +128,7 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
         subscriber.assertValue(
                 Collections.singletonList(PropertySet.from(
                         PlaylistProperty.URN.bind(playlistToDelete),
-                        OfflineProperty.OFFLINE_STATE.bind(OfflineState.NO_OFFLINE)
+                        OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE)
                 ))
         );
         databaseAssertions().assertPlaylistNotMarkedForOfflineSync(playlistToDelete);

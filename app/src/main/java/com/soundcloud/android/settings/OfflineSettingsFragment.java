@@ -13,7 +13,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.ImageAlertDialog;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -97,7 +97,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
 
         setupClearContent();
 
-        subscription.add(eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new CurrentDownloadSubscriber()));
+        subscription.add(eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new CurrentDownloadSubscriber()));
     }
 
     private void setupClearContent() {
@@ -213,9 +213,9 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
         }
     }
 
-    private final class CurrentDownloadSubscriber extends DefaultSubscriber<CurrentDownloadEvent> {
+    private final class CurrentDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
         @Override
-        public void onNext(final CurrentDownloadEvent event) {
+        public void onNext(final OfflineContentChangedEvent event) {
             if (event.kind == OfflineState.DOWNLOADED) {
                 refreshStoragePreference();
             }

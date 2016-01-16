@@ -227,7 +227,7 @@ public class OfflinePlaybackOperationsTest extends AndroidUnitTest {
     }
 
     private PropertySet removedTrack() {
-        return PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(OfflineState.NO_OFFLINE));
+        return PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE));
     }
 
     private PropertySet notDownloadedTrack() {

@@ -153,7 +153,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
     }
 
     private PropertySet expectedRemovedLikedTrackFor(PropertySet track, Date likedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
+        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }
 
     private PropertySet expectedHighTierMonetizableLikedTrackFor(PropertySet track, Date likedAt) {

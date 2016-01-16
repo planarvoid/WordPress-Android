@@ -4,7 +4,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -39,9 +39,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         publisher.publishDownloadsRequested(queue.getRequests());
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2))
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2))
         );
     }
 
@@ -49,16 +49,16 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     public void publishDownloadsRequestedDoesNotEmitNewEventsWhenQueueEmpty() {
         publisher.publishDownloadsRequested(queue.getRequests());
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).isEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).isEmpty();
     }
 
     @Test
     public void publishDoneEmitsNoOfflineEvent() {
         publisher.publishDone();
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(), // one from replay
-                CurrentDownloadEvent.idle()  // one published on done
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(), // one from replay
+                OfflineContentChangedEvent.idle()  // one published on done
         );
     }
 
@@ -75,9 +75,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         publisher.setUpdates(updates);
         publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloaded(singletonList(downloadRequest1))
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.downloaded(singletonList(downloadRequest1))
         );
     }
 
@@ -95,9 +95,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         publisher.setUpdates(updates);
         publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRemoved(removedDownloads)
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.downloadRemoved(removedDownloads)
         );
     }
 
@@ -115,9 +115,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         publisher.setUpdates(updates);
         publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.unavailable(creatorOptOut)
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.unavailable(creatorOptOut)
         );
     }
 
@@ -134,7 +134,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         publisher.setUpdates(updates);
         publisher.publishNotDownloadableStateChanges(queue, downloadRequest1.getTrack());
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).isEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).isEmpty();
     }
 
     @Test
@@ -145,9 +145,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         publisher.setUpdates(emptyUpdates());
         publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRequestRemoved(singletonList(downloadRequest1))
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.downloadRequestRemoved(singletonList(downloadRequest1))
         );
     }
 
@@ -155,9 +155,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     public void publishDownloadingEmitsDownloadingEventWithGivenRequest() {
         publisher.publishDownloading(downloadRequest1);
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloading(downloadRequest1)
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.downloading(downloadRequest1)
         );
     }
 
@@ -167,9 +167,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         publisher.setUpdates(emptyUpdates());
         publisher.publishDownloadSuccessfulEvents(queue, result);
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloaded(singletonList(downloadRequest1))
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.downloaded(singletonList(downloadRequest1))
         );
     }
 
@@ -183,11 +183,11 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         queue.set(queueState);
         publisher.publishDownloadSuccessfulEvents(queue, DownloadState.success(toBeDownloaded));
 
-        List<CurrentDownloadEvent> actual = eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD);
+        List<OfflineContentChangedEvent> actual = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED);
         assertThat(actual).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloaded(toBeDownloaded.isLiked(), singletonList(toBeDownloaded.getTrack())),
-                CurrentDownloadEvent.downloadRequested(false, relatedPlaylists)
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.downloaded(toBeDownloaded.isLiked(), singletonList(toBeDownloaded.getTrack())),
+                OfflineContentChangedEvent.downloadRequested(false, relatedPlaylists)
         );
     }
 
@@ -201,9 +201,9 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         queue.set(queueState);
         publisher.publishDownloadErrorEvents(queue, DownloadState.error(toBeDownloaded));
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRequested(false, Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L), Urn.forTrack(123L)))
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.downloadRequested(false, Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L), Urn.forTrack(123L)))
         );
     }
 
@@ -211,10 +211,10 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     public void publishDownloadCancelEventsEmitsDownloadRemoved() {
         publisher.publishDownloadCancelEvents(queue, DownloadState.canceled(downloadRequest1));
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRemoved(singletonList(downloadRequest1.getTrack())),
-                CurrentDownloadEvent.downloaded(downloadRequest1.isLiked(), downloadRequest1.getPlaylists())
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.downloadRemoved(singletonList(downloadRequest1.getTrack())),
+                OfflineContentChangedEvent.downloaded(downloadRequest1.isLiked(), downloadRequest1.getPlaylists())
         );
     }
 
@@ -228,10 +228,10 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         queue.set(queueState);
         publisher.publishDownloadCancelEvents(queue, DownloadState.canceled(toBeDownloaded));
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRemoved(singletonList(downloadRequest1.getTrack())),
-                CurrentDownloadEvent.downloaded(false, singletonList(Urn.forPlaylist(123L))));
+        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
+                OfflineContentChangedEvent.idle(),
+                OfflineContentChangedEvent.downloadRemoved(singletonList(downloadRequest1.getTrack())),
+                OfflineContentChangedEvent.downloaded(false, singletonList(Urn.forPlaylist(123L))));
     }
 
     private DownloadRequest createDownloadRequest(Urn trackUrn, boolean inLikes, List<Urn> inPlaylists) {

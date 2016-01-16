@@ -57,7 +57,7 @@ class TrackLikesHeaderView {
 
     public void show(OfflineState state) {
         downloadableHeaderView.show(state);
-        if (state == OfflineState.NO_OFFLINE || state == OfflineState.DOWNLOADED) {
+        if (state == OfflineState.NOT_OFFLINE || state == OfflineState.DOWNLOADED) {
             updateTrackCount(trackCount);
         }
     }

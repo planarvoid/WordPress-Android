@@ -11,7 +11,7 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -162,9 +162,9 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             offlineStateSubscription.unsubscribe();
             offlineStateSubscription = new CompositeSubscription();
             offlineStateSubscription.add(
-                    eventBus.queue(EventQueue.CURRENT_DOWNLOAD)
+                    eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
                             .filter(isPlaylist(playlistWithTracks))
-                            .map(CurrentDownloadEvent.TO_OFFLINE_STATE)
+                            .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
                             .observeOn(AndroidSchedulers.mainThread())
                             .startWith(playlistWithTracks.getDownloadState())
                             .subscribe(new OfflineStateSubscriber()));
@@ -212,10 +212,10 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         };
     }
 
-    private Func1<CurrentDownloadEvent, Boolean> isPlaylist(final PlaylistWithTracks playlistWithTracks) {
-        return new Func1<CurrentDownloadEvent, Boolean>() {
+    private Func1<OfflineContentChangedEvent, Boolean> isPlaylist(final PlaylistWithTracks playlistWithTracks) {
+        return new Func1<OfflineContentChangedEvent, Boolean>() {
             @Override
-            public Boolean call(CurrentDownloadEvent event) {
+            public Boolean call(OfflineContentChangedEvent event) {
                 return event.entities.contains(playlistWithTracks.getUrn());
             }
         };
@@ -383,7 +383,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         @Override
         public void onNext(PropertySet entityChanges) {
             if (!entityChanges.get(Collection.IS_MARKED_FOR_OFFLINE)) {
-                playlistEngagementsView.showOfflineState(OfflineState.NO_OFFLINE);
+                playlistEngagementsView.showOfflineState(OfflineState.NOT_OFFLINE);
             }
         }
     }

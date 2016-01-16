@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineProperty;
@@ -45,7 +45,7 @@ public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
                 newArrayList(TrackItem.from(track1), TrackItem.from(track2)));
 
         final DownloadRequest request = ModelFixtures.downloadRequestFromLikes(TRACK1);
-        final CurrentDownloadEvent event = CurrentDownloadEvent.downloading(request);
+        final OfflineContentChangedEvent event = OfflineContentChangedEvent.downloading(request);
         subscriber.onNext(event);
 
         assertThat(track1.get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.DOWNLOADING);
@@ -60,7 +60,7 @@ public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(
                 newArrayList(TrackItem.from(track1), TrackItem.from(track2)));
 
-        final CurrentDownloadEvent event = CurrentDownloadEvent.downloaded(false, Collections.singletonList(TRACK1));
+        final OfflineContentChangedEvent event = OfflineContentChangedEvent.downloaded(false, Collections.singletonList(TRACK1));
         subscriber.onNext(event);
 
         assertThat(track1.get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.DOWNLOADED);
@@ -74,7 +74,7 @@ public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(
                 newArrayList(TrackItem.from(track1)));
 
-        final CurrentDownloadEvent event = CurrentDownloadEvent.downloaded(false, Collections.singletonList(TRACK2));
+        final OfflineContentChangedEvent event = OfflineContentChangedEvent.downloaded(false, Collections.singletonList(TRACK2));
         subscriber.onNext(event);
 
         verify(adapter, never()).notifyDataSetChanged();

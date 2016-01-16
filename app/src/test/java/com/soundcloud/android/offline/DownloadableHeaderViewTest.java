@@ -51,7 +51,7 @@ public class DownloadableHeaderViewTest extends AndroidUnitTest {
     @Test
     public void displayHeadTextWhenNoOffline() {
         downloadableHeaderView.setHeaderText("Header test text");
-        downloadableHeaderView.show(OfflineState.NO_OFFLINE);
+        downloadableHeaderView.show(OfflineState.NOT_OFFLINE);
 
         assertThat(getHeaderText()).hasText("Header test text");
         assertThat(header.findViewById(R.id.header_download_state)).isGone();

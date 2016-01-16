@@ -50,7 +50,7 @@ public class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
         if (featureOperations.isOfflineContentEnabled()) {
             downloadProgressIcon.setState(playlistItem.getDownloadState());
         } else {
-            downloadProgressIcon.setState(OfflineState.NO_OFFLINE);
+            downloadProgressIcon.setState(OfflineState.NOT_OFFLINE);
         }
     }
 }

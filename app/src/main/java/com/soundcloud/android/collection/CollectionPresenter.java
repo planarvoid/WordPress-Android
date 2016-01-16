@@ -238,7 +238,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
     private void subscribeForUpdates() {
         eventSubscriptions.unsubscribe();
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
+                eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdateCurrentDownloadSubscriber(adapter)),
                 collectionOperations.onCollectionChanged()
                         .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())

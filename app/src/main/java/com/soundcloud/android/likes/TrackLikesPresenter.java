@@ -1,6 +1,6 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.events.EventQueue.CURRENT_DOWNLOAD;
+import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
@@ -137,7 +137,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,
                         new UpdatePlayingTrackSubscriber(adapter)),
-                eventBus.queue(CURRENT_DOWNLOAD)
+                eventBus.queue(OFFLINE_CONTENT_CHANGED)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED,

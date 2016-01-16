@@ -54,7 +54,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
         final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
-        expected.put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
+        expected.put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
         assertThat(track).isEqualTo(expected);
     }
 

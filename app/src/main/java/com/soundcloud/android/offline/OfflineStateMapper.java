@@ -28,7 +28,7 @@ public class OfflineStateMapper extends RxResultMapper<PropertySet> {
         if (isMostRecentDate(requestedAt, removedAt, downloadedAt, unavailableAt)) {
             propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED);
         } else if (isMostRecentDate(removedAt, requestedAt, downloadedAt, unavailableAt)) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
+            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
         } else if (isMostRecentDate(downloadedAt, requestedAt, removedAt, unavailableAt)) {
             propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
         } else if (isCollectionOffline && isMostRecentDate(unavailableAt, requestedAt, removedAt, downloadedAt)) {

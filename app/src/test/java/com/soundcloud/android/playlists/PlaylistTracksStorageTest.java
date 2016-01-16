@@ -223,7 +223,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 fromApiTrack(apiTrack2)
                         .put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED),
                 fromApiTrack(apiTrack3)
-                        .put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE)
+                        .put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE)
         );
     }
 

@@ -73,7 +73,7 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         if (isMostRecentDate(downloadedAt, removedAt)) {
             propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
         } else if (isMostRecentDate(removedAt, downloadedAt)) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
+            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
         }
     }
 

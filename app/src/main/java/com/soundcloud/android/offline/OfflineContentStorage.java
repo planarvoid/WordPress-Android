@@ -134,7 +134,7 @@ class OfflineContentStorage {
                 if (txnResult.success()) {
                     final ArrayList<PropertySet> propertySets = new ArrayList<>(requestedPlaylist.size() + noOfflinePlaylist.size());
                     propertySets.addAll(Lists.transform(requestedPlaylist, toPlaylistProperties(OfflineState.REQUESTED)));
-                    propertySets.addAll(Lists.transform(noOfflinePlaylist, toPlaylistProperties(OfflineState.NO_OFFLINE)));
+                    propertySets.addAll(Lists.transform(noOfflinePlaylist, toPlaylistProperties(OfflineState.NOT_OFFLINE)));
                     return propertySets;
                 } else {
                     return Collections.emptyList();
