@@ -1,5 +1,6 @@
 package com.soundcloud.android.framework.helpers.mrlogga;
 
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.utils.BuildHelper;
@@ -19,6 +20,13 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
 
     public TrackingActivityTest(Class<T> activityClass) {
         super(activityClass);
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        // promoted tracking blocks eventlogger tests, so disable until we find a better way
+        ConfigurationHelper.disablePromotedAnalytics(getInstrumentation().getTargetContext());
     }
 
     @Override

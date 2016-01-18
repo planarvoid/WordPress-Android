@@ -9,6 +9,7 @@ expected_events:
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
     protocol: hls|https
+    policy: ALLOW
     ts: '[0-9]+'
     track: soundcloud:tracks:[0-9]+
     player_type: Skippy|MediaPlayer
@@ -30,6 +31,7 @@ expected_events:
     protocol: hls|https
     ts: '[0-9]+'
     pause_reason: pause
+    policy: ALLOW
     anonymous_id: (\w|-)+
     connection_type: wifi
     track: soundcloud:tracks:[0-9]+

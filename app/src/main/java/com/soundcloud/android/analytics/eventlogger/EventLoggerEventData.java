@@ -36,6 +36,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAY
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION_v0;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.POLICY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROMOTED_BY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
@@ -91,6 +92,11 @@ class EventLoggerEventData {
 
     public EventLoggerEventData adUrn(String adUrn) {
         addToPayload(AD_URN, adUrn);
+        return this;
+    }
+
+    public EventLoggerEventData policy(String policy) {
+        addToPayload(POLICY, policy);
         return this;
     }
 

@@ -209,7 +209,7 @@ public abstract class TestPropertySets {
     }
 
     public static PropertySet expectedTrackForAnalytics(Urn trackUrn, Urn creatorUrn) {
-        return expectedTrackForAnalytics(trackUrn, creatorUrn, "allow", 1000);
+        return expectedTrackForAnalytics(trackUrn, creatorUrn, "ALLOW", 1000);
     }
 
     public static PropertySet fromApiTrack() {
