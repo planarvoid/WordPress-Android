@@ -54,6 +54,7 @@ public final class Consts {
         public static final String NOTIFICATIONS_REPOSTS = "notificationsReposts";
         public static final String NOTIFICATIONS_COMMENTS = "notificationsComments";
         public static final String NOTIFICATIONS_FREQUENCY = "notificationsFrequency";
+        public static final String NOTIFICATIONS_SERVER_SIDE = "notificationsServerSide";
         public static final String PLAYBACK_ERROR_REPORTING_ENABLED = "playbackErrorReportingEnabled";
         public static final String LAST_USER_SYNC = "lastUserSync";
         public static final String DEV_HTTP_PROXY = "dev.http.proxy";

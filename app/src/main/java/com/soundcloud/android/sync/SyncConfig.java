@@ -52,6 +52,10 @@ public class SyncConfig {
         return sharedPreferences.getBoolean(Consts.PrefKeys.NOTIFICATIONS_REPOSTS, true);
     }
 
+    public boolean isServerSideNotifications() {
+        return sharedPreferences.getBoolean(Consts.PrefKeys.NOTIFICATIONS_SERVER_SIDE, false);
+    }
+
     public boolean isNewFollowerNotificationsEnabled() {
         return sharedPreferences.getBoolean(Consts.PrefKeys.NOTIFICATIONS_FOLLOWERS, true);
     }
@@ -89,5 +93,19 @@ public class SyncConfig {
         long currentTime = dateProvider.getCurrentTime();
         final long lastAction = sharedPreferences.getLong(prefKey, currentTime);
         return (currentTime - lastAction) > max;
+    }
+
+    public void enableServerSideNotifications() {
+        setServerSideNotifications(true);
+    }
+
+    public void disableServerSideNotifications() {
+        setServerSideNotifications(false);
+    }
+
+    private void setServerSideNotifications(boolean isServerSideNotifications) {
+        sharedPreferences.edit()
+                .putBoolean(Consts.PrefKeys.NOTIFICATIONS_SERVER_SIDE, isServerSideNotifications)
+                .apply();
     }
 }
