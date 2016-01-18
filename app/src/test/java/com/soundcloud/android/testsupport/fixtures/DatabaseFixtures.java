@@ -22,6 +22,7 @@ import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
 import com.soundcloud.android.sync.SyncContent;
+import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
@@ -753,6 +754,18 @@ public class DatabaseFixtures {
         builder.put(TableColumns.Activities.CREATED_AT, activity.getCreatedAt().getTime());
         builder.put(TableColumns.Activities.SOUND_ID, activity.getTrack().getId());
         builder.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
+        insertInto(Table.Activities, builder.get());
+    }
+
+    public void insertPlaylistRepostActivity(ApiPlaylistRepostActivity activity) {
+        insertPlaylist(activity.getPlaylist());
+        insertUser(activity.getUser());
+        ContentValuesBuilder builder = ContentValuesBuilder.values();
+        builder.put(TableColumns.Activities.TYPE, ActivityKind.TRACK_REPOST.identifier());
+        builder.put(TableColumns.Activities.USER_ID, activity.getUserUrn().getNumericId());
+        builder.put(TableColumns.Activities.CREATED_AT, activity.getCreatedAt().getTime());
+        builder.put(TableColumns.Activities.SOUND_ID, activity.getPlaylist().getId());
+        builder.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         insertInto(Table.Activities, builder.get());
     }
 
