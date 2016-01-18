@@ -3,6 +3,7 @@ package com.soundcloud.android.stream;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.annotations.VisibleForTesting;
 
 import android.content.SharedPreferences;
 
@@ -12,7 +13,10 @@ import java.util.concurrent.TimeUnit;
 
 class UpsellStorage {
 
+    @VisibleForTesting
     static final String UPSELL_DISMISSED = "upsell_dismissed";
+    
+    @VisibleForTesting
     static final long UPSELL_REAPPEAR_DELAY_IN_HOURS = 48;
 
     private final SharedPreferences sharedPreferences;
@@ -24,17 +28,17 @@ class UpsellStorage {
         this.dateProvider = dateProvider;
     }
 
-    public void clearData() {
+    void clearData() {
         sharedPreferences.edit().clear().apply();
     }
 
-    public void setUpsellDismissed() {
+    void setUpsellDismissed() {
         sharedPreferences.edit()
                 .putLong(UPSELL_DISMISSED, dateProvider.getCurrentTime())
                 .apply();
     }
 
-    public boolean canDisplayUpsell() {
+    boolean canDisplayUpsell() {
         return !wasUpsellDismissed() || canDisplayAgain();
     }
 
