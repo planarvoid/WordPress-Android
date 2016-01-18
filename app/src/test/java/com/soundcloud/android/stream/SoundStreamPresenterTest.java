@@ -11,6 +11,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -282,6 +283,18 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         presenter.onUpsellItemClicked();
 
         verify(navigator).openUpgrade(fragmentRule.getActivity());
+    }
+
+    @Test
+    public void onUpsellItemClickedSendsUpsellTrackingEvent() {
+        UpgradeTrackingEvent expectedEvent = UpgradeTrackingEvent.forStreamClick();
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onUpsellItemClicked();
+
+        UpgradeTrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeTrackingEvent.class);
+        assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
 }

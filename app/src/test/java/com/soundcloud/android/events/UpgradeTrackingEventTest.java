@@ -109,6 +109,22 @@ public class UpgradeTrackingEventTest {
     }
 
     @Test
+    public void createsEventForStreamUpsellImpression() {
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forStreamImpression();
+
+        assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION);
+        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1014");
+    }
+
+    @Test
+    public void createsEventForStreamUpsellClick() {
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forStreamClick();
+
+        assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_CLICK);
+        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1014");
+    }
+
+    @Test
     public void createsEventForUpgradeButtonImpression() {
         UpgradeTrackingEvent event = UpgradeTrackingEvent.forUpgradeButtonImpression();
 

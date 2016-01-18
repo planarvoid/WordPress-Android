@@ -7,12 +7,15 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.ActivityTest;
 
-public class SnippetsInStreamTest extends ActivityTest<MainActivity> {
+public class SnippetsInStreamTest extends TrackingActivityTest<MainActivity> {
+
+    private static final String STREAM_UPSELL_TRACKING_TEST = "stream-upsell-tracking-test";
 
     public SnippetsInStreamTest() {
         super(MainActivity.class);
@@ -31,6 +34,7 @@ public class SnippetsInStreamTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void beforeStartActivity() {
+        getWaiter().waitFiveSeconds();
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }
 
@@ -46,9 +50,17 @@ public class SnippetsInStreamTest extends ActivityTest<MainActivity> {
 
     @PaymentTest
     public void testUserCanNavigateToSubscribePageFromUpsell() {
-        assertThat(mainNavHelper
-                .goToStream()
+        final StreamScreen streamScreen = mainNavHelper.goToStream();
+
+        // this is here because we dont want to validate promoted and/or facebook invites
+        streamScreen.scrollToFirstNotPromotedTrackCard();
+
+        startEventTracking();
+
+        assertThat(streamScreen
                 .scrollToUpsell()
                 .clickUpgrade(), is(visible()));
+
+        finishEventTracking(STREAM_UPSELL_TRACKING_TEST);
     }
 }
