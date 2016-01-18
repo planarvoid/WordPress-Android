@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/start_station"
+        android:visible="false"
+        android:title="@string/stations_start_track_station"/>
     <item android:id="@+id/add_to_playlist"
           android:title="@string/add_to_playlist" />
     <item android:id="@+id/share"
@@ -11,9 +14,6 @@
           android:title="@string/unpost" />
     <item android:id="@+id/comment"
           android:title="@string/comment_at_time"/>
-    <item android:id="@+id/start_station"
-        android:visible="false"
-        android:title="@string/stations_start_track_station"/>
     <item android:id="@+id/info"
           android:title="@string/info"/>
 </menu>
