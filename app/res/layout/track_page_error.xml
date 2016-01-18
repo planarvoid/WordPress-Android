@@ -35,4 +35,17 @@
             android:layout_below="@id/playback_error"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="12dp" />
+
+    <Button
+        android:id="@+id/playback_error_station_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/playback_error_reason"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="12dp"
+        style="?android:attr/borderlessButtonStyle"
+        android:visibility="gone"
+        android:textColor="@color/white"
+        android:text="@string/stations_start_track_station"/>
+
 </RelativeLayout>

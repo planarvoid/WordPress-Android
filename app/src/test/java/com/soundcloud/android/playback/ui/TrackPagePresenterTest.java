@@ -68,7 +68,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdOverlayControllerFactory adOverlayControllerFactory;
     @Mock private AdOverlayController adOverlayController;
-    @Mock private ErrorViewController.Factory errorControllerFactory;
+    @Mock private ErrorViewControllerFactory errorControllerFactory;
     @Mock private ErrorViewController errorViewController;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
@@ -109,6 +109,12 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void bindItemViewSetsDurationOnWaveformController() {
         populateTrackPage();
         verify(waveformViewController).setDurations(PLAY_DURATION, FULL_DURATION);
+    }
+
+    @Test
+    public void bindItemViewSetsUrnOnErrorViewController() {
+        populateTrackPage();
+        verify(errorViewController).setUrn(TRACK_URN);
     }
 
     @Test
