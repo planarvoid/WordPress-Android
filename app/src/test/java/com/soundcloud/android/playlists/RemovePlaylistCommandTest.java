@@ -11,6 +11,7 @@ import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertTha
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -67,6 +68,20 @@ public class RemovePlaylistCommandTest extends StorageIntegrationTest {
         final Query query = from(Table.Activities)
                 .whereEq(SOUND_ID, playlist.getId())
                 .whereEq(SOUND_TYPE, TYPE_PLAYLIST);
+
+        assertThat(select(query)).isEmpty();
+    }
+
+    @Test
+    public void removedSoundStreamEntryAssociatedWithRemovedPlaylist() {
+        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        testFixtures().insertStreamPlaylistPost(playlist.getId(), 123L);
+
+        command.call(playlist.getUrn());
+
+        final Query query = from(Table.SoundStream)
+                .whereEq(TableColumns.SoundStream.SOUND_ID, playlist.getId())
+                .whereEq(TableColumns.SoundStream.SOUND_TYPE, TYPE_PLAYLIST);
 
         assertThat(select(query)).isEmpty();
     }
