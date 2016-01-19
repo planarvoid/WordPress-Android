@@ -16,7 +16,6 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -136,8 +135,7 @@ public class DevDrawerFragment extends PreferenceFragment {
     }
 
     private void fakeUpsellFlow() {
-        Intent intent = new Intent(getActivity(), UpgradeProgressActivity.class);
-        startActivity(intent);
+        navigator.restartAppAndNavigateTo(getActivity(), UpgradeProgressActivity.class);
     }
 
     private void copyTokenToClipboard() {

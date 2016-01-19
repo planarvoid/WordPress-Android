@@ -3,7 +3,6 @@ package com.soundcloud.android.payments;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.collection.OfflineOnboardingActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.policies.DailyUpdateService;
@@ -49,8 +48,8 @@ public class UpgradeProgressActivity extends AppCompatActivity {
     private class PolicyUpdateEventSubscriber extends DefaultSubscriber<PolicyUpdateEvent> {
         @Override
         public void onNext(PolicyUpdateEvent event) {
-            Log.d(TAG, "Restarting app");
-            navigator.restartAppAndNavigateTo(UpgradeProgressActivity.this, OfflineOnboardingActivity.class);
+            Log.d(TAG, "All done! Launching onboarding");
+            navigator.openOfflineOnboarding(UpgradeProgressActivity.this);
         }
     }
 }
