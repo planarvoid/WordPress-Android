@@ -36,6 +36,12 @@ public class TrackOfflineStateProvider {
                 .subscribe(new StorageSubscriber());
     }
 
+    public void clear(){
+        offlineStates.clear();
+    }
+
+    // NOTE: this is known to give a potentially incorrect state if the states have not loaded yet.
+    // If this is a problem for a future usage, we should add an asychronous version
     public OfflineState getOfflineState(Urn track) {
         return offlineStates.containsKey(track) ? offlineStates.get(track) : OfflineState.NOT_OFFLINE;
     }

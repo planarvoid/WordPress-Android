@@ -62,6 +62,16 @@ public class TrackOfflineStateProviderTest extends AndroidUnitTest {
         assertThat(trackOfflineStateProvider.getOfflineState(TRACK_3)).isSameAs(OfflineState.DOWNLOADED);
     }
 
+    @Test
+    public void clearClearsExistingStates() {
+        trackOfflineStateProvider.subscribe();
+        trackOfflineStateProvider.clear();
+
+        assertThat(trackOfflineStateProvider.getOfflineState(REQUESTED_TRACK)).isSameAs(OfflineState.NOT_OFFLINE);
+        assertThat(trackOfflineStateProvider.getOfflineState(UNAVAILABLE_TRACK)).isSameAs(OfflineState.NOT_OFFLINE);
+        assertThat(trackOfflineStateProvider.getOfflineState(TRACK_3)).isSameAs(OfflineState.NOT_OFFLINE);
+    }
+
     @NonNull
     private HashMap<Urn, OfflineState> getInitialMap() {
         final HashMap<Urn, OfflineState> urnOfflineStateHashMap = new HashMap<>();
