@@ -11,6 +11,9 @@
             android:key="@string/dev_drawer_action_kill_app_key"
             android:title="@string/dev_drawer_action_kill_app_title" />
         <Preference
+            android:key="@string/dev_drawer_action_upgrade_flow_key"
+            android:title="@string/dev_drawer_action_upgrade_flow_title" />
+        <Preference
             android:key="@string/dev_drawer_action_reset_flags_key"
             android:title="@string/dev_drawer_action_reset_flags_title" />
         <Preference

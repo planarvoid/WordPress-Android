@@ -5,6 +5,8 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-            UpgradeActivity.class
+                UpgradeActivity.class,
+                UpgradeProgressActivity.class,
         })
-public class PaymentModule {}
+public class PaymentModule {
+}

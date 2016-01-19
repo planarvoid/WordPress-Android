@@ -38,6 +38,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 
 import java.util.Collections;
 import java.util.List;
@@ -309,5 +310,24 @@ public class NavigatorTest extends AndroidUnitTest {
                 .opensActivity(TrackCommentsActivity.class)
                 .containsExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn);
 
+    }
+
+    @Test
+    public void shouldOpenPendingActivityFromIntentExtras() {
+        Bundle extras = new Bundle();
+        extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, MainActivity.class.getCanonicalName());
+
+        navigator.openPendingActivity(activityContext, extras);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(MainActivity.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowIfOpenPendingActivityCannotBeResolved() {
+        Bundle extras = new Bundle();
+        extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, "non existo");
+
+        navigator.openPendingActivity(activityContext, extras);
     }
 }

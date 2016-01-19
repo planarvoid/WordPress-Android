@@ -12,7 +12,6 @@ import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -25,6 +24,7 @@ import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
@@ -37,7 +37,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +50,7 @@ public class Navigator {
     private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
     public final static String EXTRA_SEARCH_INTENT = "search_intent";
+    public static final String EXTRA_PENDING_ACTIVITY = "restart.pending_activity";
 
     public void openHome(Context context) {
         context.startActivity(createHomeIntent(context));
@@ -321,5 +324,30 @@ public class Navigator {
 
     private void startActivity(Context activityContext, Class target) {
         activityContext.startActivity(new Intent(activityContext, target));
+    }
+
+    public void restartApp(Activity context) {
+        restartAppAndNavigateTo(context, null);
+    }
+
+    public void restartAppAndNavigateTo(Activity context, @Nullable Class<? extends Activity> nextActivity) {
+        Intent launchActivity = new Intent(context, LauncherActivity.class);
+        if (nextActivity != null) {
+            launchActivity.putExtra(EXTRA_PENDING_ACTIVITY, nextActivity.getCanonicalName());
+        }
+        launchActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(launchActivity);
+        context.finish();
+        System.exit(0);
+    }
+
+    public void openPendingActivity(Activity context, Bundle extras) {
+        final String activityName = extras.getString(Navigator.EXTRA_PENDING_ACTIVITY);
+        try {
+            final Class<?> activityClass = Class.forName(activityName);
+            context.startActivity(new Intent(context, activityClass));
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }
