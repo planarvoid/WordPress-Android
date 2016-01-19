@@ -157,7 +157,8 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
     }
 
     private PropertySet expectedHighTierMonetizableLikedTrackFor(PropertySet track, Date likedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.SUB_HIGH_TIER, true);
+        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.SUB_HIGH_TIER, true)
+                .put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }
 
     private PropertySet expectedUnavailableLikedTrackFor(PropertySet track, Date likedAt) {
@@ -175,6 +176,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
                 TrackProperty.LIKES_COUNT.bind(track.get(TrackProperty.LIKES_COUNT)),
                 LikeProperty.CREATED_AT.bind((likedAt)),
                 TrackProperty.IS_PRIVATE.bind(track.get(TrackProperty.IS_PRIVATE)),
-                TrackProperty.SUB_HIGH_TIER.bind(track.get(TrackProperty.SUB_HIGH_TIER)));
+                TrackProperty.SUB_HIGH_TIER.bind(track.get(TrackProperty.SUB_HIGH_TIER)),
+                OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE));
     }
 }

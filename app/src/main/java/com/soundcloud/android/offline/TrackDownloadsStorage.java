@@ -20,22 +20,39 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
+import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
+import rx.functions.Func1;
 import rx.functions.Func2;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 class TrackDownloadsStorage {
     private static final long DELAY_BEFORE_REMOVAL = TimeUnit.MINUTES.toMillis(3);
+
+    private static final Func1<CursorReader, Urn> CURSOR_TO_URN = new Func1<CursorReader, Urn>() {
+        @Override
+        public Urn call(CursorReader cursorReader) {
+            return Urn.forTrack(cursorReader.getLong(TrackDownloads._ID));
+        }
+    };
+
+    private static final Func1<CursorReader, OfflineState> CURSOR_TO_OFFLINE_STATE = new Func1<CursorReader, OfflineState>() {
+        @Override
+        public OfflineState call(CursorReader cursorReader) {
+            return OfflineStateMapper.fromDates(cursorReader, true);
+        }
+    };
 
     private final PropellerDatabase propeller;
     private final PropellerRx propellerRx;
@@ -66,6 +83,16 @@ class TrackDownloadsStorage {
                 .order(Likes.field(CREATED_AT), DESC);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
+    }
+
+    public Observable<Map<Urn, OfflineState>> getOfflineStates() {
+        final Query query = Query.from(TrackDownloads.TABLE)
+                .select(TrackDownloads._ID,
+                        TrackDownloads.REQUESTED_AT,
+                        TrackDownloads.REMOVED_AT,
+                        TrackDownloads.DOWNLOADED_AT,
+                        TrackDownloads.UNAVAILABLE_AT);
+        return propellerRx.query(query).toMap(CURSOR_TO_URN, CURSOR_TO_OFFLINE_STATE);
     }
 
     public Observable<OfflineState> getLikesOfflineState() {
@@ -131,5 +158,4 @@ class TrackDownloadsStorage {
         return propeller.update(TrackDownloads.TABLE, contentValues,
                 filter().whereEq(_ID, track.getNumericId()));
     }
-
 }

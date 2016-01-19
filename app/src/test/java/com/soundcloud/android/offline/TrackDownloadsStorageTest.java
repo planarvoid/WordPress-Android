@@ -14,7 +14,9 @@ import rx.observers.TestSubscriber;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class TrackDownloadsStorageTest extends StorageIntegrationTest {
@@ -186,6 +188,25 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
         storage.markTrackAsUnavailable(TRACK_1);
 
         databaseAssertions().assertTrackIsUnavailable(TRACK_1, dateProvider.getCurrentTime());
+    }
+
+    @Test
+    public void returnsDownloadStatesForAllTracks() {
+        testFixtures().insertTrackPendingDownload(Urn.forTrack(1), 100L);
+        testFixtures().insertUnavailableTrackDownload(Urn.forTrack(2), new Date().getTime());
+        testFixtures().insertTrackDownloadPendingRemoval(Urn.forTrack(3), new Date(200).getTime());
+        testFixtures().insertCompletedTrackDownload(Urn.forTrack(4), 100, 200);
+
+        final TestSubscriber<Map<Urn, OfflineState>> subscriber = new TestSubscriber<>();
+        storage.getOfflineStates().subscribe(subscriber);
+
+        final HashMap<Urn, OfflineState> expectedStates = new HashMap<>();
+        expectedStates.put(Urn.forTrack(1), OfflineState.REQUESTED);
+        expectedStates.put(Urn.forTrack(2), OfflineState.UNAVAILABLE);
+        expectedStates.put(Urn.forTrack(3), OfflineState.NOT_OFFLINE);
+        expectedStates.put(Urn.forTrack(4), OfflineState.DOWNLOADED);
+
+        subscriber.assertReceivedOnNext(Arrays.<Map<Urn, OfflineState>>asList(expectedStates));
     }
 
     private Urn insertOfflinePlaylistTrack(Urn playlist, int position) {

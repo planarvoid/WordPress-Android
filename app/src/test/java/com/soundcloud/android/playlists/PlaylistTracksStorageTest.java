@@ -127,7 +127,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void doesNotLoadUnavailableOfflineStateForPlaylistTracksWhenPlaylistMarkedForOffline() {
+    public void marksOfflineStateNotOfflineForPlaylistTracksWhenPlaylistMarkedForOffline() {
         final TestSubscriber<List<PropertySet>> testSubscriber = new TestSubscriber<>();
 
         final ApiPlaylist normalPlaylist = insertPostedPlaylist();
@@ -137,7 +137,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         playlistTracksStorage.playlistTracks(normalPlaylist.getUrn()).subscribe(testSubscriber);
 
         List<PropertySet> result = testSubscriber.getOnNextEvents().get(0);
-        assertThat(result.get(0).contains(OfflineProperty.OFFLINE_STATE)).isFalse();
+        assertThat(result.get(0).get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.NOT_OFFLINE);
     }
 
     @Test
@@ -238,8 +238,8 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 TrackProperty.IS_PRIVATE.bind(apiTrack.isPrivate()),
                 TrackProperty.CREATOR_NAME.bind(apiTrack.getUserName()),
                 TrackProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
-                TrackProperty.SUB_HIGH_TIER.bind(apiTrack.isSubHighTier().get())
-        );
+                TrackProperty.SUB_HIGH_TIER.bind(apiTrack.isSubHighTier().get()),
+                OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE));
     }
 
     private ApiPlaylist insertPostedPlaylist() {
