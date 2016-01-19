@@ -24,27 +24,15 @@ public class TrackItemElement {
     }
 
     public boolean isPromotedTrack() {
-        return wrapped.findElement(With.id(R.id.promoted_track)).isVisible();
+        return wrapped.findElement(With.id(R.id.promoted_item)).isVisible();
     }
 
-    public boolean hasPromoter() {
-        return hasPromoterInCardItem() || hasPromoterInListItem();
-    }
-
-    private boolean hasPromoterInListItem() {
-        return getPromotedTrackText().getText().contains("Promoted by");
-    }
-
-    private boolean hasPromoterInCardItem() {
+    private boolean hasPromoter() {
         return wrapped.findElement(With.id(R.id.promoter)).isVisible();
     }
 
     public boolean hasReposter() {
         return wrapped.findElement(With.id(R.id.reposter)).isVisible();
-    }
-
-    private TextElement getPromotedTrackText() {
-        return new TextElement(wrapped.findElement(With.id(R.id.promoted_track)));
     }
 
     public VisualPlayerElement click() {
@@ -72,7 +60,37 @@ public class TrackItemElement {
 
             @Override
             public String getSelector() {
-                return "With reposter";
+                return "Track with reposter";
+            }
+        };
+    }
+
+    public static With WithTitle(final Han testDriver, final String title) {
+        return new With() {
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return new TrackItemElement(testDriver, view).getTitle().equals(title);
+            }
+
+            @Override
+            public String getSelector() {
+                return String.format("Track with title %s", title);
+            }
+        };
+    }
+
+    public static With NotPromoted(final Han testDriver) {
+        return new With() {
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return !new TrackItemElement(testDriver, view).isPromotedTrack();
+            }
+
+            @Override
+            public String getSelector() {
+                return "Not Promoted Track";
             }
         };
     }

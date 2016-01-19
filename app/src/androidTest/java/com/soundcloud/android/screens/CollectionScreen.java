@@ -31,7 +31,7 @@ public class CollectionScreen extends Screen {
     }
 
     public PlaylistElement scrollToPlaylistWithTitle(final String title) {
-        ViewElement viewElement = collectionsView().scrollToItem(
+        ViewElement viewElement = scrollToItem(
                 With.id(R.id.collections_playlist_item),
                 PlaylistElement.WithTitle(testDriver, title)
         );
@@ -56,7 +56,7 @@ public class CollectionScreen extends Screen {
     }
 
     public PlaylistElement scrollToFirstPlaylist() {
-        ViewElement viewElement = collectionsView().scrollToItem(With.id(R.id.collections_playlist_item));
+        ViewElement viewElement = scrollToItem(With.id(R.id.collections_playlist_item));
         return PlaylistElement.forCard(testDriver, viewElement);
     }
 

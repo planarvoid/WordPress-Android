@@ -14,10 +14,10 @@ public class SignUpSpamDialogElement extends Element {
 
     public HomeScreen clickCancelButton() {
         cancelButton().click();
-        return new HomeScreen(solo);
+        return new HomeScreen(testDriver);
     }
 
     private ViewElement cancelButton() {
-        return solo.findElement(With.text(solo.getString(R.string.btn_cancel)));
+        return testDriver.findElement(With.text(testDriver.getString(R.string.btn_cancel)));
     }
 }

@@ -6,7 +6,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.tests.ActivityTest;
@@ -36,7 +35,6 @@ public class SubscribedUserTest extends ActivityTest<MainActivity> {
         assertThat(offlineItem, is(visible()));
     }
 
-    @BrokenScrollingTest
     public void testDownloadIsAvailableWhenTheyAccessPlaylists() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
                 .scrollToFirstPlaylist()

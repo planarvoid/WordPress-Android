@@ -10,29 +10,21 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class PopupMenuElement {
-
-    protected final Han testDriver;
-    private final Waiter waiter;
+public class PopupMenuElement extends Element {
 
     public PopupMenuElement(Han testDriver) {
-        this.testDriver = testDriver;
-        waiter = new Waiter(testDriver);
+        super(testDriver, With.className("android.widget.PopupWindow$PopupViewContainer"));
         waiter.waitForElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
     }
 
     protected List<ViewElement> getRootMenuElements() {
         waiter.waitForElement(TextView.class);
-        return container().findElements(With.classSimpleName("ListMenuItemView"));
+        return getRootViewElement().findElements(With.classSimpleName("ListMenuItemView"));
     }
 
     protected ViewElement findElement(With matcher) {
         waiter.waitForElement(TextView.class);
-        return container().findElement(matcher);
-    }
-
-    protected ViewElement container() {
-        return testDriver.findElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
+        return getRootViewElement().findElement(matcher);
     }
 
     protected String getElementText(ViewElement viewElement) {

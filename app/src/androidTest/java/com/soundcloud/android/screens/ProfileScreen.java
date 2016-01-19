@@ -98,7 +98,7 @@ public class ProfileScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstRepostedTrack() {
-        final ViewElement viewElement = currentRecyclerView().scrollToItem(
+        final ViewElement viewElement = scrollToItem(
                 With.id(R.id.track_list_item),
                 TrackItemElement.WithReposter(testDriver)
         );

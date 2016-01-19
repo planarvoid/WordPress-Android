@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.CollectionScreen;
@@ -34,7 +33,6 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    @BrokenScrollingTest
     public void testVisualPlayerIsAccessible() throws Exception {
         final VisualPlayerElement playerElement = streamScreen.clickFirstTrackCard();
         assertThat(playerElement, is(expanded()));

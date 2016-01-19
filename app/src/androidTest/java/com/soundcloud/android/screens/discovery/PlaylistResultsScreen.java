@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens.discovery;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
@@ -32,8 +33,8 @@ public class PlaylistResultsScreen extends Screen {
         return resultList().getItemCount();
     }
 
-    public PlaylistDetailsScreen clickOnPlaylist(int position) {
-        resultList().getItemAt(position).click();
+    public PlaylistDetailsScreen clickOnFirstPlaylist() {
+        testDriver.findElement(With.id(R.id.playlist_list_item)).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 

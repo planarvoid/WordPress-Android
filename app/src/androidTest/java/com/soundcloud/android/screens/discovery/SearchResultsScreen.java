@@ -35,34 +35,20 @@ public class SearchResultsScreen extends Screen {
     }
 
     public VisualPlayerElement findAndClickFirstTrackItem() {
-        scrollListToItem(With.id(com.soundcloud.android.R.id.track_list_item)).click();
+        scrollToItem(With.id(com.soundcloud.android.R.id.track_list_item)).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
 
     public PlaylistDetailsScreen findAndClickFirstPlaylistItem() {
-        scrollListToItem(With.id(R.id.playlist_list_item)).click();
+        scrollToItem(With.id(R.id.playlist_list_item)).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
     public ProfileScreen findAndClickFirstUserItem() {
-        scrollListToItem(With.id(com.soundcloud.android.R.id.user_list_item)).click();
+        scrollToItem(With.id(com.soundcloud.android.R.id.user_list_item)).click();
         return new ProfileScreen(testDriver);
-    }
-
-    // this seems more reliable than scrolling around the list waiting for a particular list element type
-    public PlaylistDetailsScreen clickFirstPlaylistItem() {
-        resultsList().getItemAt(0).click();
-        return new PlaylistDetailsScreen(testDriver);
-    }
-
-    // this seems more reliable than scrolling around the list waiting for a particular list element type
-    public VisualPlayerElement clickFirstTrackItem() {
-        resultsList().getItemAt(0).click();
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
-        visualPlayerElement.waitForExpandedPlayer();
-        return visualPlayerElement;
     }
 
     public int getResultItemCount() {

@@ -59,7 +59,7 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
 
-        final TrackItemElement track = playlistDetailsScreen.getTrack(1);
+        final TrackItemElement track = playlistDetailsScreen.scrollToAndGetFirstTrackItem();
         final String title = track.getTitle();
 
         final VisualPlayerElement player = track.clickOverflowButton().clickStartStation();

@@ -43,7 +43,7 @@ public class UpgradeTest extends TrackingActivityTest<MainActivity> {
         startEventTracking();
 
         UpgradeScreen upgradeScreen = searchResultsScreen
-                .clickFirstTrackItem()
+                .findAndClickFirstTrackItem()
                 .clickUpgrade();
 
         assertThat(upgradeScreen, is(visible()));

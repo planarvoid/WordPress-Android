@@ -31,7 +31,7 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
 
         final VisualPlayerElement player = mainNavHelper.goToCollections()
                 .scrollToAndClickPlaylistWithTitle("track-stations")
-                .clickFirstTrackOverflowButton()
+                .findAndClickFirstTrackOverflowButton()
                 .clickStartStation();
 
         assertTrue(player.isExpandedPlayerPlaying());

@@ -22,7 +22,7 @@ public class ViewPagerElement extends Element {
      */
     @Deprecated
     public  <T extends View> View getCurrentPage(Class<T> viewClass) {
-        return solo.getSolo().getCurrentViews(viewClass, getVisiblePage()).get(0);
+        return testDriver.getSolo().getCurrentViews(viewClass, getVisiblePage()).get(0);
     }
 
     public String getCurrentTabText() {

@@ -13,8 +13,8 @@ import com.soundcloud.android.screens.StreamScreen;
 
 public class TrackItemMenuElement extends PopupMenuElement {
 
-    public TrackItemMenuElement(Han solo) {
-        super(solo);
+    public TrackItemMenuElement(Han testDriver) {
+        super(testDriver);
     }
 
     public StreamScreen toggleLike() {
@@ -50,11 +50,11 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     private ViewElement likeItem() {
-        return container().findElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
+        return getRootViewElement().findElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
     }
 
     private ViewElement repostItem() {
-        return container().findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
+        return getRootViewElement().findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
     }
 
     private void clickItemWithText(String text) {

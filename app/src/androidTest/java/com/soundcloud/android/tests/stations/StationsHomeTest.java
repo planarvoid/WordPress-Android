@@ -58,7 +58,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
         final VisualPlayerElement player = mainNavHelper
                 .goToStationsHome()
                 .getRecentStationsBucket()
-                .findStation(With.text(stationTitle))
+                .findStation(stationTitle)
                 .click();
 
         assertThat(player, is(visible()));
@@ -85,7 +85,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
 
-        final TrackItemElement track = playlistDetailsScreen.getTrack(1);
+        final TrackItemElement track = playlistDetailsScreen.scrollToAndGetFirstTrackItem();
         final String title = track.getTitle();
 
         track.clickOverflowButton().clickStartStation().pressBackToCollapse();

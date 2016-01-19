@@ -13,26 +13,26 @@ public class CollectionsPlaylistOptionsDialogElement extends Element {
     }
 
     public CollectionsPlaylistOptionsDialogElement clickCreated() {
-        solo.findElement(text(solo.getString(R.string.collections_options_toggle_created))).click();
+        testDriver.findElement(text(testDriver.getString(R.string.collections_options_toggle_created))).click();
         return this;
     }
 
     public CollectionsPlaylistOptionsDialogElement clickLiked() {
-        solo.findElement(text(solo.getString(R.string.collections_options_toggle_likes))).click();
+        testDriver.findElement(text(testDriver.getString(R.string.collections_options_toggle_likes))).click();
         return this;
     }
 
     public CollectionsPlaylistOptionsDialogElement clickSortByTitle() {
-        solo.findElement(text(solo.getString(R.string.collections_options_dialog_sort_by_title))).click();
+        testDriver.findElement(text(testDriver.getString(R.string.collections_options_dialog_sort_by_title))).click();
         return this;
     }
 
     public CollectionsPlaylistOptionsDialogElement clickSortByCreatedAt() {
-        solo.findElement(text(solo.getString(R.string.collections_options_dialog_sort_by_creation))).click();
+        testDriver.findElement(text(testDriver.getString(R.string.collections_options_dialog_sort_by_creation))).click();
         return this;
     }
 
     public void clickDone() {
-        solo.findElement(text(solo.getString(R.string.btn_done))).click();
+        testDriver.findElement(text(testDriver.getString(R.string.btn_done))).click();
     }
 }

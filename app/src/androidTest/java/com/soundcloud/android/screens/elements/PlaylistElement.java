@@ -83,4 +83,19 @@ public class PlaylistElement {
             }
         };
     }
+
+    public static With NotPromoted(final Han testDriver) {
+        return new With() {
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return !PlaylistElement.forCard(testDriver, view).isPromotedCardItem();
+            }
+
+            @Override
+            public String getSelector() {
+                return "Not Promoted Playlist";
+            }
+        };
+    }
 }

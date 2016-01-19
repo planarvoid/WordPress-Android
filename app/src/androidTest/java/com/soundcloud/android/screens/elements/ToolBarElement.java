@@ -19,11 +19,9 @@ public class ToolBarElement extends Element {
     private static final int SEARCH_EDIT_TEXT = R.id.search_text;
     private static final int SEARCH_DISMISS_VIEW = R.id.search_close;
     private static final int CONTAINER = R.id.toolbar_id;
-    protected final Han testDriver;
 
-    public ToolBarElement(Han solo) {
-        super(solo, With.id(CONTAINER));
-        testDriver = solo;
+    public ToolBarElement(Han testDriver) {
+        super(testDriver, With.id(CONTAINER));
     }
 
     public String getTitle() {

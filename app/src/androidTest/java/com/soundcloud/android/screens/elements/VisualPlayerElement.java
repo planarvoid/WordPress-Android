@@ -34,16 +34,16 @@ public class VisualPlayerElement extends Element {
         }
     };
 
-    public VisualPlayerElement(Han solo) {
-        super(solo, With.id(R.id.player_layout));
+    public VisualPlayerElement(Han testDriver) {
+        super(testDriver, With.id(R.id.player_layout));
     }
 
     public boolean isNextButtonClickable() {
-        return solo.isElementDisplayed(With.id(R.id.player_next)) && nextButton().isVisible() && nextButton().isEnabled();
+        return testDriver.isElementDisplayed(With.id(R.id.player_next)) && nextButton().isVisible() && nextButton().isEnabled();
     }
 
     public boolean isPreviousButtonClickable() {
-        return solo.isElementDisplayed(With.id(R.id.player_previous)) && previousButton().isVisible() && previousButton().isEnabled();
+        return testDriver.isElementDisplayed(With.id(R.id.player_previous)) && previousButton().isVisible() && previousButton().isEnabled();
     }
 
     public boolean isLeaveBehindVisible() {
@@ -67,108 +67,108 @@ public class VisualPlayerElement extends Element {
     }
 
     public VisualPlayerElement startStationFromUnplayableTrack() {
-        solo.findElement(With.text(solo.getString(R.string.stations_start_track_station))).click();
+        testDriver.findElement(With.text(testDriver.getString(R.string.stations_start_track_station))).click();
         return this;
     }
 
     private ViewElement playButton() {
-        return solo.findElement(With.id(R.id.player_play));
+        return testDriver.findElement(With.id(R.id.player_play));
     }
 
     private ViewElement previousButton() {
-        return solo.findElement(With.id(R.id.player_previous));
+        return testDriver.findElement(With.id(R.id.player_previous));
     }
 
     private ViewElement nextButton() {
-        return solo.findElement(With.id(R.id.player_next));
+        return testDriver.findElement(With.id(R.id.player_next));
     }
 
     public boolean isSkippable() {
-        return solo.isElementDisplayed(With.id(R.id.skip_ad)) && skipAd().isVisible();
+        return testDriver.isElementDisplayed(With.id(R.id.skip_ad)) && skipAd().isVisible();
     }
 
     private ViewElement skipAd() {
-        return solo.findElement(With.id(R.id.skip_ad));
+        return testDriver.findElement(With.id(R.id.skip_ad));
     }
 
     private ViewElement trackContainer() {
-        return solo.findElement(With.id(R.id.player_track_pager));
+        return testDriver.findElement(With.id(R.id.player_track_pager));
     }
 
     private ViewElement closeButton() {
-        return solo.findElement(With.id(R.id.player_close));
+        return testDriver.findElement(With.id(R.id.player_close));
     }
 
     private ViewElement artwork() {
-        return solo.findElement(With.id(R.id.track_page_artwork));
+        return testDriver.findElement(With.id(R.id.track_page_artwork));
     }
 
     private ViewElement fullBleedArtwork() {
-        return solo.findElement(With.id(R.id.fullbleed_ad_artwork));
+        return testDriver.findElement(With.id(R.id.fullbleed_ad_artwork));
     }
 
     private ViewElement centeredAdArtwork() {
-        return solo.findElement(With.id(R.id.centered_ad_artwork));
+        return testDriver.findElement(With.id(R.id.centered_ad_artwork));
     }
 
     private ViewElement creator() {
-        return solo.findElement(With.id(R.id.track_page_user));
+        return testDriver.findElement(With.id(R.id.track_page_user));
     }
 
     private ViewElement trackPageContext() {
-        return solo.findElement(With.id(R.id.track_page_context));
+        return testDriver.findElement(With.id(R.id.track_page_context));
     }
 
     private ViewElement footerUser() {
-        return solo.findElement(With.id(R.id.footer_user));
+        return testDriver.findElement(With.id(R.id.footer_user));
     }
 
     private ViewElement footerPlayToggle() {
-        return solo.findElement(With.id(R.id.footer_toggle));
+        return testDriver.findElement(With.id(R.id.footer_toggle));
     }
 
     private TextElement trackTitle() {
-        return new TextElement(solo.findElement(With.id(R.id.track_page_title)));
+        return new TextElement(testDriver.findElement(With.id(R.id.track_page_title)));
     }
 
     private ViewElement footerPlayer() {
-        return solo.findElement(footerPlayerPredicate);
+        return testDriver.findElement(footerPlayerPredicate);
     }
 
     private ViewElement adCTAButton() {
-        return solo.findElement(With.id(R.id.cta_button));
+        return testDriver.findElement(With.id(R.id.cta_button));
     }
 
     private ViewElement whyAds() {
-        return solo.findElement(With.id(R.id.why_ads));
+        return testDriver.findElement(With.id(R.id.why_ads));
     }
 
     private ViewElement upgrade() {
-        return solo.findElement(With.id(R.id.upsell_button));
+        return testDriver.findElement(With.id(R.id.upsell_button));
     }
 
     private ViewElement adPage() {
-        return solo.findElement(With.id(R.id.player_ad_page));
+        return testDriver.findElement(With.id(R.id.player_ad_page));
     }
 
     private ViewElement leaveBehind() {
-        return solo.findElement(With.id(R.id.leave_behind_image));
+        return testDriver.findElement(With.id(R.id.leave_behind));
     }
 
     private ViewElement interstitial() {
-        return solo.findElement(With.id(R.id.interstitial));
+        return testDriver.findElement(With.id(R.id.interstitial));
     }
 
     private ViewElement toggleLike() {
-        return solo.findElement(With.id(R.id.track_page_like));
+        return testDriver.findElement(With.id(R.id.track_page_like));
     }
 
     private ViewElement interstitialNowPlaying() {
-        return solo.findElement(With.id(R.id.interstitial_now_playing_title));
+        return testDriver.findElement(With.id(R.id.interstitial_now_playing_title));
     }
 
     private ViewElement progress() {
-        return solo.findElement(With.id(R.id.timestamp_progress));
+        return testDriver.findElement(With.id(R.id.timestamp_progress));
     }
 
     public boolean isExpanded() {
@@ -198,7 +198,7 @@ public class VisualPlayerElement extends Element {
 
     public VisualPlayerElement pressBackToCollapse() {
         waitForExpandedPlayer();
-        solo.goBack();
+        testDriver.goBack();
         waitForCollapsedPlayer();
         return this;
     }
@@ -225,26 +225,26 @@ public class VisualPlayerElement extends Element {
 
     public VisualPlayerElement swipeNext() {
         waitForContent();
-        solo.swipeLeft();
+        testDriver.swipeLeft();
         waiter.waitForPlayerPage();
         return this;
     }
 
     public VisualPlayerElement swipePrevious() {
         waitForContent();
-        solo.swipeRight();
+        testDriver.swipeRight();
         waiter.waitForPlayerPage();
         return this;
     }
 
     public WhyAdsScreen clickWhyAds() {
         whyAds().click();
-        return new WhyAdsScreen(solo);
+        return new WhyAdsScreen(testDriver);
     }
 
     public UpgradeScreen clickUpgrade() {
         upgrade().click();
-        return new UpgradeScreen(solo);
+        return new UpgradeScreen(testDriver);
     }
 
     public boolean isAdPageVisible() {
@@ -298,7 +298,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private int getFullScreenHeight() {
-        final View decorView = solo.getCurrentActivity().getWindow().getDecorView();
+        final View decorView = testDriver.getCurrentActivity().getWindow().getDecorView();
         final Rect dimens = new Rect();
         decorView.getWindowVisibleDisplayFrame(dimens);
 
@@ -311,7 +311,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewElement player() {
-        return solo.findElement(With.id(R.id.player_root));
+        return testDriver.findElement(With.id(R.id.player_root));
     }
 
     public boolean waitForCollapsedPlayer() {
@@ -328,7 +328,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public void waitForAdToBeDone() {
-        solo.sleep(MILISECONDS_UNTIL_AD_DONE);
+        testDriver.sleep(MILISECONDS_UNTIL_AD_DONE);
     }
 
     public VisualPlayerElement waitForSkipAdButton() {
@@ -368,7 +368,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewPager getViewPager() {
-        return solo.findElement(With.id(R.id.player_track_pager)).toViewPager();
+        return testDriver.findElement(With.id(R.id.player_track_pager)).toViewPager();
     }
 
     public void toggleFooterPlay() {
@@ -388,11 +388,11 @@ public class VisualPlayerElement extends Element {
     }
 
     public ViewElement likeButton() {
-        return solo.findElement(With.id(R.id.track_page_like));
+        return testDriver.findElement(With.id(R.id.track_page_like));
     }
 
     public ViewElement shareButton() {
-        return solo.findElement(With.id(R.id.track_page_share));
+        return testDriver.findElement(With.id(R.id.track_page_share));
     }
 
     public boolean isCenteredAd() {
@@ -404,7 +404,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private TextElement errorReasonElement() {
-        return new TextElement(solo.findElement(With.id(R.id.playback_error_reason)));
+        return new TextElement(testDriver.findElement(With.id(R.id.playback_error_reason)));
     }
 
     public void clickCenteredAdArtwork() {
@@ -422,7 +422,7 @@ public class VisualPlayerElement extends Element {
     public ProfileScreen clickCreator() {
         waitForExpandedPlayer();
         creator().click();
-        return new ProfileScreen(solo);
+        return new ProfileScreen(testDriver);
     }
 
     @Override
@@ -432,7 +432,7 @@ public class VisualPlayerElement extends Element {
 
     public PlayerMenuElement clickMenu() {
         menu().click();
-        return new PlayerMenuElement(solo);
+        return new PlayerMenuElement(testDriver);
     }
 
     public void tapToggleLikeButton() {
@@ -441,11 +441,11 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewElement menu() {
-        return solo.findElement(With.id(R.id.track_page_more));
+        return testDriver.findElement(With.id(R.id.track_page_more));
     }
 
     public void playForFiveSeconds() {
-        solo.sleep(5000);
+        testDriver.sleep(5000);
     }
 
     private static class TextChangedCondition implements Condition {

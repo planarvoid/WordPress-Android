@@ -46,7 +46,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     @Override
     protected void setUp() throws Exception {
         solo = new Han(getInstrumentation());
-        solo.registerBusyUiIndicator(With.classSimpleName(ProgressBar.class.getSimpleName().toString()));
+        solo.registerBusyUiIndicator(With.classSimpleName(ProgressBar.class.getSimpleName()));
         solo.setup();
         waiter = new Waiter(solo);
 

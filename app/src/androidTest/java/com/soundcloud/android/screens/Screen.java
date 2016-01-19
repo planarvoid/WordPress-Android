@@ -2,7 +2,6 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.elements.EmptyViewElement;
@@ -13,8 +12,6 @@ import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
-
-import android.support.v7.widget.RecyclerView;
 
 import java.util.List;
 
@@ -76,7 +73,7 @@ public abstract class Screen {
     }
 
     public List<TrackItemElement> getTracks() {
-        scrollListToItem(With.id(com.soundcloud.android.R.id.track_list_item));
+        scrollToItem(With.id(com.soundcloud.android.R.id.track_list_item));
         return Lists.transform(
                 testDriver.findElements(With.id(com.soundcloud.android.R.id.track_list_item)),
                 toTrackItemElement
@@ -90,9 +87,8 @@ public abstract class Screen {
         );
     }
 
-    protected ViewElement scrollListToItem(final With with) {
-        RecyclerViewElement recyclerViewElement = testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
-        return recyclerViewElement.scrollToItem(with);
+    protected ViewElement scrollToItem(final With... with) {
+        return testDriver.scrollToItem(with);
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {

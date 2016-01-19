@@ -31,7 +31,7 @@ public class ViewFetcher {
     private ElementWaiter elementWaiter = new ElementWaiter();
     private String TAG = getClass().getSimpleName();
 
-    public ViewFetcher(Han driver){
+    public ViewFetcher(Han driver) {
         testDriver = driver;
     }
 
@@ -41,7 +41,7 @@ public class ViewFetcher {
     }
 
     private boolean waitForBusyUi() {
-        if(testDriver.getBusyUiIndicator() != null) {
+        if (testDriver.getBusyUiIndicator() != null) {
             return testDriver.waitForCondition(new BusyIndicatorCondition(testDriver.getBusyUiIndicator()), NETWORK_TIMEOUT);
         }
         return true;
@@ -49,7 +49,7 @@ public class ViewFetcher {
 
     public ViewElement findElement(final With with) {
         ViewElement viewElement = elementWaiter.waitForElement(with);
-        if(!viewElement.isVisible() && waitForBusyUi()) {
+        if (!viewElement.isVisible() && waitForBusyUi()) {
             return elementWaiter.waitForElement(with);
         }
         return viewElement;
@@ -57,7 +57,7 @@ public class ViewFetcher {
 
     public List<ViewElement> findElements(With with) {
         List<ViewElement> viewElements = elementWaiter.waitForElements(with);
-        if(!viewElements.get(0).isVisible() && waitForBusyUi()) {
+        if (!viewElements.get(0).isVisible() && waitForBusyUi()) {
             return elementWaiter.waitForElements(with);
         }
         return viewElements;
@@ -85,22 +85,27 @@ public class ViewFetcher {
         }
 
         List<ViewElement> results = Lists.newArrayList(filter(
-                findFullyVisibleElements(with),
+                findVisibleElements(with),
                 new Predicate<ViewElement>() {
                     @Override
                     public boolean apply(ViewElement viewElement) {
-                        for (With with : withs) {
-                            if (!with.apply(viewElement)) {
-                                return false;
+                            for (With with : withs) {
+                                try {
+                                    if (!with.apply(viewElement)) {
+                                        return false;
+                                    }
+                                } catch (Exception e) {
+                                    return false;
+                                }
                             }
-                        }
-                        return true;
+                            return true;
+
                     }
                 }
         ));
 
         if (results.size() == 0) {
-            return  emptyViewElementList(failedToFindElementsMessage(withs));
+            return emptyViewElementList(failedToFindElementsMessage(withs));
         }
         return results;
     }
@@ -112,20 +117,11 @@ public class ViewFetcher {
     }
 
     private String failedToFindElementsMessage(With... withs) {
-        String result = "Unable to find element ";
+        String result = "Unable to find elements with: ";
         for (With with : withs) {
             result += with.getSelector() + ", ";
         }
         return result;
-    }
-
-    public List<ViewElement> findFullyVisibleElements(With with) {
-        return Lists.newArrayList(filter(findElements(with), new Predicate<ViewElement>() {
-            @Override
-            public boolean apply(ViewElement viewElement) {
-                return viewElement.isFullyVisible();
-            }
-        }));
     }
 
     public ViewElement findAncestor(View root, With with) {
@@ -149,6 +145,7 @@ public class ViewFetcher {
     public List<ViewElement> getChildren() {
         return getDirectChildViews();
     }
+
     public boolean isElementDisplayed(With matcher) {
         testDriver.sleep(500);
         return findVisibleElement(matcher).isVisible();
@@ -161,6 +158,15 @@ public class ViewFetcher {
         }
         Log.i(TAG, String.format("SELECTOR (%s), VIEWS FOUND: %d", matcher.getSelector(), viewElements.size()));
         return new EmptyViewElement(matcher.getSelector());
+    }
+
+    private List<ViewElement> findVisibleElements(With matcher) {
+        List<ViewElement> viewElements = Lists.newArrayList(filter(getAllVisibleElements(), matcher));
+        Log.i(TAG, String.format("SELECTOR (%s), VIEWS FOUND: %d", matcher.getSelector(), viewElements.size()));
+        if (viewElements.size() > 0) {
+            return viewElements;
+        }
+        return emptyViewElementList(failedToFindElementsMessage(matcher));
     }
 
     private List<ViewElement> getDirectChildViews() {
@@ -239,12 +245,14 @@ public class ViewFetcher {
             return waitForMany(selector, callable).get(0);
         }
     }
-    private class BusyIndicatorCondition implements Condition{
+
+    private class BusyIndicatorCondition implements Condition {
         private final With viewMatcher;
 
-        public BusyIndicatorCondition(With matcher){
+        public BusyIndicatorCondition(With matcher) {
             viewMatcher = matcher;
         }
+
         @Override
         public boolean isSatisfied() {
             Log.i("BUSYUI", String.format("Waiting for Busy UI (Is busy: %b)", isElementDisplayed(viewMatcher)));

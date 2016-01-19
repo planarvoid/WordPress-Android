@@ -4,6 +4,7 @@ import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.framework.viewelements.DefaultViewElement;
+import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
@@ -31,8 +32,9 @@ import java.util.List;
 /**
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
  */
-public class Han  {
-    private static final int TOOLBAR_HEIGHT = 25;
+public class Han {
+
+    private static final int MAX_SCROLL_ATTEMPTS = 10;
     private static ViewFetcher viewFetcher;
 
     private final Solo solo;
@@ -69,7 +71,7 @@ public class Han  {
             public void run() {
                 while (true) {
                     Activity activity = activityMonitor.waitForActivity();
-                    if(activity != null && !activity.isFinishing()) {
+                    if (activity != null && !activity.isFinishing()) {
                         visibleActivity = activity;
                         Log.i("ActivityMonitor:", visibleActivity.toString());
                     }
@@ -90,6 +92,24 @@ public class Han  {
 
     public List<ViewElement> findElements(With with) {
         return viewFetcher.findElements(with);
+    }
+
+    public ViewElement findElement(With... with) {
+        return viewFetcher.findElement(with);
+    }
+
+    public List<ViewElement> findElements(With... with) {
+        return viewFetcher.findElements(with);
+    }
+
+    public ViewElement scrollToItem(With... with) {
+        ViewElement viewElement = findElement(with);
+        for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
+            scrollDown();
+            viewElement = findElement(with);
+        }
+        viewElement.dragIntoFullVerticalVisibility();
+        return viewElement;
     }
 
     public void typeText(String text) {
@@ -123,8 +143,8 @@ public class Han  {
 
     public void clickOnActionBarItem(int itemId) {
         final ArrayList<ActionMenuItemView> currentViews = solo.getCurrentViews(ActionMenuItemView.class);
-        for (View view : currentViews){
-            if (view.getId() == itemId){
+        for (View view : currentViews) {
+            if (view.getId() == itemId) {
                 solo.clickOnView(view);
                 break;
             }
@@ -160,14 +180,14 @@ public class Han  {
     }
 
     @Deprecated
-    public GridView getCurrentGridView(){
+    public GridView getCurrentGridView() {
         solo.waitForView(GridView.class);
         final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
         return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
     }
 
     @Deprecated
-    public ListView getCurrentListView(){
+    public ListView getCurrentListView() {
         solo.waitForView(ListView.class);
         final ArrayList<ListView> currentListViews = solo.getCurrentViews(ListView.class);
         return currentListViews == null || currentListViews.isEmpty() ? null : currentListViews.get(0);
@@ -182,16 +202,15 @@ public class Han  {
     }
 
 
-    public void swipeUp() {
+    public void scrollDown() {
         Point deviceSize = new Point();
         solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
 
         final int screenHeight = deviceSize.y;
-        final float startY = (float) (screenHeight * 0.50);
-        final float stopY = 0;
-        final int steps = (int) startY / 10;
+        final int fromY = (int) (screenHeight * 0.50);
+        final int toY = 0;
 
-        drag(0, 0, startY, stopY, steps);
+        scrollVertical(fromY, toY);
     }
 
     public void swipeDown() {
@@ -213,7 +232,7 @@ public class Han  {
         swipeHorizontal(side, .8f, .5f);
     }
 
-    private void swipeHorizontal(int side, float horizontalPosition, float verticalPosition){
+    private void swipeHorizontal(int side, float horizontalPosition, float verticalPosition) {
         Point deviceSize = new Point();
         solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
 
@@ -224,7 +243,6 @@ public class Han  {
         float x = screenWidth * horizontalPosition;
         float y = screenHeight * verticalPosition;
 
-        //each ~50 pixels is one step
         final int steps = (int) x / 50;
 
         if (side == Solo.LEFT) {
@@ -234,14 +252,31 @@ public class Han  {
         }
     }
 
+    public void scrollVertical(int fromY, int toY) {
+        int pixelsPerStep = 25;
+        int minSteps = 3;
+
+        int deltaY = fromY - toY;
+        int sign = (int) Math.signum(deltaY);
+
+        int height = Math.max(pixelsPerStep, Math.abs(deltaY));
+        toY = fromY - (sign * height);
+
+        int steps = Math.max(minSteps, height / pixelsPerStep);
+
+        drag(0, 0, fromY, toY, steps);
+    }
+
     public void drag(float fromX, float toX, float fromY, float toY, int stepCount) {
         log("dragging: (%.2f, %.2f) -> (%.2f, %.2f) count: %d", fromX, fromY, toX, toY, stepCount);
         solo.drag(fromX, toX, fromY, toY, stepCount);
+        // wait for the animation to complete
+        sleep(500);
     }
 
     public void clickOnView(With with) {
         List<ViewElement> views = findElements(with);
-        if(!views.isEmpty()) {
+        if (!views.isEmpty()) {
             views.get(0).click();
         }
     }
@@ -332,7 +367,7 @@ public class Han  {
     }
 
     public boolean isKeyboardShown() {
-        InputMethodManager inputMethodManager = (InputMethodManager)  solo.getCurrentActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) solo.getCurrentActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         View focusedView = solo.getCurrentActivity().getCurrentFocus();
 
         if (focusedView == null) {
@@ -354,21 +389,18 @@ public class Han  {
         With.setResources(instrumentation.getTargetContext().getResources());
     }
 
-    public boolean scrollUp() {
-        return solo.scrollUp();
-    }
-
-    public boolean scrollDown() {
-        return solo.scrollDown();
-    }
-
     public Display getDisplay() {
         return ((WindowManager) instrumentation.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+    }
+
+    public Resources.Theme getTheme() {
+        return instrumentation.getTargetContext().getTheme();
     }
 
     public Resources getResources() {
         return instrumentation.getTargetContext().getResources();
     }
 
-    class EmptyActivity extends Activity {}
+    class EmptyActivity extends Activity {
+    }
 }

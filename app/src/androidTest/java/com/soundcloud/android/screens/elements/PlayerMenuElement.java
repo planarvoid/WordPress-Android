@@ -40,32 +40,32 @@ public class PlayerMenuElement extends PopupMenuElement {
 
     private ViewElement addToPlaylistItem() {
         return findElement(With.text(testDriver.getString(R.string.add_to_playlist)))
-                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     public ViewElement shareItem() {
         return findElement(With.text(testDriver.getString(R.string.share)))
-                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     public ViewElement repostItem() {
         return findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)))
-                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     public ViewElement commentItem() {
-        return container()
+        return getRootViewElement()
                 .findElement(With.textContaining("Comment"))
-                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     private ViewElement startStation() {
-        return container()
+        return getRootViewElement()
                 .findElement(With.text(testDriver.getString(R.string.stations_start_track_station)))
-                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     private ViewElement info() {
-        return container().findElement(With.text("Info"));
+        return getRootViewElement().findElement(With.text("Info"));
     }
 }

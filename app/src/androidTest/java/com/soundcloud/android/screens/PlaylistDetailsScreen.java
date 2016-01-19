@@ -33,8 +33,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     public PlaylistOverflowMenu clickPlaylistOverflowButton() {
         testDriver
-                .findElements(With.id(R.id.playlist_details_overflow_button))
-                .get(0)
+                .findElement(With.id(R.id.playlist_details_overflow_button))
                 .click();
         return new PlaylistOverflowMenu(testDriver);
     }
@@ -49,7 +48,10 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public boolean containsTrackWithTitle(String title) {
-        return !(tracksListElement().scrollToItem(With.text(title)) instanceof EmptyViewElement);
+        return !(scrollToItem(
+                With.id(R.id.track_list_item),
+                TrackItemElement.WithTitle(testDriver, title)
+        ) instanceof EmptyViewElement);
     }
 
     public VisualPlayerElement clickHeaderPlay() {
@@ -83,13 +85,11 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public VisualPlayerElement startStationFromFirstTrack() {
-        return clickFirstTrackOverflowButton().clickStartStation();
+        return findAndClickFirstTrackOverflowButton().clickStartStation();
     }
 
-    public PlaylistDetailsScreen scrollToFirstTrackItem() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.scrollListToLine(1);
-        return this;
+    public TrackItemElement scrollToAndGetFirstTrackItem() {
+        return toTrackItemElement.apply(scrollToItem(With.id(R.id.track_list_item)));
     }
 
     public PlaylistDetailsScreen scrollToLastTrackItem() {
@@ -97,30 +97,14 @@ public class PlaylistDetailsScreen extends Screen {
         return this;
     }
 
-
     public PlaylistDetailsScreen scrollToPosition(int position) {
         testDriver.scrollListToLine(position);
         return this;
     }
 
-
-    public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        return scrollToFirstTrackItem()
-                .trackItemElements()
-                .get(0)
+    public TrackItemMenuElement findAndClickFirstTrackOverflowButton() {
+        return scrollToAndGetFirstTrackItem()
                 .clickOverflowButton();
-    }
-
-    public TrackItemMenuElement clickLastTrackOverflowButton() {
-        return scrollToLastTrackItem()
-                .trackItemElements()
-                .get(trackItemElements().size() - 1)
-                .clickOverflowButton();
-    }
-
-    public TrackItemElement getTrack(int position) {
-        scrollToPosition(position);
-        return new TrackItemElement(testDriver, tracksListElement().getItemAt(0));
     }
 
     @Override
@@ -147,7 +131,6 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private ListElement tracksListElement() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return testDriver
                 .findElement(With.id(android.R.id.list))
                 .toListView();
@@ -166,8 +149,8 @@ public class PlaylistDetailsScreen extends Screen {
                 toTrackItemElement
         );
     }
+
     private ListElement trackItemsList() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
 
@@ -177,6 +160,4 @@ public class PlaylistDetailsScreen extends Screen {
             return new TrackItemElement(testDriver, viewElement);
         }
     };
-
-
 }

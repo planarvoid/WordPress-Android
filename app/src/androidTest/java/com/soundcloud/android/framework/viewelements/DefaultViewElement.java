@@ -8,6 +8,8 @@ import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.Tabs;
 
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -124,7 +126,7 @@ public class DefaultViewElement extends ViewElement {
     }
 
     private String getClickPoint() {
-        return String.format("%d, %d", getVisibleRect().centerX(), getVisibleRect().centerY());
+        return String.format("%f, %f", getVisibleRect().exactCenterX(), getVisibleRect().exactCenterY());
     }
 
     private Rect getVisibleRect() {
@@ -151,18 +153,59 @@ public class DefaultViewElement extends ViewElement {
             return true;
         }
 
+        // top is cut off
+        if (viewRect.top < visibleRect.top) {
+            int viewBottom = visibleRect.bottom - 1; // account for zero-index
+            int heightOfNonVisibleSection = visibleRect.top - viewRect.top;
+
+            testDriver.scrollVertical(viewBottom, viewBottom + heightOfNonVisibleSection);
+        }
+
         // bottom is cut off
         if (visibleRect.bottom < viewRect.bottom) {
-            int screenBottom = visibleRect.bottom - 1; // account for zero-index
+            int viewBottom = visibleRect.bottom - 1; // account for zero-index
             int heightOfNonVisibleSection = viewRect.bottom - visibleRect.bottom;
-            testDriver.drag(0, 0, screenBottom, screenBottom - heightOfNonVisibleSection, heightOfNonVisibleSection / 10);
+
+            testDriver.scrollVertical(viewBottom, viewBottom - heightOfNonVisibleSection);
         }
 
         return true;
     }
 
     private boolean viewCanFitVerticallyOnScreen() {
-        return getHeight() <= getScreenHeight();
+        return getHeight() <= getAvailableScreenHeight();
+    }
+
+    private int getAvailableScreenHeight() {
+        return getScreenHeight() - getStatusBarHeight() - getActionBarHeight() - getNavBarHeight();
+    }
+
+    private int getActionBarHeight() {
+        final TypedArray styledAttributes = testDriver.getTheme().obtainStyledAttributes(
+                new int[] { android.R.attr.actionBarSize });
+        int actionBarHeight = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
+        return actionBarHeight;
+    }
+
+    private int getStatusBarHeight() {
+        // assume all devices have a status bar and are only ever in portait mode
+        Resources resources = testDriver.getResources();
+        int resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            return resources.getDimensionPixelSize(resourceId);
+        }
+        return 0;
+    }
+
+    private int getNavBarHeight() {
+        // assume all devices have a nav bar and are only ever in portait mode
+        Resources resources = testDriver.getResources();
+        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            return resources.getDimensionPixelSize(resourceId);
+        }
+        return 0;
     }
 
     private boolean isFullyVisible(Rect visibleRect, Rect viewRect) {

@@ -138,7 +138,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .goToDiscovery()
                 .clickSearch()
                 .doSearch("zzz track with description")
-                .clickFirstTrackItem();
+                .findAndClickFirstTrackItem();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
         TrackInfoScreen trackInfoScreen = visualPlayerElement
@@ -154,7 +154,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .goToDiscovery()
                 .clickSearch()
                 .doSearch("aaazzz track with no description")
-                .clickFirstTrackItem();
+                .findAndClickFirstTrackItem();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
         TrackInfoScreen trackInfoScreen = visualPlayerElement
@@ -170,7 +170,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .goToDiscovery()
                 .clickSearch()
                 .doSearch("lots o' comments")
-                .clickFirstTrackItem();
+                .findAndClickFirstTrackItem();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
         TrackCommentsScreen trackCommentsScreen = visualPlayerElement
@@ -192,7 +192,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .goToDiscovery()
                 .clickSearch()
                 .doSearch("lots o' comments")
-                .clickFirstTrackItem();
+                .findAndClickFirstTrackItem();
 
         visualPlayerElement.playForFiveSeconds();
 
@@ -208,7 +208,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .goToDiscovery()
                 .clickSearch()
                 .doSearch("zzzz yowz no comments")
-                .clickFirstTrackItem();
+                .findAndClickFirstTrackItem();
 
         assertThat(visualPlayerElement.clickMenu().commentItem(), is(not(visible())));
     }
