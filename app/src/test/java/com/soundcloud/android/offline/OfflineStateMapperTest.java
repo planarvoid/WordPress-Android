@@ -40,10 +40,10 @@ public class OfflineStateMapperTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotReturnUnavailableStateForNonOfflineCollections() {
+    public void returnsNotOfflineInsteadOfUnavailableForNonOfflineCollections() {
         when(cursorReader.isNotNull(Tables.OfflineContent._ID)).thenReturn(false);
 
         PropertySet result = mapper.map(cursorReader);
-        assertThat(result.contains(OfflineProperty.OFFLINE_STATE)).isFalse();
+        assertThat(result.get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.NOT_OFFLINE);
     }
 }

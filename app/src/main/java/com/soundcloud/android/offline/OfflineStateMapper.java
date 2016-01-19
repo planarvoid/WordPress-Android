@@ -17,34 +17,37 @@ public class OfflineStateMapper extends RxResultMapper<PropertySet> {
     }
 
     private PropertySet addOptionalOfflineSyncDates(CursorReader cursorReader) {
+        final PropertySet propertySet = PropertySet.create(1);
+        propertySet.put(OfflineProperty.OFFLINE_STATE, fromDates(cursorReader, cursorReader.isNotNull(OfflineContent._ID)));
+        return propertySet;
+    }
+
+    public static OfflineState fromDates(CursorReader cursorReader, boolean unavailableEnabled){
         final Date defaultDate = new Date(0);
         final Date requestedAt = getDateOr(cursorReader, TrackDownloads.REQUESTED_AT, defaultDate);
         final Date removedAt = getDateOr(cursorReader, TrackDownloads.REMOVED_AT, defaultDate);
         final Date downloadedAt = getDateOr(cursorReader, TrackDownloads.DOWNLOADED_AT, defaultDate);
         final Date unavailableAt = getDateOr(cursorReader, TrackDownloads.UNAVAILABLE_AT, defaultDate);
-        final boolean isCollectionOffline = cursorReader.isNotNull(OfflineContent._ID);
 
-        final PropertySet propertySet = PropertySet.create(1);
         if (isMostRecentDate(requestedAt, removedAt, downloadedAt, unavailableAt)) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED);
-        } else if (isMostRecentDate(removedAt, requestedAt, downloadedAt, unavailableAt)) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
+            return OfflineState.REQUESTED;
         } else if (isMostRecentDate(downloadedAt, requestedAt, removedAt, unavailableAt)) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
-        } else if (isCollectionOffline && isMostRecentDate(unavailableAt, requestedAt, removedAt, downloadedAt)) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
+            return OfflineState.DOWNLOADED;
+        } else if (unavailableEnabled && isMostRecentDate(unavailableAt, requestedAt, removedAt, downloadedAt)) {
+            return OfflineState.UNAVAILABLE;
+        } else {
+            return OfflineState.NOT_OFFLINE;
         }
-        return propertySet;
     }
 
-    private Date getDateOr(CursorReader cursorReader, Column columnName, Date defaultDate) {
+    private static Date getDateOr(CursorReader cursorReader, Column columnName, Date defaultDate) {
         if (cursorReader.isNotNull(columnName)) {
             return cursorReader.getDateFromTimestamp(columnName);
         }
         return defaultDate;
     }
 
-    private boolean isMostRecentDate(Date dateToTest, Date... dates) {
+    private static boolean isMostRecentDate(Date dateToTest, Date... dates) {
         for (Date aDate : dates) {
             if (aDate.after(dateToTest) || aDate.equals(dateToTest)) {
                 return false;
