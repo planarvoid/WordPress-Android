@@ -39,7 +39,8 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     private ViewElement addToPlaylistItem() {
-        return getRootMenuElements().get(0);
+        return findElement(With.text(testDriver.getString(R.string.add_to_playlist)))
+                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
     }
 
     public ViewElement shareItem() {
