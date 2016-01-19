@@ -37,27 +37,27 @@ class ReferrerResolver {
         // for dagger
     }
 
-    public Referrer getReferrerFromIntent(Intent intent, Resources resources) {
+    public String getReferrerFromIntent(Intent intent, Resources resources) {
         try {
             if (Referrer.hasReferrer(intent)) {
-                return Referrer.fromIntent(intent);
+                return Referrer.fromIntent(intent).get();
             } else if (isOriginIntent(intent)) {
-                return referrerFromOrigin(intent);
+                return referrerFromOrigin(intent).get();
             } else if (isFacebookIntent(intent, resources)) {
-                return Referrer.FACEBOOK;
+                return Referrer.FACEBOOK.get();
             } else if (isTwitterIntent(intent)) {
-                return Referrer.TWITTER;
+                return Referrer.TWITTER.get();
             } else if (isGooglePlusIntent(intent)) {
-                return Referrer.GOOGLE_PLUS;
+                return Referrer.GOOGLE_PLUS.get();
             } else if (isGoogleCrawlerIntent(intent)) {
-                return Referrer.GOOGLE_CRAWLER;
+                return Referrer.GOOGLE_CRAWLER.get();
             } else if (isBrowserIntent(intent)) {
                 return referrerFromBrowser(intent);
             } else {
-                return Referrer.OTHER;
+                return Referrer.OTHER.get();
             }
         } catch(ClassCastException exception) {
-            return Referrer.OTHER;
+            return Referrer.OTHER.get();
         }
     }
 
@@ -116,19 +116,8 @@ class ReferrerResolver {
         return intent.hasExtra(EXTRA_ANDROID_BROWSER_HEADERS);
     }
 
-    private Referrer referrerFromBrowser(Intent intent) {
-        String browserReferrer = getBrowserReferrer(intent);
-
-        if (browserReferrer != null) {
-            Uri uri = Uri.parse(browserReferrer);
-            String host = uri.getHost();
-
-            if (host != null) {
-                return Referrer.fromHost(host);
-            }
-        }
-
-        return Referrer.OTHER;
+    private String referrerFromBrowser(Intent intent) {
+        return Referrer.fromUrl(getBrowserReferrer(intent));
     }
 
     private boolean isGooglePlusIntent(Intent intent) {

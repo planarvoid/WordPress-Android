@@ -11,12 +11,16 @@ public class ForegroundEvent extends TrackingEvent {
     public static final String KIND_OPEN = "open";
 
     public static ForegroundEvent open(Screen screen, Referrer referrer) {
-        return new ForegroundEvent(KIND_OPEN)
-                .put(KEY_PAGE_NAME, screen.get())
-                .put(KEY_REFERRER, referrer.get());
+        return open(screen, referrer.get());
     }
 
-    public static ForegroundEvent open(Screen screen, Referrer referrer, Urn urn) {
+    public static ForegroundEvent open(Screen screen, String referrer) {
+        return new ForegroundEvent(KIND_OPEN)
+                .put(KEY_PAGE_NAME, screen.get())
+                .put(KEY_REFERRER, referrer);
+    }
+
+    public static ForegroundEvent open(Screen screen, String referrer, Urn urn) {
         return ForegroundEvent.open(screen, referrer)
                 .put(KEY_PAGE_URN, urn.toString());
     }

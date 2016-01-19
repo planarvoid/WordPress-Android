@@ -56,7 +56,7 @@ public class IntentResolver {
 
     public void handleIntent(Intent intent, Context context) {
         Uri uri = intent.getData();
-        Referrer referrer = getReferrer(context, intent);
+        String referrer = getReferrer(context, intent);
         if (uri == null || Strings.isBlank(uri.toString())) {
             // fall back to home screen
             showHomeScreen(context, referrer);
@@ -77,7 +77,7 @@ public class IntentResolver {
         }
     }
 
-    private void handleDeepLink(Context context, Uri uri, DeepLink deepLink, Referrer referrer) {
+    private void handleDeepLink(Context context, Uri uri, DeepLink deepLink, String referrer) {
         switch (deepLink) {
             case HOME:
             case STREAM:
@@ -100,7 +100,7 @@ public class IntentResolver {
         }
     }
 
-    private boolean shouldShowLogInMessage(DeepLink deepLink, Referrer referrer) {
+    private boolean shouldShowLogInMessage(DeepLink deepLink, String referrer) {
         if (deepLink.requiresLoggedInUser()) {
             if (deepLink.requiresResolve()) {
                 return false;
@@ -113,13 +113,13 @@ public class IntentResolver {
         return false;
     }
 
-    private void resolve(Context context, Uri uri, Referrer referrer) {
+    private void resolve(Context context, Uri uri, String referrer) {
         resolveOperations.resolve(uri)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(fetchSubscriber(context, uri, referrer));
     }
 
-    private DefaultSubscriber<Urn> fetchSubscriber(final Context context, final Uri uri, final Referrer referrer) {
+    private DefaultSubscriber<Urn> fetchSubscriber(final Context context, final Uri uri, final String referrer) {
         return new DefaultSubscriber<Urn>() {
             @Override
             public void onNext(Urn urn) {
@@ -141,33 +141,33 @@ public class IntentResolver {
         };
     }
 
-    private void startWebView(Context context, Uri uri, Referrer referrer) {
+    private void startWebView(Context context, Uri uri, String referrer) {
         trackForegroundEvent(referrer);
         navigator.openWebView(context, uri);
     }
 
-    private void showHomeScreen(Context context, Referrer referrer) {
+    private void showHomeScreen(Context context, String referrer) {
         accountOperations.clearCrawler();
         trackForegroundEvent(referrer);
         navigator.openStream(context, Screen.DEEPLINK);
     }
 
-    private void showExploreScreen(Context context, Referrer referrer) {
+    private void showExploreScreen(Context context, String referrer) {
         trackForegroundEvent(referrer);
         navigator.openExplore(context, Screen.DEEPLINK);
     }
 
-    private void showSearchScreen(Context context, Uri uri, Referrer referrer) {
+    private void showSearchScreen(Context context, Uri uri, String referrer) {
         trackForegroundEvent(referrer);
         navigator.openSearch(context, uri, Screen.DEEPLINK);
     }
 
-    private void showRecordScreen(Context context, Referrer referrer) {
+    private void showRecordScreen(Context context, String referrer) {
         trackForegroundEvent(referrer);
         navigator.openRecord(context, Screen.DEEPLINK);
     }
 
-    private void startActivityForResource(Context context, Urn urn, Referrer referrer) {
+    private void startActivityForResource(Context context, Urn urn, String referrer) {
         if (isCrawler(referrer)) {
             loginCrawler();
         }
@@ -236,8 +236,8 @@ public class IntentResolver {
         navigator.openLauncher(context);
     }
 
-    private boolean isCrawler(Referrer referrer) {
-        return Referrer.GOOGLE_CRAWLER.equals(referrer);
+    private boolean isCrawler(String referrer) {
+        return Referrer.GOOGLE_CRAWLER.get().equals(referrer);
     }
 
     private void loginCrawler() {
@@ -246,15 +246,15 @@ public class IntentResolver {
         playQueueManager.clearAll(); // do not leave previous played tracks visible for crawlers
     }
 
-    private Referrer getReferrer(Context context, Intent intent) {
+    private String getReferrer(Context context, Intent intent) {
         return referrerResolver.getReferrerFromIntent(intent, context.getResources());
     }
 
-    private void trackForegroundEventForResource(Urn urn, Referrer referrer) {
+    private void trackForegroundEventForResource(Urn urn, String referrer) {
         trackForegroundEvent(ForegroundEvent.open(Screen.DEEPLINK, referrer, urn));
     }
 
-    private void trackForegroundEvent(Referrer referrer) {
+    private void trackForegroundEvent(String referrer) {
         trackForegroundEvent(ForegroundEvent.open(Screen.DEEPLINK, referrer));
     }
 

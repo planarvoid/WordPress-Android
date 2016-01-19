@@ -376,7 +376,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     private void setupReferrer(Referrer referrer) {
-        when(referrerResolver.getReferrerFromIntent(any(Intent.class), any(Resources.class))).thenReturn(referrer);
+        when(referrerResolver.getReferrerFromIntent(any(Intent.class), any(Resources.class))).thenReturn(referrer.get());
     }
 
     private ForegroundEvent captureForegroundEvent() {
