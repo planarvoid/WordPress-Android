@@ -5,10 +5,14 @@ import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrack
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiUserFollowActivity;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.annotations.Issue;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -131,6 +135,34 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
 
         List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
 
+        assertThat(activities).containsExactly(
+                expectedPropertiesFor(newestActivity),
+                expectedPropertiesFor(olderActivity)
+        );
+    }
+
+    @Test
+    @Issue(ref="https://github.com/soundcloud/SoundCloud-Android/issues/4673")
+    public void shouldNotReturnActivityPlaylistPendingRemovalSound() {
+        ApiPlaylist playlist = testFixtures().insertPlaylistPendingRemoval();
+        ApiPlaylistRepostActivity playlistRepostActivity = ModelFixtures.apiPlaylistRepostActivity(playlist);
+        testFixtures().insertPlaylistRepostActivityWithoutPlaylist(playlistRepostActivity);
+
+        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
+        assertThat(activities).containsExactly(
+                expectedPropertiesFor(newestActivity),
+                expectedPropertiesFor(olderActivity)
+        );
+    }
+
+    @Test
+    @Issue(ref="https://github.com/soundcloud/SoundCloud-Android/issues/4673")
+    public void shouldNotReturnActivityWithoutAssociatedSound() {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylistRepostActivity playlistRepostActivity = ModelFixtures.apiPlaylistRepostActivity(playlist);
+        testFixtures().insertPlaylistRepostActivityWithoutPlaylist(playlistRepostActivity);
+
+        List<PropertySet> activities = storage.timelineItemsSince(TIMESTAMP, Integer.MAX_VALUE);
         assertThat(activities).containsExactly(
                 expectedPropertiesFor(newestActivity),
                 expectedPropertiesFor(olderActivity)

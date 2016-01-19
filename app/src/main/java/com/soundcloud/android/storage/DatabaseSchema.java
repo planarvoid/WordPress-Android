@@ -1,5 +1,6 @@
 package com.soundcloud.android.storage;
 
+import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.api.legacy.model.Playable;
 
 // I have an idea for how to generate these things going forward, so let's not spend
@@ -490,7 +491,9 @@ final class DatabaseSchema {
             "   set_dup.sound_id = Activities.sound_id AND " +
             "   set_dup.type = 'playlist-sharing' AND Activities.type = 'playlist'" +
             ")" +
-            " WHERE track_dup._id IS NULL AND set_dup._id IS NULL" +
+            " WHERE track_dup._id IS NULL AND set_dup._id IS NULL AND" +
+            // filter out activities with playables marked for removal or removed
+            " (Activities." + TableColumns.ActivityView.TYPE + " == '" + ActivityKind.USER_FOLLOW + "' OR SoundView." + TableColumns.SoundView._ID + " IS NOT NULL)" +
             " ORDER BY " + TableColumns.ActivityView.CREATED_AT + " DESC";
 
     /**
