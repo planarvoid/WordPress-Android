@@ -23,10 +23,10 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -61,7 +61,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private TrackLikeOperations likeOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private OfflineStateOperations offlineStateOperations;
-    @Mock private OfflinePlaybackOperations playbackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private FeatureOperations featureOperations;
     @Mock private LikesMenuPresenter likesMenuPresenter;
     @Mock private ListItemAdapter<TrackItem> adapter;
@@ -80,11 +80,11 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         presenter = new TrackLikesHeaderPresenter(
                 headerView,
                 offlineStateOperations,
-                playbackOperations,
+                playbackInitiator,
                 TestSubscribers.expandPlayerSubscriber(),
                 featureOperations,
-                eventBus
-        );
+                eventBus,
+                likeOperations);
 
         likedTrackUrns = asList(TRACK1, TRACK2);
         when(fragment.getFragmentManager()).thenReturn(fragmentManager);
@@ -124,7 +124,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void emitTrackingEventOnShuffleButtonClick() {
-        when(playbackOperations.playLikedTracksShuffled(any(PlaySessionSource.class)))
+        when(playbackInitiator.playTracksShuffled(any(Observable.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
 
         presenter.onViewCreated(fragment, layoutView, null);

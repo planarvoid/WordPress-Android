@@ -20,10 +20,11 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
@@ -33,6 +34,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
@@ -45,6 +47,7 @@ import android.support.v4.app.FragmentManager;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle implements PlaylistEngagementsView.OnEngagementListener {
 
@@ -61,7 +64,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private final PlaylistEngagementsView playlistEngagementsView;
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineOperations;
-    private final OfflinePlaybackOperations offlinePlaybackOperations;
+    private final PlaybackInitiator playbackInitiator;
+    private final PlaylistOperations playlistOperations;
     private final PlaybackToastHelper playbackToastHelper;
     private final Navigator navigator;
     private final ShareOperations shareOperations;
@@ -77,8 +81,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                                         PlaylistEngagementsView playlistEngagementsView,
                                         FeatureOperations featureOperations,
                                         OfflineContentOperations offlineOperations,
-                                        OfflinePlaybackOperations offlinePlaybackOperations,
-                                        PlaybackToastHelper playbackToastHelper,
+                                        PlaybackInitiator playbackInitiator,
+                                        PlaylistOperations playlistOperations, PlaybackToastHelper playbackToastHelper,
                                         Navigator navigator,
                                         ShareOperations shareOperations) {
         this.eventBus = eventBus;
@@ -88,7 +92,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.playlistEngagementsView = playlistEngagementsView;
         this.featureOperations = featureOperations;
         this.offlineOperations = offlineOperations;
-        this.offlinePlaybackOperations = offlinePlaybackOperations;
+        this.playbackInitiator = playbackInitiator;
+        this.playlistOperations = playlistOperations;
         this.playbackToastHelper = playbackToastHelper;
         this.navigator = navigator;
         this.shareOperations = shareOperations;
@@ -253,8 +258,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onPlayShuffled() {
         if (playlistWithTracks != null) {
-            offlinePlaybackOperations
-                    .playPlaylistShuffled(playlistWithTracks.getUrn(), playSessionSourceInfo)
+            final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn());
+            playbackInitiator.playTracksShuffled(tracks, playSessionSourceInfo)
                     .doOnCompleted(publishAnalyticsEventForShuffle())
                     .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         }

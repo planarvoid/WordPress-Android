@@ -32,18 +32,16 @@ public class TrackLikesScreen extends Screen {
         toolbarElement = new TrackLikesToolbarElement(solo);
     }
 
-    public TrackLikesScreen clickOfflineTrack(int index) {
-        tracks().get(index)
-                .click();
-        return this;
-    }
-
     public VisualPlayerElement clickTrack(int index) {
         VisualPlayerElement visualPlayerElement = tracks()
                 .get(index)
                 .click();
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
+    }
+
+    public String getTrackTitle(int index) {
+        return tracks().get(index).getTitle();
     }
 
     public VisualPlayerElement clickShuffleButton() {

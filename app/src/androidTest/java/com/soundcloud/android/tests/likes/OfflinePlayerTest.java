@@ -1,11 +1,16 @@
 package com.soundcloud.android.tests.likes;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
@@ -36,21 +41,28 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
         likesScreen = mainNavHelper.goToTrackLikes();
     }
 
-    public void testPlayTrackWhenContentDownloaded() throws Exception {
+    public void testPlayOfflineTracksOnlyWhenContentDownloaded() throws Exception {
         likesScreen
                 .clickOverflowButton()
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSyncedAndWaitToFinish();
         networkManagerClient.switchWifiOff();
 
-        assertTrue(likesScreen.clickTrack(0).isExpandedPlayerPlaying());
+        String nextOfflineTrack = likesScreen.getTrackTitle(2);
+
+        final VisualPlayerElement visualPlayerElement = likesScreen.clickTrack(0);
+        visualPlayerElement.waitForExpandedPlayerToStartPlaying();
+        visualPlayerElement.waitForTheExpandedPlayerToPlayNextTrack();
+        assertThat(visualPlayerElement.getTrackTitle(), is(equalTo(nextOfflineTrack)));
+
     }
 
-    public void testShowToastWhenContentNotDownloaded() throws Exception {
+    public void testShowErrorWhenContentNotDownloaded() throws Exception {
         networkManagerClient.switchWifiOff();
-        likesScreen.clickOfflineTrack(0);
+        final VisualPlayerElement visualPlayerElement = likesScreen.clickTrack(3);
 
-        assertTrue(waiter.expectToastWithText(toastObserver, "Track is not available offline"));
+        final String expectedError = solo.getString(R.string.playback_error);
+        assertThat(visualPlayerElement.error(), is(equalTo(expectedError)));
     }
 
     @Override

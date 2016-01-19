@@ -19,11 +19,11 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
@@ -90,7 +90,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject PlaylistDetailsController.Provider controllerProvider;
     @Inject PlaylistOperations playlistOperations;
     @Inject PlaySessionController playSessionController;
-    @Inject OfflinePlaybackOperations offlinePlaybackOperations;
+    @Inject PlaybackInitiator playbackInitiator;
     @Inject ImageOperations imageOperations;
     @Inject @LightCycle PlaylistEngagementsPresenter engagementsPresenter;
     @Inject @LightCycle PullToRefreshController pullToRefreshController;
@@ -162,7 +162,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @VisibleForTesting
     PlaylistDetailFragment(PlaylistDetailsController.Provider controllerProvider,
                            PlaySessionController playSessionController,
-                           OfflinePlaybackOperations offlinePlaybackOperations,
+                           PlaybackInitiator playbackInitiator,
                            PlaylistOperations playlistOperations,
                            EventBus eventBus,
                            ImageOperations imageOperations,
@@ -177,7 +177,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.controllerProvider = controllerProvider;
         this.playSessionController = playSessionController;
         this.playlistOperations = playlistOperations;
-        this.offlinePlaybackOperations = offlinePlaybackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
         this.engagementsPresenter = engagementsPresenter;
@@ -362,8 +362,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         if (shouldShowUpsell(initialTrack)) {
             navigator.openUpgrade(getActivity());
         } else {
-            offlinePlaybackOperations
-                    .playPlaylist(playlistWithTracks.getUrn(), initialTrack.getEntityUrn(), trackPosition, playSessionSource)
+            playbackInitiator.playTracks(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn()),
+                    initialTrack.getEntityUrn(), trackPosition, playSessionSource)
                     .subscribe(playbackSubscriber);
         }
     }

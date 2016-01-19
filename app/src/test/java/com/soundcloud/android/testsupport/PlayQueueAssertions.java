@@ -61,6 +61,8 @@ public class PlayQueueAssertions {
                     .isEqualTo(((PlayableQueueItem) playQueueItem2).getSource());
             assertThat(((PlayableQueueItem) playQueueItem1).getSourceVersion())
                     .isEqualTo(((PlayableQueueItem) playQueueItem2).getSourceVersion());
+            assertThat(((PlayableQueueItem) playQueueItem1).isBlocked())
+                    .isEqualTo(((PlayableQueueItem) playQueueItem2).isBlocked());
         }
     }
 

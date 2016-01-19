@@ -23,6 +23,8 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.StationsSourceInfo;
@@ -30,6 +32,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -68,6 +71,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private PlayQueueOperations playQueueOperations;
     @Mock private PolicyOperations policyOperations;
+    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private TrackOfflineStateProvider offlineStateProvider;
 
     private PlaySessionSource playlistSessionSource;
     private PlaySessionSource exploreSessionSource;
@@ -76,7 +81,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Before
     public void before() throws CreateModelException {
-        playQueueManager = new PlayQueueManager(playQueueOperations, eventBus, policyOperations);
+        playQueueManager = new PlayQueueManager(playQueueOperations, eventBus, policyOperations, networkConnectionHelper, offlineStateProvider);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
@@ -84,6 +89,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueue.copy()).thenReturn(playQueue);
         when(playQueue.getTrackItemUrns()).thenReturn(queueUrns);
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>empty());
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
         when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));
 
@@ -637,6 +643,25 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void moveToNextPlayableItemGoesToNextUnblockedOfflineItemWithNoConnection() {
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(false);
+        when(offlineStateProvider.getOfflineState(Urn.forTrack(3L))).thenReturn(OfflineState.DOWNLOADED);
+        final Map<Urn, Boolean> blockedMap = new HashMap<>();
+        blockedMap.put(Urn.forTrack(2L), true);
+        blockedMap.put(Urn.forTrack(3L), false);
+        blockedMap.put(Urn.forTrack(4L), false);
+
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 4L), playlistSessionSource, blockedMap), playlistSessionSource);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
+
+        final CurrentPlayQueueItemEvent actual = eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
+        assertCurrentPlayQueueItemEventsEqual(actual, TestPlayQueueItem.createTrack(Urn.forTrack(3L)), PLAYLIST_URN, 2);
+    }
+
+    @Test
     public void moveToNextPlayableItemGoesToLastItemIfAllBlocked() {
         final Map<Urn, Boolean> blockedMap = new HashMap<>();
         blockedMap.put(Urn.forTrack(2L), true);
@@ -673,7 +698,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void moveToPreviousPlayableItemGoesToPreviousUnblockedItem() {
+    public void moveToPreviousPlayableItemGoesToPreviousUnblockedItemWhenConnected() {
         final Map<Urn, Boolean> blockedMap = new HashMap<>();
         blockedMap.put(Urn.forTrack(1L), true);
         blockedMap.put(Urn.forTrack(2L), false);
@@ -685,7 +710,26 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.moveToPreviousPlayableItem()).isTrue();
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
         final PlayQueueItem actual = eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem();
-        assertPlayQueueItemsEqual(actual, TestPlayQueueItem.createBlockedTrack(Urn.forTrack(3L)));
+        assertPlayQueueItemsEqual(actual, TestPlayQueueItem.createTrack(Urn.forTrack(3L)));
+    }
+
+    @Test
+    public void moveToPreviousPlayableItemGoesToPreviousUnblockedOfflineItemWhenNotConnected() {
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(false);
+        when(offlineStateProvider.getOfflineState(Urn.forTrack(2L))).thenReturn(OfflineState.DOWNLOADED);
+
+        final Map<Urn, Boolean> blockedMap = new HashMap<>();
+        blockedMap.put(Urn.forTrack(1L), true);
+        blockedMap.put(Urn.forTrack(2L), false);
+        blockedMap.put(Urn.forTrack(3L), false);
+
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 4L), playlistSessionSource, blockedMap), playlistSessionSource, 3);
+
+        assertThat(playQueueManager.moveToPreviousPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
+        final PlayQueueItem actual = eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem();
+        assertPlayQueueItemsEqual(actual, TestPlayQueueItem.createTrack(Urn.forTrack(2L)));
     }
 
     @Test
