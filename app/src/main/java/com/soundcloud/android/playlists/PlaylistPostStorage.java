@@ -23,8 +23,8 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
+import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -80,14 +80,30 @@ public class PlaylistPostStorage {
                 .limit(limit);
     }
 
-    Observable<ChangeResult> markPendingRemoval(Urn urn) {
-        return propellerRx.update(
-                Sounds.name(),
-                ContentValuesBuilder.values(1).put(TableColumns.Sounds.REMOVED_AT, dateProvider.getCurrentTime()).get(),
-                filter()
-                        .whereEq(TableColumns.Sounds._ID, urn.getNumericId())
-                        .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-        );
+    Observable<TxnResult> markPendingRemoval(final Urn urn) {
+        return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propeller) {
+                step(propeller.update(
+                        Sounds.name(),
+                        ContentValuesBuilder.values(1).put(TableColumns.Sounds.REMOVED_AT, dateProvider.getCurrentTime()).get(),
+                        filter().whereEq(TableColumns.Sounds._ID, urn.getNumericId())
+                                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                ));
+
+                removePlaylistFromAssociatedViews(propeller);
+            }
+
+            private void removePlaylistFromAssociatedViews(PropellerDatabase propeller) {
+                step(propeller.delete(Table.Activities, filter()
+                        .whereEq(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                        .whereEq(TableColumns.Activities.SOUND_ID, urn.getNumericId())));
+
+                step(propeller.delete(Table.SoundStream, filter()
+                        .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                        .whereEq(TableColumns.SoundStream.SOUND_ID, urn.getNumericId())));
+            }
+        });
     }
 
     Observable<TxnResult> remove(Urn urn) {

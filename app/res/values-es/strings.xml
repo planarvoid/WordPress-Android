@@ -33,7 +33,7 @@
   <!--@Todo from l10n: please explain-->
   <string name="account_one_active">Solo puedes tener una cuenta activa</string>
   <string name="comments">Comentarios</string>
-  <string name="display_name">Nombre</string>
+  <string name="display_name">Nombre visible</string>
   <!--@Todo from l10n: probably move to non-final since related to offline sync?-->
   <string name="unlimited">Unlimited</string>
   <!--__RELATED TRACKS-->
@@ -91,19 +91,19 @@
   <string name="authentication_your_password">Tu contraseña</string>
   <string name="authentication_clear_image">Mantén pulsado para borrar la imagen</string>
   <string name="dialog_select_google_account">Selecciona una cuenta de Google con la que iniciar sesión.</string>
-  <string name="authentication_login_error_message">No hemos podido iniciar tu sesión. Inténtalo de nuevo.</string>
+  <string name="authentication_login_error_message">No hemos podido registrarte. Inténtalo de nuevo.</string>
   <string name="authentication_no_google_accounts">Configura primero una cuenta de Google.</string>
   <string name="authentication_log_in_with_google">Conéctate con Google</string>
   <string name="error_google_sign_in_failed">No hemos podido iniciar tu sesión con Google+. Visita plus.google.com para activar tu cuenta de Google+ e inténtalo de nuevo.</string>
   <string name="auth_disclaimer_title">Un paso más</string>
   <string name="auth_disclaimer_message">Al seleccionar \"Continuar\", aceptas las Condiciones de uso y la Política de privacidad de SoundCloud.</string>
   <string name="facebook_authentication_failed_message">Inténtalo de nuevo más tarde o inicia sesión con tu dirección de email y tu contraseña.</string>
-  <string name="authentication_recover_password_msg">Introduce tu dirección de email y te enviaremos un enlace para cambiar tu contraseña. Si tienes alguna duda, visita nuestra Ayuda.</string>
+  <string name="authentication_recover_password_msg">Introduce tu dirección de email y te enviaremos un enlace para cambiar tu contraseña. Si aún necesitas ayuda, visita nuestra Ayuda.</string>
   <string name="authentication_recover_password_visit_our_Help_Center">Visita nuestra Ayuda</string>
   <string name="authentication_recover_password_send">Enviar</string>
   <string name="authentication_blocked_title">No hemos podido crearte una cuenta</string>
   <string name="authentication_blocked_message">Nuestros robots piensan que este registro se parece demasiado a spam. Si consideras que es un error, contacta con el sitio de soporte de SoundCloud.</string>
-  <!--@Todo from l10n: we don’t have sign-in on mobi anymore. Also unclear if this is still used?-->
+  <!--@Todo from l10n: we don't have sign-in on mobi anymore. Also unclear if this is still used?-->
   <string name="authentication_captcha_message">Estamos teniendo algunos problemas para iniciar tu sesión. Inicia sesión en nuestro sitio web para móviles antes de iniciar sesión de nuevo.</string>
   <string name="authentication_email_taken_message">Esa dirección de email ya está asociada con una cuenta. Introduce una dirección diferente o intenta iniciar sesión.</string>
   <string name="authentication_email_invalid_message">El dominio que has introducido parece no poder recibir mensajes de correo electrónico. ¿Lo escribiste correctamente?</string>
@@ -117,7 +117,7 @@
   <string name="optin_yes">Sí, por favor.</string>
   <string name="optin_no">No, gracias.</string>
   <!--__EMPTY STATES-->
-  <string name="info_empty_other_message">Esta persona aún no ha añadido una descripción de perfil.</string>
+  <string name="info_empty_other_message">Esta persona no ha añadido una descripción de perfil todavía.</string>
   <string name="info_empty_you_message">Tu perfil está vacío.</string>
   <string name="info_empty_you_secondary">Para editar tu perfil, inicia sesión en SoundCloud en tu escritorio.</string>
   <string name="list_empty_notification_message">Aún no tienes notificaciones.</string>
@@ -132,13 +132,11 @@
   <string name="list_empty_you_following_message">Sigue a tus artistas, bandas y curadores favoritos para escuchar sus últimas pistas</string>
   <string name="list_empty_you_followers_message">Aún no tienes seguidores.</string>
   <string name="list_empty_you_followers_secondary">Comparte tus canciones y listas favoritas para crear tu comunidad</string>
-  <string name="empty_you_sounds_message">Aún no has subido ninguna pista.</string>
-  <string name="empty_user_sounds_message">Este usuario aún no ha subido pistas públicas.</string>
   <!--new profile-->
   <string name="new_empty_user_posts_message">Este usuario aún no ha subido\npistas públicas.</string>
   <string name="new_empty_user_playlists_message">Este usuario no tiene ninguna lista.</string>
-  <string name="new_empty_user_likes_text">Este usuario aún no ha indicado que le gusta ninguna pista.</string>
-  <!--@Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\’t followed by anyone yet."-->
+  <string name="new_empty_user_likes_text">Este usuario aún no ha hecho Me gusta en ninguna pista.</string>
+  <!--@Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\'t followed by anyone yet."-->
   <string name="new_empty_user_followers_text">Este usuario aún no tiene seguidores.</string>
   <string name="new_empty_user_followings_text">Este usuario aún no sigue a nadie.</string>
   <!--__ERRORS-->
@@ -242,7 +240,7 @@
   <string name="repost_error_toast_overflow_action">No se ha podido cambiar el estado de repost</string>
   <!--__PLAYER-->
   <string name="share">Compartir</string>
-  <string name="repost">Repostear en SoundCloud</string>
+  <string name="repost">Repostea</string>
   <string name="unpost">Anular la publicación</string>
   <string name="comment_at_time">Comentario en %s</string>
   <string name="comment_on_tracktitle">Comentario sobre %s</string>
@@ -276,7 +274,6 @@
   <string name="shuffle_playlist">Lista aleatoria</string>
   <string name="add_to_playlist">Añadir a la lista</string>
   <string name="remove_from_playlist">Eliminar de la lista de reproducción</string>
-  <string name="delete_playlist">Borrar lista</string>
   <!--__PLAYLIST CREATION-->
   <string name="add_track_to_playlist">Añadir a la lista...</string>
   <string name="added_to_playlist">Añadido a la lista</string>
@@ -301,7 +298,6 @@
   <string name="tab_title_user_playlists">LISTAS</string>
   <string name="tab_title_user_followers">SEGUIDORES</string>
   <string name="tab_title_user_followings">SIGUIENDO</string>
-  <string name="tab_title_user_sounds">PISTAS</string>
   <!--@Todo from l10n: can we get rid of these Discogs and Myspace strings?-->
   <string name="discogs">Discogs</string>
   <string name="myspace">Myspace</string>
@@ -409,7 +405,7 @@
   <string name="pref_analytics">Análisis</string>
   <string name="pref_analytics_desc">Habilitar el análisis nos permite recopilar datos sobre el uso de esta aplicación que nos ayudan a mejorarla. Consulta nuestra Política de privacidad para obtener información.</string>
   <string name="pref_crashlogs">CrashLogs</string>
-  <string name="pref_crashlogs_desc">Habilitar los registros de incidencias nos permite mejorar la aplicación de manera considerable. No recopilamos datos personales. Para más detalles, consulta nuestra Política de privacidad.</string>
+  <string name="pref_crashlogs_desc">Habilitar los registros de incidencias nos permite mejorar la aplicación de manera considerable. No recopilamos datos personales. Consulta nuestra Política de privacidad para obtener información.</string>
   <string name="playback_error_logging">Registro de errores de reproducción: %s</string>
   <string name="enabled">Activado</string>
   <string name="disabled">Desactivado</string>
@@ -464,8 +460,6 @@
   <string name="collections_with_stations_onboarding_title">Tus me gusta. Tus listas. Tus emisoras.\nTodo en el mismo lugar.</string>
   <string name="collections_without_stations_onboarding_title">Tus me gusta. Tus listas.\nTodo en el mismo lugar.</string>
   <string name="collections_onboarding_description">Bienvenido a tu nueva colección, un solo destino para tus pistas.</string>
-  <string name="dialog_playlist_delete_title">¿Eliminar lista?</string>
-  <string name="dialog_playlist_delete_message">Esto borrará la lista permanentemente. ¿Seguro que deseas continuar?</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d segundos</string>
   <string name="format_abbreviated_minutes">%d minutos</string>
@@ -534,8 +528,6 @@
   <string name="facebook_invites_title">Invitar a amigos a SoundCloud</string>
   <string name="facebook_invites_description">Compartir es bueno. Invita a tus amigos a disfrutar de SoundCloud contigo.</string>
   <string name="facebook_invites_button">Invitar a amigos</string>
-  <!--__FACEBOOK CREATOR INVITES-->
-  <string name="facebook_creator_invites_title">Invita a tus amigos a escuchar tus pistas más recientes en SoundCloud</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Listas</string>
   <string name="collections_your_liked_tracks">Pistas con Me gusta</string>
@@ -552,13 +544,12 @@
   <string name="collections_loading_error">Hubo un problema al cargar tu colección.\nInténtalo de nuevo más tarde.</string>
   <!--__TABS-->
   <string name="tab_home">Inicio</string>
-  <string name="tab_stations">Emisoras</string>
   <string name="tab_discovery">Descubrir</string>
   <string name="tab_collection">Colección</string>
   <string name="tab_you">Más</string>
   <!--__YOU-->
   <string name="you_explore">Explorar</string>
-  <string name="you_activity">Notificaciones</string>
+  <string name="you_activity">Actividad</string>
   <string name="you_record">Grabar</string>
   <string name="you_offline_sync_settings">Configuración de sincronización sin conexión</string>
   <string name="you_notification_settings">Configuración de notificaciones</string>

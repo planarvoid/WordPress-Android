@@ -215,6 +215,11 @@ public class ModelFixtures {
         return new ApiUserFollowActivity(user, createdAt);
     }
 
+    public static ApiPlaylistRepostActivity apiPlaylistRepostActivity(ApiPlaylist playlist){
+        final ApiUser user = create(ApiUser.class);
+        return new ApiPlaylistRepostActivity(playlist, user, new Date());
+    }
+
     public static ApiActivityItem apiActivityWithRepostedTrack(ApiTrack track) {
         final ApiUser reposter = create(ApiUser.class);
         final ApiTrackRepostActivity trackRepost = new ApiTrackRepostActivity(track, reposter, new Date());
@@ -228,8 +233,7 @@ public class ModelFixtures {
     }
 
     public static ApiActivityItem apiActivityWithRepostedPlaylist(ApiPlaylist playlist) {
-        final ApiUser user = create(ApiUser.class);
-        final ApiPlaylistRepostActivity playlistRepost = new ApiPlaylistRepostActivity(playlist, user, new Date());
+        final ApiPlaylistRepostActivity playlistRepost = apiPlaylistRepostActivity(playlist);
         return ApiActivityItem.builder().playlistRepost(playlistRepost).build();
     }
 

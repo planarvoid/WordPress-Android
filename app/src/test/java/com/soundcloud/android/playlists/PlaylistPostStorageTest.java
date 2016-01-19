@@ -1,5 +1,9 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_ID;
+import static com.soundcloud.android.storage.TableColumns.Activities.SOUND_TYPE;
+import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
+import static com.soundcloud.propeller.query.Query.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -12,11 +16,16 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.test.assertions.QueryAssertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -207,6 +216,35 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
         subscriber.assertValue(Arrays.asList(requestedPlaylist, downloadedPlaylist));
+    }
+
+    @Test
+    public void removeAssociatedActivitiesWhenMarkingPlaylistPendingRemovals() {
+        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylistRepostActivity apiActivityItem = ModelFixtures.apiPlaylistRepostActivity(playlist);
+        testFixtures().insertPlaylistRepostActivity(apiActivityItem);
+
+        storage.markPendingRemoval(playlist.getUrn()).subscribe();
+
+        final Query query = from(Table.Activities)
+                .whereEq(SOUND_ID, playlist.getId())
+                .whereEq(SOUND_TYPE, TYPE_PLAYLIST);
+
+        QueryAssertions.assertThat(select(query)).isEmpty();
+    }
+
+    @Test
+    public void removedSoundStreamEntryAssociatedWithRemovedPlaylist() {
+        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        testFixtures().insertStreamPlaylistPost(playlist.getId(), 123L);
+
+        storage.markPendingRemoval(playlist.getUrn()).subscribe();
+
+        final Query query = from(Table.SoundStream)
+                .whereEq(TableColumns.SoundStream.SOUND_ID, playlist.getId())
+                .whereEq(TableColumns.SoundStream.SOUND_TYPE, TYPE_PLAYLIST);
+
+        QueryAssertions.assertThat(select(query)).isEmpty();
     }
 
     private PropertySet createPostedPlaylistPropertySet(ApiPlaylist apiPlaylist, OfflineState offlineState) {

@@ -17,7 +17,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -189,7 +188,7 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
     @Test
     public void removeShouldMarkForRemovalSyncedPlaylist() {
         final Urn playlist = Urn.forPlaylist(123);
-        when(playlistPostStorage.markPendingRemoval(playlist)).thenReturn(Observable.just(new ChangeResult(1)));
+        when(playlistPostStorage.markPendingRemoval(playlist)).thenReturn(Observable.just(new TxnResult()));
 
         operations.remove(playlist).subscribe();
 
@@ -209,7 +208,7 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldPublishEntityChangedEventAfterRemovingPlaylist() {
         final Urn playlist = Urn.forPlaylist(213L);
-        when(playlistPostStorage.markPendingRemoval(playlist)).thenReturn(Observable.just(new ChangeResult(1)));
+        when(playlistPostStorage.markPendingRemoval(playlist)).thenReturn(Observable.just(new TxnResult()));
 
         operations.remove(playlist).subscribe();
 
