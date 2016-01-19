@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
@@ -33,6 +34,7 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -192,7 +194,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         arguments.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, false);
 
         final List<PropertySetSource> items = Collections.emptyList();
-        final Observable<SearchResult> observable = Observable.just(new SearchResult(items, null, null));
+        final Observable<SearchResult> observable = Observable.just(SearchResult.fromPropertySetSource(items, null, null));
 
         when(searchOperations.searchResult(eq("query"), anyInt())).thenReturn(observable);
         when(searchPagingFunction.call(any(SearchResult.class))).thenReturn(observable);
@@ -215,9 +217,10 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldOpenHighTierSearchResults() {
         final List<PropertySet> premiumItemsSource = Collections.emptyList();
-        presenter.onPremiumContentViewAllClicked(context(), premiumItemsSource);
+        final Optional<Link> nextHref = Optional.absent();
+        presenter.onPremiumContentViewAllClicked(context(), premiumItemsSource, nextHref);
 
-        verify(navigator).openSearchPremiumContentResults(eq(context()), anyString(), eq(premiumItemsSource));
+        verify(navigator).openSearchPremiumContentResults(eq(context()), anyString(), anyInt(), eq(premiumItemsSource), eq(nextHref));
     }
 
     private List<ListItem> setupAdapter() {

@@ -31,6 +31,7 @@ import android.provider.MediaStore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -73,7 +74,7 @@ public class PlayFromVoiceSearchActivityTest extends AndroidUnitTest {
 
     @Test
     public void trackSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
-        searchResult = new SearchResult(new ArrayList(), Optional.<Link>absent(), Optional.<Urn>absent());
+        searchResult = SearchResult.fromPropertySetSource(new ArrayList(), Optional.<Link>absent(), Optional.<Urn>absent());
         when(searchOperations.searchResult(QUERY, SearchOperations.TYPE_TRACKS)).thenReturn(Observable.just(searchResult));
 
         controller.withIntent(getPlayFromSearchIntent(QUERY)).create().resume();
@@ -86,7 +87,8 @@ public class PlayFromVoiceSearchActivityTest extends AndroidUnitTest {
     @Test
     public void callsPlayTrackWithSearchResult() throws Exception {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        searchResult = new SearchResult(Arrays.asList(apiTrack), Optional.<Link>absent(), Optional.<Urn>absent());
+        searchResult = SearchResult.fromPropertySetSource(Collections.singletonList(apiTrack), Optional.<Link>absent(),
+                Optional.<Urn>absent());
         when(searchOperations.searchResult(QUERY, SearchOperations.TYPE_TRACKS)).thenReturn(Observable.just(searchResult));
 
         controller.withIntent(getPlayFromSearchIntent(QUERY)).create().resume();
@@ -123,7 +125,8 @@ public class PlayFromVoiceSearchActivityTest extends AndroidUnitTest {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
         List<ApiPlaylist> playlistResults = Arrays.asList(ModelFixtures.create(ApiPlaylist.class), apiPlaylist);
-        Observable<SearchResult> searchResultObservable = Observable.just(new SearchResult(playlistResults, Optional.<Link>absent(), Optional.<Urn>absent()));
+        Observable<SearchResult> searchResultObservable = Observable.just(SearchResult.fromPropertySetSource(playlistResults,
+                Optional.<Link>absent(), Optional.<Urn>absent()));
 
         when(searchOperations.searchResult(GENRE, SearchOperations.TYPE_PLAYLISTS)).thenReturn(searchResultObservable);
         when(random.nextInt(2)).thenReturn(1);

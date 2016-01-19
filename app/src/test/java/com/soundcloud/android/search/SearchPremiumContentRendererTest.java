@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -17,6 +18,7 @@ import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -111,6 +113,6 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
 
     private List<SearchPremiumItem> buildSearchPremiumItem(Urn urn) {
         final List<PropertySet> propertySets = Collections.singletonList(PropertySet.create().put(EntityProperty.URN, urn));
-        return Collections.singletonList(new SearchPremiumItem(propertySets, SEARCH_RESULTS_COUNT));
+        return Collections.singletonList(new SearchPremiumItem(propertySets, Optional.<Link>absent(), SEARCH_RESULTS_COUNT));
     }
 }

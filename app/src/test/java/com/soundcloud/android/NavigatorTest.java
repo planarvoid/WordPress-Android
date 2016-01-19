@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.search.SearchPremiumResultsActivity.*;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -7,6 +8,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
@@ -29,6 +31,7 @@ import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -46,6 +49,7 @@ import java.util.List;
 public class NavigatorTest extends AndroidUnitTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
+    public static final int SEARCH_TYPE = 0;
 
     @Mock private FeatureFlags flags;
 
@@ -290,14 +294,18 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void opensSearchPremiumContentResults() {
         final List<PropertySet> propertySets = Collections.emptyList();
-        final String queryUrn = "queryUrn";
+        final String searchQuery = "query";
+        final int searchType = 1;
+        final Optional<Link> nextHref = Optional.absent();
 
-        navigator.openSearchPremiumContentResults(activityContext, queryUrn, propertySets);
+        navigator.openSearchPremiumContentResults(activityContext, searchQuery, searchType, propertySets, nextHref);
 
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(SearchPremiumResultsActivity.class)
-                .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, queryUrn)
-                .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, propertySets);
+                .containsExtra(EXTRA_SEARCH_QUERY, searchQuery)
+                .containsExtra(EXTRA_SEARCH_TYPE, searchType)
+                .containsExtra(EXTRA_PREMIUM_CONTENT_RESULTS, propertySets)
+                .containsExtra(EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
     }
 
     @Test
@@ -309,7 +317,6 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(TrackCommentsActivity.class)
                 .containsExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn);
-
     }
 
     @Test
