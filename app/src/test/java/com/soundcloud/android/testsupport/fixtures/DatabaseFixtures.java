@@ -759,6 +759,10 @@ public class DatabaseFixtures {
 
     public void insertPlaylistRepostActivity(ApiPlaylistRepostActivity activity) {
         insertPlaylist(activity.getPlaylist());
+        insertPlaylistRepostActivityWithoutPlaylist(activity);
+    }
+
+    public void insertPlaylistRepostActivityWithoutPlaylist(ApiPlaylistRepostActivity activity) {
         insertUser(activity.getUser());
         ContentValuesBuilder builder = ContentValuesBuilder.values();
         builder.put(TableColumns.Activities.TYPE, ActivityKind.TRACK_REPOST.identifier());
