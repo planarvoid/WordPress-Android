@@ -167,6 +167,7 @@ public class CollectionOperations {
                 case EntityStateChangedEvent.PLAYLIST_DELETED:
                 case EntityStateChangedEvent.MARKED_FOR_OFFLINE:
                 case EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER:
+                case EntityStateChangedEvent.RECENT_STATION_UPDATED:
                     return true;
                 default:
                     return false;
