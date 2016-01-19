@@ -10,9 +10,11 @@ import java.util.List;
 class SearchPremiumItem implements ListItem {
 
     private final List<PropertySet> sourceSet;
+    private final int resultsCount;
 
-    public SearchPremiumItem(List<PropertySet> sourceSetPremiumItems) {
+    SearchPremiumItem(List<PropertySet> sourceSetPremiumItems, int resultsCount) {
         this.sourceSet = sourceSetPremiumItems;
+        this.resultsCount = resultsCount;
     }
 
     @Override
@@ -36,6 +38,6 @@ class SearchPremiumItem implements ListItem {
     }
 
     public int getResultsCount() {
-        return sourceSet.size();
+        return resultsCount;
     }
 }

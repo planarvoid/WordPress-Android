@@ -10,6 +10,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
@@ -61,6 +62,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private MixedItemClickListener clickListener;
     @Mock private TrackItemRenderer trackItemRenderer;
     @Mock private FeatureFlags featureFlags;
+    @Mock private Navigator navigator;
 
     private TestEventBus eventBus = new TestEventBus();
     private SearchQuerySourceInfo searchQuerySourceInfo;
@@ -70,7 +72,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new SearchResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
-                clickListenerFactory, eventBus, featureFlags);
+                clickListenerFactory, eventBus, featureFlags, navigator);
 
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, Urn.forTrack(1));
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
@@ -208,6 +210,14 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onDestroy(fragmentRule.getFragment());
 
         eventBus.verifyUnsubscribed();
+    }
+
+    @Test
+    public void shouldOpenHighTierSearchResults() {
+        final List<PropertySet> premiumItemsSource = Collections.emptyList();
+        presenter.onPremiumContentViewAllClicked(context(), premiumItemsSource);
+
+        verify(navigator).openSearchPremiumContentResults(eq(context()), anyString(), eq(premiumItemsSource));
     }
 
     private List<ListItem> setupAdapter() {

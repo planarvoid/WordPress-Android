@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/premium_item_container"
     android:layout_width="match_parent"
@@ -9,19 +10,35 @@
     <View style="@style/Divider.Background" />
     <View style="@style/Divider.Section" />
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/results_count"
-        style="@style/Search.PremiumContent.Text"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/discovery_cell_text_height"
-        android:gravity="center_vertical"
-        android:paddingLeft="@dimen/discovery_cell_text_padding"
-        tools:text="Found 57 SoundCloud Go Results" />
+        android:layout_height="wrap_content"
+        android:paddingRight="@dimen/discovery_search_help_padding">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/results_count"
+            style="@style/Search.PremiumContent.Text"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/discovery_search_cell_text_height"
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/discovery_cell_text_padding"
+            tools:text="Found 57 SoundCloud Go Results" />
+
+        <ImageView
+            android:id="@+id/help"
+            android:layout_width="@dimen/discovery_search_help_button"
+            android:layout_height="@dimen/discovery_search_help_button"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/help_icon"
+            android:scaleType="center"
+            android:background="?android:attr/selectableItemBackground"/>
+
+    </RelativeLayout>
 
     <View
         android:id="@+id/results_count_section"
         style="@style/Divider.Section" />
-
     <View style="@style/Divider.Section" />
 
     <RelativeLayout
@@ -43,14 +60,12 @@
             tools:text="VIEW ALL SOUNDCLOUD GO RESULTS" />
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/discovery_cell_image_view_all_size"
+            android:layout_height="@dimen/discovery_cell_image_view_all_size"
             android:layout_centerInParent="true"
             android:layout_toRightOf="@id/view_all"
-            android:gravity="center"
-            android:paddingLeft="@dimen/discovery_cell_image_view_all_padding"
-            android:paddingRight="@dimen/discovery_cell_image_view_all_padding"
-            android:src="@drawable/chevron" />
+            android:src="@drawable/chevron"
+            android:scaleType="center"/>
 
     </RelativeLayout>
 

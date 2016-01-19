@@ -136,6 +136,7 @@
     <color name="search_hint_text">#CCCCCC</color>
     <color name="search_screen_background">#80000000</color>
     <color name="discovery_tags_title">#666666</color>
+    <color name="discovery_search_premium_view_all">#666666</color>
 
     <!-- Stations -->
     <color name="stations_home_background">@color/page_background</color>

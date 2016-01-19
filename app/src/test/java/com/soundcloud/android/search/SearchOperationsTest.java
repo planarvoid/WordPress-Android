@@ -47,6 +47,11 @@ import java.util.Map;
 
 public class SearchOperationsTest extends AndroidUnitTest {
 
+    private static final int SEARCH_RESULTS_COUNT = 30;
+    private static final int TRACK_RESULTS_COUNT = 10;
+    private static final int PLAYLIST_RESULTS_COUNT = 10;
+    private static final int USER_RESULTS_COUNT = 10;
+
     private SearchOperations operations;
 
     @Mock private ApiClientRx apiClientRx;
@@ -259,8 +264,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
     public void shouldProvideResultPager() {
         final SearchModelCollection<ApiPlaylist> firstPage = new SearchModelCollection<>(
                 Collections.singletonList(playlist),
-                Collections.singletonMap(ModelCollection.NEXT_LINK_REL, new Link("http://api-mobile.sc.com/next"))
-        );
+                Collections.singletonMap(ModelCollection.NEXT_LINK_REL, new Link("http://api-mobile.sc.com/next")));
         final SearchModelCollection<ApiPlaylist> lastPage = new SearchModelCollection<>(Collections.singletonList(playlist));
 
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())), isA(TypeToken.class)))
@@ -284,7 +288,10 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 Collections.singletonList(playlist),
                 Collections.<String, Link>emptyMap(),
                 queryUrn.toString(),
-                null
+                null,
+                TRACK_RESULTS_COUNT,
+                PLAYLIST_RESULTS_COUNT,
+                USER_RESULTS_COUNT
         );
 
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())), isA(TypeToken.class)))
@@ -308,15 +315,17 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 ApiUniversalSearchItem.forPlaylist(playlist));
 
         final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = searchItems;
-        final ModelCollection<ApiUniversalSearchItem> apiPremiumUniversalSearchItems = new ModelCollection<>(searchItems);
+        final SearchModelCollection<ApiUniversalSearchItem> apiPremiumUniversalSearchItems = new SearchModelCollection<>(searchItems);
 
         final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems,
-                Collections.<String, Link>emptyMap(), "queryUrn", apiPremiumUniversalSearchItems));
+                Collections.<String, Link>emptyMap(), "queryUrn", apiPremiumUniversalSearchItems,
+                TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
 
         final SearchResult premiumSearchResult = new SearchResult(searchItems, Optional.<Link>absent(), Optional.<Urn>absent());
-        final SearchResult expectedSearchResult = new SearchResult(apiUniversalSearchItems, Optional.<Link>absent(), Optional.<Urn>absent(), Optional.of(premiumSearchResult));
+        final SearchResult expectedSearchResult = new SearchResult(apiUniversalSearchItems, Optional.<Link>absent(),
+                Optional.<Urn>absent(), Optional.of(premiumSearchResult), SEARCH_RESULTS_COUNT);
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);
 
@@ -328,25 +337,6 @@ public class SearchOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void premiumContentShouldBeAbsentWhenPremiumCollectionIsEmpty() throws Exception {
-        final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
-                ApiUniversalSearchItem.forUser(user),
-                ApiUniversalSearchItem.forTrack(track),
-                ApiUniversalSearchItem.forPlaylist(playlist));
-        final ModelCollection<ApiUniversalSearchItem> apiPremiumUniversalSearchItems = new ModelCollection<>(Collections.<ApiUniversalSearchItem>emptyList());
-
-        final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems,
-                Collections.<String, Link>emptyMap(), "queryUrn", apiPremiumUniversalSearchItems));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
-
-        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);
-
-        subscriber.assertValueCount(1);
-        final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
-        assertThat(searchResult.getPremiumContent().isPresent()).isFalse();
-    }
-
-    @Test
     public void premiumContentShouldBeAbsentWhenPremiumCollectionIsNull() throws Exception {
         final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
                 ApiUniversalSearchItem.forUser(user),
@@ -354,7 +344,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 ApiUniversalSearchItem.forPlaylist(playlist));
 
         final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems,
-                Collections.<String, Link>emptyMap(), "queryUrn", null));
+                Collections.<String, Link>emptyMap(), "queryUrn", null, TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);

@@ -99,7 +99,11 @@
     <dimen name="discovery_search_cell_margin_top_bottom">8dp</dimen>
     <dimen name="discovery_search_close_icon_margin">16dp</dimen>
     <dimen name="discovery_search_tabs_padding">48dp</dimen>
+    <dimen name="discovery_search_help_button">48dp</dimen>
+    <dimen name="discovery_search_help_padding">2dp</dimen>
+    <dimen name="discovery_search_cell_text_height">56dp</dimen>
     <dimen name="discovery_cell_image_view_all_padding">6dp</dimen>
+    <dimen name="discovery_cell_image_view_all_size">24dp</dimen>
     <dimen name="discovery_cell_text_view_all_padding">1dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_bottom">16dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_top">6dp</dimen>

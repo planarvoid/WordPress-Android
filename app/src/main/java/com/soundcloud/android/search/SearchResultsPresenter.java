@@ -8,6 +8,7 @@ import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
@@ -53,7 +54,8 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
             final Optional<SearchResult> premiumContent = searchResult.getPremiumContent();
             final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
             if (premiumContent.isPresent() && featureFlags.isEnabled(Flag.SEARCH_RESULTS_HIGH_TIER)) {
-                searchItems.add(SearchItem.buildPremiumItem(premiumContent.get().getItems()));
+                final SearchResult premiumSearchResult = premiumContent.get();
+                searchItems.add(SearchItem.buildPremiumItem(premiumSearchResult.getItems(), premiumSearchResult.getResultsCount()));
             }
             for (PropertySet source : sourceSetsItems) {
                 searchItems.add(SearchItem.fromPropertySet(source).build());
@@ -67,6 +69,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     private final MixedItemClickListener.Factory clickListenerFactory;
     private final EventBus eventBus;
     private final FeatureFlags featureFlags;
+    private final Navigator navigator;
 
     private final Action1<SearchResult> publishOnFirstPage = new Action1<SearchResult>() {
         @Override
@@ -87,13 +90,14 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     @Inject
     SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher, SearchOperations searchOperations,
                            SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
-                           EventBus eventBus, FeatureFlags featureFlags) {
+                           EventBus eventBus, FeatureFlags featureFlags, Navigator navigator) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;
         this.eventBus = eventBus;
         this.featureFlags = featureFlags;
+        this.navigator = navigator;
     }
 
     @Override
@@ -160,9 +164,14 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     }
 
     @Override
+    public void onPremiumContentHelpClicked(Context context) {
+        //TODO: Implement this in another PR
+        Toast.makeText(context, "Show Search HT Help", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource) {
-        //TODO: Implementation of this will be done in a second part in a new PR.
-        Toast.makeText(context, "Premium items --> " + premiumItemsSource.size(), Toast.LENGTH_SHORT).show();
+        navigator.openSearchPremiumContentResults(context, searchQuery, premiumItemsSource);
     }
 
     private void trackSearchItemClick(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {

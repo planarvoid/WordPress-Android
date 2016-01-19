@@ -24,8 +24,10 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,6 +37,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+
+import java.util.Collections;
+import java.util.List;
 
 public class NavigatorTest extends AndroidUnitTest {
 
@@ -277,6 +282,19 @@ public class NavigatorTest extends AndroidUnitTest {
                 .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQueryInfo)
                 .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .containsUri(itemUri);
+    }
+
+    @Test
+    public void opensSearchPremiumContentResults() {
+        final List<PropertySet> propertySets = Collections.emptyList();
+        final String queryUrn = "queryUrn";
+
+        navigator.openSearchPremiumContentResults(activityContext, queryUrn, propertySets);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(SearchPremiumResultsActivity.class)
+                .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, queryUrn)
+                .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, propertySets);
     }
 
     @Test

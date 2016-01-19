@@ -11,6 +11,7 @@ import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -28,12 +29,17 @@ import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Parcelable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Navigator {
 
@@ -76,6 +82,14 @@ public class Navigator {
         homeIntent.setAction(Actions.SEARCH);
         homeIntent.putExtra(EXTRA_SEARCH_INTENT, searchIntent);
         context.startActivity(homeIntent);
+    }
+
+    public void openSearchPremiumContentResults(Context context, String searchQuery, List<PropertySet> premiumContentList) {
+        final ArrayList<? extends Parcelable> sourceSetList = new ArrayList<>(premiumContentList);
+        final Intent intent = new Intent(context, SearchPremiumResultsActivity.class)
+                .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, searchQuery)
+                .putParcelableArrayListExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, sourceSetList);
+        context.startActivity(intent);
     }
 
     public void openUri(Context context, Uri uri) {
