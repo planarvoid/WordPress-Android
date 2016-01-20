@@ -40,7 +40,7 @@ public class UpgradeAudioTest extends TrackingActivityTest<MainActivity> {
         startEventTracking();
 
         final VisualPlayerElement visualPlayerElement = searchResultsScreen
-                .clickFirstTrackItem();
+                .findAndClickFirstTrackItem();
 
         visualPlayerElement.waitForPlayState();
         visualPlayerElement.clickArtwork();
