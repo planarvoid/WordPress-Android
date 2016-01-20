@@ -39,7 +39,7 @@ public class PlayCountUrlBuilderTest extends AndroidUnitTest {
 
         final String url = urlBuilder.buildUrl(event);
 
-        assertThat(url, urlEqualTo("https://api.soundcloud.com/tracks/1/plays?client_id=ABCDEF&policy=allow"));
+        assertThat(url, urlEqualTo("https://api.soundcloud.com/tracks/1/plays?client_id=ABCDEF&policy=ALLOW"));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class PlayCountUrlBuilderTest extends AndroidUnitTest {
 
         final String url = urlBuilder.buildUrl(event);
 
-        assertThat(url, urlEqualTo("https://api.soundcloud.com/tracks/1/plays?client_id=ABCDEF&oauth_token=access&policy=allow"));
+        assertThat(url, urlEqualTo("https://api.soundcloud.com/tracks/1/plays?client_id=ABCDEF&oauth_token=access&policy=ALLOW"));
     }
 
     @Test

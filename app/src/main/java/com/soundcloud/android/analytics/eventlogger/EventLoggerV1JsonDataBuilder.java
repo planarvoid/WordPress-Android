@@ -183,6 +183,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .protocol(event.get(PlaybackSessionEvent.KEY_PROTOCOL))
                 .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
+                .policy(event.get(PlaybackSessionEvent.KEY_POLICY))
                 .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
                 .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN));

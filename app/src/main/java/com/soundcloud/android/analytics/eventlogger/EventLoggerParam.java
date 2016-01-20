@@ -20,6 +20,7 @@ class EventLoggerParam {
     static final String IN_PLAYLIST = "in_playlist";
     static final String PLAYLIST_POSITION = "playlist_position";
     static final String PLAYHEAD_POSITION = "playhead_position";
+    static final String POLICY = "policy";
 
     // subs
     static final String LOCAL_STORAGE_PLAYBACK = "local_storage_playback";

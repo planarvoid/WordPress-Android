@@ -296,6 +296,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                 .trigger("manual")
                 .action("play")
+                .policy("ALLOW")
                 .playheadPosition(12L)
                 .source("source")
                 .sourceVersion("source-version")
@@ -341,6 +342,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .adUrn(audioAd.getAdUrn().toString())
                 .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                 .monetizationType("audio_ad")
+                .policy("ALLOW")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
     }

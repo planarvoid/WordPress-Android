@@ -1,6 +1,9 @@
 package com.soundcloud.android.analytics;
 
+import static com.soundcloud.java.collections.Sets.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,6 +25,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import android.content.SharedPreferences;
 
 import javax.inject.Provider;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -30,23 +34,31 @@ public class AnalyticsProviderFactoryTest {
     private AnalyticsProviderFactory factory;
 
     @Mock private SharedPreferences sharedPreferences;
+    @Mock private SharedPreferences analyticsSettings;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private AnalyticsProperties analyticsProperties;
     @Mock private EventLoggerAnalyticsProvider eventLoggerProvider;
     @Mock private PlayCountAnalyticsProvider playCountProvider;
     @Mock private Provider<AppboyAnalyticsProvider> appboyAnalyticsProvider;
-    @Mock private PromotedAnalyticsProvider promotedProvider;
     @Mock private ComScoreAnalyticsProvider comScoreProvider;
     @Mock private AdjustAnalyticsProvider adjustAnalyticsProvider;
     @Mock private FabricAnalyticsProvider fabricAnalyticsProvider;
 
+    @Mock private EventTracker eventTracker;
+    private PromotedAnalyticsProvider promotedProvider;
+
+    private List<AnalyticsProvider> baseProviders;
+
     @Before
     public void setUp() throws Exception {
+        promotedProvider = new PromotedAnalyticsProvider(eventTracker);
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
         when(appboyAnalyticsProvider.get()).thenReturn(mock(AppboyAnalyticsProvider.class));
+        baseProviders = Arrays.asList(eventLoggerProvider, playCountProvider, promotedProvider);
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
-                eventLoggerProvider, playCountProvider, appboyAnalyticsProvider, promotedProvider,
-                adjustAnalyticsProvider, comScoreProvider, fabricAnalyticsProvider);
+                analyticsSettings, appboyAnalyticsProvider,
+                adjustAnalyticsProvider, comScoreProvider, fabricAnalyticsProvider,
+                baseProviders);
     }
 
     @Test
@@ -62,6 +74,16 @@ public class AnalyticsProviderFactoryTest {
 
         List<AnalyticsProvider> providers = factory.getProviders();
         assertThat(providers).containsExactly(eventLoggerProvider, playCountProvider, promotedProvider);
+    }
+
+    @Test
+    public void getProvidersDoesNotReturnPromotedProviderWhenDisabled() {
+        when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(false);
+        when(analyticsSettings.getStringSet(eq(AnalyticsProviderFactory.DISABLED_PROVIDERS), anySet()))
+                .thenReturn(newHashSet(PromotedAnalyticsProvider.class.getName()));
+
+        List<AnalyticsProvider> providers = factory.getProviders();
+        assertThat(providers).containsExactly(eventLoggerProvider, playCountProvider);
     }
 
     @Test
@@ -82,8 +104,8 @@ public class AnalyticsProviderFactoryTest {
     @Test
     public void getProvidersReturnsAllProvidersExceptComScoreWhenItFailedToInitialize() {
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
-                eventLoggerProvider, playCountProvider, appboyAnalyticsProvider,
-                promotedProvider, adjustAnalyticsProvider, null, fabricAnalyticsProvider);
+                analyticsSettings, appboyAnalyticsProvider,
+                adjustAnalyticsProvider, null, fabricAnalyticsProvider,baseProviders);
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
