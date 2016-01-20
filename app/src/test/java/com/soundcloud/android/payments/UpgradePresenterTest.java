@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
@@ -41,7 +40,6 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     @Mock private PaymentErrorPresenter paymentErrorPresenter;
     @Mock private PaymentErrorView paymentErrorView;
     @Mock private UpgradeView upgradeView;
-    @Mock private ConfigurationManager configurationManager;
     @Mock private Navigator navigator;
 
     @Mock private AppCompatActivity activity;
@@ -56,7 +54,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void setUp() {
         testObserver = new TestObserver();
         when(activity.getSupportFragmentManager()).thenReturn(mock(FragmentManager.class));
-        presenter = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationManager, upgradeView, new TestEventBus(), navigator);
+        presenter = new UpgradePresenter(paymentOperations, paymentErrorPresenter, upgradeView, new TestEventBus(), navigator);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
 
@@ -120,7 +118,6 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
 
         verify(upgradeView).showSuccess();
-        verify(configurationManager).updateUntilPlanChanged();
     }
 
     @Test
@@ -357,16 +354,6 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
 
         verify(paymentErrorPresenter).showConnectionError();
-    }
-
-    @Test
-    public void requestsConfigurationUpdateWhenPurchaseIsSuccess() {
-        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.SUCCESS));
-
-        presenter.onCreate(activity, null);
-        presenter.handleBillingResult(TestBillingResults.success());
-
-        verify(configurationManager).updateUntilPlanChanged();
     }
 
     @Test

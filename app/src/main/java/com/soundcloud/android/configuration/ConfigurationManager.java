@@ -48,12 +48,6 @@ public class ConfigurationManager {
         subscription = configurationOperations.update().subscribe(new ConfigurationSubscriber());
     }
 
-    public void updateUntilPlanChanged() {
-        Log.d(TAG, "Polling for plan update");
-        subscription.unsubscribe();
-        subscription = configurationOperations.updateUntilPlanChanged().subscribe(new ConfigurationSubscriber());
-    }
-
     public boolean shouldDisplayDeviceConflict() {
         return deviceManagementStorage.hadDeviceConflict();
     }
