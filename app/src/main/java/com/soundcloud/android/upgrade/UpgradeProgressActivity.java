@@ -1,4 +1,4 @@
-package com.soundcloud.android.payments;
+package com.soundcloud.android.upgrade;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;

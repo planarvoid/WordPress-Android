@@ -4,7 +4,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.payments.UpgradeProgressActivity;
+import com.soundcloud.android.upgrade.UpgradeProgressActivity;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
