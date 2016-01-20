@@ -1,6 +1,5 @@
 package com.soundcloud.android;
 
-import static com.soundcloud.android.search.SearchPremiumResultsActivity.*;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -302,10 +301,10 @@ public class NavigatorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(SearchPremiumResultsActivity.class)
-                .containsExtra(EXTRA_SEARCH_QUERY, searchQuery)
-                .containsExtra(EXTRA_SEARCH_TYPE, searchType)
-                .containsExtra(EXTRA_PREMIUM_CONTENT_RESULTS, propertySets)
-                .containsExtra(EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
+                .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, searchQuery)
+                .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE, searchType)
+                .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, propertySets)
+                .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
     }
 
     @Test

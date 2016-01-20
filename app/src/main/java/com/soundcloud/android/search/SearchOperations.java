@@ -26,6 +26,7 @@ import com.soundcloud.rx.Pager.PagingFunction;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -48,7 +49,7 @@ class SearchOperations {
     static final int TYPE_PLAYLISTS = 2;
     static final int TYPE_USERS = 3;
 
-    static final Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
+    private static final Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
             new Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult>() {
                 @Override
                 public SearchResult call(SearchModelCollection<? extends PropertySetSource> searchCollection) {
@@ -105,6 +106,46 @@ class SearchOperations {
         }
     };
 
+    private final Action1<SearchModelCollection<ApiTrack>> cachePremiumTracks =
+            new Action1<SearchModelCollection<ApiTrack>>() {
+                @Override
+                public void call(SearchModelCollection<ApiTrack> apiTrackSearchItems) {
+                    if (apiTrackSearchItems.premiumContent().isPresent()) {
+                        storeTracksCommand.call(apiTrackSearchItems.premiumContent().get());
+                    }
+                }
+            };
+
+    private final Action1<SearchModelCollection<ApiPlaylist>> cachePremiumPlaylists =
+            new Action1<SearchModelCollection<ApiPlaylist>>() {
+                @Override
+                public void call(SearchModelCollection<ApiPlaylist> apiPlaylistSearchItems) {
+                    if (apiPlaylistSearchItems.premiumContent().isPresent()) {
+                        storePlaylistsCommand.call(apiPlaylistSearchItems.premiumContent().get());
+                    }
+                }
+            };
+
+    private final Action1<SearchModelCollection<ApiUser>> cachePremiumUsers =
+            new Action1<SearchModelCollection<ApiUser>>() {
+                @Override
+                public void call(SearchModelCollection<ApiUser> apiUserSearchItems) {
+                    if (apiUserSearchItems.premiumContent().isPresent()) {
+                        storeUsersCommand.call(apiUserSearchItems.premiumContent().get());
+                    }
+                }
+            };
+
+    private final Action1<SearchModelCollection<ApiUniversalSearchItem>> cachePremiumContent =
+            new Action1<SearchModelCollection<ApiUniversalSearchItem>>() {
+                @Override
+                public void call(SearchModelCollection<ApiUniversalSearchItem> apiUniversalSearchItems) {
+                    if (apiUniversalSearchItems.premiumContent().isPresent()) {
+                        cacheUniversalSearchCommand.with(apiUniversalSearchItems.premiumContent().get()).call();
+                    }
+                }
+            };
+
     @Inject
     SearchOperations(ApiClientRx apiClientRx, StoreTracksCommand storeTracksCommand,
                      StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand,
@@ -124,6 +165,11 @@ class SearchOperations {
 
     Observable<SearchResult> searchResult(String query, int searchType) {
         return getSearchStrategy(searchType, ContentType.NORMAL).searchResult(query);
+    }
+
+    Observable<SearchResult> searchPremiumResultFrom(List<PropertySet> propertySets, Optional<Link> nextHref) {
+        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, nextHref);
+        return Observable.just(searchResult);
     }
 
     Observable<SearchResult> searchPremiumResult(String query, int searchType) {
@@ -187,7 +233,8 @@ class SearchOperations {
     private final class TrackSearchStrategy extends SearchStrategy {
 
         private final TypeToken<SearchModelCollection<ApiTrack>> typeToken =
-                new TypeToken<SearchModelCollection<ApiTrack>>() {};
+                new TypeToken<SearchModelCollection<ApiTrack>>() {
+                };
 
         protected TrackSearchStrategy(ContentType contentType) {
             super(contentType);
@@ -208,6 +255,7 @@ class SearchOperations {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
                     .doOnNext(storeTracksCommand.toAction())
+                    .doOnNext(cachePremiumTracks)
                     .map(TO_SEARCH_RESULT);
         }
     }
@@ -215,7 +263,8 @@ class SearchOperations {
     private final class PlaylistSearchStrategy extends SearchStrategy {
 
         private final TypeToken<SearchModelCollection<ApiPlaylist>> typeToken =
-                new TypeToken<SearchModelCollection<ApiPlaylist>>() {};
+                new TypeToken<SearchModelCollection<ApiPlaylist>>() {
+                };
 
         protected PlaylistSearchStrategy(ContentType contentType) {
             super(contentType);
@@ -236,6 +285,7 @@ class SearchOperations {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
                     .doOnNext(storePlaylistsCommand.toAction())
+                    .doOnNext(cachePremiumPlaylists)
                     .map(TO_SEARCH_RESULT)
                     .map(mergePlaylistLikeStatus);
         }
@@ -244,7 +294,8 @@ class SearchOperations {
     private final class UserSearchStrategy extends SearchStrategy {
 
         private final TypeToken<SearchModelCollection<ApiUser>> typeToken =
-                new TypeToken<SearchModelCollection<ApiUser>>() {};
+                new TypeToken<SearchModelCollection<ApiUser>>() {
+                };
 
         protected UserSearchStrategy(ContentType contentType) {
             super(contentType);
@@ -265,6 +316,7 @@ class SearchOperations {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
                     .doOnNext(storeUsersCommand.toAction())
+                    .doOnNext(cachePremiumUsers)
                     .map(TO_SEARCH_RESULT)
                     .map(mergeFollowings);
         }
@@ -273,7 +325,8 @@ class SearchOperations {
     private final class UniversalSearchStrategy extends SearchStrategy {
 
         private final TypeToken<SearchModelCollection<ApiUniversalSearchItem>> typeToken =
-                new TypeToken<SearchModelCollection<ApiUniversalSearchItem>>() {};
+                new TypeToken<SearchModelCollection<ApiUniversalSearchItem>>() {
+                };
 
         protected UniversalSearchStrategy(ContentType contentType) {
             super(contentType);
@@ -294,6 +347,7 @@ class SearchOperations {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
                     .doOnNext(cacheUniversalSearchCommand.toAction())
+                    .doOnNext(cachePremiumContent)
                     .map(TO_SEARCH_RESULT)
                     .map(mergePlaylistLikeStatus)
                     .map(mergeFollowings);

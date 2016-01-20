@@ -1,9 +1,9 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.search.SearchPremiumItem.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -26,7 +26,7 @@ public class SearchPremiumItemTest {
     }
 
     @Test
-    public void shouldNotHaveUrn() {
-        assertThat(searchPremiumItem.getEntityUrn()).isEqualTo(Urn.NOT_SET);
+    public void shouldHaveCorrectUrn() {
+        assertThat(searchPremiumItem.getEntityUrn()).isEqualTo(PREMIUM_URN);
     }
 }

@@ -2,13 +2,16 @@ package com.soundcloud.android.search;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -18,6 +21,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,13 +54,20 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh, new Bundle());
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         setFragmentArguments();
+
+        final List<PropertySet> propertySets = Collections.singletonList(PropertySet.create().put(EntityProperty.URN, Urn.forTrack(123L)));
+        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, Optional.<Link>absent());
+        final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
+
         presenter = new SearchPremiumResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
                 clickListenerFactory, eventBus);
 
         when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
-        when(searchOperations.searchPremiumResult(anyString(), anyInt())).thenReturn(Observable.<SearchResult>empty());
+        when(searchOperations.searchPremiumResultFrom(anyList(), any(Optional.class))).thenReturn(searchResultObservable);
+        when(searchOperations.searchPremiumResult(anyString(), anyInt())).thenReturn(searchResultObservable);
         when(searchOperations.pagingPremiumFunction(anyInt())).thenReturn(searchPagingFunction);
     }
 
@@ -78,6 +89,15 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragmentRule.getFragment());
 
         eventBus.verifyUnsubscribed();
+    }
+
+    @Test
+    public void setsAdapterUpsellListener() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+        presenter.onDestroyView(fragmentRule.getFragment());
+
+        verify(adapter).setUpsellListener(presenter);
     }
 
     private void setFragmentArguments() {
