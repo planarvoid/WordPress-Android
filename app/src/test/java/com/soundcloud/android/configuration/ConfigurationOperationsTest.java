@@ -35,6 +35,7 @@ import rx.schedulers.TestScheduler;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigurationOperationsTest extends AndroidUnitTest {
@@ -114,15 +115,14 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateUntilPlanChangedStopsPollingAfterThreeAttempts() {
+    public void updateUntilPlanChangedFailsAfterThreeAttempts() {
         final Configuration noPlan = getNoPlanConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
 
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
 
         scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
-        subscriber.assertNoValues();
-        subscriber.assertCompleted();
+        subscriber.assertError(NoSuchElementException.class);
     }
 
     @Test

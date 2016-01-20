@@ -82,7 +82,7 @@ public class ConfigurationOperations {
         return Observable.interval(POLLING_INITIAL_DELAY, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS, scheduler)
                 .take(POLLING_MAX_ATTEMPTS)
                 .flatMap(toFetchConfiguration)
-                .takeFirst(new Func1<Configuration, Boolean>() {
+                .first(new Func1<Configuration, Boolean>() {
                     @Override
                     public Boolean call(Configuration configuration) {
                         return configuration.plan.id.equals(expectedPlan);

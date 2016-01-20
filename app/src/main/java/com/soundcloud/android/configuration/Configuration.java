@@ -9,7 +9,7 @@ import com.soundcloud.android.configuration.features.Feature;
 import java.util.Collections;
 import java.util.List;
 
-class Configuration {
+public class Configuration {
 
     public final List<Feature> features;
     public final UserPlan plan;
