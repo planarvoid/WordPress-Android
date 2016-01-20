@@ -20,6 +20,7 @@ import com.soundcloud.android.settings.SettingsModule;
 import com.soundcloud.android.stations.StationsModule;
 import com.soundcloud.android.stream.SoundStreamModule;
 import com.soundcloud.android.tracks.TrackModule;
+import com.soundcloud.android.upgrade.UpgradeModule;
 import com.soundcloud.android.you.YouModule;
 import dagger.Module;
 
@@ -37,6 +38,7 @@ import dagger.Module;
         PaymentModule.class,
         OfflineModule.class,
         PoliciesModule.class,
+        UpgradeModule.class,
         RecordModule.class,
         UploadModule.class,
         LikesModule.class,

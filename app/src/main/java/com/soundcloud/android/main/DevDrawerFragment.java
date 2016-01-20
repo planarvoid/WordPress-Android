@@ -1,8 +1,10 @@
 package com.soundcloud.android.main;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.upgrade.UpgradeProgressActivity;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -11,11 +13,9 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -36,6 +36,7 @@ public class DevDrawerFragment extends PreferenceFragment {
     @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject DevDrawerExperimentsHelper drawerExperimentsHelper;
+    @Inject Navigator navigator;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -83,7 +84,16 @@ public class DevDrawerFragment extends PreferenceFragment {
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        restartApp();
+                        navigator.restartApp(getActivity());
+                        return true;
+                    }
+                });
+
+        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_flow_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        fakeUpsellFlow();
                         return true;
                     }
                 });
@@ -124,13 +134,8 @@ public class DevDrawerFragment extends PreferenceFragment {
 
     }
 
-    private void restartApp() {
-        final Activity context = getActivity();
-        Intent launchActivity = new Intent(context, LauncherActivity.class);
-        launchActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(launchActivity);
-        context.finish();
-        System.exit(0);
+    private void fakeUpsellFlow() {
+        navigator.restartAppAndNavigateTo(getActivity(), UpgradeProgressActivity.class);
     }
 
     private void copyTokenToClipboard() {
