@@ -41,4 +41,5 @@ expected_events:
     consumer_subs_plan: none
     playhead_position: '[0-9]+'
     local_storage_playback: 'false'
+    policy: 'ALLOW'
   version: '0'
