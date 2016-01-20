@@ -45,4 +45,14 @@ public class ReferrerTest extends AndroidUnitTest {
     public void getsReferrerFromHostWithWww() {
         assertThat(Referrer.fromHost("www.facebook.com")).isEqualTo(Referrer.FACEBOOK);
     }
+
+    @Test
+    public void removesReferrerFromIntent() throws Exception {
+        Intent intent = new Intent();
+        Referrer.PLAYBACK_WIDGET.addToIntent(intent);
+
+        Referrer.removeFromIntent(intent);
+
+        assertThat(Referrer.hasReferrer(intent)).isFalse();
+    }
 }

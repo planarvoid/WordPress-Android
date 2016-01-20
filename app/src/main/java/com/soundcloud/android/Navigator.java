@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.collection.OfflineOnboardingActivity;
@@ -116,7 +117,7 @@ public class Navigator {
     public PendingIntent openProfileFromWidget(Context context, Urn user, int requestCode) {
         return PendingIntent.getActivity(context,
                 requestCode,
-                createProfileIntent(context, user, Screen.WIDGET),
+                createProfileIntent(context, user, Screen.WIDGET, Referrer.PLAYBACK_WIDGET),
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
@@ -271,6 +272,12 @@ public class Navigator {
     public Intent createProfileIntent(Context context, Urn user, Screen screen) {
         Intent intent = createProfileIntent(context, user);
         screen.addToIntent(intent);
+        return intent;
+    }
+
+    public Intent createProfileIntent(Context context, Urn user, Screen screen, Referrer referrer) {
+        Intent intent = createProfileIntent(context, user, screen);
+        referrer.addToIntent(intent);
         return intent;
     }
 

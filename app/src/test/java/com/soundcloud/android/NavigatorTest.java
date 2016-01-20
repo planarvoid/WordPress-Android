@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.comments.TrackCommentsActivity;
@@ -157,6 +158,7 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
                 .containsScreen(Screen.WIDGET)
+                .containsReferrer(Referrer.PLAYBACK_WIDGET)
                 .opensActivity(ProfileActivity.class);
     }
 

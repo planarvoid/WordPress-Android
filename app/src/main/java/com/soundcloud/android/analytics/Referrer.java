@@ -69,4 +69,8 @@ public enum Referrer {
     public static boolean hasReferrer(Intent intent) {
         return intent.hasExtra(Referrer.ORDINAL_EXTRA);
     }
+
+    public static void removeFromIntent(Intent intent) {
+        intent.removeExtra(ORDINAL_EXTRA);
+    }
 }

@@ -40,6 +40,7 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
     @Inject @LightCycle ActionBarHelper actionMenuController;
     @Inject @LightCycle AnalyticsConnector analyticsConnector;
     @Inject @LightCycle protected ScreenTracker screenTracker;
+    @Inject @LightCycle ForegroundController foregroundController;
 
     @Inject ApplicationProperties applicationProperties;
     @Inject protected AccountOperations accountOperations;
