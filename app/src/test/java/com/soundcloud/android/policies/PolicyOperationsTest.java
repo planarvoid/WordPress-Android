@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestStorageResults;
 import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,6 +123,53 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
         List<Urn> result = operations.updateTrackPolicies();
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void updatedTrackPoliciesFetchesAndStoresPoliciesForLoadedTracks() throws Exception {
+        List<Urn> tracks = Arrays.asList(TRACK_URN, TRACK_URN2);
+        Collection<ApiPolicyInfo> policies = Arrays.asList(
+                ModelFixtures.apiPolicyInfo(TRACK_URN, true, ApiPolicyInfo.MONETIZE, false),
+                ModelFixtures.apiPolicyInfo(TRACK_URN2, false, ApiPolicyInfo.ALLOW, false)
+        );
+        when(loadTracksForPolicyUpdateCommand.call(null)).thenReturn(tracks);
+        when(fetchPoliciesCommand.call()).thenReturn(policies);
+        when(storePoliciesCommand.call(policies)).thenReturn(TestStorageResults.successfulTransaction());
+
+        operations.updatedTrackPolicies().subscribe(observer);
+        observer.assertValue(tracks);
+        assertThat(fetchPoliciesCommand.getInput()).containsAll(tracks);
+
+        verify(loadTracksForPolicyUpdateCommand).call(null);
+        verify(fetchPoliciesCommand).call();
+        verify(storePoliciesCommand).call(policies);
+    }
+
+    @Test
+    public void updatedTrackPoliciesForwardsErrorsFromPolicyFetch() throws Exception {
+        final RuntimeException exception = new RuntimeException();
+        when(loadTracksForPolicyUpdateCommand.call(null)).thenThrow(exception);
+
+        operations.updatedTrackPolicies().subscribe(observer);
+
+        observer.assertError(exception);
+    }
+
+    @Test
+    public void updatedTrackPoliciesForwardsErrorsFromStorageCall() throws Exception {
+        List<Urn> tracks = Arrays.asList(TRACK_URN, TRACK_URN2);
+        Collection<ApiPolicyInfo> policies = Arrays.asList(
+                ModelFixtures.apiPolicyInfo(TRACK_URN, true, ApiPolicyInfo.MONETIZE, false),
+                ModelFixtures.apiPolicyInfo(TRACK_URN2, false, ApiPolicyInfo.ALLOW, false)
+        );
+        when(loadTracksForPolicyUpdateCommand.call(null)).thenReturn(tracks);
+        when(fetchPoliciesCommand.call()).thenReturn(policies);
+        final TxnResult txnResult = TestStorageResults.failedTransaction();
+        when(storePoliciesCommand.call(policies)).thenReturn(txnResult);
+
+        operations.updatedTrackPolicies().subscribe(observer);
+
+        observer.assertError(txnResult.getFailure());
     }
 
     private Collection<ApiPolicyInfo> createNotMonetizablePolicy(Urn trackUrn) {

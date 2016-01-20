@@ -7,6 +7,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -83,6 +84,30 @@ public class PolicyOperations {
             Log.e(DailyUpdateService.TAG, "Failed to update policies", ex);
             return Collections.emptyList();
         }
+    }
+
+    public Observable<List<Urn>> updatedTrackPolicies() {
+        return Observable.create(new Observable.OnSubscribe<List<Urn>>() {
+            @Override
+            public void call(Subscriber<? super List<Urn>> subscriber) {
+                try {
+                    Log.d(DailyUpdateService.TAG, "Fetching policies");
+                    final List<Urn> urns = loadTracksForPolicyUpdateCommand.call(null);
+                    final Collection<ApiPolicyInfo> policyInfos = fetchPoliciesCommand.with(urns).call();
+                    Log.d(DailyUpdateService.TAG, "Storing policies");
+                    final WriteResult result = storePoliciesCommand.call(policyInfos);
+                    if (result.success()) {
+                        Log.d(DailyUpdateService.TAG, "OK");
+                        subscriber.onNext(urns);
+                    } else {
+                        subscriber.onError(result.getFailure());
+                    }
+                } catch (Exception ex) {
+                    Log.e(DailyUpdateService.TAG, "Failed to update policies", ex);
+                    subscriber.onError(ex);
+                }
+            }
+        }).subscribeOn(scheduler);
     }
 
     public Observable<Long> getMostRecentPolicyUpdateTimestamp() {
