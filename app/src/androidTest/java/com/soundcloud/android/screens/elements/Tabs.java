@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.view.CustomFontTabLayout;
 
 import android.support.design.widget.TabLayout;
 
@@ -16,7 +17,7 @@ public class Tabs {
     public Tabs(Han testDriver) {
         this.testDriver = testDriver;
         final Waiter waiter = new Waiter(testDriver);
-        waiter.waitForElement(With.classSimpleName(TabLayout.class.getSimpleName()));
+        waiter.waitForElement(With.classSimpleName(CustomFontTabLayout.class.getSimpleName()));
         waiter.waitForElementCondition(new TabsVisibleCondition(this));
     }
 
