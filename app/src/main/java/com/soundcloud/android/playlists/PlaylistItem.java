@@ -23,15 +23,6 @@ public class PlaylistItem extends PlayableItem {
         return new PlaylistItem(apiPlaylist.toPropertySet());
     }
 
-    public static Func1<PropertySet, PlaylistItem> fromPropertySet() {
-        return new Func1<PropertySet, PlaylistItem>() {
-            @Override
-            public PlaylistItem call(PropertySet bindings) {
-                return PlaylistItem.from(bindings);
-            }
-        };
-    }
-
     public static Func1<List<PropertySet>, List<PlaylistItem>> fromPropertySets() {
         return new Func1<List<PropertySet>, List<PlaylistItem>>() {
             @Override
@@ -39,19 +30,6 @@ public class PlaylistItem extends PlayableItem {
                 List<PlaylistItem> playlistItems = new ArrayList<>(bindings.size());
                 for (PropertySet source : bindings) {
                     playlistItems.add(from(source));
-                }
-                return playlistItems;
-            }
-        };
-    }
-
-    public static <T extends Iterable<ApiPlaylist>> Func1<T, List<PlaylistItem>> fromApiPlaylists() {
-        return new Func1<T, List<PlaylistItem>>() {
-            @Override
-            public List<PlaylistItem> call(T sourceList) {
-                List<PlaylistItem> playlistItems = new ArrayList<>();
-                for (ApiPlaylist source : sourceList) {
-                    playlistItems.add(from(source.toPropertySet()));
                 }
                 return playlistItems;
             }
