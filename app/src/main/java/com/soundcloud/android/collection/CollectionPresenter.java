@@ -35,7 +35,7 @@ import java.util.List;
 public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> implements CollectionAdapter.Listener, CollectionPlaylistOptionsPresenter.Listener, OnboardingItemCellRenderer.Listener {
 
     @VisibleForTesting
-    final Func1<MyCollection, Iterable<CollectionItem>> toCollectionsItems =
+    final Func1<MyCollection, Iterable<CollectionItem>> toCollectionItems =
             new Func1<MyCollection, Iterable<CollectionItem>>() {
                 @Override
                 public List<CollectionItem> call(MyCollection myCollection) {
@@ -159,7 +159,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(clearOnNext);
         retryWith(CollectionBinding
-                .from(source, toCollectionsItems)
+                .from(source, toCollectionItems)
                 .withAdapter(adapter).build());
     }
 
@@ -182,7 +182,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
     @Override
     protected CollectionBinding<CollectionItem> onBuildBinding(Bundle bundle) {
         final Observable<MyCollection> collections = collectionOperations.collections(currentOptions).observeOn(AndroidSchedulers.mainThread());
-        return CollectionBinding.from(collections.doOnNext(new OnCollectionLoadedAction()), toCollectionsItems)
+        return CollectionBinding.from(collections.doOnNext(new OnCollectionLoadedAction()), toCollectionItems)
                 .withAdapter(adapter)
                 .build();
     }
@@ -190,7 +190,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
     @Override
     protected CollectionBinding<CollectionItem> onRefreshBinding() {
         final Observable<MyCollection> collections = collectionOperations.updatedCollections(currentOptions).observeOn(AndroidSchedulers.mainThread());
-        return CollectionBinding.from(collections.doOnError(new OnErrorAction()).doOnNext(clearOnNext), toCollectionsItems)
+        return CollectionBinding.from(collections.doOnError(new OnErrorAction()).doOnNext(clearOnNext), toCollectionItems)
                 .withAdapter(adapter)
                 .build();
     }
