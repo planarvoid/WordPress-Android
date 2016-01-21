@@ -32,7 +32,6 @@ android {
     alpha {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, TRUE
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, TRUE
       buildConfigField BOOLEAN, FEATURE_DAILY_POLICY_UPDATES, TRUE
       buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
@@ -41,6 +40,7 @@ android {
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
@@ -113,14 +113,14 @@ android {
     end2end {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, TRUE
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, TRUE
+      buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC_COLLECTION, FALSE
-      buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
       buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
@@ -139,16 +139,16 @@ android {
 
     release {
       //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, TRUE
+      buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC_COLLECTION, FALSE
       // When turning this on, make sure the ci does not exclude tests annotated with @StationsTest
-      buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
       buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
@@ -167,15 +167,15 @@ android {
 
     releaseNoProguard {
       //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, TRUE
+      buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC_COLLECTION, FALSE
-      buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
       buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
@@ -194,15 +194,15 @@ android {
 
     release_non_play_store {
       //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, TRUE // Enabled only if FEATURE_STATIONS_SOFT_LAUNCH is FALSE
       buildConfigField BOOLEAN, FEATURE_PRELOAD_NEXT_TRACK, TRUE
       buildConfigField BOOLEAN, FEATURE_DELETE_PLAYLIST, TRUE
+      buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, TRUE
 
       //Feature flags disabled
+      buildConfigField BOOLEAN, FEATURE_PLAY_RELATED_TRACKS, FALSE
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC, FALSE
       buildConfigField BOOLEAN, FEATURE_OFFLINE_SYNC_COLLECTION, FALSE
-      buildConfigField BOOLEAN, FEATURE_STATIONS_SOFT_LAUNCH, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
       buildConfigField BOOLEAN, FEATURE_EVENTLOGGER_AUDIO_V1, FALSE
       buildConfigField BOOLEAN, FEATURE_KILL_CONCURRENT_STREAMING, FALSE
