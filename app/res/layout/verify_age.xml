@@ -6,7 +6,7 @@
                 android:focusableInTouchMode="true"
                 android:padding="30dp">
 
-    <TextView android:id="@+id/verify_header"
+    <com.soundcloud.android.view.CustomFontTextView android:id="@+id/verify_header"
               android:text="@string/age_verify_title"
               android:layout_height="wrap_content"
               android:layout_width="wrap_content"
@@ -14,9 +14,10 @@
               android:layout_alignParentLeft="true"
               android:layout_alignParentTop="true"
               android:textColor="@color/black"
+              style="@style/TextAppearance.SoundCloudLightFont"
               android:textSize="24sp"/>
 
-    <TextView android:id="@+id/verify_warning"
+    <com.soundcloud.android.view.CustomFontTextView android:id="@+id/verify_warning"
               android:text="@string/age_verify_warning"
               android:layout_height="wrap_content"
               android:layout_width="wrap_content"
@@ -24,9 +25,10 @@
               android:layout_alignParentLeft="true"
               android:layout_below="@id/verify_header"
               android:layout_marginTop="20dp"
+              style="@style/TextAppearance.SoundCloudLightFont"
               android:textSize="20sp"/>
 
-    <TextView android:id="@+id/age_verify_info"
+    <com.soundcloud.android.view.CustomFontTextView android:id="@+id/age_verify_info"
               android:text="@string/age_verify_info"
               android:layout_height="wrap_content"
               android:layout_width="wrap_content"
@@ -34,9 +36,10 @@
               android:layout_alignParentLeft="true"
               android:layout_below="@id/verify_warning"
               android:layout_marginTop="20dp"
+              style="@style/TextAppearance.SoundCloudLightFont"
               android:textSize="20sp"/>
 
-    <TextView android:id="@+id/verify_age"
+    <com.soundcloud.android.view.CustomFontTextView android:id="@+id/verify_age"
               android:text="@string/age"
               android:layout_height="wrap_content"
               android:layout_width="wrap_content"
@@ -45,9 +48,10 @@
               android:layout_marginTop="20dp"
               android:layout_marginBottom="10dp"
               android:layout_below="@id/age_verify_info"
+              style="@style/TextAppearance.SoundCloudLightFont"
               android:textSize="18sp"/>
 
-    <EditText android:id="@+id/verify_age_input"
+    <com.soundcloud.android.view.CustomFontEditText android:id="@+id/verify_age_input"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_alignBaseline="@id/verify_age"
@@ -58,15 +62,16 @@
               android:hint="@string/enter_age_hint"
               android:textSize="18sp"
               android:inputType="number"
+              style="@style/TextAppearance.SoundCloudLightFont"
               android:maxLength="3"/>
 
-    <Button android:id="@+id/verify_button"
+    <com.soundcloud.android.view.CustomFontButton android:id="@+id/verify_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/age_verify_button"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            style="?android:attr/borderlessButtonStyle"/>
+            style="@style/BorderlessButton"/>
 
 </RelativeLayout>

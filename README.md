@@ -7,14 +7,13 @@ First read [CONTRIBUTING.md](CONTRIBUTING.md) if you want to make a change to pr
 Prerequisites:
 
 * (Mac only) Xcode command line tools
-* GCC (`gcc`) and GNU Make (`make`)
-* Java 7 or higher<br>
+* JDK 8
   Refer to [Free Java Download][]<br>
   You can use [jenv][] to manage your environments.<br>
   Alternatively, you can set the `JAVA_HOME` environment variable:<br>
 	`export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)`
 
-### Install the [Android SDK][] and [Android Studio][] 1.4
+### Install the [Android SDK][] and [Android Studio][]
 
 **On Mac OS X:**
 
@@ -76,7 +75,7 @@ Make sure you are on the VPN:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
     $ cd SoundCloud-Android
-    $ ./gradlew assembleDebug
+    $ ./gradlew assembleDevDebug
 
 If you encounter problems, check and update the [troubleshooting page](https://github.com/soundcloud/SoundCloud-Android/wiki/Troubleshooting).
 
@@ -91,13 +90,9 @@ You can also ask questions on the `#android-newbies` Slack channel.
 
 ## Set up the SoundCloud code style
 
+1  Run `./gradlew setupCodeStyle`; this will install our code formatter to all your IntelliJs
 1. From within Android Studio, go to `File` &rarr; `Other Settings` &rarr; `Default Settings` &rarr; `Editor` &rarr; `Code Style`.
-2. From the `Scheme` drop-down menu, select `SoundCloud-Android`.<br>If it doesn't display in the list, try changing the path to your version of Android Studio. The link source <i>must</i> be an absolute path:
-
-    ```
-    $ mkdir ~/Library/Preferences/AndroidStudio1.2/codestyles
-    $ ln -sf ~/sc/SoundCloud-Android/.idea-codestyle.xml ~/Library/Preferences/AndroidStudio1.2/codestyles/SoundCloud-Android.xml
-    ```
+1. From the `Scheme` drop-down menu, select `SoundCloud-Android`.
 
 ![Android code style][Android code style]
 
@@ -113,23 +108,27 @@ Click the Play button in Android Studio (next to app at the top) and it should r
 
 ## Running tests
 
-### Robolectric tests on command line
+**Note:** Read the [Wiki](https://github.com/soundcloud/SoundCloud-Android/wiki) pages on testing first!
+
+### Unit tests on command line
 
 You can run all or individual unit tests using Gradle. `cd` into the parent module, then run
 
-    $ ./gradlew test
+    $ ./gradlew runUnitTests
 
 to run all tests, or
 
-    $ ./gradlew tests-robolectric:test --tests *SimpleTrackingApiTest
+    $ ./gradlew runUnitTests --tests *SimpleTrackingApiTest
 
 to run all tests inside a class, or
 
-    $ ./gradlew tests-robolectric:test --tests *SimpleTrackingApiTest.failedTest
+    $ ./gradlew runUnitTests --tests *SimpleTrackingApiTest.failedTest
 
 to run one single test.
 
-### Robolectric tests in Android Studio
+**NOTE: for the legacy tests in tests-robolectric to run, you need to install the Android SDK platform v22 via the SDK manager**
+
+### Unit tests in Android Studio
 
 Add a file `local.properties` to the app directory containing the path to the Android SDK:
 

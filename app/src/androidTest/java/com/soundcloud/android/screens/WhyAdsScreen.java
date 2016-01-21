@@ -15,19 +15,19 @@ public class WhyAdsScreen extends Screen {
     }
 
     public VisualPlayerElement clickOK() {
-        testDriver.findElement(text(testDriver.getString(android.R.string.ok))).click();
+        testDriver.findOnScreenElement(text(testDriver.getString(android.R.string.ok))).click();
         waiter.waitForDialogToClose();
         return new VisualPlayerElement(testDriver);
     }
 
     public UpgradeScreen clickUpgrade() {
-        testDriver.findElement(text(testDriver.getString(R.string.upsell_remove_ads))).click();
+        testDriver.findOnScreenElement(text(testDriver.getString(R.string.upsell_remove_ads))).click();
         return new UpgradeScreen(testDriver);
     }
 
     @Override
     public boolean isVisible() {
-        return testDriver.findElement(With.text(testDriver.getString(com.soundcloud.android.R.string.ads_why_ads_dialog_message))).isVisible();
+        return testDriver.findOnScreenElement(With.text(testDriver.getString(com.soundcloud.android.R.string.ads_why_ads_dialog_message))).isVisible();
     }
 
     @Override

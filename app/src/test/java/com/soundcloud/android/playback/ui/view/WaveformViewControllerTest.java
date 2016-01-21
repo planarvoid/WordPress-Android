@@ -205,6 +205,15 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clearProgressResetsAnimationControllers() {
+        waveformViewController.clearProgress();
+
+        verify(leftAnimationController).reset();
+        verify(rightAnimationController).reset();
+        verify(dragAnimationController).reset();
+    }
+
+    @Test
     public void setDurationsSetsDurationOnScrubController() {
         waveformViewController.setDurations(123, 456);
         verify(scrubController).setFullDuration(456);

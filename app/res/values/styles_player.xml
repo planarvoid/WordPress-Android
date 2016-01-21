@@ -31,10 +31,9 @@
         <item name="android:layout_height">@dimen/player_skip_touch</item>
     </style>
 
-    <style name="FooterUser">
+    <style name="FooterUser" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="custom_font">fonts/Roboto-Light.ttf</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textSize">14sp</item>
@@ -84,7 +83,7 @@
         <item name="android:drawablePadding">6dp</item>
     </style>
 
-    <style name="PlayerCastDeviceName">
+    <style name="PlayerCastDeviceName" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:paddingRight">8dp</item>
         <item name="android:textColor">@color/player_cast_device_name</item>
         <item name="android:textSize">14sp</item>
@@ -93,17 +92,21 @@
         <item name="android:singleLine">true</item>
     </style>
 
-    <style name="PlayerLikeBase" parent="CustomToggle">
+    <style name="PlayerLikeBase">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
-        <item name="android:layout_marginRight">8dp</item>
-        <item name="android:paddingLeft">36dp</item> <!-- Padding from left of view to right of text -->
-        <item name="android:minWidth">0dp</item>
+        <item name="android:textAppearance">@null</item>
+        <item name="android:gravity">center</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:background">@drawable/btn_player_like</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
     </style>
 
-    <style name="PlayerLikeBase.PlayerLike" />
+    <style name="PlayerLikeBase.PlayerLike">
+        <item name="android:background">@drawable/btn_player_like</item>
+        <item name="android:paddingLeft">36dp</item>
+    </style>
 
     <style name="PlayerMediaRouteButton" parent="Widget.MediaRouter.MediaRouteButton">
         <item name="android:layout_width">wrap_content</item>
@@ -111,13 +114,11 @@
         <item name="android:visibility">gone</item>
     </style>
 
-    <style name="PlayerMoreBase">
+    <style name="PlayerMore">
         <item name="android:layout_width">@dimen/player_engagement</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:background">@drawable/btn_player_more</item>
     </style>
-
-    <style name="PlayerMoreBase.PlayerMore" />
 
     <style name="PlayerClose">
         <item name="android:layout_width">32dp</item>
@@ -128,15 +129,13 @@
         <item name="android:visibility">gone</item>
     </style>
 
-    <style name="PlayerShareBase">
+    <style name="PlayerShare">
         <item name="android:layout_width">64dp</item>
         <item name="android:layout_height">64dp</item>
         <item name="android:layout_marginRight">28dp</item>
         <item name="android:src">@drawable/btn_player_share</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-    <style name="PlayerShareBase.PlayerShare" />
 
     <style name="Waveform">
         <item name="barWidth">@dimen/waveform_bar_width</item>
@@ -187,7 +186,7 @@
         <item name="android:background">@color/timestamp_secondary</item>
     </style>
 
-    <style name="TimestampText">
+    <style name="TimestampText" parent="TextAppearance.SoundCloudLightNumberFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerVertical">true</item>
@@ -195,7 +194,6 @@
         <item name="android:paddingLeft">6dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">12dp</item> <!-- This text cannot be scaled due to fixed timestamp height -->
         <item name="android:textColor">@color/timestamp_primary</item>
-        <item name="custom_font">fonts/Roboto-Light.ttf</item>
     </style>
 
     <style name="TimestampText.Duration">
@@ -209,16 +207,16 @@
         <item name="colorButtonNormal">@color/ak_sc_orange</item>
     </style>
 
-    <style name="PreviewIndicator">
+    <style name="PreviewIndicator" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:text">@string/playback_preview_indicator</item>
         <item name="android:background">@drawable/preview_indicator_bg</item>
-        <item name="android:paddingTop">4dp</item>
-        <item name="android:paddingBottom">4dp</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingTop">1dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:paddingRight">6dp</item>
     </style>
 
 </resources>

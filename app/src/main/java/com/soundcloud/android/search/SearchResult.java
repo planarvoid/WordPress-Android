@@ -14,10 +14,21 @@ import java.util.List;
 
 class SearchResult implements Iterable<PropertySet> {
     private final List<PropertySet> items;
+    private final int resultsCount;
     final Optional<Link> nextHref;
     final Optional<Urn> queryUrn;
+    private final Optional<SearchResult> premiumContent;
 
     SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn) {
+        this(items, nextHref, queryUrn, Optional.<SearchResult>absent(), 0);
+    }
+
+    SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn, int resultsCount) {
+        this(items, nextHref, queryUrn, Optional.<SearchResult>absent(), resultsCount);
+    }
+
+    SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn,
+                 Optional<SearchResult> premiumContent, int resultsCount) {
         int emptyItems = 0;
         this.items = new ArrayList<>(items.size());
         for (PropertySetSource source : items) {
@@ -29,9 +40,11 @@ class SearchResult implements Iterable<PropertySet> {
         }
         this.nextHref = nextHref;
         this.queryUrn = queryUrn;
+        this.premiumContent = premiumContent;
         if (emptyItems > 0) {
             ErrorUtils.handleSilentException(getMissingItemException(items, nextHref, emptyItems));
         }
+        this.resultsCount = resultsCount;
     }
 
     private IllegalStateException getMissingItemException(List<? extends PropertySetSource> items, Optional<Link> nextHref, int emptyItems) {
@@ -48,8 +61,16 @@ class SearchResult implements Iterable<PropertySet> {
         return items.iterator();
     }
 
-    public List<PropertySet> getItems() {
+    List<PropertySet> getItems() {
         return items;
+    }
+
+    Optional<SearchResult> getPremiumContent() {
+        return premiumContent;
+    }
+
+    int getResultsCount() {
+        return resultsCount;
     }
 
     @Override

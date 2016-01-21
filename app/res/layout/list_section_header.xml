@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.soundcloud.android.view.CustomFontTextView xmlns:android="http://schemas.android.com/apk/res/android"
           android:id="@+id/list_section_header"
           style="@style/UnderlinedListTitle"
           android:clickable="true"
           android:focusable="false"
           android:visibility="gone" />
 
-    

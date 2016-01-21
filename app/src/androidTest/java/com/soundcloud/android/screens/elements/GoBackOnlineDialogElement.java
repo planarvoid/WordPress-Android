@@ -9,7 +9,7 @@ import com.soundcloud.android.framework.with.With;
 
 public class GoBackOnlineDialogElement extends Element {
 
-    private With continueButtonLocator = text(solo.getString(R.string.offline_dialog_go_online_continue));
+    private With continueButtonLocator = text(testDriver.getString(R.string.offline_dialog_go_online_continue));
 
     public GoBackOnlineDialogElement(Han solo) {
         super(solo, With.id(R.id.go_back_online_dialog));
@@ -21,6 +21,6 @@ public class GoBackOnlineDialogElement extends Element {
     }
 
     private ViewElement continueButton() {
-        return solo.findElement(continueButtonLocator);
+        return testDriver.findOnScreenElement(continueButtonLocator);
     }
 }

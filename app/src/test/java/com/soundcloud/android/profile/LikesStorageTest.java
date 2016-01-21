@@ -5,6 +5,7 @@ import static java.util.Arrays.asList;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.likes.LikeProperty;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -94,46 +95,46 @@ public class LikesStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsTrackLikesForPlayback() {
+    public void loadsLikesForPlayback() {
         PropertySet trackLike1 = createTrackLikeAt(LIKED_AT_1);
-        PropertySet trackLike2 = createTrackLikeAt(LIKED_AT_2);
-        createPlaylistLikeAt(LIKED_AT_2);
+        final PropertySet playlistLike = createPlaylistLikeAt(LIKED_AT_2);
 
         storage.loadLikesForPlayback().subscribe(playbackSubscriber);
 
         playbackSubscriber.assertValues(
                 asList(
-                        trackLike2.get(TrackProperty.URN),
+                        playlistLike.get(PlaylistProperty.URN),
                         trackLike1.get(TrackProperty.URN)
                 )
         );
     }
 
     @Test
-    public void loadsTrackLikesForPlaybackWithoutPendingAdditions() {
+    public void loadsLikesForPlaybackWithoutPendingAdditions() {
         PropertySet trackLike1 = createTrackLikeAt(LIKED_AT_1);
-        PropertySet trackLike2 = createTrackLikePendingAdditionAt(LIKED_AT_2);
-        createPlaylistLikeAt(LIKED_AT_2);
+        final PropertySet playlistLike = createPlaylistLikeAt(LIKED_AT_2);
 
         storage.loadLikesForPlayback().subscribe(playbackSubscriber);
 
         playbackSubscriber.assertValues(
                 asList(
-                        trackLike2.get(TrackProperty.URN),
+                        playlistLike.get(PlaylistProperty.URN),
                         trackLike1.get(TrackProperty.URN)
                 )
         );
     }
 
     @Test
-    public void loadsTrackLikesForPlaybackWithoutPendingRemovals() {
+    public void loadsLikesForPlaybackWithoutPendingRemovals() {
         PropertySet trackLike1 = createTrackLikeAt(LIKED_AT_1);
         createTrackLikePendingRemovalAt(LIKED_AT_2, new Date());
-        createPlaylistLikeAt(LIKED_AT_2);
+        final PropertySet playlistLike = createPlaylistLikeAt(LIKED_AT_2);
 
         storage.loadLikesForPlayback().subscribe(playbackSubscriber);
 
-        playbackSubscriber.assertValues(asList(trackLike1.get(TrackProperty.URN)));
+        playbackSubscriber.assertValues(asList(
+                playlistLike.get(EntityProperty.URN),
+                trackLike1.get(TrackProperty.URN)));
     }
 
     private PropertySet createTrackLikeAt(Date likedAt) {

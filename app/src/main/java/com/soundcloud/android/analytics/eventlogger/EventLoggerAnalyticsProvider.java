@@ -9,7 +9,6 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
-import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -94,8 +93,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleForegroundEvent((ForegroundEvent) event);
         } else if (event instanceof PromotedTrackingEvent) {
             handlePromotedEvent((PromotedTrackingEvent) event);
-        } else if (event instanceof MidTierTrackEvent) {
-            handleMidTierTrackEvent((MidTierTrackEvent) event);
         } else if (event instanceof UpgradeTrackingEvent) {
             handleUpsellEvent((UpgradeTrackingEvent) event);
         } else if (event instanceof FacebookInvitesEvent) {
@@ -147,10 +144,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             }
         }
         trackAudioSessionEvent(event);
-    }
-
-    private void handleMidTierTrackEvent(MidTierTrackEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
     }
 
     private void handleUIEvent(UIEvent event) {

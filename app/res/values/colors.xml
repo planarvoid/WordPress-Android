@@ -7,16 +7,15 @@
     <color name="primary">#ffffff</color>
     <color name="primary_dark">#bbbbbb</color>
     <color name="primary_darker">#1d1d1d</color>
-    <color name="sc_orange">#ff5500</color>
 
-    <color name="orange_toggle_on">@color/sc_orange</color>
+    <color name="orange_toggle_on">@color/ak_sc_orange</color>
     <color name="orange_toggle_on_ripple">#e24b03</color>
     <color name="orange_toggle_on_text">#ffffff</color>
     <color name="orange_toggle_off">#e5e5e5</color>
     <color name="orange_toggle_off_ripple">#c9c9c9</color>
     <color name="orange_toggle_off_text">#888888</color>
 
-    <color name="orange_radio_on_text">@color/sc_orange</color>
+    <color name="orange_radio_on_text">@color/ak_sc_orange</color>
     <color name="orange_radio_off_text">#777777</color>
 
     <!-- List items -->
@@ -27,13 +26,14 @@
     <color name="list_text_created_at">#c9c9c9</color>
     <color name="list_text_track_user">#828282</color>
     <color name="list_text_header">#666666</color>
+
     <!-- New cells -->
     <color name="list_primary">#333333</color>
     <color name="list_secondary">#999999</color>
     <color name="card_full_image_border">#f2f2f2</color>
 
     <!-- Player -->
-    <color name="player_gradient_start">#4c000000</color>
+    <color name="dark_gradient_start">#4c000000</color>
     <color name="player_user_text">#c5c5c5</color>
     <color name="player_cast_device_name">#ffffff</color>
 
@@ -103,6 +103,7 @@
     <color name="usage_bar_free">#ffffff</color>
 
     <color name="user_image_border_color">#1a000000</color>
+    <color name="snipped_indicator_background">#1a000000</color>
 
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>
@@ -135,6 +136,7 @@
     <color name="search_hint_text">#CCCCCC</color>
     <color name="search_screen_background">#80000000</color>
     <color name="discovery_tags_title">#666666</color>
+    <color name="discovery_search_premium_view_all">#666666</color>
 
     <!-- Stations -->
     <color name="stations_home_background">@color/page_background</color>

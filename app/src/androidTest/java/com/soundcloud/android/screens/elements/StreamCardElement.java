@@ -59,7 +59,7 @@ public class StreamCardElement {
     }
 
     public String trackTitle() {
-        return new TextElement(wrapped.findElement(With.id(R.id.title))).getText();
+        return new TextElement(wrapped.findOnScreenElement(With.id(R.id.title))).getText();
     }
 
     public TrackItemMenuElement clickOverflowButton() {
@@ -71,8 +71,12 @@ public class StreamCardElement {
         return wrapped.isElementDisplayed(With.id(R.id.promoted_item));
     }
 
+    public boolean isPreview() {
+        return wrapped.isElementDisplayed(With.id(R.id.preview_indicator));
+    }
+
     public boolean hasPromoter() {
-        return wrapped.findElement(With.id(R.id.promoter)).isVisible();
+        return wrapped.findOnScreenElement(With.id(R.id.promoter)).isVisible();
     }
 
     public VisualPlayerElement click() {
@@ -83,26 +87,40 @@ public class StreamCardElement {
     }
 
     private ViewElement reposter() {
-        return wrapped.findElement(With.id(R.id.reposter));
+        return wrapped.findOnScreenElement(With.id(R.id.reposter));
     }
 
     private ViewElement repostItem() {
-        return wrapped.findElement(With.id(R.id.toggle_repost));
+        return wrapped.findOnScreenElement(With.id(R.id.toggle_repost));
     }
 
     private ViewElement likeItem() {
-        return wrapped.findElement(With.id(R.id.toggle_like));
+        return wrapped.findOnScreenElement(With.id(R.id.toggle_like));
     }
 
     private ViewElement artistName() {
-        return wrapped.findElement(With.id(R.id.creator));
+        return wrapped.findOnScreenElement(With.id(R.id.creator));
     }
 
     private ViewElement userAvatar() {
-        return wrapped.findElement(With.id(R.id.user_image));
+        return wrapped.findOnScreenElement(With.id(R.id.user_image));
     }
 
     private ViewElement overflowButton() {
-        return wrapped.findElement(With.id(R.id.overflow_button));
+        return wrapped.findOnScreenElement(With.id(R.id.overflow_button));
+    }
+
+    public static With WithPreview(final Han testDriver){
+        return new With() {
+            @Override
+            public String getSelector() {
+                return "With preview indicator";
+            }
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return new StreamCardElement(testDriver, view).isPreview();
+            }
+        };
     }
 }

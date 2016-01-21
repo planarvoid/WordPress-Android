@@ -2,15 +2,40 @@
 <resources>
 
     <style name="PlayerLikeBase.PlayerLike">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
 
-    <style name="PlayerMoreBase.PlayerMore">
+    <style name="PlayerMore" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_width">@dimen/player_engagement</item>
+        <item name="android:layout_height">@dimen/player_engagement</item>
+        <item name="android:src">@drawable/player_overflow</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
 
-    <style name="PlayerShareBase.PlayerShare">
+    <style name="PlayerShare" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_width">@dimen/player_engagement</item>
+        <item name="android:layout_height">@dimen/player_engagement</item>
+        <item name="android:src">@drawable/ic_share_white_24dp</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
         <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="PlayerPlay" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:src">@drawable/pc_player_play</item>
+    </style>
+
+    <style name="PlayerNext" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:src">@drawable/pc_player_skip_next</item>
+        <item name="android:layout_margin">@dimen/player_skip_margin</item>
+    </style>
+
+    <style name="PlayerPrevious" parent="PlayerNext">
+        <item name="android:src">@drawable/pc_player_skip_previous</item>
     </style>
 
 </resources>

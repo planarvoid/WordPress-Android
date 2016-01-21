@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="16dp"
-    android:paddingRight="16dp"
+    android:paddingRight="12dp"
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
 
@@ -15,7 +15,7 @@
         style="@style/PlayerClose"
         android:layout_marginTop="4dp"/>
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/preview_indicator"
         style="@style/PreviewIndicator"
         android:layout_width="wrap_content"

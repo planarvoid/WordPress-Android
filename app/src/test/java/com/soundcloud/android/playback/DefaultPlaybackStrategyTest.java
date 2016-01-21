@@ -187,7 +187,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         return PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.PLAY_DURATION.bind(123L),
-                OfflineProperty.OFFLINE_STATE.bind(OfflineState.NO_OFFLINE)
+                OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE)
         );
     }
 

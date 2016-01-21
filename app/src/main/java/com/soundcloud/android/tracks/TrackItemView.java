@@ -22,9 +22,10 @@ public class TrackItemView {
     private final TextView reposter;
     private final View nowPlaying;
     private final View privateIndicator;
-    private final View upsell;
     private final TextView promoted;
     private final TextView notAvailableOffline;
+    private final TextView preview;
+    private final TextView geoBlocked;
     private OverflowListener overflowListener;
 
     public TrackItemView(View view) {
@@ -36,9 +37,10 @@ public class TrackItemView {
         reposter = (TextView) view.findViewById(R.id.reposter);
         nowPlaying = view.findViewById(R.id.now_playing);
         privateIndicator = view.findViewById(R.id.private_indicator);
-        upsell = view.findViewById(R.id.upsell);
         promoted = (TextView) view.findViewById(R.id.promoted_track);
         notAvailableOffline = (TextView) view.findViewById(R.id.not_available_offline);
+        preview = (TextView) view.findViewById(R.id.track_list_item_preview_text);
+        geoBlocked = (TextView) view.findViewById(R.id.track_list_item_geo_blocked_text);
 
         view.findViewById(R.id.overflow_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,8 +64,9 @@ public class TrackItemView {
         title.setText(name);
     }
 
-    public void setDuration(String duration) {
+    public void showDuration(String duration) {
         this.duration.setText(duration);
+        this.duration.setVisibility(View.VISIBLE);
     }
 
     public void showPromotedTrack(String text) {
@@ -71,8 +74,16 @@ public class TrackItemView {
         promoted.setText(text);
     }
 
+    public void showGeoBlocked() {
+        geoBlocked.setVisibility(View.VISIBLE);
+    }
+
     public void setPromotedClickable(View.OnClickListener clickListener) {
         ViewUtils.setTouchClickable(promoted, clickListener);
+    }
+
+    public void showPreviewLabel() {
+        preview.setVisibility(View.VISIBLE);
     }
 
     public void showNowPlaying() {
@@ -83,23 +94,24 @@ public class TrackItemView {
         privateIndicator.setVisibility(View.VISIBLE);
     }
 
-    public void resetAdditionalInformation() {
+    public void hideInfoViewsRight() {
+        preview.setVisibility(View.GONE);
+        privateIndicator.setVisibility(View.GONE);
+        duration.setVisibility(View.GONE);
+    }
+
+    public void hideInfosViewsBottom() {
         playCount.setVisibility(View.INVISIBLE);
         nowPlaying.setVisibility(View.INVISIBLE);
-        privateIndicator.setVisibility(View.GONE);
-        upsell.setVisibility(View.INVISIBLE);
         promoted.setVisibility(View.GONE);
         notAvailableOffline.setVisibility(View.GONE);
+        geoBlocked.setVisibility(View.GONE);
         ViewUtils.unsetTouchClickable(promoted);
     }
 
     public void showPlaycount(String playcount) {
         playCount.setText(playcount);
         playCount.setVisibility(View.VISIBLE);
-    }
-
-    public void showUpsell() {
-        upsell.setVisibility(View.VISIBLE);
     }
 
     public void hideReposter() {

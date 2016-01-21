@@ -9,7 +9,7 @@
         <item name="android:paddingRight">12dp</item>
     </style>
 
-    <style name="SettingsTitle">
+    <style name="SettingsTitle" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:ellipsize">marquee</item>
@@ -17,7 +17,7 @@
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
     </style>
 
-    <style name="SettingsSummary">
+    <style name="SettingsSummary" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:maxLines">4</item>

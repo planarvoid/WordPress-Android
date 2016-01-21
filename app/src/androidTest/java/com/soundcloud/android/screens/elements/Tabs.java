@@ -5,8 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-
-import android.support.design.widget.TabLayout;
+import com.soundcloud.android.view.CustomFontTabLayout;
 
 import java.util.List;
 
@@ -16,12 +15,12 @@ public class Tabs {
     public Tabs(Han testDriver) {
         this.testDriver = testDriver;
         final Waiter waiter = new Waiter(testDriver);
-        waiter.waitForElement(With.classSimpleName(TabLayout.class.getSimpleName()));
+        waiter.waitForElement(With.className(CustomFontTabLayout.class.getName()));
         waiter.waitForElementCondition(new TabsVisibleCondition(this));
     }
 
     public ViewElement getTabWith(With matcher) {
-        return container().findElement(matcher);
+        return container().findOnScreenElement(matcher);
     }
 
     public ViewElement getTabAt(int index) {
@@ -37,7 +36,7 @@ public class Tabs {
     }
 
     private ViewElement container() {
-        return testDriver.findElement(With.classSimpleName(TabLayout.class.getSimpleName()));
+        return testDriver.findOnScreenElement(With.className(CustomFontTabLayout.class.getName()));
     }
 
     private class TabsVisibleCondition implements Condition {

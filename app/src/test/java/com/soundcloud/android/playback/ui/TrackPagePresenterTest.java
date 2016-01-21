@@ -36,7 +36,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
@@ -51,8 +50,6 @@ import org.robolectric.shadows.ShadowToast;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-
-import java.util.Locale;
 
 public class TrackPagePresenterTest extends AndroidUnitTest {
 
@@ -71,7 +68,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdOverlayControllerFactory adOverlayControllerFactory;
     @Mock private AdOverlayController adOverlayController;
-    @Mock private ErrorViewController.Factory errorControllerFactory;
+    @Mock private ErrorViewControllerFactory errorControllerFactory;
     @Mock private ErrorViewController errorViewController;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
@@ -82,10 +79,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
+    @Mock private LikeButtonPresenter likeButtonPresenter;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
-    private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private TrackQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123));
 
     private TrackPagePresenter presenter;
@@ -95,7 +92,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         ViewGroup container = new FrameLayout(context());
-        presenter = new TrackPagePresenter(waveformOperations, featureOperations, listener, numberFormatter, waveformFactory,
+        presenter = new TrackPagePresenter(waveformOperations, featureOperations, listener, likeButtonPresenter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, adOverlayControllerFactory,
                 errorControllerFactory, castConnectionHelper, resources(), upsellImpressionController);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
@@ -115,10 +112,16 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void bindItemViewSetsUrnOnErrorViewController() {
+        populateTrackPage();
+        verify(errorViewController).setUrn(TRACK_URN);
+    }
+
+    @Test
     public void bindItemViewSetsInitialLikeStatesFromTrackData() {
         populateTrackPage();
         assertThat(getHolder(trackView).likeToggle).isChecked();
-        assertThat(getHolder(trackView).likeToggle).hasText("1");
+        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 1);
     }
 
     @Test
@@ -229,12 +232,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playingStateWithOtherTrackResetProgress() {
+    public void playingStateWithOtherTrackClearsProgress() {
         presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), false, true);
 
-        verify(waveformViewController).setProgress(progressArgumentCaptor.capture());
-        assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(0);
-        assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(0);
+        verify(waveformViewController).clearProgress();
     }
 
     @Test
@@ -253,12 +254,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bufferingStateWithOtherTrackResetProgress() {
+    public void bufferingStateWithOtherTrackClearsProgress() {
         presenter.setPlayState(trackView, TestPlayStates.buffering(), false, true);
 
-        verify(waveformViewController).setProgress(progressArgumentCaptor.capture());
-        assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(0);
-        assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(0);
+        verify(waveformViewController).clearProgress();
     }
 
     @Test
@@ -372,7 +371,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
-        assertThat(getHolder(trackView).likeToggle).hasText("9,999");
+        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 9999);
     }
 
     @Test
@@ -643,32 +642,32 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindingSnippedTrackWithoutUpsellFeatureHidesPreviewIcon() {
-        when(featureOperations.upsellMidTier()).thenReturn(false);
+        when(featureOperations.upsellHighTier()).thenReturn(false);
         bindSnippedTrack();
 
         assertThat(getHolder(trackView).previewIndicator).isGone();
     }
 
     @Test
-    public void bindingUpsellTrackWithoutUpsellFeatureHidesUpsellIcon() {
-        when(featureOperations.upsellMidTier()).thenReturn(false);
-        bindUpsellableTrack();
+    public void bindingUpsellableHighTierTrackWithoutUpsellFeatureHidesUpsellIcon() {
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+        bindUpsellableHighTierTrack();
 
         assertThat(getHolder(trackView).previewIndicator).isGone();
     }
 
     @Test
     public void bindingSnippedTrackWhileAllowingUpsellFeatureShowsPreviewIcon() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         bindSnippedTrack();
 
         assertThat(getHolder(trackView).previewIndicator).isVisible();
     }
 
     @Test
-    public void bindingUpsellableTrackWhileAllowingUpsellFeatureShowsUpsell() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
-        final PropertySet track = bindUpsellableTrack();
+    public void bindingUpsellableHighTierTrackWhileAllowingUpsellFeatureShowsUpsell() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        final PropertySet track = bindUpsellableHighTierTrack();
 
         final TrackPageHolder holder = getHolder(trackView);
         assertThat(holder.upsellButton).isVisible();
@@ -676,9 +675,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onViewSelectedWhileExpandedWithUpsellableTrackRecordsImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
-        bindUpsellableTrack();
+    public void onViewSelectedWhileExpandedWithUpsellableHighTierTrackRecordsImpression() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        bindUpsellableHighTierTrack();
 
         presenter.onViewSelected(trackView, playQueueItem, true);
 
@@ -686,9 +685,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onViewSelectedWhileCollapsedWithUpsellableTrackDoesNotRecordImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
-        bindUpsellableTrack();
+    public void onViewSelectedWhileCollapsedWithUpsellableHighTierTrackDoesNotRecordImpression() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        bindUpsellableHighTierTrack();
 
         presenter.onViewSelected(trackView, playQueueItem, false);
 
@@ -697,7 +696,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewSelectedWhileExpandedWithNormalTrackDoesNotRecordImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         populateTrackPage();
 
         presenter.onViewSelected(trackView, playQueueItem, true);
@@ -706,9 +705,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setExpandedWithUpsellableTrackWhileSelectedRecordsImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
-        bindUpsellableTrack();
+    public void setExpandedWithUpsellableHighTierTrackWhileSelectedRecordsImpression() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        bindUpsellableHighTierTrack();
 
         presenter.setExpanded(trackView, playQueueItem, true);
 
@@ -717,8 +716,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setExpandedWithUpsellableTrackWhileNotSelectedDoesNotRecordImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
-        bindUpsellableTrack();
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        bindUpsellableHighTierTrack();
 
         presenter.setExpanded(trackView, playQueueItem, false);
 
@@ -727,7 +726,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void setExpandedWithNormalTrackWhileSelectedDoesNotRecordImpression() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         populateTrackPage();
 
         presenter.setExpanded(trackView, playQueueItem, true);
@@ -749,7 +748,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         presenter.bindItemView(trackView, new PlayerTrackState(snippedTrack, true, true, viewVisibilityProvider));
     }
 
-    private PropertySet bindUpsellableTrack() {
+    private PropertySet bindUpsellableHighTierTrack() {
         final PropertySet source = TestPropertySets.upsellableTrackForPlayer();
         presenter.bindItemView(trackView,
                 new PlayerTrackState(source, true, true,

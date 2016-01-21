@@ -17,6 +17,10 @@ import java.util.Hashtable;
 import java.util.Map;
 
 public final class CustomFontLoader {
+    public static String SOUNDCLOUD_INTERSTATE_LIGHT = "fonts/InterstateSound_Pnum-Light_fbsTfohiYZ.ttf";
+    public static String SOUNDCLOUD_INTERSTATE_LIGHT_TNUM = "fonts/InterstateSound_Tnum-Light_fbdOS9y3d6.ttf";
+    public static String SOUNDCLOUD_INTERSTATE_REGULAR = "fonts/InterstateSound_Pnum-Regular_fbFICLP0jJ.ttf";
+
     private static final Map<String, SoftReference<Typeface>> fontCache;
 
     static {
@@ -52,10 +56,19 @@ public final class CustomFontLoader {
 
         if (path != null) {
             Typeface typeface = CustomFontLoader.getFont(context, path);
-            textView.setTypeface(typeface);
-            textView.setPaintFlags(textView.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);
+            applyFontToView(textView, typeface);
         }
 
         array.recycle();
+    }
+
+    public static void applyCustomFont(Context context, TextView textView, String path) {
+        Typeface typeface = CustomFontLoader.getFont(context, path);
+        applyFontToView(textView, typeface);
+    }
+
+    private static void applyFontToView(TextView textView, Typeface typeface) {
+        textView.setTypeface(typeface);
+        textView.setPaintFlags(textView.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);
     }
 }

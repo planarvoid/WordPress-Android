@@ -8,33 +8,33 @@
     android:layout_alignParentBottom="true"
     tools:showIn="@layout/sc_create">
 
-    <Button
+    <com.soundcloud.android.view.CustomFontButton
         android:id="@+id/btn_delete"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/BorderlessButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/gray_text"
         android:text="@string/btn_delete" />
 
-    <Button
+    <com.soundcloud.android.view.CustomFontButton
         android:id="@+id/btn_next"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/BorderlessButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/ak_sc_orange"
         android:text="@string/next" />
 
-    <Button
+    <com.soundcloud.android.view.CustomFontButton
         android:id="@+id/btn_revert"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/BorderlessButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/gray_text"
         android:text="@string/btn_revert_to_original" />
 
-    <Button
+    <com.soundcloud.android.view.CustomFontButton
         android:id="@+id/btn_apply"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/BorderlessButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/ak_sc_orange"

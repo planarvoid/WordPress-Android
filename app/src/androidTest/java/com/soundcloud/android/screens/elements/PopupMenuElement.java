@@ -1,7 +1,6 @@
 package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
@@ -10,33 +9,25 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class PopupMenuElement {
-
-    protected final Han testDriver;
-    private final Waiter waiter;
+public class PopupMenuElement extends Element {
 
     public PopupMenuElement(Han testDriver) {
-        this.testDriver = testDriver;
-        waiter = new Waiter(testDriver);
+        super(testDriver, With.className("android.widget.PopupWindow$PopupViewContainer"));
         waiter.waitForElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
     }
 
     protected List<ViewElement> getRootMenuElements() {
         waiter.waitForElement(TextView.class);
-        return container().findElements(With.classSimpleName("ListMenuItemView"));
+        return getRootViewElement().findOnScreenElements(With.classSimpleName("ListMenuItemView"));
     }
 
-    protected ViewElement findElement(With matcher) {
+    protected ViewElement findOnScreenElement(With matcher) {
         waiter.waitForElement(TextView.class);
-        return container().findElement(matcher);
-    }
-
-    protected ViewElement container() {
-        return testDriver.findElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
+        return getRootViewElement().findOnScreenElement(matcher);
     }
 
     protected String getElementText(ViewElement viewElement) {
-        return new TextElement(viewElement.findElement(With.id(android.R.id.title))).getText();
+        return new TextElement(viewElement.findOnScreenElement(With.id(android.R.id.title))).getText();
     }
 
 }

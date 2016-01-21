@@ -45,7 +45,7 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
         if (featureOperations.isOfflineContentEnabled()) {
             downloadProgressIcon.setState(track.getDownloadedState());
         } else {
-            downloadProgressIcon.setState(OfflineState.NO_OFFLINE);
+            downloadProgressIcon.setState(OfflineState.NOT_OFFLINE);
         }
     }
 }

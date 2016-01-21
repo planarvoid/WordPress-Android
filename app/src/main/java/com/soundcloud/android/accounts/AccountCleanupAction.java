@@ -1,7 +1,7 @@
 package com.soundcloud.android.accounts;
 
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
-import com.soundcloud.android.collections.CollectionsOperations;
+import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
@@ -38,7 +38,7 @@ class AccountCleanupAction implements Action0 {
     private final DiscoveryOperations discoveryOperations;
     private final ClearTableCommand clearTableCommand;
     private final StationsOperations stationsOperations;
-    private final CollectionsOperations collectionsOperations;
+    private final CollectionOperations collectionOperations;
     private final SoundStreamOperations soundStreamOperations;
 
     @Inject
@@ -51,7 +51,7 @@ class AccountCleanupAction implements Action0 {
                          DiscoveryOperations discoveryOperations,
                          ClearTableCommand clearTableCommand,
                          StationsOperations stationsOperations,
-                         CollectionsOperations collectionsOperations,
+                         CollectionOperations collectionOperations,
                          SoundStreamOperations soundStreamOperations) {
         this.tagStorage = tagStorage;
         this.legacyUserAssociationStorage = legacyUserAssociationStorage;
@@ -65,7 +65,7 @@ class AccountCleanupAction implements Action0 {
         this.discoveryOperations = discoveryOperations;
         this.clearTableCommand = clearTableCommand;
         this.stationsOperations = stationsOperations;
-        this.collectionsOperations = collectionsOperations;
+        this.collectionOperations = collectionOperations;
         this.soundStreamOperations = soundStreamOperations;
     }
 
@@ -84,7 +84,7 @@ class AccountCleanupAction implements Action0 {
         soundRecorder.reset();
         stationsOperations.clearData();
         discoveryOperations.clearData();
-        collectionsOperations.clearData();
+        collectionOperations.clearData();
         soundStreamOperations.clearData();
     }
 

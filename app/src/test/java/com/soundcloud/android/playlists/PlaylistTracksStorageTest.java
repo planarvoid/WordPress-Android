@@ -127,7 +127,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void doesNotLoadUnavailableOfflineStateForPlaylistTracksWhenPlaylistMarkedForOffline() {
+    public void marksOfflineStateNotOfflineForPlaylistTracksWhenPlaylistMarkedForOffline() {
         final TestSubscriber<List<PropertySet>> testSubscriber = new TestSubscriber<>();
 
         final ApiPlaylist normalPlaylist = insertPostedPlaylist();
@@ -137,7 +137,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         playlistTracksStorage.playlistTracks(normalPlaylist.getUrn()).subscribe(testSubscriber);
 
         List<PropertySet> result = testSubscriber.getOnNextEvents().get(0);
-        assertThat(result.get(0).contains(OfflineProperty.OFFLINE_STATE)).isFalse();
+        assertThat(result.get(0).get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.NOT_OFFLINE);
     }
 
     @Test
@@ -182,14 +182,14 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist, 1);
         final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrack(apiPlaylist, 2);
 
-        testFixtures().insertPolicyMidTierMonetizable(apiTrack3.getUrn());
+        testFixtures().insertPolicyHighTierMonetizable(apiTrack3.getUrn());
 
         final List<PropertySet> tracks = playlistTracksStorage.playlistTracks(apiPlaylist.getUrn()).toBlocking().single();
 
         assertThat(tracks).containsExactly(
                 fromApiTrack(apiTrack1),
                 fromApiTrack(apiTrack2),
-                expectedMidTierMonetizableTrackFor(apiTrack3)
+                expectedHighTierMonetizableTrackFor(apiTrack3)
         );
     }
 
@@ -223,7 +223,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 fromApiTrack(apiTrack2)
                         .put(OfflineProperty.OFFLINE_STATE, OfflineState.REQUESTED),
                 fromApiTrack(apiTrack3)
-                        .put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE)
+                        .put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE)
         );
     }
 
@@ -238,8 +238,8 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 TrackProperty.IS_PRIVATE.bind(apiTrack.isPrivate()),
                 TrackProperty.CREATOR_NAME.bind(apiTrack.getUserName()),
                 TrackProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
-                TrackProperty.SUB_MID_TIER.bind(false)
-        );
+                TrackProperty.SUB_HIGH_TIER.bind(apiTrack.isSubHighTier().get()),
+                OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE));
     }
 
     private ApiPlaylist insertPostedPlaylist() {
@@ -266,8 +266,8 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 isTrackAdded);
     }
 
-    private PropertySet expectedMidTierMonetizableTrackFor(ApiTrack track) {
-        return fromApiTrack(track).put(TrackProperty.SUB_MID_TIER, true);
+    private PropertySet expectedHighTierMonetizableTrackFor(ApiTrack track) {
+        return fromApiTrack(track).put(TrackProperty.SUB_HIGH_TIER, true);
     }
 
 }

@@ -1,5 +1,13 @@
 package com.soundcloud.android.onboarding.auth;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.crop.Crop;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
+import org.jetbrains.annotations.Nullable;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -20,16 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.crop.Crop;
-import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.images.ImageUtils;
-
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class SignupDetailsLayout extends RelativeLayout {
     private static final String BUNDLE_USERNAME = "BUNDLE_USERNAME";
@@ -138,14 +137,21 @@ public class SignupDetailsLayout extends RelativeLayout {
         setImage((File) bundle.getSerializable(BUNDLE_FILE));
     }
 
-    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    public void onSave() {
+        if (getUserDetailsHandler() != null) {
+            final EditText username = (EditText) findViewById(R.id.txt_username);
+            getUserDetailsHandler().onSubmitUserDetails(username.getText().toString(), avatarFile);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected void onFinishInflate() {
         super.onFinishInflate();
 
         final EditText username = (EditText) findViewById(R.id.txt_username);
         final TextView avatarText = (TextView) findViewById(R.id.txt_artwork_bg);
         final ImageView avatarView = (ImageView) findViewById(R.id.artwork);
-        final Button skipButton = (Button) findViewById(R.id.btn_skip);
         final Button saveButton = (Button) findViewById(R.id.btn_save);
 
         username.setHint(R.string.authentication_add_info_username_hint);
@@ -164,21 +170,10 @@ public class SignupDetailsLayout extends RelativeLayout {
             }
         });
 
-        skipButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getUserDetailsHandler() != null) {
-                    getUserDetailsHandler().onSkipUserDetails();
-                }
-            }
-        });
-
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getUserDetailsHandler() != null) {
-                    getUserDetailsHandler().onSubmitUserDetails(username.getText().toString(), avatarFile);
-                }
+                onSave();
             }
         });
 
@@ -221,8 +216,6 @@ public class SignupDetailsLayout extends RelativeLayout {
 
     public interface UserDetailsHandler {
         void onSubmitUserDetails(String username, File avatarFile);
-
-        void onSkipUserDetails();
 
         FragmentActivity getFragmentActivity();
     }

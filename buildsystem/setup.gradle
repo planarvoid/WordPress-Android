@@ -1,0 +1,19 @@
+task setupCodeStyle << {
+    def template = file(".idea-codestyle.xml")
+    def ideaPrefDirs = file(System.env['HOME'] + '/Library/Preferences/').listFiles().findAll {
+        it.path.contains("AndroidStudio") ||
+                it.path.contains("IdeaIC") ||
+                it.path.contains("IntelliJIdea")
+    }
+    println("Installing code style template to:")
+    ideaPrefDirs.forEach { println("-> $it.name") }
+    ideaPrefDirs.collect {
+        file("$it.absolutePath/codestyles").with { it.mkdir(); it }
+    }.forEach {
+        ln(template, it)
+    }
+}
+
+def ln(File dest, File source) {
+    exec { commandLine "ln", "-sf", dest.absolutePath, "$source.absolutePath/SoundCloud-Android.xml" }
+}

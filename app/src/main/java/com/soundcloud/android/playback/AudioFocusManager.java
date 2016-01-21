@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.utils.Log;
+
 import android.content.Context;
 import android.media.AudioManager;
 
@@ -19,6 +21,7 @@ public class AudioFocusManager implements IAudioManager {
             listener = new AudioManager.OnAudioFocusChangeListener() {
                 @Override
                 public void onAudioFocusChange(int focusChange) {
+                    Log.d("AudioFocusManager", "On audio focus changed " + focusChange);
                     if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
                         if (audioFocusLost) {
                             focusable.focusGained();

@@ -1,88 +1,111 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
-import android.preference.PreferenceManager;
+import android.content.SharedPreferences;
 
-public final class SyncConfig {
-    private static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 60*60*1000*4L; // 4h
+import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
-    public static final String PREF_SYNC_WIFI_ONLY          = "syncWifiOnly";
+public class SyncConfig {
+    public static final long DEFAULT_SYNC_DELAY = TimeUnit.HOURS.toSeconds(1); // interval between syncs
 
-    public static final long DEFAULT_ATTEMPT_DELAY  = 30*60*1000;         // 30 mins in ms
-    public static final long DEFAULT_STALE_TIME  = 60*60*1000;         // 1 hr in ms
+    static final long DEFAULT_NOTIFICATIONS_FREQUENCY = TimeUnit.HOURS.toMillis(4);
 
-    public static final long TRACK_STALE_TIME           = DEFAULT_STALE_TIME;
-    public static final long ACTIVITY_STALE_TIME        = DEFAULT_STALE_TIME * 6;
-    public static final long USER_STALE_TIME            = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
-    public static final long PLAYLIST_STALE_TIME        = DEFAULT_STALE_TIME * 6;
-    public static final long SHORTCUTS_STALE_TIME       = DEFAULT_STALE_TIME * 24;
+    static final long TRACK_STALE_TIME      = TimeUnit.HOURS.toMillis(1);
+    static final long ACTIVITY_STALE_TIME   = TimeUnit.HOURS.toMillis(6);
+    static final long USER_STALE_TIME       = TimeUnit.HOURS.toMillis(12);
+    static final long PLAYLIST_STALE_TIME   = TimeUnit.HOURS.toMillis(6);
 
-    public static final long DEFAULT_SYNC_DELAY   = 3600L; // interval between syncs
-    public static int[] DEFAULT_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24};
-    public static int[] USER_BACKOFF_MULTIPLIERS  = new int[]{1, 2, 3};
+    static int[] DEFAULT_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24};
+    static int[] USER_BACKOFF_MULTIPLIERS = new int[]{1, 2, 3};
 
+    private static final String PREF_SYNC_WIFI_ONLY = "syncWifiOnly";
 
-    public static boolean isNotificationsWifiOnlyEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, false);
+    private final SharedPreferences sharedPreferences;
+    private final CurrentDateProvider dateProvider;
+    private final Context context;
+
+    @Inject
+    public SyncConfig(SharedPreferences sharedPreferences, CurrentDateProvider dateProvider, Context context) {
+        this.sharedPreferences = sharedPreferences;
+        this.dateProvider = dateProvider;
+        this.context = context;
     }
 
-    public static boolean isIncomingEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true);
+    public boolean isNotificationsWifiOnlyEnabled() {
+        return sharedPreferences.getBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, false);
     }
 
-    public static boolean isLikeNotificationEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_LIKES, true);
+    public boolean isIncomingEnabled() {
+        return sharedPreferences.getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true);
     }
 
-    public static boolean isRepostNotificationsEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_REPOSTS, true);
+    public boolean isLikeNotificationEnabled() {
+        return sharedPreferences.getBoolean(Consts.PrefKeys.NOTIFICATIONS_LIKES, true);
     }
 
-    public static boolean isNewFollowerNotificationsEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_FOLLOWERS, true);
+    public boolean isRepostNotificationsEnabled() {
+        return sharedPreferences.getBoolean(Consts.PrefKeys.NOTIFICATIONS_REPOSTS, true);
     }
 
-    public static boolean isActivitySyncEnabled(Context c) {
-        return isLikeNotificationEnabled(c) || isCommentNotificationsEnabled(c);
+    public boolean isServerSideNotifications() {
+        return sharedPreferences.getBoolean(Consts.PrefKeys.NOTIFICATIONS_SERVER_SIDE, false);
     }
 
-    public static boolean isCommentNotificationsEnabled(Context c) {
-        return PreferenceManager
-                .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_COMMENTS, true);
+    public boolean isNewFollowerNotificationsEnabled() {
+        return sharedPreferences.getBoolean(Consts.PrefKeys.NOTIFICATIONS_FOLLOWERS, true);
     }
 
-    public static boolean isSyncWifiOnlyEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(PREF_SYNC_WIFI_ONLY, true);
+    public boolean isActivitySyncEnabled() {
+        return isLikeNotificationEnabled() || isCommentNotificationsEnabled();
     }
 
-    public static long getNotificationsFrequency(Context c) {
-        if (PreferenceManager.getDefaultSharedPreferences(c).contains(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY)) {
-            return Long.parseLong(PreferenceManager.getDefaultSharedPreferences(c).getString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY,
+    public boolean isCommentNotificationsEnabled() {
+        return sharedPreferences.getBoolean(Consts.PrefKeys.NOTIFICATIONS_COMMENTS, true);
+    }
+
+    public boolean isSyncWifiOnlyEnabled() {
+        return sharedPreferences.getBoolean(PREF_SYNC_WIFI_ONLY, true);
+    }
+
+    public long getNotificationsFrequency() {
+        if (sharedPreferences.contains(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY)) {
+            return Long.parseLong(sharedPreferences.getString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY,
                     String.valueOf(DEFAULT_NOTIFICATIONS_FREQUENCY)));
         } else {
             return DEFAULT_NOTIFICATIONS_FREQUENCY;
         }
     }
 
-    public static boolean shouldUpdateDashboard(Context c) {
-        return !isNotificationsWifiOnlyEnabled(c) || IOUtils.isWifiConnected(c);
+    public boolean shouldUpdateDashboard() {
+        return !isNotificationsWifiOnlyEnabled() || IOUtils.isWifiConnected(context);
     }
 
-    public static boolean shouldSyncCollections(Context c) {
-        return !isSyncWifiOnlyEnabled(c) || IOUtils.isWifiConnected(c);
+    public boolean shouldSyncCollections() {
+        return !isSyncWifiOnlyEnabled() || IOUtils.isWifiConnected(context);
     }
 
-    public static boolean shouldSync(Context context, String prefKey, long max) {
-        final long lastAction = PreferenceManager.getDefaultSharedPreferences(context).getLong(
-                prefKey,
-                System.currentTimeMillis());
-
-        return (System.currentTimeMillis() - lastAction) > max;
+    public boolean shouldSync(String prefKey, long max) {
+        long currentTime = dateProvider.getCurrentTime();
+        final long lastAction = sharedPreferences.getLong(prefKey, currentTime);
+        return (currentTime - lastAction) > max;
     }
 
-    private SyncConfig() {}
+    public void enableServerSideNotifications() {
+        setServerSideNotifications(true);
+    }
+
+    public void disableServerSideNotifications() {
+        setServerSideNotifications(false);
+    }
+
+    private void setServerSideNotifications(boolean isServerSideNotifications) {
+        sharedPreferences.edit()
+                .putBoolean(Consts.PrefKeys.NOTIFICATIONS_SERVER_SIDE, isServerSideNotifications)
+                .apply();
+    }
 }

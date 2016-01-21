@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="28dp"
+            android:background="@color/ak_sc_orange">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:src="@drawable/player_like"/>
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/OfflineOnboarding.Header"
+                android:text="@string/offline_onboarding" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/selective_sync_title"
+                style="@style/OfflineOnboarding.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/selective_sync_title" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/selective_sync_body"
+                style="@style/OfflineOnboarding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/selective_sync_body" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/offline_onboarding_image"
+                style="@style/OfflineOnboarding"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:src="@drawable/empty_stations" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/auto_sync_title"
+                style="@style/OfflineOnboarding.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/auto_sync_title" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/auto_sync_body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/auto_sync_body"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:gravity="right">
+
+                <com.soundcloud.android.view.CustomFontButton
+                    android:id="@+id/selective_offline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/BorderlessButton"
+                    android:text="@string/selective_sync_button" />
+
+                <com.soundcloud.android.view.CustomFontButton
+                    android:id="@+id/auto_offline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/BorderlessButton"
+                    android:textColor="@color/ak_sc_orange"
+                    android:text="@string/auto_sync_button" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

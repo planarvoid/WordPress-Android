@@ -2,6 +2,7 @@ package com.soundcloud.android.you;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -17,6 +18,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.users.UserProperty;
@@ -55,6 +57,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private BugReporter bugReporter;
     @Mock private ApplicationProperties appProperties;
+    @Mock private SyncConfig syncConfig;
 
     @Captor private ArgumentCaptor<YouView.Listener> listenerArgumentCaptor;
 
@@ -63,7 +66,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new YouPresenter(youViewFactory, userRepository, accountOperations, imageOperations, resources(),
-                eventBus, featureOperations, offlineContentOperations, navigator, bugReporter, appProperties);
+                eventBus, featureOperations, offlineContentOperations, navigator, bugReporter, appProperties, syncConfig);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(youViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(youView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
@@ -98,7 +101,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedSendsUpsellImpressionIfUpselling() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
         setupForegroundFragment();
 
@@ -123,7 +126,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsOfflineSettingsWithUpgrade() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
         setupForegroundFragment();
 
@@ -159,7 +162,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onOfflineSettingsClickSendsUpsellClickEventIfUpselling() {
-        when(featureOperations.upsellMidTier()).thenReturn(true);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
 
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
@@ -223,6 +226,24 @@ public class YouPresenterTest extends AndroidUnitTest {
         listenerArgumentCaptor.getValue().onNotificationSettingsClicked(new View(context()));
 
         verify(navigator).openNotificationSettings(context());
+    }
+
+    @Test
+    public void onServerSideNotificationsNotificationSettingsIsHidden() {
+        when(syncConfig.isServerSideNotifications()).thenReturn(true);
+
+        setupForegroundFragment();
+
+        verify(youView).hideNotificationSettings();
+    }
+
+    @Test
+    public void onClientSideNotificationsNotificationSettingsIsNotHidden() {
+        when(syncConfig.isServerSideNotifications()).thenReturn(false);
+
+        setupForegroundFragment();
+
+        verify(youView, never()).hideNotificationSettings();
     }
 
     @Test

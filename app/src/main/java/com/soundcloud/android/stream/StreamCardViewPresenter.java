@@ -3,12 +3,15 @@ package com.soundcloud.android.stream;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -28,17 +31,23 @@ class StreamCardViewPresenter {
     private final Navigator navigator;
     private final Resources resources;
     private final ImageOperations imageOperations;
+    private final FeatureFlags featureFlags;
+    private final FeatureOperations featureOperations;
 
     @Inject
     StreamCardViewPresenter(HeaderSpannableBuilder headerSpannableBuilder, EventBus eventBus,
                             ScreenProvider screenProvider, Navigator navigator, Resources resources,
-                            ImageOperations imageOperations) {
+                            ImageOperations imageOperations, FeatureFlags featureFlags,
+                            FeatureOperations featureOperations) {
+
         this.headerSpannableBuilder = headerSpannableBuilder;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
         this.navigator = navigator;
         this.resources = resources;
         this.imageOperations = imageOperations;
+        this.featureFlags = featureFlags;
+        this.featureOperations = featureOperations;
     }
 
     void bind(StreamItemViewHolder itemView, PlayableItem item) {
@@ -64,6 +73,10 @@ class StreamCardViewPresenter {
         itemView.setTitle(playableItem.getTitle());
         itemView.setArtist(playableItem.getCreatorName());
         itemView.setArtistClickable(new ProfileClickViewListener(playableItem.getCreatorUrn()));
+
+        if (featureFlags.isEnabled(Flag.UPSELL_IN_STREAM) && featureOperations.upsellHighTier()) {
+            itemView.togglePreviewIndicator(playableItem.isSnipped());
+        }
     }
 
     private void loadArtwork(StreamItemViewHolder itemView, PlayableItem playableItem) {

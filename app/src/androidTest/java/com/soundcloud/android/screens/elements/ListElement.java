@@ -42,15 +42,4 @@ public class ListElement {
     public void scrollToBottom() {
         testDriver.scrollToBottom(absListView);
     }
-
-    public ViewElement scrollToItem(With with) {
-        ViewElement result = testDriver.findElement(with);
-        while (result instanceof EmptyViewElement) {
-            if (!testDriver.scrollDown()) {
-                return new EmptyViewElement("Unable to scroll to item; item not in list");
-            }
-            result = testDriver.findElement(with);
-        }
-        return result;
-    }
 }

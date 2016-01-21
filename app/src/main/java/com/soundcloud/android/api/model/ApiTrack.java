@@ -2,7 +2,7 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -15,7 +15,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 import java.util.List;
 
-public final class ApiTrack implements PropertySetSource, TrackRecord, TrackRecordHolder {
+public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecordHolder {
 
     private Urn urn;
     private String title;
@@ -341,6 +341,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
 
     @Override
     public PropertySet toPropertySet() {
+        final Optional<Boolean> subHighTier = isSubHighTier();
         final PropertySet propertySet = PropertySet.from(
                 TrackProperty.URN.bind(getUrn()),
                 TrackProperty.TITLE.bind(getTitle()),
@@ -355,6 +356,7 @@ public final class ApiTrack implements PropertySetSource, TrackRecord, TrackReco
                 TrackProperty.SNIPPED.bind(isSnipped()),
                 TrackProperty.SYNCABLE.bind(isSyncable()),
                 TrackProperty.POLICY.bind(getPolicy()),
+                TrackProperty.SUB_HIGH_TIER.bind(subHighTier.isPresent() ? subHighTier.get() : false),
                 TrackProperty.PLAY_COUNT.bind(getStats().getPlaybackCount()),
                 TrackProperty.COMMENTS_COUNT.bind(getStats().getCommentsCount()),
                 TrackProperty.LIKES_COUNT.bind(getStats().getLikesCount()),

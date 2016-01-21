@@ -19,8 +19,8 @@
     <dimen name="record_progress_icon_width">67px</dimen>
     <dimen name="share_progress_icon_height">67px</dimen>
 
-    <dimen name="tour_bottom_bar_height">80dp</dimen>
-    <dimen name="tour_bottom_radio_height">32dp</dimen>
+    <dimen name="landing_bottom_bar_height">35dp</dimen>
+    <dimen name="onboarding_bottom_bar_height">40dp</dimen>
     <dimen name="tour_buttons_height">48dp</dimen>
 
     <dimen name="tour_logo_dimension">110dp</dimen>
@@ -49,8 +49,7 @@
 
     <dimen name="playlist_header_height">120dp</dimen>
     <dimen name="playlist_header_padding">16dp</dimen>
-    <dimen name="playlist_overflow_button_margin_left">12dp</dimen>
-    <dimen name="playlist_overflow_button_margin_right">4dp</dimen>
+    <dimen name="playlist_overflow_button_margin_left">8dp</dimen>
     <dimen name="playlist_action_bar_padding">8dp</dimen>
 
     <dimen name="explore_suggested_track_category_text_size">16sp</dimen>
@@ -94,17 +93,21 @@
     <dimen name="discovery_tags_margin_top_bottom">8dp</dimen>
     <dimen name="discovery_tags_separation">16dp</dimen>
     <dimen name="discovery_cell_elevation">3dp</dimen>
+    <dimen name="discovery_cell_text_height">48dp</dimen>
+    <dimen name="discovery_cell_text_padding">16dp</dimen>
     <dimen name="discovery_search_cell_margin_left_right">4dp</dimen>
     <dimen name="discovery_search_cell_margin_top_bottom">8dp</dimen>
     <dimen name="discovery_search_close_icon_margin">16dp</dimen>
     <dimen name="discovery_search_tabs_padding">48dp</dimen>
+    <dimen name="discovery_search_help_button">48dp</dimen>
+    <dimen name="discovery_search_help_padding">2dp</dimen>
+    <dimen name="discovery_search_cell_text_height">56dp</dimen>
+    <dimen name="discovery_cell_image_view_all_padding">6dp</dimen>
+    <dimen name="discovery_cell_image_view_all_size">24dp</dimen>
+    <dimen name="discovery_cell_text_view_all_padding">1dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_bottom">16dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_top">6dp</dimen>
     <dimen name="recommendations_cell_track_data_padding_left_right">14dp</dimen>
-    <dimen name="recommendations_cell_text_padding">16dp</dimen>
-    <dimen name="recommendations_cell_text_view_all_height">48dp</dimen>
-    <dimen name="recommendations_cell_text_view_all_padding">1dp</dimen>
-    <dimen name="recommendations_cell_image_view_all_padding">6dp</dimen>
     <dimen name="recommendations_cell_text_recommended_height">48dp</dimen>
     <dimen name="recommendations_cell_text_recommended_padding_top">8dp</dimen>
     <dimen name="recommendations_cell_text_recommended_padding_bottom">8dp</dimen>

@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -125,6 +125,26 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void setPlaylistAvailableOfflinePublishChangeState() {
+        final List<Urn> expectedOfflinePlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
+        final List<PropertySet> changeSet = Arrays.asList(
+                PropertySet.from(
+                        PlaylistProperty.URN.bind(Urn.forPlaylist(123L)),
+                        OfflineProperty.OFFLINE_STATE.bind(OfflineState.REQUESTED)
+                ),
+                PropertySet.from(
+                        PlaylistProperty.URN.bind(Urn.forPlaylist(789L)),
+                        OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE)
+                )
+        );
+        when(offlineContentStorage.setOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(changeSet));
+
+        operations.setOfflinePlaylists(expectedOfflinePlaylists).subscribe();
+
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).contains(EntityStateChangedEvent.fromOfflineProperties(changeSet));
+    }
+
+    @Test
     public void makePlaylistAvailableOfflineStoresAsOfflineContent() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(offlineContentStorage.storeAsOfflinePlaylist(playlistUrn)).thenReturn(Observable.just(changeResult));
@@ -188,8 +208,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         operations.clearOfflineContent().subscribe();
 
-        CurrentDownloadEvent publishedEvent = eventBus.lastEventOn(EventQueue.CURRENT_DOWNLOAD);
-        assertThat(publishedEvent.kind).isEqualTo(OfflineState.NO_OFFLINE);
+        OfflineContentChangedEvent publishedEvent = eventBus.lastEventOn(EventQueue.OFFLINE_CONTENT_CHANGED);
+        assertThat(publishedEvent.kind).isEqualTo(OfflineState.NOT_OFFLINE);
         assertThat(publishedEvent.entities).contains(Urn.forTrack(123), Urn.forPlaylist(1234));
     }
 
@@ -200,7 +220,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         operations.getLikedTracksOfflineStateFromStorage().subscribe(subscriber);
 
-        subscriber.assertValue(OfflineState.NO_OFFLINE);
+        subscriber.assertValue(OfflineState.NOT_OFFLINE);
     }
 
     @Test

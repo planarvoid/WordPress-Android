@@ -46,7 +46,7 @@ public class ToastObserver {
         @Override
         public void run() {
             while (running) {
-                ViewElement element = testDriver.findElement(With.id(android.R.id.message));
+                ViewElement element = testDriver.findOnScreenElement(With.id(android.R.id.message));
                 if (element.isVisible()) {
                     TextElement toast = new TextElement(element);
                     observedToasts.put(toast.getText(), toast);

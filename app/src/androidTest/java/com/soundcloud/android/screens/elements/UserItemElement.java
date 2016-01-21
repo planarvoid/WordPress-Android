@@ -17,7 +17,7 @@ public class UserItemElement {
     }
 
     public String getUsername() {
-        return getText(wrapped.findElement(With.id(R.id.list_item_header)));
+        return getText(wrapped.findOnScreenElement(With.id(R.id.list_item_header)));
     }
 
     public ProfileScreen click() {
@@ -39,6 +39,6 @@ public class UserItemElement {
     }
 
     private ViewElement getToggleFollowButton() {
-        return wrapped.findElement(With.id(R.id.toggle_btn_follow));
+        return wrapped.findOnScreenElement(With.id(R.id.toggle_btn_follow));
     }
 }

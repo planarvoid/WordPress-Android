@@ -18,7 +18,6 @@
   <string name="btn_like">Me gusta</string>
   <string name="btn_unlike">Ya no me gusta</string>
   <string name="btn_save">Guardar</string>
-  <string name="btn_skip">Saltar</string>
   <string name="email">Dirección de email</string>
   <string name="password">Contraseña</string>
   <string name="website">Sitio web</string>
@@ -195,15 +194,10 @@
   <string name="onboarding_gender_option_custom">Personalizado</string>
   <string name="onboarding_gender_option_nopref">Prefiero no decirlo</string>
   <string name="ok_got_it">De acuerdo</string>
-  <!--__TOUR-->
-  <string name="tour_title_1">Escucha los sonidos del mundo</string>
-  <string name="tour_text_1">Explora la comunidad más grande\nde artistas, bandas, podcasters y\ncreadores de música y audio</string>
-  <string name="tour_title_2">Descubre</string>
-  <string name="tour_text_2">Todas las clases de\nmúsica y audio únicos y nuevos</string>
-  <string name="tour_title_3">Conectar y compartir</string>
-  <string name="tour_text_3">Encontrar creadores de música y audio para\nescuchar y seguir,\ncompartir las pistas que te gustan</string>
-  <string name="tour_signup_button">Accede con tu dirección de email</string>
-  <string name="tour_login_header">O accede con tu cuenta</string>
+  <!--__LANDING-->
+  <string name="signup_button">Accede con tu dirección de email</string>
+  <string name="login_header">O accede con tu cuenta</string>
+
   <!--__ONBOARDING CATEGORIES-->
   <string tools:ignore="UnusedResources" name="category_facebook_friends">Amigos de Facebook</string>
   <string tools:ignore="UnusedResources" name="category_facebook_likes">Me gusta de Facebook</string>

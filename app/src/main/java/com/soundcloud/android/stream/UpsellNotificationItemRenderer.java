@@ -16,6 +16,8 @@ class UpsellNotificationItemRenderer implements CellRenderer<StreamItem> {
         void onUpsellItemDismissed(int position);
 
         void onUpsellItemClicked();
+
+        void onUpsellItemCreated();
     }
 
     private Listener listener;
@@ -27,6 +29,9 @@ class UpsellNotificationItemRenderer implements CellRenderer<StreamItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
+        if (listener != null) {
+            listener.onUpsellItemCreated();
+        }
         return LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.stream_upsell_card, parent, false);
     }

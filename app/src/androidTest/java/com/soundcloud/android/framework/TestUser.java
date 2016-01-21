@@ -256,7 +256,7 @@ public class TestUser {
             "stations123",
             "1-21686-161646357-100b22e7b6ccd2",
             161646357);
-    public static final TestUser collectionsUser = new TestUser(
+    public static final TestUser collectionUser = new TestUser(
             "evilcollections",
             "collections+test@soundcloud.com",
             "collections123",
@@ -269,11 +269,18 @@ public class TestUser {
             "1-21686-190276054-5b745361a448ac",
             190276054);
     public static final TestUser freeMonetizedUser = new TestUser(
-            "Monetizeable",
-            "sc.ht.android.monetized.free@gmail.com",
+            "user-712335208",
+            "sc.ht.listener1@gmail.com",
             "s0undcl0ud_HT2016",
-            "1-21686-190275390-0cf52de1bed061",
-            190275390);
+            "1-21686-197818552-f855a13009456a",
+            197818552);
+
+    public static final TestUser playlistExplosionUser = new TestUser(
+            "user-986959733-404206267",
+            "androidtest+playlist+explode@soundcloud.com",
+            "s0undcl0ud",
+            "1-21686-196444133-fbc606e15e1b6c"
+    );
 
     // not used directly in a test, but user info is kept here for documentation
     public static final TestUser adUser = new TestUser("scandroidad1", "scandroidtestad1@gmail.com", "scandtest", "");

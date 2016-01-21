@@ -63,19 +63,19 @@ public class RecordScreen extends Screen {
     }
 
     public ViewElement getNextButton() {
-        return testDriver.findElement(With.id(R.id.btn_next));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_next));
     }
 
     public ViewElement getApplyButton() {
-        return testDriver.findElement(With.id(R.id.btn_apply));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_apply));
     }
 
     public ViewElement getRevertButton() {
-        return testDriver.findElement(With.id(R.id.btn_revert));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_revert));
     }
 
     public ViewElement getEditButton() {
-        return testDriver.findElement(With.id(R.id.btn_edit));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_edit));
     }
 
     public RecordMetadataScreen clickNext() {
@@ -117,29 +117,29 @@ public class RecordScreen extends Screen {
     }
 
     private TextElement chronometer() {
-        return new TextElement(testDriver.findElement(With.id(R.id.chronometer)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.chronometer)));
     }
 
     private RecordScreen acceptDeleteRecording() {
-        testDriver.findElement(text(testDriver.getString(R.string.btn_yes))).click();
+        testDriver.findOnScreenElement(text(testDriver.getString(R.string.btn_yes))).click();
         testDriver.waitForDialogToClose(1000l);
         return this;
     }
 
     private ViewElement getActionButton() {
-        return testDriver.findElement(With.id(R.id.btn_action));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_action));
     }
 
     private ViewElement nextButton() {
-        return testDriver.findElement(With.id(R.id.btn_next));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_next));
     }
 
     private ViewElement deleteButton() {
-        return testDriver.findElement(With.id(R.id.btn_delete));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_delete));
     }
 
     private ViewElement getPlayButton() {
-        return testDriver.findElement(With.id(R.id.btn_play));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_play));
     }
 
     public boolean hasRecordedTrack() {

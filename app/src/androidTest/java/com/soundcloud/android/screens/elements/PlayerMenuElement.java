@@ -39,32 +39,33 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     private ViewElement addToPlaylistItem() {
-        return getRootMenuElements().get(0);
+        return findOnScreenElement(With.text(testDriver.getString(R.string.add_to_playlist)))
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     public ViewElement shareItem() {
-        return findElement(With.text(testDriver.getString(R.string.share)))
-                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.share)))
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     public ViewElement repostItem() {
-        return findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)))
-                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)))
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     public ViewElement commentItem() {
-        return container()
-                .findElement(With.textContaining("Comment"))
-                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
+        return getRootViewElement()
+                .findOnScreenElement(With.textContaining("Comment"))
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     private ViewElement startStation() {
-        return container()
-                .findElement(With.text(testDriver.getString(R.string.stations_start_track_station)))
-                .findAncestor(container(), With.classSimpleName("ListMenuItemView"));
+        return getRootViewElement()
+                .findOnScreenElement(With.text(testDriver.getString(R.string.stations_start_track_station)))
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     private ViewElement info() {
-        return container().findElement(With.text("Info"));
+        return getRootViewElement().findOnScreenElement(With.text("Info"));
     }
 }

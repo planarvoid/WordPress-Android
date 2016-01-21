@@ -21,7 +21,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -406,10 +406,10 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
         reset(engagementsView);
 
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloadRemoved(singletonList(playlistWithTracks.getUrn())));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                OfflineContentChangedEvent.downloadRemoved(singletonList(playlistWithTracks.getUrn())));
 
-        verify(engagementsView).showOfflineState(OfflineState.NO_OFFLINE);
+        verify(engagementsView).showOfflineState(OfflineState.NOT_OFFLINE);
     }
 
     @Test
@@ -417,8 +417,8 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloadRequested(false, singletonList(playlistWithTracks.getUrn())));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                OfflineContentChangedEvent.downloadRequested(false, singletonList(playlistWithTracks.getUrn())));
 
         verify(engagementsView).showOfflineState(OfflineState.REQUESTED);
     }
@@ -431,7 +431,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         final DownloadRequest request = ModelFixtures.downloadRequestFromPlaylists(track, true, singletonList(playlistWithTracks.getUrn()));
 
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(request));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.downloading(request));
 
         verify(engagementsView).showOfflineState(OfflineState.DOWNLOADING);
     }
@@ -441,8 +441,8 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloaded(false, singletonList(playlistWithTracks.getUrn())));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                OfflineContentChangedEvent.downloaded(false, singletonList(playlistWithTracks.getUrn())));
 
         verify(engagementsView).showOfflineState(OfflineState.DOWNLOADED);
     }
@@ -450,8 +450,8 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Test
     public void ignoreDownloadStateWhenCurrentDownloadEmitsAnUnrelatedEvent() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloaded(false, singletonList(Urn.forPlaylist(999999L))));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                OfflineContentChangedEvent.downloaded(false, singletonList(Urn.forPlaylist(999999L))));
 
         verify(engagementsView, never()).showOfflineState(OfflineState.DOWNLOADED);
     }
@@ -459,10 +459,10 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Test
     public void showDefaultDownloadStateWhenPlaylistDownloadStateIsDownloadNoOffline() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        playlistWithTracks.getSourceSet().put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
+        playlistWithTracks.getSourceSet().put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        verify(engagementsView).showOfflineState(OfflineState.NO_OFFLINE);
+        verify(engagementsView).showOfflineState(OfflineState.NOT_OFFLINE);
     }
 
     @Test

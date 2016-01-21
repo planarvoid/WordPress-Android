@@ -151,6 +151,14 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clearProgressSetsProgressOnControllerToEmptyIfDurationSet() {
+        playerArtworkController.setFullDuration(FULL_DURATION);
+        playerArtworkController.setProgress(playbackProgress);
+        playerArtworkController.clearProgress();
+        verify(progressController).setPlaybackProgress(PlaybackProgress.empty(), FULL_DURATION);
+    }
+
+    @Test
     public void setProgressDoesNotSetProgressOnControllerWhileScrubbing() {
         playerArtworkController.setFullDuration(FULL_DURATION);
         playerArtworkController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);

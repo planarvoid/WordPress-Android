@@ -3,14 +3,12 @@ package com.soundcloud.android.sync;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
-import static java.util.Collections.singleton;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -18,7 +16,6 @@ import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestStorageResults;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -74,22 +71,6 @@ public class ApiSyncerTest {
         expect(result.synced_at).toBeGreaterThan(startTime);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.TRACKS).toHaveCount(3);
-    }
-
-    @Test
-    public void shouldSyncSingleTrack() throws Exception {
-        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
-        when(apiClient.fetchMappedResponse(
-                argThat(isPublicApiRequestTo("GET", "/tracks/" + track.getId())), eq(PublicApiTrack.class))).thenReturn(track);
-        when(storeTracksCommand.call(singleton(track))).thenReturn(TestStorageResults.successfulInsert());
-
-        ApiSyncer syncer = new ApiSyncer(
-                Robolectric.application, Robolectric.application.getContentResolver(), eventBus,
-                apiClient, accountOperations, storeTracksCommand);
-        ApiSyncResult result = syncer.syncContent(Content.TRACK.forId(track.getId()), Intent.ACTION_SYNC);
-        expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(startTime);
-        expect(result.change).toEqual(ApiSyncResult.CHANGED);
     }
 
     @Test

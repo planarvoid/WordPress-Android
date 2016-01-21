@@ -12,6 +12,8 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.Player.PlayerState;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
@@ -24,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollectionOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,6 +52,66 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void fadeableViewsWithoutPauseButtonVisibleOnBind() {
+        for (View view : fadeableViews()) {
+            assertThat(view).isVisible();
+        }
+        assertThat(adView.findViewById(R.id.video_pause_control)).isNotVisible();
+    }
+
+    @Test
+    public void fadeableViewsWithoutPauseButtonVisibleOnClear() {
+        presenter.clearItemView(adView);
+
+        for (View view : fadeableViews()) {
+            assertThat(view).isVisible();
+        }
+        assertThat(adView.findViewById(R.id.video_pause_control)).isNotVisible();
+    }
+
+    @Test
+    public void fadeableViewsAreInvisibleAfterPlaybackStarts() {
+        presenter.setPlayState(adView,
+                createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
+
+        for (View view : fadeableViews()) {
+            assertThat(view).isInvisible();
+        }
+    }
+
+    @Test
+    public void fadeableViewsAreNotInvisibleAfterPlaybackStartsForNonCurrentItem() {
+        presenter.setPlayState(adView,
+                createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), false, true);
+
+        for (View view : fadeableViews()) {
+            assertThat(view).isNotInvisible();
+        }
+    }
+
+    @Test
+    public void fadeableViewsAreVisibleOnPlaybackPause() {
+        presenter.setPlayState(adView,
+                createStateTransition(PlayerState.IDLE, Player.Reason.NONE), true, true);
+
+        for (View view : fadeableViews()) {
+            assertThat(view).isVisible();
+        }
+    }
+
+    @Test
+    public void fadeableViewsWithPauseAreSetToInvisibleAfterPlayEventFromPause() {
+        presenter.setPlayState(adView,
+                createStateTransition(PlayerState.IDLE, Player.Reason.NONE), true, true);
+        presenter.setPlayState(adView,
+                createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
+
+        for (View view : fadeableViewsWithPause()) {
+            assertThat(view).isInvisible();
+        }
+    }
+
+    @Test
     public void togglePlayOnPlayClick() {
         adView.findViewById(R.id.player_play).performClick();
 
@@ -63,10 +126,23 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void togglePlayOnAdPageOverlay() {
+    public void animatePauseButtonOnAdPageOverlayClick() {
+        presenter.setPlayState(adView,
+                createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
         adView.findViewById(R.id.video_overlay).performClick();
 
-        verify(pageListener).onTogglePlay();
+        assertThat(adView.findViewById(R.id.video_pause_control).getAnimation()).isNotNull();
+
+    }
+
+    @Test
+    public void dontDisplayPauseButtonWhenAdPageOverlayClickedWhilePlaybackPaused() {
+        presenter.setPlayState(adView,
+                createStateTransition(PlayerState.IDLE, Player.Reason.NONE), true, true);
+
+        adView.findViewById(R.id.video_overlay).performClick();
+
+        assertThat(adView.findViewById(R.id.video_pause_control)).isNotVisible();
     }
 
     @Test
@@ -124,8 +200,22 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         assertThat(skipAd()).isVisible();
     }
 
+    private Iterable<View> fadeableViews() {
+        VideoAdPresenter.Holder holder = (VideoAdPresenter.Holder) adView.getTag();
+        return holder.fadeableUIViews;
+    }
+
+    private Iterable<View> fadeableViewsWithPause() {
+        VideoAdPresenter.Holder holder = (VideoAdPresenter.Holder) adView.getTag();
+        return holder.fadeableUIViewsWithPause;
+    }
+
     private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
         return new PlaybackProgress(timeUnit.toMillis(position), timeUnit.toMillis(duration));
+    }
+
+    private Player.StateTransition createStateTransition(PlayerState state, Player.Reason reason) {
+        return new Player.StateTransition(state, reason, Urn.forTrack(123L));
     }
 
     private TextView timeUntilSkip() {

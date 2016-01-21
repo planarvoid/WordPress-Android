@@ -25,6 +25,7 @@ import com.soundcloud.android.crypto.EncryptionTester;
 import com.soundcloud.android.gcm.GcmModule;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
+import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlayPublisher;
@@ -117,6 +118,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject StreamPreloader streamPreloader;
     @Inject @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory;
     @Inject FabricProvider fabricProvider;
+    @Inject TrackOfflineStateProvider trackOfflineStateProvider;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -193,6 +195,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         screenProvider.subscribe();
         appboyPlaySessionState.subscribe();
         castSessionController.startListening();
+        trackOfflineStateProvider.subscribe();
 
         if (featureFlags.isEnabled(Flag.FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB)) {
             playPublisher.subscribe();

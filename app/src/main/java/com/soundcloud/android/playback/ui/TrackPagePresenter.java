@@ -22,7 +22,6 @@ import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.util.AnimUtils;
-import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -31,7 +30,6 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.animation.ObjectAnimator;
@@ -57,13 +55,13 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final WaveformOperations waveformOperations;
     private final FeatureOperations featureOperations;
     private final TrackPageListener listener;
-    private final CondensedNumberFormatter numberFormatter;
+    private final LikeButtonPresenter likeButtonPresenter;
     private final WaveformViewController.Factory waveformControllerFactory;
     private final PlayerArtworkController.Factory artworkControllerFactory;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackPageMenuController.Factory trackMenuControllerFactory;
     private final AdOverlayControllerFactory adOverlayControllerFactory;
-    private final ErrorViewController.Factory errorControllerFactory;
+    private final ErrorViewControllerFactory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
@@ -74,20 +72,20 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     public TrackPagePresenter(WaveformOperations waveformOperations,
                               FeatureOperations featureOperations,
                               TrackPageListener listener,
-                              CondensedNumberFormatter numberFormatter,
+                              LikeButtonPresenter likeButtonPresenter,
                               WaveformViewController.Factory waveformControllerFactory,
                               PlayerArtworkController.Factory artworkControllerFactory,
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackPageMenuController.Factory trackMenuControllerFactory,
                               AdOverlayControllerFactory adOverlayControllerFactory,
-                              ErrorViewController.Factory errorControllerFactory,
+                              ErrorViewControllerFactory errorControllerFactory,
                               CastConnectionHelper castConnectionHelper,
                               Resources resources,
                               PlayerUpsellImpressionController upsellImpressionController) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
-        this.numberFormatter = numberFormatter;
+        this.likeButtonPresenter = likeButtonPresenter;
         this.waveformControllerFactory = waveformControllerFactory;
         this.artworkControllerFactory = artworkControllerFactory;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
@@ -158,7 +156,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.artworkController.setFullDuration(trackState.getFullDuration());
         holder.waveformController.setDurations(trackState.getPlayableDuration(), trackState.getFullDuration());
 
-        setLikeCount(holder, trackState.getLikeCount());
+        likeButtonPresenter.setLikeCount(holder.likeToggle, trackState.getLikeCount());
+
         holder.likeToggle.setChecked(trackState.isUserLike());
         holder.likeToggle.setTag(trackState.getUrn());
         holder.shareButton.setTag(trackState.getUrn());
@@ -172,7 +171,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         holder.upsellButton.setTag(trackState.getUrn());
 
-        if (featureOperations.upsellMidTier()) {
+        if (featureOperations.upsellHighTier()) {
             holder.previewIndicator.setVisibility(trackState.isSnipped() ? View.VISIBLE : View.GONE);
             holder.upsellButton.setVisibility(trackState.shouldUpsell() ? View.VISIBLE : View.GONE);
         } else {
@@ -180,6 +179,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             holder.upsellButton.setVisibility(View.GONE);
         }
 
+        holder.errorViewController.setUrn(trackState.getUrn());
         if (blocked) {
             holder.errorViewController.showError(ErrorViewController.ErrorState.BLOCKED);
         } else {
@@ -269,7 +269,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.timestamp.setBufferingMode(isCurrentTrack && stateTransition.isBuffering());
 
         if (stateTransition.playSessionIsActive() && !isCurrentTrack) {
-            setProgressInternal(trackPage, PlaybackProgress.empty());
+            for (ProgressAware view : getViewHolder(trackPage).progressAwareViews) {
+                view.clearProgress();
+            }
         }
         configureAdOverlay(stateTransition, isCurrentTrack, isForeground, holder);
     }
@@ -293,9 +295,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_USER_LIKE));
         }
         if (changeSet.contains(PlayableProperty.LIKES_COUNT)) {
-            setLikeCount(holder, changeSet.get(PlayableProperty.LIKES_COUNT));
+            likeButtonPresenter.setLikeCount(holder.likeToggle, changeSet.get(PlayableProperty.LIKES_COUNT));
         }
-
         if (changeSet.contains(PlayableProperty.IS_USER_REPOST)) {
             final boolean isReposted = changeSet.get(PlayableProperty.IS_USER_REPOST);
             holder.menuController.setIsUserRepost(isReposted);
@@ -349,10 +350,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         if (trackUrn != null) {
             listener.onToggleLike(isLiked(likeToggle), trackUrn);
         }
-    }
-
-    private void setLikeCount(TrackPageHolder holder, int count) {
-        holder.likeToggle.setText(count > 0 ? numberFormatter.format(count) : Strings.EMPTY);
     }
 
     private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
@@ -427,13 +424,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     @Override
     public void setProgress(View trackPage, PlaybackProgress progress) {
         if (!progress.isEmpty()) {
-            setProgressInternal(trackPage, progress);
-        }
-    }
-
-    private void setProgressInternal(View trackPage, PlaybackProgress progress) {
-        for (ProgressAware view : getViewHolder(trackPage).progressAwareViews) {
-            view.setProgress(progress);
+            for (ProgressAware view : getViewHolder(trackPage).progressAwareViews) {
+                view.setProgress(progress);
+            }
         }
     }
 

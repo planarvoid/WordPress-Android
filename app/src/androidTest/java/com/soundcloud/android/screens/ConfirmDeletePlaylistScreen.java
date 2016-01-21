@@ -19,10 +19,10 @@ public class ConfirmDeletePlaylistScreen extends Screen {
     }
 
     public void clickCancel() {
-        testDriver.findElement(With.text(testDriver.getString(R.string.btn_cancel))).click();
+        testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.btn_cancel))).click();
     }
 
     public void clickConfirm() {
-        testDriver.findElement(With.text(testDriver.getString(R.string.delete_playlist))).click();
+        testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.delete_playlist))).click();
     }
 }

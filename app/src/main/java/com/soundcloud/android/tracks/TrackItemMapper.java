@@ -35,6 +35,7 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(TrackProperty.MONETIZABLE, cursorReader.getBoolean(SoundView.POLICIES_MONETIZABLE));
         propertySet.put(TrackProperty.BLOCKED, cursorReader.getBoolean(SoundView.POLICIES_BLOCKED));
         propertySet.put(TrackProperty.SNIPPED, cursorReader.getBoolean(SoundView.POLICIES_SNIPPED));
+        propertySet.put(TrackProperty.SUB_HIGH_TIER, cursorReader.getBoolean(SoundView.POLICIES_SUB_HIGH_TIER));
         propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.getBoolean(SoundView.USER_LIKE));
         propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(SoundView.PERMALINK_URL));
         propertySet.put(PlayableProperty.IS_USER_REPOST, cursorReader.getBoolean(SoundView.USER_REPOST));
@@ -72,7 +73,7 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         if (isMostRecentDate(downloadedAt, removedAt)) {
             propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.DOWNLOADED);
         } else if (isMostRecentDate(removedAt, downloadedAt)) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
+            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
         }
     }
 

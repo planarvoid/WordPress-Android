@@ -9,6 +9,7 @@ import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 
 import com.soundcloud.android.api.model.Sharing;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
@@ -48,7 +49,8 @@ public class SoundStreamStorage implements TimelineStorage {
             SoundView.REPOSTS_COUNT,
             SoundView.SHARING,
             field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
-            SoundView.POLICIES_SUB_MID_TIER,
+            SoundView.POLICIES_SNIPPED,
+            SoundView.POLICIES_SUB_HIGH_TIER,
             SoundStreamView.REPOSTER_USERNAME,
             SoundStreamView.REPOSTER_ID,
             exists(likeQuery()).as(SoundView.USER_LIKE),
@@ -66,8 +68,9 @@ public class SoundStreamStorage implements TimelineStorage {
             PromotedTracks.TRACKING_PROFILE_CLICKED_URLS
     };
 
-    private static final Object[] TRACKS_FOR_PLAYBACK_SELECTION = new Object[]{
+    private static final Object[] PLAYBACK_ITEMS_SELECTION = new Object[]{
             SoundStreamView.SOUND_ID,
+            SoundStreamView.SOUND_TYPE,
             SoundStreamView.REPOSTER_ID
     };
 
@@ -127,11 +130,10 @@ public class SoundStreamStorage implements TimelineStorage {
         return database.query(query).toList(new StreamItemMapper());
     }
 
-    public Observable<PropertySet> tracksForPlayback() {
+    public Observable<PropertySet> playbackItems() {
         Query query = Query.from(Table.SoundStreamView.name())
-                .select(TRACKS_FOR_PLAYBACK_SELECTION)
-                .whereEq(SoundStreamView.SOUND_TYPE, Sounds.TYPE_TRACK);
-        return propellerRx.query(query).map(new TrackForPlaybackMapper());
+                .select(PLAYBACK_ITEMS_SELECTION);
+        return propellerRx.query(query).map(new ItemsForPlayback());
     }
 
     private static class StreamItemMapper extends RxResultMapper<PropertySet> {
@@ -156,8 +158,12 @@ public class SoundStreamStorage implements TimelineStorage {
             addOptionalTrackCount(cursorReader, propertySet);
             addOptionalReposter(cursorReader, propertySet);
 
-            if (cursorReader.isNotNull(SoundView.POLICIES_SUB_MID_TIER)) {
-                propertySet.put(TrackProperty.SUB_MID_TIER, cursorReader.getBoolean(SoundView.POLICIES_SUB_MID_TIER));
+            if (cursorReader.isNotNull(SoundView.POLICIES_SUB_HIGH_TIER)) {
+                propertySet.put(TrackProperty.SUB_HIGH_TIER, cursorReader.getBoolean(SoundView.POLICIES_SUB_HIGH_TIER));
+            }
+
+            if (cursorReader.isNotNull(SoundView.POLICIES_SNIPPED)) {
+                propertySet.put(TrackProperty.SNIPPED, cursorReader.getBoolean(SoundView.POLICIES_SNIPPED));
             }
 
             return propertySet;
@@ -203,28 +209,28 @@ public class SoundStreamStorage implements TimelineStorage {
                 propertySet.put(PostProperty.REPOSTER_URN, Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID)));
             }
         }
-
-        private Urn readSoundUrn(CursorReader cursorReader) {
-            final int soundId = cursorReader.getInt(SoundStreamView.SOUND_ID);
-            return getSoundType(cursorReader) == Sounds.TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
-        }
-
-        private static int getSoundType(CursorReader cursorReader) {
-            return cursorReader.getInt(SoundStreamView.SOUND_TYPE);
-        }
     }
 
-    private static final class TrackForPlaybackMapper extends RxResultMapper<PropertySet> {
+    private static final class ItemsForPlayback extends RxResultMapper<PropertySet> {
         @Override
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.from(
-                    TrackProperty.URN.bind(Urn.forTrack(cursorReader.getLong(SoundStreamView.SOUND_ID)))
+                    EntityProperty.URN.bind(readSoundUrn(cursorReader))
             );
             if (cursorReader.isNotNull(SoundStreamView.REPOSTER_ID)) {
                 propertySet.put(PostProperty.REPOSTER_URN, Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
             }
             return propertySet;
         }
+    }
+
+    private static Urn readSoundUrn(CursorReader cursorReader) {
+        final int soundId = cursorReader.getInt(SoundStreamView.SOUND_ID);
+        return getSoundType(cursorReader) == Sounds.TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
+    }
+
+    private static int getSoundType(CursorReader cursorReader) {
+        return cursorReader.getInt(SoundStreamView.SOUND_TYPE);
     }
 
     private static class PromotedStreamItemMapper extends StreamItemMapper {

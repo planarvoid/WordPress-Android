@@ -10,21 +10,22 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -60,6 +61,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private MixedItemClickListener.Factory clickListenerFactory;
     @Mock private MixedItemClickListener clickListener;
     @Mock private TrackItemRenderer trackItemRenderer;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private Navigator navigator;
 
     private TestEventBus eventBus = new TestEventBus();
     private SearchQuerySourceInfo searchQuerySourceInfo;
@@ -69,7 +72,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new SearchResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
-                clickListenerFactory, eventBus);
+                clickListenerFactory, eventBus, featureFlags, navigator);
 
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, Urn.forTrack(1));
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
@@ -78,6 +81,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(searchOperations.searchResult(anyString(), anyInt())).thenReturn(Observable.<SearchResult>empty());
         when(searchOperations.pagingFunction(anyInt())).thenReturn(searchPagingFunction);
         when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class))).thenReturn(searchQuerySourceInfo);
+        when(featureFlags.isEnabled(Flag.SEARCH_RESULTS_HIGH_TIER)).thenReturn(false);
     }
 
     @Test
@@ -200,40 +204,20 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void trackChangedForNewQueueEventUpdatesTrackPresenterWithCurrentlyPlayingTrack() {
-        when(adapter.getTrackRenderer()).thenReturn(trackItemRenderer);
-
-        final Urn playingTrack = Urn.forTrack(123L);
-        presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(playingTrack), Urn.NOT_SET, 0));
-
-        verify(trackItemRenderer).setPlayingTrack(playingTrack);
-    }
-
-    @Test
-    public void trackChangedForPositionChangedEventUpdatesTrackPresenterWithCurrentlyPlayingTrack() {
-        when(adapter.getTrackRenderer()).thenReturn(trackItemRenderer);
-
-        final Urn playingTrack = Urn.forTrack(123L);
-        presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(playingTrack), Urn.NOT_SET, 0));
-
-        verify(trackItemRenderer).setPlayingTrack(playingTrack);
-    }
-
-    @Test
     public void unsubscribesFromEventBusOnDestroy() {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onDestroy(fragmentRule.getFragment());
 
         eventBus.verifyUnsubscribed();
+    }
+
+    @Test
+    public void shouldOpenHighTierSearchResults() {
+        final List<PropertySet> premiumItemsSource = Collections.emptyList();
+        presenter.onPremiumContentViewAllClicked(context(), premiumItemsSource);
+
+        verify(navigator).openSearchPremiumContentResults(eq(context()), anyString(), eq(premiumItemsSource));
     }
 
     private List<ListItem> setupAdapter() {

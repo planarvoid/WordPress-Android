@@ -26,6 +26,7 @@ public enum Screen {
     COLLECTIONS("collection:overview"),
     LIKES("collection:likes"),
     PLAYLISTS("collection:playlists"),
+    OFFLINE_ONBOARDING("collection:offline_onboarding"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),
@@ -65,6 +66,7 @@ public enum Screen {
     SEARCH_USERS("search:people"),
     SEARCH_SUGGESTIONS("search:suggestions"),
     SEARCH_PLAYLIST_DISCO("search:tags"),
+    SEARCH_PREMIUM_CONTENT("search:premium_content"),
     SEARCH_RECOMMENDED_TRACKS("search:recommended_tracks"),
 
     // recommendations

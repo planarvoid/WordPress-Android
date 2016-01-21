@@ -40,7 +40,7 @@ expected_events:
     protocol: hls
     ts: '[0-9]+'
     connection_type: wifi
-    reason: skip
+    pause_reason: skip
     trigger: manual
     consumer_subs_plan: none
     local_storage_playback: false
@@ -74,7 +74,7 @@ expected_events:
     client_id: '[0-9]+'
     connection_type: wifi
     action: pause
-    reason: track_finished
+    pause_reason: track_finished
     player_type: Skippy
     trigger: manual
     track: soundcloud:tracks:[0-9]+

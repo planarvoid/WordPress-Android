@@ -5,10 +5,10 @@
                                                         android:gravity="center">
     <LinearLayout style="@style/SignUp.Content">
 
-        <TextView android:id="@android:id/title"
+        <com.soundcloud.android.view.CustomFontTextView android:id="@android:id/title"
                   style="@style/SignUp.TermsText"
                   android:text="@string/auth_disclaimer_title"/>
-        <TextView android:id="@android:id/message"
+        <com.soundcloud.android.view.CustomFontTextView android:id="@android:id/message"
                   style="@style/SignUp.TermsMessage"
                   android:text="@string/auth_disclaimer_message"/>
         <LinearLayout android:layout_width="match_parent"
@@ -16,14 +16,14 @@
                       android:layout_gravity="center"
                       android:layout_marginTop="10dp"
                       android:orientation="horizontal">
-            <Button android:id="@+id/btn_cancel"
-                    style="@style/Tour.CancelButton"
+            <com.soundcloud.android.view.CustomFontButton android:id="@+id/btn_cancel"
+                    style="@style/Onboarding.CancelButton"
                     android:layout_marginRight="20dp"
                     android:layout_width="wrap_content"
                     android:minWidth="100dp"
                     android:text="@android:string/cancel"/>
-            <Button android:id="@+id/btn_accept_terms"
-                    style="@style/Tour.NextButton"
+            <com.soundcloud.android.view.CustomFontButton android:id="@+id/btn_accept_terms"
+                    style="@style/Onboarding.NextButton"
                     android:layout_width="wrap_content"
                     android:minWidth="100dp"
                     android:text="@string/btn_continue"/>

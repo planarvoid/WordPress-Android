@@ -66,7 +66,7 @@ public class DownloadImageView extends ImageView {
     public void setState(OfflineState state) {
         offlineState = state;
         switch (state) {
-            case NO_OFFLINE:
+            case NOT_OFFLINE:
                 setNoOfflineState();
                 break;
             case UNAVAILABLE:

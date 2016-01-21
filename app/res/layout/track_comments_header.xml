@@ -14,7 +14,7 @@
                android:layout_marginRight="12dp"
                android:scaleType="fitCenter" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
               android:id="@+id/username"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
               android:layout_toRightOf="@id/header_artwork"
               style="@style/Comments.Header.Text" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
               android:id="@+id/title"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
               android:layout_marginTop="4dp"
               style="@style/Comments.Header.Text.Primary" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
               android:id="@+id/comments_count"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
               android:layout_marginTop="6dp"
               style="@style/Comments.Header.CommentsCount" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/date"
             style="@style/ListItemText.Numeric"
             android:layout_alignBaseline="@id/username"

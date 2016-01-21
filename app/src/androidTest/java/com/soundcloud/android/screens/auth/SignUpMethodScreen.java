@@ -14,15 +14,15 @@ public class SignUpMethodScreen extends Screen {
     }
 
     private ViewElement googleSignInButton() {
-        return testDriver.findElement(With.id(R.id.google_plus_btn));
+        return testDriver.findOnScreenElement(With.id(R.id.google_plus_btn));
     }
 
     private ViewElement facebookSignInButton() {
-        return testDriver.findElement(With.id(R.id.facebook_btn));
+        return testDriver.findOnScreenElement(With.id(R.id.facebook_btn));
     }
 
     private ViewElement emailSignInButton() {
-        return testDriver.findElement(With.id(R.id.signup_with_email));
+        return testDriver.findOnScreenElement(With.id(R.id.signup_with_email));
     }
 
     public void clickFacebookButton() {
@@ -31,11 +31,11 @@ public class SignUpMethodScreen extends Screen {
 
     public void acceptTerms() {
         acceptTermsButton().click();
-        waiter.waitForElement(R.id.btn_skip);
+        waiter.waitForElement(R.id.btn_save);
     }
 
     private ViewElement acceptTermsButton() {
-        return testDriver.findElement(With.id(R.id.btn_accept_terms));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_accept_terms));
     }
 
     @Override

@@ -46,7 +46,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     @Override
     protected void setUp() throws Exception {
         solo = new Han(getInstrumentation());
-        solo.registerBusyUiIndicator(With.classSimpleName(ProgressBar.class.getSimpleName().toString()));
+        solo.registerBusyUiIndicator(With.classSimpleName(ProgressBar.class.getSimpleName()));
         solo.setup();
         waiter = new Waiter(solo);
 
@@ -62,9 +62,10 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         networkManagerClient.bind();
         networkManagerClient.switchWifiOn();
 
-        beforeStartActivity();
+        beforeLogIn();
         logIn();
         observeToasts();
+        beforeStartActivity();
         getActivity();
 
 
@@ -74,6 +75,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     }
 
     protected void beforeStartActivity() {}
+
+    protected void beforeLogIn() {}
 
     @Override
     protected void tearDown() throws Exception {

@@ -15,7 +15,7 @@ public class EmailOptInScreen extends Screen {
 
     public StreamScreen clickNo() {
         String text = testDriver.getCurrentActivity().getString(R.string.optin_no);
-        testDriver.findElement(With.text(text)).click();
+        testDriver.findOnScreenElement(With.text(text)).click();
 
         return new StreamScreen(testDriver);
     }

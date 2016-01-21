@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <View
+        android:id="@+id/overlay_bg"
+        style="@style/SignUp.Overlay" />
+
+    <RelativeLayout
+        android:id="@+id/overlay_holder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center">
+
+        <ScrollView
+            style="@style/SignUp.ScrollView"
+            tools:ignore="UselessParent">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ViewStub
+                    android:id="@+id/login_stub"
+                    style="@style/SignUp.Content.Stub"
+                    android:layout="@layout/login" />
+
+                <ViewStub
+                    android:id="@+id/sign_up_stub"
+                    style="@style/SignUp.Content.Stub"
+                    android:layout="@layout/signup_method" />
+
+                <ViewStub
+                    android:id="@+id/sign_up_basic_stub"
+                    style="@style/SignUp.Content.Stub"
+                    android:layout="@layout/signup_basics" />
+
+                <ViewStub
+                    android:id="@+id/user_details_stub"
+                    style="@style/SignUp.Content.Stub"
+                    android:layout="@layout/signup_user_details" />
+
+                <ViewStub
+                    android:id="@+id/accept_terms_stub"
+                    style="@style/SignUp.Content.Stub"
+                    android:layout="@layout/accept_terms" />
+            </FrameLayout>
+        </ScrollView>
+    </RelativeLayout>
+</merge>
+

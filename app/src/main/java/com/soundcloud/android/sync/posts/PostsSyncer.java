@@ -8,12 +8,12 @@ import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.collections.Sets;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;

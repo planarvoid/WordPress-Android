@@ -22,4 +22,7 @@
     <string name="search_text_transition_name">search_text_view</string>
     <string name="search_text_holder_transition_name">search_text_holder</string>
 
+    <string name="interstate_regular">fonts/InterstateSound_Pnum-Regular_fbFICLP0jJ.ttf</string>
+    <string name="interstate_light">fonts/InterstateSound_Pnum-Light_fbsTfohiYZ.ttf</string>
+    <string name="interstate_light_tnum">fonts/InterstateSound_Tnum-Light_fbdOS9y3d6.ttf</string>
 </resources>

@@ -59,7 +59,7 @@
             android:id="@+id/media_route_button"
             style="@style/PlayerMediaRouteButton" />
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/cast_device_name"
             style="@style/PlayerCastDeviceName"
             android:layout_width="0dp"
@@ -70,15 +70,15 @@
 
         <ImageButton
             android:id="@+id/track_page_share"
-            style="@style/PlayerShareBase.PlayerShare" />
+            style="@style/PlayerShare" />
 
-        <ToggleButton
+        <com.soundcloud.android.view.CustomFontToggleButton
             android:id="@+id/track_page_like"
             style="@style/PlayerLikeBase.PlayerLike" />
 
-        <Button
+        <ImageButton
             android:id="@+id/track_page_more"
-            style="@style/PlayerMoreBase.PlayerMore" />
+            style="@style/PlayerMore" />
     </LinearLayout>
 
     <include layout="@layout/player_play_controls" />

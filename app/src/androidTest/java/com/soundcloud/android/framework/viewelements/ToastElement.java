@@ -11,7 +11,7 @@ public class ToastElement {
     }
 
     private ViewElement toastMessage() {
-        return testDriver.findElement(With.id(android.R.id.message));
+        return testDriver.findOnScreenElement(With.id(android.R.id.message));
     }
 
     public String getText() {

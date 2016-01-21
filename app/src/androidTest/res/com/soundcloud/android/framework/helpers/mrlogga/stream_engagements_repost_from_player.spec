@@ -24,6 +24,7 @@ expected_events:
     trigger: manual
     local_storage_playback: false
     reposted_by: soundcloud:users:[0-9]+
+    policy: 'ALLOW'
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: click

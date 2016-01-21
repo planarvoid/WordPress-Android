@@ -29,11 +29,11 @@ public class TrackCommentsScreen extends Screen {
     }
 
     private ListElement getListView() {
-        return testDriver.findElement(With.className(ListView.class)).toListView();
+        return testDriver.findOnScreenElement(With.className(ListView.class)).toListView();
     }
 
     private ViewElement title() {
-        return testDriver.findElement(With.id(R.id.title));
+        return testDriver.findOnScreenElement(With.id(R.id.title));
     }
 
     public TrackCommentsScreen scrollToBottomOfComments() {

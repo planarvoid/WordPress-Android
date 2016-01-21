@@ -49,7 +49,7 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingOnPlaylistOpensPlaylistActivity() {
-        PlaylistDetailsScreen detailsScreen = discoveryScreen.clickOnTag(5).clickOnPlaylist(0);
+        PlaylistDetailsScreen detailsScreen = discoveryScreen.clickOnTag(5).clickOnFirstPlaylist();
 
         assertThat("Playlist details screen should be shown", detailsScreen.isVisible());
     }

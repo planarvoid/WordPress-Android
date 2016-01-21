@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Stations" />
+    <style name="Stations" parent="TextAppearance.SoundCloudLightFont" />
 
     <style name="Stations.Home">
         <item name="android:background">@color/stations_home_background</item>
@@ -63,7 +63,7 @@
     </style>
 
     <style name="Stations.ItemNowPlaying" parent="Stations.ItemType">
-        <item name="android:textColor">@color/sc_orange</item>
+        <item name="android:textColor">@color/ak_sc_orange</item>
     </style>
 
     <style name="Stations.ListItemOverflowButton" parent="ListItemOverflowButton">

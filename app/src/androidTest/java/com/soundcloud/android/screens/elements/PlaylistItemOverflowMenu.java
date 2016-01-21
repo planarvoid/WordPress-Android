@@ -5,8 +5,9 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.ConfirmDeletePlaylistScreen;
+import com.soundcloud.android.screens.ConfirmDisableSyncCollectionScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 
 public class PlaylistItemOverflowMenu extends PopupMenuElement {
@@ -15,9 +16,19 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
         super(testDriver);
     }
 
-    public CollectionsScreen clickMakeAvailableOffline() {
+    public CollectionScreen clickMakeAvailableOffline() {
         getMakeAvailableOfflineItem().click();
-        return new CollectionsScreen(testDriver);
+        return new CollectionScreen(testDriver);
+    }
+
+    public CollectionScreen clickMakeUnavailableOffline() {
+        getMakeUnavailableOfflineItem().click();
+        return new CollectionScreen(testDriver);
+    }
+
+    public ConfirmDisableSyncCollectionScreen clickMakeUnavailableOfflineToDisableSyncCollection() {
+        getMakeUnavailableOfflineItem().click();
+        return new ConfirmDisableSyncCollectionScreen(testDriver, MainActivity.class);
     }
 
     public UpgradeScreen clickUpsell() {
@@ -43,11 +54,11 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
     }
 
     private ViewElement likeItem() {
-        return findElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
     }
 
     private ViewElement repostItem() {
-        return findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
     }
 
     public boolean isLiked() {
@@ -55,10 +66,14 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
     }
 
     public ViewElement getMakeAvailableOfflineItem() {
-        return findElement(With.text(testDriver.getString(R.string.make_offline_available)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.make_offline_available)));
+    }
+
+    public ViewElement getMakeUnavailableOfflineItem() {
+        return findOnScreenElement(With.text(testDriver.getString(R.string.make_offline_unavailable)));
     }
 
     public ViewElement getDeletePlaylistItem() {
-        return findElement(With.text(testDriver.getString(R.string.delete_playlist)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.delete_playlist)));
     }
 }

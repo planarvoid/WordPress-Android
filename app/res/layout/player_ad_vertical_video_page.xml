@@ -35,13 +35,13 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true">
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/time_until_skip"
                 style="@style/AdText.NextUp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"/>
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/skip_ad"
                 style="@style/AdText.NextUp.Skip"
                 android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
                     android:id="@+id/preview_artwork_overlay"
                     style="@style/PreviewArtworkOverlay"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"/>
         </FrameLayout>
 
         <com.soundcloud.android.view.CustomFontTextView
@@ -87,6 +87,7 @@
 
     <include layout="@layout/player_play_controls"/>
     <Button android:id="@+id/video_pause_control"
-            style="@style/AdVideoPause"/>
+            style="@style/AdVideoPause"
+            android:visibility="invisible"/>
 
 </RelativeLayout>

@@ -146,7 +146,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void focusGained() {
-        Log.d(TAG, "focusGained with state " + focusLossState);
+        Log.d(TAG, "[FOCUS] focusGained with state " + focusLossState);
         if (focusLossState == FocusLossState.TRANSIENT) {
             fadeHandler.sendEmptyMessage(FadeHandler.FADE_IN);
         } else {
@@ -158,7 +158,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void focusLost(boolean isTransient, boolean canDuck) {
-        Log.d(TAG, "focusLost(" + isTransient + ", canDuck=" + canDuck + ")");
+        Log.d(TAG, "[FOCUS] focusLost(playing=" + streamPlayer.isPlaying() + ", transient=" + isTransient + ", canDuck=" + canDuck + ")");
         if (streamPlayer.isPlaying()) {
 
             if (isTransient) {

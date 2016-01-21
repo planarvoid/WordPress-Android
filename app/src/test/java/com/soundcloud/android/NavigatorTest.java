@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.comments.TrackCommentsActivity;
@@ -24,8 +25,10 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,6 +38,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
+
+import java.util.Collections;
+import java.util.List;
 
 public class NavigatorTest extends AndroidUnitTest {
 
@@ -152,8 +159,8 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
                 .containsScreen(Screen.WIDGET)
+                .containsReferrer(Referrer.PLAYBACK_WIDGET)
                 .opensActivity(ProfileActivity.class);
-
     }
 
     @Test
@@ -281,6 +288,19 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void opensSearchPremiumContentResults() {
+        final List<PropertySet> propertySets = Collections.emptyList();
+        final String queryUrn = "queryUrn";
+
+        navigator.openSearchPremiumContentResults(activityContext, queryUrn, propertySets);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(SearchPremiumResultsActivity.class)
+                .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, queryUrn)
+                .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, propertySets);
+    }
+
+    @Test
     public void opensTrackComments() {
         Urn trackUrn = Urn.forTrack(123);
 
@@ -290,5 +310,24 @@ public class NavigatorTest extends AndroidUnitTest {
                 .opensActivity(TrackCommentsActivity.class)
                 .containsExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn);
 
+    }
+
+    @Test
+    public void shouldOpenPendingActivityFromIntentExtras() {
+        Bundle extras = new Bundle();
+        extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, MainActivity.class.getCanonicalName());
+
+        navigator.openPendingActivity(activityContext, extras);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(MainActivity.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowIfOpenPendingActivityCannotBeResolved() {
+        Bundle extras = new Bundle();
+        extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, "non existo");
+
+        navigator.openPendingActivity(activityContext, extras);
     }
 }

@@ -7,10 +7,13 @@ import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlayerFunctions;
+import com.soundcloud.android.playback.TrackQueueItem;
+import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -51,7 +54,7 @@ public class AdsController {
     private final long fetchOperationStaleTime;
 
     private Subscription skipFailedAdSubscription = RxUtils.invalidSubscription();
-    private Map<PlayQueueItem, AdsFetchOperation> currentAdsFetches = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
+    private Map<Urn, AdsFetchOperation> currentAdsFetches = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
     private Optional<ApiAdsForTrack> adsForNextTrack = Optional.absent();
     private boolean isForeground;
 
@@ -69,10 +72,10 @@ public class AdsController {
         }
     };
 
-    private final Func1<Object, Boolean> shouldFetchAudioAdForNextTrack = new Func1<Object, Boolean>() {
+    private final Func1<Object, Boolean> shouldFetchAudioAdForNextItem = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
-            return playQueueManager.hasNextItem()
+            return playQueueManager.hasTrackAsNextItem()
                     && !adsOperations.isNextItemAd()
                     && !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getNextPlayQueueItem());
@@ -82,7 +85,8 @@ public class AdsController {
     private final Func1<Object, Boolean> shouldFetchInterstitialForCurrentTrack = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
-            return !adsOperations.isCurrentItemAd()
+            return playQueueManager.getCurrentPlayQueueItem().isTrack()
+                    && !adsOperations.isCurrentItemAd()
                     && !alreadyFetchedAdForTrack(playQueueManager.getCurrentPlayQueueItem());
         }
     };
@@ -166,7 +170,7 @@ public class AdsController {
                 .subscribe(new FetchAdForCurrentTrackSubscriber());
 
         queueChangeForAd
-                .filter(shouldFetchAudioAdForNextTrack)
+                .filter(shouldFetchAudioAdForNextItem)
                 .subscribe(new FetchAdForNextTrackSubscriber());
 
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
@@ -183,13 +187,14 @@ public class AdsController {
     }
 
     public void reconfigureAdForNextTrack() {
-        final Optional<ApiAudioAd> nextTrackAudioAd = getAudioAdForNextTrack();
-
-        if (playQueueManager.hasNextItem() &&
-                !adsOperations.isNextItemAd() &&
-                nextTrackAudioAd.isPresent() &&
-            !isForeground) {
-            adsOperations.insertAudioAd(playQueueManager.getNextPlayQueueItem(), nextTrackAudioAd.get());
+        if (!isForeground && adsForNextTrack.isPresent() && playQueueManager.hasTrackAsNextItem()) {
+            final ApiAdsForTrack ads = adsForNextTrack.get();
+            final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
+            if (AdsOperations.isVideoAd(nextItem)) {
+                adsOperations.replaceUpcomingVideoAd(ads, (VideoQueueItem) nextItem);
+            } else if (!AdsOperations.isAudioAd(nextItem) && ads.audioAd().isPresent()) {
+                adsOperations.insertAudioAd((TrackQueueItem) nextItem, ads.audioAd().get());
+            }
         }
     }
 
@@ -202,18 +207,8 @@ public class AdsController {
         }
     }
 
-    private Optional<ApiAudioAd> getAudioAdForNextTrack() {
-        if (adsForNextTrack.isPresent()) {
-            ApiAdsForTrack ads = adsForNextTrack.get();
-            if (ads.audioAd().isPresent()) {
-                return ads.audioAd();
-            }
-        }
-        return Optional.absent();
-    }
-
     private boolean alreadyFetchedAdForTrack(PlayQueueItem playQueueItem) {
-        return currentAdsFetches.containsKey(playQueueItem);
+        return currentAdsFetches.containsKey(playQueueItem.getUrn());
     }
 
     private final class FetchAdForNextTrackSubscriber extends DefaultSubscriber<Object> {
@@ -240,20 +235,20 @@ public class AdsController {
                 .flatMap(fetchAds)
                 .observeOn(AndroidSchedulers.mainThread());
 
-        currentAdsFetches.put(playQueueItem, new AdsFetchOperation(apiAdsForTrack.subscribe(adSubscriber)));
+        currentAdsFetches.put(playQueueItem.getUrn(), new AdsFetchOperation(apiAdsForTrack.subscribe(adSubscriber)));
     }
 
     private class ResetAdsOnTrackChange extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent currentItemEvent) {
             adsForNextTrack = Optional.absent();
-            Iterator<Map.Entry<PlayQueueItem, AdsFetchOperation>> iter = currentAdsFetches.entrySet().iterator();
+            Iterator<Map.Entry<Urn, AdsFetchOperation>> iter = currentAdsFetches.entrySet().iterator();
             while (iter.hasNext()) {
 
-                final Map.Entry<PlayQueueItem, AdsFetchOperation> operation = iter.next();
-                final PlayQueueItem monetizableItem = operation.getKey();
+                final Map.Entry<Urn, AdsFetchOperation> operation = iter.next();
+                final Urn monetizableUrn = operation.getKey();
 
-                if (isNotCurrentOrNextItem(monetizableItem) || operation.getValue().hasExpired()) {
+                if (isNotCurrentOrNextItem(monetizableUrn) || operation.getValue().hasExpired()) {
                     operation.getValue().subscription.unsubscribe();
                     iter.remove();
                 }
@@ -265,8 +260,10 @@ public class AdsController {
             }
         }
 
-        private boolean isNotCurrentOrNextItem(PlayQueueItem monetizableItem) {
-            return !playQueueManager.isCurrentItem(monetizableItem) && !playQueueManager.isNextItem(monetizableItem);
+        private boolean isNotCurrentOrNextItem(Urn monetizableUrn) {
+            final Urn currentItemUrn = playQueueManager.getCurrentPlayQueueItem().getUrnOrNotSet();
+            final Urn nextItemUrn = playQueueManager.getNextPlayQueueItem().getUrnOrNotSet();
+            return !currentItemUrn.equals(monetizableUrn) && !nextItemUrn.equals(monetizableUrn);
         }
     }
 

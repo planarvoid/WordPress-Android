@@ -21,6 +21,7 @@ import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collection;
 import java.util.List;
 
 public class PlaylistOperations {
@@ -70,6 +71,13 @@ public class PlaylistOperations {
             return playlistWithTracks.isMissingMetaData()
                     ? Observable.<PlaylistWithTracks>error(new PlaylistOperations.PlaylistMissingException())
                     : Observable.just(playlistWithTracks);
+        }
+    };
+
+    private final Func1<Urn, Observable<PlaylistWithTracks>> toPlaylistWithTracks = new Func1<Urn, Observable<PlaylistWithTracks>>() {
+        @Override
+        public Observable<PlaylistWithTracks> call(Urn urn) {
+            return playlist(urn);
         }
     };
 
@@ -145,15 +153,31 @@ public class PlaylistOperations {
         };
     }
 
-    public Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {
+    public Observable<List<Urn>> trackUrnsForPlayback(final Urn playlistUrn) {
         return loadPlaylistTrackUrns.with(playlistUrn)
                 .toObservable()
-                .subscribeOn(scheduler);
+                .subscribeOn(scheduler)
+                .flatMap(new Func1<List<Urn>, Observable<List<Urn>>>() {
+                    @Override
+                    public Observable<List<Urn>> call(List<Urn> trackItems) {
+                        if (trackItems.isEmpty()) {
+                            return updatedUrnsForPlayback(playlistUrn);
+                        } else {
+                            return Observable.just(trackItems);
+                        }
+                    }
+                });
+    }
+
+    public Observable<List<PlaylistWithTracks>> playlists(final Collection<Urn> playlists) {
+        return Observable
+                .from(playlists)
+                .flatMap(toPlaylistWithTracks)
+                .toList();
     }
 
     public Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
-        final Observable<PlaylistWithTracks> loadObservable = createPlaylistInfoLoadObservable(playlistUrn);
-        return loadObservable.flatMap(syncIfNecessary(playlistUrn));
+        return createPlaylistInfoLoadObservable(playlistUrn).flatMap(syncIfNecessary(playlistUrn));
     }
 
     Observable<PlaylistWithTracks> updatedPlaylistInfo(final Urn playlistUrn) {
@@ -165,6 +189,19 @@ public class PlaylistOperations {
                     public Observable<PlaylistWithTracks> call(SyncResult playlistWasUpdated) {
                         return createPlaylistInfoLoadObservable(playlistUrn)
                                 .flatMap(validateLoadedPlaylist);
+                    }
+                });
+    }
+
+    Observable<List<Urn>> updatedUrnsForPlayback(final Urn playlistUrn) {
+        return syncInitiator
+                .syncPlaylist(playlistUrn)
+                .flatMap(new Func1<SyncResult, Observable<List<Urn>>>() {
+                    @Override
+                    public Observable<List<Urn>> call(SyncResult syncResult) {
+                        return loadPlaylistTrackUrns.with(playlistUrn)
+                                .toObservable()
+                                .subscribeOn(scheduler);
                     }
                 });
     }

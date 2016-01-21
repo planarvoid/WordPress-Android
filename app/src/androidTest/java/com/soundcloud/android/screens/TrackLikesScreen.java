@@ -38,12 +38,6 @@ public class TrackLikesScreen extends Screen {
         return this;
     }
 
-    public UpgradeScreen clickMidTierTrackForUpgrade(int index) {
-        tracks().get(index)
-                .click();
-        return new UpgradeScreen(testDriver);
-    }
-
     public VisualPlayerElement clickTrack(int index) {
         VisualPlayerElement visualPlayerElement = tracks()
                 .get(index)
@@ -97,7 +91,7 @@ public class TrackLikesScreen extends Screen {
 
     public List<TrackItemElement> tracks(With with) {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return Lists.transform(testDriver.findElements(with), new Function<ViewElement, TrackItemElement>() {
+        return Lists.transform(testDriver.findOnScreenElements(with), new Function<ViewElement, TrackItemElement>() {
             @Nullable
             @Override
             public TrackItemElement apply(@Nullable ViewElement viewElement) {
@@ -128,30 +122,30 @@ public class TrackLikesScreen extends Screen {
 
     public DownloadImageViewElement headerDownloadElement() {
         return new DownloadImageViewElement(header()
-                .findElement(With.id(R.id.header_download_state)));
+                .findOnScreenElement(With.id(R.id.header_download_state)));
     }
 
-    public CollectionsScreen goBack() {
+    public CollectionScreen goBack() {
         testDriver.goBack();
-        return new CollectionsScreen(testDriver);
+        return new CollectionScreen(testDriver);
     }
 
     private RecyclerViewElement likesList() {
-        return testDriver.findElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
+        return testDriver.findOnScreenElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
     }
 
     private ViewElement headerShuffleButton() {
         return header()
-                .findElement(With.id(R.id.shuffle_btn));
+                .findOnScreenElement(With.id(R.id.shuffle_btn));
     }
 
     private TextElement headerText() {
-        return new TextElement(testDriver.findElement(With.id(R.id.header_text)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.header_text)));
     }
 
     private ViewElement header() {
         return testDriver
-                .findElement(With.id(R.id.track_likes_header));
+                .findOnScreenElement(With.id(R.id.track_likes_header));
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.collections.PlaylistsOptions;
+import com.soundcloud.android.collection.PlaylistsOptions;
 import org.junit.Test;
 
 public class CollectionEventTest {

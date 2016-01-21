@@ -142,7 +142,7 @@
 
         <View style="@style/Divider.Section" />
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/you_version_text"
             style="@style/You.VersionText" />
 

@@ -18,7 +18,6 @@ import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -537,7 +536,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .duration(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .sound("soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId())
                 .action("stop")
-                .reason("buffering")
+                .reason("buffer_underrun")
                 .trigger("manual")
                 .source("source")
                 .sourceVersion("source-version")
@@ -867,32 +866,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .promotedBy(item.getPromoterUrn().get().toString())
                 .impressionName("promoted_playlist")
                 .impressionObject(item.getEntityUrn().toString()));
-    }
-
-    @Test
-    public void createsMidTierTrackClickJson() throws Exception {
-        final Urn trackUrn = Urn.forTrack(123L);
-        MidTierTrackEvent click = MidTierTrackEvent.forClick(trackUrn, SCREEN_TAG);
-
-        jsonDataBuilder.build(click);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", click.getTimestamp())
-                .pageName(SCREEN_TAG)
-                .clickObject(String.valueOf(trackUrn))
-                .clickName("consumer_sub_track"));
-    }
-
-    @Test
-    public void createsMidTierTrackImpressionJson() throws Exception {
-        final Urn trackUrn = Urn.forTrack(123L);
-        MidTierTrackEvent impression = MidTierTrackEvent.forImpression(trackUrn, SCREEN_TAG);
-
-        jsonDataBuilder.build(impression);
-
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", impression.getTimestamp())
-                .pageName(SCREEN_TAG)
-                .impressionObject(String.valueOf(trackUrn))
-                .impressionName("consumer_sub_track"));
     }
 
     @Test

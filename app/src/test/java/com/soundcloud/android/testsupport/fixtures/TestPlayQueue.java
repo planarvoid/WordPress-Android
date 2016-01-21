@@ -13,11 +13,11 @@ import java.util.Map;
 public class TestPlayQueue {
 
     public static PlayQueue fromTracks(PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracksMap, PropertySet... tracks) {
-        return PlayQueue.fromTrackList(Arrays.asList(tracks), playSessionSource, blockedTracksMap);
+        return PlayQueue.fromPlayableList(Arrays.asList(tracks), playSessionSource, blockedTracksMap);
     }
 
     public static PlayQueue fromTracks(PlaySessionSource playSessionSource, PropertySet... tracks) {
-        return PlayQueue.fromTrackList(Arrays.asList(tracks), playSessionSource, Collections.<Urn, Boolean>emptyMap());
+        return PlayQueue.fromPlayableList(Arrays.asList(tracks), playSessionSource, Collections.<Urn, Boolean>emptyMap());
     }
 
     public static PlayQueue fromUrns(PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracksMap, Urn... trackUrns) {
@@ -33,6 +33,6 @@ public class TestPlayQueue {
     }
 
     public static PlayQueue fromTracks(List<PropertySet> tracks, PlaySessionSource playSessionSource) {
-        return PlayQueue.fromTrackList(tracks, playSessionSource, Collections.<Urn, Boolean>emptyMap());
+        return PlayQueue.fromPlayableList(tracks, playSessionSource, Collections.<Urn, Boolean>emptyMap());
     }
 }

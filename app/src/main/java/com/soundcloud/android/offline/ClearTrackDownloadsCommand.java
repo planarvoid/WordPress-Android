@@ -22,13 +22,16 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
     private final PropellerDatabase propeller;
     private final SecureFileStorage secureFileStorage;
     private final OfflineContentStorage offlineContentStorage;
+    private final TrackOfflineStateProvider trackOfflineStateProvider;
 
     @Inject
     ClearTrackDownloadsCommand(PropellerDatabase propeller, SecureFileStorage secureFileStorage,
-                               OfflineContentStorage offlineContentStorage) {
+                               OfflineContentStorage offlineContentStorage,
+                               TrackOfflineStateProvider trackOfflineStateProvider) {
         this.propeller = propeller;
         this.secureFileStorage = secureFileStorage;
         this.offlineContentStorage = offlineContentStorage;
+        this.trackOfflineStateProvider = trackOfflineStateProvider;
     }
 
     @Override
@@ -44,6 +47,7 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
         });
 
         if (txnResult.success()) {
+            trackOfflineStateProvider.clear();
             secureFileStorage.deleteAllTracks();
             offlineContentStorage.setHasOfflineContent(false);
             return removedEntities;

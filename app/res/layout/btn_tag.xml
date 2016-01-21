@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.soundcloud.android.view.SnappedTagView
-        style="@style/Tag" />
+<com.soundcloud.android.view.SnappedTagView style="@style/PlaylistDiscovery.Tag" />
 

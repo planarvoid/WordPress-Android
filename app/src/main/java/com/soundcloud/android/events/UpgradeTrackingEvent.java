@@ -71,6 +71,14 @@ public final class UpgradeTrackingEvent extends TrackingEvent {
         return new UpgradeTrackingEvent(KIND_UPSELL_CLICK, TrackingCode.UPSELL_PLAYLIST_PAGE);
     }
 
+    public static UpgradeTrackingEvent forStreamImpression() {
+        return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPSELL_STREAM);
+    }
+
+    public static UpgradeTrackingEvent forStreamClick() {
+        return new UpgradeTrackingEvent(KIND_UPSELL_CLICK, TrackingCode.UPSELL_STREAM);
+    }
+
     public static UpgradeTrackingEvent forUpgradeButtonImpression() {
         return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPGRADE_BUTTON);
     }

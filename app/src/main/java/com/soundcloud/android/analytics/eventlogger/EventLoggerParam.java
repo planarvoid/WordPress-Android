@@ -20,6 +20,7 @@ class EventLoggerParam {
     static final String IN_PLAYLIST = "in_playlist";
     static final String PLAYLIST_POSITION = "playlist_position";
     static final String PLAYHEAD_POSITION = "playhead_position";
+    static final String POLICY = "policy";
 
     // subs
     static final String LOCAL_STORAGE_PLAYBACK = "local_storage_playback";
@@ -58,7 +59,7 @@ class EventLoggerParam {
     static final String CLICK_TARGET = "click_target";
     static final String CLICK_CATEGORY = "click_category";
     static final String CLICK_ATTRIBUTES = "click_attributes";
-    static final String REASON = "reason";
+    static final String PAUSE_REASON = "pause_reason";
     static final String OVERFLOW_MENU = "overflow_menu";
 
     // search tracking

@@ -10,7 +10,10 @@
     <string name="dev_drawer_action_get_oauth_token_to_clipboard_title">Get OAuth Token</string>
 
     <string name="dev_drawer_action_kill_app_key">kill_process</string>
-    <string name="dev_drawer_action_kill_app_title">Kill Process</string>
+    <string name="dev_drawer_action_kill_app_title">Restart app</string>
+
+    <string name="dev_drawer_action_upgrade_flow_key">fake_upsell_flow</string>
+    <string name="dev_drawer_action_upgrade_flow_title">Fake upsell flow</string>
 
     <string name="dev_drawer_action_reset_flags_key">reset_flags</string>
     <string name="dev_drawer_action_reset_flags_title">Restore Defaults</string>

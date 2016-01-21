@@ -1,8 +1,10 @@
 package com.soundcloud.android.main;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.upgrade.UpgradeProgressActivity;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -34,6 +36,7 @@ public class DevDrawerFragment extends PreferenceFragment {
     @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject DevDrawerExperimentsHelper drawerExperimentsHelper;
+    @Inject Navigator navigator;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -81,7 +84,16 @@ public class DevDrawerFragment extends PreferenceFragment {
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        android.os.Process.killProcess(android.os.Process.myPid());
+                        navigator.restartApp(getActivity());
+                        return true;
+                    }
+                });
+
+        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_flow_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        fakeUpsellFlow();
                         return true;
                     }
                 });
@@ -120,6 +132,10 @@ public class DevDrawerFragment extends PreferenceFragment {
                     }
                 });
 
+    }
+
+    private void fakeUpsellFlow() {
+        navigator.restartAppAndNavigateTo(getActivity(), UpgradeProgressActivity.class);
     }
 
     private void copyTokenToClipboard() {

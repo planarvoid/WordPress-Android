@@ -183,6 +183,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .protocol(event.get(PlaybackSessionEvent.KEY_PROTOCOL))
                 .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
+                .policy(event.get(PlaybackSessionEvent.KEY_POLICY))
                 .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
                 .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN));
@@ -283,7 +284,7 @@ public class EventLoggerV1JsonDataBuilder {
             case PlaybackSessionEvent.STOP_REASON_PAUSE:
                 return "pause";
             case PlaybackSessionEvent.STOP_REASON_BUFFERING:
-                return "buffering";
+                return "buffer_underrun";
             case PlaybackSessionEvent.STOP_REASON_SKIP:
                 return "skip";
             case PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED:

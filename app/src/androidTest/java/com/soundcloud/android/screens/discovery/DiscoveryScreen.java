@@ -23,12 +23,12 @@ public class DiscoveryScreen extends Screen {
 
     private List<ViewElement> recentTags() {
         return testDriver
-                .findElement(With.id(R.id.recent_tags))
-                .findElements(With.className(SnappedTagView.class));
+                .findOnScreenElement(With.id(R.id.recent_tags))
+                .findOnScreenElements(With.className(SnappedTagView.class));
     }
 
     private ViewElement allTags() {
-        return testDriver.findElement(With.id(R.id.all_tags));
+        return testDriver.findOnScreenElement(With.id(R.id.all_tags));
     }
 
     public boolean isDisplayingTags() {
@@ -42,7 +42,7 @@ public class DiscoveryScreen extends Screen {
 
     public List<ViewElement> playlistTags() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return allTags().findElements(With.className(SnappedTagView.class));
+        return allTags().findOnScreenElements(With.className(SnappedTagView.class));
     }
 
     public List<String> playlistRecentTags() {
@@ -55,7 +55,7 @@ public class DiscoveryScreen extends Screen {
     }
 
     public SearchScreen clickSearch() {
-        testDriver.findElement(With.id(R.id.search_text)).click();
+        testDriver.findOnScreenElement(With.id(R.id.search_text)).click();
         return new SearchScreen(testDriver);
     }
 

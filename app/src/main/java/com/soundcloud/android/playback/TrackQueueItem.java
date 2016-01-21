@@ -1,74 +1,24 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
-public class TrackQueueItem extends PlayQueueItem {
+public class TrackQueueItem extends PlayableQueueItem {
 
-    private final Urn trackUrn;
-    private final Urn reposter;
-    private final Urn relatedEntity;
-    private final String source;
-    private final String sourceVersion;
-    private final Urn sourceUrn;
-    private final Urn queryUrn;
-    private final boolean shouldPersist;
-    private final boolean blocked;
-
-    private TrackQueueItem(Urn trackUrn, Urn reposter, Urn relatedEntity, String source,
-                           String sourceVersion, Optional<AdData> adData, boolean shouldPersist, Urn sourceUrn, Urn queryUrn, boolean blocked) {
-        this.trackUrn = trackUrn;
-        this.reposter = reposter;
-        this.relatedEntity = relatedEntity;
-        this.source = source;
-        this.sourceVersion = sourceVersion;
-        this.shouldPersist = shouldPersist;
-        this.queryUrn = queryUrn;
-        this.sourceUrn = sourceUrn;
-        this.blocked = blocked;
-        super.setAdData(adData);
-    }
-
-    public Urn getUrn() {
-        return trackUrn;
-    }
-
-    public Urn getReposter() {
-        return reposter;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public String getSourceVersion() {
-        return sourceVersion;
-    }
-
-    public Urn getSourceUrn() {
-        return sourceUrn;
-    }
-
-    public Urn getQueryUrn() {
-        return queryUrn;
-    }
-
-    public Urn getRelatedEntity() {
-        return relatedEntity;
-    }
-
-    public boolean shouldPersist() {
-        return shouldPersist;
-    }
-
-    public boolean isBlocked() {
-        return blocked;
+        private TrackQueueItem(Urn trackUrn,
+                   Urn reposter,
+                   Urn relatedEntity,
+                   String source,
+                   String sourceVersion,
+                   Optional<AdData> adData,
+                   boolean shouldPersist,
+                   Urn sourceUrn,
+                   Urn queryUrn,
+                   boolean blocked) {
+        super(trackUrn, reposter, source, sourceVersion, queryUrn, relatedEntity, blocked, shouldPersist, sourceUrn, adData);
     }
 
     @Override
@@ -79,7 +29,7 @@ public class TrackQueueItem extends PlayQueueItem {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("trackUrn", trackUrn)
+                .add("urn", urn)
                 .add("reposter", reposter)
                 .add("relatedEntity", relatedEntity)
                 .add("source", source)
@@ -91,67 +41,38 @@ public class TrackQueueItem extends PlayQueueItem {
                 .toString();
     }
 
-    public static class Builder {
-        private final Urn track;
-        private final Urn reposter;
-        private boolean blocked;
-        private String source = ScTextUtils.EMPTY_STRING;
-        private String sourceVersion = ScTextUtils.EMPTY_STRING;
-        private Optional<AdData> adData = Optional.absent();
-        private Urn relatedEntity = Urn.NOT_SET;
-        private Urn sourceUrn = Urn.NOT_SET;
-        private Urn queryUrn = Urn.NOT_SET;
-        private boolean shouldPersist = true;
+    public static class Builder extends PlayableQueueItem.Builder<Builder> {
 
         public Builder(Urn track) {
-            this(track, Urn.NOT_SET);
+            super(track);
         }
 
         public Builder(PropertySet track) {
-            this(track.get(TrackProperty.URN), track.getOrElse(PostProperty.REPOSTER_URN, Urn.NOT_SET));
+            super(track);
         }
 
-        public Builder(Urn track, Urn reposter) {
-            this.track = track;
-            this.reposter = reposter;
+        public Builder(Urn playable, Urn reposter) {
+            super(playable, reposter);
         }
 
-        public Builder fromSource(String source, String sourceVersion) {
-            this.source = source;
-            this.sourceVersion = sourceVersion;
+        public Builder(TrackQueueItem monetizableItem) {
+            super(monetizableItem.urn);
+            reposter = monetizableItem.reposter;
+            relatedEntity = monetizableItem.relatedEntity;
+            shouldPersist = monetizableItem.shouldPersist;
+            blocked = monetizableItem.blocked;
+            adData = monetizableItem.adData;
+            copySource(monetizableItem);
+        }
+
+        @Override
+        protected Builder getThis() {
             return this;
         }
 
-        public Builder fromSource(String source, String sourceVersion, Urn sourceUrn, Urn queryUrn) {
-            this.source = source;
-            this.sourceVersion = sourceVersion;
-            this.sourceUrn = sourceUrn;
-            this.queryUrn = queryUrn;
-            return this;
-        }
-
-        public Builder withAdData(AdData adData){
-            this.adData = Optional.of(adData);
-            return this;
-        }
-
-        public Builder blocked(boolean blocked) {
-            this.blocked = blocked;
-            return this;
-        }
-
-        public Builder persist(boolean shouldPersist) {
-            this.shouldPersist = shouldPersist;
-            return this;
-        }
-
-        public Builder relatedEntity(Urn relatedEntity) {
-            this.relatedEntity = relatedEntity;
-            return this;
-        }
-
-        public TrackQueueItem build(){
-            return new TrackQueueItem(track, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist, sourceUrn, queryUrn, blocked);
+        public TrackQueueItem build() {
+            return new TrackQueueItem(playable, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist,
+                    sourceUrn, queryUrn, blocked);
         }
     }
 }

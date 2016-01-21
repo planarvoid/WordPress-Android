@@ -8,58 +8,59 @@ import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.tracks.LegacyUpdatePlayingTrackSubscriber;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
+public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
+        implements SearchPremiumContentRenderer.OnPremiumContentClickListener {
 
-    private static final Func1<SearchResult, List<ListItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<ListItem>>() {
+    private final Func1<SearchResult, List<ListItem>> toPresentationModels = new Func1<SearchResult, List<ListItem>>() {
         @Override
         public List<ListItem> call(SearchResult searchResult) {
-            final List<PropertySet> sourceSets = searchResult.getItems();
-            final List<ListItem> items = new ArrayList<>(sourceSets.size());
-            for (PropertySet source : sourceSets) {
-                final Urn urn = source.get(EntityProperty.URN);
-                if (urn.isTrack()) {
-                    items.add(TrackItem.from(source));
-                } else if (urn.isPlaylist()) {
-                    items.add(PlaylistItem.from(source));
-                } else if (urn.isUser()) {
-                    items.add(UserItem.from(source));
-                }
+            final List<PropertySet> sourceSetsItems = searchResult.getItems();
+            final Optional<SearchResult> premiumContent = searchResult.getPremiumContent();
+            final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
+            if (premiumContent.isPresent() && featureFlags.isEnabled(Flag.SEARCH_RESULTS_HIGH_TIER)) {
+                final SearchResult premiumSearchResult = premiumContent.get();
+                searchItems.add(SearchItem.buildPremiumItem(premiumSearchResult.getItems(), premiumSearchResult.getResultsCount()));
             }
-            return items;
+            for (PropertySet source : sourceSetsItems) {
+                searchItems.add(SearchItem.fromPropertySet(source).build());
+            }
+            return searchItems;
         }
     };
 
@@ -67,6 +68,8 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     private final SearchResultsAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
+    private final Navigator navigator;
 
     private final Action1<SearchResult> publishOnFirstPage = new Action1<SearchResult>() {
         @Override
@@ -87,12 +90,14 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     @Inject
     SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher, SearchOperations searchOperations,
                            SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
-                           EventBus eventBus) {
+                           EventBus eventBus, FeatureFlags featureFlags, Navigator navigator) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
+        this.navigator = navigator;
     }
 
     @Override
@@ -100,7 +105,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
         super.onCreate(fragment, bundle);
         getBinding().connect();
         fragmentLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new LegacyUpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)));
     }
 
@@ -130,9 +135,10 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     }
 
     private CollectionBinding<ListItem> createCollectionBinding() {
+        adapter.setPremiumContentListener(this);
         pagingFunction = searchOperations.pagingFunction(searchType);
         return CollectionBinding
-                .from(searchOperations.searchResult(searchQuery, searchType).doOnNext(publishOnFirstPage), TO_PRESENTATION_MODELS)
+                .from(searchOperations.searchResult(searchQuery, searchType).doOnNext(publishOnFirstPage), toPresentationModels)
                 .withAdapter(adapter)
                 .withPager(pagingFunction)
                 .build();
@@ -147,17 +153,34 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem> {
     protected void onItemClicked(View view, int position) {
         final Urn urn = adapter.getItem(position).getEntityUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn);
-
         trackSearchItemClick(urn, searchQuerySourceInfo);
         clickListenerFactory.create(getTrackingScreen(), searchQuerySourceInfo).onItemClick(adapter.getItems(), view, position);
     }
 
+    @Override
+    public void onPremiumItemClicked(View view, List<ListItem> premiumItems) {
+        //TODO: SearchQuerySourceInfo is null until search premium content tracking is implemented
+        clickListenerFactory.create(getTrackingScreen(), null).onItemClick(premiumItems, view, 0);
+    }
+
+    @Override
+    public void onPremiumContentHelpClicked(Context context) {
+        //TODO: Implement this in another PR
+        Toast.makeText(context, "Show Search HT Help", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource) {
+        navigator.openSearchPremiumContentResults(context, searchQuery, premiumItemsSource);
+    }
+
     private void trackSearchItemClick(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
-        if (urn.isTrack()) {
+        final SearchItem searchItem = SearchItem.fromUrn(urn);
+        if (searchItem.isTrack()) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.tapTrackOnScreen(getTrackingScreen(), searchQuerySourceInfo));
-        } else if (urn.isPlaylist()) {
+        } else if (searchItem.isPlaylist()) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(getTrackingScreen(), searchQuerySourceInfo));
-        } else if (urn.isUser()) {
+        } else if (searchItem.isUser()) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.tapUserOnScreen(getTrackingScreen(), searchQuerySourceInfo));
         }
     }

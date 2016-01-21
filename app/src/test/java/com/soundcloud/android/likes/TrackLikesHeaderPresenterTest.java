@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -84,7 +84,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(Observable.just(true));
         when(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
-                .thenReturn(Observable.just(OfflineState.NO_OFFLINE));
+                .thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(true));
     }
 
@@ -133,8 +133,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         enableOfflineLikes();
 
         presenter.onResume(fragment);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloaded(true, Collections.singletonList(TRACK1)));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                OfflineContentChangedEvent.downloaded(true, Collections.singletonList(TRACK1)));
 
         verify(headerView, times(1)).show(OfflineState.DOWNLOADED);
     }
@@ -144,8 +144,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         enableOfflineLikes();
 
         presenter.onResume(fragment);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloading(TRACK1_DOWNLOAD_REQUEST));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                OfflineContentChangedEvent.downloading(TRACK1_DOWNLOAD_REQUEST));
 
         verify(headerView).show(OfflineState.DOWNLOADING);
     }
@@ -155,8 +155,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         enableOfflineLikes();
 
         presenter.onResume(fragment);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloadRequested(true, Collections.singletonList(TRACK1)));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                OfflineContentChangedEvent.downloadRequested(true, Collections.singletonList(TRACK1)));
 
         verify(headerView, times(2)).show(OfflineState.REQUESTED); // once from storage
     }
@@ -166,21 +166,21 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         enableOfflineLikes();
 
         presenter.onResume(fragment);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD,
-                CurrentDownloadEvent.downloadRequestRemoved(Collections.singletonList(TRACK1_DOWNLOAD_REQUEST)));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                OfflineContentChangedEvent.downloadRequestRemoved(Collections.singletonList(TRACK1_DOWNLOAD_REQUEST)));
 
-        verify(headerView).show(OfflineState.NO_OFFLINE);
+        verify(headerView).show(OfflineState.NOT_OFFLINE);
     }
 
     @Test
     public void ignoresCurrentDownloadEventsWhenUnrelatedToLikedTracks() {
         enableOfflineLikes();
 
-        final CurrentDownloadEvent downloadNotFromLikes =
-                CurrentDownloadEvent.downloaded(false, Collections.singletonList(TRACK1));
+        final OfflineContentChangedEvent downloadNotFromLikes =
+                OfflineContentChangedEvent.downloaded(false, Collections.singletonList(TRACK1));
 
         presenter.onResume(fragment);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadNotFromLikes);
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadNotFromLikes);
 
         verify(headerView, never()).show(downloadNotFromLikes.kind);
     }
@@ -189,11 +189,11 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     public void ignoresCurrentDownloadEventsWhenOfflineContentFeatureIsDisabled() {
         enableOfflineLikes();
 
-        final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(TRACK1_DOWNLOAD_REQUEST);
+        final OfflineContentChangedEvent downloadingEvent = OfflineContentChangedEvent.downloading(TRACK1_DOWNLOAD_REQUEST);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
 
         presenter.onResume(fragment);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadingEvent);
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadingEvent);
 
         verify(headerView, never()).show(downloadingEvent.kind);
     }
@@ -202,7 +202,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/3500")
     public void ignoresCurrentDownloadEventsWhenOfflineLikesWereDisabled() {
         enableOfflineLikes();
-        final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(TRACK1_DOWNLOAD_REQUEST);
+        final OfflineContentChangedEvent downloadingEvent = OfflineContentChangedEvent.downloading(TRACK1_DOWNLOAD_REQUEST);
         final EntityStateChangedEvent offlineLikesDisabled = EntityStateChangedEvent.fromLikesMarkedForOffline(false);
 
         presenter.onViewCreated(fragment, layoutView, null);
@@ -210,7 +210,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         // download result being delivered after offline likes disabled
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, offlineLikesDisabled);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadingEvent);
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadingEvent);
 
         verify(headerView, never()).show(downloadingEvent.kind);
     }
@@ -225,7 +225,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, offlineLikesDisabled);
 
-        verify(headerView).show(OfflineState.NO_OFFLINE);
+        verify(headerView).show(OfflineState.NOT_OFFLINE);
     }
 
     @Test
@@ -253,11 +253,11 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showsDefaultStateWhenLikedTracksDownloadStateIsNoOffline() {
         when(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
-                .thenReturn(Observable.just(OfflineState.NO_OFFLINE));
+                .thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         presenter.onViewCreated(fragment, layoutView, null);
         presenter.onResume(fragment);
 
-        verify(headerView).show(OfflineState.NO_OFFLINE);
+        verify(headerView).show(OfflineState.NOT_OFFLINE);
     }
 
     @Test
@@ -269,7 +269,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, likesDisabled);
 
-        verify(headerView).show(OfflineState.NO_OFFLINE);
+        verify(headerView).show(OfflineState.NOT_OFFLINE);
     }
 
     @Test

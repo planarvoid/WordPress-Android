@@ -68,12 +68,23 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(track.getCreatorName());
         trackItemView.setTitle(track.getTitle());
-        trackItemView.setDuration(ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS));
 
-        showRelevantAdditionalInformation(trackItemView, track);
+        bindExtraInfoRight(track, trackItemView);
+        bindExtraInfoBottom(trackItemView, track);
 
         loadArtwork(trackItemView, track);
         setupOverFlow(trackItemView, track, position);
+    }
+
+    private void bindExtraInfoRight(TrackItem track, TrackItemView trackItemView) {
+        trackItemView.hideInfoViewsRight();
+        if (track.isSnipped() && featureOperations.upsellHighTier()) {
+            trackItemView.showPreviewLabel();
+        } else if (track.isPrivate()) {
+            trackItemView.showPrivateIndicator();
+        } else {
+            trackItemView.showDuration(ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS));
+        }
     }
 
     protected void setupOverFlow(final TrackItemView itemView, final TrackItem track, final int position) {
@@ -95,18 +106,16 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                 itemView.getImage());
     }
 
-    private void showRelevantAdditionalInformation(TrackItemView itemView, TrackItem track) {
-        itemView.resetAdditionalInformation();
+    private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track) {
+        itemView.hideInfosViewsBottom();
         if (track instanceof PromotedTrackItem) {
             showPromoted(itemView, (PromotedTrackItem) track);
+        } else if (track.isBlocked()) {
+            itemView.showGeoBlocked();
         } else if (track.isPlaying() || track.getEntityUrn().equals(playingTrack)) {
             itemView.showNowPlaying();
-        } else if (track.isMidTier() && featureOperations.upsellMidTier()) {
-            itemView.showUpsell();
         } else if (featureOperations.isOfflineContentEnabled() && track.isUnavailableOffline()) {
             itemView.showNotAvailableOffline();
-        } else if (track.isPrivate()) {
-            itemView.showPrivateIndicator();
         } else {
             showPlayCount(itemView, track);
         }

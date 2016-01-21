@@ -29,7 +29,7 @@ public class RecommendedTracksFragment extends LightCycleSupportFragment impleme
     static RecommendedTracksFragment create(long localSeedId) {
         final Bundle bundle = new Bundle();
         bundle.putLong(EXTRA_LOCAL_SEED_ID, localSeedId);
-        RecommendedTracksFragment fragment = new RecommendedTracksFragment();
+        final RecommendedTracksFragment fragment = new RecommendedTracksFragment();
         fragment.setArguments(bundle);
         return fragment;
     }

@@ -6,6 +6,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.stations.StationProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
@@ -15,6 +16,7 @@ import android.support.v4.util.ArrayMap;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @AutoValue
@@ -30,6 +32,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int PLAYLIST_CREATED = 8;
     public static final int PLAYLIST_DELETED = 9;
     public static final int PLAYLIST_PUSHED_TO_SERVER = 10;
+    public static final int RECENT_STATION_UPDATED = 11;
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -48,7 +51,14 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isSingularChange() && event.getFirstUrn().isPlaylist() && event.getKind() == MARKED_FOR_OFFLINE;
+            if (event.getKind() == MARKED_FOR_OFFLINE) {
+                for (PropertySet propertySet : event.getChangeMap().values()) {
+                    if (propertySet.get(EntityProperty.URN).isPlaylist()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     };
 
@@ -147,6 +157,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return create(REPOST, newRepostState);
     }
 
+    public static EntityStateChangedEvent fromOfflineProperties(List<PropertySet> properties) {
+        return create(MARKED_FOR_OFFLINE, properties);
+    }
+
     public static EntityStateChangedEvent fromMarkedForOffline(Urn urn, boolean isMarkedForOffline) {
         return create(MARKED_FOR_OFFLINE, PropertySet.from(
                 PlayableProperty.URN.bind(urn),
@@ -170,6 +184,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static EntityStateChangedEvent fromPlaylistPushedToServer(Urn localUrn, PropertySet playlist) {
         Map<Urn, PropertySet> changeMap = Collections.singletonMap(localUrn, playlist);
         return new AutoValue_EntityStateChangedEvent(PLAYLIST_PUSHED_TO_SERVER, changeMap);
+    }
+
+    public static EntityStateChangedEvent fromStationsUpdated(Urn station) {
+        return create(RECENT_STATION_UPDATED, PropertySet.from(StationProperty.URN.bind(station)));
     }
 
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(Urn playlistUrn, int trackCount) {

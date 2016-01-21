@@ -18,10 +18,11 @@ public class ClearTrackDownloadsCommandTest extends StorageIntegrationTest {
 
     @Mock SecureFileStorage secureFileStorage;
     @Mock OfflineContentStorage offlineContentStorage;
+    @Mock TrackOfflineStateProvider trackOfflineStateProvider;
 
     @Before
     public void setUp() throws Exception {
-        command = new ClearTrackDownloadsCommand(propeller(), secureFileStorage, offlineContentStorage);
+        command = new ClearTrackDownloadsCommand(propeller(), secureFileStorage, offlineContentStorage, trackOfflineStateProvider);
     }
 
     @Test
@@ -52,6 +53,13 @@ public class ClearTrackDownloadsCommandTest extends StorageIntegrationTest {
 
         databaseAssertions().assertPlaylistNotMarkedForOfflineSync(playlist.getUrn());
         assertThat(removed).containsExactly(playlist.getUrn());
+    }
+
+    @Test
+    public void clearsTrackOfflineState() {
+        command.call(null);
+
+        verify(trackOfflineStateProvider).clear();
     }
 
     @Test

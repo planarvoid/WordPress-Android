@@ -2,8 +2,10 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.collection.OfflineOnboardingActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -22,17 +24,25 @@ import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
+import com.soundcloud.java.collections.PropertySet;
 
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Navigator {
 
@@ -40,6 +50,7 @@ public class Navigator {
     private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
     public final static String EXTRA_SEARCH_INTENT = "search_intent";
+    public static final String EXTRA_PENDING_ACTIVITY = "restart.pending_activity";
 
     public void openHome(Context context) {
         context.startActivity(createHomeIntent(context));
@@ -77,6 +88,14 @@ public class Navigator {
         context.startActivity(homeIntent);
     }
 
+    public void openSearchPremiumContentResults(Context context, String searchQuery, List<PropertySet> premiumContentList) {
+        final ArrayList<? extends Parcelable> sourceSetList = new ArrayList<>(premiumContentList);
+        final Intent intent = new Intent(context, SearchPremiumResultsActivity.class)
+                .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, searchQuery)
+                .putParcelableArrayListExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, sourceSetList);
+        context.startActivity(intent);
+    }
+
     public void openUri(Context context, Uri uri) {
         context.startActivity(new Intent(Intent.ACTION_VIEW).setData(uri));
     }
@@ -101,7 +120,7 @@ public class Navigator {
     public PendingIntent openProfileFromWidget(Context context, Urn user, int requestCode) {
         return PendingIntent.getActivity(context,
                 requestCode,
-                createProfileIntent(context, user, Screen.WIDGET),
+                createProfileIntent(context, user, Screen.WIDGET, Referrer.PLAYBACK_WIDGET),
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
@@ -111,6 +130,10 @@ public class Navigator {
 
     public void openSettings(Context context) {
         context.startActivity(new Intent(context, SettingsActivity.class));
+    }
+
+    public void openOfflineOnboarding(Context context) {
+        context.startActivity(new Intent(context, OfflineOnboardingActivity.class));
     }
 
     @Deprecated // use method that passes Screen, remove this after tabs
@@ -149,6 +172,10 @@ public class Navigator {
 
     public void openStream(Context context, Screen screen) {
         context.startActivity(createStreamIntent(screen));
+    }
+
+    public void openCollection(Context context) {
+        context.startActivity(new Intent(Actions.COLLECTION).setFlags(FLAGS_TOP));
     }
 
     public void openLauncher(Context context) {
@@ -251,6 +278,12 @@ public class Navigator {
         return intent;
     }
 
+    public Intent createProfileIntent(Context context, Urn user, Screen screen, Referrer referrer) {
+        Intent intent = createProfileIntent(context, user, screen);
+        referrer.addToIntent(intent);
+        return intent;
+    }
+
     private Intent createRecordIntent(Context context, Recording recording) {
         return new Intent(context, RecordActivity.class)
                 .putExtra(Recording.EXTRA, recording)
@@ -291,5 +324,30 @@ public class Navigator {
 
     private void startActivity(Context activityContext, Class target) {
         activityContext.startActivity(new Intent(activityContext, target));
+    }
+
+    public void restartApp(Activity context) {
+        restartAppAndNavigateTo(context, null);
+    }
+
+    public void restartAppAndNavigateTo(Activity context, @Nullable Class<? extends Activity> nextActivity) {
+        Intent launchActivity = new Intent(context, LauncherActivity.class);
+        if (nextActivity != null) {
+            launchActivity.putExtra(EXTRA_PENDING_ACTIVITY, nextActivity.getCanonicalName());
+        }
+        launchActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(launchActivity);
+        context.finish();
+        System.exit(0);
+    }
+
+    public void openPendingActivity(Activity context, Bundle extras) {
+        final String activityName = extras.getString(Navigator.EXTRA_PENDING_ACTIVITY);
+        try {
+            final Class<?> activityClass = Class.forName(activityName);
+            context.startActivity(new Intent(context, activityClass));
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }

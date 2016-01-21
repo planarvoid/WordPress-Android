@@ -16,7 +16,7 @@ public class StationElement {
     }
 
     public String getTitle() {
-        return new TextElement(wrapped.findElement(With.id(R.id.title))).getText();
+        return new TextElement(wrapped.findOnScreenElement(With.id(R.id.title))).getText();
     }
 
     public boolean isVisible() { return wrapped.isVisible(); }
@@ -24,5 +24,20 @@ public class StationElement {
     public VisualPlayerElement click() {
         wrapped.click();
         return new VisualPlayerElement(testDriver);
+    }
+
+    public static With WithTitle(final Han testDriver, final String title) {
+        return new With() {
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return new StationElement(testDriver, view).getTitle().equals(title);
+            }
+
+            @Override
+            public String getSelector() {
+                return String.format("Station with title %s", title);
+            }
+        };
     }
 }

@@ -4,7 +4,7 @@ import static com.soundcloud.android.framework.with.With.contentDescription;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.screens.CollectionsScreen;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.StationsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.YouScreen;
@@ -31,9 +31,9 @@ public class MainTabs extends Tabs {
         return new DiscoveryScreen(testDriver);
     }
 
-    public CollectionsScreen clickCollections() {
+    public CollectionScreen clickCollections() {
         getTabWith(contentDescription(testDriver.getString(R.string.tab_collection))).click();
-        return new CollectionsScreen(testDriver);
+        return new CollectionScreen(testDriver);
     }
 
     public YouScreen clickYou() {

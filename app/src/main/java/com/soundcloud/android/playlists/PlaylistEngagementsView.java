@@ -53,7 +53,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     public void onViewCreated(View view) {
         final ViewGroup holder = (ViewGroup) view.findViewById(R.id.playlist_action_bar_holder);
-        View engagementsView = View.inflate(view.getContext(), R.layout.new_playlist_action_bar, holder);
+        View engagementsView = View.inflate(view.getContext(), R.layout.playlist_engagement_bar, holder);
         ButterKnife.bind(this, engagementsView);
 
         popupMenuWrapper = popupMenuWrapperFactory.build(view.getContext(), overflowButton);

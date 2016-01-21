@@ -8,14 +8,14 @@
         style="@style/OnboardingListItemNotificationLayout"
         tools:ignore="UselessParent">
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
             style="@style/OnboardingListItemNotification.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/stations_onboarding_stream_title" />
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/description"
             style="@style/OnboardingListItemNotification.Description"
             android:layout_width="wrap_content"

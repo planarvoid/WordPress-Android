@@ -7,6 +7,9 @@ import static com.soundcloud.android.creators.record.RecordFragment.CreateState.
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.IDLE_RECORD;
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.PLAYBACK;
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.RECORD;
+import static com.soundcloud.android.view.CustomFontLoader.SOUNDCLOUD_INTERSTATE_LIGHT;
+import static com.soundcloud.android.view.CustomFontLoader.SOUNDCLOUD_INTERSTATE_LIGHT_TNUM;
+import static com.soundcloud.android.view.CustomFontLoader.getFont;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -14,9 +17,9 @@ import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -33,6 +36,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -54,6 +58,8 @@ import java.util.Map;
 public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragment> implements CreateWaveDisplay.Listener {
 
     public static final String RECORD_STATE_KEY = "createCurrentCreateState";
+    private Typeface scNumberFont;
+    private Typeface scFont;
 
     @Bind(R.id.gauge_holder) ViewGroup gaugeHolder;
     @Bind(R.id.chronometer) ChronometerView chrono;
@@ -95,6 +101,8 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     public void onCreate(Fragment fragment, @Nullable Bundle state) {
         super.onCreate(fragment, state);
         this.recordFragment = (RecordFragment) fragment;
+        scFont = getFont(fragment.getContext(), SOUNDCLOUD_INTERSTATE_LIGHT);
+        scNumberFont = getFont(fragment.getContext(), SOUNDCLOUD_INTERSTATE_LIGHT_TNUM);
 
         if (state == null) {
             currentState = CreateState.IDLE_RECORD;
@@ -336,11 +344,13 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
                     recorder.reset(true);
                     recorder.startReading();
                 }
+                chrono.setTypeface(scFont);
                 chrono.setText(R.string.record_instructions);
                 break;
 
             case RECORD:
                 configureRecordButton(true);
+                chrono.setTypeface(scNumberFont);
                 chrono.setDurationOnly(recorder.getRecordingElapsedTime());
                 break;
 

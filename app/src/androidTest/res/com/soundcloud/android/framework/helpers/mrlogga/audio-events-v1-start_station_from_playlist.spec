@@ -22,6 +22,7 @@ expected_events:
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
+    policy: ALLOW
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -43,9 +44,10 @@ expected_events:
     ts: '[0-9]+'
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
-    reason: skip
+    pause_reason: skip
     trigger: manual
     local_storage_playback: false
+    policy: ALLOW
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -70,6 +72,7 @@ expected_events:
     trigger: manual
     query_urn: soundcloud:radio:(\w|-)+
     local_storage_playback: false
+    policy: ALLOW
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -91,9 +94,10 @@ expected_events:
     ts: '[0-9]+'
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
-    reason: pause
+    pause_reason: pause
     trigger: manual
     query_urn: soundcloud:radio:(\w|-)+
     local_storage_playback: false
+    policy: ALLOW
   version: '1'
 whitelisted_events: audio

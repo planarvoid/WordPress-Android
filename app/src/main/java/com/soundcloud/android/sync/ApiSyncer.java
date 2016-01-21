@@ -10,7 +10,6 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -20,12 +19,10 @@ import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -33,7 +30,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -95,38 +91,7 @@ public class ApiSyncer extends LegacySyncStrategy {
                     // still reached from search auto suggest
                     result = fetchAndInsertCollection(c, uri);
                     break;
-
-                case TRACK:
-                    // used from TrackRepository to fulfill single track requests
-                    result = syncSingleTrack(uri);
-                    break;
             }
-        }
-
-        return result;
-    }
-
-    // TODO: this should move out into its own syncer once we have full tracks on api-mobile
-    private ApiSyncResult syncSingleTrack(Uri contentUri) throws IOException {
-        ApiSyncResult result = new ApiSyncResult(contentUri);
-        final long trackId = ContentUris.parseId(contentUri);
-        ApiRequest request = ApiRequest.get(ApiEndpoints.LEGACY_TRACK.path(trackId)).forPublicApi().build();
-
-        final PublicApiTrack track;
-        try {
-            track = apiClient.fetchMappedResponse(request, PublicApiTrack.class);
-        } catch (ApiRequestException | ApiMapperException e) {
-            // this is because our legacy sync stack only supports IOExceptions
-            throw new IOException(e);
-        }
-
-        final WriteResult writeResult = storeTracksCommand.call(Collections.singleton(track));
-        if (writeResult.success()) {
-            log("inserted " + contentUri.toString());
-            result.setSyncData(true, System.currentTimeMillis(), 1, ApiSyncResult.CHANGED);
-        } else {
-            log("failed to create to " + contentUri);
-            result.success = false;
         }
 
         return result;

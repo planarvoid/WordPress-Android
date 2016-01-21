@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.SoundView;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIST_ID;
@@ -10,7 +11,6 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.api.model.Sharing;
-import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -48,7 +48,7 @@ public class LikesStorage {
     }
 
     Observable<List<Urn>> loadLikesForPlayback() {
-        return propellerRx.query(buildQueryForPlayback()).map(new TrackUrnMapper()).toList();
+        return propellerRx.query(buildQueryForPlayback()).map(new LikesForPlaybackMapper()).toList();
     }
 
     private Query buildLikesQuery(int limit, long fromTimestamp) {
@@ -85,13 +85,25 @@ public class LikesStorage {
 
     private Query buildQueryForPlayback() {
         return Query.from(Likes)
-                .select(field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID))
+                .select(field(SoundView.field(TableColumns.SoundView._TYPE)).as(TableColumns.SoundView._TYPE),
+                        field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID))
                 .innerJoin(SoundView.name(),
                         on(SoundView.field(TableColumns.SoundView._ID), Likes.field(TableColumns.Likes._ID))
                                 .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Likes.field(TableColumns.Likes._TYPE)))
-                .whereEq(SoundView.field(TableColumns.SoundView._TYPE), TableColumns.Sounds.TYPE_TRACK)
                 .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
                 .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), DESC);
+    }
+
+    private static class LikesForPlaybackMapper extends RxResultMapper<Urn> {
+
+        @Override
+        public Urn map(CursorReader reader) {
+            if (reader.getInt(TableColumns.SoundView._TYPE) == TableColumns.Sounds.TYPE_TRACK){
+                return Urn.forTrack(reader.getLong(_ID));
+            } else {
+                return Urn.forPlaylist(reader.getLong(_ID));
+            }
+        }
     }
 
     private static class LikesMapper extends RxResultMapper<PropertySet> {

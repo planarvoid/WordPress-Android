@@ -17,6 +17,8 @@
     <string name="upgrade_feature_3_description">Directly support creators and SoundCloud</string>
     <string name="upgrade_success_title">Welcome to SoundCloud CS!</string>
     <string name="upgrade_success_description">You are now able to enjoy SoundCloud offline and ad-free</string>
+    <string name="upgrade_success_ok">Ok, got it</string>
+    <string name="upgrade_success_more">More about offline listening</string>
 
     <!-- __PAYMENTS -->
     <string name="payments_error_title_unavailable">Product unavailable</string>
@@ -40,7 +42,7 @@
 
     <string name="payments_sign_out">Sign out</string>
 
-    <!-- __OFFLINE_SYNC -->
+    <!-- __OFFLINE SYNC -->
     <string name="offline_track_not_available">Track is not available offline</string>
     <string name="offline_update_completed_title">All tracks synced!</string>
     <string name="offline_update_completed_message">Ready for offline listening!</string>
@@ -58,6 +60,15 @@
     <string name="no_network_connection">no network connection</string>
     <string name="no_wifi_connection">no Wi-Fi connection</string>
     <string name="offline_not_available_offline">Not available offline</string>
+
+    <!-- __OFFLINE ONBOARDING -->
+    <string name="offline_onboarding">Decide how you\'d like to save offline</string>
+    <string name="selective_sync_title">Selective sync</string>
+    <string name="selective_sync_body">Make your likes or playlists available offline on a case-by-case basis. Just tap the three dots and save offline.</string>
+    <string name="auto_sync_title">Automatic sync</string>
+    <string name="auto_sync_body">Make all your current and future likes and playlists available offline automatically.</string>
+    <string name="selective_sync_button">Ok, got it</string>
+    <string name="auto_sync_button">Save everything now</string>
 
     <!-- __OFFLINE SETTINGS -->
     <string name="pref_offline_settings">Offline Sync Settings</string>
@@ -78,6 +89,29 @@
     <string name="pref_offline_remove_all_offline_content_description">This will remove all the content you have made available offline from your device</string>
     <string name="offline_cannot_set_limit_below_usage">Limit cannot be set below current storage usage.</string>
     <string name="sign_out_description_offline">You will have to re-connect your SoundCloud account. All tracks selected for offline listening will be removed from this device.</string>
+    <string name="disable_offline_collection_title">Stop automatically saving offline?</string>
+    <string name="disable_offline_collection_body">This will keep future tracks and playlists from being synced automatically.</string>
+    <!-- offline playlist creation -->
+    <string name="add_playlist_offline">Available offline</string>
+    <!-- offline settings -->
+    <string name="title_offline_settings">Offline sync settings</string>
+    <string name="you_offline_sync_settings">Offline sync settings</string>
+    <string name="unlimited">unlimited</string>
+
+    <plurals name="downloading_track_of_tracks">
+        <item quantity="one">%1$d track</item>
+        <item quantity="other">%1$d of %2$d tracks</item>
+    </plurals>
+
+    <plurals name="offline_dialog_go_online_warning_title">
+        <item quantity="one">You have %d day to go back online</item>
+        <item quantity="other">You have %d days to go back online</item>
+    </plurals>
+
+    <plurals name="offline_dialog_go_online_warning_content">
+        <item quantity="one">Your device needs to be online at least once every 30 days to verify your subscription. You currently have %d day to keep this device connected to your subscription or your offline content will become inaccessible.</item>
+        <item quantity="other">Your device needs to be online at least once every 30 days to verify your subscription. You currently have %d days to keep this device connected to your subscription or your offline content will become inaccessible.</item>
+    </plurals>
 
     <!-- __DEVICE MANAGEMENT -->
     <string name="device_management_limit">You\'ve reached the registered device limit</string>
@@ -85,12 +119,26 @@
     <string name="device_management_conflict_message">Your subscription has reached the device limit. This device was signed out and any offline content has been removed. You can log back in to re-register this device.</string>
     <string name="device_management_continue">Continue</string>
 
+    <!-- __PROFILE -->
+    <string name="user_profile_spotlight_heading">Top Sounds</string>
+    <string name="user_profile_tracks_heading">Tracks</string>
+    <string name="user_profile_releases_heading">Releases</string>
+    <string name="user_profile_playlists_heading">Playlists</string>
+    <string name="user_profile_reposts_heading">Reposts</string>
+    <string name="user_profile_likes_heading">Likes</string>
+    <string name="user_profile_tracks_view_all">View all tracks</string>
+    <string name="user_profile_releases_view_all">View all releases</string>
+    <string name="user_profile_playlists_view_all">View all playlists</string>
+    <string name="user_profile_reposts_view_all">View all reposts</string>
+    <string name="user_profile_likes_view_all">View all likes</string>
+
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Remove ads</string>
-    <string name="upsell_track_item">Available on SoundCloud CS</string>
-    <string name="upsell_stream_start_trial_button">Start your free 30-day trial</string>
-    <string name="upsell_stream_upgrade_title">Upgrade to SoundCloud Go</string>
-    <string name="upsell_stream_upgrade_description">Get premium tracks in full, listen offline\nand remove ads for only $9.99/month</string>
+    <string name="upsell_stream_start_trial_button">Upgrade now</string>
+    <string name="upsell_stream_upgrade_title">Get SoundCloud Go</string>
+    <string name="upsell_stream_upgrade_description">Offline. Ad-free. Full catalog.</string>
+    <string name="upsell_track_preview">Preview</string>
+    <string name="upsell_track_geo_blocked">Not yet available in your region</string>
 
     <!-- __STATIONS -->
     <string name="station_type_track">Track station</string>
@@ -102,16 +150,6 @@
     <string name="stations_collection_title_genre_recommendations">Genre Recommendations</string>
     <string name="station_bucket_action_text">View all</string>
 
-    <!-- NEW STREAM -->
-    <string name="stream_playlist_header_text">%1$s %2$s a playlist</string>
-    <string name="stream_track_header_text">%1$s %2$s a track</string>
-    <string name="stream_posted_action">posted</string>
-    <string name="stream_reposted_action">reposted</string>
-    <string name="stream_promoted_action">promoted</string>
-    <string name="stream_track">track</string>
-    <string name="stream_playlist">playlist</string>
-    <string name="stream_promoted_playable">Promoted %s</string>
-
     <!-- __STREAMING -->
     <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
 
@@ -119,6 +157,5 @@
     <string name="playback_error_blocked">Not available yet in your country</string>
     <string name="playback_preview_indicator">preview</string>
     <string name="playback_upsell_button">Unlock full track</string>
-
 
 </resources>

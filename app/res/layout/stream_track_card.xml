@@ -36,6 +36,20 @@
                 style="@style/Cards.TitleText"
                 android:layout_alignBottom="@id/image"
                 tools:text="Track title" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/preview_indicator"
+                style="@style/PreviewIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@id/image"
+                android:layout_alignTop="@id/image"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/cards_artwork_inner_padding"
+                android:layout_marginTop="@dimen/cards_artwork_inner_padding"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
         </RelativeLayout>
 
         <include layout="@layout/default_card_footer" />

@@ -16,6 +16,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -259,13 +260,28 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     public void loadingStreamItemsIncludesTierInformation() {
         final ApiTrack track = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
-        testFixtures().insertPolicyMidTierMonetizable(track.getUrn());
+        testFixtures().insertPolicyHighTierMonetizable(track.getUrn());
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final PropertySet midTierTrackPost = createTrackPropertySet(track).put(TrackProperty.SUB_MID_TIER, true);
+        final PropertySet highTierTrackPost = createTrackPropertySet(track).put(TrackProperty.SUB_HIGH_TIER, true);
 
-        verify(observer).onNext(midTierTrackPost);
+        verify(observer).onNext(highTierTrackPost);
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void loadingStreamItemIncludesSnippedFlag() {
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        track.setSnipped(true);
+        testFixtures().insertTrack(track);
+        testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
+
+        storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
+
+        final PropertySet snippedTrack = createTrackPropertySet(track);
+
+        verify(observer).onNext(snippedTrack);
         verify(observer).onCompleted();
     }
 
@@ -284,19 +300,21 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void tracksForPlaybackLoadsUrnsOfAllTrackItemsInSoundStream() {
+    public void playbackItemsLoadsUrnsOfAllPlaybackItemsInSoundStream() {
         final ApiTrack trackOne = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(trackOne.getId(), TIMESTAMP);
         final ApiTrack trackTwo = testFixtures().insertTrack();
         final ApiUser reposter = testFixtures().insertUser();
         testFixtures().insertStreamTrackRepost(trackTwo.getId(), TIMESTAMP - 1, reposter.getId());
-        testFixtures().insertStreamPlaylistPost(testFixtures().insertPlaylist().getId(), TIMESTAMP - 2);
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        testFixtures().insertStreamPlaylistPost(apiPlaylist.getId(), TIMESTAMP - 2);
 
         TestObserver<PropertySet> observer = new TestObserver<>();
-        storage.tracksForPlayback().subscribe(observer);
+        storage.playbackItems().subscribe(observer);
         assertThat(observer.getOnNextEvents()).containsExactly(
                 trackOne.getUrn().toPropertySet(),
-                trackTwo.getUrn().toPropertySet().put(PostProperty.REPOSTER_URN, reposter.getUrn()));
+                trackTwo.getUrn().toPropertySet().put(PostProperty.REPOSTER_URN, reposter.getUrn()),
+                apiPlaylist.getUrn().toPropertySet());
     }
 
     private PropertySet createTrackPropertySet(final ApiTrack track) {
@@ -317,7 +335,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.REPOSTS_COUNT.bind(track.getRepostsCount()),
                 PlayableProperty.IS_PRIVATE.bind(false),
                 TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
-                TrackProperty.SUB_MID_TIER.bind(false));
+                TrackProperty.SUB_HIGH_TIER.bind(track.isSubHighTier().get()),
+                TrackProperty.SNIPPED.bind(track.isSnipped()));
     }
 
     private PropertySet createPlaylistPropertySet(ApiPlaylist playlist) {

@@ -32,12 +32,12 @@
                 style="@style/FacebookInvitesFriendImageOverlap" />
         </LinearLayout>
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/facebook_invite_text"
             style="@style/ListItemNotificationTitle"
             android:text="@string/facebook_invites_title" />
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/facebook_invite_introduction_text"
             style="@style/ListItemNotificationDescription"
             android:text="@string/facebook_invites_description" />

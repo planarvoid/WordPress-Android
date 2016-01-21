@@ -16,7 +16,7 @@ public class LoginErrorScreen extends Screen {
     }
 
     public String errorMessage() {
-        return new TextElement(testDriver.findElement(With.id(android.R.id.message))).getText();
+        return new TextElement(testDriver.findOnScreenElement(With.id(android.R.id.message))).getText();
     }
 
     public LoginScreen clickOk() {
@@ -26,7 +26,7 @@ public class LoginErrorScreen extends Screen {
 
     private ViewElement okButton() {
         final String okText = testDriver.getString(android.R.string.ok);
-        return testDriver.findElement(With.text(okText));
+        return testDriver.findOnScreenElement(With.text(okText));
     }
 
     @Override

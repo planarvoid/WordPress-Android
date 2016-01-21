@@ -11,7 +11,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.InsertResult;
 import org.junit.Before;
@@ -74,7 +74,7 @@ public class WriteMixedRecordsCommandTest {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
-        final List<PropertySetSource> apiPlaylists = Arrays.asList(apiPlaylist,apiTrack,apiUser);
+        final List<ApiEntityHolder> apiPlaylists = Arrays.asList(apiPlaylist,apiTrack,apiUser);
 
         when(storePlaylistsCommand.call(Arrays.asList(apiPlaylist))).thenReturn(new InsertResult(1));
         when(storeTracksCommand.call(Arrays.asList(apiTrack))).thenReturn(new InsertResult(1));
@@ -116,7 +116,7 @@ public class WriteMixedRecordsCommandTest {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
-        final List<PropertySetSource> apiPlaylists = Arrays.asList(apiPlaylist,apiTrack,apiUser);
+        final List<ApiEntityHolder> apiPlaylists = Arrays.asList(apiPlaylist,apiTrack,apiUser);
 
         when(storePlaylistsCommand.call(Arrays.asList(apiPlaylist))).thenReturn(new InsertResult(1));
         when(storeTracksCommand.call(Arrays.asList(apiTrack))).thenReturn(new InsertResult(1));

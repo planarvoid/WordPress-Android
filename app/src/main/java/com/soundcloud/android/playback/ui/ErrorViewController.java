@@ -2,31 +2,39 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.StartStationPresenter;
 
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewStub;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
+@AutoFactory(allowSubclasses = true)
 class ErrorViewController {
 
     enum ErrorState {
-        FAILED, BLOCKED, UNPLAYABLE
+        FAILED, BLOCKED, UNPLAYABLE;
     }
 
     private final View trackView;
+
     private final TrackPageHolder holder;
     private final ViewStub errorStub;
+    private final StartStationPresenter startStationPresenter;
 
+    private Urn urn;
     private View errorLayout;
 
     @Nullable private ErrorState currentError;
 
-    public ErrorViewController(View trackView) {
+    public ErrorViewController(@Provided StartStationPresenter startStationPresenter, View trackView) {
+        this.startStationPresenter = startStationPresenter;
         this.trackView = trackView;
         this.holder = (TrackPageHolder) trackView.getTag();
         this.errorStub = (ViewStub) trackView.findViewById(R.id.track_page_error_stub);
@@ -49,6 +57,30 @@ class ErrorViewController {
         final ImageView errorImage = (ImageView) errorLayout.findViewById(R.id.playback_error_image);
         errorImage.setImageResource(getImageFromError(error));
 
+        setupStartStationButton(error);
+    }
+
+    public void setUrn(Urn urn) {
+        this.urn = urn;
+    }
+
+    private void setupStartStationButton(ErrorState error) {
+        final Button stationButton = (Button) errorLayout.findViewById(R.id.playback_error_station_button);
+        if (error == ErrorState.BLOCKED){
+            setupStartStationButton(stationButton);
+        } else {
+            stationButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void setupStartStationButton(Button stationButton) {
+        stationButton.setVisibility(View.VISIBLE);
+        stationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startStationPresenter.startStation(errorLayout.getContext(), Urn.forTrackStation(urn.getNumericId()));
+            }
+        });
     }
 
     private void setupErrorLayout() {
@@ -110,15 +142,4 @@ class ErrorViewController {
             v.setAlpha(1f);
         }
     }
-
-    public static class Factory {
-
-        @Inject
-        Factory() {}
-
-        public ErrorViewController create(View trackView) {
-            return new ErrorViewController(trackView);
-        }
-    }
-
 }

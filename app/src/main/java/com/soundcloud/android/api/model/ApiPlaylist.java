@@ -2,7 +2,7 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.legacy.model.PlayableStats;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistRecord;
@@ -14,7 +14,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 import java.util.List;
 
-public class ApiPlaylist implements PropertySetSource, PlaylistRecord, PlaylistRecordHolder {
+public class ApiPlaylist implements ApiEntityHolder, PlaylistRecord, PlaylistRecordHolder {
 
     private Urn urn;
     private String title;

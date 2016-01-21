@@ -19,7 +19,7 @@ public class FBWebViewScreen {
         solo = driver;
         waiter = new Waiter(solo);
         waiter.waitForElement(WebView.class);
-        webview = solo.findElement(With.className(WebView.class));
+        webview = solo.findOnScreenElement(With.className(WebView.class));
         waitForContent();
     }
 
@@ -45,8 +45,8 @@ public class FBWebViewScreen {
     public StreamScreen submit() {
         solo.waitForWebElement(loginField());
         solo.clickOnWebElement(loginField());
-        if (solo.findElement(With.text("Do you want the browser to remember this password?")).isVisible()) {
-            solo.findElement(With.text("Never")).click();
+        if (solo.findOnScreenElement(With.text("Do you want the browser to remember this password?")).isVisible()) {
+            solo.findOnScreenElement(With.text("Never")).click();
         }
         solo.clickOnWebElement(By.textContent("OK")); // confirm permissions
         waiter.waitForDialogToClose();

@@ -45,6 +45,7 @@ public class UserProfileOperationsPlaylistsTest {
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
+    @Mock private StoreProfileCommand storeProfileCommand;
     @Captor private ArgumentCaptor<Iterable<ApiPlaylist>> playlistsCaptor;
 
     private final ApiPlaylist apiPlaylist1 = ModelFixtures.create(ApiPlaylist.class);
@@ -60,8 +61,13 @@ public class UserProfileOperationsPlaylistsTest {
 
     @Before
     public void setUp() {
-        operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
-                writeMixedRecordsCommand);
+        operations = new UserProfileOperations(
+                profileApi,
+                Schedulers.immediate(),
+                loadPlaylistLikedStatuses,
+                userRepository,
+                writeMixedRecordsCommand,
+                storeProfileCommand);
     }
 
     @Test

@@ -1,14 +1,14 @@
 package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackRecordHolder;
 import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Date;
 
-public class ApiTrackLike implements PropertySetSource, TrackRecordHolder {
+public class ApiTrackLike implements ApiEntityHolder, TrackRecordHolder {
 
     private final ApiTrack apiTrack;
     private final Date createdAt;

@@ -19,7 +19,7 @@
             android:layout_centerInParent="true"
             android:text="@string/ads_advertisement" />
 
-    <TextView android:id="@+id/why_ads"
+    <com.soundcloud.android.view.CustomFontTextView android:id="@+id/why_ads"
               style="@style/AdButton.WhyAds"
               android:layout_width="wrap_content"
               android:layout_height="match_parent"

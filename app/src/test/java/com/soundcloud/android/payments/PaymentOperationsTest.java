@@ -156,7 +156,7 @@ public class PaymentOperationsTest extends AndroidUnitTest {
     }
 
     private Observable<AvailableProducts> availableProductsObservable() {
-        AvailableProducts products = new AvailableProducts(asList(new AvailableProducts.Product("product_id", "mid_tier")));
+        AvailableProducts products = new AvailableProducts(asList(new AvailableProducts.Product("product_id", "high_tier")));
         return Observable.just(products);
     }
 

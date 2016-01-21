@@ -1,0 +1,46 @@
+--- !ruby/object:MrLoggerLogger::ResultSpec
+expected_events:
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    track_owner: soundcloud:users:[0-9]+
+    client_id: 3152
+    action: play
+    policy: SNIP
+    player_type: Skippy|MediaPlayer
+    consumer_subs_plan: none
+    page_name: search:everything
+    user: soundcloud:users:190275390
+    playhead_position: '[0-9]+'
+    track_length: '[0-9]+'
+    protocol: hls|https
+    ts: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
+    connection_type: wifi
+    trigger: manual
+    local_storage_playback: false
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: (\w|-)+
+    track_owner: soundcloud:users:[0-9]+
+    client_id: 3152
+    action: pause
+    policy: SNIP
+    player_type: Skippy|MediaPlayer
+    consumer_subs_plan: none
+    page_name: search:everything
+    user: soundcloud:users:190275390
+    playhead_position: '[0-9]+'
+    track_length: '[0-9]+'
+    protocol: hls|https
+    ts: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
+    connection_type: wifi
+    trigger: manual
+    local_storage_playback: false
+    pause_reason: pause
+  version: '1'
+whitelisted_events: audio

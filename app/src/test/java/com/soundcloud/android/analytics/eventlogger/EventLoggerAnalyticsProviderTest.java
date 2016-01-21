@@ -19,7 +19,6 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -296,18 +295,6 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForPromotedEvent");
-    }
-
-    @Test
-    public void shouldTrackMidTierTrackEvent() {
-        MidTierTrackEvent event = MidTierTrackEvent.forImpression(Urn.forTrack(123), "screen_tag");
-        when(dataBuilderv0.build(event)).thenReturn("ForMidTierTrackEvent");
-
-        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
-
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker).trackEvent(captor.capture());
-        assertThat(captor.getValue().getData()).isEqualTo("ForMidTierTrackEvent");
     }
 
     @Test

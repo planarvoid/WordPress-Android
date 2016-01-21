@@ -15,6 +15,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.Subscription;
@@ -142,8 +143,7 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
         final TrackItem track = adapter.getItem(position);
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
         final PlaySessionSource playSessionSource = PlaySessionSource.forExplore(screenTagExtra, trackingTag);
-        playbackInitiator
-                .playTrackWithRecommendationsLegacy(track.getEntityUrn(), playSessionSource)
+        playbackInitiator.playTracks(Lists.transform(adapter.getItems(), TrackItem.TO_URN), position, playSessionSource)
                 .subscribe(subscriberProvider.get());
     }
 

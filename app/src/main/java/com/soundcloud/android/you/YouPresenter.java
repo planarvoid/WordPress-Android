@@ -14,6 +14,7 @@ import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
@@ -44,6 +45,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private final Navigator navigator;
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
+    private final SyncConfig syncConfig;
 
     private Optional<YouView> youViewOpt = Optional.absent();
     private Optional<PropertySet> youOpt = Optional.absent();
@@ -59,7 +61,8 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                         OfflineContentOperations offlineContentOperations,
                         Navigator navigator,
                         BugReporter bugReporter,
-                        ApplicationProperties appProperties) {
+                        ApplicationProperties appProperties,
+                        SyncConfig syncConfig) {
         this.youViewFactory = youViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
@@ -71,6 +74,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         this.navigator = navigator;
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
+        this.syncConfig = syncConfig;
     }
 
     @Override
@@ -88,6 +92,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         youViewOpt = Optional.of(youView);
 
         setupOfflineSync(youView);
+        setupNotifications(youView);
         setupFeedback(youView);
         bindUserIfPresent();
     }
@@ -102,7 +107,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private void setupOfflineSync(YouView youView) {
         if (featureOperations.isOfflineContentEnabled() || offlineContentOperations.hasOfflineContent()) {
             youView.showOfflineSettings();
-        } else if (featureOperations.upsellMidTier()) {
+        } else if (featureOperations.upsellHighTier()) {
             youView.showOfflineSettings();
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsImpression());
         } else {
@@ -113,6 +118,12 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private void setupFeedback(YouView youView) {
         if (appProperties.shouldAllowFeedback()) {
             youView.showReportBug();
+        }
+    }
+
+    private void setupNotifications(YouView youView) {
+        if (syncConfig.isServerSideNotifications()) {
+            youView.hideNotificationSettings();
         }
     }
 
@@ -175,7 +186,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     @Override
     public void onOfflineSettingsClicked(View view) {
         navigator.openOfflineSettings(view.getContext());
-        if (featureOperations.upsellMidTier()) {
+        if (featureOperations.upsellHighTier()) {
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsClick());
         }
     }

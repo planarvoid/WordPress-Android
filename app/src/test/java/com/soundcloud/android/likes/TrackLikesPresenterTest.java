@@ -1,8 +1,6 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -11,18 +9,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.MidTierTrackEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.paywall.PaywallImpressionController;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -45,9 +40,7 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -73,10 +66,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private Menu menu;
     @Mock private MenuInflater menuInflater;
     @Mock private MenuItem menuItem;
-    @Mock private Navigator navigator;
     @Mock private FeatureOperations featureOperations;
     @Mock private CollapsingScrollHelper collapsingScrollHelper;
-    @Mock private PaywallImpressionController paywallImpressionController;
 
     private PublishSubject<List<PropertySet>> likedTracksObservable = PublishSubject.create();
     private TestSubscriber testSubscriber = new TestSubscriber();
@@ -87,7 +78,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     public void setup() {
         presenter = new TrackLikesPresenter(likeOperations, playbackOperations,
                 offlineContentOperations, adapter, headerPresenter, expandPlayerSubscriberProvider,
-                eventBus, swipeRefreshAttacher, featureOperations, navigator, collapsingScrollHelper, paywallImpressionController);
+                eventBus, swipeRefreshAttacher, featureOperations, collapsingScrollHelper);
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
@@ -106,7 +97,6 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     public void shouldAttachRecyclerViewToImpressionControllerInOnViewCreated() {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-        verify(paywallImpressionController).attachRecyclerView(isA(RecyclerView.class));
     }
 
     @Test
@@ -114,7 +104,6 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onDestroyView(fragmentRule.getFragment());
-        verify(paywallImpressionController).detachRecyclerView(isA(RecyclerView.class));
     }
 
     @Test
@@ -129,52 +118,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldShowUpsellOnMidTierItemClick() {
-        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
-
-        when(featureOperations.upsellMidTier()).thenReturn(true);
-        when(adapter.getItem(0)).thenReturn(clickedTrack);
-        presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-
-        presenter.onItemClicked(mock(View.class), 0);
-
-        verify(navigator).openUpgrade(any(Context.class));
-    }
-
-    @Test
-    public void shouldNotShowUpsellOnMidTierItemClickWhenUserCannotUpgrade() {
-        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
-        setupPlaybackConditions(clickedTrack);
-
-        when(adapter.getItem(0)).thenReturn(clickedTrack);
-        presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-
-        presenter.onItemClicked(mock(View.class), 0);
-
-        verifyZeroInteractions(navigator);
-    }
-
-    @Test
-    public void shouldSendUpsellEventOnMidTierItemClick() {
-        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
-
-        when(featureOperations.upsellMidTier()).thenReturn(true);
-        when(adapter.getItem(0)).thenReturn(clickedTrack);
-        presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-
-        presenter.onItemClicked(mock(View.class), 0);
-
-        final MidTierTrackEvent trackingEvent = (MidTierTrackEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(trackingEvent.getKind()).isEqualTo(MidTierTrackEvent.KIND_CLICK);
-        assertThat(trackingEvent.getTrackUrn()).isEqualTo(clickedTrack.getEntityUrn());
-    }
-
-    @Test
     public void shouldNotSendUpsellEventOnMidTierItemClickWhenUserCannotUpgrade() {
-        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.midTierTrack());
+        final TrackItem clickedTrack = TrackItem.from(TestPropertySets.highTierTrack());
         setupPlaybackConditions(clickedTrack);
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);
@@ -211,14 +156,14 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     public void shouldUpdateAdapterWhenLikedTrackDownloaded() {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         final DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(track.getUrn());
-        final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(downloadRequest);
+        final OfflineContentChangedEvent downloadingEvent = OfflineContentChangedEvent.downloading(downloadRequest);
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         reset(adapter);
 
         when(adapter.getItems()).thenReturn(Collections.singletonList(TrackItem.from(track)));
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadingEvent);
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadingEvent);
 
         verify(adapter).notifyDataSetChanged();
     }

@@ -2,9 +2,11 @@ package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.payments.error.PaymentError;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -27,6 +29,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
     private final ConfigurationManager configurationManager;
     private final UpgradeView upgradeView;
     private final EventBus eventBus;
+    private final Navigator navigator;
 
     private Observable<String> purchaseObservable;
     private Observable<PurchaseStatus> statusObservable;
@@ -38,12 +41,14 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
 
     @Inject
     UpgradePresenter(PaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
-                     ConfigurationManager configurationManager, UpgradeView upgradeView, EventBus eventBus) {
+                     ConfigurationManager configurationManager, UpgradeView upgradeView, EventBus eventBus,
+                     Navigator navigator) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorPresenter = paymentErrorPresenter;
         this.configurationManager = configurationManager;
         this.upgradeView = upgradeView;
         this.eventBus = eventBus;
+        this.navigator = navigator;
     }
 
     @Override
@@ -80,10 +85,23 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
         paymentOperations.disconnect();
     }
 
+    @Override
     public void startPurchase() {
         subscribeToPurchase(paymentOperations.purchase(details.getId()).cache());
         upgradeView.disableBuyButton();
         eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeButtonClick());
+    }
+
+    @Override
+    public void done() {
+        navigator.openStream(activity, Screen.UPGRADE);
+        activity.finish();
+    }
+
+    @Override
+    public void moreInfo() {
+        navigator.openOfflineOnboarding(activity);
+        activity.finish();
     }
 
     public void handleBillingResult(BillingResult result) {

@@ -15,7 +15,7 @@
             android:layout_above="@+id/leave_behind_image_holder"
             android:visibility="gone">
 
-        <Button
+        <com.soundcloud.android.view.CustomFontButton
                 style="@style/AdOverlayClose"
                 android:layout_marginBottom="@dimen/ad_overlay_padding"
                 android:layout_gravity="bottom|right"/>

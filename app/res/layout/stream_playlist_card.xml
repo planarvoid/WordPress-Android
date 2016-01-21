@@ -28,8 +28,6 @@
                 android:id="@id/creator"
                 style="@style/Cards.ArtistText"
                 android:layout_alignTop="@id/image"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="16dp"
                 tools:text="Artist" />
 
             <com.soundcloud.android.view.JaggedTextView
@@ -39,21 +37,17 @@
                 tools:text="Playlist Title" />
 
             <LinearLayout
+                style="@style/Cards.PlaylistTracksContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@id/image"
-                android:layout_marginBottom="16dp"
-                android:layout_marginLeft="12dp"
-                android:background="@drawable/circle_playlist_tracks_bg"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:layout_alignBottom="@id/image">
 
-                <TextView
+                <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/track_count"
                     style="@style/Cards.PlaylistTracks.Count"
                     tools:text="12" />
 
-                <TextView
+                <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/tracks_text"
                     style="@style/Cards.PlaylistTracks.Text"
                     tools:text="TRACKS" />

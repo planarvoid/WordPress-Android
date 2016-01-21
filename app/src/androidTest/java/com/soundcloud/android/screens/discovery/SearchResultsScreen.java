@@ -9,7 +9,6 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.SearchTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -36,34 +35,20 @@ public class SearchResultsScreen extends Screen {
     }
 
     public VisualPlayerElement findAndClickFirstTrackItem() {
-        scrollListToItem(With.id(com.soundcloud.android.R.id.track_list_item)).click();
+        scrollToItem(With.id(com.soundcloud.android.R.id.track_list_item)).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
 
     public PlaylistDetailsScreen findAndClickFirstPlaylistItem() {
-        scrollListToItem(With.id(R.id.playlist_list_item)).click();
+        scrollToItem(With.id(R.id.playlist_list_item)).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
     public ProfileScreen findAndClickFirstUserItem() {
-        scrollListToItem(With.id(com.soundcloud.android.R.id.user_list_item)).click();
+        scrollToItem(With.id(com.soundcloud.android.R.id.user_list_item)).click();
         return new ProfileScreen(testDriver);
-    }
-
-    // this seems more reliable than scrolling around the list waiting for a particular list element type
-    public PlaylistDetailsScreen clickFirstPlaylistItem() {
-        resultsList().getItemAt(0).click();
-        return new PlaylistDetailsScreen(testDriver);
-    }
-
-    // this seems more reliable than scrolling around the list waiting for a particular list element type
-    public VisualPlayerElement clickFirstTrackItem() {
-        resultsList().getItemAt(0).click();
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
-        visualPlayerElement.waitForExpandedPlayer();
-        return visualPlayerElement;
     }
 
     public int getResultItemCount() {
@@ -95,18 +80,13 @@ public class SearchResultsScreen extends Screen {
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        testDriver.findElements(With.id(R.id.overflow_button)).get(0).click();
+        testDriver.findOnScreenElements(With.id(R.id.overflow_button)).get(0).click();
         return new TrackItemMenuElement(testDriver);
     }
 
     public DiscoveryScreen goBack() {
         testDriver.goBack();
         return new DiscoveryScreen(testDriver);
-    }
-
-    public UpgradeScreen clickMidTierTrackForUpgrade(String name) {
-        testDriver.findElement(With.textContaining(name)).click();
-        return new UpgradeScreen(testDriver);
     }
 
     public List<PlaylistElement> getPlaylists() {
@@ -116,7 +96,7 @@ public class SearchResultsScreen extends Screen {
 
     protected List<PlaylistElement> getPlaylists(int withId) {
         return Lists.transform(
-                testDriver.findElements(With.id(withId)),
+                testDriver.findOnScreenElements(With.id(withId)),
                 toPlaylistItemElement
         );
     }
@@ -133,7 +113,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     private RecyclerViewElement resultsList() {
-        return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
+        return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
     @Override

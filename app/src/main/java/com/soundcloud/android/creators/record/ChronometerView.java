@@ -1,10 +1,10 @@
 package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.CustomFontTextView;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.TextView;
 
 import java.util.concurrent.TimeUnit;
 
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * Simple chronometer that handles its own formatting and tries to minimize duplicate results
  */
 
-public class ChronometerView extends TextView {
+public class ChronometerView extends CustomFontTextView {
     private long durationSec = -1l, progressSec = -1l;
     private String durationString;
 

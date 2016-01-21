@@ -5,15 +5,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import android.content.SharedPreferences;
 
-public class FacebookInvitesStorageTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class FacebookInvitesStorageTest {
 
     public static final String TIMES_APP_OPENED = "times_app_opened";
     public static final String TIMES_DISMISSED = "times_dismissed";

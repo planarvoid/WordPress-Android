@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.EditTextElement;
-import com.soundcloud.android.framework.viewelements.RadioButtonElement;
+import com.soundcloud.android.framework.viewelements.CheckableElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.Screen;
 
@@ -31,7 +31,7 @@ public class RecordMetadataScreen extends Screen {
     }
 
     public RecordScreen clickUploadButton() {
-        testDriver.findElement(With.id(R.id.btn_action)).click();
+        testDriver.findOnScreenElement(With.id(R.id.btn_action)).click();
         return new RecordScreen(testDriver);
     }
 
@@ -41,10 +41,10 @@ public class RecordMetadataScreen extends Screen {
     }
 
     private EditTextElement getTitleEditText() {
-        return new EditTextElement(testDriver.findElement(With.id(R.id.title)));
+        return new EditTextElement(testDriver.findOnScreenElement(With.id(R.id.title)));
     }
 
-    private RadioButtonElement getPrivateRadioButton() {
-        return new RadioButtonElement(testDriver.findElement(With.id(R.id.rdo_private)));
+    private CheckableElement getPrivateRadioButton() {
+        return new CheckableElement(testDriver.findOnScreenElement(With.id(R.id.rdo_private)));
     }
 }

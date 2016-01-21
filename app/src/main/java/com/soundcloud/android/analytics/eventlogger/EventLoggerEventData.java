@@ -36,11 +36,12 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAY
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION_v0;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.POLICY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROMOTED_BY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REASON;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPOSTER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOUND;
@@ -91,6 +92,11 @@ class EventLoggerEventData {
 
     public EventLoggerEventData adUrn(String adUrn) {
         addToPayload(AD_URN, adUrn);
+        return this;
+    }
+
+    public EventLoggerEventData policy(String policy) {
+        addToPayload(POLICY, policy);
         return this;
     }
 
@@ -271,7 +277,7 @@ class EventLoggerEventData {
     }
 
     public EventLoggerEventData reason(String stopReason) {
-        addToPayload(REASON, stopReason);
+        addToPayload(PAUSE_REASON, stopReason);
         return this;
     }
 

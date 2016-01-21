@@ -2,10 +2,13 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.CheckableElement;
 import com.soundcloud.android.framework.viewelements.SeekBarElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
+
+import android.widget.Switch;
 
 public class OfflineSettingsScreen extends Screen {
 
@@ -16,6 +19,16 @@ public class OfflineSettingsScreen extends Screen {
 
     public OfflineSettingsScreen(Han solo) {
         super(solo);
+    }
+
+    public OfflineSettingsScreen toggleSyncCollectionOn() {
+        testDriver.clickOnText(R.string.pref_offline_offline_collection);
+        return this;
+    }
+
+    public ConfirmDisableSyncCollectionScreen toggleSyncCollectionOff() {
+        testDriver.clickOnText(R.string.pref_offline_offline_collection);
+        return new ConfirmDisableSyncCollectionScreen(testDriver, ACTIVITY);
     }
 
     public UpgradeScreen clickSubscribe() {
@@ -35,20 +48,28 @@ public class OfflineSettingsScreen extends Screen {
         return this;
     }
 
+    public boolean isOfflineCollectionChecked() {
+        return offlineCollectionCheckable().isChecked();
+    }
+
     public String getLegendLimitText() {
         return legendLimitText().getText();
     }
 
     private TextElement sliderLimitText() {
-        return new TextElement(testDriver.findElement(With.id(SLIDER_LIMIT_TEXT)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(SLIDER_LIMIT_TEXT)));
     }
 
     private TextElement legendLimitText() {
-        return new TextElement(testDriver.findElement(With.id(LEGEND_LIMIT_TEXT)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(LEGEND_LIMIT_TEXT)));
     }
 
     private SeekBarElement sliderLimitSeekBar() {
-        return new SeekBarElement(testDriver.findElement(With.id(SLIDER_LIMIT_SEEK_BAR)));
+        return new SeekBarElement(testDriver.findOnScreenElement(With.id(SLIDER_LIMIT_SEEK_BAR)));
+    }
+
+    private CheckableElement offlineCollectionCheckable() {
+        return new CheckableElement(testDriver.findOnScreenElements(With.className(Switch.class.getName())).get(0));
     }
 
     @Override

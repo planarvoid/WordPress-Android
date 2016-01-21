@@ -29,7 +29,7 @@
                 android:padding="@dimen/ad_overlay_padding"
                 android:text="@string/ads_advertisement" />
 
-        <Button
+        <com.soundcloud.android.view.CustomFontButton
             style="@style/AdOverlayClose"
             android:layout_marginBottom="@dimen/ad_overlay_padding"
             android:layout_marginTop="@dimen/interstitial_padding_large"

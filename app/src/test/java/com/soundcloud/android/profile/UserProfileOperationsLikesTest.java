@@ -11,6 +11,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackLike;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -48,13 +49,14 @@ public class UserProfileOperationsLikesTest {
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
+    @Mock private StoreProfileCommand storeProfileCommand;
 
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
     final ApiTrackLike apiTrackLike = new ApiTrackLike(ModelFixtures.create(ApiTrack.class), CREATED_AT);
     final ApiPlaylistLike apiPlaylistLike = new ApiPlaylistLike(apiPlaylist, CREATED_AT);
 
-    final ModelCollection<PropertySetSource> page = new ModelCollection<>(
+    final ModelCollection<ApiEntityHolder> page = new ModelCollection<>(
             Arrays.asList(
                     apiTrackLike,
                     apiPlaylistLike
@@ -63,8 +65,13 @@ public class UserProfileOperationsLikesTest {
 
     @Before
     public void setUp() {
-        operations = new UserProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository,
-                writeMixedRecordsCommand);
+        operations = new UserProfileOperations(
+                profileApi,
+                Schedulers.immediate(),
+                loadPlaylistLikedStatuses,
+                userRepository,
+                writeMixedRecordsCommand,
+                storeProfileCommand);
     }
 
     @Test

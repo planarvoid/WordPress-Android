@@ -10,7 +10,6 @@ import com.soundcloud.android.framework.annotation.Issue;
 import com.soundcloud.android.framework.annotation.StationsTabTest;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ViewAllStationsScreen;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
@@ -33,27 +32,11 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH, Flag.STATIONS_HOME);
     }
 
-    public void testSavedStationsIsAvailable() {
-        assertTrue(mainNavHelper.goToStationsHome().getSavedStationsBucket().isVisible());
-    }
-
-    public void testRecentStationsBucket() {
-        assertTrue(mainNavHelper.goToStationsHome().getRecentStationsBucket().isVisible());
-    }
-
-    public void testTrackRecommendationsIsAvailable() {
-        assertTrue(mainNavHelper.goToStationsHome().getTrackRecommendationsBucket().isVisible());
-    }
-
-    public void testCuratorRecommendationsIsAvailable() {
-        assertTrue(mainNavHelper.goToStationsHome().getCuratorRecommendationsBucket().isVisible());
-    }
-
-    public void testGenreRecommendationsIsAvailable() {
-        assertTrue(mainNavHelper.goToStationsHome().getGenreRecommendationsBucket().isVisible());
+    public void testRecentStationsIsAvailable() {
+        final StationsBucketElement recentStationsBucket = mainNavHelper.goToStationsHome().getRecentStationsBucket();
+        assertTrue(recentStationsBucket.isVisible());
     }
 
     public void testStartedStationShouldBeAddedToRecentStations() {
@@ -75,7 +58,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
         final VisualPlayerElement player = mainNavHelper
                 .goToStationsHome()
                 .getRecentStationsBucket()
-                .findStation(With.text(stationTitle))
+                .findStation(stationTitle)
                 .click();
 
         assertThat(player, is(visible()));
@@ -102,7 +85,7 @@ public class StationsHomeTest extends ActivityTest<LauncherActivity> {
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
 
-        final TrackItemElement track = playlistDetailsScreen.getTrack(1);
+        final TrackItemElement track = playlistDetailsScreen.scrollToAndGetFirstTrackItem();
         final String title = track.getTitle();
 
         track.clickOverflowButton().clickStartStation().pressBackToCollapse();

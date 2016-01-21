@@ -14,7 +14,7 @@ public class ViewAllStationsScreen extends Screen {
     }
 
     public StationElement getFirstStation() {
-        return new StationElement(testDriver, testDriver.findElement(With.id(R.id.station_item)));
+        return new StationElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.station_item)));
     }
 
     @Override
@@ -23,6 +23,6 @@ public class ViewAllStationsScreen extends Screen {
     }
 
     public StationElement findStation(With matcher) {
-        return new StationElement(testDriver, testDriver.findElement(matcher));
+        return new StationElement(testDriver, testDriver.findOnScreenElement(matcher));
     }
 }

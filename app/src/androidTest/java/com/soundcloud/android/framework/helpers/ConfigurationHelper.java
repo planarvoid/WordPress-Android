@@ -1,5 +1,7 @@
 package com.soundcloud.android.framework.helpers;
 
+import com.soundcloud.android.analytics.AnalyticsProviderFactory;
+import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.configuration.FeatureName;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanStorage;
@@ -11,6 +13,7 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesStorage;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
+import com.soundcloud.java.collections.Sets;
 import rx.functions.Action1;
 
 import android.content.Context;
@@ -24,6 +27,7 @@ public class ConfigurationHelper {
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
     private static final String PREFS_FACEBOOK_INVITES_SETTINGS = "facebook_invites";
+    private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
     private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
 
     public static void enableOfflineContent(Context context) {
@@ -32,7 +36,7 @@ public class ConfigurationHelper {
 
     public static void enableUpsell(final Context context) {
         final PlanStorage planStorage = getPlanStorage(context);
-        planStorage.updateUpsells(Collections.singletonList(Plan.MID_TIER));
+        planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
         disableFeature(context, FeatureName.OFFLINE_SYNC);
         disableFeature(context, FeatureName.REMOVE_AUDIO_ADS);
 
@@ -40,8 +44,8 @@ public class ConfigurationHelper {
                 .doOnNext(new Action1<List<String>>() {
                     @Override
                     public void call(List<String> strings) {
-                        if (!planStorage.getUpsells().contains(Plan.MID_TIER)) {
-                            planStorage.updateUpsells(Collections.singletonList(Plan.MID_TIER));
+                        if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
+                            planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
                         }
                     }
                 }).subscribe();
@@ -86,7 +90,7 @@ public class ConfigurationHelper {
     }
 
     private static void disableFeature(Context context, final String name) {
-        final Feature feature = new Feature(name, false, Collections.singletonList(Plan.MID_TIER));
+        final Feature feature = new Feature(name, false, Collections.singletonList(Plan.HIGH_TIER));
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
         featureStorage.update(feature);
@@ -129,6 +133,10 @@ public class ConfigurationHelper {
         return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
     }
 
+    private static SharedPreferences getAnalyticsSettingsPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
+    }
+
     public static void resetPolicyCheckTime(Context context) {
         getPolicySettingsPreferences(context)
                 .edit()
@@ -141,5 +149,12 @@ public class ConfigurationHelper {
                 .edit()
                 .putLong(LAST_POLICY_CHECK_TIME, time)
                 .commit();
+    }
+
+    public static void disablePromotedAnalytics(Context context) {
+        getAnalyticsSettingsPreferences(context)
+                .edit()
+                .putStringSet(AnalyticsProviderFactory.DISABLED_PROVIDERS, Sets.newHashSet(PromotedAnalyticsProvider.class.getName()))
+                .apply();
     }
 }

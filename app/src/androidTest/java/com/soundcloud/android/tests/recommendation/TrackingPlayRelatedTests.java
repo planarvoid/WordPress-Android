@@ -1,7 +1,6 @@
 package com.soundcloud.android.tests.recommendation;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.BrokenScrollingTest;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
@@ -28,13 +27,12 @@ public class TrackingPlayRelatedTests extends TrackingActivityTest<MainActivity>
         super.setUp();
     }
 
-    @BrokenScrollingTest
     public void testTrackingFromLikesWithTriggerManualAndNextTrackPlaysWithTriggerAuto() throws Exception {
         startEventTracking();
 
         final VisualPlayerElement player = mainNavHelper.goToCollections()
                 .scrollToAndClickPlaylistWithTitle("Trigger Auto Test Playlist")
-                .clickFirstTrackOverflowButton()
+                .findAndClickFirstTrackOverflowButton()
                 .clickPlayRelatedTracks();
 
         assertTrue(player.isExpandedPlayerPlaying());

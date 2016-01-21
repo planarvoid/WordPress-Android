@@ -1,7 +1,7 @@
 package com.soundcloud.android.likes;
 
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -85,7 +85,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                 subscribeForOfflineContentUpdates();
             }
         } else {
-            headerView.show(OfflineState.NO_OFFLINE);
+            headerView.show(OfflineState.NOT_OFFLINE);
         }
     }
 
@@ -115,9 +115,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     private Observable<OfflineState> likesDownloadState() {
-        return eventBus.queue(EventQueue.CURRENT_DOWNLOAD)
-                .filter(CurrentDownloadEvent.FOR_LIKED_TRACKS_FILTER)
-                .map(CurrentDownloadEvent.TO_OFFLINE_STATE);
+        return eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
+                .filter(OfflineContentChangedEvent.FOR_LIKED_TRACKS_FILTER)
+                .map(OfflineContentChangedEvent.TO_OFFLINE_STATE);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private class OfflineLikesSettingSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
         public void onNext(OfflineState offlineState) {
-            if (OfflineState.NO_OFFLINE == offlineState) {
+            if (OfflineState.NOT_OFFLINE == offlineState) {
                 downloadSubscription.unsubscribe();
             } else {
                 subscribeToCurrentDownloadQueue();

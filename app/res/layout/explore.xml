@@ -22,7 +22,7 @@
 
             <include layout="@layout/toolbar" />
 
-            <android.support.design.widget.TabLayout
+            <com.soundcloud.android.view.CustomFontTabLayout
                 android:id="@+id/tab_indicator"
                 style="@style/TabsTheme.Fixed"
                 android:layout_width="match_parent"

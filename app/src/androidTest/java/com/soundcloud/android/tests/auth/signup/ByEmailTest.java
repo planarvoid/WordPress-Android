@@ -30,8 +30,8 @@ public class ByEmailTest extends SignUpTest {
         signUpBasicsScreen.signup();
         assertTrue(signUpBasicsScreen.acceptTermsButton().isVisible());
         signUpBasicsScreen.acceptTerms();
-        assertTrue(signUpBasicsScreen.skipButton().isVisible());
-        EmailOptInScreen optInScreen = signUpBasicsScreen.skipSignUpDetails();
+        assertTrue(signUpBasicsScreen.saveButton().isVisible());
+        EmailOptInScreen optInScreen = signUpBasicsScreen.saveSignUpDetails();
 
         assertThat(optInScreen, is(visible()));
 

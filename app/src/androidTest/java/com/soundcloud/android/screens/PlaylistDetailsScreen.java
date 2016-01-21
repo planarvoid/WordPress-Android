@@ -33,15 +33,14 @@ public class PlaylistDetailsScreen extends Screen {
 
     public PlaylistOverflowMenu clickPlaylistOverflowButton() {
         testDriver
-                .findElements(With.id(R.id.playlist_details_overflow_button))
-                .get(0)
+                .findOnScreenElement(With.id(R.id.playlist_details_overflow_button))
                 .click();
         return new PlaylistOverflowMenu(testDriver);
     }
 
     public DownloadImageViewElement headerDownloadElement() {
         return new DownloadImageViewElement(testDriver
-                .findElement(With.id(R.id.header_download_state)));
+                .findOnScreenElement(With.id(R.id.header_download_state)));
     }
 
     public String getTitle() {
@@ -49,7 +48,10 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public boolean containsTrackWithTitle(String title) {
-        return !(tracksListElement().scrollToItem(With.text(title)) instanceof EmptyViewElement);
+        return !(scrollToItem(
+                With.id(R.id.track_list_item),
+                TrackItemElement.WithTitle(testDriver, title)
+        ) instanceof EmptyViewElement);
     }
 
     public VisualPlayerElement clickHeaderPlay() {
@@ -83,20 +85,11 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public VisualPlayerElement startStationFromFirstTrack() {
-        return clickFirstTrackOverflowButton().clickStartStation();
+        return findAndClickFirstTrackOverflowButton().clickStartStation();
     }
 
-    public UpgradeScreen clickMidTierTrackForUpgrade(int index) {
-        trackItemElements()
-                .get(index)
-                .click();
-        return new UpgradeScreen(testDriver);
-    }
-
-    public PlaylistDetailsScreen scrollToFirstTrackItem() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.scrollListToLine(1);
-        return this;
+    public TrackItemElement scrollToAndGetFirstTrackItem() {
+        return toTrackItemElement.apply(scrollToItem(With.id(R.id.track_list_item)));
     }
 
     public PlaylistDetailsScreen scrollToLastTrackItem() {
@@ -104,30 +97,14 @@ public class PlaylistDetailsScreen extends Screen {
         return this;
     }
 
-
     public PlaylistDetailsScreen scrollToPosition(int position) {
         testDriver.scrollListToLine(position);
         return this;
     }
 
-
-    public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        return scrollToFirstTrackItem()
-                .trackItemElements()
-                .get(0)
+    public TrackItemMenuElement findAndClickFirstTrackOverflowButton() {
+        return scrollToAndGetFirstTrackItem()
                 .clickOverflowButton();
-    }
-
-    public TrackItemMenuElement clickLastTrackOverflowButton() {
-        return scrollToLastTrackItem()
-                .trackItemElements()
-                .get(trackItemElements().size() - 1)
-                .clickOverflowButton();
-    }
-
-    public TrackItemElement getTrack(int position) {
-        scrollToPosition(position);
-        return new TrackItemElement(testDriver, tracksListElement().getItemAt(0));
     }
 
     @Override
@@ -136,15 +113,15 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private TextElement title() {
-        return new TextElement(testDriver.findElement(With.id(R.id.title)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.title)));
     }
 
     private ViewElement headerPlayButton() {
-        return testDriver.findElement(With.id(R.id.btn_play));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_play));
     }
 
     private ViewElement likeToggle() {
-        return testDriver.findElement(With.id(R.id.toggle_like));
+        return testDriver.findOnScreenElement(With.id(R.id.toggle_like));
     }
 
     public VisualPlayerElement clickTrack(int trackIndex) {
@@ -154,9 +131,8 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private ListElement tracksListElement() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return testDriver
-                .findElement(With.id(android.R.id.list))
+                .findOnScreenElement(With.id(android.R.id.list))
                 .toListView();
     }
 
@@ -168,14 +144,14 @@ public class PlaylistDetailsScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return Lists.transform(
                 testDriver
-                        .findElement(With.id(android.R.id.list))
-                        .findElements(With.id(R.id.track_list_item)),
+                        .findOnScreenElement(With.id(android.R.id.list))
+                        .findOnScreenElements(With.id(R.id.track_list_item)),
                 toTrackItemElement
         );
     }
+
     private ListElement trackItemsList() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return testDriver.findElement(With.id(android.R.id.list)).toListView();
+        return testDriver.findOnScreenElement(With.id(android.R.id.list)).toListView();
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
@@ -184,6 +160,4 @@ public class PlaylistDetailsScreen extends Screen {
             return new TrackItemElement(testDriver, viewElement);
         }
     };
-
-
 }

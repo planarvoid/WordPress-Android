@@ -10,7 +10,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -45,12 +44,23 @@ class SearchOperations {
     static final int TYPE_PLAYLISTS = 2;
     static final int TYPE_USERS = 3;
 
-    static final Func1<ModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
-            new Func1<ModelCollection<? extends PropertySetSource>, SearchResult>() {
+    static final Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
+            new Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult>() {
                 @Override
-                public SearchResult call(ModelCollection<? extends PropertySetSource> propertySetSources) {
-                    return new SearchResult(propertySetSources.getCollection(), propertySetSources.getNextLink(),
-                            propertySetSources.getQueryUrn());
+                public SearchResult call(SearchModelCollection<? extends PropertySetSource> searchCollection) {
+                    final List<? extends PropertySetSource> collection = searchCollection.getCollection();
+                    final Optional<Link> nextLink = searchCollection.getNextLink();
+                    final Optional<Urn> queryUrn = searchCollection.getQueryUrn();
+                    final Optional<? extends SearchModelCollection<? extends PropertySetSource>> premiumContent =
+                            searchCollection.premiumContent();
+                    if (premiumContent.isPresent()) {
+                        final SearchModelCollection<? extends PropertySetSource> premiumItems = premiumContent.get();
+                        final SearchResult premiumSearchResult = new SearchResult(premiumItems.getCollection(),
+                                premiumItems.getNextLink(), premiumItems.getQueryUrn(), premiumItems.resultsCount());
+                        return new SearchResult(collection, nextLink, queryUrn, Optional.of(premiumSearchResult),
+                                searchCollection.resultsCount());
+                    }
+                    return new SearchResult(collection, nextLink, queryUrn);
                 }
             };
 
@@ -161,7 +171,7 @@ class SearchOperations {
 
     private final class TrackSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<ModelCollection<ApiTrack>> typeToken = new TypeToken<ModelCollection<ApiTrack>>() {
+        private final TypeToken<SearchModelCollection<ApiTrack>> typeToken = new TypeToken<SearchModelCollection<ApiTrack>>() {
         };
 
         protected TrackSearchStrategy() {
@@ -179,8 +189,8 @@ class SearchOperations {
 
     private final class PlaylistSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<ModelCollection<ApiPlaylist>> typeToken =
-                new TypeToken<ModelCollection<ApiPlaylist>>() {
+        private final TypeToken<SearchModelCollection<ApiPlaylist>> typeToken =
+                new TypeToken<SearchModelCollection<ApiPlaylist>>() {
                 };
 
         protected PlaylistSearchStrategy() {
@@ -199,7 +209,7 @@ class SearchOperations {
 
     private final class UserSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<ModelCollection<ApiUser>> typeToken = new TypeToken<ModelCollection<ApiUser>>() {
+        private final TypeToken<SearchModelCollection<ApiUser>> typeToken = new TypeToken<SearchModelCollection<ApiUser>>() {
         };
 
         protected UserSearchStrategy() {
@@ -218,8 +228,8 @@ class SearchOperations {
 
     private final class UniversalSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<ModelCollection<ApiUniversalSearchItem>> typeToken =
-                new TypeToken<ModelCollection<ApiUniversalSearchItem>>() {
+        private final TypeToken<SearchModelCollection<ApiUniversalSearchItem>> typeToken =
+                new TypeToken<SearchModelCollection<ApiUniversalSearchItem>>() {
                 };
 
         protected UniversalSearchStrategy() {

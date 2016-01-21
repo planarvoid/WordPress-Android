@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.storage.Tables.PlayQueue.ENTITY_TYPE_PLAYLIST;
+import static com.soundcloud.android.storage.Tables.PlayQueue.ENTITY_TYPE_TRACK;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -39,8 +42,8 @@ class PlayQueueStorage {
         final List<ContentValues> newItems = new ArrayList<>(playQueue.size());
         for (PlayQueueItem item : playQueue) {
             if (item.shouldPersist()) {
-                if (item.isTrack()) {
-                    newItems.add(trackItemContentValues((TrackQueueItem) item));
+                if (item.isTrack() || item.isPlaylist()) {
+                    newItems.add(entityItemContentValues((PlayableQueueItem) item));
                 } else {
                     ErrorUtils.handleSilentException(new IllegalStateException("Tried to persist an unsupported play queue item"));
                 }
@@ -65,7 +68,7 @@ class PlayQueueStorage {
                 final String sourceVersion = reader.getString(Tables.PlayQueue.SOURCE_VERSION);
                 final Urn sourceUrn = hasSourceUrn(reader) ? new Urn(reader.getString(Tables.PlayQueue.SOURCE_URN)) : Urn.NOT_SET;
                 final Urn queryUrn = hasQueryUrn(reader) ? new Urn(reader.getString(Tables.PlayQueue.QUERY_URN)) : Urn.NOT_SET;
-                final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.TRACK_ID));
+                final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.ENTITY_ID));
 
                 return new TrackQueueItem.Builder(track, reposter)
                         .relatedEntity(relatedEntity)
@@ -75,26 +78,27 @@ class PlayQueueStorage {
         });
     }
 
-    private ContentValues trackItemContentValues(TrackQueueItem playQueueItem) {
+    private ContentValues entityItemContentValues(PlayableQueueItem playableQueueItem) {
         final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values()
-                .put(Tables.PlayQueue.TRACK_ID, playQueueItem.getUrn().getNumericId())
-                .put(Tables.PlayQueue.SOURCE, playQueueItem.getSource())
-                .put(Tables.PlayQueue.SOURCE_VERSION, playQueueItem.getSourceVersion());
+                .put(Tables.PlayQueue.ENTITY_ID, playableQueueItem.getUrn().getNumericId())
+                .put(Tables.PlayQueue.ENTITY_TYPE.name(), playableQueueItem.getUrn().isTrack() ? ENTITY_TYPE_TRACK : ENTITY_TYPE_PLAYLIST)
+                .put(Tables.PlayQueue.SOURCE, playableQueueItem.getSource())
+                .put(Tables.PlayQueue.SOURCE_VERSION, playableQueueItem.getSourceVersion());
 
-        if (!playQueueItem.getRelatedEntity().equals(Urn.NOT_SET)){
-            valuesBuilder.put(Tables.PlayQueue.RELATED_ENTITY, playQueueItem.getRelatedEntity().toString());
+        if (!playableQueueItem.getRelatedEntity().equals(Urn.NOT_SET)){
+            valuesBuilder.put(Tables.PlayQueue.RELATED_ENTITY, playableQueueItem.getRelatedEntity().toString());
         }
 
-        if (playQueueItem.getReposter().isUser()){
-            valuesBuilder.put(Tables.PlayQueue.REPOSTER_ID, playQueueItem.getReposter().getNumericId());
+        if (playableQueueItem.getReposter().isUser()){
+            valuesBuilder.put(Tables.PlayQueue.REPOSTER_ID, playableQueueItem.getReposter().getNumericId());
         }
 
-        if (!playQueueItem.getSourceUrn().equals(Urn.NOT_SET)) {
-            valuesBuilder.put(Tables.PlayQueue.SOURCE_URN, playQueueItem.getSourceUrn().toString());
+        if (!playableQueueItem.getSourceUrn().equals(Urn.NOT_SET)) {
+            valuesBuilder.put(Tables.PlayQueue.SOURCE_URN, playableQueueItem.getSourceUrn().toString());
         }
 
-        if (!playQueueItem.getQueryUrn().equals(Urn.NOT_SET)) {
-            valuesBuilder.put(Tables.PlayQueue.QUERY_URN, playQueueItem.getQueryUrn().toString());
+        if (!playableQueueItem.getQueryUrn().equals(Urn.NOT_SET)) {
+            valuesBuilder.put(Tables.PlayQueue.QUERY_URN, playableQueueItem.getQueryUrn().toString());
         }
 
         return valuesBuilder.get();

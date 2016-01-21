@@ -40,14 +40,17 @@ public class ActivitiesNotifier {
     private final TimelineStorage activitiesStorage;
     private final ContentStats contentStats;
     private final ImageOperations imageOperations;
+    private final SyncConfig syncConfig;
 
     @Inject
     public ActivitiesNotifier(ActivitiesStorage activitiesStorage,
                               ContentStats contentStats,
-                              ImageOperations imageOperations) {
+                              ImageOperations imageOperations,
+                              SyncConfig syncConfig) {
         this.activitiesStorage = activitiesStorage;
         this.contentStats = contentStats;
         this.imageOperations = imageOperations;
+        this.syncConfig = syncConfig;
     }
 
     public void notifyUnseenItems(Context context) {
@@ -59,10 +62,10 @@ public class ActivitiesNotifier {
     }
 
     private void notifyNewActivities(Context context, List<PropertySet> activities) {
-        final List<PropertySet> likes = getLikeNotifications(context, activities);
-        final List<PropertySet> comments = getCommentNotifications(context, activities);
-        final List<PropertySet> reposts = getRepostNotifications(context, activities);
-        final List<PropertySet> followers = getFollowersNotifications(context, activities);
+        final List<PropertySet> likes = getLikeNotifications(activities);
+        final List<PropertySet> comments = getCommentNotifications(activities);
+        final List<PropertySet> reposts = getRepostNotifications(activities);
+        final List<PropertySet> followers = getFollowersNotifications(activities);
         final List<PropertySet> activitiesToNotify = new LinkedList<>();
         activitiesToNotify.addAll(likes);
         activitiesToNotify.addAll(comments);
@@ -100,26 +103,26 @@ public class ActivitiesNotifier {
         return activitiesToNotify.get(0).get(ActivityProperty.DATE);
     }
 
-    private List<PropertySet> getFollowersNotifications(Context context, List<PropertySet> activities) {
-        return SyncConfig.isNewFollowerNotificationsEnabled(context)
+    private List<PropertySet> getFollowersNotifications(List<PropertySet> activities) {
+        return syncConfig.isNewFollowerNotificationsEnabled()
                 ? activitiesOfKind(activities, ActivityKind.USER_FOLLOW)
                 : Collections.<PropertySet>emptyList();
     }
 
-    private List<PropertySet> getRepostNotifications(Context context, List<PropertySet> activities) {
-        return SyncConfig.isRepostNotificationsEnabled(context)
+    private List<PropertySet> getRepostNotifications(List<PropertySet> activities) {
+        return syncConfig.isRepostNotificationsEnabled()
                 ? activitiesOfKind(activities, ActivityKind.TRACK_REPOST, ActivityKind.PLAYLIST_REPOST)
                 : Collections.<PropertySet>emptyList();
     }
 
-    private List<PropertySet> getCommentNotifications(Context context, List<PropertySet> activities) {
-        return SyncConfig.isCommentNotificationsEnabled(context)
+    private List<PropertySet> getCommentNotifications(List<PropertySet> activities) {
+        return syncConfig.isCommentNotificationsEnabled()
                 ? activitiesOfKind(activities, ActivityKind.TRACK_COMMENT)
                 : Collections.<PropertySet>emptyList();
     }
 
-    private List<PropertySet> getLikeNotifications(Context context, List<PropertySet> activities) {
-        return SyncConfig.isLikeNotificationEnabled(context)
+    private List<PropertySet> getLikeNotifications(List<PropertySet> activities) {
+        return syncConfig.isLikeNotificationEnabled()
                 ? activitiesOfKind(activities, ActivityKind.TRACK_LIKE, ActivityKind.PLAYLIST_LIKE)
                 : Collections.<PropertySet>emptyList();
     }

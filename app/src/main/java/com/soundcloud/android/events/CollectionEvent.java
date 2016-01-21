@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.collections.PlaylistsOptions;
+import com.soundcloud.android.collection.PlaylistsOptions;
 
 public final class CollectionEvent extends TrackingEvent {
 

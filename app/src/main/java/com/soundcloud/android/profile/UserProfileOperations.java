@@ -4,13 +4,13 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -44,6 +44,7 @@ class UserProfileOperations {
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final UserRepository userRepository;
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;
+    private final StoreProfileCommand storeProfileCommand;
 
     private final Func1<PagedRemoteCollection, PagedRemoteCollection> mergePlayableInfo =
             new Func1<PagedRemoteCollection, PagedRemoteCollection>() {
@@ -79,12 +80,14 @@ class UserProfileOperations {
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
                           UserRepository userRepository,
-                          WriteMixedRecordsCommand writeMixedRecordsCommand) {
+                          WriteMixedRecordsCommand writeMixedRecordsCommand,
+                          StoreProfileCommand storeProfileCommand) {
         this.profileApi = profileApi;
         this.scheduler = scheduler;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.userRepository = userRepository;
         this.writeMixedRecordsCommand = writeMixedRecordsCommand;
+        this.storeProfileCommand = storeProfileCommand;
     }
 
     public Observable<ProfileUser> getLocalProfileUser(Urn user) {
@@ -144,9 +147,7 @@ class UserProfileOperations {
             public void call(Subscriber<? super List<PropertySet>> subscriber) {
                 List<PropertySet> postsForPlayback = new ArrayList<>();
                 for (PlayableItem playableItem : playableItems) {
-                    if (playableItem.getEntityUrn().isTrack()) {
-                        postsForPlayback.add(createPostForPlayback(playableItem));
-                    }
+                    postsForPlayback.add(createPostForPlayback(playableItem));
                 }
                 subscriber.onNext(postsForPlayback);
                 subscriber.onCompleted();
@@ -156,7 +157,7 @@ class UserProfileOperations {
 
     private PropertySet createPostForPlayback(PlayableItem playableItem) {
         final PropertySet postForPlayback = PropertySet.from(
-                TrackProperty.URN.bind(playableItem.getEntityUrn())
+                EntityProperty.URN.bind(playableItem.getEntityUrn())
         );
         if (playableItem.isRepost()) {
             postForPlayback.put(PostProperty.REPOSTER_URN, playableItem.getReposterUrn());
@@ -228,6 +229,12 @@ class UserProfileOperations {
         });
     }
 
+    public Observable<? extends UserProfileRecord> userProfile(Urn user) {
+        return profileApi.userProfile(user)
+                .doOnNext(storeProfileCommand.toAction())
+                .subscribeOn(scheduler);
+    }
+
     public Observable<PagedRemoteCollection> pagedFollowers(Urn user) {
         return profileApi
                 .userFollowers(user)
@@ -248,7 +255,7 @@ class UserProfileOperations {
         });
     }
 
-    private PagingFunction<PagedRemoteCollection>pagingFunction(final Command<String,
+    private PagingFunction<PagedRemoteCollection> pagingFunction(final Command<String,
             Observable<PagedRemoteCollection>> nextPage) {
         return new PagingFunction<PagedRemoteCollection>() {
             @Override

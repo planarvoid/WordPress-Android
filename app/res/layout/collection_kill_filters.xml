@@ -6,15 +6,15 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         style="@style/Collections.PlaylistKillFilterText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/collections_filters_active_message" />
 
-    <Button
+    <com.soundcloud.android.view.CustomFontButton
         android:id="@+id/btn_remove_filters"
-        style="?android:attr/borderlessButtonStyle"
+        style="@style/BorderlessButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="16dp"

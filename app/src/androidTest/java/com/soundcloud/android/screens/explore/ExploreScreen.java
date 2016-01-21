@@ -37,7 +37,7 @@ public class ExploreScreen extends Screen {
     }
 
     private Tabs tabs() {
-        return testDriver.findElement(With.id(R.id.tab_indicator)).toTabs();
+        return testDriver.findOnScreenElement(With.id(R.id.tab_indicator)).toTabs();
     }
 
     public void touchGenresTab() {
@@ -62,11 +62,11 @@ public class ExploreScreen extends Screen {
     }
 
     public String getTrackTitle(int index) {
-        return new TextElement(getTrackAt(index).findElement(With.id(R.id.title))).getText();
+        return new TextElement(getTrackAt(index).findOnScreenElement(With.id(R.id.title))).getText();
     }
 
     private ViewElement getTrackAt(int index) {
-        return testDriver.findElement(With.id(android.R.id.list)).getChildAt(index);
+        return testDriver.findOnScreenElement(With.id(android.R.id.list)).getChildAt(index);
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
@@ -81,7 +81,7 @@ public class ExploreScreen extends Screen {
 
     public VisualPlayerElement playFirstTrack() {
         VisualPlayerElement player = new VisualPlayerElement(testDriver);
-        ViewElement gridView = testDriver.findElement(With.className(GridView.class));
+        ViewElement gridView = testDriver.findOnScreenElement(With.className(GridView.class));
         gridView.getChildAt(0).click();
         player.waitForExpandedPlayer();
         return player;
@@ -93,11 +93,11 @@ public class ExploreScreen extends Screen {
 
     public String currentTabTitle() {
         int currentPage = getViewPager().getCurrentItem();
-        return new TextElement(tabs().getTabAt(currentPage).findElement(With.className(AppCompatTextView.class))).getText();
+        return new TextElement(tabs().getTabAt(currentPage).findOnScreenElement(With.className(AppCompatTextView.class))).getText();
     }
 
     private ViewPager getViewPager() {
-        return testDriver.findElement(With.id(R.id.pager)).toViewPager();
+        return testDriver.findOnScreenElement(With.id(R.id.pager)).toViewPager();
     }
 
     public int getItemsOnTrendingMusicList() {

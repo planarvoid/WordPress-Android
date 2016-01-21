@@ -6,7 +6,6 @@ import com.soundcloud.android.framework.viewelements.EditTextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class CreatePlaylistScreen extends Screen {
@@ -27,7 +26,7 @@ public class CreatePlaylistScreen extends Screen {
     }
 
     public ViewElement offlineCheck() {
-        return testDriver.findElement(With.id(R.id.chk_offline));
+        return testDriver.findOnScreenElement(With.id(R.id.chk_offline));
     }
 
     public CreatePlaylistScreen enterTitle(String title) {
@@ -47,10 +46,10 @@ public class CreatePlaylistScreen extends Screen {
     }
 
     private EditTextElement titleInputField() {
-        return new EditTextElement(testDriver.findElement(With.id(android.R.id.edit)));
+        return new EditTextElement(testDriver.findOnScreenElement(With.id(android.R.id.edit)));
     }
 
     private ViewElement getDoneButton() {
-        return testDriver.findElement(With.id(android.R.id.button1));
+        return testDriver.findOnScreenElement(With.id(android.R.id.button1));
     }
 }

@@ -17,27 +17,27 @@ public class LoginScreen extends Screen {
     }
 
     private ViewElement googleSignInButton() {
-        return testDriver.findElement(With.id(R.id.google_plus_btn));
+        return testDriver.findOnScreenElement(With.id(R.id.google_plus_btn));
     }
 
     private ViewElement facebookSignInButton() {
-        return testDriver.findElement(With.id(R.id.facebook_btn));
+        return testDriver.findOnScreenElement(With.id(R.id.facebook_btn));
     }
 
     private EditTextElement emailInputField() {
-        return new EditTextElement(testDriver.findElement(With.id(R.id.auto_txt_email_address)));
+        return new EditTextElement(testDriver.findOnScreenElement(With.id(R.id.auto_txt_email_address)));
     }
 
     private EditTextElement passwordInputField() {
-        return new EditTextElement(testDriver.findElement(With.id(R.id.txt_password)));
+        return new EditTextElement(testDriver.findOnScreenElement(With.id(R.id.txt_password)));
     }
 
     private ViewElement loginButton() {
-        return testDriver.findElement(With.id(R.id.btn_login));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_login));
     }
 
     private ViewElement forgotPasswordButton() {
-        return testDriver.findElement(With.id(R.id.txt_i_forgot_my_password));
+        return testDriver.findOnScreenElement(With.id(R.id.txt_i_forgot_my_password));
     }
 
     public void clickOkButton() {
@@ -60,7 +60,7 @@ public class LoginScreen extends Screen {
     }
 
     public TermsOfUseScreen selectUserFromDialog(String username) {
-        testDriver.findElement(With.text(username)).click();
+        testDriver.findOnScreenElement(With.text(username)).click();
         waiter.waitForActivity(OnboardActivity.class);
         return new TermsOfUseScreen(testDriver);
     }

@@ -16,35 +16,23 @@ public class TrackItemElement {
     }
 
     public DownloadImageViewElement downloadElement() {
-        return new DownloadImageViewElement(wrapped.findElement(With.id(R.id.item_download_state)));
+        return new DownloadImageViewElement(wrapped.findOnScreenElement(With.id(R.id.item_download_state)));
     }
 
     public String getTitle() {
-        return new TextElement(wrapped.findElement(With.id(R.id.list_item_subheader))).getText();
+        return new TextElement(wrapped.findOnScreenElement(With.id(R.id.list_item_subheader))).getText();
     }
 
     public boolean isPromotedTrack() {
-        return wrapped.findElement(With.id(R.id.promoted_track)).isVisible();
+        return wrapped.findOnScreenElement(With.id(R.id.promoted_item)).isVisible();
     }
 
-    public boolean hasPromoter() {
-        return hasPromoterInCardItem() || hasPromoterInListItem();
-    }
-
-    private boolean hasPromoterInListItem() {
-        return getPromotedTrackText().getText().contains("Promoted by");
-    }
-
-    private boolean hasPromoterInCardItem() {
-        return wrapped.findElement(With.id(R.id.promoter)).isVisible();
+    private boolean hasPromoter() {
+        return wrapped.findOnScreenElement(With.id(R.id.promoter)).isVisible();
     }
 
     public boolean hasReposter() {
-        return wrapped.findElement(With.id(R.id.reposter)).isVisible();
-    }
-
-    private TextElement getPromotedTrackText() {
-        return new TextElement(wrapped.findElement(With.id(R.id.promoted_track)));
+        return wrapped.findOnScreenElement(With.id(R.id.reposter)).isVisible();
     }
 
     public VisualPlayerElement click() {
@@ -56,7 +44,7 @@ public class TrackItemElement {
 
     public TrackItemMenuElement clickOverflowButton() {
         wrapped
-                .findElement(With.id(R.id.overflow_button))
+                .findOnScreenElement(With.id(R.id.overflow_button))
                 .click();
 
         return new TrackItemMenuElement(testDriver);
@@ -72,7 +60,37 @@ public class TrackItemElement {
 
             @Override
             public String getSelector() {
-                return String.format("With reposter");
+                return "Track with reposter";
+            }
+        };
+    }
+
+    public static With WithTitle(final Han testDriver, final String title) {
+        return new With() {
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return new TrackItemElement(testDriver, view).getTitle().equals(title);
+            }
+
+            @Override
+            public String getSelector() {
+                return String.format("Track with title %s", title);
+            }
+        };
+    }
+
+    public static With NotPromoted(final Han testDriver) {
+        return new With() {
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return !new TrackItemElement(testDriver, view).isPromotedTrack();
+            }
+
+            @Override
+            public String getSelector() {
+                return "Not Promoted Track";
             }
         };
     }

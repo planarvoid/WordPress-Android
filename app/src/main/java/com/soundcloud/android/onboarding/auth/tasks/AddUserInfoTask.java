@@ -13,6 +13,7 @@ import com.soundcloud.android.api.legacy.Params;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.storage.LegacyUserStorage;
+import com.soundcloud.java.strings.Strings;
 
 import android.os.Bundle;
 
@@ -41,9 +42,12 @@ public class AddUserInfoTask extends AuthTask {
     protected AuthTaskResult doInBackground(Bundle... params) {
         try {
             ApiRequest.Builder request = ApiRequest.put(ApiEndpoints.CURRENT_USER.path())
-                    .forPublicApi()
-                    .withFormPart(StringPart.from(Params.User.NAME, username))
-                    .withFormPart(StringPart.from(Params.User.PERMALINK, permalink));
+                    .forPublicApi();
+
+            if (Strings.isNotBlank(username)) {
+                request.withFormPart(StringPart.from(Params.User.NAME, username))
+                        .withFormPart(StringPart.from(Params.User.PERMALINK, permalink));
+            }
 
             // resize and attach file if present
             if (avatarFile != null && avatarFile.canWrite()) {

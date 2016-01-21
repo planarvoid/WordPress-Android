@@ -4,12 +4,13 @@ import static com.soundcloud.android.rx.RxUtils.returning;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -46,7 +47,7 @@ public class OfflineContentOperations {
             if (event.getNextChangeSet().getOrElse(OfflineProperty.Collection.OFFLINE_LIKES, false)) {
                 return OfflineState.REQUESTED;
             } else {
-                return OfflineState.NO_OFFLINE;
+                return OfflineState.NOT_OFFLINE;
             }
         }
     };
@@ -74,7 +75,7 @@ public class OfflineContentOperations {
             if (enabled) {
                 return tracksStorage.getLikesOfflineState();
             } else {
-                return Observable.just(OfflineState.NO_OFFLINE);
+                return Observable.just(OfflineState.NOT_OFFLINE);
             }
         }
     };
@@ -82,7 +83,14 @@ public class OfflineContentOperations {
     private final Action1<List<Urn>> publishOfflineContentRemoved = new Action1<List<Urn>>() {
         @Override
         public void call(List<Urn> urns) {
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.offlineContentRemoved(urns));
+            eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.offlineContentRemoved(urns));
+        }
+    };
+
+    private final Action1<List<PropertySet>> publishOfflineStateChanges = new Action1<List<PropertySet>>() {
+        @Override
+        public void call(List<PropertySet> changeSet) {
+            publishOfflineChange(changeSet);
         }
     };
 
@@ -111,9 +119,7 @@ public class OfflineContentOperations {
     }
 
     public void enableOfflineCollection() {
-        offlineContentStorage
-                .storeOfflineCollectionEnabled();
-        // TODO : store all collection to offline requests
+        offlineContentStorage.storeOfflineCollectionEnabled();
     }
 
     public void disableOfflineCollection() {
@@ -171,6 +177,15 @@ public class OfflineContentOperations {
                 .subscribeOn(scheduler);
     }
 
+    Observable<Void> setOfflinePlaylists(final List<Urn> playlists) {
+        return offlineContentStorage
+                .setOfflinePlaylists(playlists)
+                .filter(RxUtils.<PropertySet>filterEmptyLists())
+                .doOnNext(publishOfflineStateChanges)
+                .map(RxUtils.TO_VOID)
+                .subscribeOn(scheduler);
+    }
+
     public Observable<Boolean> getOfflineContentOrOfflineLikesStatusChanges() {
         return featureOperations.offlineContentEnabled().concatWith(getOfflineLikedTracksStatusChanges());
     }
@@ -179,6 +194,14 @@ public class OfflineContentOperations {
         return clearTrackDownloadsCommand.toObservable(null)
                 .doOnNext(publishOfflineContentRemoved)
                 .subscribeOn(scheduler);
+    }
+
+    Observable<Boolean> getOfflineCollectionStateChanges() {
+        return offlineContentStorage.getOfflineCollectionStateChanges();
+    }
+
+    private void publishOfflineChange(List<PropertySet> changeSet) {
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromOfflineProperties(changeSet));
     }
 
     private Action1<Urn> publishMarkedForOfflineChange(final Urn playlistUrn, final boolean isMarkedOffline) {

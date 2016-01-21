@@ -15,12 +15,16 @@ public abstract class PlayQueueItem {
 
     public static final PlayQueueItem EMPTY = new Empty();
 
-    enum Kind {EMPTY, TRACK, VIDEO}
+    enum Kind {EMPTY, TRACK, PLAYLIST, VIDEO}
 
-    private Optional<AdData> adData;
+    protected Optional<AdData> adData;
 
     public boolean isTrack() {
         return this.getKind() == Kind.TRACK;
+    }
+
+    public boolean isPlaylist() {
+        return this.getKind() == Kind.PLAYLIST;
     }
 
     public boolean isVideo() {
@@ -39,10 +43,6 @@ public abstract class PlayQueueItem {
         return adData;
     }
 
-    public void setAdData(Optional<AdData> adData) {
-        this.adData = adData;
-    }
-
     public abstract Urn getUrn();
 
     public abstract boolean shouldPersist();
@@ -51,7 +51,7 @@ public abstract class PlayQueueItem {
 
     private static class Empty extends PlayQueueItem {
         public Empty() {
-            super.setAdData(Optional.<AdData>absent());
+            this.adData = Optional.absent();
         }
 
         @Override

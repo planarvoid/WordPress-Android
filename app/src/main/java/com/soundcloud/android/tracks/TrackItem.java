@@ -68,12 +68,16 @@ public class TrackItem extends PlayableItem {
     }
 
     public OfflineState getDownloadedState() {
-        return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NO_OFFLINE);
+        return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }
 
-    public boolean isMidTier() {
+    public boolean isBlocked() {
+        return source.getOrElse(TrackProperty.BLOCKED, false);
+    }
+
+    public boolean isHighTier() {
         // this should really be get, EVENTUALLY... (we dont have policy for everything reliably yet)
-        return source.getOrElse(TrackProperty.SUB_MID_TIER, false);
+        return source.getOrElse(TrackProperty.SUB_HIGH_TIER, false);
     }
 
     public boolean isUnavailableOffline() {

@@ -83,6 +83,10 @@ public class AppboyWrapper {
         return appboy.logCustomEvent(eventName);
     }
 
+    public boolean setCustomUserAttribute(String key, boolean value) {
+        return appboy.getCurrentUser().setCustomUserAttribute(key, value);
+    }
+
     private String encodeUserId(String userId) {
         return Base64.encodeToString(userId.getBytes(), Base64.NO_WRAP);
     }

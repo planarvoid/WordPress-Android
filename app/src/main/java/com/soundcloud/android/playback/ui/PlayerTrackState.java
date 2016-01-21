@@ -94,7 +94,7 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
 
     public boolean shouldUpsell() {
         return source.getOrElse(TrackProperty.SNIPPED, false)
-                && source.getOrElse(TrackProperty.SUB_MID_TIER, false);
+                && source.getOrElse(TrackProperty.SUB_HIGH_TIER, false);
     }
 
     long getPlayableDuration() {

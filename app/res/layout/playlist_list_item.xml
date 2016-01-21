@@ -30,12 +30,12 @@
             style="@style/ListItemText.Numeric"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@id/image"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="3dp"
             android:drawableRight="@drawable/playlist_item_tracks_caret" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/private_indicator"
-            style="@style/ListPrivateIndicator"
+            style="@style/ListItemText.Private.LeftAligned"
             android:layout_below="@id/list_item_subheader"
             android:layout_toRightOf="@id/image"
             android:visibility="gone" />

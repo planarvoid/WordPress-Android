@@ -21,6 +21,7 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class PlayQueueTest extends AndroidUnitTest {
@@ -130,6 +131,15 @@ public class PlayQueueTest extends AndroidUnitTest {
     }
 
     @Test
+    public void removesItemAtPosition() {
+        playQueue.removeItemAtPosition(2);
+
+        assertThat(playQueue).hasSize(2);
+        assertTrackQueueItem(playQueue.getPlayQueueItem(0), Urn.forTrack(1L));
+        assertTrackQueueItem(playQueue.getPlayQueueItem(1), Urn.forTrack(2L));
+    }
+
+    @Test
     public void shouldReportCorrectSize() {
         assertThat(playQueue.size()).isEqualTo(3);
     }
@@ -160,13 +170,23 @@ public class PlayQueueTest extends AndroidUnitTest {
     }
 
     @Test
+    public void hasTrackAsNextItemIsTrueIfTrackNext() {
+        assertThat(playQueue.hasTrackAsNextItem(0)).isTrue();
+    }
+
+    @Test
+    public void hasTrackAsNextItemIsFalseIfTrackNotNext() {
+        assertThat(playQueue.hasTrackAsNextItem(1)).isFalse();
+    }
+
+    @Test
     public void getUrnReturnsUrnForGivenPosition() throws Exception {
         assertThat(playQueue.getUrn(1)).isEqualTo(Urn.forTrack(2L));
     }
 
     @Test
-    public void getUrnReturnsNotSetForPositionWithVideo() throws Exception {
-        assertThat(playQueue.getUrn(2)).isEqualTo(Urn.NOT_SET);
+    public void getUrnReturnsAdUrnForPositionWithVideo() throws Exception {
+        assertThat(playQueue.getUrn(2)).isEqualTo(VIDEO_QUEUE_ITEM.getAdData().get().getAdUrn());
     }
 
     @Test
@@ -200,6 +220,33 @@ public class PlayQueueTest extends AndroidUnitTest {
     public void hasSameTracksFalseWithSameTracksInDifferentOrder() {
         final PlayQueue playQueue2 = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_2, TRACK_QUEUE_ITEM_1, VIDEO_QUEUE_ITEM));
         assertThat(this.playQueue.hasSameTracks(playQueue2)).isFalse();
+    }
+
+    @Test
+    public void itemsWithUrnReturnsAllItemsWithGivenUrn() {
+        final Urn track1Urn = TRACK_QUEUE_ITEM_1.getUrn();
+        final PlayQueueItem duplicateUrn = TestPlayQueueItem.createTrack(track1Urn, "source1", "version1");
+        playQueue = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, duplicateUrn));
+
+        assertThat(playQueue.itemsWithUrn(track1Urn)).containsExactly(TRACK_QUEUE_ITEM_1, duplicateUrn);
+    }
+
+    @Test
+    public void getUrnsReturnsUrnsForGivenSection() {
+        assertThat(playQueue.getItemUrns(1,2)).containsExactly(TRACK_QUEUE_ITEM_2.getUrn(), VIDEO_QUEUE_ITEM.getUrn());
+    }
+
+    @Test
+    public void replaceReplacesItemWithGivenItems() {
+        final PlayQueueItem add1 = TestPlayQueueItem.createTrack(Urn.forTrack(1));
+        final PlayQueueItem add2 = TestPlayQueueItem.createTrack(Urn.forTrack(2));
+        playQueue.replaceItem(1, Arrays.asList(add1, add2));
+
+        assertThat(playQueue.size()).isEqualTo(4);
+        assertThat(playQueue.getPlayQueueItem(0)).isEqualTo(TRACK_QUEUE_ITEM_1);
+        assertThat(playQueue.getPlayQueueItem(1)).isEqualTo(add1);
+        assertThat(playQueue.getPlayQueueItem(2)).isEqualTo(add2);
+        assertThat(playQueue.getPlayQueueItem(3)).isEqualTo(VIDEO_QUEUE_ITEM);
     }
 
     private void assertTrackQueueItem(PlayQueueItem playQueueItem, Urn trackUrn) {

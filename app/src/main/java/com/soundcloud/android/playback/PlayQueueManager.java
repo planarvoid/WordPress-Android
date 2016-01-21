@@ -6,8 +6,6 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdFunctions;
-import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -18,8 +16,10 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,6 +30,7 @@ import rx.functions.Action1;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -90,8 +91,34 @@ public class PlayQueueManager implements OriginProvider {
         setPosition(playQueue.indexOfPlayQueueItem(playQueueItem), true);
     }
 
-    public List<PlayQueueItem> getPlayQueueItems() {
-        return Lists.newArrayList(playQueue);
+    public List<PlayQueueItem> getPlayQueueItems(Predicate<PlayQueueItem> predicate) {
+        return Lists.newArrayList(Iterables.filter(playQueue, predicate));
+    }
+
+    public List<Urn> getUpcomingPlayQueueItems(int count) {
+        if (hasNextItem()) {
+            final int nextPosition = currentPosition + 1;
+            return playQueue.getItemUrns(nextPosition, nextPosition + count);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public void insertPlaylistTracks(Urn playlistUrn, List<Urn> tracks) {
+        for (PlayQueueItem item : playQueue.itemsWithUrn(playlistUrn)) {
+            PlayableQueueItem playableQueueItem = (PlayableQueueItem) item;
+            List<PlayQueueItem> items = new ArrayList<>(tracks.size());
+            for (Urn track : tracks) {
+                items.add(new TrackQueueItem.Builder(track).copySource(playableQueueItem).build());
+            }
+            playQueue.replaceItem(playQueue.indexOfPlayQueueItem(item), items);
+        }
+        publishQueueUpdate();
+    }
+
+    public void replace(PlayQueueItem oldItem, List<PlayQueueItem> newItems) {
+        playQueue.replaceItem(playQueue.indexOfPlayQueueItem(oldItem), newItems);
+        publishQueueUpdate();
     }
 
     private void logEmptyPlayQueues(PlayQueue playQueue, PlaySessionSource playSessionSource) {
@@ -178,6 +205,10 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.hasNextItem(currentPosition);
     }
 
+    public boolean hasTrackAsNextItem() {
+        return playQueue.hasTrackAsNextItem(currentPosition);
+    }
+
     public boolean hasPreviousItem() {
         return playQueue.hasPreviousItem(currentPosition);
     }
@@ -218,7 +249,7 @@ public class PlayQueueManager implements OriginProvider {
 
     private boolean isPlayableAtPosition(int i) {
         final PlayQueueItem playQueueItem = playQueue.getPlayQueueItem(i);
-        return playQueueItem.isVideo() || !((TrackQueueItem) playQueueItem).isBlocked();
+        return playQueueItem.isVideo() || (playQueueItem.isTrack() && !((TrackQueueItem) playQueueItem).isBlocked());
     }
 
     public boolean moveToPreviousPlayableItem() {
@@ -461,13 +492,13 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public void insertVideo(PlayQueueItem beforeItem, VideoAd videoAd){
-        playQueue.insertVideo(playQueue.indexOfPlayQueueItem(beforeItem), videoAd);
-        publishQueueUpdate();
-    }
-
-    public void insertAudioAd(PlayQueueItem beforeItem, Urn trackUrn, AudioAd audioAd, boolean shouldPersist){
-        playQueue.insertAudioAd(playQueue.indexOfPlayQueueItem(beforeItem), trackUrn, audioAd, shouldPersist);
-        publishQueueUpdate();
+    public void removeUpcomingItem(PlayQueueItem item, boolean shouldPublishQueueChange) {
+        final int indexToRemove = playQueue.indexOfPlayQueueItem(item);
+        if (indexToRemove > currentPosition) {
+            playQueue.removeItemAtPosition(indexToRemove);
+            if (shouldPublishQueueChange) {
+                publishQueueUpdate();
+            }
+        }
     }
 }

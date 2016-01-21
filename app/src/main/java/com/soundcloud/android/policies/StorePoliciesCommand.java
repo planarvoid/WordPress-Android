@@ -5,13 +5,14 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 class StorePoliciesCommand extends DefaultWriteStorageCommand<Iterable<ApiPolicyInfo>, TxnResult> {
 
@@ -25,26 +26,25 @@ class StorePoliciesCommand extends DefaultWriteStorageCommand<Iterable<ApiPolicy
 
     @Override
     protected TxnResult write(PropellerDatabase propeller, final Iterable<ApiPolicyInfo> input) {
-        return propeller.runTransaction(new PropellerDatabase.Transaction() {
-            @Override
-            public void steps(PropellerDatabase propeller) {
-                for (ApiPolicyInfo policy : input) {
-                    step(propeller.upsert(Table.TrackPolicies, buildPolicyContentValues(policy)));
-                }
-            }
-        });
+        return propeller.bulkInsert(Table.TrackPolicies, buildPolicyContentValues(input));
     }
 
-    private ContentValues buildPolicyContentValues(ApiPolicyInfo policyEntry) {
-        return ContentValuesBuilder.values()
-                .put(TableColumns.TrackPolicies.TRACK_ID, policyEntry.getUrn().getNumericId())
-                .put(TableColumns.TrackPolicies.POLICY, policyEntry.getPolicy())
-                .put(TableColumns.TrackPolicies.MONETIZABLE, policyEntry.isMonetizable())
-                .put(TableColumns.TrackPolicies.SYNCABLE, policyEntry.isSyncable())
-                .put(TableColumns.TrackPolicies.LAST_UPDATED, dateProvider.getCurrentTime())
-                .put(TableColumns.TrackPolicies.MONETIZATION_MODEL, policyEntry.getMonetizationModel())
-                .put(TableColumns.TrackPolicies.SUB_MID_TIER, policyEntry.isSubMidTier())
-                .put(TableColumns.TrackPolicies.SUB_HIGH_TIER, policyEntry.isSubHighTier())
-                .get();
+    private List<ContentValues> buildPolicyContentValues(final Iterable<ApiPolicyInfo> input) {
+        final List<ContentValues> cvs = new ArrayList<>();
+        for (ApiPolicyInfo policyEntry : input) {
+            final ContentValues cv = new ContentValues();
+            cv.put(TableColumns.TrackPolicies.TRACK_ID, policyEntry.getUrn().getNumericId());
+            cv.put(TableColumns.TrackPolicies.POLICY, policyEntry.getPolicy());
+            cv.put(TableColumns.TrackPolicies.MONETIZABLE, policyEntry.isMonetizable());
+            cv.put(TableColumns.TrackPolicies.SYNCABLE, policyEntry.isSyncable());
+            cv.put(TableColumns.TrackPolicies.SNIPPED, policyEntry.isSnipped());
+            cv.put(TableColumns.TrackPolicies.BLOCKED, policyEntry.isBlocked());
+            cv.put(TableColumns.TrackPolicies.LAST_UPDATED, dateProvider.getCurrentTime());
+            cv.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, policyEntry.getMonetizationModel());
+            cv.put(TableColumns.TrackPolicies.SUB_MID_TIER, policyEntry.isSubMidTier());
+            cv.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, policyEntry.isSubHighTier());
+            cvs.add(cv);
+        }
+        return cvs;
     }
 }
