@@ -49,6 +49,9 @@ public class LoadPlaylistTracksCommand extends Command<Urn, List<PropertySet>> {
                         Tables.TrackDownloads.REQUESTED_AT,
                         Tables.TrackDownloads.DOWNLOADED_AT,
                         Tables.TrackDownloads.UNAVAILABLE_AT,
+                        TableColumns.TrackPolicies.BLOCKED,
+                        TableColumns.TrackPolicies.SNIPPED,
+                        TableColumns.TrackPolicies.SUB_MID_TIER,
                         TableColumns.TrackPolicies.SUB_HIGH_TIER,
                         Tables.TrackDownloads.REMOVED_AT,
                         Tables.OfflineContent._ID)
