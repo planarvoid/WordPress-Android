@@ -7,6 +7,7 @@ import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.Player;
@@ -53,7 +54,7 @@ public class AdsController {
     private final long fetchOperationStaleTime;
 
     private Subscription skipFailedAdSubscription = RxUtils.invalidSubscription();
-    private Map<PlayQueueItem, AdsFetchOperation> currentAdsFetches = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
+    private Map<Urn, AdsFetchOperation> currentAdsFetches = new HashMap<>(MAX_CONCURRENT_AD_FETCHES);
     private Optional<ApiAdsForTrack> adsForNextTrack = Optional.absent();
     private boolean isForeground;
 
@@ -207,7 +208,7 @@ public class AdsController {
     }
 
     private boolean alreadyFetchedAdForTrack(PlayQueueItem playQueueItem) {
-        return currentAdsFetches.containsKey(playQueueItem);
+        return currentAdsFetches.containsKey(playQueueItem.getUrn());
     }
 
     private final class FetchAdForNextTrackSubscriber extends DefaultSubscriber<Object> {
@@ -234,20 +235,20 @@ public class AdsController {
                 .flatMap(fetchAds)
                 .observeOn(AndroidSchedulers.mainThread());
 
-        currentAdsFetches.put(playQueueItem, new AdsFetchOperation(apiAdsForTrack.subscribe(adSubscriber)));
+        currentAdsFetches.put(playQueueItem.getUrn(), new AdsFetchOperation(apiAdsForTrack.subscribe(adSubscriber)));
     }
 
     private class ResetAdsOnTrackChange extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent currentItemEvent) {
             adsForNextTrack = Optional.absent();
-            Iterator<Map.Entry<PlayQueueItem, AdsFetchOperation>> iter = currentAdsFetches.entrySet().iterator();
+            Iterator<Map.Entry<Urn, AdsFetchOperation>> iter = currentAdsFetches.entrySet().iterator();
             while (iter.hasNext()) {
 
-                final Map.Entry<PlayQueueItem, AdsFetchOperation> operation = iter.next();
-                final PlayQueueItem monetizableItem = operation.getKey();
+                final Map.Entry<Urn, AdsFetchOperation> operation = iter.next();
+                final Urn monetizableUrn = operation.getKey();
 
-                if (isNotCurrentOrNextItem(monetizableItem) || operation.getValue().hasExpired()) {
+                if (isNotCurrentOrNextItem(monetizableUrn) || operation.getValue().hasExpired()) {
                     operation.getValue().subscription.unsubscribe();
                     iter.remove();
                 }
@@ -259,8 +260,10 @@ public class AdsController {
             }
         }
 
-        private boolean isNotCurrentOrNextItem(PlayQueueItem monetizableItem) {
-            return !playQueueManager.isCurrentItem(monetizableItem) && !playQueueManager.isNextItem(monetizableItem);
+        private boolean isNotCurrentOrNextItem(Urn monetizableUrn) {
+            final Urn currentItemUrn = playQueueManager.getCurrentPlayQueueItem().getUrnOrNotSet();
+            final Urn nextItemUrn = playQueueManager.getNextPlayQueueItem().getUrnOrNotSet();
+            return !currentItemUrn.equals(monetizableUrn) && !nextItemUrn.equals(monetizableUrn);
         }
     }
 
