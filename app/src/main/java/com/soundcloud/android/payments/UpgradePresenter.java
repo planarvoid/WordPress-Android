@@ -5,7 +5,6 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.payments.error.PaymentError;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -90,13 +89,13 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
 
     @Override
     public void done() {
-        navigator.openStream(activity, Screen.UPGRADE);
+        navigator.restartForAccountUpgrade(activity, false);
         activity.finish();
     }
 
     @Override
     public void moreInfo() {
-        navigator.openOfflineOnboarding(activity);
+        navigator.restartForAccountUpgrade(activity, true);
         activity.finish();
     }
 

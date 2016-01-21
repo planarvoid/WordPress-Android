@@ -30,20 +30,33 @@ public class UpgradeProgressActivity extends AppCompatActivity {
 
         SoundCloudApplication.getObjectGraph().inject(this);
 
+        final boolean showOfflineOnboarding =
+                getIntent().getExtras().getBoolean(Navigator.EXTRA_SHOW_OFFLINE_ONBOARDING, false);
         subscription = upgradeProgressOperations.awaitAccountUpgrade()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new DefaultSubscriber<Object>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d(TAG, "All done! Launching onboarding");
-                        navigator.openOfflineOnboarding(UpgradeProgressActivity.this);
-                    }
-                });
+                .subscribe(new UpgradeCompleteSubscriber(showOfflineOnboarding));
     }
 
     @Override
     protected void onDestroy() {
         subscription.unsubscribe();
         super.onDestroy();
+    }
+
+    private class UpgradeCompleteSubscriber extends DefaultSubscriber<Object> {
+        private final boolean showOfflineOnboarding;
+
+        public UpgradeCompleteSubscriber(boolean showOfflineOnboarding) {
+            this.showOfflineOnboarding = showOfflineOnboarding;
+        }
+
+        @Override
+        public void onCompleted() {
+            Log.d(TAG, "All done!");
+            if (showOfflineOnboarding) {
+                navigator.openOfflineOnboarding(UpgradeProgressActivity.this);
+            }
+            finish();
+        }
     }
 }

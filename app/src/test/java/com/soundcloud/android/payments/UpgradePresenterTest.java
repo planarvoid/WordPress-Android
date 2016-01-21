@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
@@ -307,7 +306,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
         listenerCaptor.getValue().done();
 
-        verify(navigator).openStream(activity, Screen.UPGRADE);
+        verify(navigator).restartForAccountUpgrade(activity, false);
         verify(activity).finish();
     }
 
@@ -318,7 +317,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
         listenerCaptor.getValue().moreInfo();
 
-        verify(navigator).openOfflineOnboarding(activity);
+        verify(navigator).restartForAccountUpgrade(activity, true);
         verify(activity).finish();
     }
 

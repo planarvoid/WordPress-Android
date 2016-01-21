@@ -4,7 +4,6 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.upgrade.UpgradeProgressActivity;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -93,7 +92,7 @@ public class DevDrawerFragment extends PreferenceFragment {
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        fakeUpsellFlow();
+                        navigator.restartForAccountUpgrade(getActivity(), false);
                         return true;
                     }
                 });
@@ -132,10 +131,6 @@ public class DevDrawerFragment extends PreferenceFragment {
                     }
                 });
 
-    }
-
-    private void fakeUpsellFlow() {
-        navigator.restartAppAndNavigateTo(getActivity(), UpgradeProgressActivity.class);
     }
 
     private void copyTokenToClipboard() {
