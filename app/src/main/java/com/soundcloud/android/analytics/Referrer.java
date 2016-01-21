@@ -1,8 +1,11 @@
 package com.soundcloud.android.analytics;
 
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.support.annotation.Nullable;
 
 import java.util.Locale;
 
@@ -12,7 +15,6 @@ public enum Referrer {
     FACEBOOK("facebook"),
     TWITTER("twitter"),
     MOBI("mobi"),
-    GOOGLE("google"),
     GOOGLE_PLUS("google_plus"),
     APPBOY_NOTIFICATION("appboy_notification"),
     STREAM_NOTIFICATION("stream_notification"),
@@ -21,8 +23,6 @@ public enum Referrer {
     PLAYBACK_WIDGET("playback_widget"),
     GOOGLE_CRAWLER("google_crawler");
 
-    private static final String HOST_GOOGLE = "google.com";
-    private static final String HOST_FACEBOOK = "facebook.com";
     private static final String ORDINAL_EXTRA = "ReferrerOrdinal";
 
     private final String referrerTag;
@@ -31,7 +31,7 @@ public enum Referrer {
         this.referrerTag = referrerTag;
     }
 
-    public String get() {
+    public String value() {
         return referrerTag;
     }
 
@@ -51,19 +51,17 @@ public enum Referrer {
         }
     }
 
-    public static Referrer fromHost(@NotNull String host) {
-        if (host.indexOf("www.") == 0) {
-            host = host.substring(4);
+    public static String fromUrl(@Nullable String url) {
+        if (url != null) {
+            String host = Uri.parse(url).getHost();
+            if (Strings.isNotBlank(host)) {
+                if (host.indexOf("www.") == 0) {
+                    host = host.substring(4);
+                }
+                return host;
+            }
         }
-
-        switch (host) {
-            case HOST_GOOGLE:
-                return Referrer.GOOGLE;
-            case HOST_FACEBOOK:
-                return Referrer.FACEBOOK;
-            default:
-                return Referrer.OTHER;
-        }
+        return Referrer.OTHER.value();
     }
 
     public static boolean hasReferrer(Intent intent) {

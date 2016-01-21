@@ -11,7 +11,7 @@ public class ReferrerTest extends AndroidUnitTest {
 
     @Test
     public void shouldGetTrackingTag() {
-        assertThat(Referrer.FACEBOOK.get()).isEqualTo("facebook");
+        assertThat(Referrer.FACEBOOK.value()).isEqualTo("facebook");
     }
 
     @Test
@@ -32,18 +32,13 @@ public class ReferrerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getsReferrerFromHost() {
-        assertThat(Referrer.fromHost("google.com")).isEqualTo(Referrer.GOOGLE);
+    public void getsReferrerFromUrl() {
+        assertThat(Referrer.fromUrl("http://facebook.com/")).isEqualTo("facebook.com");
     }
 
     @Test
-    public void getsDefaultReferrerFromUnknownHost() {
-        assertThat(Referrer.fromHost("bing.com")).isEqualTo(Referrer.OTHER);
-    }
-
-    @Test
-    public void getsReferrerFromHostWithWww() {
-        assertThat(Referrer.fromHost("www.facebook.com")).isEqualTo(Referrer.FACEBOOK);
+    public void getsReferrerFromUrlWithWww() {
+        assertThat(Referrer.fromUrl("http://www.facebook.com/")).isEqualTo("facebook.com");
     }
 
     @Test
