@@ -53,7 +53,6 @@ import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
@@ -63,6 +62,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.res.ResourcesCompat;
@@ -93,6 +93,7 @@ public class OnboardActivity extends FragmentActivity
 
     public static final String EXTRA_DEEPLINK_URN = "EXTRA_URN";
 
+    private static final String BACKGROUND_IMAGE_IDX = "BACKGROUND_IMAGE_IDX";
     private static final String SIGNUP_DIALOG_TAG = "signup_dialog";
     private static final String BUNDLE_STATE = "BUNDLE_STATE";
     private static final String BUNDLE_USER = "BUNDLE_USER";
@@ -103,7 +104,7 @@ public class OnboardActivity extends FragmentActivity
     private static final String LAST_GOOGLE_ACCT_USED = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
     private static final String LOGIN_DIALOG_TAG = "login_dialog";
 
-    private final int background_image;
+    private int backgroundImageIdx;
     private OnboardingState lastAuthState;
     private OnboardingState state = OnboardingState.PHOTOS;
     private String lastGoogleAccountSelected;
@@ -188,7 +189,6 @@ public class OnboardActivity extends FragmentActivity
 
     public OnboardActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        background_image = BACKGROUND_IMAGES[new Random().nextInt(2)];
     }
 
     @VisibleForTesting
@@ -208,7 +208,6 @@ public class OnboardActivity extends FragmentActivity
         this.facebookSdk = facebookSdk;
         this.facebookLoginManager = facebookLoginManager;
         this.facebookCallbackManager = facebookCallbackManager;
-        background_image = BACKGROUND_IMAGES[new Random().nextInt(2)];
     }
 
     @Override
@@ -220,7 +219,7 @@ public class OnboardActivity extends FragmentActivity
 
         unpackAccountAuthenticatorResponse(getIntent());
         unpackDeeplink(getIntent());
-        setupViews(savedInstanceState != null);
+        setupViews(savedInstanceState);
         setButtonListeners();
         checkForDeviceConflict();
         setupFacebookCallback();
@@ -250,10 +249,11 @@ public class OnboardActivity extends FragmentActivity
         }
     }
 
-    private void setupViews(boolean isConfigChange) {
-        overridePendingTransition(0, 0);
+    private void setupViews(@Nullable Bundle savedInstanceState) {
+        final boolean isConfigChange = savedInstanceState != null;
 
-        showBackground();
+        overridePendingTransition(0, 0);
+        showBackground(savedInstanceState);
 
         photoBottomBar = findViewById(R.id.tour_bottom_bar);
         photoLogo = findViewById(R.id.tour_logo);
@@ -272,9 +272,12 @@ public class OnboardActivity extends FragmentActivity
         }
     }
 
-    private void showBackground() {
+    private void showBackground(@Nullable Bundle savedInstanceState) {
+        backgroundImageIdx = savedInstanceState == null
+                ? new Random().nextInt(BACKGROUND_IMAGES.length)
+                : savedInstanceState.getInt(BACKGROUND_IMAGE_IDX);
         ImageView bgImageView = (ImageView) findViewById(R.id.landing_background_image);
-        final Drawable drawable = ResourcesCompat.getDrawable(getResources(), background_image, null);
+        final Drawable drawable = ResourcesCompat.getDrawable(getResources(), BACKGROUND_IMAGES[backgroundImageIdx], null);
         bgImageView.setImageDrawable(drawable);
         showView(bgImageView, true);
     }
@@ -564,6 +567,7 @@ public class OnboardActivity extends FragmentActivity
         outState.putString(LAST_GOOGLE_ACCT_USED, lastGoogleAccountSelected);
         outState.putSerializable(BUNDLE_STATE, state);
         outState.putParcelable(BUNDLE_USER, user);
+        outState.putInt(BACKGROUND_IMAGE_IDX, backgroundImageIdx);
 
         if (!Urn.NOT_SET.equals(resourceUrn)) {
             outState.putParcelable(EXTRA_DEEPLINK_URN, resourceUrn);
@@ -589,7 +593,6 @@ public class OnboardActivity extends FragmentActivity
 
         user = savedInstanceState.getParcelable(BUNDLE_USER);
         lastGoogleAccountSelected = savedInstanceState.getString(LAST_GOOGLE_ACCT_USED);
-
         loginBundle = savedInstanceState.getBundle(BUNDLE_LOGIN);
         signUpBasicsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_BASICS);
         signUpDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
