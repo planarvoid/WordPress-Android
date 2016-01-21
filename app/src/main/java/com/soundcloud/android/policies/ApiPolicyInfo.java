@@ -19,8 +19,9 @@ public abstract class ApiPolicyInfo {
     public static ApiPolicyInfo create(@JsonProperty("urn") String trackUrn, @JsonProperty("monetizable") boolean monetizable,
                                        @JsonProperty("policy") String policy, @JsonProperty("syncable") boolean syncable,
                                        @JsonProperty("monetization_model") String monetizationModel,
-                                       @JsonProperty("sub_mid_tier") boolean subMidTier, @JsonProperty("sub_high_tier") boolean subHighTier) {
-            return new AutoValue_ApiPolicyInfo(new Urn(trackUrn), monetizable, policy, syncable, monetizationModel, subMidTier, subHighTier);
+                                       @JsonProperty("sub_mid_tier") boolean subMidTier, @JsonProperty("sub_high_tier") boolean subHighTier,
+                                       @JsonProperty("snipped") boolean snipped, @JsonProperty("blocked") boolean blocked) {
+            return new AutoValue_ApiPolicyInfo(new Urn(trackUrn), monetizable, policy, syncable, monetizationModel, subMidTier, subHighTier, snipped, blocked);
     }
 
     public abstract Urn getUrn();
@@ -36,5 +37,9 @@ public abstract class ApiPolicyInfo {
     public abstract Boolean isSubMidTier();
 
     public abstract Boolean isSubHighTier();
+
+    public abstract Boolean isSnipped();
+
+    public abstract Boolean isBlocked();
 
 }

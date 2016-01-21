@@ -37,6 +37,8 @@ class StorePoliciesCommand extends DefaultWriteStorageCommand<Iterable<ApiPolicy
             cv.put(TableColumns.TrackPolicies.POLICY, policyEntry.getPolicy());
             cv.put(TableColumns.TrackPolicies.MONETIZABLE, policyEntry.isMonetizable());
             cv.put(TableColumns.TrackPolicies.SYNCABLE, policyEntry.isSyncable());
+            cv.put(TableColumns.TrackPolicies.SNIPPED, policyEntry.isSnipped());
+            cv.put(TableColumns.TrackPolicies.BLOCKED, policyEntry.isBlocked());
             cv.put(TableColumns.TrackPolicies.LAST_UPDATED, dateProvider.getCurrentTime());
             cv.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, policyEntry.getMonetizationModel());
             cv.put(TableColumns.TrackPolicies.SUB_MID_TIER, policyEntry.isSubMidTier());

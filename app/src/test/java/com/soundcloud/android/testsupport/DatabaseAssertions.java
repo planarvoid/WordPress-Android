@@ -331,6 +331,8 @@ public class DatabaseAssertions {
                 .whereEq(MONETIZABLE, apiPolicyInfo.isMonetizable())
                 .whereEq(SYNCABLE, apiPolicyInfo.isSyncable())
                 .whereEq(POLICY, apiPolicyInfo.getPolicy())
+                .whereEq(SNIPPED, apiPolicyInfo.isSnipped())
+                .whereEq(BLOCKED, apiPolicyInfo.isBlocked())
                 .whereEq(MONETIZATION_MODEL, apiPolicyInfo.getMonetizationModel())
                 .whereEq(SUB_MID_TIER, apiPolicyInfo.isSubMidTier())
                 .whereEq(SUB_HIGH_TIER, apiPolicyInfo.isSubHighTier());
