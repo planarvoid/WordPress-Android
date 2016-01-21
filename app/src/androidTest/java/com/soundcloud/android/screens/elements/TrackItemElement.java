@@ -16,23 +16,23 @@ public class TrackItemElement {
     }
 
     public DownloadImageViewElement downloadElement() {
-        return new DownloadImageViewElement(wrapped.findElement(With.id(R.id.item_download_state)));
+        return new DownloadImageViewElement(wrapped.findOnScreenElement(With.id(R.id.item_download_state)));
     }
 
     public String getTitle() {
-        return new TextElement(wrapped.findElement(With.id(R.id.list_item_subheader))).getText();
+        return new TextElement(wrapped.findOnScreenElement(With.id(R.id.list_item_subheader))).getText();
     }
 
     public boolean isPromotedTrack() {
-        return wrapped.findElement(With.id(R.id.promoted_item)).isVisible();
+        return wrapped.findOnScreenElement(With.id(R.id.promoted_item)).isVisible();
     }
 
     private boolean hasPromoter() {
-        return wrapped.findElement(With.id(R.id.promoter)).isVisible();
+        return wrapped.findOnScreenElement(With.id(R.id.promoter)).isVisible();
     }
 
     public boolean hasReposter() {
-        return wrapped.findElement(With.id(R.id.reposter)).isVisible();
+        return wrapped.findOnScreenElement(With.id(R.id.reposter)).isVisible();
     }
 
     public VisualPlayerElement click() {
@@ -44,7 +44,7 @@ public class TrackItemElement {
 
     public TrackItemMenuElement clickOverflowButton() {
         wrapped
-                .findElement(With.id(R.id.overflow_button))
+                .findOnScreenElement(With.id(R.id.overflow_button))
                 .click();
 
         return new TrackItemMenuElement(testDriver);

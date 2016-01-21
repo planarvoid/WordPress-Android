@@ -21,6 +21,6 @@ public class GoBackOnlineDialogElement extends Element {
     }
 
     private ViewElement continueButton() {
-        return testDriver.findElement(continueButtonLocator);
+        return testDriver.findOnScreenElement(continueButtonLocator);
     }
 }

@@ -38,7 +38,7 @@ public class ActivitiesScreen extends Screen {
 
     private List<ViewElement> cellElementsWithText(String text) {
         waiter.waitForElement(With.textContaining(text));
-        return testDriver.findElements(With.textContaining(text));
+        return testDriver.findOnScreenElements(With.textContaining(text));
     }
 
     private ProfileScreen clickToProfile(String textToClick) {

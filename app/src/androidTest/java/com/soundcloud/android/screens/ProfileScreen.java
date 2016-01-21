@@ -47,7 +47,7 @@ public class ProfileScreen extends Screen {
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        return new TrackItemElement(testDriver, testDriver.findElement(With.id(R.id.track_list_item)))
+        return new TrackItemElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.track_list_item)))
                 .clickOverflowButton();
     }
 
@@ -70,7 +70,7 @@ public class ProfileScreen extends Screen {
 
     protected List<PlaylistElement> getPlaylists(int withId) {
         return Lists.transform(
-                testDriver.findElements(With.id(withId)),
+                testDriver.findOnScreenElements(With.id(withId)),
                 toPlaylistItemElement
         );
     }
@@ -110,23 +110,23 @@ public class ProfileScreen extends Screen {
     }
 
     private RecyclerViewElement currentRecyclerView() {
-        return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
+        return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
     public TextElement description() {
-        return new TextElement(testDriver.findElement(With.id(R.id.description)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.description)));
     }
 
     public TextElement website() {
-        return new TextElement(testDriver.findElement(With.id(R.id.website)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.website)));
     }
 
     public TextElement discogs() {
-        return new TextElement(testDriver.findElement(With.id(R.id.discogs_name)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.discogs_name)));
     }
 
     public TextElement myspace() {
-        return new TextElement(testDriver.findElement(With.id(R.id.myspace_name)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.myspace_name)));
     }
 
     public String emptyViewMessage() {
@@ -175,19 +175,19 @@ public class ProfileScreen extends Screen {
     }
 
     private ViewElement profileImage() {
-        return testDriver.findElement(With.id(R.id.image));
+        return testDriver.findOnScreenElement(With.id(R.id.image));
     }
 
     private Tabs tabs() {
-        return testDriver.findElement(With.id(R.id.tab_indicator)).toTabs();
+        return testDriver.findOnScreenElement(With.id(R.id.tab_indicator)).toTabs();
     }
 
     private ViewElement followButton() {
-        return testDriver.findElement(With.id(R.id.toggle_btn_follow));
+        return testDriver.findOnScreenElement(With.id(R.id.toggle_btn_follow));
     }
 
     private ViewElement userName() {
-        return testDriver.findElement(With.id(R.id.username));
+        return testDriver.findOnScreenElement(With.id(R.id.username));
     }
 
     private String getFollowButtonText() {

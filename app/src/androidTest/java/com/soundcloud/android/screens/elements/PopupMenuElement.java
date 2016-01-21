@@ -1,7 +1,6 @@
 package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
@@ -19,16 +18,16 @@ public class PopupMenuElement extends Element {
 
     protected List<ViewElement> getRootMenuElements() {
         waiter.waitForElement(TextView.class);
-        return getRootViewElement().findElements(With.classSimpleName("ListMenuItemView"));
+        return getRootViewElement().findOnScreenElements(With.classSimpleName("ListMenuItemView"));
     }
 
-    protected ViewElement findElement(With matcher) {
+    protected ViewElement findOnScreenElement(With matcher) {
         waiter.waitForElement(TextView.class);
-        return getRootViewElement().findElement(matcher);
+        return getRootViewElement().findOnScreenElement(matcher);
     }
 
     protected String getElementText(ViewElement viewElement) {
-        return new TextElement(viewElement.findElement(With.id(android.R.id.title))).getText();
+        return new TextElement(viewElement.findOnScreenElement(With.id(android.R.id.title))).getText();
     }
 
 }

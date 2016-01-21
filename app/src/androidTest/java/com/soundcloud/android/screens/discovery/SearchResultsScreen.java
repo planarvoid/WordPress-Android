@@ -80,7 +80,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        testDriver.findElements(With.id(R.id.overflow_button)).get(0).click();
+        testDriver.findOnScreenElements(With.id(R.id.overflow_button)).get(0).click();
         return new TrackItemMenuElement(testDriver);
     }
 
@@ -96,7 +96,7 @@ public class SearchResultsScreen extends Screen {
 
     protected List<PlaylistElement> getPlaylists(int withId) {
         return Lists.transform(
-                testDriver.findElements(With.id(withId)),
+                testDriver.findOnScreenElements(With.id(withId)),
                 toPlaylistItemElement
         );
     }
@@ -113,7 +113,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     private RecyclerViewElement resultsList() {
-        return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
+        return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
     @Override

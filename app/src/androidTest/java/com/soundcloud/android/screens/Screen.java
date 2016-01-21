@@ -44,7 +44,7 @@ public abstract class Screen {
     }
 
     public ViewElement errorView() {
-        return testDriver.findElement(With.id(com.soundcloud.android.R.id.ak_error_view));
+        return testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.ak_error_view));
     }
 
     public ViewElement emptyConnectionErrorMessage() {
@@ -75,14 +75,14 @@ public abstract class Screen {
     public List<TrackItemElement> getTracks() {
         scrollToItem(With.id(com.soundcloud.android.R.id.track_list_item));
         return Lists.transform(
-                testDriver.findElements(With.id(com.soundcloud.android.R.id.track_list_item)),
+                testDriver.findOnScreenElements(With.id(com.soundcloud.android.R.id.track_list_item)),
                 toTrackItemElement
         );
     }
 
     public List<UserItemElement> getUsers() {
         return Lists.transform(
-                testDriver.findElements(With.id(com.soundcloud.android.R.id.user_list_item)),
+                testDriver.findOnScreenElements(With.id(com.soundcloud.android.R.id.user_list_item)),
                 toUserItemElement
         );
     }

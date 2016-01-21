@@ -43,7 +43,7 @@ public class CollectionScreen extends Screen {
     }
 
     public PlaylistElement getPlaylistWithTitle(String title) {
-        ViewElement result = collectionsView().findElement(
+        ViewElement result = collectionsView().findOnScreenElement(
                 With.id(R.id.collections_playlist_item),
                 PlaylistElement.WithTitle(testDriver, title)
         );
@@ -74,20 +74,20 @@ public class CollectionScreen extends Screen {
     }
 
     public ViewElement playlistSettingsButton() {
-        return testDriver.findElement(With.id(R.id.btn_collections_playlist_options));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_collections_playlist_options));
     }
 
     private RecyclerViewElement collectionsView() {
         waitForContentAndRetryIfLoadingFailed();
-        return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
+        return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
     private ViewElement trackLikesElement() {
-        return testDriver.findElement(With.text(testDriver.getString(R.string.collections_your_liked_tracks)));
+        return testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.collections_your_liked_tracks)));
     }
 
     private ViewElement recentStationsElement() {
-        return testDriver.findElement(With.text(testDriver.getString(R.string.stations_collection_title_recent_stations)));
+        return testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.stations_collection_title_recent_stations)));
     }
 
     @Override

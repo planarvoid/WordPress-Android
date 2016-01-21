@@ -35,11 +35,11 @@ public class UpgradeScreen extends Screen {
     }
 
     public ViewElement upgradeButton() {
-        return testDriver.findElement(With.id(R.id.upgrade_buy));
+        return testDriver.findOnScreenElement(With.id(R.id.upgrade_buy));
     }
 
     public boolean isDisplayingSuccess() {
-        return testDriver.findElement(With.id(R.id.success_header)).isVisible();
+        return testDriver.findOnScreenElement(With.id(R.id.success_header)).isVisible();
     }
 
 }

@@ -26,6 +26,6 @@ public abstract class Element {
     }
 
     public ViewElement getRootViewElement() {
-        return testDriver.findElement(matcher);
+        return testDriver.findOnScreenElement(matcher);
     }
 }

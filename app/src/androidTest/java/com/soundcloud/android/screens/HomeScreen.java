@@ -26,15 +26,15 @@ public class HomeScreen extends Screen {
     }
 
     private ViewElement bottomBar() {
-        return testDriver.findElement(With.id(R.id.tour_bottom_bar));
+        return testDriver.findOnScreenElement(With.id(R.id.tour_bottom_bar));
     }
 
     private ViewElement signUpButton() {
-        return bottomBar().findElement(With.id(R.id.btn_create_account));
+        return bottomBar().findOnScreenElement(With.id(R.id.btn_create_account));
     }
 
     private ViewElement logInButton() {
-       return bottomBar().findElement(With.id(R.id.btn_login));
+       return bottomBar().findOnScreenElement(With.id(R.id.btn_login));
     }
 
     @Override

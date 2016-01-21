@@ -123,7 +123,7 @@ public class Waiter {
 
     //TODO: We should have an error screen class defined
     private boolean retryIfFailed() {
-        List<ViewElement> retryButtons = solo.findElements(With.id(R.id.ak_emptyview_btn_retry));
+        List<ViewElement> retryButtons = solo.findOnScreenElements(With.id(R.id.ak_emptyview_btn_retry));
         if (!retryButtons.isEmpty())   {
             ViewElement button = retryButtons.get(0);
             if (button.isVisible()) {
@@ -189,7 +189,7 @@ public class Waiter {
         return solo.waitForCondition(new Condition() {
             @Override
             public boolean isSatisfied() {
-                return solo.findElement(matcher).isVisible();
+                return solo.findOnScreenElement(matcher).isVisible();
             }
         }, 15000);
     }
@@ -231,7 +231,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            ViewElement view = solo.findElement(matcher);
+            ViewElement view = solo.findOnScreenElement(matcher);
             Log.i(TAG, "ViewID searched");
             return (view.isVisible());
         }
@@ -259,7 +259,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            List<ViewElement> elements = solo.findElements(With.id(viewId));
+            List<ViewElement> elements = solo.findOnScreenElements(With.id(viewId));
             Log.i(TAG, "ViewID searched");
             return (!elements.isEmpty());
         }
@@ -381,7 +381,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            return solo.findElement(matcher).isChecked();
+            return solo.findOnScreenElement(matcher).isChecked();
         }
     }
 

@@ -14,7 +14,7 @@ public class ViewPagerElement extends Element {
     public ViewPagerElement(Han solo) {
         super(solo, With.id(R.id.pager));
         waiter.waitForElement(With.className(ViewPager.class));
-        viewPager = solo.findElement(With.className(ViewPager.class)).toViewPager();
+        viewPager = solo.findOnScreenElement(With.className(ViewPager.class)).toViewPager();
     }
 
     /**

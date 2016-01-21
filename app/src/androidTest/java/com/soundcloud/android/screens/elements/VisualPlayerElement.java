@@ -67,20 +67,20 @@ public class VisualPlayerElement extends Element {
     }
 
     public VisualPlayerElement startStationFromUnplayableTrack() {
-        testDriver.findElement(With.text(testDriver.getString(R.string.stations_start_track_station))).click();
+        testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.stations_start_track_station))).click();
         return this;
     }
 
     private ViewElement playButton() {
-        return testDriver.findElement(With.id(R.id.player_play));
+        return testDriver.findOnScreenElement(With.id(R.id.player_play));
     }
 
     private ViewElement previousButton() {
-        return testDriver.findElement(With.id(R.id.player_previous));
+        return testDriver.findOnScreenElement(With.id(R.id.player_previous));
     }
 
     private ViewElement nextButton() {
-        return testDriver.findElement(With.id(R.id.player_next));
+        return testDriver.findOnScreenElement(With.id(R.id.player_next));
     }
 
     public boolean isSkippable() {
@@ -88,87 +88,87 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewElement skipAd() {
-        return testDriver.findElement(With.id(R.id.skip_ad));
+        return testDriver.findOnScreenElement(With.id(R.id.skip_ad));
     }
 
     private ViewElement trackContainer() {
-        return testDriver.findElement(With.id(R.id.player_track_pager));
+        return testDriver.findOnScreenElement(With.id(R.id.player_track_pager));
     }
 
     private ViewElement closeButton() {
-        return testDriver.findElement(With.id(R.id.player_close));
+        return testDriver.findOnScreenElement(With.id(R.id.player_close));
     }
 
     private ViewElement artwork() {
-        return testDriver.findElement(With.id(R.id.track_page_artwork));
+        return testDriver.findOnScreenElement(With.id(R.id.track_page_artwork));
     }
 
     private ViewElement fullBleedArtwork() {
-        return testDriver.findElement(With.id(R.id.fullbleed_ad_artwork));
+        return testDriver.findOnScreenElement(With.id(R.id.fullbleed_ad_artwork));
     }
 
     private ViewElement centeredAdArtwork() {
-        return testDriver.findElement(With.id(R.id.centered_ad_artwork));
+        return testDriver.findOnScreenElement(With.id(R.id.centered_ad_artwork));
     }
 
     private ViewElement creator() {
-        return testDriver.findElement(With.id(R.id.track_page_user));
+        return testDriver.findOnScreenElement(With.id(R.id.track_page_user));
     }
 
     private ViewElement trackPageContext() {
-        return testDriver.findElement(With.id(R.id.track_page_context));
+        return testDriver.findOnScreenElement(With.id(R.id.track_page_context));
     }
 
     private ViewElement footerUser() {
-        return testDriver.findElement(With.id(R.id.footer_user));
+        return testDriver.findOnScreenElement(With.id(R.id.footer_user));
     }
 
     private ViewElement footerPlayToggle() {
-        return testDriver.findElement(With.id(R.id.footer_toggle));
+        return testDriver.findOnScreenElement(With.id(R.id.footer_toggle));
     }
 
     private TextElement trackTitle() {
-        return new TextElement(testDriver.findElement(With.id(R.id.track_page_title)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.track_page_title)));
     }
 
     private ViewElement footerPlayer() {
-        return testDriver.findElement(footerPlayerPredicate);
+        return testDriver.findOnScreenElement(footerPlayerPredicate);
     }
 
     private ViewElement adCTAButton() {
-        return testDriver.findElement(With.id(R.id.cta_button));
+        return testDriver.findOnScreenElement(With.id(R.id.cta_button));
     }
 
     private ViewElement whyAds() {
-        return testDriver.findElement(With.id(R.id.why_ads));
+        return testDriver.findOnScreenElement(With.id(R.id.why_ads));
     }
 
     private ViewElement upgrade() {
-        return testDriver.findElement(With.id(R.id.upsell_button));
+        return testDriver.findOnScreenElement(With.id(R.id.upsell_button));
     }
 
     private ViewElement adPage() {
-        return testDriver.findElement(With.id(R.id.player_ad_page));
+        return testDriver.findOnScreenElement(With.id(R.id.player_ad_page));
     }
 
     private ViewElement leaveBehind() {
-        return testDriver.findElement(With.id(R.id.leave_behind));
+        return testDriver.findOnScreenElement(With.id(R.id.leave_behind));
     }
 
     private ViewElement interstitial() {
-        return testDriver.findElement(With.id(R.id.interstitial));
+        return testDriver.findOnScreenElement(With.id(R.id.interstitial));
     }
 
     private ViewElement toggleLike() {
-        return testDriver.findElement(With.id(R.id.track_page_like));
+        return testDriver.findOnScreenElement(With.id(R.id.track_page_like));
     }
 
     private ViewElement interstitialNowPlaying() {
-        return testDriver.findElement(With.id(R.id.interstitial_now_playing_title));
+        return testDriver.findOnScreenElement(With.id(R.id.interstitial_now_playing_title));
     }
 
     private ViewElement progress() {
-        return testDriver.findElement(With.id(R.id.timestamp_progress));
+        return testDriver.findOnScreenElement(With.id(R.id.timestamp_progress));
     }
 
     public boolean isExpanded() {
@@ -311,7 +311,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewElement player() {
-        return testDriver.findElement(With.id(R.id.player_root));
+        return testDriver.findOnScreenElement(With.id(R.id.player_root));
     }
 
     public boolean waitForCollapsedPlayer() {
@@ -368,7 +368,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewPager getViewPager() {
-        return testDriver.findElement(With.id(R.id.player_track_pager)).toViewPager();
+        return testDriver.findOnScreenElement(With.id(R.id.player_track_pager)).toViewPager();
     }
 
     public void toggleFooterPlay() {
@@ -388,11 +388,11 @@ public class VisualPlayerElement extends Element {
     }
 
     public ViewElement likeButton() {
-        return testDriver.findElement(With.id(R.id.track_page_like));
+        return testDriver.findOnScreenElement(With.id(R.id.track_page_like));
     }
 
     public ViewElement shareButton() {
-        return testDriver.findElement(With.id(R.id.track_page_share));
+        return testDriver.findOnScreenElement(With.id(R.id.track_page_share));
     }
 
     public boolean isCenteredAd() {
@@ -404,7 +404,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private TextElement errorReasonElement() {
-        return new TextElement(testDriver.findElement(With.id(R.id.playback_error_reason)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.playback_error_reason)));
     }
 
     public void clickCenteredAdArtwork() {
@@ -441,7 +441,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewElement menu() {
-        return testDriver.findElement(With.id(R.id.track_page_more));
+        return testDriver.findOnScreenElement(With.id(R.id.track_page_more));
     }
 
     public void playForFiveSeconds() {

@@ -57,19 +57,19 @@ public class OfflineSettingsScreen extends Screen {
     }
 
     private TextElement sliderLimitText() {
-        return new TextElement(testDriver.findElement(With.id(SLIDER_LIMIT_TEXT)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(SLIDER_LIMIT_TEXT)));
     }
 
     private TextElement legendLimitText() {
-        return new TextElement(testDriver.findElement(With.id(LEGEND_LIMIT_TEXT)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(LEGEND_LIMIT_TEXT)));
     }
 
     private SeekBarElement sliderLimitSeekBar() {
-        return new SeekBarElement(testDriver.findElement(With.id(SLIDER_LIMIT_SEEK_BAR)));
+        return new SeekBarElement(testDriver.findOnScreenElement(With.id(SLIDER_LIMIT_SEEK_BAR)));
     }
 
     private CheckableElement offlineCollectionCheckable() {
-        return new CheckableElement(testDriver.findElements(With.className(Switch.class.getName())).get(0));
+        return new CheckableElement(testDriver.findOnScreenElements(With.className(Switch.class.getName())).get(0));
     }
 
     @Override

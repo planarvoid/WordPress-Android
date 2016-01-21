@@ -29,7 +29,7 @@ public class ToolBarElement extends Element {
     }
 
     public ViewElement overflowButton() {
-        return testDriver.findElement(With.className("android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton"));
+        return testDriver.findOnScreenElement(With.className("android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton"));
     }
 
     public SearchResultsScreen doSearch(String query) {
@@ -52,19 +52,19 @@ public class ToolBarElement extends Element {
     }
 
     public TextElement title() {
-        return new TextElement(toolbar().findElement(With.className(TextView.class)));
+        return new TextElement(toolbar().findOnScreenElement(With.className(TextView.class)));
     }
 
     private ViewElement toolbar() {
-        return testDriver.findElement(With.id(CONTAINER));
+        return testDriver.findOnScreenElement(With.id(CONTAINER));
     }
 
     private EditTextElement searchInputField() {
-        return new EditTextElement(testDriver.findElement(With.id(SEARCH_EDIT_TEXT)));
+        return new EditTextElement(testDriver.findOnScreenElement(With.id(SEARCH_EDIT_TEXT)));
     }
 
     public SearchResultsScreen dismissSearch() {
-        testDriver.findElement(With.id(SEARCH_DISMISS_VIEW)).click();
+        testDriver.findOnScreenElement(With.id(SEARCH_DISMISS_VIEW)).click();
         return new SearchResultsScreen(testDriver);
     }
 }

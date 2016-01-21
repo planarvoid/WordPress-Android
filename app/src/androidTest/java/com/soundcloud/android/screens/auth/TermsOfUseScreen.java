@@ -42,15 +42,15 @@ public class TermsOfUseScreen extends Screen {
     }
 
     private ViewElement continueButton() {
-        return testDriver.findElement(With.id(R.id.btn_accept_terms));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_accept_terms));
     }
 
     private TextElement disclaimer() {
-        return new TextElement(testDriver.findElement(With.id(android.R.id.message)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(android.R.id.message)));
     }
 
     private TextElement title() {
-        return new TextElement(testDriver.findElement(With.id(android.R.id.title)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(android.R.id.title)));
     }
 
     @Override

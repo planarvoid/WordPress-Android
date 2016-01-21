@@ -16,7 +16,7 @@ public class SignupDomainBlacklistedScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return solo.findElement(With.text(solo.getString(com.soundcloud.android.R.string.authentication_blocked_message))).isVisible();
+        return solo.findOnScreenElement(With.text(solo.getString(com.soundcloud.android.R.string.authentication_blocked_message))).isVisible();
     }
 
     @Override

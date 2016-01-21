@@ -22,6 +22,6 @@ public class StreamUpsellCardElement {
     }
 
     private ViewElement upgradeButton() {
-        return wrapped.findElement(With.id(R.id.invite_button));
+        return wrapped.findOnScreenElement(With.id(R.id.invite_button));
     }
 }

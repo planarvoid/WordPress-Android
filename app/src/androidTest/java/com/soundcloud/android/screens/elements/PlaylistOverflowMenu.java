@@ -35,19 +35,19 @@ public class PlaylistOverflowMenu extends PopupMenuElement {
     }
 
     public ViewElement getMakeAvailableOfflineItem() {
-        return findElement(With.text(testDriver.getString(R.string.make_offline_available)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.make_offline_available)));
     }
 
     public ViewElement getMakeUnvailableOfflineItem() {
-        return findElement(With.text(testDriver.getString(R.string.make_offline_unavailable)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.make_offline_unavailable)));
     }
 
     public ConfirmDeletePlaylistScreen clickDelete() {
-        findElement(With.text(testDriver.getString(R.string.delete_playlist))).click();
+        findOnScreenElement(With.text(testDriver.getString(R.string.delete_playlist))).click();
         return new ConfirmDeletePlaylistScreen(testDriver, PlaylistDetailActivity.class);
     }
 
     private ViewElement shuffleItem() {
-        return findElement(With.text(testDriver.getString(R.string.shuffle_playlist)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.shuffle_playlist)));
     }
 }

@@ -18,12 +18,12 @@ public class ConfirmDisableSyncCollectionScreen extends Screen {
     }
 
     public void clickCancel() {
-        testDriver.findElement(With.text(testDriver.getString(android.R.string.cancel))).click();
+        testDriver.findOnScreenElement(With.text(testDriver.getString(android.R.string.cancel))).click();
         waiter.waitForDialogToClose();
     }
 
     public void clickOk() {
-        testDriver.findElement(With.text(testDriver.getString(android.R.string.ok))).click();
+        testDriver.findOnScreenElement(With.text(testDriver.getString(android.R.string.ok))).click();
         waiter.waitForDialogToClose();
     }
 

@@ -33,14 +33,14 @@ public class PlaylistDetailsScreen extends Screen {
 
     public PlaylistOverflowMenu clickPlaylistOverflowButton() {
         testDriver
-                .findElement(With.id(R.id.playlist_details_overflow_button))
+                .findOnScreenElement(With.id(R.id.playlist_details_overflow_button))
                 .click();
         return new PlaylistOverflowMenu(testDriver);
     }
 
     public DownloadImageViewElement headerDownloadElement() {
         return new DownloadImageViewElement(testDriver
-                .findElement(With.id(R.id.header_download_state)));
+                .findOnScreenElement(With.id(R.id.header_download_state)));
     }
 
     public String getTitle() {
@@ -113,15 +113,15 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private TextElement title() {
-        return new TextElement(testDriver.findElement(With.id(R.id.title)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.title)));
     }
 
     private ViewElement headerPlayButton() {
-        return testDriver.findElement(With.id(R.id.btn_play));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_play));
     }
 
     private ViewElement likeToggle() {
-        return testDriver.findElement(With.id(R.id.toggle_like));
+        return testDriver.findOnScreenElement(With.id(R.id.toggle_like));
     }
 
     public VisualPlayerElement clickTrack(int trackIndex) {
@@ -132,7 +132,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     private ListElement tracksListElement() {
         return testDriver
-                .findElement(With.id(android.R.id.list))
+                .findOnScreenElement(With.id(android.R.id.list))
                 .toListView();
     }
 
@@ -144,14 +144,14 @@ public class PlaylistDetailsScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return Lists.transform(
                 testDriver
-                        .findElement(With.id(android.R.id.list))
-                        .findElements(With.id(R.id.track_list_item)),
+                        .findOnScreenElement(With.id(android.R.id.list))
+                        .findOnScreenElements(With.id(R.id.track_list_item)),
                 toTrackItemElement
         );
     }
 
     private ListElement trackItemsList() {
-        return testDriver.findElement(With.id(android.R.id.list)).toListView();
+        return testDriver.findOnScreenElement(With.id(android.R.id.list)).toListView();
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {

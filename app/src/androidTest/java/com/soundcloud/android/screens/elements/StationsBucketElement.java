@@ -17,12 +17,12 @@ public class StationsBucketElement {
     }
 
     public ViewAllStationsScreen clickViewAll() {
-        wrapped.findElement(With.text("View all")).click();
+        wrapped.findOnScreenElement(With.text("View all")).click();
         return new ViewAllStationsScreen(testDriver);
     }
 
     public StationElement getFirstStation() {
-        return new StationElement(testDriver, wrapped.findElement(With.id(R.id.station_item)));
+        return new StationElement(testDriver, wrapped.findOnScreenElement(With.id(R.id.station_item)));
     }
 
     public StationElement findStation(String title) {
@@ -33,7 +33,7 @@ public class StationsBucketElement {
     }
 
     public String getTitle() {
-        return new TextElement(wrapped.findElement(With.id(R.id.title))).getText();
+        return new TextElement(wrapped.findOnScreenElement(With.id(R.id.title))).getText();
     }
 
     public boolean isVisible() {

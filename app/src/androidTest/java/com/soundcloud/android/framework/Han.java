@@ -86,27 +86,27 @@ public class Han {
         return new DefaultViewElement(view, this);
     }
 
-    public ViewElement findElement(With findBy) {
-        return viewFetcher.findElement(findBy);
+    public ViewElement findOnScreenElement(With findBy) {
+        return viewFetcher.findOnScreenElement(findBy);
     }
 
-    public List<ViewElement> findElements(With with) {
-        return viewFetcher.findElements(with);
+    public List<ViewElement> findOnScreenElements(With with) {
+        return viewFetcher.findOnScreenElements(with);
     }
 
-    public ViewElement findElement(With... with) {
-        return viewFetcher.findElement(with);
+    public ViewElement findOnScreenElement(With... with) {
+        return viewFetcher.findOnScreenElement(with);
     }
 
-    public List<ViewElement> findElements(With... with) {
-        return viewFetcher.findElements(with);
+    public List<ViewElement> findOnScreenElements(With... with) {
+        return viewFetcher.findOnScreenElements(with);
     }
 
     public ViewElement scrollToItem(With... with) {
-        ViewElement viewElement = findElement(with);
+        ViewElement viewElement = findOnScreenElement(with);
         for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
             scrollDown();
-            viewElement = findElement(with);
+            viewElement = findOnScreenElement(with);
         }
         viewElement.dragIntoFullVerticalVisibility();
         return viewElement;
@@ -121,12 +121,12 @@ public class Han {
     }
 
     public void clickOnText(String text) {
-        findElement(With.text(text)).click();
+        findOnScreenElement(With.text(text)).click();
     }
 
     public void clickOnText(int stringId) {
         String text = getString(stringId);
-        findElement(With.text(text)).click();
+        findOnScreenElement(With.text(text)).click();
     }
 
     public void clearTextInWebElement(By by) {
@@ -275,7 +275,7 @@ public class Han {
     }
 
     public void clickOnView(With with) {
-        List<ViewElement> views = findElements(with);
+        List<ViewElement> views = findOnScreenElements(with);
         if (!views.isEmpty()) {
             views.get(0).click();
         }

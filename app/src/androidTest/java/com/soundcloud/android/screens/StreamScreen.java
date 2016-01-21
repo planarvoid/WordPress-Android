@@ -38,7 +38,7 @@ public class StreamScreen extends Screen {
 
     public SearchScreen clickOnFindPeopleToFollow() {
         final With findPeopleToFollow = With.text(testDriver.getString(R.string.list_empty_stream_action));
-        testDriver.findElement(findPeopleToFollow).click();
+        testDriver.findOnScreenElement(findPeopleToFollow).click();
         return new SearchScreen(testDriver);
     }
 
@@ -121,7 +121,7 @@ public class StreamScreen extends Screen {
     public List<FacebookInvitesItemElement> getFacebookInvitesNotifications() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return Lists.transform(
-                testDriver.findElements(With.id(R.id.facebook_invites_list_item)),
+                testDriver.findOnScreenElements(With.id(R.id.facebook_invites_list_item)),
                 toFacebookInvitesItemElement);
     }
 
@@ -131,7 +131,7 @@ public class StreamScreen extends Screen {
     }
 
     private RecyclerViewElement streamList() {
-        return testDriver.findElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
+        return testDriver.findOnScreenElement(With.id(R.id.ak_recycler_view)).toRecyclerView();
     }
 
     private final Function<ViewElement, FacebookInvitesItemElement> toFacebookInvitesItemElement = new Function<ViewElement, FacebookInvitesItemElement>() {

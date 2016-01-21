@@ -17,39 +17,39 @@ public class SignUpBasicsScreen extends Screen {
     }
 
     private EditTextElement emailInputField() {
-        return new EditTextElement(testDriver.findElement(With.id(R.id.auto_txt_email_address)));
+        return new EditTextElement(testDriver.findOnScreenElement(With.id(R.id.auto_txt_email_address)));
     }
 
     private EditTextElement passwordInputField() {
-        return new EditTextElement(testDriver.findElement(With.id(R.id.txt_choose_a_password)));
+        return new EditTextElement(testDriver.findOnScreenElement(With.id(R.id.txt_choose_a_password)));
     }
 
     private EditTextElement ageInputField() {
-        return new EditTextElement(testDriver.findElement(With.id(R.id.txt_enter_age)));
+        return new EditTextElement(testDriver.findOnScreenElement(With.id(R.id.txt_enter_age)));
     }
 
     private ViewElement genderText() {
-        return testDriver.findElement(With.id(R.id.txt_choose_gender));
+        return testDriver.findOnScreenElement(With.id(R.id.txt_choose_gender));
     }
 
     private EditTextElement customGenderInputField() {
-        return new EditTextElement(testDriver.findElement(With.id(R.id.txt_enter_custom_gender)));
+        return new EditTextElement(testDriver.findOnScreenElement(With.id(R.id.txt_enter_custom_gender)));
     }
 
     private ViewElement cancelButton() {
-        return testDriver.findElement(With.id(R.id.btn_cancel));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_cancel));
     }
 
     private ViewElement doneButton() {
-        return testDriver.findElement(With.id(R.id.btn_signup));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_signup));
     }
 
     public ViewElement saveButton() {
-        return testDriver.findElement(With.id(R.id.btn_save));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_save));
     }
 
     public ViewElement acceptTermsButton() {
-        return testDriver.findElement(With.id(R.id.btn_accept_terms));
+        return testDriver.findOnScreenElement(With.id(R.id.btn_accept_terms));
     }
 
     public SignUpBasicsScreen clearEmail() {
@@ -84,7 +84,7 @@ public class SignUpBasicsScreen extends Screen {
 
     public SignUpBasicsScreen chooseGender(String genderChoice) {
         genderText().click();
-        testDriver.findElement(With.text(genderChoice)).click();
+        testDriver.findOnScreenElement(With.text(genderChoice)).click();
         return this;
     }
 

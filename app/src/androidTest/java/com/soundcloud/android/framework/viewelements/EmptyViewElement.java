@@ -22,22 +22,22 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
-    public ViewElement findElement(With with) {
+    public ViewElement findOnScreenElement(With with) {
         throw new ViewNotFoundException(selector);
     }
 
     @Override
-    public List<ViewElement> findElements(With with) {
+    public List<ViewElement> findOnScreenElements(With with) {
         throw new ViewNotFoundException(selector);
     }
 
     @Override
-    public ViewElement findElement(final With... withs) {
+    public ViewElement findOnScreenElement(final With... withs) {
         throw new ViewNotFoundException(selector);
     }
 
     @Override
-    public List<ViewElement> findElements(final With... withs) {
+    public List<ViewElement> findOnScreenElements(final With... withs) {
         throw new ViewNotFoundException(selector);
     }
 
@@ -82,6 +82,11 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public boolean isFullyVisible() {
+        return false;
+    }
+
+    @Override
+    public boolean hasVisibility() {
         return false;
     }
 

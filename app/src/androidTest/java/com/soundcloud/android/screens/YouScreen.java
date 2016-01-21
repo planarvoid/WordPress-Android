@@ -62,35 +62,35 @@ public class YouScreen extends Screen {
     }
 
     private ViewElement headerLayout() {
-        return testDriver.findElement(With.id(R.id.header_layout));
+        return testDriver.findOnScreenElement(With.id(R.id.header_layout));
     }
 
     private ViewElement activityLink() {
-        return testDriver.findElement(With.id(R.id.you_activity_link));
+        return testDriver.findOnScreenElement(With.id(R.id.you_activity_link));
     }
 
     private ViewElement exploreLink() {
-        return testDriver.findElement(With.id(R.id.you_explore_link));
+        return testDriver.findOnScreenElement(With.id(R.id.you_explore_link));
     }
 
     private ViewElement recordLink() {
-        return testDriver.findElement(With.id(R.id.you_record_link));
+        return testDriver.findOnScreenElement(With.id(R.id.you_record_link));
     }
 
     private ViewElement basicSettingsLink() {
-        return testDriver.findElement(With.id(R.id.you_basic_settings_link));
+        return testDriver.findOnScreenElement(With.id(R.id.you_basic_settings_link));
     }
 
     private ViewElement offlineSettingsLink() {
-        return testDriver.findElement(With.id(R.id.you_offline_sync_settings_link));
+        return testDriver.findOnScreenElement(With.id(R.id.you_offline_sync_settings_link));
     }
 
     private ViewElement signoutLink() {
         testDriver.scrollToBottom();
-        return testDriver.findElement(With.id(R.id.you_sign_out_link));
+        return testDriver.findOnScreenElement(With.id(R.id.you_sign_out_link));
     }
 
     private TextElement username() {
-        return new TextElement(testDriver.findElement(With.id(R.id.username)));
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.username)));
     }
 }

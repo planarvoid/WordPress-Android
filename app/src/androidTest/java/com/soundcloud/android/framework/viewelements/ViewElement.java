@@ -14,13 +14,13 @@ import android.webkit.WebView;
 import java.util.List;
 
 public abstract class ViewElement {
-    public abstract ViewElement findElement(With with);
+    public abstract ViewElement findOnScreenElement(With with);
 
-    public abstract List<ViewElement> findElements(With with);
+    public abstract List<ViewElement> findOnScreenElements(With with);
 
-    public abstract ViewElement findElement(final With... withs);
+    public abstract ViewElement findOnScreenElement(final With... withs);
 
-    public abstract List<ViewElement> findElements(final With... withs);
+    public abstract List<ViewElement> findOnScreenElements(final With... withs);
 
     public interface Criteria {
         boolean isSatisfied(ViewElement viewElement);
@@ -50,6 +50,8 @@ public abstract class ViewElement {
     public abstract boolean isVisible();
 
     public abstract boolean isFullyVisible();
+
+    public abstract boolean hasVisibility();
 
     public abstract boolean dragIntoFullVerticalVisibility();
 

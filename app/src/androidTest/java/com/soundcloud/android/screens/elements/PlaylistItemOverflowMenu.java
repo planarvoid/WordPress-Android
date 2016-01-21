@@ -54,11 +54,11 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
     }
 
     private ViewElement likeItem() {
-        return findElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
     }
 
     private ViewElement repostItem() {
-        return findElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
     }
 
     public boolean isLiked() {
@@ -66,14 +66,14 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
     }
 
     public ViewElement getMakeAvailableOfflineItem() {
-        return findElement(With.text(testDriver.getString(R.string.make_offline_available)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.make_offline_available)));
     }
 
     public ViewElement getMakeUnavailableOfflineItem() {
-        return findElement(With.text(testDriver.getString(R.string.make_offline_unavailable)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.make_offline_unavailable)));
     }
 
     public ViewElement getDeletePlaylistItem() {
-        return findElement(With.text(testDriver.getString(R.string.delete_playlist)));
+        return findOnScreenElement(With.text(testDriver.getString(R.string.delete_playlist)));
     }
 }

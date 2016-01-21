@@ -21,7 +21,7 @@ public class Tabs {
     }
 
     public ViewElement getTabWith(With matcher) {
-        return container().findElement(matcher);
+        return container().findOnScreenElement(matcher);
     }
 
     public ViewElement getTabAt(int index) {
@@ -37,7 +37,7 @@ public class Tabs {
     }
 
     private ViewElement container() {
-        return testDriver.findElement(With.classSimpleName(TabLayout.class.getSimpleName()));
+        return testDriver.findOnScreenElement(With.classSimpleName(TabLayout.class.getSimpleName()));
     }
 
     private class TabsVisibleCondition implements Condition {

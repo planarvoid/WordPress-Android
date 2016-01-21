@@ -44,6 +44,6 @@ public class SearchScreen extends Screen {
     }
 
     public boolean hasSearchResults() {
-        return testDriver.findElement(With.id(android.R.id.list)).isVisible();
+        return testDriver.findOnScreenElement(With.id(android.R.id.list)).isVisible();
     }
 }

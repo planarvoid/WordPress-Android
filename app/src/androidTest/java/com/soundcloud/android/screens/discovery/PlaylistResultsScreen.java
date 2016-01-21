@@ -34,7 +34,7 @@ public class PlaylistResultsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen clickOnFirstPlaylist() {
-        testDriver.findElement(With.id(R.id.playlist_list_item)).click();
+        testDriver.findOnScreenElement(With.id(R.id.playlist_list_item)).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
@@ -45,7 +45,7 @@ public class PlaylistResultsScreen extends Screen {
 
     private RecyclerViewElement resultList() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return testDriver.findElement(With.className(RecyclerView.class)).toRecyclerView();
+        return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
 }

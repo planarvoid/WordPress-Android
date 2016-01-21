@@ -16,7 +16,7 @@ public class EmptyViewElement extends Element {
 
     //FIXME: Don't return ViewElements
     public ViewElement emptyConnectionErrorMessage() {
-        return emptyView().findElement(With.text(testDriver.getString(R.string.ak_error_no_internet)));
+        return emptyView().findOnScreenElement(With.text(testDriver.getString(R.string.ak_error_no_internet)));
     }
 
     public String message() {
@@ -24,10 +24,10 @@ public class EmptyViewElement extends Element {
     }
 
     private ViewElement emptyView(){
-        return testDriver.findElement(With.className(EmptyView.class.getName()));
+        return testDriver.findOnScreenElement(With.className(EmptyView.class.getName()));
     }
 
     private TextElement messageView() {
-        return new TextElement(emptyView().findElement(With.id(R.id.ak_emptyview_message)));
+        return new TextElement(emptyView().findOnScreenElement(With.id(R.id.ak_emptyview_message)));
     }
 }

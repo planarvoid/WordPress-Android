@@ -16,7 +16,7 @@ public class StationElement {
     }
 
     public String getTitle() {
-        return new TextElement(wrapped.findElement(With.id(R.id.title))).getText();
+        return new TextElement(wrapped.findOnScreenElement(With.id(R.id.title))).getText();
     }
 
     public boolean isVisible() { return wrapped.isVisible(); }

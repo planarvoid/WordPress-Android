@@ -31,7 +31,7 @@ public class RecordMetadataScreen extends Screen {
     }
 
     public RecordScreen clickUploadButton() {
-        testDriver.findElement(With.id(R.id.btn_action)).click();
+        testDriver.findOnScreenElement(With.id(R.id.btn_action)).click();
         return new RecordScreen(testDriver);
     }
 
@@ -41,10 +41,10 @@ public class RecordMetadataScreen extends Screen {
     }
 
     private EditTextElement getTitleEditText() {
-        return new EditTextElement(testDriver.findElement(With.id(R.id.title)));
+        return new EditTextElement(testDriver.findOnScreenElement(With.id(R.id.title)));
     }
 
     private CheckableElement getPrivateRadioButton() {
-        return new CheckableElement(testDriver.findElement(With.id(R.id.rdo_private)));
+        return new CheckableElement(testDriver.findOnScreenElement(With.id(R.id.rdo_private)));
     }
 }

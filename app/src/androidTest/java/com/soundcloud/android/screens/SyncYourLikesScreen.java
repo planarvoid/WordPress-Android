@@ -17,7 +17,7 @@ public class SyncYourLikesScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return testDriver.findElement(text(testDriver.getString(R.string.offline_likes_dialog_title))).isVisible();
+        return testDriver.findOnScreenElement(text(testDriver.getString(R.string.offline_likes_dialog_title))).isVisible();
     }
 
     public TrackLikesScreen clickKeepLikesSynced() {
@@ -26,7 +26,7 @@ public class SyncYourLikesScreen extends Screen {
     }
 
     public TrackLikesScreen clickKeepLikesSyncedAndWaitToFinish() {
-        testDriver.findElement(text(testDriver.getString(R.string.make_offline_available))).click();
+        testDriver.findOnScreenElement(text(testDriver.getString(R.string.make_offline_available))).click();
         TrackLikesScreen trackLikesScreen = new TrackLikesScreen(testDriver);
         trackLikesScreen.waitForLikesDownloadToFinish();
         return trackLikesScreen;
@@ -34,11 +34,11 @@ public class SyncYourLikesScreen extends Screen {
 
     private ViewElement content() {
         int titleId = testDriver.getResources().getIdentifier( "contentPanel", "id", "android" );
-        return testDriver.findElement(With.id(titleId));
+        return testDriver.findOnScreenElement(With.id(titleId));
     }
 
     private ViewElement makeAvailableOfflineButton() {
-        return testDriver.findElement(text(testDriver.getString(R.string.make_offline_available)));
+        return testDriver.findOnScreenElement(text(testDriver.getString(R.string.make_offline_available)));
     }
 
     @Override

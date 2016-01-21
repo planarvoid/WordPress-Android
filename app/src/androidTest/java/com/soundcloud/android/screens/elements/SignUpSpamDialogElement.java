@@ -18,6 +18,6 @@ public class SignUpSpamDialogElement extends Element {
     }
 
     private ViewElement cancelButton() {
-        return testDriver.findElement(With.text(testDriver.getString(R.string.btn_cancel)));
+        return testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.btn_cancel)));
     }
 }

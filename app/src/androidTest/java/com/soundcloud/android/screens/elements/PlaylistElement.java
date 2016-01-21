@@ -32,11 +32,11 @@ public class PlaylistElement {
     }
 
     public String getTitle() {
-        return getText(wrapped.findElement(With.id(titleId)));
+        return getText(wrapped.findOnScreenElement(With.id(titleId)));
     }
 
     public String getTrackCount() {
-        return getText(wrapped.findElement(With.id(R.id.list_item_right_info)));
+        return getText(wrapped.findOnScreenElement(With.id(R.id.list_item_right_info)));
     }
 
     public boolean isPromotedPlaylist() {
@@ -44,11 +44,11 @@ public class PlaylistElement {
     }
 
     private boolean isPromotedPlaylistListItem() {
-        return wrapped.findElement(With.id(R.id.promoted_playlist)).isVisible();
+        return wrapped.findOnScreenElement(With.id(R.id.promoted_playlist)).isVisible();
     }
 
     private boolean isPromotedCardItem() {
-        return wrapped.findElement(With.id(R.id.promoted_item)).isVisible();
+        return wrapped.findOnScreenElement(With.id(R.id.promoted_item)).isVisible();
     }
 
     public PlaylistDetailsScreen click() {
@@ -57,12 +57,12 @@ public class PlaylistElement {
     }
 
     public PlaylistItemOverflowMenu clickOverflow() {
-        wrapped.findElement(With.id(R.id.overflow_button)).click();
+        wrapped.findOnScreenElement(With.id(R.id.overflow_button)).click();
         return new PlaylistItemOverflowMenu(testDriver);
     }
 
     public DownloadImageViewElement downloadElement() {
-        return new DownloadImageViewElement(wrapped.findElement(With.id(R.id.item_download_state)));
+        return new DownloadImageViewElement(wrapped.findOnScreenElement(With.id(R.id.item_download_state)));
     }
 
     private String getText(ViewElement element) {

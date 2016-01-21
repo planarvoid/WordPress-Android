@@ -22,7 +22,7 @@ public class PaymentErrorScreen extends Screen {
     }
 
     public String getMessage() {
-        return new TextElement(testDriver.findElement(With.id(R.id.custom_dialog_body))).getText();
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.custom_dialog_body))).getText();
     }
 
 }

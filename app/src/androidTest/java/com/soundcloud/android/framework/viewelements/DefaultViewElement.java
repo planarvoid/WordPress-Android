@@ -42,23 +42,23 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    public ViewElement findElement(With with) {
-        return viewFetcher.findElement(with);
+    public ViewElement findOnScreenElement(With with) {
+        return viewFetcher.findOnScreenElement(with);
     }
 
     @Override
-    public List<ViewElement> findElements(With with) {
-        return viewFetcher.findElements(with);
+    public List<ViewElement> findOnScreenElements(With with) {
+        return viewFetcher.findOnScreenElements(with);
     }
 
     @Override
-    public ViewElement findElement(final With... withs) {
-        return viewFetcher.findElement(withs);
+    public ViewElement findOnScreenElement(final With... withs) {
+        return viewFetcher.findOnScreenElement(withs);
     }
 
     @Override
-    public List<ViewElement> findElements(final With... withs) {
-        return viewFetcher.findElements(withs);
+    public List<ViewElement> findOnScreenElements(final With... withs) {
+        return viewFetcher.findOnScreenElements(withs);
     }
 
     public ViewElement findAncestor(ViewElement root, With with) {
@@ -336,6 +336,11 @@ public class DefaultViewElement extends ViewElement {
         return viewFetcher.getChildren();
     }
 
+    @Override
+    public boolean hasVisibility() {
+        return view.getVisibility() == View.VISIBLE;
+    }
+
     private boolean isShown() {
         return view.isShown();
     }
@@ -361,9 +366,5 @@ public class DefaultViewElement extends ViewElement {
 
     private Display getDisplay() {
         return testDriver.getDisplay();
-    }
-
-    private boolean hasVisibility() {
-        return view.getVisibility() == View.VISIBLE;
     }
 }

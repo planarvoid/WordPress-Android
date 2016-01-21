@@ -19,19 +19,19 @@ public class TrackInfoScreen extends Screen {
     }
 
     public String getTitle() {
-        return new TextElement(testDriver.findElement(With.id(com.soundcloud.android.R.id.title))).getText();
+        return new TextElement(testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.title))).getText();
     }
 
     public ViewElement getNoDescription() {
-        return testDriver.findElement(With.id(com.soundcloud.android.R.id.no_description));
+        return testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.no_description));
     }
 
     public ViewElement getDescription() {
-        return testDriver.findElement(With.id(com.soundcloud.android.R.id.description));
+        return testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.description));
     }
 
     public TrackCommentsScreen clickComments() {
-        testDriver.findElement(With.id(com.soundcloud.android.R.id.comments)).click();
+        testDriver.findOnScreenElement(With.id(com.soundcloud.android.R.id.comments)).click();
         return new TrackCommentsScreen(testDriver);
     }
 
