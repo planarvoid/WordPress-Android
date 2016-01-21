@@ -32,6 +32,7 @@ import java.util.List;
 public class CollectionPresenterTest extends AndroidUnitTest {
 
     public static final List<Urn> RECENT_STATIONS = Collections.singletonList(Urn.forTrackStation(123L));
+    public static final LikesItem LIKES = LikesItem.fromUrns(Collections.singletonList(Urn.forTrack(123L)));
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
 
@@ -79,7 +80,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     public void usesFilterFromStorageForInitialLoad() {
         final MyCollection myCollection = getMyCollection(
                 ModelFixtures.create(PlaylistItem.class, 2),
-                Collections.singletonList(Urn.forTrack(123L)),
+                LIKES,
                 RECENT_STATIONS, false);
 
         when(collectionOptionsStorage.getLastOrDefault()).thenReturn(options);
@@ -92,7 +93,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Test
     public void addsFilterRemovalWhenFilterAppliedForLikes() {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
-        final MyCollection myCollection = getMyCollection(playlistItems, Collections.singletonList(Urn.forTrack(123L)), RECENT_STATIONS, false);
+        final MyCollection myCollection = getMyCollection(playlistItems, LIKES, RECENT_STATIONS, false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).build());
 
@@ -108,7 +109,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Test
     public void addsFilterRemovalWhenFilterAppliedForPosts() {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
-        final MyCollection myCollection = getMyCollection(playlistItems, Collections.singletonList(Urn.forTrack(123L)), RECENT_STATIONS, false);
+        final MyCollection myCollection = getMyCollection(playlistItems, LIKES, RECENT_STATIONS, false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).build());
 
@@ -124,7 +125,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Test
     public void doesNotAddFilterRemovalWhenBothFiltersApplied() {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
-        final MyCollection myCollection = getMyCollection(playlistItems, Collections.singletonList(Urn.forTrack(123L)), RECENT_STATIONS, false);
+        final MyCollection myCollection = getMyCollection(playlistItems, LIKES, RECENT_STATIONS, false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).showLikes(true).build());
 
@@ -139,7 +140,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Test
     public void doesNotAddFilterRemovalWhenNoFiltersApplied() {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
-        final MyCollection myCollection = getMyCollection(playlistItems, Collections.singletonList(Urn.forTrack(123L)), RECENT_STATIONS, false);
+        final MyCollection myCollection = getMyCollection(playlistItems, LIKES, RECENT_STATIONS, false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
@@ -154,7 +155,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Test
     public void addsEmptyPlaylistsItemWithNoPlaylistsAndNoFilters() {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
-        final MyCollection myCollection = getMyCollection(playlistItems, Collections.singletonList(Urn.forTrack(123L)), RECENT_STATIONS, false);
+        final MyCollection myCollection = getMyCollection(playlistItems, LIKES, RECENT_STATIONS, false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
@@ -168,7 +169,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Test
     public void addsEmptyPlaylistsItemWithNoPlaylistsAndBothFilters() {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
-        final MyCollection myCollection = getMyCollection(playlistItems, Collections.singletonList(Urn.forTrack(123L)), RECENT_STATIONS, false);
+        final MyCollection myCollection = getMyCollection(playlistItems, LIKES, RECENT_STATIONS, false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
@@ -182,7 +183,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Test
     public void collectionsItemsShouldContainPreviewCollectionItemWhenThereAreNoLikesOrStations() {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
-        final MyCollection myCollection = getMyCollection(playlistItems, Collections.<Urn>emptyList(), Collections.<Urn>emptyList(), false);
+        final MyCollection myCollection = getMyCollection(playlistItems,
+                LikesItem.fromUrns(Collections.<Urn>emptyList()), Collections.<Urn>emptyList(), false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
@@ -196,7 +198,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Test
     public void collectionsItemsShouldPreviewCollectionItemWhenThereAreStations() {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
-        final MyCollection myCollection = getMyCollection(playlistItems, Collections.<Urn>emptyList(), RECENT_STATIONS, false);
+        final MyCollection myCollection = getMyCollection(playlistItems, LIKES, RECENT_STATIONS, false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
@@ -248,12 +250,13 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     private void setupDefaultCollection() {
-        final MyCollection myCollection = getMyCollection(Collections.<PlaylistItem>emptyList(), Collections.<Urn>emptyList(), Collections.<Urn>emptyList(), false);
+        final MyCollection myCollection = getMyCollection(Collections.<PlaylistItem>emptyList(),
+                LikesItem.fromUrns(Collections.<Urn>emptyList()), Collections.<Urn>emptyList(), false);
         when(collectionOperations.collections(any(PlaylistsOptions.class))).thenReturn(Observable.just(myCollection));
     }
 
     @NonNull
-    private MyCollection getMyCollection(List<PlaylistItem> playlistItems, List<Urn> likes, List<Urn> recentStations, boolean atLeastOneError) {
+    private MyCollection getMyCollection(List<PlaylistItem> playlistItems, LikesItem likes, List<Urn> recentStations, boolean atLeastOneError) {
         return new MyCollection(likes, playlistItems, recentStations, atLeastOneError);
     }
 }

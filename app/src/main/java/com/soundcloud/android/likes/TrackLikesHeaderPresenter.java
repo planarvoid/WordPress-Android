@@ -5,9 +5,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
-import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.rx.RxUtils;
@@ -29,7 +29,7 @@ import javax.inject.Provider;
 public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> {
 
     private final TrackLikesHeaderView headerView;
-    private final OfflineContentOperations offlineContentOperations;
+    private final OfflineStateOperations offlineStateOperations;
     private final OfflinePlaybackOperations playbackOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final FeatureOperations featureOperations;
@@ -56,13 +56,13 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @Inject
     public TrackLikesHeaderPresenter(TrackLikesHeaderView headerView,
-                                     OfflineContentOperations offlineContentOperations,
+                                     OfflineStateOperations offlineStateOperations,
                                      OfflinePlaybackOperations playbackOperations,
                                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                      FeatureOperations featureOperations,
                                      EventBus eventBus) {
         this.headerView = headerView;
-        this.offlineContentOperations = offlineContentOperations;
+        this.offlineStateOperations = offlineStateOperations;
         this.playbackOperations = playbackOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.featureOperations = featureOperations;
@@ -100,7 +100,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                         .map(OfflineContentChangedEvent.TO_OFFLINE_STATE);
 
         foregroundSubscription = offlineLikesState
-                .startWith(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
+                .startWith(offlineStateOperations.loadLikedTracksOfflineState())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new OfflineLikesSettingSubscriber());
     }

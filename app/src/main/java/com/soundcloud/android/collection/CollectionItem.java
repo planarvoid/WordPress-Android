@@ -18,11 +18,11 @@ public class CollectionItem implements ListItem {
     static final int TYPE_ONBOARDING = 5;
 
     private final int type;
-    private final List<Urn> likes;
+    private final LikesItem likes;
     private final List<Urn> stations;
     private final PlaylistItem playlistItem;
 
-    private CollectionItem(int type, List<Urn> likes, List<Urn> stations, PlaylistItem playlistItem) {
+    private CollectionItem(int type, LikesItem likes, List<Urn> stations, PlaylistItem playlistItem) {
         this.type = type;
         this.likes = likes;
         this.stations = stations;
@@ -30,7 +30,7 @@ public class CollectionItem implements ListItem {
     }
 
     // TODO avoid null (CollectionItem<T> { T getEntity() ; getType()}) or use @nullable
-    public static CollectionItem fromCollectionsPreview(List<Urn> likes, List<Urn> stations) {
+    public static CollectionItem fromCollectionsPreview(LikesItem likes, List<Urn> stations) {
         return new CollectionItem(CollectionItem.TYPE_COLLECTIONS_PREVIEW, likes, stations, null);
     }
 
@@ -62,7 +62,7 @@ public class CollectionItem implements ListItem {
         return playlistItem;
     }
 
-    public List<Urn> getLikes() {
+    public LikesItem getLikes() {
         return likes;
     }
 
@@ -74,10 +74,16 @@ public class CollectionItem implements ListItem {
         return type == TYPE_PLAYLIST_ITEM;
     }
 
+    public boolean isCollectionPreview() {
+        return type == TYPE_COLLECTIONS_PREVIEW;
+    }
+
     @Override
     public ListItem update(PropertySet sourceSet) {
         if (type == TYPE_PLAYLIST_ITEM) {
             playlistItem.update(sourceSet);
+        } else if (type == TYPE_COLLECTIONS_PREVIEW) {
+            likes.update(sourceSet);
         }
         return this;
     }

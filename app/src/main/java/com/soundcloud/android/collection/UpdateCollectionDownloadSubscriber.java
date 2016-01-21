@@ -1,16 +1,15 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.collection;
 
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineProperty;
-import com.soundcloud.android.presentation.ItemAdapter;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.PropertySet;
 
-public class UpdateCurrentDownloadSubscriber  extends DefaultSubscriber<OfflineContentChangedEvent> {
-    private final ItemAdapter<? extends ListItem> adapter;
+public class UpdateCollectionDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
 
-    public UpdateCurrentDownloadSubscriber(ItemAdapter<? extends ListItem> adapter) {
+    private final CollectionAdapter adapter;
+
+    public UpdateCollectionDownloadSubscriber(CollectionAdapter adapter) {
         this.adapter = adapter;
     }
 
@@ -18,14 +17,17 @@ public class UpdateCurrentDownloadSubscriber  extends DefaultSubscriber<OfflineC
     public void onNext(final OfflineContentChangedEvent event) {
         boolean changed = false;
 
-        for (ListItem item : adapter.getItems()) {
-            if (event.entities.contains(item.getEntityUrn())){
+        for (CollectionItem item : adapter.getItems()) {
+            if (event.entities.contains(item.getEntityUrn())
+                    || (event.isLikedTrackCollection && item.isCollectionPreview())) {
                 changed = true;
                 item.update(PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(event.state)));
             }
         }
+
         if (changed) {
             adapter.notifyDataSetChanged();
         }
     }
+
 }

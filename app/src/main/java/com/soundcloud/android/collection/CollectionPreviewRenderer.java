@@ -70,27 +70,30 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     }
 
     private CollectionPreviewView getLikesPreviewView(View view) {
-        final CollectionPreviewView likesView = (CollectionPreviewView) view.findViewById(R.id.collection_likes_preview);
-        setLikesDownloadProgressIndicator(likesView);
-        return likesView;
+        return (CollectionPreviewView) view.findViewById(R.id.collection_likes_preview);
     }
 
     @Override
     public void bindItemView(int position, View view, List<CollectionItem> list) {
-        bindPreviewView(list.get(position).getLikes(), getLikesPreviewView(view));
-        bindPreviewView(list.get(position).getStations(), getRecentStationsPreviewView(view));
+        bindLikesView(list.get(position).getLikes(), view);
+        setThumbnails(list.get(position).getStations(), getRecentStationsPreviewView(view));
     }
 
-    private void bindPreviewView(List<Urn> entities, CollectionPreviewView previewView) {
+    private void bindLikesView(LikesItem likes, View view) {
+        final CollectionPreviewView likesPreviewView = getLikesPreviewView(view);
+        setThumbnails(likes.getUrns(), likesPreviewView);
+        setLikesDownloadProgressIndicator(likes, view);
+    }
+
+    private void setThumbnails(List<Urn> entities, CollectionPreviewView previewView) {
         previewView.refreshThumbnails(entities, resources.getInteger(R.integer.collection_preview_thumbnail_count));
     }
 
-    private void setLikesDownloadProgressIndicator(View likesView) {
+    private void setLikesDownloadProgressIndicator(LikesItem likes, View likesView) {
         final DownloadImageView downloadProgressIcon = (DownloadImageView) likesView.findViewById(R.id.collection_download_state);
 
         if (featureOperations.isOfflineContentEnabled()) {
-            // TODO: Always show downloaded state for now
-            downloadProgressIcon.setState(OfflineState.DOWNLOADED);
+            downloadProgressIcon.setState(likes.getDownloadState());
         } else {
             downloadProgressIcon.setState(OfflineState.NOT_OFFLINE);
         }

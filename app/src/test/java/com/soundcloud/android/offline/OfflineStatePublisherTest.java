@@ -28,17 +28,18 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     private static final Urn TRACK = Urn.forTrack(123L);
     private static final Urn PLAYLIST = Urn.forPlaylist(123L);
 
-    @Mock private OfflineTracksCollectionStateOperations collectionStateOperations;
+    @Mock private OfflineStateOperations offlineStateOperations;
+
     private TestEventBus eventBus;
     private OfflineStatePublisher publisher;
 
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        publisher = new OfflineStatePublisher(eventBus, collectionStateOperations);
+        publisher = new OfflineStatePublisher(eventBus, offlineStateOperations);
 
         final Map<OfflineState, TrackCollections> collectionsMap = singletonMap(REQUESTED, TrackCollections.create(singletonList(PLAYLIST), false));
-        when(collectionStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class))).thenReturn(collectionsMap);
+        when(offlineStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class))).thenReturn(collectionsMap);
     }
 
     @Test
@@ -56,7 +57,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         publisher.publishRequested(singletonList(TRACK));
 
-        verify(collectionStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
+        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
         assertEvent(event(0), REQUESTED, true, TRACK, PLAYLIST);
     }
 
@@ -66,7 +67,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         publisher.publishCancel(TRACK);
 
-        verify(collectionStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
+        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
         assertEvent(event(0), REQUESTED, true, TRACK, PLAYLIST);
     }
 
@@ -76,7 +77,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         publisher.publishDownloaded(TRACK);
 
-        verify(collectionStateOperations).loadTracksCollectionsState(TRACK, DOWNLOADED);
+        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, DOWNLOADED);
         assertEvent(event(0), REQUESTED, true, PLAYLIST);
         assertEvent(event(1), DOWNLOADED, false, TRACK);
     }
@@ -87,7 +88,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         publisher.publishError(TRACK);
 
-        verify(collectionStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
+        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
         assertEvent(event(0), REQUESTED, true, TRACK, PLAYLIST);
     }
 
@@ -97,7 +98,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         publisher.publishRemoved(singletonList(TRACK));
 
-        verify(collectionStateOperations).loadTracksCollectionsState(TRACK, NOT_OFFLINE);
+        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, NOT_OFFLINE);
         assertEvent(event(0), NOT_OFFLINE, false, TRACK);
         assertEvent(event(1), UNAVAILABLE, true, PLAYLIST);
     }
@@ -123,7 +124,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     }
 
     private void setTracksCollections(OfflineState state) {
-        when(collectionStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class)))
+        when(offlineStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class)))
                 .thenReturn(singletonMap(state, TrackCollections.create(singletonList(PLAYLIST), true)));
     }
 

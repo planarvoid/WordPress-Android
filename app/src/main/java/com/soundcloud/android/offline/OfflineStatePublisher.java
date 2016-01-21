@@ -32,10 +32,10 @@ class OfflineStatePublisher {
         }
     };
     private final EventBus eventBus;
-    private final OfflineTracksCollectionStateOperations collectionStateOperations;
+    private final OfflineStateOperations collectionStateOperations;
 
     @Inject
-    public OfflineStatePublisher(EventBus eventBus, OfflineTracksCollectionStateOperations collectionStateOperations) {
+    public OfflineStatePublisher(EventBus eventBus, OfflineStateOperations collectionStateOperations) {
         this.eventBus = eventBus;
         this.collectionStateOperations = collectionStateOperations;
     }

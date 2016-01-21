@@ -226,27 +226,6 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getLikedTracksOfflineStateReturnsNoOfflineWhenOfflineLikedTrackAreDisabled() {
-        final TestSubscriber<OfflineState> subscriber = new TestSubscriber<>();
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(false));
-
-        operations.getLikedTracksOfflineStateFromStorage().subscribe(subscriber);
-
-        subscriber.assertValue(OfflineState.NOT_OFFLINE);
-    }
-
-    @Test
-    public void getLikedTracksOfflineStateReturnsStateFromStorageWhenOfflineLikedTracksAreEnabled() {
-        final TestSubscriber<OfflineState> subscriber = new TestSubscriber<>();
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
-        when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(Observable.just(OfflineState.REQUESTED));
-
-        operations.getLikedTracksOfflineStateFromStorage().subscribe(subscriber);
-
-        subscriber.assertValue(OfflineState.REQUESTED);
-    }
-
-    @Test
     public void loadOfflineContentUpdatesDoesNotFailWhenPoliciesFailedToUpdate() {
         final TestSubscriber<OfflineContentUpdates> subscriber = new TestSubscriber<>();
 

@@ -24,7 +24,6 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             android:layout_toRightOf="@id/title"
-            android:paddingTop="2dp"
             android:layout_centerVertical="true" />
 
         <LinearLayout

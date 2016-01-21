@@ -30,7 +30,6 @@ import java.util.List;
 class OfflineContentStorage {
     private static final String IS_OFFLINE_COLLECTION = "is_offline_collection";
     private static final String IS_OFFLINE_PLAYLIST = "is_offline_playlist";
-    private static final String IS_OFFLINE_LIKES = "if_offline_likes";
     private static final String OFFLINE_CONTENT = "has_content_offline";
 
     private static final Func1<String, Boolean> IS_OFFLINE_COLLECTION_KEY = new Func1<String, Boolean>() {

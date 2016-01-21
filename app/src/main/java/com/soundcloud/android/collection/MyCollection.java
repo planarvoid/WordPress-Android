@@ -7,12 +7,12 @@ import java.util.List;
 
 public class MyCollection {
 
-    private final List<Urn> likes;
+    private final LikesItem likes;
     private final List<PlaylistItem> likedAndPostedPlaylists;
     private final List<Urn> recentStations;
     private final boolean atLeastOneError;
 
-    public MyCollection(List<Urn> likes, List<PlaylistItem> likedAndPostedPlaylists,
+    public MyCollection(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
                         List<Urn> recentStations, boolean atLeastOneError) {
         this.likes = likes;
         this.likedAndPostedPlaylists = likedAndPostedPlaylists;
@@ -24,7 +24,7 @@ public class MyCollection {
         return likedAndPostedPlaylists;
     }
 
-    public List<Urn> getLikes() {
+    public LikesItem getLikes() {
         return likes;
     }
 

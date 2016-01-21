@@ -25,6 +25,7 @@ import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
@@ -59,6 +60,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private TrackLikesHeaderView headerView;
     @Mock private TrackLikeOperations likeOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
+    @Mock private OfflineStateOperations offlineStateOperations;
     @Mock private OfflinePlaybackOperations playbackOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private LikesMenuPresenter likesMenuPresenter;
@@ -77,7 +79,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         presenter = new TrackLikesHeaderPresenter(
                 headerView,
-                offlineContentOperations,
+                offlineStateOperations,
                 playbackOperations,
                 TestSubscribers.expandPlayerSubscriber(),
                 featureOperations,
@@ -88,7 +90,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(fragment.getFragmentManager()).thenReturn(fragmentManager);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(just(true));
-        when(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
+        when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.NOT_OFFLINE));
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(just(true));
     }
@@ -234,7 +236,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showsDownloadedStateWhenLikedTracksDownloadStateIsDownloaded() {
         when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
-        when(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
+        when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.DOWNLOADED));
         presenter.onViewCreated(fragment, layoutView, null);
         presenter.onResume(fragment);
@@ -245,7 +247,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showsRequestedStateWhenLikedTracksDownloadStateIsRequested() {
         when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
-        when(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
+        when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.REQUESTED));
         presenter.onViewCreated(fragment, layoutView, null);
         presenter.onResume(fragment);
@@ -255,7 +257,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsDefaultStateWhenLikedTracksDownloadStateIsNoOffline() {
-        when(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
+        when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.NOT_OFFLINE));
         presenter.onViewCreated(fragment, layoutView, null);
         presenter.onResume(fragment);
@@ -267,7 +269,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     public void removeDownloadStateWhenOfflineLikedChangeToDisable() {
         final OfflineContentChangedEvent offlineLikesDisabled = removed(true);
 
-        when(offlineContentOperations.getLikedTracksOfflineStateFromStorage())
+        when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.DOWNLOADED));
 
         presenter.onResume(fragment);
@@ -289,7 +291,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     private void enableOfflineLikes() {
         when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
-        when(offlineContentOperations.getLikedTracksOfflineStateFromStorage()).thenReturn(just(OfflineState.REQUESTED));
+        when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(just(OfflineState.REQUESTED));
     }
 
 }
