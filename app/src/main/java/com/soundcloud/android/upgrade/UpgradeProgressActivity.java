@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.upgrade.UpgradeProgressOperations.UpgradeResult;
 import com.soundcloud.android.utils.Log;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -43,7 +44,7 @@ public class UpgradeProgressActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private class UpgradeCompleteSubscriber extends DefaultSubscriber<Object> {
+    private class UpgradeCompleteSubscriber extends DefaultSubscriber<UpgradeResult> {
         private final boolean showOfflineOnboarding;
 
         public UpgradeCompleteSubscriber(boolean showOfflineOnboarding) {
@@ -51,8 +52,9 @@ public class UpgradeProgressActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onCompleted() {
-            Log.d(TAG, "All done!");
+        public void onNext(UpgradeResult result) {
+            Log.d(TAG, "All done! config fetch success = " + result.configurationReceived +
+                    "; policy fetch success = " + result.policiesUpdated);
             if (showOfflineOnboarding) {
                 navigator.openOfflineOnboarding(UpgradeProgressActivity.this);
             }
