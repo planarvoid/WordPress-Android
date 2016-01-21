@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     android:padding="@dimen/dialog_padding">
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/title"
         style="@style/DialogContentText"
         android:layout_width="0dp"
@@ -33,7 +33,7 @@
         android:padding="4dp"
         android:gravity="center_vertical|right"/>
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/trackCount"
         style="@style/DialogContentText"
         android:layout_width="wrap_content"

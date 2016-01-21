@@ -13,23 +13,25 @@
             android:clickable="false"
             android:layout_centerInParent="true" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/playback_error"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/playback_error"
             android:textColor="@color/white"
             android:textSize="18sp"
+            style="@style/TextAppearance.SoundCloudLightFont"
             android:clickable="false"
             android:layout_below="@id/playback_error_image"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/player_error_text_margin" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/playback_error_reason"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:textColor="@color/gray_text"
+            style="@style/TextAppearance.SoundCloudLightFont"
             android:clickable="false"
             android:gravity="center_horizontal"
             android:layout_below="@id/playback_error"

@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback.ui.view;
 
+import static com.soundcloud.android.view.CustomFontLoader.SOUNDCLOUD_INTERSTATE_REGULAR;
+import static com.soundcloud.android.view.CustomFontLoader.applyCustomFont;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ViewUtils;
 
@@ -43,6 +46,7 @@ public class RoundedColorButton extends Button {
         roundingPx = ViewUtils.dpToPx(getContext(), ROUNDING_DP);
         rectangle = new RectF(0.0f, 0.0f, 0.0f, 0.0f);
         setCustomAttributes(context, attrs);
+        applyCustomFont(context, this, SOUNDCLOUD_INTERSTATE_REGULAR);
     }
 
     public void setBackground(ColorStateList backgroundColorStateList) {

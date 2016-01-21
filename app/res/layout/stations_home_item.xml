@@ -11,14 +11,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
             style="@style/Stations.BucketTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
-        <TextView
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/view_all"
             style="@style/Stations.BucketAction"
             android:layout_width="wrap_content"

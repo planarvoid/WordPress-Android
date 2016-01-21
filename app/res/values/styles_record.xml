@@ -133,20 +133,18 @@
         <item name="android:src">@drawable/ic_record_edit</item>
     </style>
 
-    <style name="RecordTextDark">
-        <item name="android:textColor">#ff333333</item>
-    </style>
-
-    <style name="RecordInstructions" parent="RecordTextDark">
+    <style name="RecordInstructions" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:textSize">44sp</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
+        <item name="android:textColor">#ff333333</item>
     </style>
 
-    <style name="RecordTextChrono" parent="RecordTextDark">
+    <style name="RecordTextChrono" parent="TextAppearance.SoundCloudLightNumberFont">
         <item name="android:textSize">@dimen/rec_chronometer_text_size</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
+        <item name="android:textColor">#ff333333</item>
     </style>
 
     <style name="RecordFadeSwitch">

@@ -9,7 +9,7 @@
         <item name="unavailable">@drawable/entity_unavailable</item>
     </style>
 
-    <style name="OfflineOnboarding" />
+    <style name="OfflineOnboarding" parent="TextAppearance.SoundCloudLightFont" />
 
     <style name="OfflineOnboarding.Header">
         <item name="android:gravity">center_horizontal</item>

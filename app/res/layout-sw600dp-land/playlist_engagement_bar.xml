@@ -13,15 +13,16 @@
         android:layout_marginRight="@dimen/collection_download_state_margin_right"
         tools:ignore="InconsistentLayout" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/header_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textColor="@color/white"
+        style="@style/TextAppearance.SoundCloudLightFont"
         tools:ignore="InconsistentLayout" />
 
-    <ToggleButton
+    <com.soundcloud.android.view.CustomFontToggleButton
         android:id="@+id/toggle_like"
         style="@style/PlayerLikeBase.PlayerLike" />
 

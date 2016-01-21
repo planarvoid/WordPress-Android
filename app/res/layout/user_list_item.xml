@@ -34,7 +34,7 @@
 
     </LinearLayout>
 
-    <ToggleButton
+    <com.soundcloud.android.view.CustomFontToggleButton
         android:id="@+id/toggle_btn_follow"
         style="@style/Profile.ToggleButton.Follow.List"
         android:focusable="false"

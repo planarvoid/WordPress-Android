@@ -37,7 +37,7 @@
                 android:layout_alignBottom="@id/image"
                 tools:text="Track title" />
 
-            <TextView
+            <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/preview_indicator"
                 style="@style/PreviewIndicator"
                 android:layout_width="wrap_content"

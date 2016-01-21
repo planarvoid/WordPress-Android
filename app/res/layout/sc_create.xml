@@ -79,7 +79,7 @@
 
             </LinearLayout>
 
-            <TextView
+            <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/action_text"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
@@ -87,7 +87,7 @@
                 android:layout_centerInParent="true"
                 android:layout_below="@id/rec_controls"
                 android:text="@string/record_tap_to_record"
-                style="?android:textAppearanceMedium" />
+                style="@style/TextAppearanceMedium" />
 
             <LinearLayout
                 tools:ignore="InconsistentLayout"

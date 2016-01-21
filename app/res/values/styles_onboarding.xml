@@ -14,7 +14,7 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="Onboarding"/>
+    <style name="Onboarding" parent="TextAppearance.SoundCloudLightFont" />
     <style name="Onboarding.Button">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/tour_buttons_height</item>
@@ -81,10 +81,9 @@
         <item name="android:background">@drawable/btn_google_plus</item>
     </style>
 
-    <style name="Onboarding.Headline" parent="Onboarding">
+    <style name="Onboarding.Headline">
         <item name="android:textSize">26sp</item>
         <item name="android:textColor">@color/white</item>
-        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
     </style>
 
     <style name="txt_tour_title" parent="txt_tour_start">
@@ -124,7 +123,7 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="SignUp"/> <!-- and Login, too! -->
+    <style name="SignUp" parent="TextAppearance.SoundCloudLightFont" /> <!-- and Login, too! -->
 
     <style name="SignUp.Background">
         <item name="android:layout_width">match_parent</item>
@@ -261,7 +260,6 @@
         <item name="android:imeOptions">actionNext</item>
         <item name="android:cursorVisible">true</item>
         <item name="android:textCursorDrawable">@null</item>
-        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
     </style>
 
     <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">
@@ -285,20 +283,20 @@
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="txt_auth_title" parent="@android:style/TextAppearance.Large">
+    <style name="txt_auth_title" parent="TextAppearance.SoundCloudFont.ScLarge">
         <item name="android:paddingTop">10dip</item>
         <item name="android:paddingBottom">10dip</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
         <item name="android:textColor">@color/white</item>
     </style>
-    <style name="txt_auth_input" parent="Widget.AppCompat.EditText">
+    <style name="txt_auth_input" parent="Widget.ScAppCompat.EditText">
         <item name="android:textSize">20sp</item>
         <item name="android:padding">10dip</item>
         <item name="android:layout_marginTop">5dip</item>
         <item name="android:layout_marginBottom">5dip</item>
     </style>
-    <style name="txt_auth_msg">
+    <style name="txt_auth_msg" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:paddingTop">5dip</item>
         <item name="android:paddingBottom">5dip</item>
         <item name="android:paddingLeft">5dip</item>

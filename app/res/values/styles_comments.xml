@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Comments"/>
+    <style name="Comments" parent="TextAppearance.SoundCloudLightFont" />
     <style name="Comments.Header"/>
 
     <style name="Comments.Header.Text">

@@ -39,7 +39,7 @@
                 android:paddingRight="@dimen/discovery_cell_text_padding"
                 tools:ignore="UselessParent">
 
-                <TextView
+                <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/reason"
                     style="@style/Recommendation.ReasonText"
                     android:layout_width="match_parent"

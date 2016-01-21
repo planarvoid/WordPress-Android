@@ -15,7 +15,7 @@
         android:padding="8dp"
         android:src="@drawable/ic_more" />
 
-    <ToggleButton
+    <com.soundcloud.android.view.CustomFontToggleButton
         android:id="@+id/toggle_like"
         style="@style/Cards.ToggleButton"
         android:layout_marginLeft="8dp"

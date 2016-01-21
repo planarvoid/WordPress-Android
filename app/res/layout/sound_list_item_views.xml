@@ -38,10 +38,10 @@
             style="@style/ListItemText.SecondaryText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="4dp"
             android:layout_marginRight="3dp"
-            android:drawableLeft="@drawable/stats_repost"
-            android:drawablePadding="6dp"
+            android:drawableLeft="@drawable/inset_stats_repost"
+            android:drawablePadding="4dp"
             android:gravity="center_vertical"
             android:visibility="gone" />
 

@@ -14,9 +14,9 @@
         android:background="@color/white"
         android:scaleType="centerCrop" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/track_username"
-        style="?android:textAppearanceSmall"
+        style="@style/TextAppearanceSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/icon"
@@ -24,18 +24,18 @@
         android:layout_toRightOf="@id/icon"
         android:textColor="@color/dark_gray_text" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/track"
-        style="?android:textAppearanceSmall"
+        style="@style/TextAppearanceSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/track_username"
         android:layout_toRightOf="@id/icon"
         android:textColor="@color/black" />
 
-    <TextView
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/track_duration"
-        style="?android:textAppearanceSmall"
+        style="@style/TextAppearanceSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

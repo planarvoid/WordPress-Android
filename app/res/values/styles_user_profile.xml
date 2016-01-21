@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Profile" />
+    <style name="Profile" parent="TextAppearance.SoundCloudLightFont" />
 
     <style name="Profile.ToggleButton">
         <item name="android:minHeight">@dimen/follow_btn_height</item>
@@ -70,7 +70,7 @@
 
     <!-- NEW PROFILE -->
 
-    <style name="ProfileHeaderContainerBase">
+    <style name="ProfileHeaderContainerBase" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
     </style>
