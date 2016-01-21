@@ -137,7 +137,6 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
 
         testFixtures().insertUnavailableTrackDownload(urn, new Date().getTime());
         testFixtures().insertLikesMarkedForOfflineSync();
-        testFixtures().insertPolicyBlock(urn);
 
         storage.loadTrackLike(urn).subscribe(testObserver);
 
@@ -157,12 +156,15 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
     }
 
     private PropertySet expectedHighTierMonetizableLikedTrackFor(PropertySet track, Date likedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.SUB_HIGH_TIER, true)
+        return expectedLikedTrackFor(track, likedAt)
+                .put(TrackProperty.SUB_MID_TIER, false)
+                .put(TrackProperty.SUB_HIGH_TIER, true)
                 .put(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }
 
     private PropertySet expectedUnavailableLikedTrackFor(PropertySet track, Date likedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
+        return expectedLikedTrackFor(track, likedAt)
+                .put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
     }
 
     private PropertySet expectedLikedTrackFor(PropertySet track, Date likedAt) {
@@ -177,6 +179,9 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
                 LikeProperty.CREATED_AT.bind((likedAt)),
                 TrackProperty.IS_PRIVATE.bind(track.get(TrackProperty.IS_PRIVATE)),
                 TrackProperty.SUB_HIGH_TIER.bind(track.get(TrackProperty.SUB_HIGH_TIER)),
+                TrackProperty.SUB_MID_TIER.bind(track.get(TrackProperty.SUB_MID_TIER)),
+                TrackProperty.SNIPPED.bind(track.get(TrackProperty.SNIPPED)),
+                TrackProperty.BLOCKED.bind(track.get(TrackProperty.BLOCKED)),
                 OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE));
     }
 }
