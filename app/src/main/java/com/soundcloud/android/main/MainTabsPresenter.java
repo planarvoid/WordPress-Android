@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.CustomFontTabLayout;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -137,7 +138,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     @NonNull
     private TabLayout createTabs() {
-        TabLayout tabBar = new TabLayout(activity);
+        TabLayout tabBar = new CustomFontTabLayout(activity);
         tabBar.setTabGravity(TabLayout.GRAVITY_FILL);
         tabBar.setTabMode(TabLayout.MODE_FIXED);
         tabBar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
