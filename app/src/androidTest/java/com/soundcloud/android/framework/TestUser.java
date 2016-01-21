@@ -269,12 +269,6 @@ public class TestUser {
             "1-21686-190276054-5b745361a448ac",
             190276054);
     public static final TestUser freeMonetizedUser = new TestUser(
-            "Monetizeable",
-            "sc.ht.android.monetized.free@gmail.com",
-            "s0undcl0ud_HT2016",
-            "1-21686-190275390-0cf52de1bed061",
-            190275390);
-    public static final TestUser freeMonetizedUserStream = new TestUser(
             "user-712335208",
             "sc.ht.listener1@gmail.com",
             "s0undcl0ud_HT2016",

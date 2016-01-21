@@ -23,7 +23,7 @@ public class SnippetsInStreamTest extends TrackingActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.freeMonetizedUserStream.logIn(getInstrumentation().getTargetContext());
+        TestUser.freeMonetizedUser.logIn(getInstrumentation().getTargetContext());
     }
 
     @Override
