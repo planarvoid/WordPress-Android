@@ -237,7 +237,7 @@ public class IntentResolver {
     }
 
     private boolean isCrawler(String referrer) {
-        return Referrer.GOOGLE_CRAWLER.get().equals(referrer);
+        return Referrer.GOOGLE_CRAWLER.value().equals(referrer);
     }
 
     private void loginCrawler() {

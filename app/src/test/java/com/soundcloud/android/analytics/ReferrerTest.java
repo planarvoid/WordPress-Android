@@ -11,7 +11,7 @@ public class ReferrerTest extends AndroidUnitTest {
 
     @Test
     public void shouldGetTrackingTag() {
-        assertThat(Referrer.FACEBOOK.get()).isEqualTo("facebook");
+        assertThat(Referrer.FACEBOOK.value()).isEqualTo("facebook");
     }
 
     @Test

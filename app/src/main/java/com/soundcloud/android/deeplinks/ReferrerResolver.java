@@ -40,24 +40,24 @@ class ReferrerResolver {
     public String getReferrerFromIntent(Intent intent, Resources resources) {
         try {
             if (Referrer.hasReferrer(intent)) {
-                return Referrer.fromIntent(intent).get();
+                return Referrer.fromIntent(intent).value();
             } else if (isOriginIntent(intent)) {
-                return referrerFromOrigin(intent).get();
+                return referrerFromOrigin(intent).value();
             } else if (isFacebookIntent(intent, resources)) {
-                return Referrer.FACEBOOK.get();
+                return Referrer.FACEBOOK.value();
             } else if (isTwitterIntent(intent)) {
-                return Referrer.TWITTER.get();
+                return Referrer.TWITTER.value();
             } else if (isGooglePlusIntent(intent)) {
-                return Referrer.GOOGLE_PLUS.get();
+                return Referrer.GOOGLE_PLUS.value();
             } else if (isGoogleCrawlerIntent(intent)) {
-                return Referrer.GOOGLE_CRAWLER.get();
+                return Referrer.GOOGLE_CRAWLER.value();
             } else if (isBrowserIntent(intent)) {
                 return referrerFromBrowser(intent);
             } else {
-                return Referrer.OTHER.get();
+                return Referrer.OTHER.value();
             }
         } catch(ClassCastException exception) {
-            return Referrer.OTHER.get();
+            return Referrer.OTHER.value();
         }
     }
 

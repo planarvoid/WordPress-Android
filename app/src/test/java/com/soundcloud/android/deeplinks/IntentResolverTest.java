@@ -376,7 +376,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     private void setupReferrer(Referrer referrer) {
-        when(referrerResolver.getReferrerFromIntent(any(Intent.class), any(Resources.class))).thenReturn(referrer.get());
+        when(referrerResolver.getReferrerFromIntent(any(Intent.class), any(Resources.class))).thenReturn(referrer.value());
     }
 
     private ForegroundEvent captureForegroundEvent() {
@@ -389,7 +389,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         ForegroundEvent event = captureForegroundEvent();
 
         assertThat(event.getKind()).isEqualTo(ForegroundEvent.KIND_OPEN);
-        assertThat(event.get(ForegroundEvent.KEY_REFERRER)).isEqualTo(referrer.get());
+        assertThat(event.get(ForegroundEvent.KEY_REFERRER)).isEqualTo(referrer.value());
         assertThat(event.get(ForegroundEvent.KEY_PAGE_NAME)).isEqualTo(Screen.DEEPLINK.get());
         assertThat(event.get(ForegroundEvent.KEY_PAGE_URN)).isEqualTo(urn.toString());
     }
@@ -398,7 +398,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         ForegroundEvent event = captureForegroundEvent();
 
         assertThat(event.getKind()).isEqualTo(ForegroundEvent.KIND_OPEN);
-        assertThat(event.get(ForegroundEvent.KEY_REFERRER)).isEqualTo(referrer.get());
+        assertThat(event.get(ForegroundEvent.KEY_REFERRER)).isEqualTo(referrer.value());
         assertThat(event.get(ForegroundEvent.KEY_PAGE_NAME)).isEqualTo(Screen.DEEPLINK.get());
     }
 

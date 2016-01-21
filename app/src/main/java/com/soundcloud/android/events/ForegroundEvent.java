@@ -11,7 +11,7 @@ public class ForegroundEvent extends TrackingEvent {
     public static final String KIND_OPEN = "open";
 
     public static ForegroundEvent open(Screen screen, Referrer referrer) {
-        return open(screen, referrer.get());
+        return open(screen, referrer.value());
     }
 
     public static ForegroundEvent open(Screen screen, String referrer) {

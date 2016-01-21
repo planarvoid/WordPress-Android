@@ -31,7 +31,7 @@ public enum Referrer {
         this.referrerTag = referrerTag;
     }
 
-    public String get() {
+    public String value() {
         return referrerTag;
     }
 
@@ -61,7 +61,7 @@ public enum Referrer {
                 return host;
             }
         }
-        return Referrer.OTHER.get();
+        return Referrer.OTHER.value();
     }
 
     public static boolean hasReferrer(Intent intent) {
