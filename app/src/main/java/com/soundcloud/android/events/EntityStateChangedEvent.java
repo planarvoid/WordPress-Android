@@ -4,7 +4,6 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.stations.StationProperty;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -16,7 +15,6 @@ import android.support.v4.util.ArrayMap;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 @AutoValue
@@ -25,7 +23,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int ENTITY_SYNCED = 0;
     public static final int LIKE = 2;
     public static final int REPOST = 3;
-    public static final int MARKED_FOR_OFFLINE = 4;
     public static final int TRACK_ADDED_TO_PLAYLIST = 5;
     public static final int TRACK_REMOVED_FROM_PLAYLIST = 6;
     public static final int FOLLOWING = 7;
@@ -48,27 +45,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         }
     };
 
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            if (event.getKind() == MARKED_FOR_OFFLINE) {
-                for (PropertySet propertySet : event.getChangeMap().values()) {
-                    if (propertySet.get(EntityProperty.URN).isPlaylist()) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-    };
-
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_OFFLINE_LIKES_EVENT_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.isOfflineLikesEvent();
-        }
-    };
-
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
@@ -76,24 +52,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         }
     };
 
-    public static final Func1<? super EntityStateChangedEvent, Boolean> IS_PLAYLIST_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.isPlaylistLike() && event.getNextChangeSet().get(PlaylistProperty.IS_USER_LIKE);
-        }
-    };
-
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_UNLIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.isTrackLikeEvent() && !event.getNextChangeSet().get(TrackProperty.IS_USER_LIKE);
-        }
-    };
-
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_UNLIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.isPlaylistLike() && !event.getNextChangeSet().get(PlaylistProperty.IS_USER_LIKE);
         }
     };
 
@@ -115,12 +77,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         @Override
         public Urn call(EntityStateChangedEvent entityStateChangedEvent) {
             return entityStateChangedEvent.getFirstUrn();
-        }
-    };
-    public static final Func1<EntityStateChangedEvent, PropertySet> TO_SINGULAR_CHANGE = new Func1<EntityStateChangedEvent, PropertySet>() {
-        @Override
-        public PropertySet call(EntityStateChangedEvent event) {
-            return event.getNextChangeSet();
         }
     };
 
@@ -155,22 +111,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static EntityStateChangedEvent fromRepost(PropertySet newRepostState) {
         return create(REPOST, newRepostState);
-    }
-
-    public static EntityStateChangedEvent fromOfflineProperties(List<PropertySet> properties) {
-        return create(MARKED_FOR_OFFLINE, properties);
-    }
-
-    public static EntityStateChangedEvent fromMarkedForOffline(Urn urn, boolean isMarkedForOffline) {
-        return create(MARKED_FOR_OFFLINE, PropertySet.from(
-                PlayableProperty.URN.bind(urn),
-                OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(isMarkedForOffline)));
-    }
-
-    public static EntityStateChangedEvent fromLikesMarkedForOffline(boolean isMarkedForOffline) {
-        return create(MARKED_FOR_OFFLINE, PropertySet.from(
-                PlayableProperty.URN.bind(Urn.NOT_SET),
-                OfflineProperty.Collection.OFFLINE_LIKES.bind(isMarkedForOffline)));
     }
 
     public static EntityStateChangedEvent fromPlaylistCreated(Urn newPlaylistUrn) {
@@ -254,10 +194,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     private boolean isTrackRemovedEvent() {
         return getKind() == TRACK_REMOVED_FROM_PLAYLIST;
-    }
-
-    private boolean isOfflineLikesEvent() {
-        return getKind() == MARKED_FOR_OFFLINE && getNextChangeSet().contains(OfflineProperty.Collection.OFFLINE_LIKES);
     }
 
     @Override

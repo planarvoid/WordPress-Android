@@ -83,7 +83,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 new FeatureFlags(sharedPreferences("test", Context.MODE_PRIVATE)),
                 collectionOptionsStorage);
 
-        when(loadLikedTrackUrnsCommand.toObservable()).thenReturn(Observable.just(likesUrns));
+        when(loadLikedTrackUrnsCommand.toObservable(null)).thenReturn(Observable.just(likesUrns));
         when(syncStateStorage.hasSyncedBefore(SyncContent.MyLikes.content.uri)).thenReturn(Observable.just(true));
         when(syncStateStorage.hasSyncedBefore(SyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(Urn.forTrackStation(123L))));
@@ -161,7 +161,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(false).build();
 
         final RuntimeException exception = new RuntimeException("Test");
-        when(loadLikedTrackUrnsCommand.toObservable()).thenReturn(Observable.<List<Urn>>error(exception));
+        when(loadLikedTrackUrnsCommand.toObservable(null)).thenReturn(Observable.<List<Urn>>error(exception));
         when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(exception));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(exception));
 

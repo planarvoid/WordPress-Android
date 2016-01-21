@@ -1,255 +1,130 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.offline.OfflineState.DOWNLOADED;
+import static com.soundcloud.android.offline.OfflineState.DOWNLOADING;
+import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
+import static com.soundcloud.android.offline.OfflineState.REQUESTED;
+import static com.soundcloud.android.offline.OfflineState.UNAVAILABLE;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 
 public class OfflineStatePublisherTest extends AndroidUnitTest {
 
-    private final DownloadRequest downloadRequest1 = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(123L));
-    private final DownloadRequest downloadRequest2 = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(456L));
+    private static final Urn TRACK = Urn.forTrack(123L);
+    private static final Urn PLAYLIST = Urn.forPlaylist(123L);
 
-    private DownloadQueue queue;
+    @Mock private OfflineTracksCollectionStateOperations collectionStateOperations;
+    private TestEventBus eventBus;
     private OfflineStatePublisher publisher;
-    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() {
-        queue = new DownloadQueue();
-        publisher = new OfflineStatePublisher(eventBus);
-        publisher.setUpdates(emptyUpdates());
+        eventBus = new TestEventBus();
+        publisher = new OfflineStatePublisher(eventBus, collectionStateOperations);
+
+        final Map<OfflineState, TrackCollections> collectionsMap = singletonMap(REQUESTED, TrackCollections.create(singletonList(PLAYLIST), false));
+        when(collectionStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class))).thenReturn(collectionsMap);
     }
 
     @Test
-    public void publishDownloadsRequestedEmitsDownloadRequestedEvent() {
-        queue.set(Arrays.asList(downloadRequest1, downloadRequest2));
+    public void publishDownloading() {
+        setTracksCollections(DOWNLOADING);
 
-        publisher.publishDownloadsRequested(queue.getRequests());
+        publisher.publishDownloading(TRACK);
 
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2))
-        );
+        assertEvent(event(0), DOWNLOADING, true, TRACK, PLAYLIST);
     }
 
     @Test
-    public void publishDownloadsRequestedDoesNotEmitNewEventsWhenQueueEmpty() {
-        publisher.publishDownloadsRequested(queue.getRequests());
+    public void publishRequested() {
+        setTracksCollections(REQUESTED);
 
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).isEmpty();
+        publisher.publishRequested(singletonList(TRACK));
+
+        verify(collectionStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
+        assertEvent(event(0), REQUESTED, true, TRACK, PLAYLIST);
     }
 
     @Test
-    public void publishDoneEmitsNoOfflineEvent() {
-        publisher.publishDone();
+    public void publishCancel() {
+        setTracksCollections(REQUESTED);
 
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(), // one from replay
-                OfflineContentChangedEvent.idle()  // one published on done
-        );
+        publisher.publishCancel(TRACK);
+
+        verify(collectionStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
+        assertEvent(event(0), REQUESTED, true, TRACK, PLAYLIST);
     }
 
     @Test
-    public void publishNotDownloadableStateChangesEmitsNewTrackDownloadedWhenTrackIsRestored() {
-        final OfflineContentUpdates updates = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                singletonList(downloadRequest1),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList()
-        );
+    public void publishDownloaded() {
+        setTracksCollections(REQUESTED);
 
-        publisher.setUpdates(updates);
-        publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
+        publisher.publishDownloaded(TRACK);
 
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.downloaded(singletonList(downloadRequest1))
-        );
+        verify(collectionStateOperations).loadTracksCollectionsState(TRACK, DOWNLOADED);
+        assertEvent(event(0), REQUESTED, true, PLAYLIST);
+        assertEvent(event(1), DOWNLOADED, false, TRACK);
     }
 
     @Test
-    public void publishNotDownloadableStateChangesEmitsDownloadRemovedWhenTrackIsRemoved() {
-        final List<Urn> removedDownloads = singletonList(downloadRequest1.getTrack());
-        final OfflineContentUpdates updates = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                removedDownloads
-        );
+    public void publishError() {
+        setTracksCollections(REQUESTED);
 
-        publisher.setUpdates(updates);
-        publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
+        publisher.publishError(TRACK);
 
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.downloadRemoved(removedDownloads)
-        );
+        verify(collectionStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
+        assertEvent(event(0), REQUESTED, true, TRACK, PLAYLIST);
     }
 
     @Test
-    public void publishNotDownloadableStateChangesEmitsTrackUnavailableWithCreatorOptOutTracks() {
-        final List<DownloadRequest> creatorOptOut = singletonList(creatorOptOutRequest(Urn.forTrack(123L)));
-        final OfflineContentUpdates updates = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                creatorOptOut,
-                Collections.<Urn>emptyList()
-        );
+    public void publishRemoved() {
+        setTracksCollections(UNAVAILABLE);
 
-        publisher.setUpdates(updates);
-        publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
+        publisher.publishRemoved(singletonList(TRACK));
 
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.unavailable(creatorOptOut)
-        );
+        verify(collectionStateOperations).loadTracksCollectionsState(TRACK, NOT_OFFLINE);
+        assertEvent(event(0), NOT_OFFLINE, false, TRACK);
+        assertEvent(event(1), UNAVAILABLE, true, PLAYLIST);
     }
 
     @Test
-    public void publishNotDownloadableStateChangesDoesNotSendDownloadRemovedWhenCurrentlyDownloading() {
-        final OfflineContentUpdates updates = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Arrays.asList(downloadRequest1.getTrack())
-        );
+    public void publishUnavailable() {
+        setTracksCollections(DOWNLOADED);
 
-        publisher.setUpdates(updates);
-        publisher.publishNotDownloadableStateChanges(queue, downloadRequest1.getTrack());
+        publisher.publishUnavailable(singletonList(TRACK));
 
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).isEmpty();
+        assertEvent(event(0), DOWNLOADED, true, PLAYLIST);
+        assertEvent(event(1), UNAVAILABLE, false, TRACK);
     }
 
-    @Test
-    public void publishNotDownloadableStateChangePublishesRequestsRemovedWithOldStateOfTheyQueue() {
-        final List<DownloadRequest> previousQueueState = singletonList(downloadRequest1);
-
-        queue.set(previousQueueState);
-        publisher.setUpdates(emptyUpdates());
-        publisher.publishNotDownloadableStateChanges(queue, Urn.NOT_SET);
-
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.downloadRequestRemoved(singletonList(downloadRequest1))
-        );
+    private OfflineContentChangedEvent event(int location) {
+        return eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED).get(location);
     }
 
-    @Test
-    public void publishDownloadingEmitsDownloadingEventWithGivenRequest() {
-        publisher.publishDownloading(downloadRequest1);
-
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.downloading(downloadRequest1)
-        );
+    private void assertEvent(OfflineContentChangedEvent event, OfflineState state, boolean isLikedTrack, Urn... entities) {
+        assertThat(event.state).isEqualTo(state);
+        assertThat(event.entities).containsOnly(entities);
+        assertThat(event.isLikedTrackCollection).isEqualTo(isLikedTrack);
     }
 
-    @Test
-    public void publishDownloadSuccessfulEventsEmitsTrackDownloadedEvent() {
-        final DownloadState result = DownloadState.success(downloadRequest1);
-        publisher.setUpdates(emptyUpdates());
-        publisher.publishDownloadSuccessfulEvents(queue, result);
-
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.downloaded(singletonList(downloadRequest1))
-        );
+    private void setTracksCollections(OfflineState state) {
+        when(collectionStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class)))
+                .thenReturn(singletonMap(state, TrackCollections.create(singletonList(PLAYLIST), true)));
     }
 
-    @Test
-    public void publishDownloadSuccessfulEmitsDownloadRequestEventForRelatedPlaylist() {
-        final List<Urn> relatedPlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
-        final DownloadRequest toBeDownloaded = createDownloadRequest(Urn.forTrack(123L), false, relatedPlaylists);
-        final List<DownloadRequest> queueState = singletonList(
-                createDownloadRequest(Urn.forTrack(124L), false, relatedPlaylists));
-
-        queue.set(queueState);
-        publisher.publishDownloadSuccessfulEvents(queue, DownloadState.success(toBeDownloaded));
-
-        List<OfflineContentChangedEvent> actual = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED);
-        assertThat(actual).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.downloaded(toBeDownloaded.isLiked(), singletonList(toBeDownloaded.getTrack())),
-                OfflineContentChangedEvent.downloadRequested(false, relatedPlaylists)
-        );
-    }
-
-    @Test
-    public void publishDownloadErrorEventsEmitsDownloadRequestEventForRelatedPlaylist() {
-        final List<Urn> relatedPlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
-        final DownloadRequest toBeDownloaded = createDownloadRequest(Urn.forTrack(123L), false, relatedPlaylists);
-        final List<DownloadRequest> queueState = singletonList(
-                createDownloadRequest(Urn.forTrack(124L), false, relatedPlaylists));
-
-        queue.set(queueState);
-        publisher.publishDownloadErrorEvents(queue, DownloadState.error(toBeDownloaded));
-
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.downloadRequested(false, Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L), Urn.forTrack(123L)))
-        );
-    }
-
-    @Test
-    public void publishDownloadCancelEventsEmitsDownloadRemoved() {
-        publisher.publishDownloadCancelEvents(queue, DownloadState.canceled(downloadRequest1));
-
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.downloadRemoved(singletonList(downloadRequest1.getTrack())),
-                OfflineContentChangedEvent.downloaded(downloadRequest1.isLiked(), downloadRequest1.getPlaylists())
-        );
-    }
-
-    @Test
-    public void publishDownloadCancelEventsEmitsDownloadedForPlaylistWithNoPendingTracks() {
-        final List<Urn> toBeDownloadedPlaylist = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(222L));
-        final DownloadRequest toBeDownloaded = createDownloadRequest(Urn.forTrack(123L), false, toBeDownloadedPlaylist);
-        final List<DownloadRequest> queueState = singletonList(
-                createDownloadRequest(Urn.forTrack(124L), false, singletonList(Urn.forPlaylist(222L))));
-
-        queue.set(queueState);
-        publisher.publishDownloadCancelEvents(queue, DownloadState.canceled(toBeDownloaded));
-
-        assertThat(eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED)).containsExactly(
-                OfflineContentChangedEvent.idle(),
-                OfflineContentChangedEvent.downloadRemoved(singletonList(downloadRequest1.getTrack())),
-                OfflineContentChangedEvent.downloaded(false, singletonList(Urn.forPlaylist(123L))));
-    }
-
-    private DownloadRequest createDownloadRequest(Urn trackUrn, boolean inLikes, List<Urn> inPlaylists) {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setUrn(trackUrn);
-        return ModelFixtures.downloadRequestFromPlaylists(track, inLikes, inPlaylists);
-    }
-
-    private DownloadRequest creatorOptOutRequest(Urn track) {
-        return ModelFixtures.creatorOptOutRequest(track);
-    }
-
-    private OfflineContentUpdates emptyUpdates() {
-        return new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList());
-    }
 }

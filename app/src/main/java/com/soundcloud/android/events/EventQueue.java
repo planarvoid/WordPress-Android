@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.playback.Player.StateTransition;
 
+import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.Queue;
@@ -29,7 +30,7 @@ public final class EventQueue {
     public static final Queue<AdOverlayEvent> AD_OVERLAY = Queue.of(AdOverlayEvent.class).onError(ON_ERROR).replay().get();
     public static final Queue<SyncResult> SYNC_RESULT = Queue.of(SyncResult.class).onError(ON_ERROR).replay().get();
     public static final Queue<EntityStateChangedEvent> ENTITY_STATE_CHANGED = Queue.of(EntityStateChangedEvent.class).onError(ON_ERROR).get();
-    public static final Queue<OfflineContentChangedEvent> OFFLINE_CONTENT_CHANGED = Queue.of(OfflineContentChangedEvent.class).onError(ON_ERROR).replay(OfflineContentChangedEvent.idle()).get();
+    public static final Queue<OfflineContentChangedEvent> OFFLINE_CONTENT_CHANGED = Queue.of(OfflineContentChangedEvent.class).onError(ON_ERROR).replay().get();
     public static final Queue<UploadEvent> UPLOAD = Queue.of(UploadEvent.class).onError(ON_ERROR).replay(UploadEvent.idle()).get();
     public static final Queue<PolicyUpdateEvent> POLICY_UPDATES = Queue.of(PolicyUpdateEvent.class).onError(ON_ERROR).get();
 

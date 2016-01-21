@@ -13,8 +13,14 @@ public class OfflineFilters {
                     .whereNull(TrackDownloads.UNAVAILABLE_AT)
                     .whereNotNull(TrackDownloads.REQUESTED_AT);
 
-    public static final Where OFFLINE_TRACK_FILTER =
+    public static final Where DOWNLOADED_OFFLINE_TRACK_FILTER =
             filter().whereNotNull(TrackDownloads.DOWNLOADED_AT)
                     .whereNull(TrackDownloads.REMOVED_AT)
                     .whereNull(TrackDownloads.UNAVAILABLE_AT);
+
+    public static final Where UNAVAILABLE_OFFLINE_TRACK_FILTER =
+            filter().whereNull(TrackDownloads.DOWNLOADED_AT)
+                    .whereNull(TrackDownloads.REMOVED_AT)
+                    .whereNotNull(TrackDownloads.UNAVAILABLE_AT);
+
 }

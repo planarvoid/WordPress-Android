@@ -38,7 +38,7 @@ class DownloadNotificationController {
 
 
     private int totalDownloads;
-    private int totalBytesToDownload;
+    private long totalBytesToDownload;
     private long completedBytes;
     private List<DownloadState> previousDownloads = new ArrayList<>();
     private DownloadState currentDownload;
@@ -58,7 +58,7 @@ class DownloadNotificationController {
     public Notification onPendingRequests(DownloadQueue pendingQueue) {
         final int pendingAndCompleted = pendingQueue.size() + previousDownloads.size();
         totalDownloads = currentDownload == null ? pendingAndCompleted : pendingAndCompleted + 1;
-        totalBytesToDownload = (int) (currentDownload == null ? completedBytes : completedBytes + currentDownload.getTotalBytes());
+        totalBytesToDownload = currentDownload == null ? completedBytes : completedBytes + currentDownload.getTotalBytes();
 
         for (DownloadRequest request : pendingQueue.getRequests()){
             totalBytesToDownload += MP3Helper.calculateFileSizeInBytes(request.getDuration());
@@ -183,7 +183,7 @@ class DownloadNotificationController {
         }
     }
 
-    private int calculateAdjustedProgress(float downloadedBytes, int totalBytesToDownload) {
+    private int calculateAdjustedProgress(float downloadedBytes, long totalBytesToDownload) {
         return (int) (PROGRESS_MAX * downloadedBytes / totalBytesToDownload);
     }
 

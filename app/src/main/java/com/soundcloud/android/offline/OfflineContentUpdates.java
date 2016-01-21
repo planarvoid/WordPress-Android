@@ -1,40 +1,39 @@
 package com.soundcloud.android.offline;
 
-import static java.util.Collections.unmodifiableList;
-
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.objects.MoreObjects;
 
+import java.util.Collections;
 import java.util.List;
 
-public class OfflineContentUpdates {
-
-    public final List<DownloadRequest> allDownloadRequests;
-    public final List<DownloadRequest> newDownloadRequests;
-    public final List<DownloadRequest> newRestoredRequests;
-    public final List<DownloadRequest> creatorOptOutRequests;
-    public final List<Urn> newRemovedTracks;
-
-    public OfflineContentUpdates(List<DownloadRequest> allDownloadRequests,
-                                 List<DownloadRequest> newDownloadRequests,
-                                 List<DownloadRequest> newRestoredRequests,
-                                 List<DownloadRequest> creatorOptOutRequests,
-                                 List<Urn> newRemovedTracks) {
-        this.allDownloadRequests = unmodifiableList(allDownloadRequests);
-        this.newDownloadRequests = unmodifiableList(newDownloadRequests);
-        this.newRestoredRequests = unmodifiableList(newRestoredRequests);
-        this.creatorOptOutRequests = unmodifiableList(creatorOptOutRequests);
-        this.newRemovedTracks = unmodifiableList(newRemovedTracks);
+@AutoValue
+public abstract class OfflineContentUpdates {
+    public static Builder builder() {
+        return new AutoValue_OfflineContentUpdates.Builder()
+                .unavailableTracks(Collections.<Urn>emptyList())
+                .tracksToDownload(Collections.<DownloadRequest>emptyList())
+                .newTracksToDownload(Collections.<Urn>emptyList())
+                .tracksToRestore(Collections.<Urn>emptyList())
+                .tracksToRemove(Collections.<Urn>emptyList())
+                .userExpectedOfflineContent(ExpectedOfflineContent.EMPTY);
     }
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("allDownloads", allDownloadRequests)
-                .add("newDownloads", newDownloadRequests)
-                .add("newRestoredRequests", newRestoredRequests)
-                .add("creatorOptOutRequests", creatorOptOutRequests)
-                .add("newRemovedTracks", newRemovedTracks)
-                .toString();
+    public abstract List<Urn> unavailableTracks();
+    public abstract List<DownloadRequest> tracksToDownload();
+    public abstract List<Urn> tracksToRestore();
+    public abstract List<Urn> tracksToRemove();
+    public abstract ExpectedOfflineContent userExpectedOfflineContent();
+    // TODO Command stuff: useful ?
+    public abstract List<Urn> newTracksToDownload();
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+        public abstract Builder unavailableTracks(List<Urn> unavailableTracks);
+        public abstract Builder tracksToDownload(List<DownloadRequest> tracksToDownload);
+        public abstract Builder newTracksToDownload(List<Urn> newTracksToDownload);
+        public abstract Builder tracksToRestore(List<Urn> tracksToRestore);
+        public abstract Builder tracksToRemove(List<Urn> tracksToRemove);
+        public abstract Builder userExpectedOfflineContent(ExpectedOfflineContent userExpectedOfflineContent);
+        public abstract OfflineContentUpdates build();
     }
 }

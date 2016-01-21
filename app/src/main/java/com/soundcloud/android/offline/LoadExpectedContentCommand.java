@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.offline.DownloadRequest.Builder;
+import static com.soundcloud.android.offline.IsOfflineLikedTracksEnabledCommand.isOfflineLikesEnabledQuery;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;
@@ -19,6 +20,7 @@ import static com.soundcloud.android.storage.TableColumns.Sounds._TYPE;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.LAST_UPDATED;
 import static com.soundcloud.android.storage.TableColumns.TrackPolicies.SYNCABLE;
 import static com.soundcloud.android.storage.Tables.OfflineContent;
+import static com.soundcloud.java.collections.MoreCollections.transform;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
@@ -27,28 +29,36 @@ import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-
-import android.support.annotation.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class LoadExpectedContentCommand extends Command<Void, Collection<DownloadRequest>> {
+class LoadExpectedContentCommand extends Command<List<PlaylistWithTracks>, ExpectedOfflineContent> {
     private final static String DISTINCT_KEYWORD = "DISTINCT ";
     private final static Where LIKES_SOUNDS_FILTER = filter()
             .whereEq(Likes.field(TableColumns.Likes._ID), Sounds.field(_ID))
             .whereEq(Likes.field(_TYPE), TableColumns.Sounds.TYPE_TRACK);
+
+    private static final Function<OfflineRequestData, Urn> TO_URN = new Function<OfflineRequestData, Urn>() {
+        @Nullable
+        @Override
+        public Urn apply(OfflineRequestData input) {
+            return input.track;
+        }
+    };
 
     private final PropellerDatabase database;
 
@@ -65,18 +75,30 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
     }
 
     @Override
-    public Collection<DownloadRequest> call(Void ignored) {
-        final Collection<Builder> offlineContent = getAggregatedRequestData(queryRequestedTracks());
-        return MoreCollections.transform(offlineContent, toDownloadRequest);
+    public ExpectedOfflineContent call(List<PlaylistWithTracks> expectedOfflinePlaylists) {
+        // TODO : pass expectedOfflinePlaylists to load playlists' OfflineRequestData
+        final List<OfflineRequestData> requestsData = tracksFromOfflinePlaylists();
+        final List<OfflineRequestData> likedTracks = tracksFromLikes();
+        requestsData.addAll(likedTracks);
+
+        final Collection<Builder> offlineContent = getAggregatedRequestData(requestsData);
+
+        return new ExpectedOfflineContent(
+                transform(offlineContent, toDownloadRequest),
+                expectedOfflinePlaylists,
+                isOfflineLikedTracksEnabled(),
+                transform(likedTracks, TO_URN)
+        );
     }
 
-    @NonNull
-    private List<OfflineRequestData> queryRequestedTracks() {
-        final List<OfflineRequestData> requestsData = tracksFromOfflinePlaylists();
+    private List<OfflineRequestData> tracksFromLikes() {
+        final List<OfflineRequestData> likedTracks;
         if (isOfflineLikedTracksEnabled()) {
-            requestsData.addAll(tracksFromLikes());
+            likedTracks = requestTracksFromLikes();
+        } else {
+            likedTracks = Collections.emptyList();
         }
-        return requestsData;
+        return likedTracks;
     }
 
     private Collection<DownloadRequest.Builder> getAggregatedRequestData(List<OfflineRequestData> requestsData) {
@@ -85,8 +107,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
         for (OfflineRequestData data : requestsData) {
             if (!trackToRequestsDataMap.containsKey(data.track)) {
                 trackToRequestsDataMap.put(data.track,
-                        new DownloadRequest
-                                .Builder(data.track, data.creator, data.duration, data.waveformUrl, data.syncable));
+                        new DownloadRequest.Builder(data.track, data.creator, data.duration, data.waveformUrl, data.syncable));
             }
 
             trackToRequestsDataMap.get(data.track)
@@ -96,7 +117,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
         return trackToRequestsDataMap.values();
     }
 
-    private List<OfflineRequestData> tracksFromLikes() {
+    private List<OfflineRequestData> requestTracksFromLikes() {
         final boolean hasSyncableLikedTracks = querySyncableLikedTracks();
         final Query likesToDownload = Query.from(Sounds.name())
                 .select(
@@ -129,7 +150,7 @@ class LoadExpectedContentCommand extends Command<Void, Collection<DownloadReques
 
     private boolean isOfflineLikedTracksEnabled() {
         return database
-                .query(OfflineContentStorage.isOfflineLikesEnabledQuery())
+                .query(isOfflineLikesEnabledQuery())
                 .first(Boolean.class);
     }
 

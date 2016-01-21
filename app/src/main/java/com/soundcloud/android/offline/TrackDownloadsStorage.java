@@ -70,7 +70,7 @@ class TrackDownloadsStorage {
                 .select(TrackDownloads._ID.name())
                 .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.name())
                 .whereEq(PlaylistTracks.field(PLAYLIST_ID), playlistUrn.getNumericId())
-                .where(OfflineFilters.OFFLINE_TRACK_FILTER)
+                .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
                 .order(PlaylistTracks.field(POSITION), ASC);
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
@@ -79,7 +79,7 @@ class TrackDownloadsStorage {
         final Query query = Query.from(TrackDownloads.TABLE)
                 .select(TrackDownloads._ID.qualifiedName())
                 .innerJoin(Likes.name(), TrackDownloads._ID.qualifiedName(), Likes.field(_ID))
-                .where(OfflineFilters.OFFLINE_TRACK_FILTER)
+                .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
                 .order(Likes.field(CREATED_AT), DESC);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
@@ -113,7 +113,7 @@ class TrackDownloadsStorage {
     private Observable<Boolean> hasDownloadedTracks() {
         final Query query = Query.apply(exists(Query.from(TrackDownloads.TABLE)
                 .innerJoin(Likes.name(), likedTrackFilter())
-                .where(OfflineFilters.OFFLINE_TRACK_FILTER)));
+                .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)));
 
         return propellerRx.query(query).map(scalar(Boolean.class));
     }

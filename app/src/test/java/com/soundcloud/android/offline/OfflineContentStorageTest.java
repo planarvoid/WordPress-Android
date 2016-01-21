@@ -5,16 +5,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import android.content.Context;
 
 public class OfflineContentStorageTest extends AndroidUnitTest {
 
     private OfflineContentStorage storage;
+    @Mock private IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand;
 
     @Before
     public void setUp() {
-        storage = new OfflineContentStorage(null, sharedPreferences("Test", Context.MODE_PRIVATE));
+        storage = new OfflineContentStorage(null, sharedPreferences("Test", Context.MODE_PRIVATE), isOfflineLikedTracksEnabledCommand);
     }
 
     @Test

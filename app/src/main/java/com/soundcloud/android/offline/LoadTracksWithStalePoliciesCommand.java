@@ -1,6 +1,6 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.OfflineContentStorage.isOfflineLikesEnabledQuery;
+import static com.soundcloud.android.offline.IsOfflineLikedTracksEnabledCommand.isOfflineLikesEnabledQuery;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;

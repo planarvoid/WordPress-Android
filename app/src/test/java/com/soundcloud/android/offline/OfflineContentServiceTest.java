@@ -1,9 +1,12 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
+import static com.soundcloud.android.offline.OfflineContentUpdates.builder;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,8 +16,10 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import android.app.Notification;
@@ -23,7 +28,6 @@ import android.os.Message;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class OfflineContentServiceTest extends AndroidUnitTest {
@@ -40,7 +44,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     private static final Urn TRACK_1 = Urn.forTrack(123L);
     private static final Urn TRACK_2 = Urn.forTrack(456L);
     private final DownloadRequest downloadRequest1 = ModelFixtures.downloadRequestFromLikes(TRACK_1);
-    private final DownloadRequest downloadRequest2 = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(456L));
+    private final DownloadRequest downloadRequest2 = ModelFixtures.downloadRequestFromLikes(TRACK_2);
     private final DownloadState downloadState1 = DownloadState.success(downloadRequest1);
     private final DownloadState unavailableTrackResult1 = DownloadState.unavailable(downloadRequest1);
     private final DownloadState failedResult1 =
@@ -64,24 +68,18 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(offlineContentOperations.loadOfflineContentUpdates())
                 .thenReturn(Observable.<OfflineContentUpdates>never());
         when(notificationController.onPendingRequests(any(DownloadQueue.class))).thenReturn(notification);
-
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
-                offlineContentScheduler, handlerFactory, publisher, downloadQueue);
+                offlineContentScheduler, handlerFactory, publisher, downloadQueue, Schedulers.immediate());
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         service.onCreate();
     }
 
     @Test
     public void resetsDownloadQueueWhenStartingAService() {
-        final OfflineContentUpdates updates = new OfflineContentUpdates(
-                Arrays.asList(downloadRequest1, downloadRequest2),
-                Arrays.asList(downloadRequest1),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList()
-        );
+        setUpOfflineContentUpdates(builder()
+                .tracksToDownload(Arrays.asList(downloadRequest1, downloadRequest2))
+                .build());
 
-        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
         assertThat(downloadQueue.getRequests()).contains(downloadRequest2);
@@ -89,18 +87,47 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void publishesNotDownloadableStateChangesWhenStartingAService() {
-        final OfflineContentUpdates updates = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Arrays.asList(downloadRequest1),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList()
-        );
+        final OfflineContentUpdates updates = builder()
+                .tracksToRemove(singletonList(Urn.forTrack(1L)))
+                .tracksToRestore(singletonList(Urn.forTrack(2L)))
+                .unavailableTracks(singletonList(Urn.forTrack(3L)))
+                .tracksToDownload(singletonList(downloadRequest1))
+                .build();
 
-        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
+        setUpOfflineContentUpdates(updates);
+
         startService();
 
-        verify(publisher).publishNotDownloadableStateChanges(downloadQueue, Urn.NOT_SET);
+        verify(publisher).publishRemoved(updates.tracksToRemove());
+        verify(publisher).publishDownloaded(updates.tracksToRestore());
+        verify(publisher).publishUnavailable(updates.unavailableTracks());
+    }
+
+    @Test
+    public void publishTrackRequestedWhenStarting() {
+        setUpOfflineContentUpdates(builder()
+                .tracksToDownload(singletonList(downloadRequest1))
+                .build());
+
+        startService();
+
+        verify(publisher).publishRequested(singletonList(downloadRequest1.getTrack()));
+    }
+
+    @Test
+    public void republishDownloadingWhenARequestIsAlreadyDownloading() {
+        setUpOfflineContentUpdates(builder()
+                .tracksToDownload(Arrays.asList(downloadRequest1, downloadRequest2))
+                .build());
+        when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
+        when(downloadHandler.getCurrentTrack()).thenReturn(downloadRequest1.getTrack());
+
+        startService();
+
+        final InOrder inOrder = inOrder(publisher);
+        inOrder.verify(publisher).publishRequested(singletonList(downloadRequest2.getTrack()));
+        inOrder.verify(publisher).publishDownloading(downloadHandler.getCurrentTrack());
     }
 
     @Test
@@ -117,7 +144,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void startsDownloadingDownloadRequests() {
-        setUpSingleDownload();
+        setUpsDownloads(downloadRequest1);
         startService();
 
         verify(downloadHandler).sendMessage(downloadMessage);
@@ -133,26 +160,11 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void publishesDownloadRequestedWhenCreatingRequestsQueue() {
-        final OfflineContentUpdates updates = new OfflineContentUpdates(
-                Arrays.asList(downloadRequest1, downloadRequest2),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList()
-        );
-        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
-        startService();
-
-        verify(publisher).publishDownloadsRequested(downloadQueue.getRequests());
-    }
-
-    @Test
     public void publishedDownloadingWhenDownloadStarts() {
-        setUpSingleDownload();
+        setUpsDownloads(downloadRequest1);
         startService();
 
-        verify(publisher).publishDownloading(downloadRequest1);
+        verify(publisher).publishDownloading(downloadRequest1.getTrack());
     }
 
     @Test
@@ -160,7 +172,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onSuccess(downloadState1);
 
-        verify(publisher).publishDownloadSuccessfulEvents(downloadQueue, downloadState1);
+        verify(publisher).publishDownloaded(downloadRequest1.getTrack());
     }
 
     @Test
@@ -176,7 +188,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onError(downloadState1);
 
-        verify(publisher).publishDownloadErrorEvents(downloadQueue, downloadState1);
+        verify(publisher).publishError(downloadRequest1.getTrack());
     }
 
     @Test
@@ -184,12 +196,12 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onCancel(downloadState1);
 
-        verify(publisher).publishDownloadCancelEvents(downloadQueue, downloadState1);
+        verify(publisher).publishCancel(downloadRequest1.getTrack());
     }
 
     @Test
     public void stopAndScheduleRetryWhenTrackDownloadFailed() {
-        setUpSingleDownload();
+        setUpsDownloads(downloadRequest1);
 
         startService();
         service.onError(failedResult1);
@@ -200,7 +212,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void connectionErrorNotificationWhenTrackDownloadFailed() {
-        setUpSingleDownload();
+        setUpsDownloads(downloadRequest1);
 
         startService();
         service.onError(failedResult1);
@@ -221,7 +233,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void continueDownloadNextTrackWhenTrackUnavailableForDownload() {
-        setUpSingleDownload();
+        setUpsDownloads(downloadRequest1);
 
         startService();
         service.onError(unavailableTrackResult1);
@@ -253,12 +265,13 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Test
     public void republishDownloadingWhenRestartingService() {
         when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrentTrack()).thenReturn(downloadRequest1.getTrack());
         when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
-        setUpsDownloads(downloadRequest2);
+        setUpsDownloads(downloadRequest1, downloadRequest2);
 
         startService();
 
-        verify(publisher).publishDownloading(downloadRequest1);
+        verify(publisher).publishDownloading(downloadRequest1.getTrack());
     }
 
     @Test
@@ -292,7 +305,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         stopService();
 
-        observable.onNext(createSingleDownloadRequestUpdate());
+        observable.onNext(builder().build());
 
         verify(notificationController, never()).onPendingRequests(any(DownloadQueue.class));
         verify(downloadHandler).quit();
@@ -300,19 +313,11 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     @Test
     public void startServiceWithDownloadActionCancelsAnyExistingRetryScheduling() {
-        setUpSingleDownload();
+        setUpsDownloads(downloadRequest1);
 
         startService();
 
         verify(offlineContentScheduler).cancelPendingRetries();
-    }
-
-    @Test
-    public void publishesDoneStateWhenStopingTheService() {
-        startService();
-        stopService();
-
-        verify(publisher).publishDone();
     }
 
     private int startService() {
@@ -328,33 +333,15 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     private void setupNoDownloadRequest() {
-        final OfflineContentUpdates updates = new OfflineContentUpdates(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList()
-        );
-        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
-    }
-
-    private void setUpSingleDownload() {
-        final OfflineContentUpdates updates = createSingleDownloadRequestUpdate(downloadRequest1);
-        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
+        setUpOfflineContentUpdates(builder().build());
     }
 
     private void setUpsDownloads(DownloadRequest... requests) {
-        final OfflineContentUpdates updates = createSingleDownloadRequestUpdate(requests);
+        setUpOfflineContentUpdates(builder().tracksToDownload(Arrays.asList(requests)).build());
+    }
+
+    private void setUpOfflineContentUpdates(OfflineContentUpdates updates) {
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
     }
 
-    private OfflineContentUpdates createSingleDownloadRequestUpdate(DownloadRequest... requests) {
-        return new OfflineContentUpdates(
-                Arrays.asList(requests),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList()
-        );
-    }
 }

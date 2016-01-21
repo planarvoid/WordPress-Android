@@ -2,6 +2,7 @@ package com.soundcloud.android.settings;
 
 import static android.preference.Preference.OnPreferenceChangeListener;
 import static android.preference.Preference.OnPreferenceClickListener;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_COLLECTION;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_REMOVE_ALL_OFFLINE_CONTENT;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_STORAGE_LIMIT;
@@ -13,9 +14,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.ImageAlertDialog;
-import com.soundcloud.android.events.OfflineContentChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
@@ -35,7 +35,6 @@ import android.preference.TwoStatePreference;
 import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
-import java.util.List;
 
 public class OfflineSettingsFragment extends PreferenceFragment implements OnPreferenceClickListener, OnPreferenceChangeListener {
 
@@ -115,7 +114,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
         switch (preference.getKey()) {
             case OFFLINE_COLLECTION:
                 if (((boolean) newValue)) {
-                    offlineContentOperations.enableOfflineCollection();
+                    fireAndForget(offlineContentOperations.enableOfflineCollection());
                 } else {
                     confirmDisableOfflineCollection();
                 }
@@ -203,20 +202,17 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
                 .show();
     }
 
-    private final class ClearOfflineContentSubscriber extends DefaultSubscriber<List<Urn>> {
+    private final class ClearOfflineContentSubscriber extends DefaultSubscriber<Void> {
         @Override
-        public void onNext(List<Urn> result) {
-            if (!result.isEmpty()) {
-                refreshStoragePreference();
-            }
-            OfflineContentService.stop(getActivity());
+        public void onNext(Void ignored) {
+            refreshStoragePreference();
         }
     }
 
     private final class CurrentDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
         @Override
         public void onNext(final OfflineContentChangedEvent event) {
-            if (event.kind == OfflineState.DOWNLOADED) {
+            if (event.state == OfflineState.DOWNLOADED) {
                 refreshStoragePreference();
             }
         }

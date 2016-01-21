@@ -677,25 +677,25 @@ public class DatabaseAssertions {
         return new QueryBinding(this.database, query);
     }
 
-    public void assertPlaylistMarkedForOfflineSync(Urn playlistUrn) {
+    public void assertIsOfflinePlaylist(Urn playlistUrn) {
         assertThat(select(from(OfflineContent.TABLE)
                 .whereEq(OfflineContent._ID, playlistUrn.getNumericId())
                 .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST))).counts(1);
     }
 
-    public void assertPlaylistNotMarkedForOfflineSync(Urn playlistUrn) {
+    public void assertIsNotOfflinePlaylist(Urn playlistUrn) {
         assertThat(select(from(OfflineContent.TABLE)
                 .whereEq(OfflineContent._ID, playlistUrn.getNumericId())
                 .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST))).counts(0);
     }
 
-    public void assertOfflineLikesDisabled() {
+    public void assertLikedTracksIsNotOffline() {
         assertThat(select(from(OfflineContent.TABLE)
                 .whereEq(OfflineContent._ID, ID_OFFLINE_LIKES)
                 .whereEq(OfflineContent._TYPE, TYPE_COLLECTION))).counts(0);
     }
 
-    public void assertOfflineLikesEnabled() {
+    public void assertLikedTracksIsOffline() {
         assertThat(select(from(OfflineContent.TABLE)
                 .whereEq(OfflineContent._ID, ID_OFFLINE_LIKES)
                 .whereEq(OfflineContent._TYPE, TYPE_COLLECTION))).counts(1);

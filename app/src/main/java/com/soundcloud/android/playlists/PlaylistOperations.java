@@ -7,7 +7,6 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.tracks.TrackItem;
@@ -22,6 +21,7 @@ import rx.functions.Func2;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class PlaylistOperations {
@@ -55,7 +55,6 @@ public class PlaylistOperations {
     private final RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
-    private final OfflineContentOperations offlineOperations;
 
     private final Func2<PropertySet, List<TrackItem>, PlaylistWithTracks> mergePlaylistWithTracks =
             new Func2<PropertySet, List<TrackItem>, PlaylistWithTracks>() {
@@ -87,7 +86,6 @@ public class PlaylistOperations {
                        PlaylistTracksStorage playlistTracksStorage,
                        PlaylistStorage playlistStorage,
                        LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns,
-                       OfflineContentOperations offlineOperations,
                        AddTrackToPlaylistCommand addTrackToPlaylistCommand,
                        RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand,
                        EventBus eventBus) {
@@ -99,7 +97,6 @@ public class PlaylistOperations {
         this.addTrackToPlaylistCommand = addTrackToPlaylistCommand;
         this.removeTrackFromPlaylistCommand = removeTrackFromPlaylistCommand;
         this.eventBus = eventBus;
-        this.offlineOperations = offlineOperations;
     }
 
     Observable<List<AddTrackToPlaylistItem>> loadPlaylistForAddingTrack(Urn trackUrn) {
@@ -113,15 +110,6 @@ public class PlaylistOperations {
                 .doOnNext(publishPlaylistCreatedEvent)
                 .subscribeOn(scheduler)
                 .doOnCompleted(syncInitiator.requestSystemSyncAction());
-    }
-
-    Observable<Urn> createNewOfflinePlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
-        return createNewPlaylist(title, isPrivate, firstTrackUrn).flatMap(new Func1<Urn, Observable<Urn>>() {
-            @Override
-            public Observable<Urn> call(Urn urn) {
-                return offlineOperations.makePlaylistAvailableOffline(urn);
-            }
-        });
     }
 
     Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
@@ -170,14 +158,18 @@ public class PlaylistOperations {
     }
 
     public Observable<List<PlaylistWithTracks>> playlists(final Collection<Urn> playlists) {
-        return Observable
-                .from(playlists)
-                .flatMap(toPlaylistWithTracks)
-                .toList();
+        if (playlists.isEmpty()) {
+            return Observable.just(Collections.<PlaylistWithTracks>emptyList());
+        } else {
+            return Observable
+                    .from(playlists)
+                    .flatMap(toPlaylistWithTracks)
+                    .toList();
+        }
     }
 
     public Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
-        return createPlaylistInfoLoadObservable(playlistUrn).flatMap(syncIfNecessary(playlistUrn));
+        return playlistWithTracks(playlistUrn).flatMap(syncIfNecessary(playlistUrn));
     }
 
     Observable<PlaylistWithTracks> updatedPlaylistInfo(final Urn playlistUrn) {
@@ -187,7 +179,7 @@ public class PlaylistOperations {
                 .flatMap(new Func1<SyncResult, Observable<PlaylistWithTracks>>() {
                     @Override
                     public Observable<PlaylistWithTracks> call(SyncResult playlistWasUpdated) {
-                        return createPlaylistInfoLoadObservable(playlistUrn)
+                        return playlistWithTracks(playlistUrn)
                                 .flatMap(validateLoadedPlaylist);
                     }
                 });
@@ -206,11 +198,12 @@ public class PlaylistOperations {
                 });
     }
 
-    private Observable<PlaylistWithTracks> createPlaylistInfoLoadObservable(Urn playlistUrn) {
-        final Observable<PropertySet> loadPlaylist = playlistStorage.loadPlaylist(playlistUrn);
-        final Observable<List<TrackItem>> loadPlaylistTracks =
-                playlistTracksStorage.playlistTracks(playlistUrn).map(TrackItem.fromPropertySets());
-        return Observable.zip(loadPlaylist, loadPlaylistTracks, mergePlaylistWithTracks).subscribeOn(scheduler);
+    private Observable<PlaylistWithTracks> playlistWithTracks(Urn playlistUrn) {
+        return Observable.zip(
+                playlistStorage.loadPlaylist(playlistUrn),
+                playlistTracksStorage.playlistTracks(playlistUrn).map(TrackItem.fromPropertySets()),
+                mergePlaylistWithTracks
+        ).subscribeOn(scheduler);
     }
 
     private Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>> syncIfNecessary(final Urn playlistUrn) {

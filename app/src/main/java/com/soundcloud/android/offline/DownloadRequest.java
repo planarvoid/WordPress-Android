@@ -4,13 +4,21 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.functions.Function;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @AutoValue
-public abstract class DownloadRequest {
+public abstract class DownloadRequest{
+
+    public static final Function<DownloadRequest, Urn> TO_TRACK_URN = new Function<DownloadRequest, Urn>() {
+        @Override
+        public Urn apply(DownloadRequest request) {
+            return request.getTrack();
+        }
+    };
 
     public static DownloadRequest create(OfflineTrackContext offlineTrackContext, long duration,
                                          String waveformUrl, boolean syncable) {

@@ -1,7 +1,6 @@
 package com.soundcloud.android.configuration;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -12,7 +11,6 @@ import rx.functions.Func1;
 import android.util.Log;
 
 import javax.inject.Inject;
-import java.util.List;
 
 public class ConfigurationManager {
 
@@ -25,9 +23,9 @@ public class ConfigurationManager {
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
-    private final Func1<Void, Observable<List<Urn>>> clearOfflineContent = new Func1<Void, Observable<List<Urn>>>() {
+    private final Func1<Void, Observable<Void>> clearOfflineContent = new Func1<Void, Observable<Void>>() {
         @Override
-        public Observable<List<Urn>> call(Void ignore) {
+        public Observable<Void> call(Void ignore) {
             return offlineContentOperations.clearOfflineContent();
         }
     };

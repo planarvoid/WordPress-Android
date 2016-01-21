@@ -83,7 +83,7 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
         WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
         assertThat(result.success()).isTrue();
 
-        databaseAssertions().assertPlaylistMarkedForOfflineSync(newPlaylist.getUrn());
+        databaseAssertions().assertIsOfflinePlaylist(newPlaylist.getUrn());
     }
 
     @Test
@@ -95,6 +95,6 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
         WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
         assertThat(result.success()).isTrue();
 
-        databaseAssertions().assertPlaylistNotMarkedForOfflineSync(newPlaylist.getUrn());
+        databaseAssertions().assertIsNotOfflinePlaylist(newPlaylist.getUrn());
     }
 }

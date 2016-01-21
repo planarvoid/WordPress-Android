@@ -3,8 +3,10 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
@@ -88,12 +90,16 @@ public class PlaylistWithTracks {
         return tracks;
     }
 
+    public List<Urn> getTracksUrn() {
+        return Lists.transform(tracks, PlayableItem.TO_URN);
+    }
+
     public String getDuration() {
         final long duration = tracks.isEmpty() ? sourceSet.get(PlaylistProperty.PLAY_DURATION) : getCombinedTrackDurations();
         return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
     }
 
-    OfflineState getDownloadState() {
+    public OfflineState getDownloadState() {
         return sourceSet.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }
 

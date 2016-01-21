@@ -1,7 +1,6 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.propeller.WriteResult;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -16,7 +15,7 @@ public class DownloadHandler extends Handler {
 
     public static final int ACTION_DOWNLOAD = 0;
 
-    private final MainHandler mainHandler;
+    private final WeakReference<Listener> listenerRef;
     private final DownloadOperations downloadOperations;
     private final SecureFileStorage secureFileStorage;
     private final TrackDownloadsStorage trackDownloadsStorage;
@@ -49,21 +48,23 @@ public class DownloadHandler extends Handler {
         void onProgress(DownloadState state);
     }
 
-    public DownloadHandler(Looper looper, MainHandler mainHandler,
+    public DownloadHandler(Looper looper,
+                           Listener listener,
                            DownloadOperations downloadOperations,
-                           SecureFileStorage secureFileStorage, TrackDownloadsStorage trackDownloadsStorage) {
+                           SecureFileStorage secureFileStorage,
+                           TrackDownloadsStorage trackDownloadsStorage) {
         super(looper);
-        this.mainHandler = mainHandler;
+        this.listenerRef = new WeakReference<>(listener);
         this.downloadOperations = downloadOperations;
         this.secureFileStorage = secureFileStorage;
         this.trackDownloadsStorage = trackDownloadsStorage;
     }
 
     @VisibleForTesting
-    DownloadHandler(MainHandler mainHandler,
+    DownloadHandler(Listener listener,
                     DownloadOperations downloadOperations,
                     SecureFileStorage secureFileStorage, TrackDownloadsStorage trackDownloadsStorage) {
-        this.mainHandler = mainHandler;
+        this.listenerRef = new WeakReference<>(listener);
         this.downloadOperations = downloadOperations;
         this.secureFileStorage = secureFileStorage;
         this.trackDownloadsStorage = trackDownloadsStorage;
@@ -73,43 +74,49 @@ public class DownloadHandler extends Handler {
     public void handleMessage(Message msg) {
         final DownloadRequest request = (DownloadRequest) msg.obj;
         current = request;
-        sendDownloadResult(MainHandler.ACTION_DOWNLOAD_PROGRESS, DownloadState.inProgress(request, 0));
-        final DownloadState result = downloadOperations.download(request, createDownloadProgressListener(request));
+        sendDownloadState(DownloadState.inProgress(request, 0));
+        sendDownloadState(downloadTrack(request));
         current = null;
+    }
 
+    private DownloadState downloadTrack(DownloadRequest request) {
+        final DownloadState result = downloadOperations.download(request, createDownloadProgressListener(request));
         if (result.isSuccess()) {
             tryToStoreDownloadSuccess(result);
-        } else if (result.isCancelled()) {
-            sendDownloadResult(MainHandler.ACTION_DOWNLOAD_CANCEL, result);
-        } else {
-            if (result.isUnavailable()) {
-                trackDownloadsStorage.markTrackAsUnavailable(result.getTrack());
-            }
-            sendDownloadResult(MainHandler.ACTION_DOWNLOAD_FAILED, result);
+        } else if (result.isUnavailable()) {
+            trackDownloadsStorage.markTrackAsUnavailable(result.getTrack());
         }
+        return result;
     }
 
     private DownloadOperations.DownloadProgressListener createDownloadProgressListener(final DownloadRequest request) {
         return new DownloadOperations.DownloadProgressListener() {
             @Override
             public void onProgress(long downloaded) {
-                sendDownloadResult(MainHandler.ACTION_DOWNLOAD_PROGRESS, DownloadState.inProgress(request, downloaded));
+                sendDownloadState(DownloadState.inProgress(request, downloaded));
             }
         };
     }
 
     private void tryToStoreDownloadSuccess(DownloadState result) {
-        final WriteResult writeResult = trackDownloadsStorage.storeCompletedDownload(result);
-        if (writeResult.success()) {
-            sendDownloadResult(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
-        } else {
+        if (!trackDownloadsStorage.storeCompletedDownload(result).success()) {
             secureFileStorage.deleteTrack(result.getTrack());
-            sendDownloadResult(MainHandler.ACTION_DOWNLOAD_FAILED, result);
         }
     }
 
-    private void sendDownloadResult(int status, DownloadState state) {
-        mainHandler.sendMessage(mainHandler.obtainMessage(status, state));
+    private void sendDownloadState(DownloadState result) {
+        final Listener listener =  listenerRef.get();
+        if (listener != null) {
+            if (result.isInProgress()) {
+                listener.onProgress(result);
+            } else if (result.isSuccess()) {
+                listener.onSuccess(result);
+            } else if (result.isCancelled()) {
+                listener.onCancel(result);
+            } else {
+                listener.onError(result);
+            }
+        }
     }
 
     void cancel() {
@@ -118,7 +125,6 @@ public class DownloadHandler extends Handler {
 
     void quit() {
         getLooper().quit();
-        mainHandler.quit();
     }
 
     @VisibleForTesting
@@ -136,7 +142,7 @@ public class DownloadHandler extends Handler {
 
         DownloadHandler create(Listener listener) {
             return new DownloadHandler(
-                    createLooper(), new MainHandler(listener), downloadOperations, secureFileStorage, tracksStorage);
+                    createLooper(), listener, downloadOperations, secureFileStorage, tracksStorage);
         }
 
         private Looper createLooper() {
@@ -146,47 +152,5 @@ public class DownloadHandler extends Handler {
         }
     }
 
-    @VisibleForTesting
-    static class MainHandler extends Handler {
-        static final int ACTION_DOWNLOAD_SUCCESS = 0;
-        static final int ACTION_DOWNLOAD_FAILED = 1;
-        static final int ACTION_DOWNLOAD_CANCEL = 2;
-        static final int ACTION_DOWNLOAD_PROGRESS = 3;
-
-        private final WeakReference<Listener> listenerRef;
-
-        public MainHandler(Listener listenerRef) {
-            super(Looper.getMainLooper());
-            this.listenerRef = new WeakReference<>(listenerRef);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            final Listener listener = listenerRef.get();
-            if (listener != null) {
-                final DownloadState result = (DownloadState) msg.obj;
-                switch (msg.what) {
-                    case ACTION_DOWNLOAD_SUCCESS:
-                        listener.onSuccess(result);
-                        break;
-                    case ACTION_DOWNLOAD_CANCEL:
-                        listener.onCancel(result);
-                        break;
-                    case ACTION_DOWNLOAD_FAILED:
-                        listener.onError(result);
-                        break;
-                    case ACTION_DOWNLOAD_PROGRESS:
-                        listener.onProgress(result);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unknown action received by DownloadHandler: " + msg.what);
-                }
-            }
-        }
-
-        public void quit() {
-            listenerRef.clear();
-        }
-    }
 }
 

@@ -1,10 +1,12 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.playlists.OfflinePlaylistMapper.HAS_OFFLINE_TRACKS;
+import static com.soundcloud.android.playlists.OfflinePlaylistMapper.HAS_DOWNLOADED_TRACKS;
 import static com.soundcloud.android.playlists.OfflinePlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST;
+import static com.soundcloud.android.playlists.OfflinePlaylistMapper.HAS_UNAVAILABLE_TRACKS;
 import static com.soundcloud.android.playlists.PlaylistMapper.LOCAL_TRACK_COUNT;
 import static com.soundcloud.android.playlists.PlaylistQueries.HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER;
 import static com.soundcloud.android.playlists.PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY;
+import static com.soundcloud.android.playlists.PlaylistQueries.HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER;
 import static com.soundcloud.android.playlists.PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.TableColumns.Likes.CREATED_AT;
@@ -71,7 +73,8 @@ public class PlaylistLikesStorage {
                         count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(LOCAL_TRACK_COUNT),
                         field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
                         exists(HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(HAS_PENDING_DOWNLOAD_REQUEST),
-                        exists(HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER).as(HAS_OFFLINE_TRACKS),
+                        exists(HAS_DOWNLOADED_OFFLINE_TRACKS_FILTER).as(HAS_DOWNLOADED_TRACKS),
+                        exists(HAS_UNAVAILABLE_OFFLINE_TRACKS_FILTER).as(HAS_UNAVAILABLE_TRACKS),
                         exists(IS_MARKED_FOR_OFFLINE_QUERY).as(PostedPlaylistMapper.IS_MARKED_FOR_OFFLINE))
                 .innerJoin(Table.SoundView.name(), likesSoundViewJoin)
                 .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)

@@ -66,7 +66,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     public void setUp() {
         eventBus = new TestEventBus();
         operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator, tracksStorage,
-                playlistStorage, loadPlaylistTrackUrns, offlineOperations,
+                playlistStorage, loadPlaylistTrackUrns,
                 addTrackToPlaylistCommand, removeTrackFromPlaylistCommand, eventBus);
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
 

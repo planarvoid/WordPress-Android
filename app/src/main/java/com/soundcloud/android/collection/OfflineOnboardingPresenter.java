@@ -1,5 +1,7 @@
 package com.soundcloud.android.collection;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -48,7 +50,7 @@ class OfflineOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActi
 
     @Override
     public void autoSync() {
-        offlineContentOperations.enableOfflineCollection();
+        fireAndForget(offlineContentOperations.enableOfflineCollection());
         navigator.openCollection(activity);
         activity.finish();
     }

@@ -1,158 +1,153 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.events.OfflineContentChangedEvent;
+import static com.soundcloud.android.offline.OfflineState.DOWNLOADED;
+import static com.soundcloud.android.offline.OfflineState.DOWNLOADING;
+import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
+import static com.soundcloud.android.offline.OfflineState.REQUESTED;
+import static com.soundcloud.android.offline.OfflineState.UNAVAILABLE;
+import static com.soundcloud.java.collections.MoreCollections.filter;
+import static com.soundcloud.java.collections.MoreCollections.transform;
+import static java.util.Collections.singletonList;
+
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.MoreCollections;
+import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class OfflineStatePublisher {
 
-    private final String TAG = OfflineStatePublisher.class.getSimpleName();
+    private static final Predicate<PlaylistWithTracks> FILTER_EMPTY_PLAYLISTS = new Predicate<PlaylistWithTracks>() {
+        @Override
+        public boolean apply(PlaylistWithTracks input) {
+            return input.getTrackCount() == 0;
+        }
+    };
     private final EventBus eventBus;
-
-    private OfflineContentUpdates updates;
+    private final OfflineTracksCollectionStateOperations collectionStateOperations;
 
     @Inject
-    public OfflineStatePublisher(EventBus eventBus) {
+    public OfflineStatePublisher(EventBus eventBus, OfflineTracksCollectionStateOperations collectionStateOperations) {
         this.eventBus = eventBus;
+        this.collectionStateOperations = collectionStateOperations;
     }
 
-    public void setUpdates(OfflineContentUpdates updates) {
-        this.updates = updates;
+    void publishEmptyCollections(ExpectedOfflineContent expectedOfflineContent) {
+        final Collection<PlaylistWithTracks> emptyPlaylists = filter(expectedOfflineContent.offlinePlaylists, FILTER_EMPTY_PLAYLISTS);
+        final boolean isLikedTracksEmpty = expectedOfflineContent.isLikedTracksExpected && expectedOfflineContent.likedTracks.isEmpty();
+
+        eventBus.publish(
+                EventQueue.OFFLINE_CONTENT_CHANGED,
+                new OfflineContentChangedEvent(DOWNLOADED,
+                        transform(emptyPlaylists, PlaylistWithTracks.TO_URN),
+                        isLikedTracksEmpty)
+        );
     }
 
-    void publishDownloadSuccessfulEvents(DownloadQueue queue, DownloadState result) {
-        publishTrackDownloaded(queue, result);
-        publishRelatedQueuedCollectionsAsRequested(queue, result);
+    void publishRequested(Collection<Urn> tracks) {
+        publishUpdatesForTrack(REQUESTED, tracks);
     }
 
-    void publishDownloadErrorEvents(DownloadQueue queue, DownloadState result) {
-        Log.d(TAG, "downloadRequested");
-        List<Urn> changedEntities = queue.getRequestedWithOwningPlaylists(result);
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                OfflineContentChangedEvent.downloadRequested(result.request.isLiked(), changedEntities));
+    void publishDownloading(Urn track) {
+        publishUpdatesForTrack(DOWNLOADING, track);
     }
 
-    void publishDownloadCancelEvents(DownloadQueue queue, DownloadState result) {
-        publishTrackDownloadCanceled(result);
-        publishCollectionsDownloadedForCancelledTrack(queue, result);
+    void publishDownloaded(Collection<Urn> tracks) {
+        publishUpdatesForTrack(DOWNLOADED, tracks);
     }
 
-    void publishNotDownloadableStateChanges(DownloadQueue queue, Urn currentDownload) {
-        publishDownloadedTracksRemoved(currentDownload);
-        publishTracksAlreadyDownloaded();
-        publishCreatorOptOut();
+    void publishDownloaded(Urn track) {
+        publishUpdatesForTrack(DOWNLOADED, track);
+    }
 
-        if (!queue.getRequests().isEmpty()) {
-            Log.d(TAG, "downloadRequestRemoved");
-            eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.downloadRequestRemoved(queue.getRequests()));
+    void publishRemoved(Collection<Urn> tracks) {
+        publishUpdatesForTrack(NOT_OFFLINE, tracks);
+    }
+
+    void publishUnavailable(Collection<Urn> tracks) {
+        publishUpdatesForTrack(UNAVAILABLE, tracks);
+    }
+
+    void publishCancel(Urn track) {
+        publishUpdatesForTrack(REQUESTED, track);
+    }
+
+    void publishError(Urn track) {
+        publishUpdatesForTrack(REQUESTED, track);
+    }
+
+    private void publishUpdatesForTrack(final OfflineState newTrackState, Urn track) {
+        publishUpdatesForTrack(newTrackState, singletonList(track));
+    }
+
+    private void publishUpdatesForTrack(OfflineState newTracksState, Collection<Urn> tracks) {
+        Map<OfflineState, TrackCollections> collectionsStates = new HashMap<>();
+        for (Urn track : tracks) {
+            collectionsStates = mergeStates(collectionsStates, collectionStateOperations.loadTracksCollectionsState(track, newTracksState));
         }
-    }
 
-    private void publishCreatorOptOut() {
-        if (!updates.creatorOptOutRequests.isEmpty()) {
-            Log.d(TAG, "creatorOptOut");
-            eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.unavailable(updates.creatorOptOutRequests));
-        }
-    }
+        for (OfflineState state : OfflineState.values()) {
+            final Optional<Collection<Urn>> tracksForState = newTracksState.equals(state)
+                    ? Optional.of(tracks)
+                    : Optional.<Collection<Urn>>absent();
+            final Optional<TrackCollections> collectionsForState = collectionsStates.containsKey(state)
+                    ? Optional.of(collectionsStates.get(state))
+                    : Optional.<TrackCollections>absent();
 
-    void publishDownloadsRequested(DownloadRequest request) {
-        publishDownloadsRequested(Collections.singletonList(request));
-    }
-
-    void publishDownloadsRequested(List<DownloadRequest> requests) {
-        if (!requests.isEmpty()) {
-            Log.d(TAG, "downloadRequested");
-            eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.downloadRequested(requests));
-        }
-    }
-
-    void publishDownloading(DownloadRequest request) {
-        Log.d(TAG, "downloading");
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.downloading(request));
-    }
-
-    void publishDone() {
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.idle());
-    }
-
-    private void publishTracksAlreadyDownloaded() {
-        if (!updates.newRestoredRequests.isEmpty()) {
-            Log.d(TAG, "downloaded");
-            eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.downloaded(updates.newRestoredRequests));
-        }
-    }
-
-    private void publishDownloadedTracksRemoved(final Urn urn) {
-        if (!updates.newRemovedTracks.isEmpty()) {
-            final Collection<Urn> removed = MoreCollections.filter(updates.newRemovedTracks, notCurrentDownload(urn));
-            if (!removed.isEmpty()) {
-                Log.d(TAG, "downloadRemoved");
-                eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                        OfflineContentChangedEvent.downloadRemoved(new ArrayList<>(removed)));
+            if (tracksForState.isPresent() || collectionsForState.isPresent()) {
+                eventBus.publish(
+                        EventQueue.OFFLINE_CONTENT_CHANGED,
+                        createOfflineContentChangedEvent(state, tracksForState, collectionsForState)
+                );
             }
         }
     }
 
-    private Predicate<Urn> notCurrentDownload(final Urn currentDownload) {
-        return new Predicate<Urn>() {
-            @Override
-            public boolean apply(@Nullable Urn request) {
-                return request != null && !request.equals(currentDownload);
+    private static HashMap<OfflineState, TrackCollections> mergeStates(Map<OfflineState, TrackCollections> previousStates, Map<OfflineState, TrackCollections> addedStates) {
+        final HashMap<OfflineState, TrackCollections> newStates = new HashMap<>();
+        newStates.putAll(previousStates);
+
+        for (Map.Entry<OfflineState, TrackCollections> entry : addedStates.entrySet()) {
+            final OfflineState state = entry.getKey();
+            final TrackCollections newTrackCollections = entry.getValue();
+
+            if (previousStates.containsKey(state)) {
+                final TrackCollections collections = previousStates.get(state);
+                final boolean isLikedTracksCollection = collections.likesCollection() || newTrackCollections.likesCollection();
+                final List<Urn> mergedPlaylists = new ArrayList<>(collections.playlists().size() + newTrackCollections.playlists().size());
+                mergedPlaylists.addAll(collections.playlists());
+                mergedPlaylists.addAll(newTrackCollections.playlists());
+                newStates.put(state, TrackCollections.create(mergedPlaylists, isLikedTracksCollection));
+            } else {
+                newStates.put(state, newTrackCollections);
             }
-        };
-    }
-
-    private void publishTrackDownloaded(DownloadQueue queue, DownloadState result) {
-        final List<Urn> completed = queue.getDownloaded(result);
-        final boolean isAllLikesCompleted = queue.isAllLikedTracksDownloaded(result);
-
-        if (hasChanges(completed, isAllLikesCompleted)) {
-            Log.d(TAG, "downloaded");
-            eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                    OfflineContentChangedEvent.downloaded(isAllLikesCompleted, completed));
         }
+        return newStates;
     }
 
-    private void publishRelatedQueuedCollectionsAsRequested(DownloadQueue queue, DownloadState result) {
-        final List<Urn> requested = queue.getRequested(result);
-        final boolean likedTrackRequested = queue.isLikedTrackRequested();
-
-        if (hasChanges(requested, likedTrackRequested)) {
-            Log.d(TAG, "downloadRequested");
-            eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                    OfflineContentChangedEvent.downloadRequested(likedTrackRequested, requested));
+    private static OfflineContentChangedEvent createOfflineContentChangedEvent(OfflineState state, Optional<Collection<Urn>> track, Optional<TrackCollections> collections) {
+        final Collection<Urn> entities = new ArrayList<>();
+        final boolean isLikedTrackCollection;
+        if (collections.isPresent()) {
+            entities.addAll(collections.get().playlists());
+            isLikedTrackCollection = collections.get().likesCollection();
+        } else {
+            isLikedTrackCollection = false;
         }
-    }
 
-    private void publishTrackDownloadCanceled(DownloadState result) {
-        Log.d(TAG, "downloadRemoved");
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                OfflineContentChangedEvent.downloadRemoved(Collections.singletonList(result.getTrack())));
-    }
-
-    private void publishCollectionsDownloadedForCancelledTrack(DownloadQueue queue, DownloadState result) {
-        final List<Urn> completedCollections = queue.getDownloadedPlaylists(result);
-        final boolean isLikedTrackCompleted = queue.isAllLikedTracksDownloaded(result);
-
-        if (hasChanges(completedCollections, isLikedTrackCompleted)) {
-            Log.d(TAG, "downloaded");
-            eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
-                    OfflineContentChangedEvent.downloaded(isLikedTrackCompleted, completedCollections));
+        if (track.isPresent()) {
+            entities.addAll(track.get());
         }
+
+        return new OfflineContentChangedEvent(state, entities, isLikedTrackCollection);
     }
 
-    private boolean hasChanges(List<Urn> entitiesChangeList, boolean likedTracksChanged) {
-        return !entitiesChangeList.isEmpty() || likedTracksChanged;
-    }
 }

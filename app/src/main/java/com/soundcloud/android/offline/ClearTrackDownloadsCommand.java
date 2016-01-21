@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.propeller.query.Filter.filter;
+
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.PlaylistUrnMapper;
 import com.soundcloud.android.commands.TrackUrnMapper;
@@ -8,7 +10,6 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 
@@ -25,7 +26,8 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
     private final TrackOfflineStateProvider trackOfflineStateProvider;
 
     @Inject
-    ClearTrackDownloadsCommand(PropellerDatabase propeller, SecureFileStorage secureFileStorage,
+    ClearTrackDownloadsCommand(PropellerDatabase propeller,
+                               SecureFileStorage secureFileStorage,
                                OfflineContentStorage offlineContentStorage,
                                TrackOfflineStateProvider trackOfflineStateProvider) {
         this.propeller = propeller;
@@ -41,13 +43,14 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
         final TxnResult txnResult = propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
+                step(propeller.delete(Tables.OfflineContent.TABLE));
                 step(propeller.delete(Tables.TrackDownloads.TABLE));
-                step(propeller.delete(OfflineContent.TABLE));
             }
         });
 
         if (txnResult.success()) {
             trackOfflineStateProvider.clear();
+            // Free space right now
             secureFileStorage.deleteAllTracks();
             offlineContentStorage.setHasOfflineContent(false);
             return removedEntities;
@@ -69,7 +72,7 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
     }
 
     private List<Urn> queryOfflinePlaylistsUrns(PropellerDatabase propeller) {
-        final Where isOfflinePlaylist = Filter.filter()
+        final Where isOfflinePlaylist = filter()
                 .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
 
         return propeller.query(Query.from(OfflineContent.TABLE)

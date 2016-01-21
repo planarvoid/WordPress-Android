@@ -33,6 +33,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,8 +78,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>empty());
 
-        when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.<Urn>empty());
-        when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.<Urn>empty());
+        when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.<ChangeResult>empty());
+        when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.<ChangeResult>empty());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean()))
@@ -174,7 +175,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnMakeOfflineAvailableMarksPlaylistAsOfflineContent() {
-        final PublishSubject<Urn> offlineObservable = PublishSubject.create();
+        final PublishSubject<ChangeResult> offlineObservable = PublishSubject.create();
         when(offlineOperations.makePlaylistAvailableOffline(playlist.getEntityUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
@@ -199,7 +200,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnMakeOfflineUnavailableRemovedPlaylistFromOfflineContent() {
-        final PublishSubject<Urn> offlineObservable = PublishSubject.create();
+        final PublishSubject<ChangeResult> offlineObservable = PublishSubject.create();
         when(offlineOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
 
