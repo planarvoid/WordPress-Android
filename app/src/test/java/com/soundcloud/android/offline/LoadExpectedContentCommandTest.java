@@ -8,7 +8,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +34,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         ApiTrack apiTrack = insertSyncableLikedTrack(100L);
 
-        final ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        final ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).containsExactly(downloadRequestFromPlaylists(apiTrack, true, Collections.<Urn>emptyList()));
     }
@@ -45,7 +44,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack track1 = insertSyncablePlaylistTrack(playlist, 0);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).containsExactly(
                 downloadRequestFromPlaylists(track1, false, Collections.singletonList(playlist.getUrn())));
@@ -56,7 +55,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
         testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 0, 100);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).isEmpty();
     }
@@ -66,7 +65,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
         testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 100);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).isEmpty();
     }
@@ -78,7 +77,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         database().execSQL("UPDATE TrackDownloads SET downloaded_at=100"
                 + " WHERE _id=" + apiTrack.getUrn().getNumericId());
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).isEmpty();
     }
@@ -91,7 +90,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack apiTrack2 = insertSyncableLikedTrack(200);
         final ApiTrack apiTrack3 = insertSyncableLikedTrack(300);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).containsExactly(
                 downloadRequestFromPlaylists(apiTrack3, true, Collections.<Urn>emptyList()),
@@ -107,7 +106,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack playlistTrack1 = insertSyncablePlaylistTrack(playlist, 1);
         final ApiTrack playlistTrack0 = insertSyncablePlaylistTrack(playlist, 0);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).containsExactly(
                 downloadRequestFromPlaylists(playlistTrack0, false, Collections.singletonList(playlist.getUrn())),
@@ -127,7 +126,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistMarkedForOfflineSync(apiPlaylist1);
         final ApiTrack playlistTrack1 = insertSyncablePlaylistTrack(apiPlaylist1, 0);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).containsExactly(
                 downloadRequestFromPlaylists(playlistTrack1, false, Collections.singletonList(apiPlaylist1.getUrn())),
@@ -144,7 +143,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack playlistTrack = insertSyncablePlaylistTrack(playlist, 0);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).containsExactly(
                 downloadRequestFromPlaylists(playlistTrack, false, Collections.singletonList(playlist.getUrn())),
@@ -161,7 +160,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         testFixtures().insertPlaylistTrack(playlist.getUrn(), apiTrack.getUrn(), 0);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).containsExactly(
                 downloadRequestFromPlaylists(apiTrack, true, Collections.singletonList(playlist.getUrn())));
@@ -171,7 +170,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     public void doesNotReturnTracksWithoutPolicy() {
         testFixtures().insertLikedTrack(new Date(100));
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).isEmpty();
     }
@@ -180,7 +179,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     public void doesNotReturnBlockedTacks() {
         insertCreatorOptOutLikedTrack(100);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).isEmpty();
     }
@@ -190,7 +189,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
         testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW - TimeUnit.DAYS.toMillis(30));
 
-        final ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        final ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).isEmpty();
     }
@@ -200,7 +199,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         ApiTrack apiTrack = testFixtures().insertLikedTrackPendingRemoval(new Date(0), new Date(10));
         testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW);
 
-        final ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        final ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).isEmpty();
     }
@@ -211,7 +210,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack playlistTrack1 = testFixtures().insertPlaylistTrackPendingRemoval(playlist, 1, new Date(NOW));
         testFixtures().insertPolicyAllow(playlistTrack1.getUrn(), NOW);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).isEmpty();
     }
@@ -223,7 +222,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack creatorOptOut = insertCreatorOptOutLikedTrack(200);
         final ApiTrack syncable = insertSyncableLikedTrack(100);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests)
                 .containsExactly(
@@ -238,7 +237,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack creatorOptOut1 = insertCreatorOptOutLikedTrack(200);
         final ApiTrack creatorOptOut2 = insertCreatorOptOutLikedTrack(100);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests)
                 .containsExactly(
@@ -252,7 +251,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack syncable = insertSyncablePlaylistTrack(playlist, 0);
         final ApiTrack creatorOptOut = insertCreatorOptOutPlaylistTrack(playlist, 1);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests)
                 .containsExactly(
@@ -266,7 +265,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack creatorOptOut1 = insertCreatorOptOutPlaylistTrack(playlist, 0);
         final ApiTrack creatorOptOut2 = insertCreatorOptOutPlaylistTrack(playlist, 1);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests)
                 .containsExactly(
@@ -287,7 +286,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack syncedTrack2 = insertSyncablePlaylistTrack(playlist2, 0);
         final ApiTrack creatorOptOut2 = insertCreatorOptOutPlaylistTrack(playlist2, 1);
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests)
                 .containsExactly(
@@ -303,9 +302,18 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Urn urn = track1.getUrn();
         testFixtures().insertPolicyAllow(urn, NOW - TimeUnit.DAYS.toMillis(30));
 
-        ExpectedOfflineContent toBeOffline = command.call(Collections.<PlaylistWithTracks>emptyList());
+        ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).isEmpty();
+    }
+
+    @Test
+    public void commandReturnsPlaylistsWithoutTracks() {
+        testFixtures().insertLikesMarkedForOfflineSync();
+        testFixtures().insertPlaylistTrack(testFixtures().insertPlaylistMarkedForOfflineSync(), 0);
+        final ApiPlaylist playlistWithoutTracks = testFixtures().insertPlaylistMarkedForOfflineSync();
+
+        assertThat(command.call(null).emptyPlaylists).containsExactly(playlistWithoutTracks.getUrn());
     }
 
     private void enableOfflineLikes() {

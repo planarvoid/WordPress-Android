@@ -1,10 +1,13 @@
 package com.soundcloud.android.sync.posts;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -20,10 +23,15 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.SyncActions;
+import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.playlists.SinglePlaylistSyncer;
+import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.PropertySets;
@@ -40,6 +48,7 @@ import android.net.Uri;
 import android.support.v4.util.ArrayMap;
 import android.util.Pair;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -58,13 +67,19 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     @Mock private ReplacePlaylistPostCommand replacePlaylist;
     @Mock private LoadPlaylistPendingRemovalCommand loadPlaylistPendingRemovalCommand;
     @Mock private RemovePlaylistCommand removePlaylistCommand;
+    @Mock private LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
     @Mock private ApiClient apiClient;
+    @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
+    @Mock private SinglePlaylistSyncer singlePlaylistSyncer;
     @Mock private EventBus eventBus;
 
     private Urn localPlaylistUrn;
 
     @Before
     public void setUp() throws Exception {
+        when(singlePlaylistSyncerFactory.create(any(Urn.class))).thenReturn(null);
+        when(loadOfflinePlaylistsCommand.call(any(Void.class))).thenReturn(Collections.<Urn>emptyList());
+
         syncer = new MyPlaylistsSyncer(
                 postsSyncer,
                 loadLocalPlaylists,
@@ -73,6 +88,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
                 loadPlaylistPendingRemovalCommand,
                 removePlaylistCommand,
                 apiClient,
+                loadOfflinePlaylistsCommand,
+                singlePlaylistSyncerFactory,
                 eventBus
         );
     }
@@ -152,7 +169,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
         syncer.syncContent(URI, null);
 
-        verify(postsSyncer).call(Collections.singletonList(newPlaylist.getUrn()));
+        verify(postsSyncer).call(singletonList(newPlaylist.getUrn()));
     }
 
     @Test
@@ -182,9 +199,67 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         verifyZeroInteractions(removePlaylistCommand);
     }
 
+    @Test
+    public void syncsOfflinePlaylists() throws Exception {
+        final Urn offlinePlaylist = Urn.forPlaylist(1);
+        when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
+        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(singletonList(offlinePlaylist));
+        when(singlePlaylistSyncerFactory.create(offlinePlaylist)).thenReturn(singlePlaylistSyncer);
+        when(singlePlaylistSyncer.call()).thenReturn(true);
+
+        final ApiSyncResult apiSyncResult = syncer.syncContent(URI, null);
+
+        verify(singlePlaylistSyncer).call();
+        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.CHANGED);
+    }
+
+    @Test
+    public void sendsOfflinePlaylistSyncedEvent() throws Exception {
+        final Urn offlinePlaylist = Urn.forPlaylist(1);
+        final Urn offlinePlaylistWithNoChange = Urn.forPlaylist(2);
+        final SinglePlaylistSyncer syncWithNoChange = mock(SinglePlaylistSyncer.class);
+        when(syncWithNoChange.call()).thenReturn(false);
+
+        when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
+        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(Arrays.asList(offlinePlaylist, offlinePlaylistWithNoChange));
+        when(singlePlaylistSyncerFactory.create(offlinePlaylist)).thenReturn(singlePlaylistSyncer);
+        when(singlePlaylistSyncerFactory.create(offlinePlaylistWithNoChange)).thenReturn(syncWithNoChange);
+        when(singlePlaylistSyncer.call()).thenReturn(true);
+
+        syncer.syncContent(URI, null);
+
+        ArgumentCaptor<SyncResult> captor = ArgumentCaptor.forClass(SyncResult.class);
+
+        verify(eventBus).publish(eq(EventQueue.SYNC_RESULT), captor.capture());
+        SyncResult event = captor.getValue();
+        assertThat(event.getAction()).isEqualTo(SyncActions.SYNC_PLAYLIST);
+        assertThat(event.getUrns()).containsExactly(offlinePlaylist);
+    }
+
+    @Test
+    public void syncsOfflinePlaylistAfterException() throws Exception {
+        final Urn offlinePlaylistWithException = Urn.forPlaylist(1);
+        final Urn offlinePlaylistToSync = Urn.forPlaylist(2);
+        when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
+        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(Arrays.asList(offlinePlaylistWithException, offlinePlaylistToSync));
+
+        final SinglePlaylistSyncer syncWithException = mock(SinglePlaylistSyncer.class);
+        when(syncWithException.call()).thenThrow(new IOException("Test"));
+        when(singlePlaylistSyncerFactory.create(offlinePlaylistWithException)).thenReturn(syncWithException);
+        when(singlePlaylistSyncerFactory.create(offlinePlaylistToSync)).thenReturn(singlePlaylistSyncer);
+        when(singlePlaylistSyncer.call()).thenReturn(true);
+
+        final ApiSyncResult apiSyncResult = syncer.syncContent(URI, null);
+
+        verify(syncWithException).call();
+        verify(singlePlaylistSyncer).call();
+        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.CHANGED);
+    }
+
+
     private Urn setupPlaylistRemoval(ApiResponse status) {
         final Urn playlist = Urn.forPlaylist(123L);
-        when(loadPlaylistPendingRemovalCommand.call(null)).thenReturn(Collections.singletonList(playlist));
+        when(loadPlaylistPendingRemovalCommand.call(null)).thenReturn(singletonList(playlist));
         when(apiClient.fetchResponse(argThat(isApiRequestTo("DELETE", ApiEndpoints.PLAYLISTS_DELETE.path(playlist)))))
                 .thenReturn(status);
         return playlist;

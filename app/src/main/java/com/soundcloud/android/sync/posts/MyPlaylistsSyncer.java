@@ -12,12 +12,17 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.SyncActions;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStrategy;
+import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.PropertySet;
@@ -27,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
 import android.support.v4.util.ArrayMap;
-import android.util.Log;
 import android.util.Pair;
 
 import javax.inject.Inject;
@@ -47,6 +51,8 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     private final LoadPlaylistPendingRemovalCommand loadPlaylistPendingRemovalCommand;
     private final RemovePlaylistCommand removePlaylistCommand;
     private final ApiClient apiClient;
+    private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
+    private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final EventBus eventBus;
 
     @Inject
@@ -57,7 +63,8 @@ public class MyPlaylistsSyncer implements SyncStrategy {
                              LoadPlaylistPendingRemovalCommand loadPlaylistPendingRemovalCommand,
                              RemovePlaylistCommand removePlaylistCommand,
                              ApiClient apiClient,
-                             EventBus eventBus) {
+                             LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
+                             SinglePlaylistSyncerFactory singlePlaylistSyncerFactory, EventBus eventBus) {
         this.postsSyncer = postsSyncer;
         this.loadLocalPlaylists = loadLocalPlaylists;
         this.loadPlaylistTrackUrnsCommand = loadPlaylistTrackUrnsCommand;
@@ -65,16 +72,43 @@ public class MyPlaylistsSyncer implements SyncStrategy {
         this.loadPlaylistPendingRemovalCommand = loadPlaylistPendingRemovalCommand;
         this.removePlaylistCommand = removePlaylistCommand;
         this.apiClient = apiClient;
+        this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.eventBus = eventBus;
+        this.loadOfflinePlaylistsCommand = loadOfflinePlaylistsCommand;
     }
 
     @NotNull
     @Override
     public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         syncPendingRemovals();
-        return postsSyncer.call(pushLocalPlaylists())
+        final List<Urn> pushedPlaylists = pushLocalPlaylists();
+        final boolean postedPlaylistsChanged = postsSyncer.call(pushedPlaylists);
+        final boolean offlinePlaylistsChanged = syncOfflinePlaylists();
+        final boolean changed = postedPlaylistsChanged || offlinePlaylistsChanged;
+
+        return changed
                 ? ApiSyncResult.fromSuccessfulChange(uri)
                 : ApiSyncResult.fromSuccessWithoutChange(uri);
+    }
+
+    private boolean syncOfflinePlaylists() {
+        final List<Urn> offlinePlaylists = loadOfflinePlaylistsCommand.call(null);
+        final List<Urn> updatedOfflinePlaylists = new ArrayList<>();
+        for (Urn playlist : offlinePlaylists) {
+            try {
+                if (singlePlaylistSyncerFactory.create(playlist).call()) {
+                    updatedOfflinePlaylists.add(playlist);
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "Failed to sync offline playlist " + playlist);
+            }
+        }
+
+        final boolean hasUpdatedPlaylists = !updatedOfflinePlaylists.isEmpty();
+        if (hasUpdatedPlaylists) {
+            eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, true, updatedOfflinePlaylists));
+        }
+        return hasUpdatedPlaylists;
     }
 
     private void syncPendingRemovals() {

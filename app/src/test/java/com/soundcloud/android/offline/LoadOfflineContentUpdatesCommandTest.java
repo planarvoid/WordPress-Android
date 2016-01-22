@@ -3,7 +3,6 @@ package com.soundcloud.android.offline;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -112,7 +111,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     }
 
     private ExpectedOfflineContent createExpectedContent(DownloadRequest... downloadRequest) {
-        return new ExpectedOfflineContent(Arrays.asList(downloadRequest), Collections.<PlaylistWithTracks>emptyList(), false, Collections.<Urn>emptyList());
+        return new ExpectedOfflineContent(Arrays.asList(downloadRequest), Collections.<Urn>emptyList(), false, Collections.<Urn>emptyList());
     }
 
     private void actualPendingRemovals(Urn track, long remoteAt) {

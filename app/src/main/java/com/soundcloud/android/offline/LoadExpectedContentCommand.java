@@ -28,8 +28,8 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.PlaylistUrnMapper;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.CursorReader;
@@ -46,7 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class LoadExpectedContentCommand extends Command<List<PlaylistWithTracks>, ExpectedOfflineContent> {
+class LoadExpectedContentCommand extends Command<Void, ExpectedOfflineContent> {
     private final static String DISTINCT_KEYWORD = "DISTINCT ";
     private final static Where LIKES_SOUNDS_FILTER = filter()
             .whereEq(Likes.field(TableColumns.Likes._ID), Sounds.field(_ID))
@@ -75,8 +75,7 @@ class LoadExpectedContentCommand extends Command<List<PlaylistWithTracks>, Expec
     }
 
     @Override
-    public ExpectedOfflineContent call(List<PlaylistWithTracks> expectedOfflinePlaylists) {
-        // TODO : pass expectedOfflinePlaylists to load playlists' OfflineRequestData
+    public ExpectedOfflineContent call(Void ignored) {
         final List<OfflineRequestData> requestsData = tracksFromOfflinePlaylists();
         final List<OfflineRequestData> likedTracks = tracksFromLikes();
         requestsData.addAll(likedTracks);
@@ -85,10 +84,19 @@ class LoadExpectedContentCommand extends Command<List<PlaylistWithTracks>, Expec
 
         return new ExpectedOfflineContent(
                 transform(offlineContent, toDownloadRequest),
-                expectedOfflinePlaylists,
+                getPlaylistsWithoutTracks(),
                 isOfflineLikedTracksEnabled(),
                 transform(likedTracks, TO_URN)
         );
+    }
+
+    private Collection<Urn> getPlaylistsWithoutTracks() {
+        return database.query(Query
+                .from(OfflineContent.TABLE)
+                .leftJoin(PlaylistTracks, filter().whereEq(OfflineContent._ID, TableColumns.PlaylistTracks.PLAYLIST_ID))
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)
+                .whereNull(PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID)))
+                .toList(new PlaylistUrnMapper());
     }
 
     private List<OfflineRequestData> tracksFromLikes() {

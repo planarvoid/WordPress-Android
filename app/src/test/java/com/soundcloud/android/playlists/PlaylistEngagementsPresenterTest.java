@@ -44,7 +44,6 @@ import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
 import org.junit.Before;
@@ -68,7 +67,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
     private PlaylistEngagementsPresenter controller;
     private PlaylistWithTracks playlistWithTracks;
-    private PublishSubject<ChangeResult> publishSubject;
+    private PublishSubject<Void> publishSubject;
     private TestEventBus eventBus;
     private Observable<List<Urn>> playlistTrackurns = Observable.just(Arrays.asList(Urn.forTrack(1)));
 

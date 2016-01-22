@@ -261,10 +261,6 @@ public class SyncInitiator {
                 .doOnNext(resetSyncMisses(SyncContent.MyLikes.content.uri));
     }
 
-    public Observable<SyncResult> syncPlaylistPosts() {
-        return legacyRequestSyncObservable(SyncActions.SYNC_PLAYLISTS);
-    }
-
     public void requestTracksSync(List<PropertySet> tracks) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(SyncActions.SYNC_TRACKS)
