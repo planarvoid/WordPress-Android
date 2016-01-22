@@ -85,7 +85,7 @@ public class LoginScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return loginButton().isVisible();
+        return loginButton().isOnScreen();
     }
 
     @Override

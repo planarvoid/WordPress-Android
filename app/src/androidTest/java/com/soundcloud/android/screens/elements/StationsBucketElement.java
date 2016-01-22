@@ -37,7 +37,7 @@ public class StationsBucketElement {
     }
 
     public boolean isVisible() {
-        return wrapped.isVisible();
+        return wrapped.isOnScreen();
     }
 
     public static With WithTitle(final Han testDriver, final String title) {

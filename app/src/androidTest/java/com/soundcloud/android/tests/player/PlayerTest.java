@@ -146,7 +146,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .clickInfo();
 
         assertThat(originalTitle, is(equalTo(trackInfoScreen.getTitle())));
-        assertTrue(trackInfoScreen.getDescription().isVisible());
+        assertTrue(trackInfoScreen.getDescription().isOnScreen());
     }
 
     public void testPlayerShowTheTrackNoDescription() {
@@ -162,7 +162,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .clickInfo();
 
         assertThat(originalTitle, is(equalTo(trackInfoScreen.getTitle())));
-        assertTrue(trackInfoScreen.getNoDescription().isVisible());
+        assertTrue(trackInfoScreen.getNoDescription().isOnScreen());
     }
 
     public void testListOfCommentsCanBePaged() {

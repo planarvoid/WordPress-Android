@@ -27,8 +27,8 @@ public class PlaylistElement {
         return new PlaylistElement(testDriver, wrapped, R.id.title);
     }
 
-    public boolean isVisible() {
-        return wrapped.isVisible();
+    public boolean isOnScreen() {
+        return wrapped.isOnScreen();
     }
 
     public String getTitle() {
@@ -39,16 +39,8 @@ public class PlaylistElement {
         return getText(wrapped.findOnScreenElement(With.id(R.id.list_item_right_info)));
     }
 
-    public boolean isPromotedPlaylist() {
-        return isPromotedCardItem() || isPromotedPlaylistListItem();
-    }
-
-    private boolean isPromotedPlaylistListItem() {
-        return wrapped.findOnScreenElement(With.id(R.id.promoted_playlist)).isVisible();
-    }
-
     private boolean isPromotedCardItem() {
-        return wrapped.findOnScreenElement(With.id(R.id.promoted_item)).isVisible();
+        return wrapped.findElement(With.id(R.id.promoted_item)).hasVisibility();
     }
 
     public PlaylistDetailsScreen click() {

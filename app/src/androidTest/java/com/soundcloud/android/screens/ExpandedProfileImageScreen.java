@@ -16,7 +16,7 @@ public class ExpandedProfileImageScreen extends Screen {
         return testDriver
                 .findOnScreenElement(With.id(R.id.full_image))
                 .findOnScreenElement(With.id(R.id.image))
-                .isVisible();
+                .isOnScreen();
     }
 
     @Override

@@ -22,11 +22,8 @@ public abstract class ViewElement {
 
     public abstract List<ViewElement> findOnScreenElements(final With... withs);
 
-    public interface Criteria {
-        boolean isSatisfied(ViewElement viewElement);
+    public abstract ViewElement findElement(With with);
 
-        String description();
-    }
     public abstract ViewElement findAncestor(ViewElement root, With with);
 
     public abstract boolean isAncestorOf(ViewElement child);
@@ -47,13 +44,13 @@ public abstract class ViewElement {
 
     public abstract CharSequence getContentDescription();
 
-    public abstract boolean isVisible();
+    public abstract boolean isOnScreen();
 
-    public abstract boolean isFullyVisible();
+    public abstract boolean isFullyOnScreen();
 
     public abstract boolean hasVisibility();
 
-    public abstract boolean dragIntoFullVerticalVisibility();
+    public abstract boolean dragFullyOnScreenVertical();
 
     public abstract boolean isAnimating();
 
@@ -83,7 +80,7 @@ public abstract class ViewElement {
 
     /* package */ abstract Han getTestDriver();
 
-    abstract public List<ViewElement> getChildren();
+    abstract public List<ViewElement> getDirectChildren();
 
-    public abstract boolean isElementDisplayed(With id);
+    public abstract boolean isElementOnScreen(With id);
 }

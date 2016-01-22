@@ -45,7 +45,7 @@ public class FBWebViewScreen {
     public StreamScreen submit() {
         solo.waitForWebElement(loginField());
         solo.clickOnWebElement(loginField());
-        if (solo.findOnScreenElement(With.text("Do you want the browser to remember this password?")).isVisible()) {
+        if (solo.findOnScreenElement(With.text("Do you want the browser to remember this password?")).isOnScreen()) {
             solo.findOnScreenElement(With.text("Never")).click();
         }
         solo.clickOnWebElement(By.textContent("OK")); // confirm permissions

@@ -32,7 +32,7 @@ public class DiscoveryScreen extends Screen {
     }
 
     public boolean isDisplayingTags() {
-        return allTags().isVisible();
+        return allTags().isOnScreen();
     }
 
     public PlaylistResultsScreen clickOnTag(int index) {

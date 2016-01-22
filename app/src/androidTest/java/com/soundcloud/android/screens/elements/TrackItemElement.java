@@ -24,15 +24,15 @@ public class TrackItemElement {
     }
 
     public boolean isPromotedTrack() {
-        return wrapped.findOnScreenElement(With.id(R.id.promoted_item)).isVisible();
+        return wrapped.findElement(With.id(R.id.promoted_item)).hasVisibility();
     }
 
     private boolean hasPromoter() {
-        return wrapped.findOnScreenElement(With.id(R.id.promoter)).isVisible();
+        return wrapped.findElement(With.id(R.id.promoter)).hasVisibility();
     }
 
     public boolean hasReposter() {
-        return wrapped.findOnScreenElement(With.id(R.id.reposter)).isVisible();
+        return wrapped.findElement(With.id(R.id.reposter)).hasVisibility();
     }
 
     public VisualPlayerElement click() {

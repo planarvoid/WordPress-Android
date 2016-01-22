@@ -18,11 +18,11 @@ public abstract class Element {
     }
 
     public boolean isVisible() {
-        return getRootViewElement().isVisible();
+        return getRootViewElement().isOnScreen();
     }
 
     public boolean isFullyVisible() {
-        return getRootViewElement().isFullyVisible();
+        return getRootViewElement().isFullyOnScreen();
     }
 
     public ViewElement getRootViewElement() {

@@ -30,7 +30,7 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
                 .clickDelete()
                 .clickConfirm();
 
-        assertThat(collectionScreen.getPlaylistWithTitle(newPlaylist).isVisible(), is(false));
+        assertThat(collectionScreen.getPlaylistWithTitle(newPlaylist).isOnScreen(), is(false));
     }
 
     public void testDeletePlaylistFromPlaylistDetails() {
@@ -45,7 +45,7 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
                 .clickDelete()
                 .clickConfirm();
 
-        assertThat(collectionScreen.getPlaylistWithTitle(newPlaylist).isVisible(), is(false));
+        assertThat(collectionScreen.getPlaylistWithTitle(newPlaylist).isOnScreen(), is(false));
     }
 
     private String createNewPlaylist() {

@@ -11,7 +11,7 @@ public class IsVisible extends TypeSafeMatcher<ViewElement> {
 
     @Override
     public boolean matchesSafely(ViewElement viewElement) {
-        return viewElement.isVisible();
+        return viewElement.isOnScreen();
     }
 
     public void describeTo(Description description) {

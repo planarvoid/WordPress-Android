@@ -24,7 +24,7 @@ public class VisualPlayerElement extends Element {
     private final Condition IS_EXPANDED_CONDITION = new Condition() {
         @Override
         public boolean isSatisfied() {
-            return player().isVisible() && isExpanded();
+            return player().isOnScreen() && isExpanded();
         }
     };
     private final Condition IS_COLLAPSED_CONDITION = new Condition() {
@@ -39,19 +39,19 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isNextButtonClickable() {
-        return testDriver.isElementDisplayed(With.id(R.id.player_next)) && nextButton().isVisible() && nextButton().isEnabled();
+        return testDriver.isElementDisplayed(With.id(R.id.player_next)) && nextButton().isOnScreen() && nextButton().isEnabled();
     }
 
     public boolean isPreviousButtonClickable() {
-        return testDriver.isElementDisplayed(With.id(R.id.player_previous)) && previousButton().isVisible() && previousButton().isEnabled();
+        return testDriver.isElementDisplayed(With.id(R.id.player_previous)) && previousButton().isOnScreen() && previousButton().isEnabled();
     }
 
     public boolean isLeaveBehindVisible() {
-        return leaveBehind().isVisible();
+        return leaveBehind().isOnScreen();
     }
 
     public boolean isInterstitialVisible() {
-        return interstitial().isVisible();
+        return interstitial().isOnScreen();
     }
 
     public VisualPlayerElement waitForTheExpandedPlayerToPlayNextTrack() {
@@ -84,7 +84,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isSkippable() {
-        return testDriver.isElementDisplayed(With.id(R.id.skip_ad)) && skipAd().isVisible();
+        return testDriver.isElementDisplayed(With.id(R.id.skip_ad)) && skipAd().isOnScreen();
     }
 
     private ViewElement skipAd() {
@@ -176,18 +176,18 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isCollapsed() {
-        return footerPlayer().isVisible();
+        return footerPlayer().isOnScreen();
     }
 
     public boolean isExpandedPlayerPlaying() {
         return waitForExpandedPlayer().isExpanded()
-                && !playButton().isVisible()
-                && progress().isVisible()
+                && !playButton().isOnScreen()
+                && progress().isOnScreen()
                 && waiter.waitForElementCondition(new TextChangedCondition(progress()));
     }
 
     public boolean isExpandedPlayerPaused() {
-        return waitForExpandedPlayer().isExpanded() && playButton().isVisible();
+        return waitForExpandedPlayer().isExpanded() && playButton().isOnScreen();
     }
 
 
@@ -248,7 +248,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isAdPageVisible() {
-        return adPage().isVisible();
+        return adPage().isOnScreen();
     }
 
     public String getAdCTAButtonText() {
@@ -396,7 +396,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isCenteredAd() {
-       return centeredAdArtwork().isVisible();
+       return centeredAdArtwork().isOnScreen();
     }
 
     public String errorReason() {
@@ -412,7 +412,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isFullbleedAd() {
-        return fullBleedArtwork().isVisible();
+        return fullBleedArtwork().isOnScreen();
     }
 
     public void clickFullbleedAdArtwork() {
@@ -427,7 +427,7 @@ public class VisualPlayerElement extends Element {
 
     @Override
     public boolean isVisible() {
-        return trackContainer().isVisible();
+        return trackContainer().isOnScreen();
     }
 
     public PlayerMenuElement clickMenu() {

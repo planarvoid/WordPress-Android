@@ -41,6 +41,11 @@ public final class EmptyViewElement extends ViewElement {
         throw new ViewNotFoundException(selector);
     }
 
+    @Override
+    public ViewElement findElement(With with) {
+        throw new ViewNotFoundException(selector);
+    }
+
     public ViewElement findAncestor(ViewElement root, With with) {
         return new EmptyViewElement("Ancestor with " + with);
     }
@@ -51,7 +56,7 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
-    public boolean isElementDisplayed(With id) {
+    public boolean isElementOnScreen(With id) {
          throw new ViewNotFoundException(selector);
     }
 
@@ -76,12 +81,12 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
-    public boolean isVisible() {
+    public boolean isOnScreen() {
         return false;
     }
 
     @Override
-    public boolean isFullyVisible() {
+    public boolean isFullyOnScreen() {
         return false;
     }
 
@@ -91,7 +96,7 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
-    public boolean dragIntoFullVerticalVisibility() {
+    public boolean dragFullyOnScreenVertical() {
         return false;
     }
 
@@ -182,7 +187,7 @@ public final class EmptyViewElement extends ViewElement {
     /* package */ Han getTestDriver() { throw new ViewNotFoundException(selector); }
 
     @Override
-    public List<ViewElement> getChildren() {
+    public List<ViewElement> getDirectChildren() {
         throw new ViewNotFoundException(selector);
     }
 

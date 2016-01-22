@@ -55,7 +55,7 @@ public class TermsOfUseScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return continueButton().isVisible();
+        return continueButton().isOnScreen();
     }
 
     public LoginErrorScreen failToLogin() {

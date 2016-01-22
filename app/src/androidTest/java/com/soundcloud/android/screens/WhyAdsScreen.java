@@ -27,7 +27,7 @@ public class WhyAdsScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return testDriver.findOnScreenElement(With.text(testDriver.getString(com.soundcloud.android.R.string.ads_why_ads_dialog_message))).isVisible();
+        return testDriver.findOnScreenElement(With.text(testDriver.getString(com.soundcloud.android.R.string.ads_why_ads_dialog_message))).isOnScreen();
     }
 
     @Override

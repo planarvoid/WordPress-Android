@@ -10,7 +10,7 @@ public class DownloadImageViewElement {
     }
 
     public boolean isVisible() {
-        return wrappedElement.isVisible();
+        return wrappedElement.isOnScreen();
     }
 
     public boolean isUnavailable() {

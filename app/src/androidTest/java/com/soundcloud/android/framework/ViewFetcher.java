@@ -47,18 +47,26 @@ public class ViewFetcher {
         return true;
     }
 
-    public ViewElement findOnScreenElement(final With with) {
+    public ViewElement findElement(final With with) {
         ViewElement viewElement = elementWaiter.waitForElement(with);
-        if (!viewElement.isVisible() && waitForBusyUi()) {
+        if (!(viewElement instanceof EmptyViewElement) && waitForBusyUi()) {
             return elementWaiter.waitForElement(with);
         }
         return viewElement;
     }
 
+    public ViewElement findOnScreenElement(final With with) {
+        ViewElement viewElement = elementWaiter.waitForOnScreenElement(with);
+        if (!viewElement.isOnScreen() && waitForBusyUi()) {
+            return elementWaiter.waitForOnScreenElement(with);
+        }
+        return viewElement;
+    }
+
     public List<ViewElement> findOnScreenElements(With with) {
-        List<ViewElement> viewElements = elementWaiter.waitForElements(with);
-        if (!viewElements.get(0).isVisible() && waitForBusyUi()) {
-            return elementWaiter.waitForElements(with);
+        List<ViewElement> viewElements = elementWaiter.waitForOnScreenElements(with);
+        if (!viewElements.get(0).isOnScreen() && waitForBusyUi()) {
+            return elementWaiter.waitForOnScreenElements(with);
         }
         return viewElements;
     }
@@ -85,7 +93,7 @@ public class ViewFetcher {
         }
 
         List<ViewElement> results = Lists.newArrayList(filter(
-                getVisibleElements(with),
+                getOnScreenElements(with),
                 new Predicate<ViewElement>() {
                     @Override
                     public boolean apply(ViewElement viewElement) {
@@ -142,17 +150,13 @@ public class ViewFetcher {
         return getDirectChildViews().get(index);
     }
 
-    public List<ViewElement> getChildren() {
-        return getDirectChildViews();
-    }
-
-    public boolean isElementDisplayed(With matcher) {
+    public boolean isElementOnScreen(With matcher) {
         testDriver.sleep(500);
-        return getVisibleElement(matcher).isVisible();
+        return getOnScreenElement(matcher).isOnScreen();
     }
 
-    private List<ViewElement> getDirectChildViews() {
-        return Lists.newArrayList(filter(getAllVisibleElements(), new Predicate<ViewElement>() {
+    public List<ViewElement> getDirectChildViews() {
+        return Lists.newArrayList(filter(getAllOnScreenElements(), new Predicate<ViewElement>() {
             @Override
             public boolean apply(ViewElement viewElement) {
                 return viewElement.getParent().equals(parentView);
@@ -160,8 +164,8 @@ public class ViewFetcher {
         }));
     }
 
-    private ViewElement getVisibleElement(With matcher) {
-        List<ViewElement> viewElements = Lists.newArrayList(filter(getAllVisibleElements(), matcher));
+    private ViewElement getOnScreenElement(With matcher) {
+        List<ViewElement> viewElements = Lists.newArrayList(filter(getAllOnScreenElements(), matcher));
         if (viewElements.size() > 0) {
             return viewElements.get(0);
         }
@@ -169,8 +173,8 @@ public class ViewFetcher {
         return new EmptyViewElement(matcher.getSelector());
     }
 
-    private List<ViewElement> getVisibleElements(With matcher) {
-        List<ViewElement> viewElements = Lists.newArrayList(filter(getAllVisibleElements(), matcher));
+    private List<ViewElement> getOnScreenElements(With matcher) {
+        List<ViewElement> viewElements = Lists.newArrayList(filter(getAllOnScreenElements(), matcher));
         Log.i(TAG, String.format("SELECTOR (%s), VIEWS FOUND: %d", matcher.getSelector(), viewElements.size()));
         if (viewElements.size() > 0) {
             return viewElements;
@@ -178,15 +182,15 @@ public class ViewFetcher {
         return emptyViewElementList(failedToFindElementsMessage(matcher));
     }
 
-    private List<ViewElement> getAllVisibleElements() {
-        return Lists.newArrayList(filter(getAllViewsFromScreen(), new Predicate<ViewElement>() {
+    private List<ViewElement> getAllOnScreenElements() {
+        return Lists.newArrayList(filter(getAllChildViews(), new Predicate<ViewElement>() {
             public boolean apply(ViewElement viewElement) {
-                return viewElement.isVisible();
+                return viewElement.isOnScreen();
             }
         }));
     }
 
-    private List<ViewElement> getAllViewsFromScreen() {
+    private List<ViewElement> getAllChildViews() {
         final List<View> views = testDriver.getViews(parentView);
 
         if (views == null) {
@@ -205,20 +209,29 @@ public class ViewFetcher {
         private static final int ELEMENT_TIMEOUT = 2 * 1000;
         private static final int POLL_INTERVAL = 100;
 
-        public List<ViewElement> waitForElements(final With with) {
-            return waitForMany(with.getSelector(), new Callable<List<ViewElement>>() {
-                @Override
-                public List<ViewElement> call() throws Exception {
-                    return Lists.newArrayList(filter(getAllVisibleElements(), with));
-                }
-            });
-        }
-
         public ViewElement waitForElement(final With with) {
             return waitForOne(with.getSelector(), new Callable<List<ViewElement>>() {
                 @Override
                 public List<ViewElement> call() throws Exception {
-                    return Lists.newArrayList(filter(getAllVisibleElements(), with));
+                    return Lists.newArrayList(filter(getAllChildViews(), with));
+                }
+            });
+        }
+
+        public List<ViewElement> waitForOnScreenElements(final With with) {
+            return waitForMany(with.getSelector(), new Callable<List<ViewElement>>() {
+                @Override
+                public List<ViewElement> call() throws Exception {
+                    return Lists.newArrayList(filter(getAllOnScreenElements(), with));
+                }
+            });
+        }
+
+        public ViewElement waitForOnScreenElement(final With with) {
+            return waitForOne(with.getSelector(), new Callable<List<ViewElement>>() {
+                @Override
+                public List<ViewElement> call() throws Exception {
+                    return Lists.newArrayList(filter(getAllOnScreenElements(), with));
                 }
             });
         }
@@ -255,8 +268,8 @@ public class ViewFetcher {
 
         @Override
         public boolean isSatisfied() {
-            Log.i("BUSYUI", String.format("Waiting for Busy UI (Is busy: %b)", isElementDisplayed(viewMatcher)));
-            return !isElementDisplayed(viewMatcher);
+            Log.i("BUSYUI", String.format("Waiting for Busy UI (Is busy: %b)", isElementOnScreen(viewMatcher)));
+            return !isElementOnScreen(viewMatcher);
         }
     }
 }

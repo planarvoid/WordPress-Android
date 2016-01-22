@@ -16,7 +16,7 @@ public class SignupEmailTakenScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return solo.findOnScreenElement(With.text(solo.getString(com.soundcloud.android.R.string.authentication_email_taken_message))).isVisible();
+        return solo.findOnScreenElement(With.text(solo.getString(com.soundcloud.android.R.string.authentication_email_taken_message))).isOnScreen();
     }
 
     @Override

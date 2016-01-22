@@ -35,7 +35,7 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testConnectionErrorAndRetryInPosts() {
-        assertTrue(profileScreen.emptyConnectionErrorMessage().isVisible());
+        assertTrue(profileScreen.emptyConnectionErrorMessage().isOnScreen());
 
         networkManagerClient.switchWifiOn();
         profileScreen.pullToRefresh();

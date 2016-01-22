@@ -126,7 +126,7 @@ public class Waiter {
         List<ViewElement> retryButtons = solo.findOnScreenElements(With.id(R.id.ak_emptyview_btn_retry));
         if (!retryButtons.isEmpty())   {
             ViewElement button = retryButtons.get(0);
-            if (button.isVisible()) {
+            if (button.isOnScreen()) {
                 button.click();
                 return true;
             }
@@ -189,7 +189,7 @@ public class Waiter {
         return solo.waitForCondition(new Condition() {
             @Override
             public boolean isSatisfied() {
-                return solo.findOnScreenElement(matcher).isVisible();
+                return solo.findOnScreenElement(matcher).isOnScreen();
             }
         }, 15000);
     }
@@ -233,7 +233,7 @@ public class Waiter {
         public boolean isSatisfied() {
             ViewElement view = solo.findOnScreenElement(matcher);
             Log.i(TAG, "ViewID searched");
-            return (view.isVisible());
+            return (view.isOnScreen());
         }
     }
 
@@ -415,7 +415,7 @@ public class Waiter {
 
         @Override
         public boolean isSatisfied() {
-            return view.isVisible();
+            return view.isOnScreen();
         }
     }
 }

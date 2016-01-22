@@ -29,7 +29,7 @@ public class StreamCardElement {
     }
 
     public boolean hasReposter() {
-        return wrapped.isElementDisplayed(With.id(R.id.reposter));
+        return wrapped.isElementOnScreen(With.id(R.id.reposter));
     }
 
     public boolean isReposted() {
@@ -68,15 +68,15 @@ public class StreamCardElement {
     }
 
     public boolean isPromotedTrack() {
-        return wrapped.isElementDisplayed(With.id(R.id.promoted_item));
+        return wrapped.isElementOnScreen(With.id(R.id.promoted_item));
     }
 
     public boolean isPreview() {
-        return wrapped.isElementDisplayed(With.id(R.id.preview_indicator));
+        return wrapped.isElementOnScreen(With.id(R.id.preview_indicator));
     }
 
     public boolean hasPromoter() {
-        return wrapped.findOnScreenElement(With.id(R.id.promoter)).isVisible();
+        return wrapped.findOnScreenElement(With.id(R.id.promoter)).isOnScreen();
     }
 
     public VisualPlayerElement click() {

@@ -39,7 +39,7 @@ public class HomeScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return bottomBar().isVisible();
+        return bottomBar().isOnScreen();
     }
 
     @Override

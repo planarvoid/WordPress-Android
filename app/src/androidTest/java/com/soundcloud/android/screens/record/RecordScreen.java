@@ -59,7 +59,7 @@ public class RecordScreen extends Screen {
     }
 
     public boolean hasNextButton() {
-        return nextButton().isVisible();
+        return nextButton().isOnScreen();
     }
 
     public ViewElement getNextButton() {
@@ -113,7 +113,7 @@ public class RecordScreen extends Screen {
     }
 
     private boolean hasRecording() {
-        return deleteButton().isVisible();
+        return deleteButton().isOnScreen();
     }
 
     private TextElement chronometer() {
@@ -143,6 +143,6 @@ public class RecordScreen extends Screen {
     }
 
     public boolean hasRecordedTrack() {
-        return deleteButton().isVisible();
+        return deleteButton().isOnScreen();
     }
 }

@@ -32,7 +32,7 @@ public class Tabs {
     }
 
     private List<ViewElement> tabs() {
-        return container().getChildren().get(0).getChildren();
+        return container().getDirectChildren().get(0).getDirectChildren();
     }
 
     private ViewElement container() {

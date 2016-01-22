@@ -52,7 +52,7 @@ public class OfflineTrackItemOverflowMenuTest extends ActivityTest<MainActivity>
                 clickCreateNewPlaylist();
 
         assertThat(createPlaylistScreen, is(visible()));
-        assertThat(createPlaylistScreen.offlineCheck().isVisible(), is(true));
+        assertThat(createPlaylistScreen.offlineCheck().isOnScreen(), is(true));
     }
 
     private void resetOfflineSyncState(Context context) {

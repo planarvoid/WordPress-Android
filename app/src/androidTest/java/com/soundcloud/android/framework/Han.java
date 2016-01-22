@@ -108,7 +108,7 @@ public class Han {
             scrollDown();
             viewElement = findOnScreenElement(with);
         }
-        viewElement.dragIntoFullVerticalVisibility();
+        viewElement.dragFullyOnScreenVertical();
         return viewElement;
     }
 
@@ -224,7 +224,7 @@ public class Han {
     }
 
     public boolean isElementDisplayed(With matcher) {
-        return viewFetcher.isElementDisplayed(matcher);
+        return viewFetcher.isElementOnScreen(matcher);
     }
 
     private void swipeHorizontal(int side) {

@@ -61,6 +61,11 @@ public class DefaultViewElement extends ViewElement {
         return viewFetcher.findOnScreenElements(withs);
     }
 
+    @Override
+    public ViewElement findElement(With with) {
+        return viewFetcher.findElement(with);
+    }
+
     public ViewElement findAncestor(ViewElement root, With with) {
         return viewFetcher.findAncestor(root.getView(), with);
     }
@@ -93,8 +98,8 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    public boolean isElementDisplayed(With matcher) {
-        return viewFetcher.isElementDisplayed(matcher);
+    public boolean isElementOnScreen(With matcher) {
+        return viewFetcher.isElementOnScreen(matcher);
     }
 
     @Override
@@ -114,9 +119,9 @@ public class DefaultViewElement extends ViewElement {
 
     @Override
     public void click() {
-        if (!isVisible()) {
+        if (!isOnScreen()) {
             waiter.waitForElementToBeVisible(this);
-            if (!isVisible()) {
+            if (!isOnScreen()) {
                 throw new ViewNotVisibleException();
             }
         }
@@ -141,7 +146,7 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    public boolean dragIntoFullVerticalVisibility() {
+    public boolean dragFullyOnScreenVertical() {
         if (!viewCanFitVerticallyOnScreen()) {
             return false;
         }
@@ -149,7 +154,7 @@ public class DefaultViewElement extends ViewElement {
         Rect visibleRect = getVisibleRect();
         Rect viewRect = getRect();
 
-        if (isFullyVisible(visibleRect, viewRect)) {
+        if (isFullyOnScreen(visibleRect, viewRect)) {
             return true;
         }
 
@@ -182,7 +187,7 @@ public class DefaultViewElement extends ViewElement {
 
     private int getActionBarHeight() {
         final TypedArray styledAttributes = testDriver.getTheme().obtainStyledAttributes(
-                new int[] { android.R.attr.actionBarSize });
+                new int[]{android.R.attr.actionBarSize});
         int actionBarHeight = (int) styledAttributes.getDimension(0, 0);
         styledAttributes.recycle();
         return actionBarHeight;
@@ -208,18 +213,14 @@ public class DefaultViewElement extends ViewElement {
         return 0;
     }
 
-    private boolean isFullyVisible(Rect visibleRect, Rect viewRect) {
+    private boolean isFullyOnScreen(Rect visibleRect, Rect viewRect) {
         Log.i("CLICKEVENT", String.format("View rect: %s", viewRect.flattenToString()));
         return visibleRect.contains(viewRect.left, viewRect.top, viewRect.right, viewRect.bottom);
     }
 
     @Override
-    public boolean isFullyVisible() {
-        return isFullyVisible(getVisibleRect(), getRect());
-    }
-
-    private Rect getScreenRect() {
-        return new Rect(0, 0, getScreenWidth(), getScreenHeight());
+    public boolean isFullyOnScreen() {
+        return isFullyOnScreen(getVisibleRect(), getRect());
     }
 
     private Rect getRect() {
@@ -232,8 +233,8 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    public boolean isVisible() {
-        return !getVisibleRect().isEmpty() && isShown() && hasVisibility() && hasDimensions() && isOnScreen();
+    public boolean isOnScreen() {
+        return isShown() && hasVisibility() && isPartiallyOnScreen();
     }
 
     @Override
@@ -302,10 +303,6 @@ public class DefaultViewElement extends ViewElement {
         return (DownloadImageView) view;
     }
 
-    private boolean hasDimensions() {
-        return getHeight() > 0 && getWidth() > 0;
-    }
-
     @Override
     public int getHeight() {
         return view.getHeight();
@@ -332,8 +329,8 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    public List<ViewElement> getChildren() {
-        return viewFetcher.getChildren();
+    public List<ViewElement> getDirectChildren() {
+        return viewFetcher.getDirectChildViews();
     }
 
     @Override
@@ -345,8 +342,8 @@ public class DefaultViewElement extends ViewElement {
         return view.isShown();
     }
 
-    private boolean isOnScreen() {
-        return getRect().intersect(getScreenRect());
+    private boolean isPartiallyOnScreen() {
+        return !getVisibleRect().isEmpty();
     }
 
     private int[] getLocation() {

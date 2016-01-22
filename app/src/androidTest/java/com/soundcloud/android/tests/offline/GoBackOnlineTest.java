@@ -67,7 +67,7 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
                 .clickOverflow()
                 .getMakeAvailableOfflineItem();
 
-        assertThat("Save offline menu element should be visible", makeAvailableOfflineItem.isVisible());
+        assertThat("Save offline menu element should be visible", makeAvailableOfflineItem.isOnScreen());
     }
 
     public void testDisplaysGoBackOnline() {

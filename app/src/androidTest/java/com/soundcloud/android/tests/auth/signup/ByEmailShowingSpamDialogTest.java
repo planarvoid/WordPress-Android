@@ -24,7 +24,7 @@ public class ByEmailShowingSpamDialogTest extends SignUpTest {
 
         assertTrue(signUpBasicsScreen.isDoneButtonEnabled());
         signUpBasicsScreen.signup();
-        assertTrue(signUpBasicsScreen.acceptTermsButton().isVisible());
+        assertTrue(signUpBasicsScreen.acceptTermsButton().isOnScreen());
         SignUpSpamDialogElement signUpSpamDialogElement = signUpBasicsScreen.clickAcceptTermsOpensSpamDialog();
         assertTrue(signUpSpamDialogElement.isVisible());
         assertTrue(signUpSpamDialogElement.clickCancelButton().isVisible());

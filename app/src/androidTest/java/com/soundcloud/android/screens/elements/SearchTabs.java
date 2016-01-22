@@ -37,6 +37,6 @@ public class SearchTabs extends Tabs {
 
     @Override
     public boolean isVisible() {
-        return testDriver.findOnScreenElement(With.id(R.id.tab_indicator)).isVisible();
+        return testDriver.findOnScreenElement(With.id(R.id.tab_indicator)).isOnScreen();
     }
 }

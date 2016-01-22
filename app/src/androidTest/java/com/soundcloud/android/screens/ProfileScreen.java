@@ -213,7 +213,7 @@ public class ProfileScreen extends Screen {
     }
 
     public boolean isFollowButtonVisible() {
-        return followButton().isVisible();
+        return followButton().isOnScreen();
     }
 
     public boolean areCurrentlyFollowing() {

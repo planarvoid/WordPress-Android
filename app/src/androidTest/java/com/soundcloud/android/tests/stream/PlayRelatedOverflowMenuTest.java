@@ -43,7 +43,7 @@ public class PlayRelatedOverflowMenuTest extends ActivityTest<LauncherActivity> 
                 clickCreateNewPlaylist();
 
         assertThat(createPlaylistScreen, is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible()));
-        assertThat(createPlaylistScreen.offlineCheck().isVisible(), is(false));
+        assertThat(createPlaylistScreen.offlineCheck().isOnScreen(), is(false));
     }
 
     public void testPlayRelatedTracks() {

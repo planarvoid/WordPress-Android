@@ -39,7 +39,7 @@ public class UpgradeScreen extends Screen {
     }
 
     public boolean isDisplayingSuccess() {
-        return testDriver.findOnScreenElement(With.id(R.id.success_header)).isVisible();
+        return testDriver.findOnScreenElement(With.id(R.id.success_header)).isOnScreen();
     }
 
 }

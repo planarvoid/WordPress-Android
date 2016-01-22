@@ -17,7 +17,7 @@ public class SyncYourLikesScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return testDriver.findOnScreenElement(text(testDriver.getString(R.string.offline_likes_dialog_title))).isVisible();
+        return testDriver.findOnScreenElement(text(testDriver.getString(R.string.offline_likes_dialog_title))).isOnScreen();
     }
 
     public TrackLikesScreen clickKeepLikesSynced() {
