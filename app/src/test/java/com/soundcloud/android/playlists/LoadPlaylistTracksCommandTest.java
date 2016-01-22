@@ -102,7 +102,9 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
     }
 
     private PropertySet expectedHighTierMonetizableTrackFor(ApiTrack track) {
-        return fromApiTrack(track).put(TrackProperty.SUB_HIGH_TIER, true);
+        return fromApiTrack(track)
+                .put(TrackProperty.SUB_MID_TIER, false)
+                .put(TrackProperty.SUB_HIGH_TIER, true);
     }
 
     private PropertySet fromApiTrack(ApiTrack apiTrack) {
@@ -116,6 +118,9 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
                 TrackProperty.IS_PRIVATE.bind(apiTrack.isPrivate()),
                 TrackProperty.CREATOR_NAME.bind(apiTrack.getUserName()),
                 TrackProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
+                TrackProperty.BLOCKED.bind(apiTrack.isBlocked()),
+                TrackProperty.SNIPPED.bind(apiTrack.isSnipped()),
+                TrackProperty.SUB_MID_TIER.bind(apiTrack.isSubMidTier().get()),
                 TrackProperty.SUB_HIGH_TIER.bind(apiTrack.isSubHighTier().get()),
                 OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE));
     }

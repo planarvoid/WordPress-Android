@@ -44,6 +44,9 @@ public class LoadLikedTracksCommand extends Command<Void, Collection<PropertySet
                         Tables.TrackDownloads.DOWNLOADED_AT,
                         Tables.TrackDownloads.UNAVAILABLE_AT,
                         Tables.TrackDownloads.REMOVED_AT,
+                        TableColumns.TrackPolicies.BLOCKED,
+                        TableColumns.TrackPolicies.SNIPPED,
+                        TableColumns.TrackPolicies.SUB_MID_TIER,
                         TableColumns.TrackPolicies.SUB_HIGH_TIER,
                         field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
                         Tables.OfflineContent._ID)

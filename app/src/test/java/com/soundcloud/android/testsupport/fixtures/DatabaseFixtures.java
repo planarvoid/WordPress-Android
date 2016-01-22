@@ -626,8 +626,10 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackPolicies.TRACK_ID, urn.getNumericId());
         cv.put(TableColumns.TrackPolicies.POLICY, "BLOCK");
+        cv.put(TableColumns.TrackPolicies.BLOCKED, true);
         cv.put(TableColumns.TrackPolicies.MONETIZABLE, false);
         cv.put(TableColumns.TrackPolicies.SYNCABLE, false);
+        cv.put(TableColumns.TrackPolicies.SUB_MID_TIER, true);
         cv.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, true);
         cv.put(TableColumns.TrackPolicies.SYNCABLE, false);
         cv.put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
