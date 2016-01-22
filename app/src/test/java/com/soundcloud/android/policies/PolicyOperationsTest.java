@@ -4,10 +4,13 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static rx.Observable.just;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestStorageResults;
+import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +64,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Test
     public void updatePoliciesStoresPolicies() {
         Collection<ApiPolicyInfo> policies = Collections.singletonList(apiPolicyInfo);
-        when(fetchPoliciesCommand.toObservable()).thenReturn(Observable.just(policies));
+        when(fetchPoliciesCommand.toObservable()).thenReturn(just(policies));
 
         operations.updatePolicies(tracks).subscribe();
 
@@ -70,7 +73,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
     @Test
     public void filtersMonetizableTracks() {
-        when(fetchPoliciesCommand.toObservable()).thenReturn(Observable.just(createNotMonetizablePolicy(TRACK_URN2)));
+        when(fetchPoliciesCommand.toObservable()).thenReturn(just(createNotMonetizablePolicy(TRACK_URN2)));
 
         operations.filterMonetizableTracks(newArrayList(TRACK_URN, TRACK_URN2)).subscribe(observer);
 
@@ -85,7 +88,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
                 ModelFixtures.apiPolicyInfo(TRACK_URN2, false, ApiPolicyInfo.ALLOW, false)
         );
 
-        when(fetchPoliciesCommand.toObservable()).thenReturn(Observable.just((policies)));
+        when(fetchPoliciesCommand.toObservable()).thenReturn(just((policies)));
 
         operations.filterMonetizableTracks(newArrayList(TRACK_URN, TRACK_URN2)).subscribe(observer);
 
@@ -122,6 +125,51 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
         List<Urn> result = operations.updateTrackPolicies();
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void updatedTrackPoliciesFetchesAndStoresPoliciesForLoadedTracks() throws Exception {
+        List<Urn> tracks = Arrays.asList(TRACK_URN, TRACK_URN2);
+        Collection<ApiPolicyInfo> policies = Arrays.asList(
+                ModelFixtures.apiPolicyInfo(TRACK_URN, true, ApiPolicyInfo.MONETIZE, false),
+                ModelFixtures.apiPolicyInfo(TRACK_URN2, false, ApiPolicyInfo.ALLOW, false)
+        );
+        when(loadTracksForPolicyUpdateCommand.toObservable(null)).thenReturn(just(tracks));
+        when(fetchPoliciesCommand.toObservable()).thenReturn(just(policies));
+        when(storePoliciesCommand.call(policies)).thenReturn(TestStorageResults.successfulTransaction());
+
+        operations.updatedTrackPolicies().subscribe(observer);
+        observer.assertValue(tracks);
+        assertThat(fetchPoliciesCommand.getInput()).containsAll(tracks);
+
+        verify(storePoliciesCommand).call(policies);
+    }
+
+    @Test
+    public void updatedTrackPoliciesForwardsErrorsFromPolicyFetch() throws Exception {
+        final RuntimeException exception = new RuntimeException();
+        when(loadTracksForPolicyUpdateCommand.toObservable(null)).thenReturn(Observable.<List<Urn>>error(exception));
+
+        operations.updatedTrackPolicies().subscribe(observer);
+
+        observer.assertError(exception);
+    }
+
+    @Test
+    public void updatedTrackPoliciesForwardsErrorsFromStorageCall() throws Exception {
+        List<Urn> tracks = Arrays.asList(TRACK_URN, TRACK_URN2);
+        Collection<ApiPolicyInfo> policies = Arrays.asList(
+                ModelFixtures.apiPolicyInfo(TRACK_URN, true, ApiPolicyInfo.MONETIZE, false),
+                ModelFixtures.apiPolicyInfo(TRACK_URN2, false, ApiPolicyInfo.ALLOW, false)
+        );
+        when(loadTracksForPolicyUpdateCommand.toObservable(null)).thenReturn(just(tracks));
+        when(fetchPoliciesCommand.toObservable()).thenReturn(just(policies));
+        final PropellerWriteException transactionError = TestStorageResults.failedTransaction().getFailure();
+        when(storePoliciesCommand.call(policies)).thenThrow(transactionError);
+
+        operations.updatedTrackPolicies().subscribe(observer);
+
+        observer.assertError(transactionError);
     }
 
     private Collection<ApiPolicyInfo> createNotMonetizablePolicy(Urn trackUrn) {

@@ -35,6 +35,7 @@ import rx.schedulers.TestScheduler;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigurationOperationsTest extends AndroidUnitTest {
@@ -83,29 +84,26 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateUntilPlanChangedReturnsConfiguration() {
-        final Configuration noPlan = getNoPlanConfiguration();
-        final Configuration withPlan = getAuthorizedConfiguration();
-        when(featureOperations.getPlan()).thenReturn(noPlan.plan.id);
+    public void updateUntilPlanChangedReturnsExpectedConfigurationOnFirstAttempt() {
+        final Configuration highTier = getHighTierConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
-                .thenReturn(Observable.just(withPlan));
+                .thenReturn(Observable.just(highTier));
 
-        operations.updateUntilPlanChanged().subscribe(subscriber);
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
 
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
-        assertThat(subscriber.getOnNextEvents().get(0)).isSameAs(withPlan);
+        assertThat(subscriber.getOnNextEvents().get(0)).isSameAs(highTier);
         subscriber.assertCompleted();
     }
 
     @Test
-    public void updateUntilPlanChangedStopsPollingWhenPlanIsReturned() {
+    public void updateUntilPlanChangedStopsPollingWhenExpectedPlanIsReturned() {
         final Configuration noPlan = getNoPlanConfiguration();
-        final Configuration withPlan = getAuthorizedConfiguration();
-        when(featureOperations.getPlan()).thenReturn(noPlan.plan.id);
+        final Configuration withPlan = getHighTierConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(Observable.just(noPlan), Observable.just(withPlan));
 
-        operations.updateUntilPlanChanged().subscribe(subscriber);
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
 
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
         subscriber.assertNoValues();
@@ -117,16 +115,14 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateUntilPlanChangedStopsPollingAfterThreeAttempts() {
+    public void updateUntilPlanChangedFailsAfterThreeAttempts() {
         final Configuration noPlan = getNoPlanConfiguration();
-        when(featureOperations.getPlan()).thenReturn(noPlan.plan.id);
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
 
-        operations.updateUntilPlanChanged().subscribe(subscriber);
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
 
         scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
-        subscriber.assertNoValues();
-        subscriber.assertCompleted();
+        subscriber.assertError(NoSuchElementException.class);
     }
 
     @Test
@@ -140,7 +136,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void registerDeviceGetsConfigurationAndReturnsDeviceManagement() throws ApiRequestException, IOException, ApiMapperException {
-        Token token = new Token("accessToken","refreshToken");
+        Token token = new Token("accessToken", "refreshToken");
         when(apiClient.fetchMappedResponse(
                 argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
                         .withQueryParam("experiment_layers", "android_listening", "ios")
@@ -152,7 +148,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void registerDeviceStoresConfiguration() throws Exception {
-        Token token = new Token("accessToken","refreshToken");
+        Token token = new Token("accessToken", "refreshToken");
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
                 .withQueryParam("experiment_layers", "android_listening", "ios")
                 .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")), eq(Configuration.class))).thenReturn(configuration);
@@ -166,7 +162,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void forceRegisterReturnsResultOfUnregisterPost() throws Exception {
-        Token token = new Token("accessToken","refreshToken");
+        Token token = new Token("accessToken", "refreshToken");
         String deviceId = "device-id";
 
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CONFIGURATION.path())
@@ -179,7 +175,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void saveConfigurationStoresFeaturesPlanAndExperiments() {
-        final Configuration authorized = getAuthorizedConfiguration();
+        final Configuration authorized = getHighTierConfiguration();
 
         operations.saveConfiguration(authorized);
 
@@ -189,12 +185,12 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     private Configuration getNoPlanConfiguration() {
-        return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan("none", null),
+        return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan(Plan.NONE, null),
                 ConfigurationBlueprint.createLayers(), new DeviceManagement(true, null));
     }
 
-    private Configuration getAuthorizedConfiguration() {
-        return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan("mid_tier", null),
+    private Configuration getHighTierConfiguration() {
+        return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan(Plan.HIGH_TIER, null),
                 ConfigurationBlueprint.createLayers(), new DeviceManagement(true, null));
     }
 

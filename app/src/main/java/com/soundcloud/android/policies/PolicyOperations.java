@@ -1,5 +1,7 @@
 package com.soundcloud.android.policies;
 
+import static com.soundcloud.android.rx.RxUtils.returning;
+
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
@@ -56,7 +58,7 @@ public class PolicyOperations {
         this.policyStorage = policyStorage;
     }
 
-    public Observable<Map<Urn,Boolean>> blockedStati(List urns) {
+    public Observable<Map<Urn, Boolean>> blockedStati(List urns) {
         return policyStorage.loadBlockedStati(urns).subscribeOn(scheduler);
     }
 
@@ -83,6 +85,17 @@ public class PolicyOperations {
             Log.e(DailyUpdateService.TAG, "Failed to update policies", ex);
             return Collections.emptyList();
         }
+    }
+
+    public Observable<List<Urn>> updatedTrackPolicies() {
+        return loadTracksForPolicyUpdateCommand.toObservable(null)
+                .flatMap(new Func1<List<Urn>, Observable<List<Urn>>>() {
+                    @Override
+                    public Observable<List<Urn>> call(List<Urn> urns) {
+                        return fetchAndStorePolicies(urns).map(returning(urns));
+                    }
+                })
+                .subscribeOn(scheduler);
     }
 
     public Observable<Long> getMostRecentPolicyUpdateTimestamp() {

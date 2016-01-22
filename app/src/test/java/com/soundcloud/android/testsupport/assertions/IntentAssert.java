@@ -31,6 +31,9 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
     public IntentAssert containsExtra(String key, Object value) {
         Preconditions.checkNotNull(key);
         isNotNull();
+        assertThat(actual.hasExtra(key))
+                .overridingErrorMessage(errorMessage("Intent does not contain extra for key: " + key))
+                .isTrue();
         assertThat(actual.getExtras().get(key))
                 .overridingErrorMessage(errorMessage("Intent does not contain extra. Key: " + key + ", value: " + value))
                 .isEqualTo(value);
@@ -40,6 +43,9 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
     public IntentAssert intentExtraIsNotNull(String key) {
         Preconditions.checkNotNull(key);
         isNotNull();
+        assertThat(actual.hasExtra(key))
+                .overridingErrorMessage(errorMessage("Intent does not contain extra for key: " + key))
+                .isTrue();
         assertThat(actual.getExtras().get(key))
                 .overridingErrorMessage(errorMessage("Intent extra key: " + key + "is Null"))
                 .isNotNull();

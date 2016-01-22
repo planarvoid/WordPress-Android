@@ -330,6 +330,21 @@ public class NavigatorTest extends AndroidUnitTest {
                 .opensActivity(MainActivity.class);
     }
 
+    @Test
+    public void shouldOpenPendingActivityFromIntentExtrasWithPendingActivityExtras() {
+        Bundle extras = new Bundle();
+        Bundle pendingExtras = new Bundle();
+        pendingExtras.putString("key", "value");
+        extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, MainActivity.class.getCanonicalName());
+        extras.putBundle(Navigator.EXTRA_PENDING_ACTIVITY_EXTRAS, pendingExtras);
+
+        navigator.openPendingActivity(activityContext, extras);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsExtra("key", "value")
+                .opensActivity(MainActivity.class);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowIfOpenPendingActivityCannotBeResolved() {
         Bundle extras = new Bundle();

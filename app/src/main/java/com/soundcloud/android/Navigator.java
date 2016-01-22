@@ -33,6 +33,7 @@ import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
+import com.soundcloud.android.upgrade.UpgradeProgressActivity;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
@@ -55,6 +56,8 @@ public class Navigator {
 
     public final static String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_PENDING_ACTIVITY = "restart.pending_activity";
+    public static final String EXTRA_PENDING_ACTIVITY_EXTRAS = "restart.pending_activity_extras";
+    public static final String EXTRA_SHOW_OFFLINE_ONBOARDING = "restart.show_offline_onboarding";
 
     public void openHome(Context context) {
         context.startActivity(createHomeIntent(context));
@@ -336,18 +339,28 @@ public class Navigator {
         activityContext.startActivity(new Intent(activityContext, target));
     }
 
-    public void restartApp(Activity context) {
-        restartAppAndNavigateTo(context, null);
+    public void restartForAccountUpgrade(Activity context, boolean showOfflineOnboarding) {
+        Bundle options = new Bundle();
+        options.putBoolean(EXTRA_SHOW_OFFLINE_ONBOARDING, showOfflineOnboarding);
+        restartAppAndNavigateTo(context, UpgradeProgressActivity.class, options);
     }
 
-    public void restartAppAndNavigateTo(Activity context, @Nullable Class<? extends Activity> nextActivity) {
+    public void restartApp(Activity context) {
+        restartAppAndNavigateTo(context, null, null);
+    }
+
+    private void restartAppAndNavigateTo(Activity context,
+                                         @Nullable Class<? extends Activity> nextActivity,
+                                         @Nullable Bundle nextActivityBundle) {
         Intent launchActivity = new Intent(context, LauncherActivity.class);
+        launchActivity.addCategory(Intent.CATEGORY_DEFAULT);
+        launchActivity.addCategory(Intent.CATEGORY_LAUNCHER);
+        launchActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (nextActivity != null) {
             launchActivity.putExtra(EXTRA_PENDING_ACTIVITY, nextActivity.getCanonicalName());
+            launchActivity.putExtra(EXTRA_PENDING_ACTIVITY_EXTRAS, nextActivityBundle);
         }
-        launchActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(launchActivity);
-        context.finish();
         System.exit(0);
     }
 
@@ -355,7 +368,11 @@ public class Navigator {
         final String activityName = extras.getString(Navigator.EXTRA_PENDING_ACTIVITY);
         try {
             final Class<?> activityClass = Class.forName(activityName);
-            context.startActivity(new Intent(context, activityClass));
+            final Intent intent = new Intent(context, activityClass);
+            if (extras.containsKey(Navigator.EXTRA_PENDING_ACTIVITY_EXTRAS)) {
+                intent.putExtras(extras.getBundle(Navigator.EXTRA_PENDING_ACTIVITY_EXTRAS));
+            }
+            context.startActivity(intent);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(e);
         }
