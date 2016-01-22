@@ -27,8 +27,8 @@ class UpgradeProgressOperations {
         }
     };
 
-    private ConfigurationOperations configurationOperations;
-    private PolicyOperations policyOperations;
+    private final ConfigurationOperations configurationOperations;
+    private final PolicyOperations policyOperations;
 
     @Inject
     UpgradeProgressOperations(ConfigurationOperations configurationOperations, PolicyOperations policyOperations) {
