@@ -9,6 +9,7 @@ import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_S
 
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -26,25 +27,35 @@ import rx.Observable;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem> {
+class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
+        implements SearchUpsellRenderer.OnUpsellClickListener {
 
     private static final Func1<SearchResult, List<ListItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<ListItem>>() {
         @Override
         public List<ListItem> call(SearchResult searchResult) {
             final List<PropertySet> sourceSetsItems = searchResult.getItems();
-            final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size());
+            final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
             for (PropertySet source : sourceSetsItems) {
                 searchItems.add(SearchItem.fromPropertySet(source).build());
             }
             return searchItems;
+        }
+    };
+
+    private static final Func1<SearchResult, SearchResult> ADD_UPSELL_ITEM = new Func1<SearchResult, SearchResult>() {
+        @Override
+        public SearchResult call(SearchResult searchResult) {
+            return searchResult.addItem(0, PropertySet.create().put(EntityProperty.URN, SearchUpsellItem.UPSELL_URN));
         }
     };
 
@@ -92,6 +103,12 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem> {
     }
 
     @Override
+    public void onUpsellClicked(Context context) {
+        //TODO: Implement this in another PR
+        Toast.makeText(context, "Show Upgrade to Premium Screen", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     protected void onItemClicked(View view, int position) {
         //TODO: SearchQuerySourceInfo is null until search premium content tracking is implemented
         clickListenerFactory.create(Screen.SEARCH_PREMIUM_CONTENT, null).onItemClick(adapter.getItems(), view, position);
@@ -103,13 +120,12 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem> {
         searchType = bundle.getInt(EXTRA_SEARCH_TYPE);
         final List<PropertySet> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
         final Optional<Link> nextHref = Optional.fromNullable((Link) bundle.getParcelable(EXTRA_PREMIUM_CONTENT_NEXT_HREF));
-        final SearchResult searchResult = SearchResult.fromPropertySets(premiumContentList, nextHref);
-        return createCollectionBinding(Observable.just(searchResult));
+        return createCollectionBinding(searchOperations.searchPremiumResultFrom(premiumContentList, nextHref).map(ADD_UPSELL_ITEM));
     }
 
     @Override
     protected CollectionBinding<ListItem> onRefreshBinding() {
-        return createCollectionBinding(searchOperations.searchPremiumResult(searchQuery, searchType));
+        return createCollectionBinding(searchOperations.searchPremiumResult(searchQuery, searchType).map(ADD_UPSELL_ITEM));
     }
 
     @Override
@@ -118,10 +134,11 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem> {
     }
 
     private CollectionBinding<ListItem> createCollectionBinding(Observable<SearchResult> searchResultObservable) {
+        adapter.setUpsellListener(this);
         return CollectionBinding
                 .from(searchResultObservable, TO_PRESENTATION_MODELS)
                 .withAdapter(adapter)
-                .withPager(searchOperations.pagingPremiumFunction(searchType))
+                .withPager(searchOperations.pagingFunction(searchType))
                 .build();
     }
 }

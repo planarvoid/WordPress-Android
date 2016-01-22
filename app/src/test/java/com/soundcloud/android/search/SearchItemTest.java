@@ -31,6 +31,7 @@ public class SearchItemTest extends AndroidUnitTest {
         assertThat(searchItem.isTrack()).isTrue();
         assertThat(searchItem.isPlaylist()).isFalse();
         assertThat(searchItem.isUser()).isFalse();
+        assertThat(searchItem.isUpsell()).isFalse();
         assertThat(searchItem.isPremiumContent()).isFalse();
     }
 
@@ -42,6 +43,7 @@ public class SearchItemTest extends AndroidUnitTest {
         assertThat(searchItem.isPlaylist()).isTrue();
         assertThat(searchItem.isTrack()).isFalse();
         assertThat(searchItem.isUser()).isFalse();
+        assertThat(searchItem.isUpsell()).isFalse();
         assertThat(searchItem.isPremiumContent()).isFalse();
     }
 
@@ -53,17 +55,30 @@ public class SearchItemTest extends AndroidUnitTest {
         assertThat(searchItem.isUser()).isTrue();
         assertThat(searchItem.isTrack()).isFalse();
         assertThat(searchItem.isPlaylist()).isFalse();
+        assertThat(searchItem.isUpsell()).isFalse();
         assertThat(searchItem.isPremiumContent()).isFalse();
     }
 
     @Test
-    public void shouldCheckPremiumContentHasNotUrnSet() {
-        searchItem = SearchItem.fromUrn(Urn.NOT_SET);
+    public void shouldCheckPremiumContentHasCorrectUrn() {
+        searchItem = SearchItem.fromUrn(SearchPremiumItem.PREMIUM_URN);
 
         assertThat(searchItem.isPremiumContent()).isTrue();
         assertThat(searchItem.isUser()).isFalse();
         assertThat(searchItem.isTrack()).isFalse();
         assertThat(searchItem.isPlaylist()).isFalse();
+        assertThat(searchItem.isUpsell()).isFalse();
+    }
+
+    @Test
+    public void shouldCheckSearchUpsellHasCorrectUrn() {
+        searchItem = SearchItem.fromUrn(SearchUpsellItem.UPSELL_URN);
+
+        assertThat(searchItem.isUpsell()).isTrue();
+        assertThat(searchItem.isUser()).isFalse();
+        assertThat(searchItem.isTrack()).isFalse();
+        assertThat(searchItem.isPlaylist()).isFalse();
+        assertThat(searchItem.isPremiumContent()).isFalse();
     }
 
     @Test
@@ -97,6 +112,16 @@ public class SearchItemTest extends AndroidUnitTest {
         final ListItem listItem = SearchItem.fromPropertySet(propertySet).build();
 
         assertThat(listItem).isInstanceOf(UserItem.class);
+    }
+
+    @Test
+    public void shouldBuildCorrectSearchUpsellItemType() {
+        final PropertySet propertySet = PropertySet.create();
+        propertySet.put(EntityProperty.URN, SearchUpsellItem.UPSELL_URN);
+
+        final ListItem listItem = SearchItem.fromPropertySet(propertySet).build();
+
+        assertThat(listItem).isInstanceOf(SearchUpsellItem.class);
     }
 
     @Test

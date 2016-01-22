@@ -6,6 +6,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.ViewTypes;
 import com.soundcloud.android.search.SearchPremiumContentRenderer.OnPremiumContentClickListener;
+import com.soundcloud.android.search.SearchUpsellRenderer.OnUpsellClickListener;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.FollowableUserItemRenderer;
@@ -25,19 +26,24 @@ class SearchResultsAdapter
     static final int TYPE_TRACK = ViewTypes.DEFAULT_VIEW_TYPE + 1;
     static final int TYPE_PLAYLIST = ViewTypes.DEFAULT_VIEW_TYPE + 2;
     static final int TYPE_PREMIUM_CONTENT = ViewTypes.DEFAULT_VIEW_TYPE + 3;
+    static final int TYPE_UPSELL = ViewTypes.DEFAULT_VIEW_TYPE + 4;
 
     private final SearchPremiumContentRenderer searchPremiumContentRenderer;
+    private final SearchUpsellRenderer searchUpsellRenderer;
 
     @Inject
     SearchResultsAdapter(TrackItemRenderer trackItemRenderer,
                          PlaylistItemRenderer playlistItemRenderer,
                          FollowableUserItemRenderer userItemRenderer,
-                         SearchPremiumContentRenderer searchPremiumContentRenderer) {
+                         SearchPremiumContentRenderer searchPremiumContentRenderer,
+                         SearchUpsellRenderer searchUpsellRenderer) {
         super(new CellRendererBinding<>(TYPE_TRACK, trackItemRenderer),
                 new CellRendererBinding<>(TYPE_PLAYLIST, playlistItemRenderer),
                 new CellRendererBinding<>(TYPE_USER, userItemRenderer),
-                new CellRendererBinding<>(TYPE_PREMIUM_CONTENT, searchPremiumContentRenderer));
+                new CellRendererBinding<>(TYPE_PREMIUM_CONTENT, searchPremiumContentRenderer),
+                new CellRendererBinding<>(TYPE_UPSELL, searchUpsellRenderer));
         this.searchPremiumContentRenderer = searchPremiumContentRenderer;
+        this.searchUpsellRenderer = searchUpsellRenderer;
     }
 
     @Override
@@ -51,6 +57,8 @@ class SearchResultsAdapter
             return TYPE_PLAYLIST;
         } else if (item.isPremiumContent()) {
             return TYPE_PREMIUM_CONTENT;
+        } else if (item.isUpsell()) {
+            return TYPE_UPSELL;
         } else {
             throw new IllegalStateException("Unexpected item type in " + SearchResultsAdapter.class.getSimpleName());
         }
@@ -80,5 +88,9 @@ class SearchResultsAdapter
 
     void setPremiumContentListener(OnPremiumContentClickListener listener) {
         this.searchPremiumContentRenderer.setPremiumContentListener(listener);
+    }
+
+    void setUpsellListener(OnUpsellClickListener listener) {
+        this.searchUpsellRenderer.setUpsellClickListener(listener);
     }
 }

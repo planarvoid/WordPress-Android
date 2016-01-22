@@ -1,7 +1,5 @@
 package com.soundcloud.android;
 
-import static com.soundcloud.android.search.SearchPremiumResultsActivity.*;
-
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -102,10 +100,10 @@ public class Navigator {
                                                 Optional<Link> nextHref) {
         final ArrayList<? extends Parcelable> sourceSetList = new ArrayList<>(premiumContentList);
         final Intent intent = new Intent(context, SearchPremiumResultsActivity.class)
-                .putExtra(EXTRA_SEARCH_QUERY, searchQuery)
-                .putExtra(EXTRA_SEARCH_TYPE, searchType)
-                .putParcelableArrayListExtra(EXTRA_PREMIUM_CONTENT_RESULTS, sourceSetList)
-                .putExtra(EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
+                .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, searchQuery)
+                .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE, searchType)
+                .putParcelableArrayListExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, sourceSetList)
+                .putExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
         context.startActivity(intent);
     }
 

@@ -56,7 +56,11 @@ class SearchItem {
     }
 
     boolean isPremiumContent() {
-        return urn.equals(Urn.NOT_SET);
+        return urn.equals(SearchPremiumItem.PREMIUM_URN);
+    }
+
+    boolean isUpsell() {
+        return urn.equals(SearchUpsellItem.UPSELL_URN);
     }
 
     ListItem build() {
@@ -67,6 +71,8 @@ class SearchItem {
                 return PlaylistItem.from(source.get());
             } else if (isUser()) {
                 return UserItem.from(source.get());
+            } else if (isUpsell()) {
+                return new SearchUpsellItem();
             }
         }
         throw new IllegalArgumentException("ListItem type not valid");

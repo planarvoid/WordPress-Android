@@ -11,6 +11,8 @@ import java.util.List;
 
 class SearchPremiumItem implements ListItem {
 
+    static final Urn PREMIUM_URN = new Urn("local:search:premium");
+
     private final List<PropertySet> sourceSet;
     private final Optional<Link> nextHref;
     private final int resultsCount;
@@ -34,7 +36,7 @@ class SearchPremiumItem implements ListItem {
 
     @Override
     public Urn getEntityUrn() {
-        return Urn.NOT_SET;
+        return PREMIUM_URN;
     }
 
     List<PropertySet> getSourceSet() {

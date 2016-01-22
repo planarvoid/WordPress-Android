@@ -78,6 +78,11 @@ class SearchResult implements Iterable<PropertySet> {
         return items;
     }
 
+    SearchResult addItem(int location, PropertySet propertySet) {
+        items.add(location, propertySet);
+        return this;
+    }
+
     Optional<SearchResult> getPremiumContent() {
         return premiumContent;
     }
