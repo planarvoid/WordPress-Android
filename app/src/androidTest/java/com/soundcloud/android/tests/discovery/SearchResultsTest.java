@@ -17,10 +17,10 @@ import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class SearchTest extends ActivityTest<MainActivity> {
+public class SearchResultsTest extends ActivityTest<MainActivity> {
     private SearchScreen searchScreen;
 
-    public SearchTest() {
+    public SearchResultsTest() {
         super(MainActivity.class);
     }
 
@@ -72,7 +72,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
     public void testTappingUserOnAllTabOpensProfile() {
         ProfileScreen profileScreen = searchScreen.doSearch("emptyuser").findAndClickFirstUserItem();
 
-        assertThat("Profile screen should be visible", profileScreen.isVisible());
+        assertThat("Profile screen should be visible", profileScreen, is(visible()));
     }
 
     public void testTappingUserOnPeopleTabOpensProfile() {
@@ -116,6 +116,10 @@ public class SearchTest extends ActivityTest<MainActivity> {
         resultsScreen.scrollToBottomOfTracksListAndLoadMoreItems();
 
         assertThat(initialItemCount, is(lessThan(resultsScreen.getResultItemCount())));
+    }
+
+    public void testShowSearchSuggestions() {
+        assertThat("Should has suggestions", searchScreen.setSearchQuery("hello").hasSearchResults(), is(true));
     }
 
     public void testDismissingSearchClearsUpSearchResults() {

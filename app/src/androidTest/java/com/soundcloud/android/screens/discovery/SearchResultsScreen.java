@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.SearchTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -94,6 +95,23 @@ public class SearchResultsScreen extends Screen {
         return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
     }
 
+    public SearchPremiumResultsScreen clickOnViewPremiumContent() {
+        premiumContent().findOnScreenElement(With.id(R.id.view_all_container)).click();
+        return new SearchPremiumResultsScreen(testDriver);
+    }
+
+    public VisualPlayerElement clickOnPremiumContent() {
+        premiumContent().findOnScreenElement(With.id(R.id.track_list_item)).click();
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
+    }
+
+    public UpgradeScreen clickOnPremiumContentHelp() {
+        premiumContent().findOnScreenElement(With.id(R.id.help)).click();
+        return new UpgradeScreen(testDriver);
+    }
+
     protected List<PlaylistElement> getPlaylists(int withId) {
         return Lists.transform(
                 testDriver.findOnScreenElements(With.id(withId)),
@@ -116,6 +134,10 @@ public class SearchResultsScreen extends Screen {
         return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
+    private ViewElement premiumContent() {
+        return testDriver.findOnScreenElement(With.id(R.id.premium_item_container));
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;
@@ -124,5 +146,9 @@ public class SearchResultsScreen extends Screen {
     @Override
     public boolean isVisible() {
         return waiter.waitForFragmentByTag(FRAGMENT);
+    }
+
+    public boolean premiumContentIsVisible() {
+        return premiumContent().isVisible();
     }
 }
