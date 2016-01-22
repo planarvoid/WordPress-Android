@@ -25,6 +25,8 @@ public class MaterialLikeButtonPresenter implements LikeButtonPresenter {
     public void setLikeCount(ToggleButton likeButton, int count) {
         likeButton.setTextOn(createLikeSpan(likeButton, count, R.drawable.player_like_active));
         likeButton.setTextOff(createLikeSpan(likeButton, count, R.drawable.player_like));
+        // hax : setTextOn/Off does not sync text state. Call this to refresh the text (count)
+        likeButton.setChecked(likeButton.isChecked());
     }
 
     @NonNull
