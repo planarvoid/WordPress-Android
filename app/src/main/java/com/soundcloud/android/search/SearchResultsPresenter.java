@@ -10,6 +10,7 @@ import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
@@ -55,7 +56,8 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
             final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
             if (premiumContent.isPresent() && featureFlags.isEnabled(Flag.SEARCH_RESULTS_HIGH_TIER)) {
                 final SearchResult premiumSearchResult = premiumContent.get();
-                searchItems.add(SearchItem.buildPremiumItem(premiumSearchResult.getItems(), premiumSearchResult.getResultsCount()));
+                searchItems.add(SearchItem.buildPremiumItem(premiumSearchResult.getItems(),
+                        premiumSearchResult.nextHref, premiumSearchResult.getResultsCount()));
             }
             for (PropertySet source : sourceSetsItems) {
                 searchItems.add(SearchItem.fromPropertySet(source).build());
@@ -170,8 +172,8 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     }
 
     @Override
-    public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource) {
-        navigator.openSearchPremiumContentResults(context, searchQuery, premiumItemsSource);
+    public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource, Optional<Link> nextHref) {
+        navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource, nextHref);
     }
 
     private void trackSearchItemClick(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {

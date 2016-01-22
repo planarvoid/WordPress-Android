@@ -45,7 +45,8 @@ public class PlaylistDiscoveryOperations {
     private final Func1<ApiPlaylistCollection, SearchResult> toBackFilledSearchResult = new Func1<ApiPlaylistCollection, SearchResult>() {
         @Override
         public SearchResult call(ApiPlaylistCollection collection) {
-            final SearchResult result = new SearchResult(collection.getCollection(), collection.getNextLink(),collection.getQueryUrn());
+            final SearchResult result = SearchResult.fromPropertySetSource(collection.getCollection(),
+                    collection.getNextLink(), collection.getQueryUrn());
             return backfillSearchResult(result);
         }
     };

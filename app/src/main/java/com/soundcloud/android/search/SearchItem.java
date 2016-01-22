@@ -2,6 +2,7 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.java.optional.Optional.absent;
 
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -71,7 +72,7 @@ class SearchItem {
         throw new IllegalArgumentException("ListItem type not valid");
     }
 
-    static ListItem buildPremiumItem(List<PropertySet> propertySets, int resultsCount) {
-        return new SearchPremiumItem(propertySets, resultsCount);
+    static ListItem buildPremiumItem(List<PropertySet> propertySets, Optional<Link> nextHref, int resultsCount) {
+        return new SearchPremiumItem(propertySets, nextHref, resultsCount);
     }
 }

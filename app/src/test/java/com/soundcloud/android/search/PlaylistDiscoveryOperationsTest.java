@@ -308,6 +308,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
     }
 
     private SearchResult toSearchResult(ApiPlaylistCollection collection){
-        return new SearchResult(buildPlaylistSummariesResponse().getCollection(), Optional.<Link>absent(), Optional.<Urn>absent());
+        return SearchResult.fromPropertySetSource(buildPlaylistSummariesResponse().getCollection(),
+                Optional.<Link>absent(), Optional.<Urn>absent());
     }
 }

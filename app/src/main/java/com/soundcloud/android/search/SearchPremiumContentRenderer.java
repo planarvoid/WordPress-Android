@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -12,6 +13,7 @@ import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -31,7 +33,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     interface OnPremiumContentClickListener {
         void onPremiumContentHelpClicked(Context context);
         void onPremiumItemClicked(View view, List<ListItem> premiumItems);
-        void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource);
+        void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource, Optional<Link> nextHref);
     }
 
     private final TrackItemRenderer trackItemRenderer;
@@ -167,7 +169,9 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
         @Override
         public void onClick(View view) {
             if (listener != null) {
-                listener.onPremiumContentViewAllClicked(view.getContext(), premiumItems.get(0).getSourceSet());
+                final SearchPremiumItem searchPremiumItem = premiumItems.get(0);
+                listener.onPremiumContentViewAllClicked(view.getContext(),
+                        searchPremiumItem.getSourceSet(), searchPremiumItem.getNextHref() );
             }
         }
     }

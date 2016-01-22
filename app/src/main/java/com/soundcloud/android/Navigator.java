@@ -1,10 +1,13 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.search.SearchPremiumResultsActivity.*;
+
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.OfflineOnboardingActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
@@ -31,6 +34,7 @@ import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -88,11 +92,17 @@ public class Navigator {
         context.startActivity(homeIntent);
     }
 
-    public void openSearchPremiumContentResults(Context context, String searchQuery, List<PropertySet> premiumContentList) {
+    public void openSearchPremiumContentResults(Context context,
+                                                String searchQuery,
+                                                int searchType,
+                                                List<PropertySet> premiumContentList,
+                                                Optional<Link> nextHref) {
         final ArrayList<? extends Parcelable> sourceSetList = new ArrayList<>(premiumContentList);
         final Intent intent = new Intent(context, SearchPremiumResultsActivity.class)
-                .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, searchQuery)
-                .putParcelableArrayListExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, sourceSetList);
+                .putExtra(EXTRA_SEARCH_QUERY, searchQuery)
+                .putExtra(EXTRA_SEARCH_TYPE, searchType)
+                .putParcelableArrayListExtra(EXTRA_PREMIUM_CONTENT_RESULTS, sourceSetList)
+                .putExtra(EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
         context.startActivity(intent);
     }
 

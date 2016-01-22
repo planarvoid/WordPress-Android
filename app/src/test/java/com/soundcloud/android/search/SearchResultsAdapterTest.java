@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -21,6 +22,7 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.adapters.FollowableUserItemRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -94,6 +96,6 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
     }
 
     private SearchPremiumItem dummySearchPremiumItem() {
-        return new SearchPremiumItem(Collections.<PropertySet>emptyList(), SEARCH_RESULTS_COUNT);
+        return new SearchPremiumItem(Collections.<PropertySet>emptyList(), Optional.<Link>absent(), SEARCH_RESULTS_COUNT);
     }
 }

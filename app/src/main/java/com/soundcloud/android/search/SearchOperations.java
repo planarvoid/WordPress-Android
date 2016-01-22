@@ -39,6 +39,10 @@ import java.util.Map;
         justification = "we never serialize search operations")
 class SearchOperations {
 
+    enum ContentType {
+        NORMAL, PREMIUM
+    }
+
     static final int TYPE_ALL = 0;
     static final int TYPE_TRACKS = 1;
     static final int TYPE_PLAYLISTS = 2;
@@ -55,12 +59,12 @@ class SearchOperations {
                             searchCollection.premiumContent();
                     if (premiumContent.isPresent()) {
                         final SearchModelCollection<? extends PropertySetSource> premiumItems = premiumContent.get();
-                        final SearchResult premiumSearchResult = new SearchResult(premiumItems.getCollection(),
+                        final SearchResult premiumSearchResult = SearchResult.fromPropertySetSource(premiumItems.getCollection(),
                                 premiumItems.getNextLink(), premiumItems.getQueryUrn(), premiumItems.resultsCount());
-                        return new SearchResult(collection, nextLink, queryUrn, Optional.of(premiumSearchResult),
-                                searchCollection.resultsCount());
+                        return SearchResult.fromPropertySetSource(collection, nextLink, queryUrn,
+                                Optional.of(premiumSearchResult), searchCollection.resultsCount());
                     }
-                    return new SearchResult(collection, nextLink, queryUrn);
+                    return SearchResult.fromPropertySetSource(collection, nextLink, queryUrn);
                 }
             };
 
@@ -119,27 +123,35 @@ class SearchOperations {
     }
 
     Observable<SearchResult> searchResult(String query, int searchType) {
-        return getSearchStrategy(searchType).searchResult(query);
+        return getSearchStrategy(searchType, ContentType.NORMAL).searchResult(query);
+    }
+
+    Observable<SearchResult> searchPremiumResult(String query, int searchType) {
+        return getSearchStrategy(searchType, ContentType.PREMIUM).searchResult(query);
     }
 
     SearchPagingFunction pagingFunction(final int searchType) {
-        return new SearchPagingFunction(searchType);
+        return new SearchPagingFunction(searchType, ContentType.NORMAL);
     }
 
-    private Observable<SearchResult> nextResultPage(Link link, int searchType) {
-        return getSearchStrategy(searchType).nextResultPage(link);
+    SearchPagingFunction pagingPremiumFunction(final int searchType) {
+        return new SearchPagingFunction(searchType, ContentType.PREMIUM);
     }
 
-    private SearchStrategy getSearchStrategy(int searchType) {
+    private Observable<SearchResult> nextResultPage(Link nextHref, int searchType, ContentType contentType) {
+        return getSearchStrategy(searchType, contentType).nextResultPage(nextHref);
+    }
+
+    private SearchStrategy getSearchStrategy(int searchType, ContentType contentType) {
         switch (searchType) {
             case TYPE_ALL:
-                return new UniversalSearchStrategy();
+                return new UniversalSearchStrategy(contentType);
             case TYPE_TRACKS:
-                return new TrackSearchStrategy();
+                return new TrackSearchStrategy(contentType);
             case TYPE_PLAYLISTS:
-                return new PlaylistSearchStrategy();
+                return new PlaylistSearchStrategy(contentType);
             case TYPE_USERS:
-                return new UserSearchStrategy();
+                return new UserSearchStrategy(contentType);
             default:
                 throw new IllegalStateException("Unknown search type");
         }
@@ -149,8 +161,8 @@ class SearchOperations {
 
         private final String apiEndpoint;
 
-        protected SearchStrategy(String apiEndpoint) {
-            this.apiEndpoint = apiEndpoint;
+        protected SearchStrategy(ContentType contentType) {
+            this.apiEndpoint = contentType.equals(ContentType.PREMIUM) ? getPremiumEndpoint() : getEndpoint();
         }
 
         private Observable<SearchResult> searchResult(String query) {
@@ -165,17 +177,30 @@ class SearchOperations {
                     .forPrivateApi(1));
         }
 
-        protected abstract Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder);
+        protected abstract String getEndpoint();
 
+        protected abstract String getPremiumEndpoint();
+
+        protected abstract Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder);
     }
 
     private final class TrackSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<SearchModelCollection<ApiTrack>> typeToken = new TypeToken<SearchModelCollection<ApiTrack>>() {
-        };
+        private final TypeToken<SearchModelCollection<ApiTrack>> typeToken =
+                new TypeToken<SearchModelCollection<ApiTrack>>() {};
 
-        protected TrackSearchStrategy() {
-            super(ApiEndpoints.SEARCH_TRACKS.path());
+        protected TrackSearchStrategy(ContentType contentType) {
+            super(contentType);
+        }
+
+        @Override
+        protected String getEndpoint() {
+            return ApiEndpoints.SEARCH_TRACKS.path();
+        }
+
+        @Override
+        protected String getPremiumEndpoint() {
+            return ApiEndpoints.SEARCH_PREMIUM_TRACKS.path();
         }
 
         @Override
@@ -190,11 +215,20 @@ class SearchOperations {
     private final class PlaylistSearchStrategy extends SearchStrategy {
 
         private final TypeToken<SearchModelCollection<ApiPlaylist>> typeToken =
-                new TypeToken<SearchModelCollection<ApiPlaylist>>() {
-                };
+                new TypeToken<SearchModelCollection<ApiPlaylist>>() {};
 
-        protected PlaylistSearchStrategy() {
-            super(ApiEndpoints.SEARCH_PLAYLISTS.path());
+        protected PlaylistSearchStrategy(ContentType contentType) {
+            super(contentType);
+        }
+
+        @Override
+        protected String getEndpoint() {
+            return ApiEndpoints.SEARCH_PLAYLISTS.path();
+        }
+
+        @Override
+        protected String getPremiumEndpoint() {
+            return ApiEndpoints.SEARCH_PREMIUM_PLAYLISTS.path();
         }
 
         @Override
@@ -209,11 +243,21 @@ class SearchOperations {
 
     private final class UserSearchStrategy extends SearchStrategy {
 
-        private final TypeToken<SearchModelCollection<ApiUser>> typeToken = new TypeToken<SearchModelCollection<ApiUser>>() {
-        };
+        private final TypeToken<SearchModelCollection<ApiUser>> typeToken =
+                new TypeToken<SearchModelCollection<ApiUser>>() {};
 
-        protected UserSearchStrategy() {
-            super(ApiEndpoints.SEARCH_USERS.path());
+        protected UserSearchStrategy(ContentType contentType) {
+            super(contentType);
+        }
+
+        @Override
+        protected String getEndpoint() {
+            return ApiEndpoints.SEARCH_USERS.path();
+        }
+
+        @Override
+        protected String getPremiumEndpoint() {
+            return ApiEndpoints.SEARCH_PREMIUM_USERS.path();
         }
 
         @Override
@@ -229,11 +273,20 @@ class SearchOperations {
     private final class UniversalSearchStrategy extends SearchStrategy {
 
         private final TypeToken<SearchModelCollection<ApiUniversalSearchItem>> typeToken =
-                new TypeToken<SearchModelCollection<ApiUniversalSearchItem>>() {
-                };
+                new TypeToken<SearchModelCollection<ApiUniversalSearchItem>>() {};
 
-        protected UniversalSearchStrategy() {
-            super(ApiEndpoints.SEARCH_ALL.path());
+        protected UniversalSearchStrategy(ContentType contentType) {
+            super(contentType);
+        }
+
+        @Override
+        protected String getEndpoint() {
+            return ApiEndpoints.SEARCH_ALL.path();
+        }
+
+        @Override
+        protected String getPremiumEndpoint() {
+            return ApiEndpoints.SEARCH_PREMIUM_ALL.path();
         }
 
         @Override
@@ -250,11 +303,13 @@ class SearchOperations {
     class SearchPagingFunction implements PagingFunction<SearchResult> {
 
         private final int searchType;
+        private final ContentType contentType;
         private final List<Urn> allUrns = new ArrayList<>();
         private Urn queryUrn = Urn.NOT_SET;
 
-        public SearchPagingFunction(int searchType) {
+        public SearchPagingFunction(int searchType, ContentType contentType) {
             this.searchType = searchType;
+            this.contentType = contentType;
         }
 
         public SearchQuerySourceInfo getSearchQuerySourceInfo() {
@@ -278,7 +333,7 @@ class SearchOperations {
             }
 
             if (nextHref.isPresent()) {
-                return nextResultPage(nextHref.get(), searchType);
+                return nextResultPage(nextHref.get(), searchType, contentType);
             } else {
                 return Pager.finish();
             }

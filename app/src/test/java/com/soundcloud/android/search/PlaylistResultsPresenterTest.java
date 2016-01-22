@@ -108,7 +108,8 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
 
     private void fakePlaylistResultsForTag(String searchTag) {
         ApiPlaylistCollection collection = new ApiPlaylistCollection(singletonList(playlist), null, null);
-        SearchResult searchResult = new SearchResult(collection.getCollection(), Optional.<Link>absent(), Optional.<Urn>absent());
+        SearchResult searchResult = SearchResult.fromPropertySetSource(collection.getCollection(),
+                Optional.<Link>absent(), Optional.<Urn>absent());
         when(operations.playlistsForTag(searchTag)).thenReturn(Observable.just(searchResult));
 
         Bundle fragmentArgs = new Bundle();

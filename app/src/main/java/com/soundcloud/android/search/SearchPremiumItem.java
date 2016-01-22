@@ -1,19 +1,23 @@
 package com.soundcloud.android.search;
 
+import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
 class SearchPremiumItem implements ListItem {
 
     private final List<PropertySet> sourceSet;
+    private final Optional<Link> nextHref;
     private final int resultsCount;
 
-    SearchPremiumItem(List<PropertySet> sourceSetPremiumItems, int resultsCount) {
+    SearchPremiumItem(List<PropertySet> sourceSetPremiumItems, Optional<Link> nextHref, int resultsCount) {
         this.sourceSet = sourceSetPremiumItems;
+        this.nextHref = nextHref;
         this.resultsCount = resultsCount;
     }
 
@@ -33,11 +37,15 @@ class SearchPremiumItem implements ListItem {
         return Urn.NOT_SET;
     }
 
-    public List<PropertySet> getSourceSet() {
+    List<PropertySet> getSourceSet() {
         return sourceSet;
     }
 
-    public int getResultsCount() {
+    Optional<Link> getNextHref() {
+        return nextHref;
+    }
+
+    int getResultsCount() {
         return resultsCount;
     }
 }

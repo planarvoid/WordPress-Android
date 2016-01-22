@@ -19,35 +19,48 @@ class SearchResult implements Iterable<PropertySet> {
     final Optional<Urn> queryUrn;
     private final Optional<SearchResult> premiumContent;
 
-    SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn) {
-        this(items, nextHref, queryUrn, Optional.<SearchResult>absent(), 0);
-    }
-
-    SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn, int resultsCount) {
-        this(items, nextHref, queryUrn, Optional.<SearchResult>absent(), resultsCount);
-    }
-
-    SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn,
+    private SearchResult(List<PropertySet> items, Optional<Link> nextHref, Optional<Urn> queryUrn,
                  Optional<SearchResult> premiumContent, int resultsCount) {
+        this.items = items;
+        this.resultsCount = resultsCount;
+        this.nextHref = nextHref;
+        this.queryUrn = queryUrn;
+        this.premiumContent = premiumContent;
+    }
+
+    static SearchResult fromPropertySets(List<PropertySet> items, Optional<Link> nextHref) {
+        return new SearchResult(items, nextHref, Optional.<Urn>absent(), Optional.<SearchResult>absent(), 0);
+    }
+
+    static SearchResult fromPropertySetSource(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn) {
+        return fromPropertySetSource(items, nextHref, queryUrn, 0);
+    }
+
+    static SearchResult fromPropertySetSource(List<? extends PropertySetSource> items, Optional<Link> nextHref,
+                                              Optional<Urn> queryUrn, int resultsCount) {
+        return fromPropertySetSource(items, nextHref, queryUrn, Optional.<SearchResult>absent(), resultsCount);
+    }
+
+    static SearchResult fromPropertySetSource(List<? extends PropertySetSource> items, Optional<Link> nextHref,
+                                              Optional<Urn> queryUrn, Optional<SearchResult> premiumContent,
+                                              int resultsCount) {
         int emptyItems = 0;
-        this.items = new ArrayList<>(items.size());
+        List<PropertySet> propertySets = new ArrayList<>(items.size());
         for (PropertySetSource source : items) {
             if (source == null) {
                 emptyItems++;
             } else {
-                this.items.add(source.toPropertySet());
+                propertySets.add(source.toPropertySet());
             }
         }
-        this.nextHref = nextHref;
-        this.queryUrn = queryUrn;
-        this.premiumContent = premiumContent;
         if (emptyItems > 0) {
             ErrorUtils.handleSilentException(getMissingItemException(items, nextHref, emptyItems));
         }
-        this.resultsCount = resultsCount;
+        return new SearchResult(propertySets, nextHref, queryUrn, premiumContent, resultsCount);
     }
 
-    private IllegalStateException getMissingItemException(List<? extends PropertySetSource> items, Optional<Link> nextHref, int emptyItems) {
+    private static IllegalStateException getMissingItemException(List<? extends PropertySetSource> items,
+                                                                 Optional<Link> nextHref, int emptyItems) {
         return new IllegalStateException(
                 String.format(
                         "%d/%d empty items in search result with nextHref %s",
