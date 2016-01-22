@@ -86,12 +86,13 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
         canvas.drawColor(0, PorterDuff.Mode.CLEAR);
 
         if (this.waveformData != null) {
+            final int length = waveformData.samples.length;
+            final int playableBars = (int) Math.min(length, Math.ceil(length * unplayableFromPosition));
+
             int w = barWidth + spaceWidth;
             int x = 0;
             float y;
 
-            final int length = waveformData.samples.length;
-            final int playableBars = (int) (length * unplayableFromPosition);
             for (int bar = 0; bar < playableBars; bar++) {
                 y = Math.max(spaceWidth, waveformData.samples[bar]);
                 drawBar(canvas, x, y, abovePaint, belowPaint);
