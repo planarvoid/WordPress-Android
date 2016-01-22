@@ -223,6 +223,13 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         verify(navigator).openSearchPremiumContentResults(eq(context()), anyString(), anyInt(), eq(premiumItemsSource), eq(nextHref));
     }
 
+    @Test
+    public void shouldOpenUpgradeSubscription() {
+        presenter.onPremiumContentHelpClicked(context());
+
+        verify(navigator).openUpgrade(context());
+    }
+
     private List<ListItem> setupAdapter() {
         final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
         final List<ListItem> listItems = Collections.singletonList((ListItem) trackItem);

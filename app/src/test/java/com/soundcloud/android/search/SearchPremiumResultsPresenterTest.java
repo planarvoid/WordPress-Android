@@ -7,6 +7,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
@@ -48,6 +49,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     @Mock private SearchOperations.SearchPagingFunction searchPagingFunction;
     @Mock private MixedItemClickListener.Factory clickListenerFactory;
     @Mock private MixedItemClickListener clickListener;
+    @Mock private Navigator navigator;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -63,7 +65,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
         final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
 
         presenter = new SearchPremiumResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
-                clickListenerFactory, eventBus);
+                clickListenerFactory, navigator, eventBus);
 
         when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
         when(searchOperations.searchPremiumResultFrom(anyList(), any(Optional.class))).thenReturn(searchResultObservable);
@@ -98,6 +100,13 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragmentRule.getFragment());
 
         verify(adapter).setUpsellListener(presenter);
+    }
+
+    @Test
+    public void shouldOpenUpgradeSubscription() {
+        presenter.onUpsellClicked(context());
+
+        verify(navigator).openUpgrade(context());
     }
 
     private void setFragmentArguments() {

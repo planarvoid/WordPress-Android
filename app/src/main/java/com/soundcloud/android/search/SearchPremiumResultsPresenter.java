@@ -7,6 +7,7 @@ import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_P
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY;
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
@@ -31,7 +32,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -62,6 +62,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
     private final SearchOperations searchOperations;
     private final SearchResultsAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
+    private final Navigator navigator;
     private final EventBus eventBus;
 
     private CompositeSubscription viewLifeCycle;
@@ -74,11 +75,13 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
                                   SearchOperations searchOperations,
                                   SearchResultsAdapter adapter,
                                   MixedItemClickListener.Factory clickListenerFactory,
+                                  Navigator navigator,
                                   EventBus eventBus) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;
+        this.navigator = navigator;
         this.eventBus = eventBus;
     }
 
@@ -104,8 +107,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
 
     @Override
     public void onUpsellClicked(Context context) {
-        //TODO: Implement this in another PR
-        Toast.makeText(context, "Show Upgrade to Premium Screen", Toast.LENGTH_SHORT).show();
+        navigator.openUpgrade(context);
     }
 
     @Override

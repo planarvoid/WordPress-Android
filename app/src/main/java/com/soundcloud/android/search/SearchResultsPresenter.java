@@ -39,7 +39,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -167,8 +166,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
 
     @Override
     public void onPremiumContentHelpClicked(Context context) {
-        //TODO: Implement this in another PR
-        Toast.makeText(context, "Show Search HT Help", Toast.LENGTH_SHORT).show();
+        navigator.openUpgrade(context);
     }
 
     @Override
