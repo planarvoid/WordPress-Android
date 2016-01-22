@@ -43,6 +43,10 @@ public class AdFixtures {
         return VideoAd.create(getApiVideoAd(), monetizableUrn);
     }
 
+    public static VideoAd getVideoAd(Urn monetizableUrn, ApiVideoSource videoSource) {
+        return VideoAd.create(getApiVideoAd(videoSource), monetizableUrn);
+    }
+
     public static ApiDisplayProperties getApiDisplayProperties() {
         return new ApiDisplayProperties(
                 "#111111",
@@ -119,13 +123,13 @@ public class AdFixtures {
         );
     }
 
-    public static ApiVideoSource getApiVideoSource() {
+    public static ApiVideoSource getApiVideoSource(int width, int height) {
         return ApiVideoSource.create(
                 "video/mp4",
                 "http://videourl.com/video.mp4",
                 2884,
-                608,
-                1080
+                width,
+                height
         );
     }
 
@@ -146,9 +150,13 @@ public class AdFixtures {
     }
 
     public static ApiVideoAd getApiVideoAd() {
+        return getApiVideoAd(getApiVideoSource(608, 1080));
+    }
+
+    public static ApiVideoAd getApiVideoAd(ApiVideoSource apiVideoSource) {
         return ApiVideoAd.create(
                 Urn.forAd("dfp", "905"),
-                Collections.singletonList(getApiVideoSource()),
+                Collections.singletonList(apiVideoSource),
                 getApiVideoAdTracking(),
                 getApiCompanionAd()
         );

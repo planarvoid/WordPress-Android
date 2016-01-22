@@ -6,6 +6,8 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -15,7 +17,11 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func2;
 
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.AppCompatActivity;
+
+import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,7 +38,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         @Override
         public void call(PlayerState playerState) {
             if (isPlayerExpandedWithAd(playerState)) {
-                lastSeenAdUrn = playerState.itemUrn;
+                lastSeenAdUrn = playerState.playQueueItem.getUrn();
             } else if (!isDifferentTrack(playerState)) {
                 lastSeenAdUrn = Urn.NOT_SET;
             }
@@ -43,7 +49,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         }
 
         private boolean isDifferentTrack(PlayerState playerState) {
-            return lastSeenAdUrn.equals(playerState.itemUrn);
+            return lastSeenAdUrn.equals(playerState.playQueueItem.getUrn());
         }
     };
 
@@ -51,7 +57,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         @Override
         public PlayerState call(CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
             return new PlayerState(adsOperations.isCurrentItemAd(),
-                    currentItemEvent.getCurrentPlayQueueItem().getUrn(),
+                    currentItemEvent.getCurrentPlayQueueItem(),
                     playerUIEvent.getKind());
         }
     };
@@ -70,7 +76,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
                         eventBus.queue(EventQueue.PLAYER_UI),
                         toPlayerState)
                 .doOnNext(setAdHasBeenSeen)
-                .subscribe(new PlayQueueSubscriber());
+                .subscribe(new PlayQueueSubscriber(activity));
     }
 
     @Override
@@ -79,30 +85,54 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayerState> {
+
+        final WeakReference<Activity> currentActivityRef;
+
+        PlayQueueSubscriber(Activity activity) {
+           currentActivityRef = new WeakReference<>(activity);
+        }
+
         @Override
         public void onNext(PlayerState event) {
-            if (adsOperations.isCurrentItemVideoAd()) {
+            final PlayQueueItem currentItem = event.playQueueItem;
+            if (currentItem.isVideo()) {
+                lockOrientationInPortraitIfVertical((VideoQueueItem) currentItem);
                 eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayerExpanded());
-                lastSeenAdUrn = event.itemUrn;
+                lastSeenAdUrn = currentItem.getUrn();
             } else {
-                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
-                if (adsOperations.isCurrentItemAudioAd() && !lastSeenAdUrn.equals(event.itemUrn)) {
+                unlockOrientationAndPlayer();
+                if (adsOperations.isCurrentItemAudioAd() && !lastSeenAdUrn.equals(currentItem.getUrn())) {
                     eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
                     eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY));
-                    lastSeenAdUrn = event.itemUrn;
+                    lastSeenAdUrn = currentItem.getUrn();
                 }
             }
+        }
+
+        private void lockOrientationInPortraitIfVertical(VideoQueueItem videoItem) {
+            final Activity currentActivity = currentActivityRef.get();
+            if (currentActivity != null && videoItem.isVerticalVideo()) {
+                currentActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            }
+        }
+
+        private void unlockOrientationAndPlayer() {
+            final Activity currentActivity = currentActivityRef.get();
+            if (currentActivity != null) {
+                currentActivityRef.get().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            }
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
         }
     }
 
     private static class PlayerState {
         private final boolean isAd;
-        private final Urn itemUrn;
+        private final PlayQueueItem playQueueItem;
         private final int playerUIEventKind;
 
-        public PlayerState(boolean isAd, Urn itemUrn, int playerUIEventKind) {
+        public PlayerState(boolean isAd, PlayQueueItem playQueueItem, int playerUIEventKind) {
             this.isAd = isAd;
-            this.itemUrn = itemUrn;
+            this.playQueueItem = playQueueItem;
             this.playerUIEventKind = playerUIEventKind;
         }
     }

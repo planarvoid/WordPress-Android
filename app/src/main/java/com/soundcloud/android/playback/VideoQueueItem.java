@@ -25,4 +25,8 @@ public class VideoQueueItem extends PlayQueueItem {
     public Kind getKind() {
         return Kind.VIDEO;
     }
+
+    public boolean isVerticalVideo() {
+        return ((VideoAd) this.adData.get()).isVerticalVideo();
+    }
 }
