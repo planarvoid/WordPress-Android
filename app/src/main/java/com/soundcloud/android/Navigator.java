@@ -223,16 +223,6 @@ public class Navigator {
         context.startActivity(new Intent(context, TrackLikesActivity.class));
     }
 
-    public void launchSearchSuggestion(Context context, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo, Uri itemUri) {
-        final Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (urn.isUser()) {
-            intent.putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
-        }
-        Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
-        context.startActivity(intent.setData(itemUri));
-    }
-
     public void openPlaylistDiscoveryTag(Context context, String playlistTag) {
         context.startActivity(createPlaylistDiscoveryIntent(context, playlistTag));
     }

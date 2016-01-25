@@ -1,11 +1,9 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.storage.provider.Content;
-
-import java.util.Locale;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 
 public final class SearchEvent extends TrackingEvent {
 
@@ -50,11 +48,11 @@ public final class SearchEvent extends TrackingEvent {
 
     private int clickPosition = Consts.NOT_SET;
 
-    public static SearchEvent searchSuggestion(Content itemKind, boolean localResult, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static SearchEvent searchSuggestion(Urn urn, boolean localResult, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_SUGGESTION)
                 .<SearchEvent>put(KEY_PAGE_NAME, Screen.SEARCH_SUGGESTIONS.get())
                 .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_ITEM_NAVIGATION)
-                .<SearchEvent>put(KEY_TYPE, itemKind.name().toLowerCase(Locale.US))
+                .<SearchEvent>put(KEY_TYPE, urn.isUser() ? TYPE_USER : TYPE_TRACK)
                 .<SearchEvent>put(KEY_CONTEXT, localResult ? CONTEXT_PERSONAL : CONTEXT_GLOBAL)
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
