@@ -81,7 +81,7 @@ class OfflineStatePublisher {
     }
 
     void publishError(Urn track) {
-        publishUpdatesForTrack(REQUESTED, track);
+        publishUpdatesForTrack(UNAVAILABLE, track);
     }
 
     private void publishUpdatesForTrack(final OfflineState newTrackState, Urn track) {

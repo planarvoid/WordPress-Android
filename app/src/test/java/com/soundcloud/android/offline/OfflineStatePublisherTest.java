@@ -84,12 +84,12 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     @Test
     public void publishError() {
-        setTracksCollections(REQUESTED);
+        setTracksCollections(UNAVAILABLE);
 
         publisher.publishError(TRACK);
 
-        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
-        assertEvent(event(0), REQUESTED, true, TRACK, PLAYLIST);
+        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, UNAVAILABLE);
+        assertEvent(event(0), UNAVAILABLE, true, TRACK, PLAYLIST);
     }
 
     @Test
