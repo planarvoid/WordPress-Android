@@ -446,7 +446,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void doesNotAppendRecommendedTracksMoreThanTolerance() {
-        when(playQueueManager.getQueueItemsRemaining()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE + 1);
+        when(playQueueManager.getPlayableQueueItemsRemaining()).thenReturn(PlaySessionController.RECOMMENDED_LOAD_TOLERANCE + 1);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verifyZeroInteractions(playQueueOperations);

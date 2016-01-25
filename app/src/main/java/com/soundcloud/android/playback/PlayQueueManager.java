@@ -198,8 +198,14 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.size();
     }
 
-    public int getQueueItemsRemaining() {
-        return getQueueSize() - playQueue.indexOfPlayQueueItem(getCurrentPlayQueueItem()) - 1;
+    public int getPlayableQueueItemsRemaining() {
+        int playableCount = 0;
+        for (int i = currentPosition + 1, size = getQueueSize(); i < size; i++) {
+            if (isPlayableAtPosition(i)) {
+                playableCount++;
+            }
+        }
+        return playableCount;
     }
 
     @Deprecated // this should not be used outside of casting, which uses it as an optimisation. Use setCurrentPlayQueueItem instead
@@ -243,7 +249,7 @@ public class PlayQueueManager implements OriginProvider {
         if (hasNextItem()) {
             final int nextPlayableItem = getNextPlayableItem();
             final int newPosition = nextPlayableItem == Consts.NOT_SET
-                    ? getQueueSize() - 1 // last track
+                    ? currentPosition + 1 // next track
                     : nextPlayableItem; // next playable track
             setPositionInternal(newPosition, userTriggered);
             return true;
