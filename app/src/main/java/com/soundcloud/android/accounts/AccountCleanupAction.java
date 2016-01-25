@@ -97,6 +97,7 @@ class AccountCleanupAction implements Action0 {
             clearTableCommand.call(Table.Comments);
             clearTableCommand.call(Table.PromotedTracks);
             clearTableCommand.call(Table.Waveforms);
+            clearTableCommand.call(Table.TrackPolicies);
             removeLocalPlaylistsCommand.call(null);
         } catch (PropellerWriteException e) {
             Log.e(TAG, "Could not clear collections ", e);
