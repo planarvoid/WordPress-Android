@@ -16,6 +16,7 @@ import com.soundcloud.java.net.HttpHeaders;
 import dagger.Lazy;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
@@ -57,6 +58,21 @@ public class ConfigurationOperations {
             return apiClientRx.get().mappedResponse(configurationRequestBuilderForGet().build(), Configuration.class);
         }
     };
+    private final Action1<Configuration> saveConfiguration = new Action1<Configuration>() {
+        @Override
+        public void call(Configuration configuration) {
+            saveConfiguration(configuration);
+        }
+    };
+
+    private static Func1<Configuration, Boolean> isExpectedPlan(final String planId) {
+        return new Func1<Configuration, Boolean>() {
+            @Override
+            public Boolean call(Configuration configuration) {
+                return configuration.plan.id.equals(planId);
+            }
+        };
+    }
 
     @Inject
     public ConfigurationOperations(Lazy<ApiClientRx> apiClientRx, Lazy<ApiClient> apiClient,
@@ -82,12 +98,7 @@ public class ConfigurationOperations {
         return Observable.interval(POLLING_INITIAL_DELAY, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS, scheduler)
                 .take(POLLING_MAX_ATTEMPTS)
                 .flatMap(toFetchConfiguration)
-                .first(new Func1<Configuration, Boolean>() {
-                    @Override
-                    public Boolean call(Configuration configuration) {
-                        return configuration.plan.id.equals(expectedPlan);
-                    }
-                });
+                .first(isExpectedPlan(expectedPlan)).doOnNext(saveConfiguration);
     }
 
     public DeviceManagement registerDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {

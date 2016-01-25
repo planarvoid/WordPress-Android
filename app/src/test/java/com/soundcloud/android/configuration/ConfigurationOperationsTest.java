@@ -3,8 +3,11 @@ package com.soundcloud.android.configuration;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -64,7 +67,6 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations = new ConfigurationOperations(InjectionSupport.lazyOf(apiClientRx), InjectionSupport.lazyOf(apiClient),
                 experimentOperations, featureOperations, featureFlags, scheduler);
 
-
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(configuration));
@@ -115,6 +117,18 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void updateUntilPlanChangedSavedConfigurationWhenExpectedPlanIsReturned() {
+        final Configuration withPlan = getHighTierConfiguration();
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(Observable.just(withPlan));
+
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
+        scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
+
+        verify(featureOperations).updatePlan(eq(Plan.HIGH_TIER), anyList());
+    }
+
+    @Test
     public void updateUntilPlanChangedFailsAfterThreeAttempts() {
         final Configuration noPlan = getNoPlanConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
@@ -123,6 +137,17 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
         scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
         subscriber.assertError(NoSuchElementException.class);
+    }
+
+    @Test
+    public void updateUntilPlanChangedDoesNotSaveConfigurationIfFailed() {
+        final Configuration noPlan = getNoPlanConfiguration();
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
+
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
+        scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
+
+        verify(featureOperations, never()).updatePlan(anyString(), anyList());
     }
 
     @Test

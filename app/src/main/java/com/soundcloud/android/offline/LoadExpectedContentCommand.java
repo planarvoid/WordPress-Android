@@ -46,7 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class LoadExpectedContentCommand extends Command<Void, ExpectedOfflineContent> {
+class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent> {
     private final static String DISTINCT_KEYWORD = "DISTINCT ";
     private final static Where LIKES_SOUNDS_FILTER = filter()
             .whereEq(Likes.field(TableColumns.Likes._ID), Sounds.field(_ID))
@@ -75,7 +75,7 @@ class LoadExpectedContentCommand extends Command<Void, ExpectedOfflineContent> {
     }
 
     @Override
-    public ExpectedOfflineContent call(Void ignored) {
+    public ExpectedOfflineContent call(Object ignored) {
         final List<OfflineRequestData> requestsData = tracksFromOfflinePlaylists();
         final List<OfflineRequestData> likedTracks = tracksFromLikes();
         requestsData.addAll(likedTracks);

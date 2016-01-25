@@ -6,7 +6,6 @@ import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -71,7 +70,7 @@ public class DailyUpdateService extends IntentService {
         final List<Urn> updatedTracks = policyOperations.updateTrackPolicies();
         if (!updatedTracks.isEmpty()) {
             Log.d(TAG, "Successful policy update for " + updatedTracks.size() + " tracks");
-            eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.success(updatedTracks));
+            eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.create(updatedTracks));
         } else {
             Log.d(TAG, "No policy update received");
         }

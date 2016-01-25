@@ -1,7 +1,11 @@
 package com.soundcloud.android.events;
 
-public class PaymentFailureEvent extends TrackingEvent {
+import com.soundcloud.reporting.DataPoint;
+import com.soundcloud.reporting.Metric;
 
+public class PaymentFailureEvent extends TrackingEvent implements MetricEvent {
+
+    private static final String PAYMENT_FAIL_METRIC = "Payment failure";
     private static final String KEY_REASON = "reason";
 
     public static PaymentFailureEvent create(String reason) {
@@ -22,4 +26,8 @@ public class PaymentFailureEvent extends TrackingEvent {
         return "Payment failure: " + getReason();
     }
 
+    @Override
+    public Metric toMetric() {
+        return Metric.create(PAYMENT_FAIL_METRIC, DataPoint.string("Reason", getReason()));
+    }
 }
