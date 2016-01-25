@@ -20,12 +20,11 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class CollectionPreviewView extends FrameLayout {
-    @VisibleForTesting
-    static final int EXTRA_HOLDER_VIEWS = 1;
 
     @Inject ImageOperations imageOperations;
-    private ViewGroup holder;
+
     private LayoutInflater inflater;
+    private ViewGroup thumbnailContainer;
     private int numThumbnails;
 
     public CollectionPreviewView(Context context, AttributeSet attrs) {
@@ -50,14 +49,14 @@ public class CollectionPreviewView extends FrameLayout {
     private void init(Context context) {
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.collection_preview, this);
-        holder = (ViewGroup) findViewById(R.id.holder);
+        thumbnailContainer = (ViewGroup) findViewById(R.id.thumbnail_container);
     }
 
     public void refreshThumbnails(List<Urn> entities, int numThumbnails) {
         final int numEmptyThumbnails = Math.max(numThumbnails - entities.size(), 0);
         this.numThumbnails = numThumbnails;
 
-        clearThumbnails();
+        thumbnailContainer.removeAllViews();
         populateEmptyThumbnails(numEmptyThumbnails);
         populateArtwork(entities, numEmptyThumbnails);
     }
@@ -74,26 +73,20 @@ public class CollectionPreviewView extends FrameLayout {
         for (int j = 0; j < numImages; j++) {
             inflateThumbnailViewIntoHolder();
 
-            ImageView thumbnail = (ImageView) holder.getChildAt(j + numEmptyThumbnails + EXTRA_HOLDER_VIEWS);
-            imageOperations.displayWithPlaceholder(entities.get(j), ApiImageSize.getListItemImageSize(holder.getResources()), thumbnail);
+            ImageView thumbnail = (ImageView) thumbnailContainer.getChildAt(j + numEmptyThumbnails);
+            imageOperations.displayWithPlaceholder(entities.get(j), ApiImageSize.getListItemImageSize(thumbnailContainer.getResources()), thumbnail);
         }
     }
 
     private void inflateThumbnailViewIntoHolder() {
-        inflater.inflate(R.layout.collections_preview_item_icon_sm, holder);
-
-        if (isLastThumbnailView()) {
-            holder.getChildAt(holder.getChildCount() - 1).setBackgroundResource(R.drawable.bg_collection_empty_slot_end);
+        inflater.inflate(R.layout.collections_preview_item_icon_sm, thumbnailContainer);
+        if (isLastThumbnail()) {
+            thumbnailContainer.getChildAt(thumbnailContainer.getChildCount() - 1).setBackgroundResource(R.drawable.bg_collection_empty_slot_end);
         }
     }
 
-    private boolean isLastThumbnailView() {
-        return holder.getChildCount() - EXTRA_HOLDER_VIEWS == numThumbnails;
+    private boolean isLastThumbnail() {
+        return thumbnailContainer.getChildCount() == numThumbnails;
     }
 
-    void clearThumbnails() {
-        while (EXTRA_HOLDER_VIEWS < holder.getChildCount()){
-            holder.removeViewAt(EXTRA_HOLDER_VIEWS);
-        }
-    }
 }

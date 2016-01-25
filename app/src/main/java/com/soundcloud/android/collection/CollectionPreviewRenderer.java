@@ -2,7 +2,10 @@ package com.soundcloud.android.collection;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.DownloadImageView;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -20,6 +23,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     private final Navigator navigator;
     private final Resources resources;
+    private final FeatureOperations featureOperations;
     private final FeatureFlags featureFlags;
 
     private final View.OnClickListener goToTrackLikesListener = new View.OnClickListener() {
@@ -37,9 +41,11 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     };
 
     @Inject
-    public CollectionPreviewRenderer(Navigator navigator, Resources resources, FeatureFlags featureFlags) {
+    public CollectionPreviewRenderer(Navigator navigator, Resources resources, FeatureOperations featureOperations,
+                                     FeatureFlags featureFlags) {
         this.navigator = navigator;
         this.resources = resources;
+        this.featureOperations = featureOperations;
         this.featureFlags = featureFlags;
     }
 
@@ -69,11 +75,28 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public void bindItemView(int position, View view, List<CollectionItem> list) {
-        bindPreviewView(list.get(position).getLikes(), getLikesPreviewView(view));
-        bindPreviewView(list.get(position).getStations(), getRecentStationsPreviewView(view));
+        bindLikesView(list.get(position).getLikes(), view);
+        setThumbnails(list.get(position).getStations(), getRecentStationsPreviewView(view));
     }
 
-    private void bindPreviewView(List<Urn> entities, CollectionPreviewView previewView) {
+    private void bindLikesView(LikesItem likes, View view) {
+        final CollectionPreviewView likesPreviewView = getLikesPreviewView(view);
+        setThumbnails(likes.getUrns(), likesPreviewView);
+        setLikesDownloadProgressIndicator(likes, view);
+    }
+
+    private void setThumbnails(List<Urn> entities, CollectionPreviewView previewView) {
         previewView.refreshThumbnails(entities, resources.getInteger(R.integer.collection_preview_thumbnail_count));
     }
+
+    private void setLikesDownloadProgressIndicator(LikesItem likes, View likesView) {
+        final DownloadImageView downloadProgressIcon = (DownloadImageView) likesView.findViewById(R.id.collection_download_state);
+
+        if (featureOperations.isOfflineContentEnabled()) {
+            downloadProgressIcon.setState(likes.getDownloadState());
+        } else {
+            downloadProgressIcon.setState(OfflineState.NOT_OFFLINE);
+        }
+    }
+
 }

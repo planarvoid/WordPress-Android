@@ -53,7 +53,7 @@ public class UserSoundsBucketRenderer implements CellRenderer<UserSoundsBucket> 
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsBucket> buckets) {
         heading = ButterKnife.findById(itemView, R.id.heading);
-        holder = ButterKnife.findById(itemView, R.id.holder);
+        holder = ButterKnife.findById(itemView, R.id.thumbnail_container);
         viewAll = ButterKnife.findById(itemView, R.id.view_all);
 
         final UserSoundsBucket bucket = buckets.get(position);

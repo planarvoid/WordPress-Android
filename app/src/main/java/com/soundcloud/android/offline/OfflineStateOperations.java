@@ -2,14 +2,19 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.likes.LoadLikedTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
+import rx.Observable;
+import rx.Scheduler;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,12 +22,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class OfflineTracksCollectionStateOperations {
+public class OfflineStateOperations {
+
     private final IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand;
     private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
     private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
     private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     private final LoadLikedTracksCommand loadLikedTracksCommand;
+
+    private final OfflineContentStorage offlineContentStorage;
+    private final TrackDownloadsStorage trackDownloadsStorage;
+    private final Scheduler scheduler;
+
+    private final Func1<Boolean, Observable<OfflineState>> TO_OFFLINE_LIKES_STATE = new Func1<Boolean, Observable<OfflineState>>() {
+        @Override
+        public Observable<OfflineState> call(Boolean enabled) {
+            if (enabled) {
+                return trackDownloadsStorage.getLikesOfflineState();
+            } else {
+                return Observable.just(OfflineState.NOT_OFFLINE);
+            }
+        }
+    };
 
     private static final Function<PropertySet, OfflineState> TO_OFFLINE_STATE = new Function<PropertySet, OfflineState>() {
         @Override
@@ -32,17 +53,23 @@ class OfflineTracksCollectionStateOperations {
     };
 
     @Inject
-    OfflineTracksCollectionStateOperations(
+    OfflineStateOperations(
             IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand,
             LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
             LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
             LoadPlaylistTracksCommand loadPlaylistTracksCommand,
-            LoadLikedTracksCommand loadLikedTracksCommand) {
+            LoadLikedTracksCommand loadLikedTracksCommand,
+            OfflineContentStorage offlineContentStorage,
+            TrackDownloadsStorage trackDownloadsStorage,
+            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.isOfflineLikedTracksEnabledCommand = isOfflineLikedTracksEnabledCommand;
         this.loadOfflinePlaylistsCommand = loadOfflinePlaylistsCommand;
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
         this.loadLikedTracksCommand = loadLikedTracksCommand;
+        this.offlineContentStorage = offlineContentStorage;
+        this.trackDownloadsStorage = trackDownloadsStorage;
+        this.scheduler = scheduler;
     }
 
     Map<OfflineState, TrackCollections> loadTracksCollectionsState(Urn track, OfflineState state) {
@@ -57,7 +84,12 @@ class OfflineTracksCollectionStateOperations {
             default:
                 throw new IllegalStateException("Unknown state: " + state);
         }
+    }
 
+    public Observable<OfflineState> loadLikedTracksOfflineState() {
+        return offlineContentStorage.isOfflineLikesEnabled()
+                .flatMap(TO_OFFLINE_LIKES_STATE)
+                .subscribeOn(scheduler);
     }
 
     private Map<OfflineState, TrackCollections> determineState(Urn track) {
@@ -143,7 +175,6 @@ class OfflineTracksCollectionStateOperations {
         } else {
             return OfflineState.DOWNLOADED;
         }
-
     }
 
     private boolean isTrackLiked(Urn track) {

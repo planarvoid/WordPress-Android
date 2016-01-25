@@ -4,27 +4,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/preview"
+        style="@style/Collections.CollectionPreview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/Collections.CollectionPreviewTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true" />
+
+        <com.soundcloud.android.offline.DownloadImageView
+            android:id="@+id/collection_download_state"
+            style="@style/DownloadItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_toRightOf="@id/title"
+            android:layout_centerVertical="true" />
 
         <LinearLayout
-            android:id="@+id/holder"
-            style="@style/Collections.CollectionPreview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/title"
-                style="@style/Collections.CollectionPreviewTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-        </LinearLayout>
-
-        <View style="@style/Divider.Section" />
-
-    </LinearLayout>
+            android:id="@+id/thumbnail_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
 
 </merge>

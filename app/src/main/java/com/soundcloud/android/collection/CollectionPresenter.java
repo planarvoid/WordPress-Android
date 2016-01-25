@@ -10,7 +10,6 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -34,13 +33,15 @@ import java.util.List;
 
 public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> implements CollectionAdapter.Listener, CollectionPlaylistOptionsPresenter.Listener, OnboardingItemCellRenderer.Listener {
 
+    private static final int NON_PLAYLIST_COLLECTION_ITEMS = 4;
+
     @VisibleForTesting
     final Func1<MyCollection, Iterable<CollectionItem>> toCollectionItems =
             new Func1<MyCollection, Iterable<CollectionItem>>() {
                 @Override
                 public List<CollectionItem> call(MyCollection myCollection) {
                     List<PlaylistItem> playlistItems = myCollection.getPlaylistItems();
-                    List<CollectionItem> collectionItems = new ArrayList<>(playlistItems.size() + 4);
+                    List<CollectionItem> collectionItems = new ArrayList<>(playlistItems.size() + NON_PLAYLIST_COLLECTION_ITEMS);
 
                     if (collectionOptionsStorage.isOnboardingEnabled()) {
                         collectionItems.add(CollectionItem.fromOnboarding());
@@ -238,7 +239,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
     private void subscribeForUpdates() {
         eventSubscriptions.unsubscribe();
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdateCurrentDownloadSubscriber(adapter)),
+                eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdateCollectionDownloadSubscriber(adapter)),
                 collectionOperations.onCollectionChanged()
                         .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())
