@@ -220,7 +220,7 @@ public class CollectionOperations {
     Observable<MyCollection> collections(final PlaylistsOptions options) {
         return Observable.zip(
                 myPlaylists(options).materialize(),
-                likes().materialize(),
+                likesItem().materialize(),
                 recentStations().materialize(),
                 TO_MY_COLLECTIONS_OR_ERROR
         ).dematerialize();
@@ -251,13 +251,13 @@ public class CollectionOperations {
                 .flatMap(continueWith(loadPlaylists(options)));
     }
 
-    private Observable<LikesItem> likes() {
+    private Observable<LikesItem> likesItem() {
         return Observable.zip(tracksLiked(),
-                likesOfflineState(),
+                likedTracksOfflineState(),
                 TO_LIKES_ITEM);
     }
 
-    private Observable<OfflineState> likesOfflineState() {
+    private Observable<OfflineState> likedTracksOfflineState() {
         return offlineStateOperations.loadLikedTracksOfflineState();
     }
 
@@ -280,7 +280,7 @@ public class CollectionOperations {
         return Observable.zip(
                 refreshAndLoadPlaylists(options),
                 Observable.zip(refreshLikesAndLoadTracksLiked(),
-                        likesOfflineState(),
+                        likedTracksOfflineState(),
                         TO_LIKES_ITEM),
                 refreshRecentStationsAndLoad(),
                 TO_MY_COLLECTIONS

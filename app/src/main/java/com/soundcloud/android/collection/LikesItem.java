@@ -7,10 +7,10 @@ import com.soundcloud.java.collections.PropertySet;
 
 import java.util.List;
 
-class LikesItem {
+final class LikesItem {
 
-    private List<Urn> likes;
-    private PropertySet properties;
+    private final List<Urn> likes;
+    private final PropertySet properties;
 
     static LikesItem fromUrns(List<Urn> likes) {
         return new LikesItem(likes, PropertySet.create());

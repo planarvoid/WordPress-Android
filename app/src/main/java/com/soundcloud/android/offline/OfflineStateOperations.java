@@ -34,7 +34,7 @@ public class OfflineStateOperations {
     private final TrackDownloadsStorage trackDownloadsStorage;
     private final Scheduler scheduler;
 
-    private final Func1<Boolean, Observable<OfflineState>> PENDING_LIKES_TO_OFFLINE_STATE = new Func1<Boolean, Observable<OfflineState>>() {
+    private final Func1<Boolean, Observable<OfflineState>> TO_OFFLINE_LIKES_STATE = new Func1<Boolean, Observable<OfflineState>>() {
         @Override
         public Observable<OfflineState> call(Boolean enabled) {
             if (enabled) {
@@ -88,7 +88,7 @@ public class OfflineStateOperations {
 
     public Observable<OfflineState> loadLikedTracksOfflineState() {
         return offlineContentStorage.isOfflineLikesEnabled()
-                .flatMap(PENDING_LIKES_TO_OFFLINE_STATE)
+                .flatMap(TO_OFFLINE_LIKES_STATE)
                 .subscribeOn(scheduler);
     }
 
