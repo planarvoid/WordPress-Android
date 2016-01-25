@@ -33,6 +33,9 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.TwoStatePreference;
 import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
@@ -57,8 +60,8 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         subscription = new CompositeSubscription();
         if (featureOperations.isOfflineContentEnabled()) {
             addPreferencesFromResource(R.xml.settings_offline);
@@ -70,6 +73,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
             addPreferencesFromResource(R.xml.settings_offline_clear);
             setupClearContent();
         }
+        return view;
     }
 
     private void setupUpsell() {
@@ -104,9 +108,9 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
         subscription.unsubscribe();
+        super.onDestroyView();
     }
 
     @Override
