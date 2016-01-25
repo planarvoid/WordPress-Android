@@ -285,4 +285,5 @@ public class TestUser {
     // not used directly in a test, but user info is kept here for documentation
     public static final TestUser adUser = new TestUser("scandroidad1", "scandroidtestad1@gmail.com", "scandtest", "");
     public static final TestUser androidTestUser = new TestUser("andtestpl", "sc.test.user.pl1@gmail.com", "addtest", "");
+    public static final TestUser androidTestTrackMaker = new TestUser("ScAndTrackMaker", "ScAndTrackMaker@gmail.com", "passwordyeah88", "");
 }

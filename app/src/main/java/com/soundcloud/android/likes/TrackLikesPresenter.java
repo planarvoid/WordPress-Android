@@ -1,8 +1,8 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -11,9 +11,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -53,7 +53,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
     private final TrackLikeOperations likeOperations;
     private final FeatureOperations featureOperations;
-    private final OfflinePlaybackOperations playbackOperations;
+    private final PlaybackInitiator playbackOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final PagedTracksRecyclerItemAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
@@ -67,7 +67,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
     @Inject
     TrackLikesPresenter(TrackLikeOperations likeOperations,
-                        OfflinePlaybackOperations playbackOperations,
+                        PlaybackInitiator playbackInitiator,
                         OfflineContentOperations offlineContentOperations,
                         PagedTracksRecyclerItemAdapter adapter,
                         TrackLikesHeaderPresenter headerPresenter,
@@ -77,7 +77,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
                         CollapsingScrollHelper scrollHelper) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
-        this.playbackOperations = playbackOperations;
+        this.playbackOperations = playbackInitiator;
         this.offlineContentOperations = offlineContentOperations;
         this.adapter = adapter;
         this.headerPresenter = headerPresenter;
@@ -183,7 +183,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
             Urn initialTrack = item.getEntityUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.LIKES);
             playbackOperations
-                    .playLikes(initialTrack, position, playSessionSource)
+                    .playTracks(likeOperations.likedTrackUrns(), initialTrack, position, playSessionSource)
                     .subscribe(expandPlayerSubscriberProvider.get());
         }
     }

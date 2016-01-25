@@ -34,10 +34,10 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.share.ShareOperations;
@@ -62,6 +62,7 @@ import android.support.v4.app.FragmentManager;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
@@ -69,6 +70,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     private PlaylistWithTracks playlistWithTracks;
     private PublishSubject<ChangeResult> publishSubject;
     private TestEventBus eventBus;
+    private Observable<List<Urn>> playlistTrackurns = Observable.just(Arrays.asList(Urn.forTrack(1)));
 
     @Mock private RepostOperations repostOperations;
     @Mock private Context context;
@@ -78,8 +80,9 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Mock private ViewGroup rootView;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private FeatureOperations featureOperations;
+    @Mock private PlaylistOperations playlistOperations;
     @Mock private Fragment fragment;
-    @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private Navigator navigator;
     @Mock private ShareOperations shareOperations;
@@ -92,8 +95,8 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     public void setup() {
         eventBus = new TestEventBus();
         controller = new PlaylistEngagementsPresenter(eventBus, repostOperations, accountOperations, likeOperations,
-                engagementsView, featureOperations, offlineContentOperations, offlinePlaybackOperations,
-                playbackToastHelper, navigator, shareOperations);
+                engagementsView, featureOperations, offlineContentOperations, playbackInitiator,
+                playlistOperations, playbackToastHelper, navigator, shareOperations);
         when(rootView.getContext()).thenReturn(context);
         when(context.getResources()).thenReturn(resources());
         when(fragment.getFragmentManager()).thenReturn(fragmentManager);
@@ -105,6 +108,8 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         verify(engagementsView).setOnEngagement(listenerCaptor.capture());
         onEngagementListener = listenerCaptor.getValue();
         publishSubject = PublishSubject.create();
+
+        when(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn())).thenReturn(playlistTrackurns);
     }
 
     @After
@@ -216,7 +221,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     public void shouldPlayShuffledThroughContentOperationsOnPlayShuffled() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
         final PublishSubject<PlaybackResult> subject = PublishSubject.create();
-        when(offlinePlaybackOperations.playPlaylistShuffled(playlistWithTracks.getUrn(), getPlaySessionSource()))
+        when(playbackInitiator.playTracksShuffled(playlistTrackurns, getPlaySessionSource()))
                 .thenReturn(subject);
 
         onEngagementListener.onPlayShuffled();

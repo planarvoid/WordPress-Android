@@ -26,10 +26,10 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -59,9 +59,11 @@ import android.widget.RelativeLayout;
 import javax.inject.Provider;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class PlaylistDetailFragmentTest extends AndroidUnitTest {
 
+    private final Observable<List<Urn>> playlistTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1)));
     private PlaylistDetailFragment fragment;
     private PlaylistWithTracks playlistWithTracks;
     private TestEventBus eventBus = new TestEventBus();
@@ -72,7 +74,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
     @Mock private PlaylistDetailsController.Provider controllerProvider;
     @Mock private PlaylistDetailsController controller;
     @Mock private PlaySessionController playSessionController;
-    @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistEngagementsPresenter playlistEngagementsPresenter;
@@ -88,7 +90,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
         fragment = new PlaylistDetailFragment(
                 controllerProvider,
                 playSessionController,
-                offlinePlaybackOperations,
+                playbackInitiator,
                 playlistOperations,
                 eventBus,
                 imageOperations,
@@ -108,7 +110,8 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
         when(controller.getAdapter()).thenReturn(adapter);
         when(adapter.getViewTypeCount()).thenReturn(1);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithTracks));
-        when(offlinePlaybackOperations.playPlaylist(any(Urn.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
+        when(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn())).thenReturn(playlistTrackUrns);
+        when(playbackInitiator.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(312L));
     }
 
@@ -140,7 +143,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(trackItem);
 
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(offlinePlaybackOperations.playPlaylist(playlistWithTracks.getUrn(), trackItem.getEntityUrn(), 0, getPlaySessionSource()))
+        when(playbackInitiator.playTracks(playlistTrackUrns, trackItem.getEntityUrn(), 0, getPlaySessionSource()))
                 .thenReturn(Observable.just(playbackResult));
 
         list.getOnItemClickListener().onItemClick(list, mock(View.class), /* offset for header */ 1, 123);
@@ -217,7 +220,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
 
         createFragmentView(true);
 
-        verify(offlinePlaybackOperations).playPlaylist(playlistWithTracks.getUrn(), playlistTrack.getEntityUrn(), 0, playSessionSource);
+        verify(playbackInitiator).playTracks(playlistTrackUrns, playlistTrack.getEntityUrn(), 0, playSessionSource);
     }
 
     @Test
@@ -240,7 +243,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
 
         getPlayButton(layout).performClick();
 
-        verify(offlinePlaybackOperations).playPlaylist(playlistWithTracks.getUrn(), playlistTrack.getEntityUrn(), 0, playSessionSource);
+        verify(playbackInitiator).playTracks(playlistTrackUrns, playlistTrack.getEntityUrn(), 0, playSessionSource);
     }
 
     @Test

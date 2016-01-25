@@ -6,10 +6,12 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
@@ -30,14 +32,16 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     private final TrackLikesHeaderView headerView;
     private final OfflineStateOperations offlineStateOperations;
-    private final OfflinePlaybackOperations playbackOperations;
+    private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final FeatureOperations featureOperations;
     private final EventBus eventBus;
+    private final TrackLikeOperations likeOperations;
 
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
         @Override
         public void call() {
+
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffleMyLikes());
         }
     };
@@ -45,8 +49,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final View.OnClickListener onShuffleButtonClick = new View.OnClickListener() {
         @Override
         public void onClick(final View view) {
-            playbackOperations
-                    .playLikedTracksShuffled(new PlaySessionSource(Screen.LIKES))
+            playbackInitiator.playTracksShuffled(likeOperations.likedTrackUrns(), new PlaySessionSource(Screen.LIKES))
                     .doOnCompleted(sendShuffleLikesAnalytics)
                     .subscribe(expandPlayerSubscriberProvider.get());
         }
@@ -57,16 +60,18 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     @Inject
     public TrackLikesHeaderPresenter(TrackLikesHeaderView headerView,
                                      OfflineStateOperations offlineStateOperations,
-                                     OfflinePlaybackOperations playbackOperations,
+                                     PlaybackInitiator playbackInitiator,
                                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                      FeatureOperations featureOperations,
-                                     EventBus eventBus) {
+                                     EventBus eventBus,
+                                     TrackLikeOperations likeOperations) {
         this.headerView = headerView;
         this.offlineStateOperations = offlineStateOperations;
-        this.playbackOperations = playbackOperations;
+        this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.featureOperations = featureOperations;
         this.eventBus = eventBus;
+        this.likeOperations = likeOperations;
     }
 
     @Override

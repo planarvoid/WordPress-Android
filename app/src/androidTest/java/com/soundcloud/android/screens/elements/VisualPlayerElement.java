@@ -399,8 +399,16 @@ public class VisualPlayerElement extends Element {
        return centeredAdArtwork().isOnScreen();
     }
 
+    public String error() {
+        return errorElement().getText();
+    }
+
     public String errorReason() {
         return errorReasonElement().getText();
+    }
+
+    private TextElement errorElement() {
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.playback_error)));
     }
 
     private TextElement errorReasonElement() {

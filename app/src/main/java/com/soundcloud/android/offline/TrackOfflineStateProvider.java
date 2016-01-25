@@ -10,9 +10,11 @@ import rx.android.schedulers.AndroidSchedulers;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.Map;
 
+@Singleton
 public class TrackOfflineStateProvider {
 
     private final TrackDownloadsStorage trackDownloadsStorage;
