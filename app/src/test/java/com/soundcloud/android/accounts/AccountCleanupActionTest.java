@@ -160,6 +160,12 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldClearPolicies() {
+        action.call();
+        verify(clearTableCommand).call(Table.TrackPolicies);
+    }
+
+    @Test
     public void shouldRemoveLocalPlaylists() throws PropellerWriteException {
         action.call();
         verify(removeLocalPlaylistsCommand).call(null);
