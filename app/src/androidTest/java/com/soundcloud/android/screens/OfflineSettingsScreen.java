@@ -37,6 +37,11 @@ public class OfflineSettingsScreen extends Screen {
         return new UpgradeScreen(testDriver);
     }
 
+    public ConfirmRemoveOfflineContentScreen clickRemoveOfflineContent() {
+        testDriver.clickOnText(R.string.pref_offline_remove_all_offline_content);
+        return new ConfirmRemoveOfflineContentScreen(testDriver);
+    }
+
     public String getSliderLimitText() {
         return sliderLimitText().getText();
     }

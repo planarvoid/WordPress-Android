@@ -146,20 +146,21 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         offlineContentOperations.disableOfflineCollection();
+                        removeAllOfflineContent();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        setOfflineCollectionChecked();
+                        setOfflineCollectionChecked(true);
                     }
                 })
                 .show();
     }
 
-    private void setOfflineCollectionChecked() {
+    private void setOfflineCollectionChecked(boolean checked) {
         TwoStatePreference offlineCollection = (TwoStatePreference) findPreference(OFFLINE_COLLECTION);
-        offlineCollection.setChecked(true);
+        offlineCollection.setChecked(checked);
     }
 
     private void onUpdateStorageLimit(long limit) {
@@ -196,19 +197,27 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
                 .setPositiveButton(R.string.btn_continue, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        subscription.add(offlineContentOperations
-                                .clearOfflineContent()
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new ClearOfflineContentSubscriber()));
+                        removeAllOfflineContent();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 
+    private void removeAllOfflineContent() {
+        subscription.add(offlineContentOperations
+                .clearOfflineContent()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new ClearOfflineContentSubscriber()));
+    }
+
     private final class ClearOfflineContentSubscriber extends DefaultSubscriber<Void> {
         @Override
         public void onNext(Void ignored) {
+            if (offlineContentOperations.isOfflineCollectionEnabled()) {
+                offlineContentOperations.disableOfflineCollection();
+                setOfflineCollectionChecked(false);
+            }
             refreshStoragePreference();
         }
     }

@@ -68,6 +68,17 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertThat(downloadElement.isVisible(), is(true));
     }
 
+    public void testRemoveOfflineContentDisablesOfflineCollection() {
+        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
+        assertTrue(offlineSettingsScreen.isVisible());
+
+        offlineSettingsScreen.toggleSyncCollectionOn()
+                .clickRemoveOfflineContent()
+                .clickConfirm();
+
+        assertThat(offlineSettingsScreen.isOfflineCollectionChecked(), is(false));
+    }
+
     public void testOfflineLimitSlider() {
         offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
