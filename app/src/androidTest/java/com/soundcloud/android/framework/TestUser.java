@@ -274,13 +274,17 @@ public class TestUser {
             "s0undcl0ud_HT2016",
             "1-21686-197818552-f855a13009456a",
             197818552);
-
     public static final TestUser playlistExplosionUser = new TestUser(
             "user-986959733-404206267",
             "androidtest+playlist+explode@soundcloud.com",
             "s0undcl0ud",
-            "1-21686-196444133-fbc606e15e1b6c"
-    );
+            "1-21686-196444133-fbc606e15e1b6c");
+    public static final TestUser searchHighTierUser = new TestUser(
+            "user-search-ht",
+            "searchhightieruser@gmail.com",
+            "s0undcl0ud",
+            "1-21686-201096632-3c76c3dc3b6ed0",
+            201096632);
 
     // not used directly in a test, but user info is kept here for documentation
     public static final TestUser adUser = new TestUser("scandroidad1", "scandroidtestad1@gmail.com", "scandtest", "");

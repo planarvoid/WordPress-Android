@@ -46,7 +46,7 @@ public class SearchPremiumResultsActivity extends ScActivity {
         final Link nextHref = intent.getParcelableExtra(EXTRA_PREMIUM_CONTENT_NEXT_HREF);
         Preconditions.checkState(premiumContentList != null && !premiumContentList.isEmpty(), "Invalid search premium content list");
         final Fragment fragment = SearchPremiumResultsFragment.create(searchQuery, searchType, premiumContentList, nextHref);
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment, SearchPremiumResultsFragment.TAG).commit();
     }
 
     @Override
