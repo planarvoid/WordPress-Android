@@ -48,7 +48,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     public ProfileScreen findAndClickFirstUserItem() {
-        scrollToItem(With.id(com.soundcloud.android.R.id.user_list_item)).click();
+        scrollToItem(With.id(R.id.user_list_item)).click();
         return new ProfileScreen(testDriver);
     }
 
@@ -148,7 +148,7 @@ public class SearchResultsScreen extends Screen {
         return waiter.waitForFragmentByTag(FRAGMENT);
     }
 
-    public boolean premiumContentIsVisible() {
-        return premiumContent().isVisible();
+    public boolean premiumContentIsOnScreen() {
+        return premiumContent().isOnScreen();
     }
 }
