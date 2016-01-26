@@ -6,6 +6,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -57,6 +58,22 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
 
         assertThat(playlist.downloadElement().isVisible(), is(true));
         assertThat(checkSyncEntireCollectionStatus(), is(true));
+    }
+
+    public void testDisablingSyncEntireCollectionViaPlaylistLeavesOtherContentDownloaded() {
+        enableSyncEntireCollection();
+        final CollectionScreen screen = mainNavHelper.goToCollections();
+        final PlaylistElement playlist1 = screen.scrollToFirstPlaylist();
+
+        playlist1.clickOverflow()
+                .clickMakeUnavailableOfflineToDisableSyncCollection()
+                .clickOk();
+
+        assertThat(playlist1.downloadElement().isVisible(), is(false));
+
+        final PlaylistElement playlist2 = screen.scrollToPlaylistWithTitle("Offline playlist");
+
+        assertThat(playlist2.downloadElement().isVisible(), is(true));
     }
 
     private boolean checkSyncEntireCollectionStatus() {
