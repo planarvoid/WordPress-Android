@@ -662,7 +662,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void moveToNextPlayableItemGoesToLastItemIfAllBlocked() {
+    public void moveToNextPlayableItemGoesToNextItemIfAllBlocked() {
         final Map<Urn, Boolean> blockedMap = new HashMap<>();
         blockedMap.put(Urn.forTrack(2L), true);
         blockedMap.put(Urn.forTrack(3L), true);
@@ -672,9 +672,9 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                 TestUrns.createTrackUrns(1L, 2L, 3L, 4L), playlistSessionSource, blockedMap), playlistSessionSource);
 
         assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
-        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(3);
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
         final PlayQueueItem actual = eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem();
-        assertPlayQueueItemsEqual(actual, TestPlayQueueItem.createBlockedTrack(Urn.forTrack(4L)));
+        assertPlayQueueItemsEqual(actual, TestPlayQueueItem.createBlockedTrack(Urn.forTrack(2L)));
     }
 
     @Test
@@ -955,12 +955,18 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getQueueItemsRemainingReturnsQueueItemsRemaining() {
-        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
+    public void getPlayableQueueItemsRemainingReturnsPlayableQueueItemsRemaining() {
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(false);
+        when(offlineStateProvider.getOfflineState(Urn.forTrack(4L))).thenReturn(OfflineState.DOWNLOADED);
+        final Map<Urn, Boolean> blockedMap = new HashMap<>();
+        blockedMap.put(Urn.forTrack(3L), true);
+        blockedMap.put(Urn.forTrack(4L), false);
 
-        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource), playlistSessionSource);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(
+                TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L), playlistSessionSource, blockedMap), playlistSessionSource, 1);
 
-        assertThat(playQueueManager.getQueueItemsRemaining()).isEqualTo(2);
+        // should only return 4, which is marked as downloaded
+        assertThat(playQueueManager.getPlayableQueueItemsRemaining()).isEqualTo(1);
     }
 
     @Test
