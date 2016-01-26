@@ -2,16 +2,20 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Func1;
@@ -23,35 +27,89 @@ import android.view.View;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsBucket> {
-    private static PagedRemoteCollection SOURCE_TO_PAGED_REMOTE_COLLECTION(ModelCollection<? extends ApiEntityHolderSource> modelCollection) {
-        return new PagedRemoteCollection(TO_PROPERTY_SET_SOURCES(modelCollection));
-    }
+class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
 
-    private static PagedRemoteCollection TO_PAGED_REMOTE_COLLECTION(ModelCollection<? extends PropertySetSource> modelCollection) {
-        return new PagedRemoteCollection(modelCollection);
-    }
+    private Collection<UserSoundsItem> HOLDER_SOURCE_COLLECTION_TO_USER_SOUND_ITEMS(ModelCollection<? extends ApiEntityHolderSource> modelCollection, int collectionType) {
+        List<UserSoundsItem> items = new ArrayList<>();
 
-    private static ModelCollection<PropertySetSource> TO_PROPERTY_SET_SOURCES(ModelCollection<? extends ApiEntityHolderSource> entityHolderSources) {
-        List<PropertySetSource> entities = new ArrayList<>();
+        items.add(UserSoundsItem.fromHeader(collectionType));
 
-        for (ApiEntityHolderSource entityHolderSource : entityHolderSources) {
-            final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
+        items.addAll(Lists.transform(
+                modelCollection.getCollection(),
+                HOLDER_SOURCE_TO_USER_SOUND_ITEMS(collectionType)));
 
-            if (entityHolder.isPresent()) {
-                entities.add(entityHolder.get());
-            }
+        if (modelCollection.getNextLink().isPresent()) {
+            items.add(UserSoundsItem.fromViewAll(collectionType));
         }
 
-        return new ModelCollection<>(entities, entityHolderSources.getLinks());
+        items.add(UserSoundsItem.fromDivider());
+
+        return items;
     }
 
-    private final Func1<UserProfileRecord, Iterable<UserSoundsBucket>> TO_BUCKETS = new Func1<UserProfileRecord, Iterable<UserSoundsBucket>>() {
+    private Collection<UserSoundsItem> HOLDER_COLLECTION_TO_USER_SOUND_ITEMS(ModelCollection<? extends ApiEntityHolder> modelCollection, int collectionType) {
+        List<UserSoundsItem> items = new ArrayList<>();
+
+        items.add(UserSoundsItem.fromHeader(collectionType));
+
+        items.addAll(Lists.transform(
+                modelCollection.getCollection(),
+                HOLDER_TO_USER_SOUND_ITEMS(collectionType)));
+
+        if (modelCollection.getNextLink().isPresent()) {
+            items.add(UserSoundsItem.fromViewAll(collectionType));
+        }
+
+        items.add(UserSoundsItem.fromDivider());
+
+        return items;
+    }
+
+    private static Function<ApiEntityHolderSource, UserSoundsItem> HOLDER_SOURCE_TO_USER_SOUND_ITEMS(final int collectionType) {
+        return new Function<ApiEntityHolderSource, UserSoundsItem>() {
+            @Override
+            public UserSoundsItem apply(ApiEntityHolderSource entityHolderSource) {
+                final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
+
+                if (entityHolder.isPresent()) {
+                    final PropertySet properties = entityHolder.get().toPropertySet();
+
+                    if (properties.get(EntityProperty.URN).isTrack()) {
+                        return UserSoundsItem.fromTrackItem(TrackItem.from(properties), collectionType);
+                    } else {
+                        return UserSoundsItem.fromPlaylistItem(PlaylistItem.from(properties), collectionType);
+                    }
+                }
+
+                return null;
+            }
+        };
+    }
+
+
+    private static Function<ApiEntityHolder, UserSoundsItem> HOLDER_TO_USER_SOUND_ITEMS(final int collectionType) {
+        return new Function<ApiEntityHolder, UserSoundsItem>() {
+            @Override
+            public UserSoundsItem apply(ApiEntityHolder holder) {
+                final PropertySet properties = holder.toPropertySet();
+
+                if (properties.get(EntityProperty.URN).isTrack()) {
+                    return UserSoundsItem.fromTrackItem(TrackItem.from(properties), collectionType);
+                } else {
+                    return UserSoundsItem.fromPlaylistItem(PlaylistItem.from(properties), collectionType);
+                }
+            }
+        };
+    }
+
+    private final Func1<UserProfileRecord, Iterable<UserSoundsItem>> TO_USER_SOUND_ITEMS = new Func1<UserProfileRecord, Iterable<UserSoundsItem>>() {
         @Override
-        public Iterable<UserSoundsBucket> call(UserProfileRecord userProfile) {
-            final List<UserSoundsBucket> buckets = new ArrayList<>();
+        public Iterable<UserSoundsItem> call(UserProfileRecord userProfile) {
+            final List<UserSoundsItem> items = new ArrayList<>();
+
             final ModelCollection<? extends ApiEntityHolderSource> spotlight = userProfile.getSpotlight();
             final ModelCollection<? extends ApiEntityHolder> tracks = userProfile.getTracks();
             final ModelCollection<? extends ApiEntityHolder> releases = userProfile.getReleases();
@@ -60,30 +118,60 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsBucket> {
             final ModelCollection<? extends ApiEntityHolderSource> likes = userProfile.getLikes();
 
             if (!spotlight.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_spotlight_heading), UserSoundsTypes.SPOTLIGHT, SOURCE_TO_PAGED_REMOTE_COLLECTION(spotlight)));
+                items.addAll(HOLDER_SOURCE_COLLECTION_TO_USER_SOUND_ITEMS(spotlight, UserSoundsTypes.SPOTLIGHT));
             }
 
             if (!tracks.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_tracks_heading), UserSoundsTypes.TRACKS, TO_PAGED_REMOTE_COLLECTION(tracks)));
+                items.add(UserSoundsItem.fromHeader(UserSoundsTypes.TRACKS));
+
+                items.addAll(Lists.transform(
+                        tracks.getCollection(),
+                        HOLDER_TO_USER_SOUND_ITEMS(UserSoundsTypes.TRACKS)));
+
+                if (tracks.getNextLink().isPresent()) {
+                    items.add(UserSoundsItem.fromViewAll(UserSoundsTypes.TRACKS));
+                }
+
+                items.add(UserSoundsItem.fromDivider());
             }
 
             if (!releases.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_releases_heading), UserSoundsTypes.RELEASES, TO_PAGED_REMOTE_COLLECTION(releases)));
+                items.add(UserSoundsItem.fromHeader(UserSoundsTypes.RELEASES));
+
+                items.addAll(Lists.transform(
+                        releases.getCollection(),
+                        HOLDER_TO_USER_SOUND_ITEMS(UserSoundsTypes.RELEASES)));
+
+                if (releases.getNextLink().isPresent()) {
+                    items.add(UserSoundsItem.fromViewAll(UserSoundsTypes.RELEASES));
+                }
+
+                items.add(UserSoundsItem.fromDivider());
             }
 
             if (!playlists.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_playlists_heading), UserSoundsTypes.PLAYLISTS, TO_PAGED_REMOTE_COLLECTION(playlists)));
+                items.add(UserSoundsItem.fromHeader(UserSoundsTypes.PLAYLISTS));
+
+                items.addAll(Lists.transform(
+                        playlists.getCollection(),
+                        HOLDER_TO_USER_SOUND_ITEMS(UserSoundsTypes.PLAYLISTS)));
+
+                if (playlists.getNextLink().isPresent()) {
+                    items.add(UserSoundsItem.fromViewAll(UserSoundsTypes.PLAYLISTS));
+                }
+
+                items.add(UserSoundsItem.fromDivider());
             }
 
             if (!reposts.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_reposts_heading), UserSoundsTypes.REPOSTS, SOURCE_TO_PAGED_REMOTE_COLLECTION(reposts)));
+                items.addAll(HOLDER_SOURCE_COLLECTION_TO_USER_SOUND_ITEMS(reposts, UserSoundsTypes.REPOSTS));
             }
 
             if (!likes.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_likes_heading), UserSoundsTypes.LIKES, SOURCE_TO_PAGED_REMOTE_COLLECTION(likes)));
+                items.addAll(HOLDER_SOURCE_COLLECTION_TO_USER_SOUND_ITEMS(likes, UserSoundsTypes.LIKES));
             }
 
-            return buckets;
+            return items;
         }
     };
 
@@ -107,19 +195,19 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsBucket> {
     }
 
     @Override
-    protected CollectionBinding<UserSoundsBucket> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<UserSoundsItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
 
         return CollectionBinding
-                .from(operations.userProfile(userUrn).map(TO_BUCKETS))
+                .from(operations.userProfile(userUrn).map(TO_USER_SOUND_ITEMS))
                 .withAdapter(adapter)
                 .build();
     }
 
     @Override
-    protected CollectionBinding<UserSoundsBucket> onRefreshBinding() {
+    protected CollectionBinding<UserSoundsItem> onRefreshBinding() {
         return CollectionBinding
-                .from(operations.userProfile(userUrn).map(TO_BUCKETS))
+                .from(operations.userProfile(userUrn).map(TO_USER_SOUND_ITEMS))
                 .withAdapter(adapter)
                 .build();
     }
