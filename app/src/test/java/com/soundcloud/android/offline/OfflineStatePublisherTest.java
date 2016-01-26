@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class OfflineStatePublisherTest extends AndroidUnitTest {
@@ -40,6 +41,13 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         final Map<OfflineState, TrackCollections> collectionsMap = singletonMap(REQUESTED, TrackCollections.create(singletonList(PLAYLIST), false));
         when(offlineStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class))).thenReturn(collectionsMap);
+    }
+
+    @Test
+    public void publishEmptyCollections() {
+        publisher.publishEmptyCollections(new ExpectedOfflineContent(Collections.<DownloadRequest>emptyList(), singletonList(PLAYLIST), true, Collections.<Urn>emptyList()));
+
+        assertEvent(event(0), REQUESTED, true, PLAYLIST);
     }
 
     @Test

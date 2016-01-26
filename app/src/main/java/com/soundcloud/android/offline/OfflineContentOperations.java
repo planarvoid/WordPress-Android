@@ -1,7 +1,6 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.rx.RxUtils.continueWith;
-import static com.soundcloud.android.rx.RxUtils.returning;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.collection.CollectionOperations;
@@ -9,11 +8,11 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -41,12 +40,13 @@ public class OfflineContentOperations {
     private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
 
     private final OfflineServiceInitiator serviceInitiator;
+    private final SyncInitiator syncInitiator;
     private final TrackDownloadsStorage tracksStorage;
     private final OfflineContentStorage offlineContentStorage;
-    private final PlaylistOperations playlistOperations;
     private final CollectionOperations collectionOperations;
     private final FeatureOperations featureOperations;
     private final PolicyOperations policyOperations;
+    private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
     private final EventBus eventBus;
     private final Scheduler scheduler;
 
@@ -67,13 +67,6 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Func1<List<Urn>, Observable<List<PlaylistWithTracks>>> loadPlaylistsTracksIfNecessary = new Func1<List<Urn>, Observable<List<PlaylistWithTracks>>>() {
-        @Override
-        public Observable<List<PlaylistWithTracks>> call(List<Urn> urns) {
-            return playlistOperations.playlists(urns);
-        }
-    };
-
     private final Func1<List<Urn>, Observable<?>> addOfflinePlaylists = new Func1<List<Urn>, Observable<?>>() {
         @Override
         public Observable<?> call(List<Urn> playlists) {
@@ -88,6 +81,13 @@ public class OfflineContentOperations {
         }
     };
 
+    private final Func1<Object, Observable<Boolean>> refreshMyPlaylists = new Func1<Object, Observable<Boolean>>() {
+        @Override
+        public Observable<Boolean> call(Object object) {
+            return syncInitiator.refreshMyPlaylists();
+        }
+    };
+
     @Inject
     OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
                              LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
@@ -98,10 +98,11 @@ public class OfflineContentOperations {
                              LoadExpectedContentCommand loadExpectedContentCommand,
                              LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
                              OfflineServiceInitiator serviceInitiator,
+                             SyncInitiator syncInitiator,
                              FeatureOperations featureOperations,
                              TrackDownloadsStorage tracksStorage,
-                             PlaylistOperations playlistOperations,
                              CollectionOperations collectionOperations,
+                             LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
@@ -112,10 +113,11 @@ public class OfflineContentOperations {
         this.loadExpectedContentCommand = loadExpectedContentCommand;
         this.loadOfflineContentUpdatesCommand = loadOfflineContentUpdatesCommand;
         this.serviceInitiator = serviceInitiator;
+        this.syncInitiator = syncInitiator;
         this.featureOperations = featureOperations;
         this.tracksStorage = tracksStorage;
-        this.playlistOperations = playlistOperations;
         this.collectionOperations = collectionOperations;
+        this.loadOfflinePlaylistsCommand = loadOfflinePlaylistsCommand;
         this.scheduler = scheduler;
     }
 
@@ -123,12 +125,14 @@ public class OfflineContentOperations {
         final Observable<Object> storeCollectionsPlaylists = collectionOperations
                 .myPlaylists().map(TO_URN)
                 .flatMap(addOfflinePlaylists);
+
         return offlineContentStorage
                 .storeLikedTrackCollection()
                 .flatMap(continueWith(storeCollectionsPlaylists))
                 .doOnNext(storeOfflineCollectionEnabled)
-                .map(RxUtils.TO_VOID)
                 .doOnNext(serviceInitiator.action1Start())
+                .flatMap(refreshMyPlaylists)
+                .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
 
@@ -173,18 +177,30 @@ public class OfflineContentOperations {
         return offlineContentStorage.isOfflinePlaylist(playlist).subscribeOn(scheduler);
     }
 
-    public Observable<ChangeResult> makePlaylistAvailableOffline(final Urn playlistUrn) {
+    public Observable<Void> makePlaylistAvailableOffline(final Urn playlistUrn) {
         return offlineContentStorage
                 .storeAsOfflinePlaylist(playlistUrn)
                 .doOnNext(serviceInitiator.action1Start())
+                .flatMap(syncPlaylist(playlistUrn))
+                .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
 
-    public Observable<ChangeResult> makePlaylistUnavailableOffline(final Urn playlistUrn) {
+    private Func1<ChangeResult, Observable<SyncResult>> syncPlaylist(final Urn playlistUrn) {
+        return new Func1<ChangeResult, Observable<SyncResult>>() {
+            @Override
+            public Observable<SyncResult> call(ChangeResult changeResult) {
+                return syncInitiator.syncPlaylist(playlistUrn);
+            }
+        };
+    }
+
+    public Observable<Void> makePlaylistUnavailableOffline(final Urn playlistUrn) {
         return offlineContentStorage
                 .removePlaylistFromOffline(playlistUrn)
                 .doOnNext(eventBus.publishAction1(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.removed(playlistUrn)))
                 .doOnNext(serviceInitiator.action1Start())
+                .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
 
@@ -202,7 +218,7 @@ public class OfflineContentOperations {
 
     private Observable<?> notifyOfflineContentRemoved() {
         return Observable.zip(
-                offlineContentStorage.loadOfflinePlaylists(),
+                loadOfflinePlaylistsCommand.toObservable(null),
                 isOfflineLikedTracksEnabled(),
                 new Func2<List<Urn>, Boolean, OfflineContentChangedEvent>() {
                     @Override
@@ -223,25 +239,16 @@ public class OfflineContentOperations {
     }
 
     Observable<OfflineContentUpdates> loadOfflineContentUpdates() {
-        return offlineContentStorage
-                .loadOfflinePlaylists()
-                .flatMap(loadPlaylistsTracksIfNecessary)
-                .flatMap(tryToUpdateAllPolicies())
+        return tryToUpdatePolicies()
                 .flatMap(loadExpectedContentCommand.toContinuation())
                 .flatMap(loadOfflineContentUpdatesCommand.toContinuation())
                 .doOnNext(storeDownloadUpdatesCommand.toAction())
                 .subscribeOn(scheduler);
     }
 
-    private Func1<List<PlaylistWithTracks>, Observable<List<PlaylistWithTracks>>> tryToUpdateAllPolicies() {
-        return new Func1<List<PlaylistWithTracks>, Observable<List<PlaylistWithTracks>>>() {
-            @Override
-            public Observable<List<PlaylistWithTracks>> call(List<PlaylistWithTracks> playlistWithTracks) {
-                return updateOfflineContentStalePolicies()
-                        .map(returning(playlistWithTracks))
-                        .onErrorResumeNext(Observable.just(playlistWithTracks));
-            }
-        };
+    private Observable<Void> tryToUpdatePolicies() {
+        final Observable<Void> resumeObservable = Observable.just(null);
+        return updateOfflineContentStalePolicies().onErrorResumeNext(resumeObservable);
     }
 
     Observable<List<Urn>> loadContentToDelete() {

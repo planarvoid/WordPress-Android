@@ -80,6 +80,13 @@ public class PlaylistOperations {
         }
     };
 
+    private final Func1<Urn, Observable<PlaylistWithTracks>> toPlaylistFromStorageWithTracks = new Func1<Urn, Observable<PlaylistWithTracks>>() {
+        @Override
+        public Observable<PlaylistWithTracks> call(Urn urn) {
+            return playlistWithTracks(urn);
+        }
+    };
+
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                        SyncInitiator syncInitiator,
@@ -155,6 +162,17 @@ public class PlaylistOperations {
                         }
                     }
                 });
+    }
+
+    public Observable<List<PlaylistWithTracks>> playlistsFromStorage(final Collection<Urn> playlists) {
+        if (playlists.isEmpty()) {
+            return Observable.just(Collections.<PlaylistWithTracks>emptyList());
+        } else {
+            return Observable
+                    .from(playlists)
+                    .flatMap(toPlaylistFromStorageWithTracks)
+                    .toList();
+        }
     }
 
     public Observable<List<PlaylistWithTracks>> playlists(final Collection<Urn> playlists) {

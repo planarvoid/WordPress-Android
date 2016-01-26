@@ -5,7 +5,6 @@ import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
-import com.soundcloud.android.commands.PlaylistUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
@@ -96,17 +95,10 @@ class OfflineContentStorage {
         );
     }
 
-    public Observable<List<Urn>> loadOfflinePlaylists() {
-        return propellerRx.query(offlinePlaylists()).map(new PlaylistUrnMapper()).toList();
-    }
-
     public Observable<TxnResult> addOfflinePlaylists(final List<Urn> expectedOfflinePlaylists) {
         return propellerRx.bulkUpsert(OfflineContent.TABLE, buildContentValuesForPlaylist(expectedOfflinePlaylists));
     }
 
-    private static Query offlinePlaylists() {
-        return Query.from(OfflineContent.TABLE).where(offlinePlaylistsFilter());
-    }
 
     public Observable<ChangeResult> deleteLikedTrackCollection() {
         return propellerRx.delete(OfflineContent.TABLE, offlineLikesFilter());
@@ -159,9 +151,6 @@ class OfflineContentStorage {
                 .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION);
     }
 
-    private static Where offlinePlaylistsFilter() {
-        return filter().whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
-    }
 
     private Where playlistFilter(Urn urn) {
         return filter()
