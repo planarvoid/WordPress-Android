@@ -9,6 +9,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
@@ -186,9 +187,9 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Test
     public void publishesDownloadErrorEventsEventWhenTrackDownloadFailed() {
         startService();
-        service.onError(downloadState1);
+        service.onError(unavailableTrackResult1);
 
-        verify(publisher).publishError(downloadRequest1.getTrack());
+        verify(publisher).publishUnavailable(downloadRequest1.getTrack());
     }
 
     @Test
@@ -196,7 +197,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onCancel(downloadState1);
 
-        verify(publisher).publishCancel(downloadRequest1.getTrack());
+        verifyNoMoreInteractions(publisher);
     }
 
     @Test
@@ -206,6 +207,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onError(failedResult1);
 
+        verify(publisher).publishRequested(downloadRequest1.getTrack());
         verify(offlineContentScheduler).scheduleRetry();
         verify(downloadHandler).quit();
     }
@@ -242,7 +244,6 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         verify(downloadHandler).sendMessage(downloadMessage);
     }
 
-
     @Test
     public void showsNotificationWhenDownloading() {
         setUpsDownloads(downloadRequest1, downloadRequest2);
@@ -255,11 +256,34 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Test
     public void updatesNotificationWhenAlreadyDownloading() {
         when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
         setUpsDownloads(downloadRequest1, downloadRequest2);
 
         startService();
 
         verify(notificationController).onPendingRequests(downloadQueue);
+    }
+
+    @Test
+    public void cancelRequestWhenDownloadingATrackNotRequestedAnyMore() {
+        when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
+        setUpsDownloads(downloadRequest2);
+
+        startService();
+
+        verify(downloadHandler).cancel();
+    }
+    
+    @Test
+    public void publishRemovedWhenDownloadingATrackNotRequestedAnyMore() {
+        when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
+        setUpsDownloads(downloadRequest2);
+
+        startService();
+
+        verify(publisher).publishRemoved(downloadRequest1.getTrack());
     }
 
     @Test

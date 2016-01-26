@@ -39,6 +39,10 @@ class OfflineStatePublisher {
         );
     }
 
+    void publishRequested(Urn track) {
+        publishUpdatesForTrack(REQUESTED, track);
+    }
+
     void publishRequested(Collection<Urn> tracks) {
         publishUpdatesForTrack(REQUESTED, tracks);
     }
@@ -55,20 +59,20 @@ class OfflineStatePublisher {
         publishUpdatesForTrack(DOWNLOADED, track);
     }
 
+    void publishRemoved(Urn track) {
+        publishUpdatesForTrack(NOT_OFFLINE, track);
+    }
+
     void publishRemoved(Collection<Urn> tracks) {
         publishUpdatesForTrack(NOT_OFFLINE, tracks);
     }
 
+    void publishUnavailable(Urn track) {
+        publishUpdatesForTrack(UNAVAILABLE, track);
+    }
+
     void publishUnavailable(Collection<Urn> tracks) {
         publishUpdatesForTrack(UNAVAILABLE, tracks);
-    }
-
-    void publishCancel(Urn track) {
-        publishUpdatesForTrack(REQUESTED, track);
-    }
-
-    void publishError(Urn track) {
-        publishUpdatesForTrack(UNAVAILABLE, track);
     }
 
     private void publishUpdatesForTrack(final OfflineState newTrackState, Urn track) {
