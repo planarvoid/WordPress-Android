@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.UpgradeScreen;
+import com.soundcloud.android.screens.discovery.SearchPremiumResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -44,15 +45,18 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickOnPremiumTrackPlaysIt() {
-        assertThat("Player should play premium track", searchResultsScreen.clickOnPremiumContent(), is(playing()));
+        final VisualPlayerElement playerElement = searchResultsScreen.clickOnPremiumContent();
+        assertThat("Player should play premium track", playerElement, is(playing()));
     }
 
     public void testClickOnPremiumBucketHelpOpensUpgradeScreen() {
-        assertThat("Upgrade subscription screen should be visible", searchResultsScreen.clickOnPremiumContentHelp(), is(visible()));
+        final UpgradeScreen upgradeScreen = searchResultsScreen.clickOnPremiumContentHelp();
+        assertThat("Upgrade subscription screen should be visible", upgradeScreen, is(visible()));
     }
 
     public void testClickOnPremiumContentBucketOpenSearchPremiumResults() {
-        assertThat("Search premium results screen should be visible", searchResultsScreen.clickOnViewPremiumContent(), is(visible()));
+        final SearchPremiumResultsScreen resultsScreen = searchResultsScreen.clickOnViewPremiumContent();
+        assertThat("Search premium results screen should be visible", resultsScreen, is(visible()));
     }
 
     public void testPlaysPremiumTrackFromSearchPremiumResultsScreen() {
