@@ -1,7 +1,5 @@
 package com.soundcloud.android.deeplinks;
 
-import com.soundcloud.android.model.Urn;
-
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +10,8 @@ import java.util.regex.Pattern;
 
 public enum DeepLink {
     HOME, STREAM, EXPLORE, SEARCH, RECORD, WEB_VIEW, ENTITY;
+
+    public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
     private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED = EnumSet.of(EXPLORE, SEARCH, RECORD, ENTITY);
 
@@ -66,7 +66,7 @@ public enum DeepLink {
     }
 
     private static boolean isSoundCloudScheme(Uri uri) {
-        return uri.isHierarchical() && Urn.SOUNDCLOUD_SCHEME.equals(uri.getScheme());
+        return uri.isHierarchical() && SOUNDCLOUD_SCHEME.equals(uri.getScheme());
     }
 
     private static DeepLink fromSoundCloudScheme(Uri uri) {

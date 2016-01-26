@@ -2,7 +2,6 @@ package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.TrackedActivity;
-import com.soundcloud.android.model.Urn;
 
 import android.content.res.Resources;
 import android.net.Uri;
@@ -15,7 +14,7 @@ public class ResolveActivity extends TrackedActivity {
     @Inject IntentResolver intentResolver;
 
     public static boolean accept(Uri data, Resources resources) {
-        return Urn.SOUNDCLOUD_SCHEME.equalsIgnoreCase(data.getScheme())
+        return DeepLink.SOUNDCLOUD_SCHEME.equalsIgnoreCase(data.getScheme())
                 || (data.getHost() != null && data.getHost().contains(resources.getString(R.string.host_name)));
     }
 

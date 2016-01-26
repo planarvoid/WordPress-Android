@@ -4,7 +4,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.strings.Strings;
@@ -59,7 +59,7 @@ class SearchIntentResolver {
     private boolean isInterceptedSearchUrl(Intent intent) {
         final Uri uri = intent.getData();
         return uri != null
-                && (uri.getHost().equals(INTENT_URL_HOST) || Urn.SOUNDCLOUD_SCHEME.equals(uri.getScheme()))
+                && (uri.getHost().equals(INTENT_URL_HOST) || DeepLink.SOUNDCLOUD_SCHEME.equals(uri.getScheme()))
                 && Strings.isNotBlank(uri.getQueryParameter(INTENT_URL_QUERY_PARAM));
     }
 
