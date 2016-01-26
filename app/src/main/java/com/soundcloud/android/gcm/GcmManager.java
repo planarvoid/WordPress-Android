@@ -2,6 +2,7 @@ package com.soundcloud.android.gcm;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
@@ -15,12 +16,17 @@ public class GcmManager extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private static final String TAG = "GcmHelper";
 
+    private final ApplicationProperties appProperties;
     private final GcmStorage gcmStorage;
     private final GooglePlayServicesWrapper googlePlayServices;
     private final ServiceInitiator serviceInitiator;
 
     @Inject
-    public GcmManager(GcmStorage gcmStorage, GooglePlayServicesWrapper googlePlayServices, ServiceInitiator serviceInitiator) {
+    public GcmManager(ApplicationProperties appProperties,
+                      GcmStorage gcmStorage,
+                      GooglePlayServicesWrapper googlePlayServices,
+                      ServiceInitiator serviceInitiator) {
+        this.appProperties = appProperties;
         this.gcmStorage = gcmStorage;
         this.googlePlayServices = googlePlayServices;
         this.serviceInitiator = serviceInitiator;
@@ -49,7 +55,9 @@ public class GcmManager extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private void handlePlayServicesUnavailable(AppCompatActivity activity, int resultCode) {
         if (googlePlayServices.isUserRecoverableError(resultCode)) {
-            googlePlayServices.showUnrecoverableErrorDialog(activity, resultCode);
+            if (appProperties.isGooglePlusEnabled()) {
+                googlePlayServices.showUnrecoverableErrorDialog(activity, resultCode);
+            }
         } else {
             Log.d(TAG, "This device is not supported.");
         }
