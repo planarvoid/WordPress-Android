@@ -413,8 +413,8 @@
     <string name="search_empty_subtext">Check the spelling or try a different search</string>
     <string name="search_for_query">Search for \'%s\'</string>
     <string name="search_premium_content_results_count">Found %1$d SoundCloud Go Results</string>
-    <string name="search_premium_content_view_all">View all SoundCloud Go Results</string>
-    <string name="search_premium_content_upsell">Upgrade to unlock full tracks</string>
+    <string name="search_premium_content_view_all">See all SoundCloud Go Results</string>
+    <string name="search_premium_content_upsell">Upgrade to hear full tracks</string>
     <string name="search_premium_content_results">\"%1$s\" Results</string>
 
     <!-- __DISCOVERY RECOMMENDATIONS -->

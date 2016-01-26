@@ -61,6 +61,7 @@
     <style name="Search.PremiumContent" />
 
     <style name="Search.PremiumContent.Text">
+        <item name="custom_font">@string/interstate_regular</item>
         <item name="android:singleLine">true</item>
         <item name="android:textSize">14sp</item>
     </style>

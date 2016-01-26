@@ -140,7 +140,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
         return CollectionBinding
                 .from(searchResultObservable, TO_PRESENTATION_MODELS)
                 .withAdapter(adapter)
-                .withPager(searchOperations.pagingFunction(searchType))
+                .withPager(searchOperations.pagingPremiumFunction(searchType))
                 .build();
     }
 }
