@@ -118,11 +118,13 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                     .subscribe(new OfflineContentRequestsSubscriber());
 
         } else if (ACTION_STOP.equalsIgnoreCase(action)) {
+            // ACTION_STOP is used to stop immediately without any states update.
+            // It is currently only used when logging out.
+            subscription.unsubscribe();
             if (downloadHandler.isDownloading()) {
                 downloadHandler.cancel();
-            } else if (subscription.isUnsubscribed()) {
-                stop();
             }
+            stop();
         }
         return START_NOT_STICKY;
     }
@@ -142,12 +144,16 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     public void onError(DownloadState state) {
         Log.d(TAG, "Download failed " + state);
 
+        if (state.isUnavailable()) {
+            publisher.publishUnavailable(state.request.getTrack());
+        } else {
+            publisher.publishRequested(state.request.getTrack());
+        }
         notificationController.onDownloadError(state);
-        publisher.publishError(state.request.getTrack());
 
         if (state.isConnectionError()) {
-            stopAndRetryLater();
             notificationController.onConnectionError(state);
+            stopAndRetryLater();
         } else {
             downloadNextOrFinish(state);
         }
@@ -161,9 +167,6 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Override
     public void onCancel(DownloadState state) {
         Log.d(TAG, "Download cancelled " + state);
-
-        notificationController.onDownloadCancel(state);
-        publisher.publishCancel(state.request.getTrack());
 
         if (isStopping) {
             stop();
@@ -231,15 +234,17 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
             final ArrayList<DownloadRequest> requests = newArrayList(updates.tracksToDownload());
             if (downloadHandler.isDownloading()) {
-                if (requests.contains(downloadHandler.getCurrentRequest())) {
-                    requests.remove(downloadHandler.getCurrentRequest());
+                final DownloadRequest currentRequest = downloadHandler.getCurrentRequest();
+                if (requests.contains(currentRequest)) {
+                    requests.remove(currentRequest);
                     setNewRequests(requests);
-                    publisher.publishDownloading(downloadHandler.getCurrentTrack());
+                    publisher.publishDownloading(currentRequest.getTrack());
                 } else {
                     Log.d(OfflineContentService.TAG, "About to cancel download!");
                     setNewRequests(requests);
                     // download cancelled event is sent in the callback.
                     downloadHandler.cancel();
+                    publisher.publishRemoved(currentRequest.getTrack());
                 }
             } else {
                 setNewRequests(requests);
