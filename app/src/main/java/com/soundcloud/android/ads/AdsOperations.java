@@ -17,7 +17,6 @@ import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -36,14 +35,13 @@ public class AdsOperations {
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
     private final FeatureFlags featureFlags;
-    private final EventBus eventBus;
     private final Action1<ApiAdsForTrack> cacheAudioAdTrack = new Action1<ApiAdsForTrack>() {
         @Override
         public void call(ApiAdsForTrack apiAdsForTrack) {
             final Optional<ApiAudioAd> audioAd = apiAdsForTrack.audioAd();
             if (audioAd.isPresent()) {
                 final ApiTrack track = audioAd.get().getApiTrack();
-                storeTracksCommand.toAction().call(Arrays.asList(track));
+                storeTracksCommand.toAction().call(Collections.singletonList(track));
             }
         }
     };
@@ -51,13 +49,12 @@ public class AdsOperations {
     @Inject
     AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager,
                   ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                  FeatureFlags featureFlags, EventBus eventBus) {
+                  FeatureFlags featureFlags) {
         this.storeTracksCommand = storeTracksCommand;
         this.playQueueManager = playQueueManager;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.featureFlags = featureFlags;
-        this.eventBus = eventBus;
     }
 
     public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {

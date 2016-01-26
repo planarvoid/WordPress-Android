@@ -25,7 +25,6 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,11 +52,9 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Captor private ArgumentCaptor<List> listArgumentCaptor;
 
-    private TestEventBus eventBus = new TestEventBus();
-
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), featureFlags, eventBus);
+        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), featureFlags);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
 
