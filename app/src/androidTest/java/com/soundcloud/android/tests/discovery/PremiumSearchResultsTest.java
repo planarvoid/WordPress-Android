@@ -6,14 +6,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.SearchResultsHighTier;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.discovery.SearchPremiumResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
+@SearchResultsHighTier
 public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
 
     private static final String PREMIUM_SEARCH_QUERY = "booht";
@@ -31,7 +32,6 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.SEARCH_RESULTS_HIGH_TIER);
         super.setUp();
         searchResultsScreen = mainNavHelper
                 .goToDiscovery()
