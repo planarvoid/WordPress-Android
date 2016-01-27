@@ -68,6 +68,24 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertThat(DeepLink.WEB_VIEW.requiresLoggedInUser()).isFalse();
     }
 
+    @Test
+    public void shouldHandleSoundcloudScheme() {
+        assertDeeplink(DeepLink.HOME, "soundcloud://home");
+        assertDeeplink(DeepLink.STREAM, "soundcloud://stream");
+        assertDeeplink(DeepLink.EXPLORE, "soundcloud://explore");
+        assertDeeplink(DeepLink.SEARCH, "soundcloud://search");
+        assertDeeplink(DeepLink.SEARCH, "soundcloud://search:people");
+        assertDeeplink(DeepLink.SEARCH, "soundcloud://search:sounds");
+        assertDeeplink(DeepLink.SEARCH, "soundcloud://search:sets");
+        assertDeeplink(DeepLink.SEARCH, "soundcloud://search:users");
+        assertDeeplink(DeepLink.SEARCH, "soundcloud://search:tracks");
+        assertDeeplink(DeepLink.SEARCH, "soundcloud://search:playlists");
+        assertDeeplink(DeepLink.RECORD, "soundcloud://record");
+        assertDeeplink(DeepLink.RECORD, "soundcloud://upload");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://soundcloudgo");
+        assertDeeplink(DeepLink.ENTITY, "soundcloud://anythingelse");
+    }
+
     private void assertDeeplink(DeepLink deepLink, String url) {
         assertThat(DeepLink.fromUri(Uri.parse(url))).isEqualTo(deepLink);
     }

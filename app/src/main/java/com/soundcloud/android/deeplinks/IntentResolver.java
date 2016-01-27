@@ -95,6 +95,9 @@ public class IntentResolver {
             case WEB_VIEW:
                 startWebView(context, uri, referrer);
                 break;
+            case SOUNDCLOUD_GO_UPSELL:
+                showUpgradeScreen(context, referrer);
+                break;
             default:
                 resolve(context, uri, referrer);
         }
@@ -165,6 +168,11 @@ public class IntentResolver {
     private void showRecordScreen(Context context, String referrer) {
         trackForegroundEvent(referrer);
         navigator.openRecord(context, Screen.DEEPLINK);
+    }
+
+    private void showUpgradeScreen(Context context, String referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openUpgrade(context);
     }
 
     private void startActivityForResource(Context context, Urn urn, String referrer) {

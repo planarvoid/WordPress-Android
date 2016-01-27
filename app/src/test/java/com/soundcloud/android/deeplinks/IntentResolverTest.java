@@ -368,6 +368,16 @@ public class IntentResolverTest extends AndroidUnitTest {
         verify(navigator).openRecord(context, Screen.DEEPLINK);
     }
 
+    @Test
+    public void shouldLaunchUpgradeForSoundCloudScheme() throws Exception {
+        setupIntentForUrl("soundcloud://soundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openUpgrade(context);
+    }
+
     public void setupIntentForUrl(String url) {
         if (url != null) {
             uri = Uri.parse(url);
