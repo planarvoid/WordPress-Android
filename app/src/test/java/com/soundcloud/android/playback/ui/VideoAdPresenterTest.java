@@ -2,11 +2,13 @@ package com.soundcloud.android.playback.ui;
 
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.ApiVideoSource;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.image.ImageOperations;
@@ -18,15 +20,16 @@ import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 
+import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollectionOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +38,11 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     private VideoAdPresenter presenter;
     private View adView;
+
+    private static final int VERTICAL_VIDEO_WIDTH = 600;
+    private static final int VERTICAL_VIDEO_HEIGHT = 1024;
+    private static final int LETTERBOX_VIDEO_WIDTH = 250;
+    private static final int LETTERBOX_VIDEO_HEIGHT = 100;
 
     @Mock private MediaPlayerVideoAdapter mediaPlayerVideoAdapter;
     @Mock private ImageOperations imageOperations;
@@ -48,65 +56,97 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
         presenter = new VideoAdPresenter(mediaPlayerVideoAdapter, imageOperations, pageListener, playerOverlayControllerFactory, resources());
         adView = presenter.createItemView(new FrameLayout(context()), null);
-        presenter.bindItemView(adView, new PlayerAd(buildAd(), PropertySet.create()));
+        bindVerticalVideo();
     }
 
     @Test
-    public void fadeableViewsWithoutPauseButtonVisibleOnBind() {
-        for (View view : fadeableViews()) {
+    public void letterboxVideoDoesNotHaveFadingElements() {
+        bindLetterboxVideo();
+        assertThat(fadingViews().iterator().hasNext()).isFalse();
+    }
+
+    @Test
+    public void videoViewAspectRatioMaintainedForLetterbox() {
+        bindLetterboxVideo();
+
+        final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
+        final int viewWidth = layoutParams.width;
+        final int viewHeight = layoutParams.height;
+
+        final float newAspectRatio = (float) viewWidth / (float) viewHeight;
+        final float originalAspectRatio = (float) LETTERBOX_VIDEO_WIDTH / (float) LETTERBOX_VIDEO_HEIGHT;
+
+        assertThat(newAspectRatio).isEqualTo(originalAspectRatio, Offset.offset(0.001F));
+    }
+
+    @Test
+    public void videoViewAspectRatioMaintainedForVerticalVideo() {
+        final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
+        final int viewWidth = layoutParams.width;
+        final int viewHeight = layoutParams.height;
+
+        final float newAspectRatio = (float) viewWidth / (float) viewHeight;
+        final float originalAspectRatio = (float) VERTICAL_VIDEO_WIDTH / (float) VERTICAL_VIDEO_HEIGHT;
+
+        assertThat(newAspectRatio).isEqualTo(originalAspectRatio, Offset.offset(0.001F));
+    }
+
+    @Test
+    public void fadingViewsWithoutPauseButtonVisibleOnBind() {
+        for (View view : fadingViews()) {
             assertThat(view).isVisible();
         }
         assertThat(adView.findViewById(R.id.video_pause_control)).isNotVisible();
     }
 
     @Test
-    public void fadeableViewsWithoutPauseButtonVisibleOnClear() {
+    public void fadingViewsWithoutPauseButtonVisibleOnClear() {
         presenter.clearItemView(adView);
 
-        for (View view : fadeableViews()) {
+        for (View view : fadingViews()) {
             assertThat(view).isVisible();
         }
         assertThat(adView.findViewById(R.id.video_pause_control)).isNotVisible();
     }
 
     @Test
-    public void fadeableViewsAreInvisibleAfterPlaybackStarts() {
+    public void fadingViewsAreInvisibleAfterPlaybackStarts() {
         presenter.setPlayState(adView,
                 createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
 
-        for (View view : fadeableViews()) {
+        for (View view : fadingViews()) {
             assertThat(view).isInvisible();
         }
     }
 
     @Test
-    public void fadeableViewsAreNotInvisibleAfterPlaybackStartsForNonCurrentItem() {
+    public void fadingViewsAreNotInvisibleAfterPlaybackStartsForNonCurrentItem() {
         presenter.setPlayState(adView,
                 createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), false, true);
 
-        for (View view : fadeableViews()) {
+        for (View view : fadingViews()) {
             assertThat(view).isNotInvisible();
         }
     }
 
     @Test
-    public void fadeableViewsAreVisibleOnPlaybackPause() {
+    public void fadingViewsAreVisibleOnPlaybackPause() {
         presenter.setPlayState(adView,
                 createStateTransition(PlayerState.IDLE, Player.Reason.NONE), true, true);
 
-        for (View view : fadeableViews()) {
+        for (View view : fadingViews()) {
             assertThat(view).isVisible();
         }
     }
 
     @Test
-    public void fadeableViewsWithPauseAreSetToInvisibleAfterPlayEventFromPause() {
+    public void fadingViewsWithPauseAreSetToInvisibleAfterPlayEventFromPause() {
         presenter.setPlayState(adView,
                 createStateTransition(PlayerState.IDLE, Player.Reason.NONE), true, true);
         presenter.setPlayState(adView,
                 createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
 
-        for (View view : fadeableViewsWithPause()) {
+        for (View view : fadingViewsWithPause()) {
             assertThat(view).isInvisible();
         }
     }
@@ -200,14 +240,14 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         assertThat(skipAd()).isVisible();
     }
 
-    private Iterable<View> fadeableViews() {
+    private Iterable<View> fadingViews() {
         VideoAdPresenter.Holder holder = (VideoAdPresenter.Holder) adView.getTag();
-        return holder.fadeableUIViews;
+        return holder.fadingViews;
     }
 
-    private Iterable<View> fadeableViewsWithPause() {
+    private Iterable<View> fadingViewsWithPause() {
         VideoAdPresenter.Holder holder = (VideoAdPresenter.Holder) adView.getTag();
-        return holder.fadeableUIViewsWithPause;
+        return holder.fadingViewsWithPause;
     }
 
     private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
@@ -230,10 +270,20 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         return adView.findViewById(R.id.preview_artwork_overlay);
     }
 
-    private PlayerAdData buildAd() {
-        final VideoAd ad = AdFixtures.getVideoAd(Urn.forTrack(123L));
+    private PlayerAdData buildAd(boolean isVertical) {
+        final int width = isVertical ? VERTICAL_VIDEO_WIDTH : LETTERBOX_VIDEO_WIDTH;
+        final int height = isVertical ? VERTICAL_VIDEO_HEIGHT : LETTERBOX_VIDEO_HEIGHT;
+        final VideoAd ad = AdFixtures.getVideoAd(Urn.forTrack(123L), ApiVideoSource.create("codec", "url", 1000, width, height));
         ad.setMonetizableCreator("Artist");
         ad.setMonetizableTitle("Title");
         return ad;
+    }
+
+    private void bindVerticalVideo() {
+        presenter.bindItemView(adView, new PlayerAd(buildAd(true), PropertySet.create()));
+    }
+
+    private void bindLetterboxVideo() {
+        presenter.bindItemView(adView, new PlayerAd(buildAd(false), PropertySet.create()));
     }
 }

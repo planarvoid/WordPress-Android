@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
@@ -69,5 +70,16 @@ public class PlayerAd extends PlayerItem {
 
     int getFocusedBackgroundColor() {
         return Color.parseColor(adData.getVisualAd().getFocusedBackgroundColor());
+    }
+
+    boolean isVerticalVideo() {
+        return adData instanceof VideoAd && ((VideoAd) adData).isVerticalVideo();
+    }
+
+    float getVideoProportion() {
+        if (adData instanceof VideoAd) {
+           return ((VideoAd) adData).getVideoProportion();
+        }
+        return 1;
     }
 }

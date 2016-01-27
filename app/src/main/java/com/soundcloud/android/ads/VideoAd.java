@@ -58,4 +58,9 @@ public abstract class VideoAd extends PlayerAdData {
         return source.getHeight() > source.getWidth();
     }
 
+    public float getVideoProportion() {
+        final VideoSource source = getVideoSources().get(0);
+        return (float) source.getWidth() / (float) source.getHeight();
+    }
+
 }
