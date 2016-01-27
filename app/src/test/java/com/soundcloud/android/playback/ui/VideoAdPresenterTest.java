@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import android.content.res.Configuration;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.Player.PlayerState;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.collections.PropertySet;
 
 import org.assertj.core.data.Offset;
@@ -27,6 +29,7 @@ import org.mockito.Mock;
 
 import java.util.concurrent.TimeUnit;
 
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -49,12 +52,14 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdPageListener pageListener;
     @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
+    @Mock private DeviceHelper deviceHelper;
 
     @Before
-    public void setUp() throws  Exception {
+    public void setUp() throws Exception {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
+        when(deviceHelper.getCurrentOrientation()).thenReturn(ORIENTATION_PORTRAIT);
 
-        presenter = new VideoAdPresenter(mediaPlayerVideoAdapter, imageOperations, pageListener, playerOverlayControllerFactory, resources());
+        presenter = new VideoAdPresenter(mediaPlayerVideoAdapter, imageOperations, pageListener, playerOverlayControllerFactory, deviceHelper, resources());
         adView = presenter.createItemView(new FrameLayout(context()), null);
         bindVerticalVideo();
     }

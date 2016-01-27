@@ -6,6 +6,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.collections.Iterables;
 
@@ -44,16 +45,18 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
     private final ImageOperations imageOperations;
     private final AdPageListener listener;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
+    private final DeviceHelper deviceHelper;
     private final Resources resources;
 
     @Inject
     public VideoAdPresenter(MediaPlayerVideoAdapter mediaPlayerVideoAdapter, ImageOperations imageOperations,
                             AdPageListener listener, PlayerOverlayController.Factory playerOverlayControllerFactory,
-                            Resources resources) {
+                            DeviceHelper deviceHelper, Resources resources) {
         this.mediaPlayerVideoAdapter = mediaPlayerVideoAdapter;
         this.imageOperations = imageOperations;
         this.listener = listener;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
+        this.deviceHelper = deviceHelper;
         this.resources = resources;
     }
 
@@ -133,7 +136,7 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
     }
 
     private boolean isOrientationPortrait() {
-        return resources.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+        return deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
     }
 
     public void setVideoViewHolder(Holder holder) {
