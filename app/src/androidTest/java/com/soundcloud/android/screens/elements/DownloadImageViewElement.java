@@ -1,11 +1,27 @@
 package com.soundcloud.android.screens.elements;
 
+import com.robotium.solo.Condition;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 
 public class DownloadImageViewElement {
+    private final Waiter waiter;
     private final ViewElement wrappedElement;
 
-    public DownloadImageViewElement(ViewElement element) {
+    private final Condition isDownloading = new Condition() {
+        @Override
+        public boolean isSatisfied() {
+            return isDownloading();
+        }
+    };
+
+    public DownloadImageViewElement(Han driver, ViewElement element) {
+        this.waiter = new Waiter(driver);
         this.wrappedElement = element;
     }
 
@@ -27,6 +43,29 @@ public class DownloadImageViewElement {
 
     public boolean isDownloaded() {
         return wrappedElement.toDownloadImageView().isDownloaded();
+    }
+
+    public boolean waitForDownloadingState() {
+        return waiter.waitForElementCondition(isDownloading);
+    }
+
+    public static class IsDownloading extends TypeSafeMatcher<DownloadImageViewElement> {
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("downloading");
+        }
+
+        @Override
+        protected boolean matchesSafely(DownloadImageViewElement element) {
+            return element.waitForDownloadingState();
+        }
+
+        @Factory
+        public static Matcher<DownloadImageViewElement> downloading() {
+            return new IsDownloading();
+        }
+
     }
 }
 

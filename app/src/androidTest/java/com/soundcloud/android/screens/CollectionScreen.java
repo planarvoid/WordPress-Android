@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.CollectionsPlaylistOptionsDialogElement;
+import com.soundcloud.android.screens.elements.LikedTracksPreviewElement;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 
 import android.support.v7.widget.RecyclerView;
@@ -20,8 +21,8 @@ public class CollectionScreen extends Screen {
         waiter.waitForActivity(getActivity());
     }
 
-    public TrackLikesScreen clickTrackLikes() {
-        trackLikesElement().click();
+    public TrackLikesScreen clickLikedTracksPreview() {
+        likedTracksPreviewElement().click();
         return new TrackLikesScreen(testDriver);
     }
 
@@ -82,8 +83,9 @@ public class CollectionScreen extends Screen {
         return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
-    private ViewElement trackLikesElement() {
-        return testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.collections_your_liked_tracks)));
+    public LikedTracksPreviewElement likedTracksPreviewElement() {
+        final ViewElement viewElement = testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.collections_your_liked_tracks)));
+        return new LikedTracksPreviewElement(testDriver, viewElement);
     }
 
     private ViewElement recentStationsElement() {

@@ -39,8 +39,7 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public DownloadImageViewElement headerDownloadElement() {
-        return new DownloadImageViewElement(testDriver
-                .findOnScreenElement(With.id(R.id.header_download_state)));
+        return new DownloadImageViewElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.header_download_state)));
     }
 
     public String getTitle() {

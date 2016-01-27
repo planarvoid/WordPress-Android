@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.collection;
+package com.soundcloud.android.tests.offline;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,9 +38,11 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
 
     public void testDisablingSyncEntireCollectionViaPlaylist() {
         enableSyncEntireCollection();
-        final PlaylistElement playlist = mainNavHelper.goToCollections()
-                .scrollToFirstPlaylist();
 
+        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
+        assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
+
+        final PlaylistElement playlist = collectionScreen.scrollToFirstPlaylist();
         playlist.clickOverflow()
                 .clickMakeUnavailableOfflineToDisableSyncCollection()
                 .clickOk();
@@ -51,9 +53,11 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
 
     public void testCancelDisablingSyncEntireCollection() {
         enableSyncEntireCollection();
-        final PlaylistElement playlist = mainNavHelper.goToCollections()
-                .scrollToFirstPlaylist();
 
+        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
+        assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
+
+        final PlaylistElement playlist = collectionScreen.scrollToFirstPlaylist();
         playlist.clickOverflow()
                 .clickMakeUnavailableOfflineToDisableSyncCollection()
                 .clickCancel();
