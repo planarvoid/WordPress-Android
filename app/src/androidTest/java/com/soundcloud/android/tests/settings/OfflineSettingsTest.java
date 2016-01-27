@@ -6,6 +6,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.OfflineSyncTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.model.Urn;
@@ -44,6 +45,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         youScreen = mainNavHelper.goToYou();
     }
 
+    @OfflineSyncTest
     public void testDisableSyncCollectionIsCancellable() {
         offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
@@ -54,6 +56,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertThat(screen.isOfflineCollectionChecked(), is(true));
     }
 
+    @OfflineSyncTest
     public void testEnableSyncCollectionTriggersSync() {
         offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());

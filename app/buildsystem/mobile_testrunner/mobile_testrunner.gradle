@@ -56,7 +56,8 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.GoogleAccountTest",
           "com.soundcloud.android.framework.annotation.QueueExplosionTest",
           "com.soundcloud.android.framework.annotation.StationsTabTest",
-          "com.soundcloud.android.framework.annotation.SearchResultsHighTier"
+          "com.soundcloud.android.framework.annotation.SearchResultsHighTier",
+          "com.soundcloud.android.framework.annotation.OfflineSyncTest"
   ] as String[]
 
   def systemProperties = [

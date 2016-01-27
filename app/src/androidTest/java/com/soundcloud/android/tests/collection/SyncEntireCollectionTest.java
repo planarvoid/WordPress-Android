@@ -5,11 +5,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.OfflineSyncTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
 
+@OfflineSyncTest
 public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
 
     public SyncEntireCollectionTest() {

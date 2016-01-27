@@ -92,7 +92,7 @@
         <item name="android:singleLine">true</item>
     </style>
 
-    <style name="PlayerLikeBase">
+    <style name="PlayerLikeBase" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:textAppearance">@null</item>
