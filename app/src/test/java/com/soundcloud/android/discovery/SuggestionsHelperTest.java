@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,7 +24,6 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import android.content.Context;
-import android.net.Uri;
 
 import javax.inject.Provider;
 
@@ -44,7 +44,6 @@ public class SuggestionsHelperTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        when(adapter.getItemIntentData(anyInt())).thenReturn(Uri.EMPTY);
         when(adapter.getQueryUrn(anyInt())).thenReturn(Urn.NOT_SET);
         suggestionsHelper = new SuggestionsHelper(navigator, eventBus, expandPlayerSubscriberProvider,
                 playbackInitiator, adapter);
@@ -69,7 +68,6 @@ public class SuggestionsHelperTest extends AndroidUnitTest {
 
         suggestionsHelper.launchSuggestion(context, 2);
 
-        verify(navigator).launchSearchSuggestion(eq(context), eq(SUGGESTED_USER_URN), any(SearchQuerySourceInfo.class),
-                eq(Uri.EMPTY));
+        verify(navigator).openProfile(eq(context), eq(SUGGESTED_USER_URN), same(Screen.SEARCH_SUGGESTIONS), any(SearchQuerySourceInfo.class));
     }
 }

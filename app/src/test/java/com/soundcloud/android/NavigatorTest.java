@@ -1,7 +1,6 @@
 package com.soundcloud.android;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -259,35 +258,6 @@ public class NavigatorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(TrackLikesActivity.class);
-    }
-
-    @Test
-    public void launchesSearchSuggestionTrack() {
-        final Urn urn = Urn.forTrack(123L);
-        final SearchQuerySourceInfo searchQueryInfo = mock(SearchQuerySourceInfo.class);
-        final Uri itemUri = Uri.parse("dummyUri");
-
-        navigator.launchSearchSuggestion(activityContext, urn, searchQueryInfo, itemUri);
-
-        assertThat(activityContext).nextStartedIntent()
-                .containsAction(Intent.ACTION_VIEW)
-                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .containsUri(itemUri);
-    }
-
-    @Test
-    public void launchesSearchSuggestionUser() {
-        final Urn urn = Urn.forUser(1234L);
-        final SearchQuerySourceInfo searchQueryInfo = mock(SearchQuerySourceInfo.class);
-        final Uri itemUri = Uri.parse("dummyUri");
-
-        navigator.launchSearchSuggestion(activityContext, urn, searchQueryInfo, itemUri);
-
-        assertThat(activityContext).nextStartedIntent()
-                .containsAction(Intent.ACTION_VIEW)
-                .containsExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQueryInfo)
-                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .containsUri(itemUri);
     }
 
     @Test

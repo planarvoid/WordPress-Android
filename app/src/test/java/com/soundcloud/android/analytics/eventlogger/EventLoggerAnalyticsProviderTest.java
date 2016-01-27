@@ -35,7 +35,6 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
@@ -344,7 +343,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackSearchSuggestionSearchEvents() {
-        SearchEvent event = SearchEvent.searchSuggestion(Content.SEARCH, false, searchQuerySourceInfo);
+        SearchEvent event = SearchEvent.searchSuggestion(Urn.forTrack(1), false, searchQuerySourceInfo);
         assertThat(searchEventUrlCaptor("ForSearchEvent", event)).isEqualTo("ForSearchEvent");
     }
 

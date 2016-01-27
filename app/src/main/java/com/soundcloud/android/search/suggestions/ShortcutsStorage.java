@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShortcutsStorage {
+class ShortcutsStorage {
 
     private final PropellerDatabase propeller;
 

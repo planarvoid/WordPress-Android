@@ -2,10 +2,9 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.provider.Content;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +20,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromGlobalSuggestionTrackSearch() {
-        searchEvent = SearchEvent.searchSuggestion(Content.TRACK, false, searchQuerySourceInfo);
+        searchEvent = SearchEvent.searchSuggestion(Urn.forTrack(1), false, searchQuerySourceInfo);
         assertThat(searchEvent.getKind()).isSameAs(SearchEvent.KIND_SUGGESTION);
         assertThat(searchEvent.getAttributes().get("type")).isEqualTo("track");
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("global");
@@ -33,7 +32,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromGlobalSuggestionUserSearch() {
-        searchEvent = SearchEvent.searchSuggestion(Content.USER, false, searchQuerySourceInfo);
+        searchEvent = SearchEvent.searchSuggestion(Urn.forUser(1), false, searchQuerySourceInfo);
         assertThat(searchEvent.getKind()).isSameAs(SearchEvent.KIND_SUGGESTION);
         assertThat(searchEvent.getAttributes().get("type")).isEqualTo("user");
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("global");
@@ -45,7 +44,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromLocalSuggestionTrackSearch() {
-        searchEvent = SearchEvent.searchSuggestion(Content.TRACK, true, searchQuerySourceInfo);
+        searchEvent = SearchEvent.searchSuggestion(Urn.forTrack(1), true, searchQuerySourceInfo);
         assertThat(searchEvent.getKind()).isSameAs(SearchEvent.KIND_SUGGESTION);
         assertThat(searchEvent.getAttributes().get("type")).isEqualTo("track");
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("personal");
@@ -57,7 +56,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromLocalSuggestionUserSearch() {
-        searchEvent = SearchEvent.searchSuggestion(Content.USER, true, searchQuerySourceInfo);
+        searchEvent = SearchEvent.searchSuggestion(Urn.forUser(1), true, searchQuerySourceInfo);
         assertThat(searchEvent.getKind()).isSameAs(SearchEvent.KIND_SUGGESTION);
         assertThat(searchEvent.getAttributes().get("type")).isEqualTo("user");
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("personal");
