@@ -53,7 +53,7 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new ImageAlertDialog(getActivity())
-                .setContent(R.drawable.dialog_payment_error,
+                .setContent(R.drawable.dialog_download,
                         R.string.disable_offline_collection_title,
                         R.string.disable_offline_collection_body)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

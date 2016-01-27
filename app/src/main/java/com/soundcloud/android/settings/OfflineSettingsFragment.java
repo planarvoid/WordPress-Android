@@ -139,7 +139,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
 
     private void confirmDisableOfflineCollection() {
         new ImageAlertDialog(getActivity())
-                .setContent(R.drawable.dialog_payment_error,
+                .setContent(R.drawable.dialog_download,
                         R.string.disable_offline_collection_title,
                         R.string.disable_offline_collection_body)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
