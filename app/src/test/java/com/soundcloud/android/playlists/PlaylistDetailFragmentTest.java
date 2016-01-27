@@ -127,7 +127,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotShowUpsellWhenClickingOnMidTierTrackAndUserCannotUpgrade() {
+    public void doesNotShowUpsellWhenClickingOnHighTierTrackAndUserCannotUpgrade() {
         final ListView list = (ListView) createFragmentView().findViewById(android.R.id.list);
         when(adapter.getItem(0)).thenReturn(new TrackItem(TestPropertySets.upsellableTrack()));
 
