@@ -60,8 +60,8 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         subscription = new CompositeSubscription();
         if (featureOperations.isOfflineContentEnabled()) {
             addPreferencesFromResource(R.xml.settings_offline);
@@ -73,7 +73,6 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
             addPreferencesFromResource(R.xml.settings_offline_clear);
             setupClearContent();
         }
-        return view;
     }
 
     private void setupUpsell() {
