@@ -4,6 +4,7 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
@@ -11,7 +12,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
-public class PlayerTrackState extends PlayerItem implements PropertySetSource {
+public class PlayerTrackState extends PlayerItem implements TieredTrack, PropertySetSource {
 
     static final PlayerTrackState EMPTY = new PlayerTrackState(PropertySet.from(
             TrackProperty.URN.bind(Urn.NOT_SET),
@@ -84,17 +85,24 @@ public class PlayerTrackState extends PlayerItem implements PropertySetSource {
         return source.getOrElse(PlayableProperty.CREATOR_URN, Urn.NOT_SET);
     }
 
+    @Override
     public boolean isBlocked() {
         return source.getOrElse(TrackProperty.BLOCKED, false);
     }
 
+    @Override
     public boolean isSnipped() {
         return source.getOrElse(TrackProperty.SNIPPED, false);
     }
 
-    public boolean shouldUpsell() {
-        return source.getOrElse(TrackProperty.SNIPPED, false)
-                && source.getOrElse(TrackProperty.SUB_HIGH_TIER, false);
+    @Override
+    public boolean isSubMidTier() {
+        return source.getOrElse(TrackProperty.SUB_MID_TIER, false);
+    }
+
+    @Override
+    public boolean isSubHighTier() {
+        return source.getOrElse(TrackProperty.SUB_HIGH_TIER, false);
     }
 
     long getPlayableDuration() {

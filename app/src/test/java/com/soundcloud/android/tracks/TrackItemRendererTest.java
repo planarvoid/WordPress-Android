@@ -92,9 +92,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldShowPreviewLabelAndHideOtherLabelsIfTrackIsSnippedAndUserUpsellable() {
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-        trackItem = TrackItem.from(propertySet.put(TrackProperty.SNIPPED, true));
+    public void shouldShowPreviewLabelAndHideOtherLabelsIfTrackIsHighTier() {
+        trackItem = TrackItem.from(TestPropertySets.upsellableTrack());
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         verify(trackItemView).hideInfoViewsRight();

@@ -32,9 +32,4 @@ class UpsellNotificationItem implements StreamItem {
     public Date getCreatedAt() {
         return CREATED_AT;
     }
-
-    @Override
-    public boolean isUpsellable() {
-        return false;
-    }
 }

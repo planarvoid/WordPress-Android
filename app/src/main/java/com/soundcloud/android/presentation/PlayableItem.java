@@ -13,7 +13,6 @@ import com.soundcloud.android.stream.SoundStreamProperty;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
@@ -124,15 +123,5 @@ public abstract class PlayableItem implements StreamItem {
 
     public PropertySet getSource() {
         return source;
-    }
-
-    public boolean isSnipped() {
-        return source.getOrElse(TrackProperty.SNIPPED, false);
-    }
-
-    @Override
-    public boolean isUpsellable() {
-        return source.getOrElse(TrackProperty.SNIPPED, false)
-                && source.getOrElse(TrackProperty.SUB_HIGH_TIER, false);
     }
 }

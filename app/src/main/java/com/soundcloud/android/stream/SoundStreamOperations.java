@@ -5,6 +5,7 @@ import static com.soundcloud.android.stream.StreamItem.Kind.NOTIFICATION;
 import static com.soundcloud.android.stream.StreamItem.Kind.PLAYABLE;
 import static com.soundcloud.android.stream.StreamItem.Kind.PROMOTED;
 import static com.soundcloud.android.stream.StreamItem.Kind.UPSELL;
+import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.legacy.model.ContentStats;
@@ -25,6 +26,7 @@ import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
+import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -250,7 +252,7 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
 
     private Optional<StreamItem> getFirstUpsellable(List<StreamItem> streamItems) {
         for (StreamItem streamItem : streamItems) {
-            if (streamItem.isUpsellable()) {
+            if (streamItem instanceof TieredTrack && isHighTierPreview((TieredTrack) streamItem)) {
                 return Optional.of(streamItem);
             }
         }

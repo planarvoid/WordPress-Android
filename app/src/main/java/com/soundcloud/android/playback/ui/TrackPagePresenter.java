@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.Player.StateTransition;
+import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
+import static com.soundcloud.android.tracks.TieredTracks.isTrackPreview;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
@@ -171,13 +173,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         holder.upsellButton.setTag(trackState.getUrn());
 
-        if (featureOperations.upsellHighTier()) {
-            holder.previewIndicator.setVisibility(trackState.isSnipped() ? View.VISIBLE : View.GONE);
-            holder.upsellButton.setVisibility(trackState.shouldUpsell() ? View.VISIBLE : View.GONE);
-        } else {
-            holder.previewIndicator.setVisibility(View.GONE);
-            holder.upsellButton.setVisibility(View.GONE);
-        }
+        holder.previewIndicator.setVisibility(isTrackPreview(trackState) ? View.VISIBLE : View.GONE);
+
+        final boolean showHighTierUpsell = featureOperations.upsellHighTier() && isHighTierPreview(trackState);
+        holder.upsellButton.setVisibility(showHighTierUpsell ? View.VISIBLE : View.GONE);
 
         holder.errorViewController.setUrn(trackState.getUrn());
         if (blocked) {
