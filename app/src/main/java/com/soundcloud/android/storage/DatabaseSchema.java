@@ -351,23 +351,9 @@ final class DatabaseSchema {
             "   Sounds." + TableColumns.Sounds._ID + " = " + "TrackPolicies." + TableColumns.TrackPolicies.TRACK_ID + ")" +
             " LEFT OUTER JOIN TrackMetadata ON(" +
             "   TrackMetadata." + TableColumns.TrackMetadata._ID + " = " + "Sounds." + TableColumns.SoundView._ID + ")" +
-            " WHERE " + "Sounds." + TableColumns.Sounds.REMOVED_AT + " IS NULL";
-
-    /**
-     * A view which combines soundassociation with sounds
-     */
-    static final String DATABASE_CREATE_SOUND_ASSOCIATION_VIEW = "AS SELECT " +
-            "CollectionItems." + TableColumns.CollectionItems.CREATED_AT + " as " + TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP +
-            ", CollectionItems." + TableColumns.CollectionItems.COLLECTION_TYPE + " as " + TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TYPE +
-            ", CollectionItems." + TableColumns.CollectionItems.USER_ID + " as " + TableColumns.SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID +
-
-            // track+user data
-            ", SoundView.*" +
-            " FROM " + Table.CollectionItems.name() + " " +
-            " INNER JOIN SoundView ON(" +
-            "   " + Table.CollectionItems.name() + "." + TableColumns.CollectionItems.ITEM_ID + " = " + "SoundView." + TableColumns.SoundView._ID +
-            " AND " + Table.CollectionItems.name() + "." + TableColumns.CollectionItems.RESOURCE_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
-            " ORDER BY " + TableColumns.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC";
+            " WHERE " + "Sounds." + TableColumns.Sounds.REMOVED_AT + " IS NULL" +
+            " AND (Sounds." + TableColumns.Sounds._TYPE + " != " + TableColumns.Sounds.TYPE_TRACK +
+            " OR TrackPolicies." + TableColumns.TrackPolicies.TRACK_ID + " IS NOT NULL)";
 
     /**
      * A view which combines user associations with users.
@@ -438,10 +424,9 @@ final class DatabaseSchema {
 
             " LEFT JOIN Users ON(" +
             "   SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
-            " LEFT JOIN SoundView ON(" +
+            " INNER JOIN SoundView ON(" +
             "   SoundStream." + TableColumns.SoundStream.SOUND_ID + " = " + "SoundView." + TableColumns.SoundView._ID + " AND " +
             "   SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
-
 
             " ORDER BY SoundStream." + TableColumns.SoundStreamView.CREATED_AT + " DESC";
 
