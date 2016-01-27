@@ -44,7 +44,7 @@ public class ConfigurationOperations {
     private final FeatureFlags featureFlags;
     private final Scheduler scheduler;
 
-    private final Func2<Object, Configuration, Configuration> toUpdatedConfiguration = new Func2<Object, Configuration, Configuration>() {
+    private static final Func2<Object, Configuration, Configuration> TO_UPDATED_CONFIGURATION = new Func2<Object, Configuration, Configuration>() {
         @Override
         public Configuration call(Object ignore, Configuration configuration) {
             return configuration;
@@ -74,7 +74,7 @@ public class ConfigurationOperations {
         final ApiRequest request = configurationRequestBuilderForGet().build();
         return Observable.zip(experimentOperations.loadAssignment(),
                 apiClientRx.get().mappedResponse(request, Configuration.class).subscribeOn(scheduler),
-                toUpdatedConfiguration
+                TO_UPDATED_CONFIGURATION
         );
     }
 

@@ -15,7 +15,7 @@ public class DeviceManagement {
         this.conflictingDeviceId = conflictingDeviceId;
     }
 
-    public boolean isNotAuthorized(){
+    public boolean isNotAuthorized() {
         return !authorized;
     }
 
