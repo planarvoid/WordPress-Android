@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.likes;
+package com.soundcloud.android.tests.offline;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static org.hamcrest.MatcherAssert.assertThat;

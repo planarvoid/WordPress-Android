@@ -35,7 +35,7 @@ public class CollectionEmptyTest extends ActivityTest<MainActivity> {
     }
 
     public void testShowsEmptyTrackLikes() {
-        TrackLikesScreen trackLikesScreen = collectionScreen.clickTrackLikes();
+        TrackLikesScreen trackLikesScreen = collectionScreen.clickLikedTracksPreview();
         assertThat(trackLikesScreen.emptyView().isVisible(), is(true));
     }
 }

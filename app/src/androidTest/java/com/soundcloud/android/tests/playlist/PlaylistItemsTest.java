@@ -50,7 +50,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
     public void testAddTrackToPlaylistFromPlayer() {
         final TrackLikesScreen trackLikesScreen = mainNavHelper
                 .goToCollections()
-                .clickTrackLikes();
+                .clickLikedTracksPreview();
         final TrackItemElement track = trackLikesScreen
                 .getTracks()
                 .get(0);
