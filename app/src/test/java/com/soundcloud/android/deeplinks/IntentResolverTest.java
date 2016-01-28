@@ -12,6 +12,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.main.Screen;
@@ -43,6 +44,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Mock private ReferrerResolver referrerResolver;
     @Mock private EventBus eventBus;
     @Mock private Navigator navigator;
+    @Mock private FeatureOperations featureOperations;
 
     @InjectMocks private IntentResolver resolver;
 
@@ -370,12 +372,24 @@ public class IntentResolverTest extends AndroidUnitTest {
 
     @Test
     public void shouldLaunchUpgradeForSoundCloudScheme() throws Exception {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
         setupIntentForUrl("soundcloud://soundcloudgo");
 
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER);
         verify(navigator).openUpgrade(context);
+    }
+
+    @Test
+    public void shouldNotLaunchUpgradeWhenUpsellFeatureIsDisabled() throws Exception {
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+        setupIntentForUrl("soundcloud://soundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
     }
 
     public void setupIntentForUrl(String url) {

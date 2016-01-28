@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.main.Screen;
@@ -34,6 +35,7 @@ public class IntentResolver {
     private final ReferrerResolver referrerResolver;
     private final EventBus eventBus;
     private final Navigator navigator;
+    private final FeatureOperations featureOperations;
 
     @Inject
     IntentResolver(ResolveOperations resolveOperations,
@@ -43,7 +45,8 @@ public class IntentResolver {
                    PlayQueueManager playQueueManager,
                    ReferrerResolver referrerResolver,
                    EventBus eventBus,
-                   Navigator navigator) {
+                   Navigator navigator,
+                   FeatureOperations featureOperations) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceInitiator = serviceInitiator;
@@ -52,6 +55,7 @@ public class IntentResolver {
         this.referrerResolver = referrerResolver;
         this.eventBus = eventBus;
         this.navigator = navigator;
+        this.featureOperations = featureOperations;
     }
 
     public void handleIntent(Intent intent, Context context) {
@@ -172,7 +176,11 @@ public class IntentResolver {
 
     private void showUpgradeScreen(Context context, String referrer) {
         trackForegroundEvent(referrer);
-        navigator.openUpgrade(context);
+        if (featureOperations.upsellHighTier()) {
+            navigator.openUpgrade(context);
+        } else {
+            navigator.openStream(context, Screen.DEEPLINK);
+        }
     }
 
     private void startActivityForResource(Context context, Urn urn, String referrer) {
