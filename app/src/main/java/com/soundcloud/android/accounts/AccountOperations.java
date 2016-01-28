@@ -1,6 +1,7 @@
 package com.soundcloud.android.accounts;
 
 import static com.soundcloud.android.api.legacy.model.PublicApiUser.CRAWLER_USER;
+import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
@@ -13,6 +14,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -56,6 +58,7 @@ public class AccountOperations {
     private final EventBus eventBus;
     private final Scheduler scheduler;
 
+    private final Lazy<ConfigurationOperations> configurationOperations;
     private final Lazy<AccountCleanupAction> accountCleanupAction;
     private final Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand;
 
@@ -83,6 +86,7 @@ public class AccountOperations {
     @Inject
     AccountOperations(Context context, AccountManager accountManager, SoundCloudTokenOperations tokenOperations,
                       ScModelManager modelManager, LegacyUserStorage userStorage, EventBus eventBus,
+                      Lazy<ConfigurationOperations> configurationOperations,
                       Lazy<AccountCleanupAction> accountCleanupAction,
                       Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand,
                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
@@ -92,6 +96,7 @@ public class AccountOperations {
         this.modelManager = modelManager;
         this.userStorage = userStorage;
         this.eventBus = eventBus;
+        this.configurationOperations = configurationOperations;
         this.accountCleanupAction = accountCleanupAction;
         this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
         this.scheduler = scheduler;
@@ -235,7 +240,9 @@ public class AccountOperations {
         Account soundCloudAccount = getSoundCloudAccount();
         checkNotNull(soundCloudAccount, "One does not simply remove something that does not exist");
 
-        return Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager))
+        return configurationOperations.get()
+                .deregisterDevice()
+                .flatMap(continueWith(Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager))))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(scheduler);
     }

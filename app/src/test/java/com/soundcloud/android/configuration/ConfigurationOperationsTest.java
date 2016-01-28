@@ -18,6 +18,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
@@ -55,7 +56,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     private ConfigurationOperations operations;
     private Configuration configuration;
 
-    private TestSubscriber<Configuration> subscriber;
+    private TestSubscriber subscriber;
     private TestScheduler scheduler;
 
     @Before
@@ -207,6 +208,26 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         verify(featureOperations).updateFeatures(TestFeatures.asList());
         verify(featureOperations).updatePlan(authorized.plan.id, authorized.plan.upsells);
         verify(experimentOperations).update(authorized.assignment);
+    }
+
+    @Test
+    public void deregisterDeviceCallsDeleteOnConfiguration() {
+        when(apiClientRx.response(argThat(isApiRequestTo("DELETE", ApiEndpoints.CONFIGURATION.path()))))
+                .thenReturn(Observable.just(TestApiResponses.ok()));
+
+        operations.deregisterDevice().subscribe(subscriber);
+
+        subscriber.assertValue(null);
+    }
+
+    @Test
+    public void deregisterDeviceIgnoresFailure() {
+        when(apiClientRx.response(argThat(isApiRequestTo("DELETE", ApiEndpoints.CONFIGURATION.path()))))
+                .thenReturn(Observable.just(TestApiResponses.networkError()));
+
+        operations.deregisterDevice().subscribe(subscriber);
+
+        subscriber.assertNoErrors();
     }
 
     private Configuration getNoPlanConfiguration() {
