@@ -11,8 +11,8 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -374,7 +374,7 @@ public class PublicApiTrackTest {
         track.setUser(new PublicApiUser(1L));
 
         PropertySet propertySet = track.toPropertySet();
-        expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual(Strings.EMPTY);
+        expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual("");
     }
 
     @Test
