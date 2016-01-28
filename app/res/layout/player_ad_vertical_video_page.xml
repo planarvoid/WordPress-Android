@@ -3,17 +3,20 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/ad_default_background">
 
     <SurfaceView
             android:id="@+id/video_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"/>
 
     <com.soundcloud.android.playback.ui.view.ArtworkAdOverlayView
             android:id="@+id/video_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_centerInParent="true"
             android:background="@color/artwork_overlay"/>
 
     <include layout="@layout/player_gradient"/>
