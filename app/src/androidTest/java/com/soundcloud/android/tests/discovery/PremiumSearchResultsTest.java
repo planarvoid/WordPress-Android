@@ -6,7 +6,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.annotation.SearchResultsHighTier;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.UpgradeScreen;
@@ -15,7 +14,6 @@ import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
-@Ignore
 @SearchResultsHighTier
 public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
 
