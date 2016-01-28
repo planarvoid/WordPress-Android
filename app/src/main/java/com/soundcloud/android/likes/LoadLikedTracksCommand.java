@@ -53,7 +53,7 @@ public class LoadLikedTracksCommand extends Command<Void, Collection<PropertySet
 
                 .leftJoin(Tables.OfflineContent.TABLE, LikedTrackStorage.offlineLikesFilter())
                 .leftJoin(Tables.TrackDownloads.TABLE.name(), fullSoundIdColumn, Tables.TrackDownloads._ID.qualifiedName())
-                .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
+                .innerJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .joinOn(Table.Likes.field(TableColumns.Likes._ID), fullSoundIdColumn)
                 .joinOn(Table.Sounds.field(TableColumns.Sounds.USER_ID), Table.Users.field(TableColumns.Users._ID))
 

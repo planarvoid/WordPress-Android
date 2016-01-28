@@ -2,14 +2,9 @@ package com.soundcloud.android.storage.provider;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.TestHelper;
-import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,26 +14,19 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.PeriodicSync;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.provider.BaseColumns;
 
-import java.util.Date;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class ScContentProviderTest {
     static final long USER_ID = 100L;
     ContentResolver resolver;
-    private DatabaseFixtures testFixtures;
-    private SQLiteDatabase writableDatabase;
 
     @Before
     public void before() {
         TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        writableDatabase = DatabaseManager.getInstance(Robolectric.application).getWritableDatabase();
-        testFixtures = new DatabaseFixtures(writableDatabase);
     }
 
     @Test
@@ -87,38 +75,6 @@ public class ScContentProviderTest {
         syncs = ContentResolver.getPeriodicSyncs(account, ScContentProvider.AUTHORITY);
         expect(syncs.isEmpty()).toBeTrue();
         expect(ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY)).toBeFalse();
-    }
-
-    @Test
-    public void shouldSupportLimitParameter() {
-        TestHelper.insertWithDependencies(Content.TRACKS.uri, new PublicApiTrack(1));
-        TestHelper.insertWithDependencies(Content.TRACKS.uri, new PublicApiTrack(2));
-
-        expect(Content.TRACKS).toHaveCount(2);
-
-        Uri limitedUri = Content.TRACKS.uri.buildUpon()
-                .appendQueryParameter("limit", "1").build();
-        Cursor cursor = resolver.query(limitedUri, null, null, null, null);
-        expect(cursor).toHaveCount(1);
-        cursor.moveToFirst();
-        expect(cursor).toHaveColumn(BaseColumns._ID, 1L);
-    }
-
-    @Test
-    public void shouldSupportOffsetParameter() {
-        TestHelper.insertWithDependencies(Content.TRACKS.uri, new PublicApiTrack(1));
-        TestHelper.insertWithDependencies(Content.TRACKS.uri, new PublicApiTrack(2));
-        TestHelper.insertWithDependencies(Content.TRACKS.uri, new PublicApiTrack(3));
-
-        expect(Content.TRACKS).toHaveCount(3);
-
-        Uri limitedUri = Content.TRACKS.uri.buildUpon()
-                .appendQueryParameter("limit", "1")
-                .appendQueryParameter("offset", "2").build();
-        Cursor cursor = resolver.query(limitedUri, null, null, null, null);
-        expect(cursor).toHaveCount(1);
-        cursor.moveToFirst();
-        expect(cursor).toHaveColumn(BaseColumns._ID, 3L);
     }
 
 }
