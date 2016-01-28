@@ -145,6 +145,17 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
                 .build();
     }
 
+    private List<ListItem> buildPlaylistWithPremiumContent(List<ListItem> premiumItems) {
+        // http://style/interaction/play-queue-experience/ stands that our play queues should be created with the
+        // content sitting on the screen, for instance the play queue is created with the first premium item + plus
+        // the rest of the normal content sitting on the adapter.
+        final int numberOfItemsInPlayQueue = adapter.getItems().size();
+        final List<ListItem> playables = new ArrayList<>(numberOfItemsInPlayQueue);
+        playables.add(premiumItems.get(0));
+        playables.addAll(adapter.getItems().subList(1, numberOfItemsInPlayQueue));
+        return playables;
+    }
+
     @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
@@ -161,7 +172,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     @Override
     public void onPremiumItemClicked(View view, List<ListItem> premiumItems) {
         //TODO: SearchQuerySourceInfo is null until search premium content tracking is implemented
-        clickListenerFactory.create(getTrackingScreen(), null).onItemClick(premiumItems, view, 0);
+        clickListenerFactory.create(getTrackingScreen(), null).onItemClick(buildPlaylistWithPremiumContent(premiumItems), view, 0);
     }
 
     @Override

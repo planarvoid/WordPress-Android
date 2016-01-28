@@ -25,7 +25,7 @@
             android:paddingBottom="@dimen/discovery_cell_text_view_all_padding"
             android:text="@string/search_premium_content_upsell"
             android:textAllCaps="true"
-            tools:text="UPGRADE TO UNLOCK FULL TRACKS" />
+            tools:text="UPGRADE TO HEAR FULL TRACKS" />
 
     </RelativeLayout>
 

@@ -17,6 +17,7 @@ import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -109,9 +110,19 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
         itemContainer.addView(playListItemView, positionIndex + 2);
         itemContainer.addView(userItemView, positionIndex + 3);
 
+        setListItemBackground(premiumItemView, trackItemView);
+        setListItemBackground(premiumItemView, playListItemView);
+        setListItemBackground(premiumItemView, userItemView);
+
         trackItemView.setVisibility(View.GONE);
         playListItemView.setVisibility(View.GONE);
         userItemView.setVisibility(View.GONE);
+    }
+
+    private void setListItemBackground(View containerView, View listItemView) {
+        TypedValue outValue = new TypedValue();
+        containerView.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+        listItemView.setBackgroundResource(outValue.resourceId);
     }
 
     private TextView getTextView(final View convertView, final int id) {

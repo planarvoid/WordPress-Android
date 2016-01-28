@@ -57,7 +57,7 @@
             android:gravity="center"
             android:paddingBottom="@dimen/discovery_cell_text_view_all_padding"
             android:text="@string/search_premium_content_view_all"
-            tools:text="VIEW ALL SOUNDCLOUD GO RESULTS" />
+            tools:text="SEE ALL SOUNDCLOUD GO RESULTS" />
 
         <ImageView
             android:layout_width="@dimen/discovery_cell_image_view_all_size"
