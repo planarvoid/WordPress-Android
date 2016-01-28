@@ -46,41 +46,17 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="PlayerUser" parent="FooterUser">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/clickable_overlay_text</item>
-        <item name="jagged_background">@color/overlay_text_background</item>
-        <item name="android:paddingLeft">6dp</item>
-        <item name="android:paddingRight">8dp</item>
-        <item name="android:paddingTop">0dp</item>
-        <item name="android:paddingBottom">2dp</item>
-        <item name="android:duplicateParentState">true</item>
+    <style name="PlayerUser" parent="ShrinkWrap.Secondary.Medium">
         <item name="android:clickable">false</item>
+        <item name="android:duplicateParentState">true</item>
     </style>
 
-    <style name="PlayerPrimaryHeading" parent="FooterTitle">
-        <item name="android:textSize">20sp</item>
-        <item name="jagged_background">@color/overlay_text_background</item>
-        <item name="android:lineSpacingExtra">2dp</item>
-        <item name="android:paddingLeft">6dp</item>
-        <item name="android:paddingRight">8dp</item>
-        <item name="android:paddingTop">2dp</item>
-        <item name="android:paddingBottom">2dp</item>
-    </style>
+    <style name="PlayerTitle" parent="ShrinkWrap.Primary.Medium" />
 
-    <style name="PlayerTitle" parent="PlayerPrimaryHeading">
-        <item name="android:singleLine">false</item>
-        <item name="android:maxLines">3</item>
-    </style>
-
-    <style name="PlayerContext" parent="PlayerPrimaryHeading">
-        <item name="android:maxLines">1</item>
-        <item name="android:singleLine">true</item>
+    <style name="PlayerContext" parent="ShrinkWrap.Secondary.Medium">
         <item name="android:layout_marginTop">4dp</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/clickable_overlay_text</item>
         <item name="android:drawablePadding">6dp</item>
+        <item name="android:paddingLeft">6dp</item>
     </style>
 
     <style name="PlayerCastDeviceName" parent="TextAppearance.SoundCloudLightFont">

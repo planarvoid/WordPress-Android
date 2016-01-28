@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="shrinkwrap_medium_padding_left">5dp</dimen>
+    <dimen name="shrinkwrap_medium_padding_right">5dp</dimen>
+    <dimen name="shrinkwrap_medium_padding_top">2dp</dimen>
+    <dimen name="shrinkwrap_medium_padding_bottom">2dp</dimen>
+
+    <dimen name="shrinkwrap_medium_primary_line_spacing_extra">3dp</dimen>
+    <dimen name="shrinkwrap_medium_primary_text_size">18sp</dimen>
+
+    <dimen name="shrinkwrap_medium_secondary_text_size">14sp</dimen>
+</resources>
