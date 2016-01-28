@@ -59,7 +59,7 @@ public class PeripheralsController {
 
     private String getSafeClippedString(String string, int maxLength) {
         if (Strings.isBlank(string)) {
-            return ScTextUtils.EMPTY_STRING;
+            return Strings.EMPTY;
         } else {
             return ScTextUtils.getClippedString(string, maxLength);
         }

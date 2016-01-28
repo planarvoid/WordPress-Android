@@ -13,10 +13,10 @@ import com.soundcloud.android.stream.SoundStreamProperty;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import java.util.Date;
 
@@ -73,7 +73,7 @@ public abstract class PlayableItem implements StreamItem {
     }
 
     public String getTitle() {
-        return source.getOrElse(PlayableProperty.TITLE, ScTextUtils.EMPTY_STRING);
+        return source.getOrElse(PlayableProperty.TITLE, Strings.EMPTY);
     }
 
     public Urn getCreatorUrn() {
@@ -81,7 +81,7 @@ public abstract class PlayableItem implements StreamItem {
     }
 
     public String getCreatorName() {
-        return source.getOrElse(PlayableProperty.CREATOR_NAME, ScTextUtils.EMPTY_STRING);
+        return source.getOrElse(PlayableProperty.CREATOR_NAME, Strings.EMPTY);
     }
 
     public Optional<String> getReposter() {

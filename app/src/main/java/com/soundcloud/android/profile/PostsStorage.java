@@ -22,9 +22,9 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -73,7 +73,7 @@ public class PostsStorage {
         return Observable.zip(
                 propellerRx.query(buildPostsQuery(limit, fromTimestamp)).map(new PostsMapper()).toList(),
                 propellerRx.query(buildUserQuery()).map(RxResultMapper.scalar(String.class))
-                        .firstOrDefault(ScTextUtils.EMPTY_STRING),
+                        .firstOrDefault(Strings.EMPTY),
                 COMBINE_REPOSTER
         );
     }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.cast;
 
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.support.v7.app.AppCompatActivity;
@@ -51,7 +51,7 @@ public class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompa
 
     @Override
     public String getDeviceName() {
-        return ScTextUtils.EMPTY_STRING;
+        return Strings.EMPTY;
     }
 
 }

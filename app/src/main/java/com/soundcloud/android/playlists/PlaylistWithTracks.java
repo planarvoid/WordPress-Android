@@ -10,6 +10,7 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -54,7 +55,7 @@ public class PlaylistWithTracks {
 
     public String getCreatorName() {
         // syncing through public api requires us to fetch usernames lazily. this will be fixed by moving to api-mobile
-        return sourceSet.getOrElse(PlaylistProperty.CREATOR_NAME, ScTextUtils.EMPTY_STRING);
+        return sourceSet.getOrElse(PlaylistProperty.CREATOR_NAME, Strings.EMPTY);
     }
 
     public String getTitle() {

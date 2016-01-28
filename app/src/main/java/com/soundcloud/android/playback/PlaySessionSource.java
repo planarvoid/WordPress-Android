@@ -86,14 +86,14 @@ public class PlaySessionSource implements Parcelable {
     }
 
     public PlaySessionSource(SharedPreferences sharedPreferences) {
-        originScreen = sharedPreferences.getString(PREF_KEY_ORIGIN_SCREEN_TAG, ScTextUtils.EMPTY_STRING);
+        originScreen = sharedPreferences.getString(PREF_KEY_ORIGIN_SCREEN_TAG, Strings.EMPTY);
         collectionUrn = readUrn(sharedPreferences, PREF_KEY_COLLECTION_URN);
         collectionOwnerUrn = readUrn(sharedPreferences, PREF_KEY_COLLECTION_OWNER_URN);
         collectionSize = sharedPreferences.getInt(PREF_KEY_COLLECTION_SIZE, Consts.NOT_SET);
     }
 
     private Urn readUrn(SharedPreferences sharedPreferences, String key) {
-        final String value = sharedPreferences.getString(key, ScTextUtils.EMPTY_STRING);
+        final String value = sharedPreferences.getString(key, Strings.EMPTY);
         if (value.isEmpty()) {
             return Urn.NOT_SET;
         } else {
@@ -102,7 +102,7 @@ public class PlaySessionSource implements Parcelable {
     }
 
     private PlaySessionSource() {
-        this(ScTextUtils.EMPTY_STRING);
+        this(Strings.EMPTY);
     }
 
     public PlaySessionSource(Screen screen) {
@@ -139,11 +139,11 @@ public class PlaySessionSource implements Parcelable {
         } else if (isFromStreamTrack()) {
             return DiscoverySource.STREAM.value();
         }
-        return ScTextUtils.EMPTY_STRING;
+        return Strings.EMPTY;
     }
 
     public String getInitialSourceVersion() {
-        return Strings.isNotBlank(exploreVersion) ? exploreVersion : ScTextUtils.EMPTY_STRING;
+        return Strings.isNotBlank(exploreVersion) ? exploreVersion : Strings.EMPTY;
     }
 
     public boolean isFromSearchQuery() {

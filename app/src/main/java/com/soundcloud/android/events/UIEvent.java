@@ -5,8 +5,8 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -244,7 +244,7 @@ public final class UIEvent extends TrackingEvent {
         if (trackSourceInfo != null) {
             return trackSourceInfo.getOriginScreen();
         }
-        return ScTextUtils.EMPTY_STRING;
+        return Strings.EMPTY;
     }
 
     private static String getPlayableType(Urn resourceUrn) {

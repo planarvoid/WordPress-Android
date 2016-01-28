@@ -3,8 +3,8 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 
 public class PlaylistInfoMapper extends OfflinePlaylistMapper {
@@ -30,7 +30,7 @@ public class PlaylistInfoMapper extends OfflinePlaylistMapper {
 
         // we were not inserting this for a while, so we could have some remaining missing values. eventually this should always exist
         final String permalinkUrl = cursorReader.getString(TableColumns.SoundView.PERMALINK_URL);
-        propertySet.put(PlaylistProperty.PERMALINK_URL, permalinkUrl != null ? permalinkUrl : ScTextUtils.EMPTY_STRING);
+        propertySet.put(PlaylistProperty.PERMALINK_URL, permalinkUrl != null ? permalinkUrl : Strings.EMPTY);
         return propertySet;
     }
 

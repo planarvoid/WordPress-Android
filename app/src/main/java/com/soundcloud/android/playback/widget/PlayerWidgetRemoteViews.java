@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -46,7 +46,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
     /* package */  void setEmptyState(Context context) {
         setPlaybackStatus(false);
         setCurrentTrackTitle(context.getString(R.string.widget_touch_to_open));
-        setCurrentCreator(ScTextUtils.EMPTY_STRING);
+        setCurrentCreator(Strings.EMPTY);
         linkButtonsWidget(context, Urn.NOT_SET, Urn.NOT_SET, false);
     }
 

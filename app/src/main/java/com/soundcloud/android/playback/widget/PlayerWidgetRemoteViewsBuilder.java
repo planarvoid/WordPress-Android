@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.widget;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -53,7 +53,7 @@ public class PlayerWidgetRemoteViewsBuilder {
         widgetRemoteView.setCurrentTrackTitle(track.getTitle());
         widgetRemoteView.linkButtonsWidget(context, track.getUrn(), track.getUserUrn(), !track.isUserLike());
 
-        widgetRemoteView.setCurrentCreator(track.isAudioAd() ? ScTextUtils.EMPTY_STRING : track.getUserName());
+        widgetRemoteView.setCurrentCreator(track.isAudioAd() ? Strings.EMPTY : track.getUserName());
         widgetRemoteView.setLikeShown(!track.isAudioAd());
     }
 

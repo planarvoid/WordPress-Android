@@ -41,12 +41,12 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEmptyPlaySessionSource() throws Exception {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
-        assertThat(playSessionSource.getOriginScreen()).isEqualTo(ScTextUtils.EMPTY_STRING);
+        assertThat(playSessionSource.getOriginScreen()).isEqualTo(Strings.EMPTY);
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(Consts.NOT_SET);
-        assertThat(playSessionSource.getInitialSource()).isEqualTo(ScTextUtils.EMPTY_STRING);
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(ScTextUtils.EMPTY_STRING);
+        assertThat(playSessionSource.getInitialSource()).isEqualTo(Strings.EMPTY);
+        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
         assertThat(playSessionSource.getSearchQuerySourceInfo()).isNull();
     }
 
@@ -57,8 +57,8 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(Consts.NOT_SET);
-        assertThat(playSessionSource.getInitialSource()).isEqualTo(ScTextUtils.EMPTY_STRING);
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(ScTextUtils.EMPTY_STRING);
+        assertThat(playSessionSource.getInitialSource()).isEqualTo(Strings.EMPTY);
+        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
     }
 
     @Test
@@ -69,8 +69,8 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(playlist.getUrn());
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(playlist.getUserUrn());
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(playlist.getTrackCount());
-        assertThat(playSessionSource.getInitialSource()).isEqualTo(ScTextUtils.EMPTY_STRING);
-        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(ScTextUtils.EMPTY_STRING);
+        assertThat(playSessionSource.getInitialSource()).isEqualTo(Strings.EMPTY);
+        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
     }
 
     @Test
@@ -197,6 +197,6 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotOriginateFromExploreWithEmptyOrigin() {
-        assertThat(new PlaySessionSource(ScTextUtils.EMPTY_STRING).originatedInExplore()).isFalse();
+        assertThat(new PlaySessionSource(Strings.EMPTY).originatedInExplore()).isFalse();
     }
 }

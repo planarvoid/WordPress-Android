@@ -2,8 +2,8 @@ package com.soundcloud.android.sync.timeline;
 
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.SharedPreferences;
 
@@ -21,7 +21,7 @@ public class TimelineSyncStorage {
     }
 
     public String getNextPageUrl() {
-        return prefs.getString(PREFS_NEXT_URL, ScTextUtils.EMPTY_STRING);
+        return prefs.getString(PREFS_NEXT_URL, Strings.EMPTY);
     }
 
     public boolean hasNextPageUrl() {
@@ -29,7 +29,7 @@ public class TimelineSyncStorage {
     }
 
     public String getFuturePageUrl() {
-        return prefs.getString(PREFS_FUTURE_URL, ScTextUtils.EMPTY_STRING);
+        return prefs.getString(PREFS_FUTURE_URL, Strings.EMPTY);
     }
 
     public boolean isMissingFuturePageUrl() {

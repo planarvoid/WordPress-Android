@@ -174,7 +174,7 @@ public class SoundStreamStorage implements TimelineStorage {
             if (string == null) {
                 ErrorUtils.handleSilentException("urn : " + readSoundUrn(cursorReader),
                         new IllegalStateException("Unexpected null title in stream"));
-                propertySet.put(PlayableProperty.TITLE, ScTextUtils.EMPTY_STRING);
+                propertySet.put(PlayableProperty.TITLE, Strings.EMPTY);
             } else {
                 propertySet.put(PlayableProperty.TITLE, string);
             }

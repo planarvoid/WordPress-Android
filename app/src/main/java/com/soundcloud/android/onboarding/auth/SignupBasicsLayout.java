@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -263,7 +264,7 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
         if (selectedGenderOption != null) {
             String label = getResources().getString(selectedGenderOption.getResId());
             genderOptionTextView.setText(label);
-            genderOptionTextView.setHint(ScTextUtils.EMPTY_STRING); // clears the hint, for sizing purposes
+            genderOptionTextView.setHint(Strings.EMPTY); // clears the hint, for sizing purposes
         } else {
             genderOptionTextView.setText(null);
             genderOptionTextView.setHint(R.string.onboarding_indicate_gender);

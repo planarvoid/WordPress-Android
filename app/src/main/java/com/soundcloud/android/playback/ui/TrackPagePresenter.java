@@ -24,7 +24,6 @@ import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.util.AnimUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.Iterables;
@@ -32,6 +31,7 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.animation.ObjectAnimator;
@@ -233,8 +233,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     public View clearItemView(View view) {
         final TrackPageHolder holder = getViewHolder(view);
-        holder.user.setText(ScTextUtils.EMPTY_STRING);
-        holder.title.setText(ScTextUtils.EMPTY_STRING);
+        holder.user.setText(Strings.EMPTY);
+        holder.title.setText(Strings.EMPTY);
 
         holder.trackContext.setVisibility(View.GONE);
 
@@ -244,8 +244,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.artworkController.reset();
         holder.waveformController.reset();
 
-        holder.footerUser.setText(ScTextUtils.EMPTY_STRING);
-        holder.footerTitle.setText(ScTextUtils.EMPTY_STRING);
+        holder.footerUser.setText(Strings.EMPTY);
+        holder.footerTitle.setText(Strings.EMPTY);
 
         holder.timestamp.setVisibility(View.GONE);
         holder.errorViewController.hideError();

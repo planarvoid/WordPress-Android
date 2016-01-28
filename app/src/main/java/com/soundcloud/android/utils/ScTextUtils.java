@@ -35,8 +35,6 @@ public class ScTextUtils {
             "\\A([a-z0-9_\\-][a-z0-9_\\-\\+\\.]{0,62})?[a-z0-9_\\-]@(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)+[a-z]{2,}\\Z"
     );
 
-    @Deprecated // use Strings
-    public static final String EMPTY_STRING = "";
     public static final String SPACE_SEPARATOR = " ";
 
     private ScTextUtils() {}
@@ -66,7 +64,7 @@ public class ScTextUtils {
      */
     public static Spanned fromHtml(String source) {
         if (source == null || TextUtils.isEmpty(source)) {
-            return new SpannedString(EMPTY_STRING);
+            return new SpannedString(Strings.EMPTY);
         }
 
         source = source.replace(System.getProperty("line.separator"), "<br/>");
@@ -218,7 +216,7 @@ public class ScTextUtils {
         } else if (!TextUtils.isEmpty(country)) {
             return country;
         } else {
-            return EMPTY_STRING;
+            return Strings.EMPTY;
         }
     }
 

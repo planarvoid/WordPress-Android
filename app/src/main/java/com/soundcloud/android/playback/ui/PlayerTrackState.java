@@ -16,16 +16,16 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, Propert
 
     static final PlayerTrackState EMPTY = new PlayerTrackState(PropertySet.from(
             TrackProperty.URN.bind(Urn.NOT_SET),
-            TrackProperty.TITLE.bind(ScTextUtils.EMPTY_STRING),
-            TrackProperty.CREATOR_NAME.bind(ScTextUtils.EMPTY_STRING),
+            TrackProperty.TITLE.bind(Strings.EMPTY),
+            TrackProperty.CREATOR_NAME.bind(Strings.EMPTY),
             TrackProperty.CREATOR_URN.bind(Urn.NOT_SET),
             TrackProperty.PLAY_DURATION.bind(0L),
             TrackProperty.FULL_DURATION.bind(0L),
-            TrackProperty.WAVEFORM_URL.bind(ScTextUtils.EMPTY_STRING),
+            TrackProperty.WAVEFORM_URL.bind(Strings.EMPTY),
             TrackProperty.IS_USER_LIKE.bind(false),
             TrackProperty.IS_USER_REPOST.bind(false),
             TrackProperty.LIKES_COUNT.bind(0),
-            TrackProperty.PERMALINK_URL.bind(ScTextUtils.EMPTY_STRING),
+            TrackProperty.PERMALINK_URL.bind(Strings.EMPTY),
             TrackProperty.IS_PRIVATE.bind(false)
     ), false, false, ViewVisibilityProvider.EMPTY);
 

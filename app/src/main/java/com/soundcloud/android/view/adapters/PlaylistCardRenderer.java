@@ -127,7 +127,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         } else if (tags.size() == 1) {
             return "#" + tags.get(0);
         } else {
-            return ScTextUtils.EMPTY_STRING;
+            return Strings.EMPTY;
         }
     }
 

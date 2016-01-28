@@ -374,7 +374,7 @@ public class PublicApiTrackTest {
         track.setUser(new PublicApiUser(1L));
 
         PropertySet propertySet = track.toPropertySet();
-        expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual(ScTextUtils.EMPTY_STRING);
+        expect(propertySet.get(PlayableProperty.CREATOR_NAME)).toEqual(Strings.EMPTY);
     }
 
     @Test

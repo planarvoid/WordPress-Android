@@ -5,8 +5,8 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.reflect.TypeToken;
+import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -59,7 +59,7 @@ class ExperimentStorage {
     }
 
     private Assignment readAssignmentFile(File file) {
-        String json = ScTextUtils.EMPTY_STRING;
+        String json = Strings.EMPTY;
         try {
             json = IOUtils.readInputStream(new FileInputStream(file));
             return jsonTransformer.fromJson(json, TypeToken.of(Assignment.class));

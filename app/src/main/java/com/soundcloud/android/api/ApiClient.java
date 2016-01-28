@@ -11,12 +11,12 @@ import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleHeaderFormatter;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.net.HttpHeaders;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.java.strings.Charsets;
+import com.soundcloud.java.strings.Strings;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -155,7 +155,7 @@ public class ApiClient {
         } else if (request instanceof ApiMultipartRequest) {
             return getMultipartRequestBody((ApiMultipartRequest) request);
         } else {
-            return RequestBody.create(MediaType.parse(request.getAcceptMediaType()), ScTextUtils.EMPTY_STRING);
+            return RequestBody.create(MediaType.parse(request.getAcceptMediaType()), Strings.EMPTY);
         }
     }
 
