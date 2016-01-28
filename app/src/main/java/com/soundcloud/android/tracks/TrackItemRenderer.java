@@ -69,7 +69,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         final TrackItem track = trackItems.get(position);
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(track.getCreatorName());
-        trackItemView.setTitle(track.getTitle());
+        trackItemView.setTitle(track.getTitle(),
+                track.isBlocked() ? R.color.list_disabled : R.color.list_primary);
 
         bindExtraInfoRight(track, trackItemView);
         bindExtraInfoBottom(trackItemView, track);
