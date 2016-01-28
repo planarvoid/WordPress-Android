@@ -61,6 +61,23 @@ public class Navigator {
         context.startActivity(createHomeIntent(context));
     }
 
+    public void launchHome(Context context, @Nullable Bundle extras) {
+        final Intent homeIntent = createHomeIntent(context);
+        if (extras != null) {
+            homeIntent.putExtras(extras);
+        }
+
+        if (!Referrer.hasReferrer(homeIntent)) {
+            Referrer.HOME_BUTTON.addToIntent(homeIntent);
+        }
+
+        if (!Screen.hasScreen(homeIntent)) {
+            Screen.UNKNOWN.addToIntent(homeIntent);
+        }
+
+        context.startActivity(homeIntent);
+    }
+
     public void openUpgrade(Context context) {
         context.startActivity(new Intent(context, UpgradeActivity.class));
     }
@@ -340,15 +357,15 @@ public class Navigator {
     private void restartAppAndNavigateTo(Activity context,
                                          @Nullable Class<? extends Activity> nextActivity,
                                          @Nullable Bundle nextActivityBundle) {
-        Intent launchActivity = new Intent(context, LauncherActivity.class);
-        launchActivity.addCategory(Intent.CATEGORY_DEFAULT);
-        launchActivity.addCategory(Intent.CATEGORY_LAUNCHER);
-        launchActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent launcherIntent = new Intent(context, LauncherActivity.class);
+        launcherIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        launcherIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (nextActivity != null) {
-            launchActivity.putExtra(EXTRA_PENDING_ACTIVITY, nextActivity.getCanonicalName());
-            launchActivity.putExtra(EXTRA_PENDING_ACTIVITY_EXTRAS, nextActivityBundle);
+            launcherIntent.putExtra(EXTRA_PENDING_ACTIVITY, nextActivity.getCanonicalName());
+            launcherIntent.putExtra(EXTRA_PENDING_ACTIVITY_EXTRAS, nextActivityBundle);
         }
-        context.startActivity(launchActivity);
+        context.startActivity(launcherIntent);
         System.exit(0);
     }
 

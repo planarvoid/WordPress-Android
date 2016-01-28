@@ -72,6 +72,32 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void launchHome() {
+        final Intent intent = new Intent();
+        Referrer.FACEBOOK.addToIntent(intent);
+        Screen.AUTH_LOG_IN.addToIntent(intent);
+
+        navigator.launchHome(activityContext, intent.getExtras());
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsScreen(Screen.AUTH_LOG_IN)
+                .containsReferrer(Referrer.FACEBOOK)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .opensActivity(MainActivity.class);
+    }
+
+    @Test
+    public void launchHomeWithoutExtra() {
+        navigator.launchHome(activityContext, null);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsScreen(Screen.UNKNOWN)
+                .containsReferrer(Referrer.HOME_BUTTON)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .opensActivity(MainActivity.class);
+    }
+
+    @Test
     public void openUpgrade() {
         navigator.openUpgrade(activityContext);
         assertThat(activityContext).nextStartedIntent().opensActivity(UpgradeActivity.class);
