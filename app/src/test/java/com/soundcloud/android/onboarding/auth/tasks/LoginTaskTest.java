@@ -1,8 +1,6 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import static com.soundcloud.android.Expect.expect;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,20 +12,19 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.strings.Strings;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.os.Bundle;
 
-@RunWith(SoundCloudTestRunner.class)
-public class LoginTaskTest {
-    private LoginTask loginTask;
+public class LoginTaskTest extends AndroidUnitTest {
+
     @Mock private SoundCloudApplication application;
     @Mock private TokenInformationGenerator tokenInformationGenerator;
     @Mock private FetchUserTask fetchUserTask;
@@ -37,6 +34,7 @@ public class LoginTaskTest {
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountOperations accountOperations;
 
+    private LoginTask loginTask;
     private Bundle bundle;
 
     @Before
@@ -70,7 +68,7 @@ public class LoginTaskTest {
     public void shouldReturnAuthenticationFailureIfUserPersistenceFails() throws Exception {
         when(fetchUserTask.currentUser()).thenReturn(null);
         AuthTaskResult result = loginTask.doInBackground(bundle);
-        assertThat(result.wasSuccess(), is(false));
+        assertThat(result.wasSuccess()).isFalse();
     }
 
     @Test
@@ -93,7 +91,7 @@ public class LoginTaskTest {
     public void shouldReturnFailureResultIfAddingAccountFails() throws Exception {
         setupMocksToReturnToken();
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(false);
-        assertThat(loginTask.doInBackground(bundle).wasSuccess(), is(false));
+        assertThat(loginTask.doInBackground(bundle).wasSuccess()).isFalse();
 
     }
 
@@ -101,7 +99,7 @@ public class LoginTaskTest {
     public void shouldReturnSuccessResultIfAddingAccountSucceeds() throws Exception {
         setupMocksToReturnToken();
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
-        assertThat(loginTask.doInBackground(bundle).wasSuccess(), is(true));
+        assertThat(loginTask.doInBackground(bundle).wasSuccess()).isTrue();
     }
 
     @Test
@@ -114,44 +112,56 @@ public class LoginTaskTest {
     }
 
     @Test
-    public void failureToAutorizeDeviceResultsInDeviceConflictFailure() throws Exception {
+    public void unauthorizedRecoverableDeviceBlockResultsInDeviceConflictFailure() throws Exception {
         setupMocksToReturnToken();
-        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(false, "device-id"));
+        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(false, true, "device-id"));
 
         AuthTaskResult result = loginTask.doInBackground(bundle);
 
-        expect(result.wasSuccess()).toBeFalse();
-        expect(result.getLoginBundle()).toBe(bundle);
-        expect(result.getLoginBundle().getString(LoginTask.CONFLICTING_DEVICE_KEY)).toEqual("device-id");
+        assertThat(result.wasDeviceConflict()).isTrue();
+        assertThat(result.getLoginBundle()).isSameAs(bundle);
+        assertThat(result.getLoginBundle().getString(LoginTask.CONFLICTING_DEVICE_KEY)).isEqualTo("device-id");
+    }
+
+    @Test
+    public void unauthorizedUnrecoverableDeviceBlockResultsInDeviceBlockFailure() throws Exception {
+        setupMocksToReturnToken();
+        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(false, false, Strings.EMPTY));
+
+        AuthTaskResult result = loginTask.doInBackground(bundle);
+
+        assertThat(result.wasSuccess()).isFalse();
+        assertThat(result.wasDeviceBlock()).isTrue();
     }
 
     @Test
     public void failureToForceRegisterDeviceReturnsGenericError() throws Exception {
         setupMocksToReturnToken();
         String conflictingDeviceId = "conflicting";
-        when(configurationOperations.forceRegisterDevice(token, conflictingDeviceId)).thenReturn(new DeviceManagement(false, "device-id"));
+        when(configurationOperations.forceRegisterDevice(token, conflictingDeviceId)).thenReturn(new DeviceManagement(false, true, "device-id"));
         bundle.putString(LoginTask.CONFLICTING_DEVICE_KEY, conflictingDeviceId);
 
         AuthTaskResult result = loginTask.doInBackground(bundle);
 
-        expect(result.wasSuccess()).toBeFalse();
-        expect(result.getException()).toBeInstanceOf(AuthTaskException.class);
+        assertThat(result.wasSuccess()).isFalse();
+        assertThat(result.getException()).isInstanceOf(AuthTaskException.class);
     }
 
     @Test
     public void successfulForceRegisterDeviceContinuesLogin() throws Exception {
         setupMocksToReturnToken();
         String conflictingDeviceId = "conflicting";
-        when(configurationOperations.forceRegisterDevice(token, conflictingDeviceId)).thenReturn(new DeviceManagement(true, null));
+        when(configurationOperations.forceRegisterDevice(token, conflictingDeviceId)).thenReturn(new DeviceManagement(true, false, null));
         bundle.putString(LoginTask.CONFLICTING_DEVICE_KEY, conflictingDeviceId);
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
 
-        assertThat(loginTask.doInBackground(bundle).wasSuccess(), is(true));
+        assertThat(loginTask.doInBackground(bundle).wasSuccess()).isTrue();
     }
 
     private void setupMocksToReturnToken() throws Exception {
         when(tokenInformationGenerator.getToken(bundle)).thenReturn(token);
         when(fetchUserTask.currentUser()).thenReturn(user);
-        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, "device-id"));
+        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false, "device-id"));
     }
+
 }

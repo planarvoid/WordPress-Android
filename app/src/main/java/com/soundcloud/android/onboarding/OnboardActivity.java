@@ -922,8 +922,8 @@ public class OnboardActivity extends FragmentActivity
     public void onDeviceConflict(final Bundle loginBundle) {
         final AlertDialog.Builder builder = new ImageAlertDialog(this)
                 .setContent(R.drawable.dialog_device_management,
-                        R.string.device_management_limit,
-                        R.string.device_management_login_message)
+                        R.string.device_management_limit_title,
+                        R.string.device_management_limit_active)
                 .setPositiveButton(R.string.device_management_continue, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -934,10 +934,20 @@ public class OnboardActivity extends FragmentActivity
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictOnLogin());
     }
 
+    @Override
+    public void onDeviceBlock() {
+        final AlertDialog.Builder builder = new ImageAlertDialog(this)
+                .setContent(R.drawable.dialog_device_management,
+                        R.string.device_management_limit_title,
+                        R.string.device_management_limit_registered)
+                .setPositiveButton(android.R.string.ok, null);
+        showDialogAndTrackEvent(builder, OnboardingEvent.deviceBlockOnLogin());
+    }
+
     private void showDeviceConflictLogoutDialog() {
         final AlertDialog.Builder builder = new ImageAlertDialog(this)
                 .setContent(R.drawable.dialog_device_management,
-                        R.string.device_management_limit,
+                        R.string.device_management_limit_title,
                         R.string.device_management_conflict_message)
                 .setPositiveButton(R.string.device_management_continue, null);
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictLoggedOut());

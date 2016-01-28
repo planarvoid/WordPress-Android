@@ -34,7 +34,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
     @Test
     public void updateWithAuthorizedDeviceResponseSavesConfiguration() {
         Configuration configuration = new Configuration(Collections.<Feature>emptyList(),
-                new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(true, null));
+                new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(true, false, null));
         when(configurationOperations.update()).thenReturn(Observable.just(configuration));
 
         manager.update();
@@ -45,7 +45,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
     @Test
     public void updateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
         Configuration configurationWithDeviceConflict = new Configuration(Collections.<Feature>emptyList(),
-                new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(false, null));
+                new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(false, true, null));
 
         when(configurationOperations.update()).thenReturn(Observable.just(configurationWithDeviceConflict));
 

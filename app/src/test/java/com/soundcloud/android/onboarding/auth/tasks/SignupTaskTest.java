@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -16,17 +16,16 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.LegacyUserStorage;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.os.Bundle;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SignupTaskTest {
+public class SignupTaskTest extends AndroidUnitTest {
+    
     @Mock private TokenInformationGenerator tokenInformationGenerator;
     @Mock private ApiClient apiClient;
     @Mock private LegacyUserStorage userStorage;
@@ -45,8 +44,8 @@ public class SignupTaskTest {
         setupSignupWithUser(user);
 
         AuthTaskResult result = doSignup();
-        expect(result.getUser()).toEqual(user);
-        expect(result.wasSuccess()).toBeTrue();
+        assertThat(result.getUser()).isEqualTo(user);
+        assertThat(result.wasSuccess()).isTrue();
     }
 
     @Test
@@ -55,78 +54,78 @@ public class SignupTaskTest {
         setupSignupWithUser(user);
 
         AuthTaskResult result = doSignupWithNullGender();
-        expect(result.getUser()).toEqual(user);
-        expect(result.wasSuccess()).toBeTrue();
+        assertThat(result.getUser()).isEqualTo(user);
+        assertThat(result.wasSuccess()).isTrue();
     }
 
     @Test
     public void shouldProcessLegacyErrorArrayOfNewResponseBodyDuringSignup() throws Exception {
         setupSignupWithError(ApiRequestException.validationError(null, null, "Email has already been taken", 101));
         AuthTaskResult result = doSignup();
-        expect(result.wasEmailTaken()).toBeTrue();
+        assertThat(result.wasEmailTaken()).isTrue();
     }
 
     @Test
     public void shouldReturnDeniedAuthTaskResultOnSignupDomainBlacklistedError() throws Exception {
         setupSignupWithError(ApiRequestException.validationError(null, null, "Email domain is blacklisted.", 102));
         AuthTaskResult result = doSignup();
-        expect(result.wasDenied()).toBeTrue();
+        assertThat(result.wasDenied()).isTrue();
     }
 
     @Test
     public void shouldReturnSpamAuthTaskResultOnSignupCaptchaRequiredError() throws Exception {
         setupSignupWithError(ApiRequestException.validationError(null, null, "Spam detected, login on web page with captcha.", 103));
         AuthTaskResult result = doSignup();
-        expect(result.wasSpam()).toBeTrue();
+        assertThat(result.wasSpam()).isTrue();
     }
 
     @Test
     public void shouldReturnEmailInvalidAuthTaskResultOnSignupEmailInvalidError() throws Exception {
         setupSignupWithError(ApiRequestException.validationError(null, null, "Email is invalid.", 104));
         AuthTaskResult result = doSignup();
-        expect(result.wasEmailInvalid()).toBeTrue();
+        assertThat(result.wasEmailInvalid()).isTrue();
     }
 
     @Test
     public void shouldReturnGenericErrorAuthTaskResultOnSignupOtherErrorWithLegacyErrors() throws Exception {
         setupSignupWithError(ApiRequestException.validationError(null, null, "Sorry we couldn't sign you up with the details you provided.", 105));
         AuthTaskResult result = doSignup();
-        expect(result.wasFailure()).toBeTrue();
+        assertThat(result.wasFailure()).isTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnUnrecognizedErrorCode() throws Exception {
         setupSignupWithError(ApiRequestException.validationError(null, null, "Sorry we couldn't sign you up with the details you provided.", 180));
         AuthTaskResult result = doSignup();
-        expect(result.wasFailure()).toBeTrue();
+        assertThat(result.wasFailure()).isTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnSignupWithUnreconizedError() throws Exception {
         setupSignupWithError(ApiRequestException.validationError(null, null, "unknown", -1));
         AuthTaskResult result = doSignup();
-        expect(result.wasFailure()).toBeTrue();
+        assertThat(result.wasFailure()).isTrue();
     }
 
     @Test
     public void shouldReturnDeniedAuthTaskResultOnSignupForbidden() throws Exception {
         setupSignupWithError(ApiRequestException.notAllowed(null, null));
         AuthTaskResult result = doSignup();
-        expect(result.wasDenied()).toBeTrue();
+        assertThat(result.wasDenied()).isTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnSignupServerError() throws Exception {
         setupSignupWithError(ApiRequestException.serverError(null, null));
         AuthTaskResult result = doSignup();
-        expect(result.wasFailure()).toBeTrue();
+        assertThat(result.wasFailure()).isTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnSignupUnexpectedResponseStatus() throws Exception {
         setupSignupWithError(ApiRequestException.unexpectedResponse(null, new ApiResponse(null, 403, "body")));
         AuthTaskResult result = doSignup();
-        expect(result.wasFailure()).toBeTrue();
+        assertThat(result.wasFailure()).isTrue();
     }
 
     @Test
@@ -134,7 +133,7 @@ public class SignupTaskTest {
         when(tokenInformationGenerator.verifyScopes(Token.SCOPE_SIGNUP))
                 .thenThrow(new TokenRetrievalException(new Exception()));
         AuthTaskResult result = doSignup();
-        expect(result.wasFailure()).toBeTrue();
+        assertThat(result.wasFailure()).isTrue();
     }
 
     private AuthTaskResult doSignup() {
@@ -175,4 +174,5 @@ public class SignupTaskTest {
         when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_USERS)), eq(PublicApiUser.class)))
                 .thenThrow(exception);
     }
+
 }

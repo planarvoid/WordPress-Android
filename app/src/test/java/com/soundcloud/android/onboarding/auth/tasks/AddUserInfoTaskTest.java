@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -12,18 +12,16 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.LegacyUserStorage;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.io.File;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AddUserInfoTaskTest  {
+public class AddUserInfoTaskTest extends AndroidUnitTest {
 
     @Mock private ApiClient apiClient;
     @Mock private LegacyUserStorage userStorage;
@@ -46,9 +44,9 @@ public class AddUserInfoTaskTest  {
         AddUserInfoTask task = new AddUserInfoTask(
                 application, "permalink", "name", null, userStorage, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
-        expect(result.wasSuccess()).toBeTrue();
-        expect(result.getUser().username).toEqual(user.getUsername());
-        expect(result.getUser().permalink).toEqual(user.getPermalink());
+        assertThat(result.wasSuccess()).isTrue();
+        assertThat(result.getUser().username).isEqualTo(user.getUsername());
+        assertThat(result.getUser().permalink).isEqualTo(user.getPermalink());
     }
 
     @Test
@@ -60,9 +58,9 @@ public class AddUserInfoTaskTest  {
         AddUserInfoTask task = new AddUserInfoTask(
                 application, "permalink", "name", new File("doesntexist"), userStorage, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
-        expect(result.wasSuccess()).toBeTrue();
-        expect(result.getUser().username).toEqual(user.getUsername());
-        expect(result.getUser().permalink).toEqual(user.getPermalink());
+        assertThat(result.wasSuccess()).isTrue();
+        assertThat(result.getUser().username).isEqualTo(user.getUsername());
+        assertThat(result.getUser().permalink).isEqualTo(user.getPermalink());
     }
 
     @Test
@@ -74,9 +72,9 @@ public class AddUserInfoTaskTest  {
         File tmp = File.createTempFile("test", "tmp");
         AddUserInfoTask task = new AddUserInfoTask(application, "permalink", "name", tmp, userStorage, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
-        expect(result.wasSuccess()).toBeTrue();
-        expect(result.getUser().username).toEqual(user.getUsername());
-        expect(result.getUser().permalink).toEqual(user.getPermalink());
+        assertThat(result.wasSuccess()).isTrue();
+        assertThat(result.getUser().username).isEqualTo(user.getUsername());
+        assertThat(result.getUser().permalink).isEqualTo(user.getPermalink());
     }
 
     @Test
@@ -87,8 +85,9 @@ public class AddUserInfoTaskTest  {
 
         AddUserInfoTask task = new AddUserInfoTask(application, "permalink", "name", null, userStorage, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
-        expect(result.wasSuccess()).toBeFalse();
-        expect(result.wasValidationError()).toBeTrue();
-        expect(result.getUser()).toBeNull();
+        assertThat(result.wasSuccess()).isFalse();
+        assertThat(result.wasValidationError()).isTrue();
+        assertThat(result.getUser()).isNull();
     }
+
 }

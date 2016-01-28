@@ -211,12 +211,12 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     private Configuration getNoPlanConfiguration() {
         return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan(Plan.NONE, null),
-                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, null));
+                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false, null));
     }
 
     private Configuration getHighTierConfiguration() {
         return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan(Plan.HIGH_TIER, null),
-                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, null));
+                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false, null));
     }
 
 }

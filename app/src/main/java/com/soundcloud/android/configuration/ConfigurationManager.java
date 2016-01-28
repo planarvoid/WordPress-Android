@@ -46,7 +46,7 @@ public class ConfigurationManager {
         @Override
         public void onNext(Configuration configuration) {
             Log.d(TAG, "Received new configuration");
-            if (configuration.deviceManagement.isNotAuthorized()) {
+            if (configuration.deviceManagement.isUnauthorized()) {
                 Log.d(TAG, "Unauthorized device, logging out");
                 deviceManagementStorage.setDeviceConflict();
                 fireAndForget(accountOperations.logout());

@@ -1,8 +1,6 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -23,25 +21,22 @@ import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.os.Bundle;
 
 import java.io.IOException;
 
-@RunWith(SoundCloudTestRunner.class)
-public class GooglePlusSignInTaskTest {
+public class GooglePlusSignInTaskTest extends AndroidUnitTest {
+
     private static final String ACCOUNT_NAME = "account name";
     private static final String SCOPE = "lulwatscope";
-
-    private GooglePlusSignInTask task;
 
     @Mock private SoundCloudApplication app;
     @Mock private TokenInformationGenerator tokenInformationGenerator;
@@ -53,11 +48,13 @@ public class GooglePlusSignInTaskTest {
     @Mock private Token token;
     @Mock private ConfigurationOperations configurationOperations;
 
+    private GooglePlusSignInTask task;
+
     @Before
     public void setUp() throws Exception {
         when(app.getAccountOperations()).thenReturn(accountOperations);
         when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
-        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, "device-id"));
+        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false, "device-id"));
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, fetchUserTask, userStorage,
                 accountOperations, configurationOperations, new TestEventBus());
 
@@ -82,7 +79,7 @@ public class GooglePlusSignInTaskTest {
     @Test
     public void shouldReturnFailureIfGoogleTokenCouldNotBeObtained() throws IOException, GoogleAuthException {
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenThrow(GoogleAuthException.class);
-        assertThat(task.doInBackground(bundle).wasSuccess(), is(false));
+        assertThat(task.doInBackground(bundle).wasSuccess()).isFalse();
     }
 
     @Test
@@ -90,7 +87,7 @@ public class GooglePlusSignInTaskTest {
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME),eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
         when(fetchUserTask.currentUser()).thenReturn(user);
         when(app.addUserAccountAndEnableSync(eq(user), any(Token.class), any(SignupVia.class))).thenReturn(true);
-        assertThat(task.doInBackground(bundle).wasSuccess(), is(true));
+        assertThat(task.doInBackground(bundle).wasSuccess()).isTrue();
     }
 
     @Test
