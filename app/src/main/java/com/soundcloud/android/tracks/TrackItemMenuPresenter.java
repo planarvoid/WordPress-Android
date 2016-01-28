@@ -337,10 +337,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         return removeTrackListener != null && !removeTrackListener.getPlaylistUrn().equals(Urn.NOT_SET);
     }
 
-    private boolean isTrackFromPromotedPlaylist() {
-        return this.promotedSourceInfo != null && this.promotedSourceInfo.getPromotedItemUrn().isPlaylist();
-    }
-
     private PromotedSourceInfo getPromotedSource() {
         return this.promotedSourceInfo;
     }
