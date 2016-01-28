@@ -131,7 +131,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     @Override
     public void onSuccess(DownloadState state) {
-        Log.d(TAG, "Download finished " + state);
+        Log.d(TAG, "onSuccess> Download finished state = [" + state + "]");
 
         notificationController.onDownloadSuccess(state);
         publisher.publishDownloaded(state.request.getTrack());
@@ -142,7 +142,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     @Override
     public void onError(DownloadState state) {
-        Log.d(TAG, "Download failed " + state);
+        Log.d(TAG, "onError> Download failed. state = [" + state + "]");
 
         if (state.isUnavailable()) {
             publisher.publishUnavailable(state.request.getTrack());
@@ -152,9 +152,11 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         notificationController.onDownloadError(state);
 
         if (state.isConnectionError()) {
+            Log.d(TAG, "onError> Connection error.");
             notificationController.onConnectionError(state);
             stopAndRetryLater();
         } else {
+            Log.d(TAG, "onError> Download next.");
             downloadNextOrFinish(state);
         }
     }
@@ -166,36 +168,42 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     @Override
     public void onCancel(DownloadState state) {
-        Log.d(TAG, "Download cancelled " + state);
+        Log.d(TAG, "onCancel> state = [" + state + "]");
 
         if (isStopping) {
+            Log.d(TAG, "onCancel> Service is stopping.");
             stop();
         } else {
-            Log.d(TAG, "Single track download cancelled.. work continues");
+            Log.d(TAG, "onCancel> Download next.");
             downloadNextOrFinish(state);
         }
     }
 
     private void downloadNextOrFinish(@Nullable DownloadState result) {
         if (queue.isEmpty()) {
+            Log.d(TAG, "downloadNextOrFinish> Download queue is empty. Stopping.");
             stopAndFinish(result);
         } else {
-            download(queue.poll());
+            final DownloadRequest request = queue.poll();
+            Log.d(TAG, "downloadNextOrFinish> Downloading " + request);
+            download(request);
         }
     }
 
     private void stopAndFinish(DownloadState result) {
+        Log.d(TAG, "stopAndFinish> last result = [" + result + "]");
         stop();
         notificationController.onDownloadsFinished(result);
     }
 
     private void stopAndRetryLater() {
+        Log.d(TAG, "stopAndRetryLater>");
         offlineContentScheduler.scheduleRetry();
         stop();
     }
 
     private void download(DownloadRequest request) {
-        Log.d(TAG, "Download started " + request);
+        Log.d(TAG, "download> request = [" + request + "]");
 
         final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
         downloadHandler.sendMessage(message);
@@ -209,6 +217,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
         subscription.unsubscribe();
         super.onDestroy();
     }
@@ -236,11 +245,12 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             if (downloadHandler.isDownloading()) {
                 final DownloadRequest currentRequest = downloadHandler.getCurrentRequest();
                 if (requests.contains(currentRequest)) {
+                    Log.d(OfflineContentService.TAG, "Keep downloading." + currentRequest);
                     requests.remove(currentRequest);
                     setNewRequests(requests);
                     publisher.publishDownloading(currentRequest.getTrack());
                 } else {
-                    Log.d(OfflineContentService.TAG, "About to cancel download!");
+                    Log.d(OfflineContentService.TAG, "Cancelling " + currentRequest);
                     setNewRequests(requests);
                     // download cancelled event is sent in the callback.
                     downloadHandler.cancel();
@@ -254,6 +264,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     }
 
     private void setNewRequests(ArrayList<DownloadRequest> requests) {
+        Log.d(OfflineContentService.TAG, "setNewRequests requests = [" + requests + "]");
         queue.set(requests);
         updateNotification();
         publisher.publishRequested(newArrayList(transform(requests, TO_TRACK_URN)));
