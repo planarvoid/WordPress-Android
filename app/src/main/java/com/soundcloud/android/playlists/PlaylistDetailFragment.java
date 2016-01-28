@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissingException;
+import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.Navigator;
@@ -369,7 +370,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private boolean shouldShowUpsell(TrackItem item) {
-        return item.isHighTier() && featureOperations.upsellHighTier();
+        return isHighTierPreview(item) && featureOperations.upsellHighTier();
     }
 
     private PlaySessionSource getPlaySessionSource() {

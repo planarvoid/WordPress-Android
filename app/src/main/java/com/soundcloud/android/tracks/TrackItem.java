@@ -12,7 +12,7 @@ import rx.functions.Func1;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrackItem extends PlayableItem {
+public class TrackItem extends PlayableItem implements TieredTrack {
 
     private boolean isPlaying;
 
@@ -71,15 +71,6 @@ public class TrackItem extends PlayableItem {
         return source.getOrElse(OfflineProperty.OFFLINE_STATE, OfflineState.NOT_OFFLINE);
     }
 
-    public boolean isBlocked() {
-        return source.getOrElse(TrackProperty.BLOCKED, false);
-    }
-
-    public boolean isHighTier() {
-        // this should really be get, EVENTUALLY... (we dont have policy for everything reliably yet)
-        return source.getOrElse(TrackProperty.SUB_HIGH_TIER, false);
-    }
-
     public boolean isUnavailableOffline() {
         return getDownloadedState() == OfflineState.UNAVAILABLE;
     }
@@ -102,6 +93,26 @@ public class TrackItem extends PlayableItem {
 
     public boolean hasPlayCount() {
         return getPlayCount() > 0;
+    }
+
+    @Override
+    public boolean isBlocked() {
+        return source.getOrElse(TrackProperty.BLOCKED, false);
+    }
+
+    @Override
+    public boolean isSnipped() {
+        return source.getOrElse(TrackProperty.SNIPPED, false);
+    }
+
+    @Override
+    public boolean isSubMidTier() {
+        return source.getOrElse(TrackProperty.SUB_MID_TIER, false);
+    }
+
+    @Override
+    public boolean isSubHighTier() {
+        return source.getOrElse(TrackProperty.SUB_HIGH_TIER, false);
     }
 
     @Override
