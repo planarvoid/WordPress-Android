@@ -26,10 +26,6 @@ public class DownloadHandler extends Handler {
         return current != null;
     }
 
-    public boolean isCurrentRequest(DownloadRequest request) {
-        return current != null && current.equals(request);
-    }
-
     public Urn getCurrentTrack() {
         return isDownloading() ? current.getTrack() : Urn.NOT_SET;
     }
@@ -82,8 +78,10 @@ public class DownloadHandler extends Handler {
     private DownloadState downloadTrack(DownloadRequest request) {
         final DownloadState result = downloadOperations.download(request, createDownloadProgressListener(request));
         if (result.isSuccess()) {
-            tryToStoreDownloadSuccess(result);
-        } else if (result.isUnavailable()) {
+            return tryToStoreDownloadSuccess(result);
+        }
+
+        if (result.isUnavailable()) {
             trackDownloadsStorage.markTrackAsUnavailable(result.getTrack());
         }
         return result;
@@ -98,10 +96,12 @@ public class DownloadHandler extends Handler {
         };
     }
 
-    private void tryToStoreDownloadSuccess(DownloadState result) {
+    private DownloadState tryToStoreDownloadSuccess(DownloadState result) {
         if (!trackDownloadsStorage.storeCompletedDownload(result).success()) {
             secureFileStorage.deleteTrack(result.getTrack());
+            return DownloadState.error(result.request);
         }
+        return result;
     }
 
     private void sendDownloadState(DownloadState result) {
@@ -151,6 +151,5 @@ public class DownloadHandler extends Handler {
             return thread.getLooper();
         }
     }
-
 }
 
