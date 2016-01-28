@@ -2,16 +2,16 @@ package com.soundcloud.android.playlists;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
-public class InlinePlaylistTracksAdapterTest {
+public class InlinePlaylistTracksAdapterTest extends AndroidUnitTest {
 
     @InjectMocks
     private InlinePlaylistTracksAdapter adapter;
@@ -37,5 +37,13 @@ public class InlinePlaylistTracksAdapterTest {
     public void hasContentItemsShouldBeTrueOnceItemsHaveBeenAdded() {
         adapter.addItem(TrackItem.from(PropertySet.create()));
         assertThat(adapter.hasContentItems()).isTrue();
+    }
+
+    @Test
+    public void shouldDisableClicksForBlockedTracks() {
+        PropertySet blockedTrack = TestPropertySets.fromApiTrack().put(TrackProperty.BLOCKED, true);
+        adapter.addItem(TrackItem.from(blockedTrack));
+
+        assertThat(adapter.isEnabled(0)).isFalse();
     }
 }

@@ -72,6 +72,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         trackItemView.setTitle(track.getTitle(),
                 track.isBlocked() ? R.color.list_disabled : R.color.list_primary);
 
+        if (track.isBlocked()) {
+            itemView.setClickable(false);
+        }
+
         bindExtraInfoRight(track, trackItemView);
         bindExtraInfoBottom(trackItemView, track);
 
