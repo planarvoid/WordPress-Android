@@ -29,7 +29,7 @@ public final class OnboardingEvent {
     private static final String INVALID_EMAIL = "invalid_email";
     private static final String FACEBOOK_EMAIL_DENIED = "facebook_email_denied";
     private static final String GENERAL_ERROR = "general_error";
-    private static final String DEVICE_LIMIT = "device_conflict";
+    private static final String DEVICE_CONFLICT = "device_conflict";
     private static final String DEVICE_BLOCK = "device_block";
     private static final String LOGGED_OUT = "logged_out";
     private static final String TYPE = "type";
@@ -138,7 +138,7 @@ public final class OnboardingEvent {
     }
 
     public static OnboardingEvent deviceConflictOnLogin() {
-        return new OnboardingEvent(DEVICE_MANAGEMENT).put(ERROR_TYPE, DEVICE_LIMIT);
+        return new OnboardingEvent(DEVICE_MANAGEMENT).put(ERROR_TYPE, DEVICE_CONFLICT);
     }
 
     public static OnboardingEvent deviceBlockOnLogin() {
