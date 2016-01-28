@@ -15,7 +15,7 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class SnippetsInStreamTest extends TrackingActivityTest<MainActivity> {
 
-    private static final String STREAM_UPSELL_TRACKING_TEST = "stream-upsell-tracking-test";
+    private static final String STREAM_UPSELL_TRACKING_TEST = "stream_upsell_tracking_test";
 
     public SnippetsInStreamTest() {
         super(MainActivity.class);
@@ -52,7 +52,7 @@ public class SnippetsInStreamTest extends TrackingActivityTest<MainActivity> {
     public void testUserCanNavigateToSubscribePageFromUpsell() {
         final StreamScreen streamScreen = mainNavHelper.goToStream();
 
-        // this is here because we dont want to validate promoted and/or facebook invites
+        // this is here because we dont want to validate promoted and/or facebook invites impressions
         streamScreen.scrollToFirstNotPromotedTrackCard();
 
         startEventTracking();

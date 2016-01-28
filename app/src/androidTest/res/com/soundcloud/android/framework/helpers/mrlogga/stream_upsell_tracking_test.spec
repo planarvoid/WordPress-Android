@@ -26,8 +26,8 @@ expected_events:
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
-    anonymous_id: 0b39c291c34b3d076bafdce84bc97192
-     ts: '[0-9]+'
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
     client_id: '3152'
     page_name: upgrade
     user: soundcloud:users:197818552
@@ -38,7 +38,7 @@ expected_events:
     impression_name: consumer_sub_ad
     anonymous_id: (\w|-)+
     impression_object: soundcloud:tcode:3002
-     ts: '[0-9]+'
+    ts: '[0-9]+'
     client_id: '3152'
     user: soundcloud:users:197818552
   version: '0'
