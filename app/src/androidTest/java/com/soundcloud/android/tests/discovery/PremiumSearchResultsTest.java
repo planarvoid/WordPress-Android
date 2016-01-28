@@ -11,6 +11,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.discovery.SearchPremiumResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
+import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -19,7 +20,7 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
 
     private static final String PREMIUM_SEARCH_QUERY = "booht";
 
-    private SearchResultsScreen searchResultsScreen;
+    private SearchScreen searchScreen;
 
     public PremiumSearchResultsTest() {
         super(MainActivity.class);
@@ -33,47 +34,61 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        searchResultsScreen = mainNavHelper
-                .goToDiscovery()
-                .clickSearch()
-                .setSearchQuery(PREMIUM_SEARCH_QUERY)
-                .clickOnCurrentSearchQuery();
+        searchScreen = mainNavHelper.goToDiscovery().clickSearch();
     }
 
     public void testSearchHighTierBucketIsOnScreen() {
+        final SearchResultsScreen searchResultsScreen =
+                searchScreen
+                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
+                        .clickOnCurrentSearchQuery();
         assertThat("Search premium content should be on screen", searchResultsScreen.premiumContentIsOnScreen());
     }
 
     public void testClickOnPremiumTrackPlaysIt() {
-        final VisualPlayerElement playerElement = searchResultsScreen.clickOnPremiumContent();
+        final VisualPlayerElement playerElement =
+                searchScreen
+                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
+                        .clickOnCurrentSearchQuery()
+                        .clickOnPremiumContent();
         assertThat("Player should play premium track", playerElement, is(playing()));
     }
 
     public void testClickOnPremiumBucketHelpOpensUpgradeScreen() {
-        final UpgradeScreen upgradeScreen = searchResultsScreen.clickOnPremiumContentHelp();
+        final UpgradeScreen upgradeScreen =
+                searchScreen
+                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
+                        .clickOnCurrentSearchQuery()
+                        .clickOnPremiumContentHelp();
         assertThat("Upgrade subscription screen should be visible", upgradeScreen, is(visible()));
     }
 
     public void testClickOnPremiumContentBucketOpenSearchPremiumResults() {
-        final SearchPremiumResultsScreen resultsScreen = searchResultsScreen.clickOnViewPremiumContent();
+        final SearchPremiumResultsScreen resultsScreen =
+                searchScreen
+                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
+                        .clickOnCurrentSearchQuery()
+                        .clickOnViewPremiumContent();
         assertThat("Search premium results screen should be visible", resultsScreen, is(visible()));
     }
 
     public void testPlaysPremiumTrackFromSearchPremiumResultsScreen() {
         final VisualPlayerElement playerElement =
-                searchResultsScreen
+                searchScreen
+                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
+                        .clickOnCurrentSearchQuery()
                         .clickOnViewPremiumContent()
                         .findAndClickFirstTrackItem();
-
         assertThat("Player should play premium track", playerElement, is(playing()));
     }
 
     public void testClickOnUpsellOpensUpgradeScreen() {
         final UpgradeScreen upgradeScreen =
-                searchResultsScreen
+                searchScreen
+                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
+                        .clickOnCurrentSearchQuery()
                         .clickOnViewPremiumContent()
                         .clickOnUpgradeSubscription();
-
         assertThat("Upgrade subscription screen should be visible", upgradeScreen, is(visible()));
     }
 }
