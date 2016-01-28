@@ -46,7 +46,7 @@ public class PolicyStorage {
         this.batchSize = batchSize;
     }
 
-    Observable<Map<Urn,Boolean>> loadBlockedStati(List<Urn> urns) {
+    Observable<Map<Urn,Boolean>> loadBlockedStatuses(List<Urn> urns) {
         List<Observable<CursorReader>> batches = new ArrayList<>((urns.size() / batchSize) + 1);
         for (List<Urn> batch : Lists.partition(urns, batchSize)) {
             batches.add(propeller.query(buildPolicyQueries(batch)));

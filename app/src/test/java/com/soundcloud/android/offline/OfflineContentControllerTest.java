@@ -230,7 +230,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     public void startOfflineSyncOnPolicyUpdateEvent() {
         controller.subscribe();
 
-        eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.success(Collections.singletonList(Urn.forTrack(123L))));
+        eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.create(Collections.singletonList(Urn.forTrack(123L))));
 
         startServiceSubscriber.assertValueCount(1);
     }

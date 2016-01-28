@@ -118,7 +118,7 @@ public class CastOperations {
 
     private Observable<Urn> filterMonetizableAndPrivateTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
         return policyOperations.filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
-                .flatMap(RxUtils.<Urn>emitCollectionItems())
+                .flatMap(RxUtils.<Urn>iterableToObservable())
                 .flatMap(loadTracks)
                 .filter(FILTER_PRIVATE_TRACKS)
                 .map(TO_URNS);

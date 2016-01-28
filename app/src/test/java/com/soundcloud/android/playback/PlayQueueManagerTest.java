@@ -25,6 +25,7 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
+import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.StationsSourceInfo;
@@ -52,6 +53,7 @@ import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -88,7 +90,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueue.isEmpty()).thenReturn(true);
         when(playQueue.copy()).thenReturn(playQueue);
         when(playQueue.getTrackItemUrns()).thenReturn(queueUrns);
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>empty());
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
+                Observable.<Collection<ApiPolicyInfo>>empty());
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
         when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));

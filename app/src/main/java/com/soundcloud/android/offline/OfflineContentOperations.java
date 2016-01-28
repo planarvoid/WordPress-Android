@@ -50,9 +50,10 @@ public class OfflineContentOperations {
     private final EventBus eventBus;
     private final Scheduler scheduler;
 
-    private final Func1<Collection<Urn>, Observable<Void>> UPDATE_POLICIES = new Func1<Collection<Urn>, Observable<Void>>() {
+    private final Func1<Collection<Urn>, Observable<?>> UPDATE_POLICIES =
+            new Func1<Collection<Urn>, Observable<?>>() {
         @Override
-        public Observable<Void> call(Collection<Urn> urns) {
+        public Observable<?> call(Collection<Urn> urns) {
             if (urns.isEmpty()) {
                 return Observable.just(null);
             }
@@ -246,8 +247,8 @@ public class OfflineContentOperations {
                 .subscribeOn(scheduler);
     }
 
-    private Observable<Void> tryToUpdatePolicies() {
-        final Observable<Void> resumeObservable = Observable.just(null);
+    private Observable<?> tryToUpdatePolicies() {
+        final Observable<?> resumeObservable = Observable.just(null);
         return updateOfflineContentStalePolicies().onErrorResumeNext(resumeObservable);
     }
 
@@ -256,7 +257,7 @@ public class OfflineContentOperations {
     }
 
     @VisibleForTesting
-    Observable<Void> updateOfflineContentStalePolicies() {
+    Observable<Object> updateOfflineContentStalePolicies() {
         return loadTracksWithStalePolicies.toObservable(null)
                 .flatMap(UPDATE_POLICIES)
                 .subscribeOn(scheduler);

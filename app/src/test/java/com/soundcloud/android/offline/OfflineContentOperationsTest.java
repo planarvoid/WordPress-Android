@@ -15,6 +15,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
@@ -70,7 +71,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         when(serviceInitiator.action1Start()).thenReturn(startServiceAction);
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(LIKED_TRACKS));
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
+                Observable.<Collection<ApiPolicyInfo>>just(Collections.<ApiPolicyInfo>emptyList()));
         when(changeResult.success()).thenReturn(true);
         when(offlineContentStorage.deleteLikedTrackCollection()).thenReturn(Observable.<ChangeResult>empty());
 
@@ -220,7 +222,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     public void loadOfflineContentUpdatesDoesNotFailWhenPoliciesFailedToUpdate() {
         final TestSubscriber<OfflineContentUpdates> subscriber = new TestSubscriber<>();
 
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>error(new RuntimeException("Test exception")));
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
+                Observable.<Collection<ApiPolicyInfo>>error(new RuntimeException("Test exception")));
         operations.loadOfflineContentUpdates().subscribe(subscriber);
 
         subscriber.assertCompleted();

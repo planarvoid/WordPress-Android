@@ -6,7 +6,6 @@ import rx.Subscription;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
-import java.util.Collection;
 import java.util.List;
 
 public final class RxUtils {
@@ -46,10 +45,10 @@ public final class RxUtils {
         return Subscriptions.unsubscribed();
     }
 
-    public static <T> Func1<Collection<T>, Observable<T>> emitCollectionItems() {
-        return new Func1<Collection<T>, Observable<T>>() {
+    public static <T> Func1<Iterable<T>, Observable<T>> iterableToObservable() {
+        return new Func1<Iterable<T>, Observable<T>>() {
             @Override
-            public Observable<T> call(Collection<T> items) {
+            public Observable<T> call(Iterable<T> items) {
                 return Observable.from(items);
             }
         };
