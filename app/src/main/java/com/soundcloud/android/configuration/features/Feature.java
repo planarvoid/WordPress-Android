@@ -41,4 +41,8 @@ public class Feature {
         return MoreObjects.hashCode(name, enabled);
     }
 
+    @Override
+    public String toString() {
+        return name + ":" + enabled;
+    }
 }

@@ -1,7 +1,10 @@
 package com.soundcloud.android.configuration.features;
 
+import static com.soundcloud.android.configuration.ConfigurationManager.TAG;
+
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.functions.Func1;
@@ -40,6 +43,7 @@ public class FeatureStorage {
     }
 
     public void update(Feature feature) {
+        Log.d(TAG, "updating feature: " + feature);
         updateEnabled(feature.name, feature.enabled);
         updatePlans(feature.name, feature.plans);
     }

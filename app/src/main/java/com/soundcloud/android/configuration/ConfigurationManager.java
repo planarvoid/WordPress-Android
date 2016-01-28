@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 public class ConfigurationManager {
 
-    private static final String TAG = "Configuration";
+    public static final String TAG = "Configuration";
 
     private final ConfigurationOperations configurationOperations;
     private final AccountOperations accountOperations;

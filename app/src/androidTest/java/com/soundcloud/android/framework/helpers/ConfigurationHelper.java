@@ -12,6 +12,7 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.facebookinvites.FacebookInvitesStorage;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.java.collections.Sets;
 import rx.functions.Action1;
@@ -29,6 +30,7 @@ public class ConfigurationHelper {
     private static final String PREFS_FACEBOOK_INVITES_SETTINGS = "facebook_invites";
     private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
     private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
+    private static final String TAG = "TestRunner";
 
     public static void enableOfflineContent(Context context) {
         enableFeature(context, FeatureName.OFFLINE_SYNC);
@@ -76,6 +78,7 @@ public class ConfigurationHelper {
         final Feature feature = new Feature(name, true, Collections.<String>emptyList());
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
+        Log.d(TAG, "updating feature manually: " + feature.name);
         featureStorage.update(feature);
 
         featureStorage.getUpdates(name)
@@ -83,6 +86,7 @@ public class ConfigurationHelper {
                 .doOnNext(new Action1<Boolean>() {
                     @Override
                     public void call(Boolean enabled) {
+                        Log.d(TAG, "updating feature after change: " + feature.name);
                         featureStorage.update(feature);
                     }
                 })
