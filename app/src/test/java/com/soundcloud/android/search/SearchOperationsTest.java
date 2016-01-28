@@ -437,24 +437,17 @@ public class SearchOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldMapPremiumContentInSearchResult() {
+    public void shouldMapPremiumContentInUniversalSearchItemWhenBuildingSearchResult() {
         final ArrayList<ApiUniversalSearchItem> searchItems = Lists.newArrayList(
                 ApiUniversalSearchItem.forUser(user),
                 ApiUniversalSearchItem.forTrack(track),
                 ApiUniversalSearchItem.forPlaylist(playlist));
-
-        final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = searchItems;
         final SearchModelCollection<ApiUniversalSearchItem> apiPremiumUniversalSearchItems = new SearchModelCollection<>(searchItems);
-
-        final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems,
-                Collections.<String, Link>emptyMap(), "queryUrn", apiPremiumUniversalSearchItems,
-                TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
-
+        mockPremiumSearchApiResponse(searchItems, apiPremiumUniversalSearchItems);
 
         final SearchResult premiumSearchResult = SearchResult.fromPropertySetSource(searchItems, Optional.<Link>absent(),
                 Optional.<Urn>absent());
-        final SearchResult expectedSearchResult = SearchResult.fromPropertySetSource(apiUniversalSearchItems,
+        final SearchResult expectedSearchResult = SearchResult.fromPropertySetSource(searchItems,
                 Optional.<Link>absent(), Optional.<Urn>absent(), Optional.of(premiumSearchResult), SEARCH_RESULTS_COUNT);
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);
@@ -467,20 +460,63 @@ public class SearchOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldNotMapPremiumContentInTracksWhenBuildingSearchResult() {
+        final List<ApiTrack> searchTrackItems = Collections.singletonList(track);
+        final SearchModelCollection<ApiTrack> apiPremiumTracks = new SearchModelCollection<>(searchTrackItems);
+        mockPremiumSearchApiResponse(searchTrackItems, apiPremiumTracks);
+
+        operations.searchResult("query", SearchOperations.TYPE_TRACKS).subscribe(subscriber);
+
+        subscriber.assertValueCount(1);
+        final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
+        assertThat(searchResult.getPremiumContent().isPresent()).isFalse();
+    }
+
+    @Test
+    public void shouldNotMapPremiumContentInPlaylistsWhenBuildingSearchResult() {
+        final List<ApiPlaylist> searchPlaylistItems = Collections.singletonList(playlist);
+        final SearchModelCollection<ApiPlaylist> apiPremiumPlaylists = new SearchModelCollection<>(searchPlaylistItems);
+        mockPremiumSearchApiResponse(searchPlaylistItems, apiPremiumPlaylists);
+
+        operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(subscriber);
+
+        subscriber.assertValueCount(1);
+        final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
+        assertThat(searchResult.getPremiumContent().isPresent()).isFalse();
+    }
+
+    @Test
+    public void shouldNotMapPremiumContentInUsersWhenBuildingSearchResult() {
+        final List<ApiUser> searchUserItems = Collections.singletonList(user);
+        final SearchModelCollection<ApiUser> apiPremiumUsers = new SearchModelCollection<>(searchUserItems);
+        mockPremiumSearchApiResponse(searchUserItems, apiPremiumUsers);
+
+        operations.searchResult("query", SearchOperations.TYPE_USERS).subscribe(subscriber);
+
+        subscriber.assertValueCount(1);
+        final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
+        assertThat(searchResult.getPremiumContent().isPresent()).isFalse();
+    }
+
+    @Test
     public void premiumContentShouldBeAbsentWhenPremiumCollectionIsNull() {
         final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
                 ApiUniversalSearchItem.forUser(user),
                 ApiUniversalSearchItem.forTrack(track),
                 ApiUniversalSearchItem.forPlaylist(playlist));
-
-        final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems,
-                Collections.<String, Link>emptyMap(), "queryUrn", null, TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
+        mockPremiumSearchApiResponse(apiUniversalSearchItems, null);
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
         assertThat(searchResult.getPremiumContent().isPresent()).isFalse();
+    }
+
+    private <T> void mockPremiumSearchApiResponse(List<T> searchItems, SearchModelCollection<T> apiPremiumItems) {
+        final Observable observable = Observable.just(new SearchModelCollection<>(searchItems,
+                Collections.<String, Link>emptyMap(), "queryUrn", apiPremiumItems,
+                TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
     }
 }

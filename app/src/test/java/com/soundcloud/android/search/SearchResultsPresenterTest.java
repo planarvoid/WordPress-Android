@@ -17,6 +17,7 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -39,6 +40,8 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 
@@ -49,6 +52,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class SearchResultsPresenterTest extends AndroidUnitTest {
+
+    private static final Urn PREMIUM_TRACK_URN_ONE = Urn.forTrack(1L);
+    private static final Urn PREMIUM_TRACK_URN_TWO = Urn.forTrack(2L);
 
     private static final Urn TRACK_URN = Urn.forTrack(3L);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(4L);
@@ -65,6 +71,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private TrackItemRenderer trackItemRenderer;
     @Mock private FeatureFlags featureFlags;
     @Mock private Navigator navigator;
+
+    @Captor private ArgumentCaptor<List<ListItem>> listArgumentCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
     private SearchQuerySourceInfo searchQuerySourceInfo;
@@ -230,12 +238,47 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         verify(navigator).openUpgrade(context());
     }
 
+    @Test
+    public void premiumItemClickBuildsPlayQueueWithPremiumTracks() {
+        setupAdapterWithPremiumContent();
+        when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
+
+        final ListItem premiumTrackItemOne = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(PREMIUM_TRACK_URN_ONE)));
+        final ListItem premiumTrackItemTwo = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(PREMIUM_TRACK_URN_TWO)));
+        final List<ListItem> premiumItems = Arrays.asList(premiumTrackItemOne, premiumTrackItemTwo);
+
+        presenter.onBuildBinding(new Bundle());
+        presenter.onPremiumItemClicked(fragmentRule.getView(), premiumItems);
+
+        verify(clickListener).onItemClick(listArgumentCaptor.capture(), eq(fragmentRule.getView()), eq(0));
+
+        final List<ListItem> playQueue = listArgumentCaptor.getValue();
+        assertThat(playQueue.get(0).getEntityUrn()).isEqualTo(PREMIUM_TRACK_URN_ONE);
+        assertThat(playQueue.get(1).getEntityUrn()).isEqualTo(TRACK_URN);
+    }
+
     private List<ListItem> setupAdapter() {
         final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
         final List<ListItem> listItems = Collections.singletonList((ListItem) trackItem);
         when(adapter.getItem(0)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);
         when(searchPagingFunction.getSearchQuerySourceInfo(0, TRACK_URN)).thenReturn(searchQuerySourceInfo);
+        return listItems;
+    }
+
+    private List<ListItem> setupAdapterWithPremiumContent() {
+        PropertySet propertySet = PropertySet.create();
+        propertySet.put(EntityProperty.URN, SearchPremiumItem.PREMIUM_URN);
+        final ListItem premiumItem = SearchItem.buildPremiumItem(Collections.singletonList(propertySet), Optional.<Link>absent(), 10);
+        final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
+
+        final List<ListItem> listItems = Arrays.asList(premiumItem, trackItem);
+
+        when(adapter.getItem(0)).thenReturn(premiumItem);
+        when(adapter.getItem(1)).thenReturn(trackItem);
+        when(adapter.getItems()).thenReturn(listItems);
+        when(searchPagingFunction.getSearchQuerySourceInfo(0, TRACK_URN)).thenReturn(searchQuerySourceInfo);
+
         return listItems;
     }
 }

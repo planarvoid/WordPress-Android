@@ -146,6 +146,9 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     }
 
     private List<ListItem> buildPlaylistWithPremiumContent(List<ListItem> premiumItems) {
+        // http://style/interaction/play-queue-experience/ stands that our play queues should be created with the
+        // content sitting on the screen, for instance the play queue is created with the first premium item + plus
+        // the rest of the normal content sitting on the adapter.
         final int numberOfItemsInPlayQueue = adapter.getItems().size();
         final List<ListItem> playables = new ArrayList<>(numberOfItemsInPlayQueue);
         playables.add(premiumItems.get(0));
