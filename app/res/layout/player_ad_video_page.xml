@@ -6,18 +6,25 @@
         android:layout_height="match_parent"
         android:background="@color/ad_default_background">
 
-    <SurfaceView
+    <FrameLayout
+        android:id="@+id/video_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <SurfaceView
             android:id="@+id/video_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerInParent="true"/>
+            android:layout_gravity="center"/>
 
-    <com.soundcloud.android.playback.ui.view.ArtworkAdOverlayView
+        <com.soundcloud.android.playback.ui.view.ArtworkAdOverlayView
             android:id="@+id/video_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerInParent="true"
+            android:layout_gravity="center"
             android:background="@color/artwork_overlay"/>
+
+    </FrameLayout>
 
     <include layout="@layout/player_gradient"/>
     <include layout="@layout/player_ad_expanded_header"/>

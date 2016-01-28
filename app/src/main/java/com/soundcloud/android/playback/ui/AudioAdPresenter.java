@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-class AudioAdPresenter extends AdPagePresenter implements View.OnClickListener {
+class AudioAdPresenter extends AdPagePresenter<PlayerAd> implements View.OnClickListener {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
