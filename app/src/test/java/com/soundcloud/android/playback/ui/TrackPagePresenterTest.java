@@ -484,10 +484,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playerCloseOnPlayerCloseClick() {
+    public void playerCloseOnPlayerCloseIndicatorClick() {
         populateTrackPage();
 
-        getHolder(trackView).close.performClick();
+        getHolder(trackView).closeIndicator.performClick();
 
         verify(listener).onPlayerClose();
     }

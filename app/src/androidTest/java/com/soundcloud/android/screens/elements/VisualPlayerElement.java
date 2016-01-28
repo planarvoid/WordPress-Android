@@ -96,7 +96,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewElement closeButton() {
-        return testDriver.findOnScreenElement(With.id(R.id.player_close));
+        return testDriver.findOnScreenElement(With.id(R.id.player_close_indicator));
     }
 
     private ViewElement artwork() {

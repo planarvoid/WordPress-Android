@@ -10,10 +10,9 @@
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
 
-    <View
+    <ImageView
         android:id="@+id/player_close_indicator"
-        style="@style/PlayerClose"
-        android:layout_marginTop="4dp"/>
+        style="@style/PlayerCloseBase.PlayerClose"/>
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/preview_indicator"

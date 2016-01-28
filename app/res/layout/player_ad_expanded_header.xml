@@ -9,7 +9,7 @@
         android:layout_marginLeft="20dip"
         android:layout_marginRight="20dip">
 
-    <View style="@style/PlayerClose"/>
+    <View style="@style/PlayerCloseBase.PlayerClose"/>
 
     <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/advertisement"

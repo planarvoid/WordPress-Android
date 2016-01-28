@@ -112,7 +112,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             case R.id.footer_controls:
                 listener.onFooterTap();
                 break;
-            case R.id.player_close:
+            case R.id.player_close_indicator:
             case R.id.player_bottom_close:
                 listener.onPlayerClose();
                 break;
@@ -702,7 +702,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         public void populateViewSets() {
             List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose);
             List<View> hideOnError = Arrays.asList(playButton, more, likeToggle, timestamp, shareButton);
-            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, profileLink, previewIndicator, upsellButton);
+            List<View> clickViews = Arrays.asList(artworkView, closeIndicator, bottomClose, playButton, footer, footerPlayToggle, profileLink, upsellButton);
 
             fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder);
             fullScreenAdViews = Arrays.asList(interstitialHolder);
