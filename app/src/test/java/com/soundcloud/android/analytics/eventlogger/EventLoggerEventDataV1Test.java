@@ -10,6 +10,7 @@ import org.junit.Test;
 public class EventLoggerEventDataV1Test extends AndroidUnitTest {
 
     private static final int CLIENT_ID = 12;
+    private static final String VERSION = "123";
 
     @Test
     public void implementsEqualsContract() throws Exception {
@@ -20,21 +21,21 @@ public class EventLoggerEventDataV1Test extends AndroidUnitTest {
 
     @Test
     public void addsClientIdAsInt() {
-        EventLoggerEventData data = new EventLoggerEventDataV1("event", "v0", CLIENT_ID, "1234", "4321", 12345L, "conn-type");
+        EventLoggerEventData data = new EventLoggerEventDataV1("event", "v0", CLIENT_ID, "1234", "4321", 12345L, "conn-type", VERSION);
 
         assertThat(data.payload.get(EventLoggerParam.CLIENT_ID)).isEqualTo(CLIENT_ID);
     }
 
     @Test
     public void addsTimestampAsLong() {
-        EventLoggerEventData data = new EventLoggerEventDataV1("event", "v0", CLIENT_ID, "1234", "4321", 12345L, "conn-type");
+        EventLoggerEventData data = new EventLoggerEventDataV1("event", "v0", CLIENT_ID, "1234", "4321", 12345L, "conn-type", VERSION);
 
         assertThat(data.payload.get(EventLoggerParam.TIMESTAMP)).isEqualTo(12345L);
     }
 
     @Test
     public void addsLocalStoragePlaybackAsBoolean() {
-        EventLoggerEventData data = new EventLoggerEventDataV1("event", "v0", CLIENT_ID, "1234", "4321", 12345L, "conn-type");
+        EventLoggerEventData data = new EventLoggerEventDataV1("event", "v0", CLIENT_ID, "1234", "4321", 12345L, "conn-type", VERSION);
 
         data.localStoragePlayback(true);
 
@@ -43,7 +44,7 @@ public class EventLoggerEventDataV1Test extends AndroidUnitTest {
 
     @Test
     public void addsExperimentAsInteger() {
-        EventLoggerEventData data = new EventLoggerEventDataV1("event", "v0", CLIENT_ID, "1234", "4321", 12345, "conn-type");
+        EventLoggerEventData data = new EventLoggerEventDataV1("event", "v0", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.experiment("exp_android_listening", 12345);
 

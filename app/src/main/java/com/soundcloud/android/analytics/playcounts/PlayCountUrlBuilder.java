@@ -1,11 +1,14 @@
 package com.soundcloud.android.analytics.playcounts;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.utils.DeviceHelper;
 
+import android.content.res.Resources;
 import android.net.Uri;
 
 import javax.inject.Inject;
@@ -14,11 +17,15 @@ class PlayCountUrlBuilder {
 
     private static final String PUBLIC_API_BASE_URI = "https://api.soundcloud.com";
 
+    private final Resources resources;
+    private final DeviceHelper deviceHelper;
     private final OAuth oauth;
     private final AccountOperations accountOperations;
 
     @Inject
-    PlayCountUrlBuilder(OAuth oauth, AccountOperations accountOperations) {
+    PlayCountUrlBuilder(Resources resources, DeviceHelper deviceHelper, OAuth oauth, AccountOperations accountOperations) {
+        this.resources = resources;
+        this.deviceHelper = deviceHelper;
         this.oauth = oauth;
         this.accountOperations = accountOperations;
     }
@@ -38,6 +45,12 @@ class PlayCountUrlBuilder {
         if (policy != null) {
             builder.appendQueryParameter("policy", policy);
         }
+
+        builder.appendQueryParameter("client_id", String.valueOf(resources.getInteger(R.integer.app_id)));
+        builder.appendQueryParameter("client_event_id", event.getUUID());
+        builder.appendQueryParameter("ts", String.valueOf(event.getTimestamp()));
+        builder.appendQueryParameter("app_version", String.valueOf(deviceHelper.getAppVersionCode()));
+
         return builder.toString();
     }
 

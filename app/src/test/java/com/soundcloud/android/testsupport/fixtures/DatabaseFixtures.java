@@ -173,6 +173,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable());
         cv.put(TableColumns.TrackPolicies.SUB_HIGH_TIER, track.isSubHighTier().get());
         cv.put(TableColumns.TrackPolicies.SUB_MID_TIER, track.isSubMidTier().get());
+        cv.put(TableColumns.TrackPolicies.MONETIZATION_MODEL, track.getMonetizationModel().get());
         cv.put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 
         insertInto(Table.TrackPolicies, cv);

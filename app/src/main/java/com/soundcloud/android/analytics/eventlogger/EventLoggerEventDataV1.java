@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.APP_VERSION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_ATTRIBUTES;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONNECTION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OVERFLOW_MENU;
@@ -13,9 +14,10 @@ import java.util.HashMap;
 final class EventLoggerEventDataV1 extends EventLoggerEventData {
 
     public EventLoggerEventDataV1(String event, String version, int clientId, String anonymousId,
-                                  String loggedInUserUrn, long timestamp, String connectionType) {
+                                  String loggedInUserUrn, long timestamp, String connectionType, String appVersion) {
         super(event, version, clientId, anonymousId, loggedInUserUrn, timestamp);
         addToPayload(CONNECTION_TYPE, connectionType);
+        addToPayload(APP_VERSION, appVersion);
     }
 
     @Override
