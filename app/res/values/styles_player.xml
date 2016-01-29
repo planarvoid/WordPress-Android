@@ -96,14 +96,16 @@
         <item name="android:background">@drawable/btn_player_more</item>
     </style>
 
-    <style name="PlayerClose">
-        <item name="android:layout_width">32dp</item>
-        <item name="android:layout_height">32dp</item>
-        <item name="android:background">@drawable/btn_player_close</item>
-        <item name="android:duplicateParentState">true</item>
-        <item name="android:clickable">false</item>
+    <style name="PlayerCloseBase">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:src">@drawable/btn_player_close</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:clickable">true</item>
         <item name="android:visibility">gone</item>
     </style>
+
+    <style name="PlayerCloseBase.PlayerClose" />
 
     <style name="PlayerShare">
         <item name="android:layout_width">64dp</item>

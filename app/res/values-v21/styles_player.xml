@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="PlayerCloseBase.PlayerClose">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
     <style name="PlayerLikeBase.PlayerLike">
         <item name="android:background">?android:attr/selectableItemBackground</item>
         <item name="android:stateListAnimator">@null</item>
