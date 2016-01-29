@@ -22,9 +22,9 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -73,7 +73,7 @@ public class PostsStorage {
         return Observable.zip(
                 propellerRx.query(buildPostsQuery(limit, fromTimestamp)).map(new PostsMapper()).toList(),
                 propellerRx.query(buildUserQuery()).map(RxResultMapper.scalar(String.class))
-                        .firstOrDefault(ScTextUtils.EMPTY_STRING),
+                        .firstOrDefault(Strings.EMPTY),
                 COMBINE_REPOSTER
         );
     }
@@ -136,6 +136,10 @@ public class PostsStorage {
                         field(SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
                         field(SoundView.field(TableColumns.SoundView.DURATION)).as(TableColumns.SoundView.DURATION),
                         field(SoundView.field(TableColumns.SoundView.PLAYBACK_COUNT)).as(TableColumns.SoundView.PLAYBACK_COUNT),
+                        field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(TableColumns.SoundView.POLICIES_BLOCKED),
+                        field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(TableColumns.SoundView.POLICIES_SNIPPED),
+                        field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_MID_TIER)).as(TableColumns.SoundView.POLICIES_SUB_MID_TIER),
+                        field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER),
                         field(Posts.field(TableColumns.Posts.TYPE)).as(TableColumns.Posts.TYPE),
                         field(Posts.field(TableColumns.Posts.CREATED_AT)).as(TableColumns.Posts.CREATED_AT),
                         field(Likes.field(TableColumns.Likes._ID)).as(LIKED_ID),
@@ -218,7 +222,10 @@ public class PostsStorage {
             propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.isNotNull(LIKED_ID));
             propertySet.put(PlayableProperty.IS_USER_REPOST, TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE)));
             propertySet.put(PostProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Posts.CREATED_AT));
-
+            propertySet.put(TrackProperty.BLOCKED, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_BLOCKED));
+            propertySet.put(TrackProperty.SNIPPED, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SNIPPED));
+            propertySet.put(TrackProperty.SUB_MID_TIER, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SUB_MID_TIER));
+            propertySet.put(TrackProperty.SUB_HIGH_TIER, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER));
             return propertySet;
         }
     }
