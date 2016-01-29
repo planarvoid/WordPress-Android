@@ -14,7 +14,6 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.utils.CallsiteToken;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.net.HttpHeaders;
 import dagger.Lazy;
@@ -141,7 +140,7 @@ public class ConfigurationOperations {
                 .doOnError(new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        ErrorUtils.handleThrowable(throwable, CallsiteToken.build());
+                        ErrorUtils.handleThrowable(throwable, ConfigurationOperations.class);
                     }
                 })
                 .cast(Object.class)
