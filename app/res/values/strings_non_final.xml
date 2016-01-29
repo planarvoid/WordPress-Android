@@ -86,11 +86,11 @@
     <string name="pref_offline_used">Used</string>
     <string name="pref_offline_limit">Limit</string>
     <string name="pref_offline_remove_all_offline_content">Remove all offline content</string>
-    <string name="pref_offline_remove_all_offline_content_description">This will remove all the content you have made available offline from your device</string>
+    <string name="pref_offline_remove_all_offline_content_description">This will remove all the content you have made available offline from your device.</string>
     <string name="offline_cannot_set_limit_below_usage">Limit cannot be set below current storage usage.</string>
     <string name="sign_out_description_offline">You will have to re-connect your SoundCloud account. All tracks selected for offline listening will be removed from this device.</string>
     <string name="disable_offline_collection_title">Stop automatically saving offline?</string>
-    <string name="disable_offline_collection_body">This will keep future tracks and playlists from being synced automatically.</string>
+    <string name="disable_offline_collection_body">New playlists you like or create won’t automatically be saved offline anymore.</string>
     <!-- offline playlist creation -->
     <string name="add_playlist_offline">Available offline</string>
     <!-- offline settings -->
