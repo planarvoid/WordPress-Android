@@ -69,13 +69,18 @@ public class LoginTask extends AuthTask {
 
             if (Strings.isBlank(conflictingDeviceId)) {
                 DeviceManagement deviceManagement = configurationOperations.registerDevice(token);
-                if (deviceManagement.isNotAuthorized()) {
+                if (deviceManagement.isRecoverableBlock()) {
+                    // 3 active device limit. Can be force registered by replacing conflicting device.
                     data.putString(CONFLICTING_DEVICE_KEY, deviceManagement.getConflictingDeviceId());
                     return AuthTaskResult.deviceConflict(data);
+                } else if (deviceManagement.isUnrecoverableBlock()) {
+                    // 10 registered device limit. Cannot proceed until another device de-registers.
+                    return AuthTaskResult.deviceBlock();
                 }
             } else {
                 DeviceManagement deviceManagement = configurationOperations.forceRegisterDevice(token, conflictingDeviceId);
-                if (deviceManagement.isNotAuthorized()) {
+                if (deviceManagement.isUnauthorized()) {
+                    // Still unauthorized after force register. Fail with generic error to avoid looping.
                     return AuthTaskResult.failure(getString(R.string.error_server_problems_message));
                 }
             }

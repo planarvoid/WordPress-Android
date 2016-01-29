@@ -93,12 +93,16 @@ public final class AuthTaskResult {
         return new AuthTaskResult(Kind.DEVICE_CONFLICT, null, null, null, false, loginBundle, null);
     }
 
+    public static AuthTaskResult deviceBlock() {
+        return new AuthTaskResult(Kind.DEVICE_BLOCK);
+    }
+
     public boolean wasUnexpectedError() {
         return kind.isUnexpectedError();
     }
 
     private enum Kind {
-        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT, UNAUTHORIZED, NETWORK_ERROR, SERVER_ERROR, VALIDATION_ERROR;
+        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT, DEVICE_BLOCK, UNAUTHORIZED, NETWORK_ERROR, SERVER_ERROR, VALIDATION_ERROR;
 
         private static EnumSet<Kind> UNEXPECTED_ERRORS = EnumSet.of(FAILURE, FLAKY_SIGNUP_ERROR, SERVER_ERROR, VALIDATION_ERROR);
 
@@ -121,6 +125,10 @@ public final class AuthTaskResult {
 
     private AuthTaskResult(Kind kind, Exception exception) {
         this(kind, null, null, exception, false, null, null);
+    }
+
+    private AuthTaskResult(Kind kind) {
+        this(kind, null, null, null, false, null, null);
     }
 
     private AuthTaskResult(@NotNull Kind kind, PublicApiUser user, SignupVia signupVia,
@@ -177,6 +185,10 @@ public final class AuthTaskResult {
 
     public boolean wasDeviceConflict() {
         return kind == Kind.DEVICE_CONFLICT;
+    }
+
+    public boolean wasDeviceBlock() {
+        return kind == Kind.DEVICE_BLOCK;
     }
 
     public boolean wasValidationError() {

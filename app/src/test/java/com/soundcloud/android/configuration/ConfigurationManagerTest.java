@@ -20,6 +20,12 @@ import java.util.Collections;
 
 public class ConfigurationManagerTest extends AndroidUnitTest {
 
+    private static final Configuration AUTHORIZED_DEVICE_CONFIG = new Configuration(Collections.<Feature>emptyList(),
+            new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(true, false, null));
+
+    private static final Configuration UNAUTHORIZED_DEVICE_CONFIG = new Configuration(Collections.<Feature>emptyList(),
+            new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(false, true, null));
+
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private DeviceManagementStorage deviceManagementStorage;
@@ -33,21 +39,16 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
 
     @Test
     public void updateWithAuthorizedDeviceResponseSavesConfiguration() {
-        Configuration configuration = new Configuration(Collections.<Feature>emptyList(),
-                new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(true, null));
-        when(configurationOperations.update()).thenReturn(Observable.just(configuration));
+        when(configurationOperations.update()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
 
         manager.update();
 
-        verify(configurationOperations).saveConfiguration(configuration);
+        verify(configurationOperations).saveConfiguration(AUTHORIZED_DEVICE_CONFIG);
     }
 
     @Test
     public void updateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
-        Configuration configurationWithDeviceConflict = new Configuration(Collections.<Feature>emptyList(),
-                new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(false, null));
-
-        when(configurationOperations.update()).thenReturn(Observable.just(configurationWithDeviceConflict));
+        when(configurationOperations.update()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
 
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
