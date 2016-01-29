@@ -7,20 +7,20 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.SearchResultsHighTier;
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.discovery.SearchPremiumResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
-import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 @SearchResultsHighTier
 public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
 
-    private static final String PREMIUM_SEARCH_QUERY = "booht";
+    private static final String PREMIUM_SEARCH_QUERY = "creator";
 
-    private SearchScreen searchScreen;
+    private SearchResultsScreen searchResultsScreen;
 
     public PremiumSearchResultsTest() {
         super(MainActivity.class);
@@ -28,67 +28,54 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.searchHighTierUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.upsellUser.logIn(getInstrumentation().getTargetContext());
+        ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        searchScreen = mainNavHelper.goToDiscovery().clickSearch();
+        searchResultsScreen = mainNavHelper
+                .goToDiscovery()
+                .clickSearch()
+                .setSearchQuery(PREMIUM_SEARCH_QUERY)
+                .clickOnCurrentSearchQuery();
     }
 
     public void testSearchHighTierBucketIsOnScreen() {
-        final SearchResultsScreen searchResultsScreen =
-                searchScreen
-                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
-                        .clickOnCurrentSearchQuery();
         assertThat("Search premium content should be on screen", searchResultsScreen.premiumContentIsOnScreen());
     }
 
     public void testClickOnPremiumTrackPlaysIt() {
-        final VisualPlayerElement playerElement =
-                searchScreen
-                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
-                        .clickOnCurrentSearchQuery()
-                        .clickOnPremiumContent();
+        final VisualPlayerElement playerElement = searchResultsScreen.clickOnPremiumContent();
         assertThat("Player should play premium track", playerElement, is(playing()));
     }
 
     public void testClickOnPremiumBucketHelpOpensUpgradeScreen() {
-        final UpgradeScreen upgradeScreen =
-                searchScreen
-                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
-                        .clickOnCurrentSearchQuery()
-                        .clickOnPremiumContentHelp();
+        final UpgradeScreen upgradeScreen = searchResultsScreen.clickOnPremiumContentHelp();
         assertThat("Upgrade subscription screen should be visible", upgradeScreen, is(visible()));
     }
 
     public void testClickOnPremiumContentBucketOpenSearchPremiumResults() {
-        final SearchPremiumResultsScreen resultsScreen =
-                searchScreen
-                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
-                        .clickOnCurrentSearchQuery()
-                        .clickOnViewPremiumContent();
+        final SearchPremiumResultsScreen resultsScreen = searchResultsScreen.clickOnViewPremiumContent();
         assertThat("Search premium results screen should be visible", resultsScreen, is(visible()));
     }
 
     public void testPlaysPremiumTrackFromSearchPremiumResultsScreen() {
         final VisualPlayerElement playerElement =
-                searchScreen
-                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
-                        .clickOnCurrentSearchQuery()
+                searchResultsScreen
                         .clickOnViewPremiumContent()
                         .findAndClickFirstTrackItem();
+
         assertThat("Player should play premium track", playerElement, is(playing()));
     }
 
     public void testClickOnUpsellOpensUpgradeScreen() {
         final UpgradeScreen upgradeScreen =
-                searchScreen
-                        .setSearchQuery(PREMIUM_SEARCH_QUERY)
-                        .clickOnCurrentSearchQuery()
+                searchResultsScreen
                         .clickOnViewPremiumContent()
                         .clickOnUpgradeSubscription();
+
         assertThat("Upgrade subscription screen should be visible", upgradeScreen, is(visible()));
     }
 }
