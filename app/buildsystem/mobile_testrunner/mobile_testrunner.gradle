@@ -41,6 +41,8 @@ task runLollipopTests << {
           "log.tag.BUG_4503": "DEBUG",
           "log.tag.EventTracker": "DEBUG",
           "log.tag.MrLoggaVerifier": "DEBUG",
+          "log.tag.Configuration": "DEBUG",
+          "log.tag.TestRunner": "DEBUG",
           "log.tag.SoundCloudApplication": "DEBUG"
           ]
 
