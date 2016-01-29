@@ -191,22 +191,17 @@
         <item name="ariv_aspectRatio">.83</item>
     </style>
 
-    <style name="Cards.ArtistText" parent="BlackOverlayText">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/overlay_subtext</item>
+    <style name="Cards.ArtistText" parent="ShrinkWrap.Secondary.Medium">
         <item name="android:layout_marginLeft">@dimen/cards_artwork_inner_padding</item>
         <item name="android:layout_marginTop">@dimen/cards_artwork_bottom_inner_padding</item>
         <item name="android:layout_marginRight">20dp</item>
     </style>
 
-    <style name="Cards.TitleText" parent="BlackOverlayText">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/overlay_text</item>
+    <style name="Cards.TitleText" parent="ShrinkWrap.Primary.Medium">
         <item name="android:layout_marginLeft">@dimen/cards_artwork_inner_padding</item>
         <item name="android:layout_marginRight">24dp</item>
         <item name="android:layout_marginBottom">@dimen/cards_artwork_bottom_inner_padding</item>
         <item name="android:layout_marginTop">4dp</item>
-        <item name="android:ellipsize">end</item>
         <item name="android:maxLines">2</item>
     </style>
 

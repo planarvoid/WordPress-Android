@@ -17,7 +17,7 @@
         <item name="ariv_dominantMeasurement">width</item>
     </style>
 
-    <style name="PlayerTitle" parent="PlayerPrimaryHeading">
+    <style name="PlayerTitle" parent="ShrinkWrap.Primary.Medium">
         <item name="android:singleLine">true</item>
         <item name="android:maxLines">1</item>
     </style>

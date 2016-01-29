@@ -22,7 +22,7 @@
 
     <com.soundcloud.android.view.JaggedTextView
         android:id="@+id/username"
-        style="@style/BlackOverlayText.RegularSubtext.Clickable"
+        style="@style/ShrinkWrap.Secondary.Medium.Clickable"
         android:layout_above="@+id/title"
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:enabled="false"
@@ -30,7 +30,7 @@
 
     <com.soundcloud.android.view.JaggedTextView
         android:id="@+id/title"
-        style="@style/BlackOverlayText.Regular"
+        style="@style/ShrinkWrap.Primary.Medium"
         android:layout_alignBottom="@id/artwork_container"
         android:layout_marginBottom="@dimen/playlist_header_padding"
         android:layout_marginLeft="@dimen/playlist_header_padding"
@@ -40,7 +40,7 @@
 
     <com.soundcloud.android.view.JaggedTextView
         android:id="@+id/title_private"
-        style="@style/BlackOverlayText.Regular"
+        style="@style/ShrinkWrap.Primary.Medium"
         android:layout_alignBottom="@id/artwork_container"
         android:layout_marginBottom="@dimen/playlist_header_padding"
         android:layout_marginLeft="@dimen/playlist_header_padding"

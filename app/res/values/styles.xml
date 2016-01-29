@@ -65,39 +65,6 @@
         <item name="android:background">?android:attr/listDivider</item>
     </style>
 
-    <style name="BlackOverlayText" parent="TextAppearance.SoundCloudLightFont">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-
-        <item name="android:paddingLeft">5dp</item>
-        <item name="android:paddingRight">9dp</item>
-        <item name="android:paddingTop">0dp</item>
-        <item name="android:paddingBottom">3dp</item>
-
-        <item name="android:textColor">@color/overlay_text</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:antialias">true</item>
-
-        <item name="jagged_background">@color/overlay_text_background</item>
-        <item name="android:background">@color/overlay_text_background</item>
-    </style>
-
-    <style name="BlackOverlayText.Regular">
-        <item name="android:textSize">18sp</item>
-        <item name="android:maxLines">2</item>
-        <item name="android:ellipsize">end</item>
-    </style>
-
-    <style name="BlackOverlayText.RegularSubtext">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/overlay_subtext</item>
-    </style>
-
-    <style name="BlackOverlayText.RegularSubtext.Clickable">
-        <item name="android:textColor">@color/clickable_overlay_text</item>
-        <item name="jagged_background">@color/clickable_overlay_background</item>
-    </style>
-
     <style name="btn_default" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">@drawable/txt_btn_light_states</item>
