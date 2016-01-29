@@ -73,8 +73,12 @@ public class DeviceHelper {
                 getDeviceName());
     }
 
-    public String getAppVersion() {
+    public String getAppVersionName() {
         return BuildConfig.VERSION_NAME;
+    }
+
+    public int getAppVersionCode() {
+        return BuildConfig.VERSION_CODE;
     }
 
     public boolean hasMicrophone() {

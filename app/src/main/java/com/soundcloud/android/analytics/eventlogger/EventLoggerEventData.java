@@ -3,7 +3,6 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ANONYMOUS_ID;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.APP_VERSION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.BITRATE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_CATEGORY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_NAME;
@@ -24,6 +23,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_L
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATENCY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LOCAL_STORAGE_PLAYBACK;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_MODEL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OFFLINE_EVENT_STAGE;
@@ -125,6 +125,11 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData monetizationModel(String monetizationModel) {
+        addToPayload(MONETIZATION_MODEL, monetizationModel);
+        return this;
+    }
+
     public EventLoggerEventData monetizedObject(String monetizedObject) {
         addToPayload(MONETIZED_OBJECT, monetizedObject);
         return this;
@@ -167,6 +172,11 @@ class EventLoggerEventData {
 
     public EventLoggerEventData playerType(String playa) {
         addToPayload(PLAYER_TYPE, playa);
+        return this;
+    }
+
+    public EventLoggerEventData uuid(String uuid) {
+        addToPayload(EventLoggerParam.UUID, uuid);
         return this;
     }
 
@@ -302,11 +312,6 @@ class EventLoggerEventData {
 
     public EventLoggerEventData inOfflineLikes(boolean inLikes) {
         addToPayload(IN_LIKES, inLikes);
-        return this;
-    }
-
-    public EventLoggerEventData appVersion(String appVersion) {
-        addToPayload(APP_VERSION, appVersion);
         return this;
     }
 

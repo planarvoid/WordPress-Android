@@ -106,8 +106,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .track(event.getTrackUrn())
                 .trackOwner(event.getTrackOwner())
                 .inOfflineLikes(event.isFromLikes())
-                .inOfflinePlaylist(event.partOfPlaylist())
-                .appVersion(deviceHelper.getAppVersion());
+                .inOfflinePlaylist(event.partOfPlaylist());
         return transform(eventLoggerEventData);
     }
 
@@ -176,6 +175,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .trackLength(event.getDuration())
                 .track(urn)
                 .trackOwner(event.getCreatorUrn())
+                .uuid(event.getUUID())
                 .localStoragePlayback(event.isOfflineTrack())
                 .consumerSubsPlan(featureOperations.getPlan())
                 .trigger(getTrigger(event.getTrackSourceInfo()))
@@ -183,6 +183,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
                 .policy(event.get(PlaybackSessionEvent.KEY_POLICY))
+                .monetizationModel(event.getMonetizationModel())
                 .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
                 .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN));
@@ -255,7 +256,8 @@ public class EventLoggerV1JsonDataBuilder {
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
         EventLoggerEventDataV1 eventData = new EventLoggerEventDataV1(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(),
-                timestamp, connectionHelper.getCurrentConnectionType().getValue());
+                timestamp, connectionHelper.getCurrentConnectionType().getValue(),
+                String.valueOf(deviceHelper.getAppVersionCode()));
         addExperiments(eventData);
         return eventData;
     }

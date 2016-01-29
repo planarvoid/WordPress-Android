@@ -15,6 +15,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -36,6 +37,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     private static final Urn CREATOR_URN = Urn.forUser(3L);
     private static final long PROGRESS = PlaybackSessionEvent.FIRST_PLAY_MAX_PROGRESS + 1;
     private static final long DURATION = 2001L;
+    private static final String UUID = "blah-123";
 
     private PlaybackSessionAnalyticsController analyticsController;
     private TestEventBus eventBus = new TestEventBus();
@@ -47,6 +49,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Mock private AdsOperations adsOperations;
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
     @Mock private StopReasonProvider stopReasonProvider;
+    @Mock private UuidProvider uuidProvider;
 
     @Before
     public void setUp() throws Exception {
@@ -57,9 +60,10 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(false);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
+        when(uuidProvider.getRandomUuid()).thenReturn(UUID);
 
         analyticsController = new PlaybackSessionAnalyticsController(
-                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, appboyPlaySessionState, stopReasonProvider);
+                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, appboyPlaySessionState, stopReasonProvider, uuidProvider);
     }
 
     @Test
@@ -123,6 +127,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_LOGGED_IN_USER_URN)).isEqualTo(LOGGED_IN_USER_URN.toString());
         assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
         assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
+        assertThat(playbackSessionEvent.getUUID()).isEqualTo(UUID);
         assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
         assertThat(playbackSessionEvent.getTimestamp()).isGreaterThan(0L);
     }

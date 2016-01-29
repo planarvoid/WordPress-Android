@@ -9,6 +9,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.functions.Func1;
@@ -27,6 +28,7 @@ class PlaybackSessionAnalyticsController {
     private final AdsOperations adsOperations;
     private final AppboyPlaySessionState appboyPlaySessionState;
     private final StopReasonProvider stopReasonProvider;
+    private final UuidProvider uuidProvider;
     private PlaybackSessionEvent lastSessionEventData;
     private AudioAd lastPlayAudioAd;
 
@@ -45,7 +47,8 @@ class PlaybackSessionAnalyticsController {
     public PlaybackSessionAnalyticsController(EventBus eventBus, TrackRepository trackRepository,
                                               AccountOperations accountOperations, PlayQueueManager playQueueManager,
                                               AdsOperations adsOperations,
-                                              AppboyPlaySessionState appboyPlaySessionState, StopReasonProvider stopReasonProvider) {
+                                              AppboyPlaySessionState appboyPlaySessionState,
+                                              StopReasonProvider stopReasonProvider, UuidProvider uuidProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.accountOperations = accountOperations;
@@ -53,6 +56,7 @@ class PlaybackSessionAnalyticsController {
         this.adsOperations = adsOperations;
         this.appboyPlaySessionState = appboyPlaySessionState;
         this.stopReasonProvider = stopReasonProvider;
+        this.uuidProvider = uuidProvider;
     }
 
     public void onStateTransition(Player.StateTransition stateTransition) {
@@ -99,7 +103,7 @@ class PlaybackSessionAnalyticsController {
                 final boolean marketablePlay = appboyPlaySessionState.isMarketablePlay();
 
                 lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo,
-                        progress, protocol, playerType, connectionType, localStoragePlayback, marketablePlay);
+                        progress, protocol, playerType, connectionType, localStoragePlayback, marketablePlay, uuidProvider.getRandomUuid());
 
                 if (adsOperations.isCurrentItemAudioAd()) {
                     lastPlayAudioAd = (AudioAd) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
@@ -152,7 +156,7 @@ class PlaybackSessionAnalyticsController {
                 final boolean localStoragePlayback = isLocalStoragePlayback(stateTransition);
                 PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(),
                         currentTrackSourceInfo, lastPlayEventData, progress, protocol, playerType,
-                        connectionType, stopReason, localStoragePlayback);
+                        connectionType, stopReason, localStoragePlayback, uuidProvider.getRandomUuid());
 
                 if (lastPlayAudioAd != null) {
                     stopEvent = stopEvent.withAudioAd(lastPlayAudioAd);

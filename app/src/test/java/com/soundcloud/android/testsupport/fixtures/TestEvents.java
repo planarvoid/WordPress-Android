@@ -9,13 +9,13 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 public class TestEvents {
 
     public static PlaybackSessionEvent playbackSessionPlayEvent() {
-        return ModelFixtures.create(PlaybackSessionEvent.class);
+        return playbackSessionPlayEventWithProgress(456L);
     }
 
     public static PlaybackSessionEvent playbackSessionPlayEventWithProgress(long playbackProgress) {
         return PlaybackSessionEvent.forPlay(
                 TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), Urn.forUser(2L)),
-                Urn.forUser(1), new TrackSourceInfo("screen", false), playbackProgress, 1000L, "hls", "playa", "3g", false, false);
+                Urn.forUser(1), new TrackSourceInfo("screen", false), playbackProgress, 1000L, "hls", "playa", "3g", false, false, "uuid");
     }
 
     public static PlaybackSessionEvent playbackSessionStopEvent() throws CreateModelException {
@@ -31,7 +31,7 @@ public class TestEvents {
         return PlaybackSessionEvent.forStop(
                 TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), Urn.forUser(2L)),
                 Urn.forUser(1), new TrackSourceInfo("screen", false), previousPlayEvent, 0, 1000L, "hls", "playa", "3g", stopReason,
-                false);
+                false, "uuid");
 
     }
 

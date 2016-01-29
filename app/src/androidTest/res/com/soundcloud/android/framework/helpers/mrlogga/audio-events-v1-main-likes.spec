@@ -23,6 +23,9 @@ expected_events:
     track_owner: soundcloud:users:[0-9]+
     consumer_subs_plan: none
     local_storage_playback: false
+    app_version: '[0-9]+'
+    client_event_id: (\w|-)+
+    monetization_model: (\w|-)+
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -45,4 +48,7 @@ expected_events:
     track_owner: soundcloud:users:[0-9]+
     consumer_subs_plan: none
     local_storage_playback: false
+    app_version: '[0-9]+'
+    client_event_id: (\w|-)+
+    monetization_model: (\w|-)+
   version: '0'
