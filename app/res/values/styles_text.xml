@@ -23,6 +23,15 @@
         <item name="android:paddingBottom">@dimen/shrinkwrap_medium_padding_bottom</item>
     </style>
 
+    <style name="ShrinkWrap.Primary.Small">
+        <item name="android:textSize">@dimen/shrinkwrap_small_primary_text_size</item>
+        <item name="android:lineSpacingExtra">@dimen/shrinkwrap_small_primary_line_spacing_extra</item>
+        <item name="android:paddingLeft">@dimen/shrinkwrap_small_padding_left</item>
+        <item name="android:paddingRight">@dimen/shrinkwrap_small_padding_right</item>
+        <item name="android:paddingTop">@dimen/shrinkwrap_small_padding_top</item>
+        <item name="android:paddingBottom">@dimen/shrinkwrap_small_padding_bottom</item>
+    </style>
+
     <style name="ShrinkWrap.Secondary">
         <item name="android:singleLine">true</item>
         <item name="android:maxLines">1</item>
@@ -36,6 +45,14 @@
         <item name="android:paddingRight">@dimen/shrinkwrap_medium_padding_right</item>
         <item name="android:paddingTop">@dimen/shrinkwrap_medium_padding_top</item>
         <item name="android:paddingBottom">@dimen/shrinkwrap_medium_padding_bottom</item>
+    </style>
+    
+    <style name="ShrinkWrap.Secondary.Small">
+        <item name="android:textSize">@dimen/shrinkwrap_small_secondary_text_size</item>
+        <item name="android:paddingLeft">@dimen/shrinkwrap_small_padding_left</item>
+        <item name="android:paddingRight">@dimen/shrinkwrap_small_padding_right</item>
+        <item name="android:paddingTop">@dimen/shrinkwrap_small_padding_top</item>
+        <item name="android:paddingBottom">@dimen/shrinkwrap_small_padding_bottom</item>
     </style>
 
     <style name="ShrinkWrap.Secondary.Medium.Clickable">

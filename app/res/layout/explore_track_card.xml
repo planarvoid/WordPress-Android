@@ -23,14 +23,14 @@
 
         <com.soundcloud.android.view.JaggedTextView
             android:id="@+id/username"
-            style="@style/BlackOverlayText.RegularSubtext"
+            style="@style/ShrinkWrap.Secondary.Small"
             android:layout_above="@+id/title"
             android:layout_marginLeft="@dimen/grid_item_padding"
             tools:text="Awesome artist" />
 
         <com.soundcloud.android.view.JaggedTextView
             android:id="@+id/title"
-            style="@style/BlackOverlayText.Regular"
+            style="@style/ShrinkWrap.Primary.Small"
             android:layout_alignBottom="@id/image"
             android:layout_marginBottom="@dimen/grid_item_padding"
             android:layout_marginLeft="@dimen/grid_item_padding"
