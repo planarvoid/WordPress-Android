@@ -20,6 +20,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaybackService;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
@@ -272,7 +273,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnObservableWithAccountRemovalFunction() throws Exception {
-        when(configurationOperations.deregisterDevice()).thenReturn(Observable.<Void>empty());
+        when(configurationOperations.deregisterDevice()).thenReturn(Observable.empty());
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
 
         AccountManagerFuture future = mock(AccountManagerFuture.class);
@@ -285,7 +286,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldAttemptToDeregisterDeviceOnLogout() {
-        when(configurationOperations.deregisterDevice()).thenReturn(Observable.<Void>just(null));
+        when(configurationOperations.deregisterDevice()).thenReturn(Observable.just(RxUtils.EMPTY_VALUE));
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
 
         accountOperations.logout().subscribe(observer);

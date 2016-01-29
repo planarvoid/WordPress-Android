@@ -68,13 +68,6 @@ public class ConfigurationOperations {
         }
     };
 
-    private final Action1<ApiResponse> LOG_DEREGISTER = new Action1<ApiResponse>() {
-        @Override
-        public void call(ApiResponse apiResponse) {
-            Log.d(TAG, "De-registered device");
-        }
-    };
-
     private static Func1<Configuration, Boolean> isExpectedPlan(final String planId) {
         return new Func1<Configuration, Boolean>() {
             @Override
@@ -133,13 +126,18 @@ public class ConfigurationOperations {
         return apiClient.get().fetchMappedResponse(request, Configuration.class).deviceManagement;
     }
 
-    public Observable<Void> deregisterDevice() {
+    public Observable<Object> deregisterDevice() {
         return apiClientRx.get().response(ApiRequest.delete(ApiEndpoints.CONFIGURATION.path())
                 .forPrivateApi(1)
                 .build())
-                .doOnNext(LOG_DEREGISTER)
-                .map(RxUtils.TO_VOID)
-                .onErrorResumeNext(Observable.<Void>just(null));
+                .doOnNext(new Action1<ApiResponse>() {
+                    @Override
+                    public void call(ApiResponse apiResponse) {
+                        Log.d(TAG, "De-registered device");
+                    }
+                })
+                .cast(Object.class)
+                .onErrorResumeNext(Observable.just(RxUtils.EMPTY_VALUE));
     }
 
     private ApiRequest.Builder configurationRequestBuilderForGet() {

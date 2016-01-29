@@ -31,6 +31,8 @@ public final class RxUtils {
         }
     };
 
+    public static final Object EMPTY_VALUE = new Object();
+
     public static <T> void emitIterable(Observer<? super T> observer, Iterable<T> iterable) {
         for (T item : iterable) {
             observer.onNext(item);

@@ -217,7 +217,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
         operations.deregisterDevice().subscribe(subscriber);
 
-        subscriber.assertValue(null);
+        subscriber.assertValueCount(1);
     }
 
     @Test
