@@ -1,20 +1,35 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.view.adapters.TrackCardRenderer;
+import com.soundcloud.java.optional.Optional;
 
 import android.view.View;
 import android.view.ViewGroup;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class UserSoundsTrackCardRenderer implements CellRenderer<UserSoundsItem> {
+    private final TrackCardRenderer trackCardRenderer;
+
+    @Inject
+    public UserSoundsTrackCardRenderer(TrackCardRenderer trackCardRenderer) {
+        this.trackCardRenderer = trackCardRenderer;
+    }
+
     @Override
     public View createItemView(ViewGroup parent) {
-        return new View(parent.getContext());
+        return trackCardRenderer.createItemView(parent);
     }
 
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
+        final Optional<TrackItem> trackItem = items.get(position).getTrackItem();
 
+        if (trackItem.isPresent()) {
+            trackCardRenderer.bindTrackCard(trackItem.get(), itemView, position);
+        }
     }
 }

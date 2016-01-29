@@ -19,12 +19,12 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
 
     @Inject
     UserSoundsAdapter(DividerRenderer dividerRenderer,
-                      DividerRenderer headerRenderer,
-                      DividerRenderer viewAllRenderer,
-                      DividerRenderer trackCardRenderer,
-                      DividerRenderer trackItemRenderer,
-                      DividerRenderer playlistCardRenderer,
-                      DividerRenderer playlistItemRenderer) {
+                      HeaderRenderer headerRenderer,
+                      ViewAllRenderer viewAllRenderer,
+                      UserSoundsTrackCardRenderer trackCardRenderer,
+                      UserSoundsTrackItemRenderer trackItemRenderer,
+                      UserSoundsPlaylistCardRenderer playlistCardRenderer,
+                      UserSoundsPlaylistItemRenderer playlistItemRenderer) {
         super(new CellRendererBinding<>(TYPE_DIVIDER, dividerRenderer),
                 new CellRendererBinding<>(TYPE_HEADER, headerRenderer),
                 new CellRendererBinding<>(TYPE_VIEW_ALL, viewAllRenderer),
@@ -35,38 +35,31 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
     }
 
     @Override
-    public void setOnItemClickListener(View.OnClickListener itemClickListener) {
-        super.setOnItemClickListener(itemClickListener);
-    }
-
-    @Override
     public int getBasicItemViewType(int position) {
         final UserSoundsItem item = getItem(position);
 
-//        switch (item.getItemType()) {
-//            case UserSoundsItem.TYPE_DIVIDER:
-//                return TYPE_DIVIDER;
-//            case UserSoundsItem.TYPE_HEADER:
-//                return TYPE_HEADER;
-//            case UserSoundsItem.TYPE_VIEW_ALL:
-//                return TYPE_VIEW_ALL;
-//            case UserSoundsItem.TYPE_TRACK:
-//                if (item.getCollectionType() == UserSoundsTypes.SPOTLIGHT) {
-//                    return TYPE_TRACK_CARD;
-//                } else {
-//                    return TYPE_TRACK_ITEM;
-//                }
-//            case UserSoundsItem.TYPE_PLAYLIST:
-//                if (item.getCollectionType() == UserSoundsTypes.SPOTLIGHT) {
-//                    return TYPE_PLAYLIST_CARD;
-//                } else {
-//                    return TYPE_PLAYLIST_ITEM;
-//                }
-//
-//            default:
-//                throw new IllegalArgumentException("No User Sound Item of the given type");
-//        }
-        return TYPE_DIVIDER;
+        switch (item.getItemType()) {
+            case UserSoundsItem.TYPE_DIVIDER:
+                return TYPE_DIVIDER;
+            case UserSoundsItem.TYPE_HEADER:
+                return TYPE_HEADER;
+            case UserSoundsItem.TYPE_VIEW_ALL:
+                return TYPE_VIEW_ALL;
+            case UserSoundsItem.TYPE_TRACK:
+                if (item.getCollectionType() == UserSoundsTypes.SPOTLIGHT) {
+                    return TYPE_TRACK_CARD;
+                } else {
+                    return TYPE_TRACK_ITEM;
+                }
+            case UserSoundsItem.TYPE_PLAYLIST:
+                if (item.getCollectionType() == UserSoundsTypes.SPOTLIGHT) {
+                    return TYPE_PLAYLIST_CARD;
+                } else {
+                    return TYPE_PLAYLIST_ITEM;
+                }
+            default:
+                throw new IllegalArgumentException("No User Sound Item of the given type");
+        }
     }
 
     @Override

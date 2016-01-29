@@ -67,7 +67,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
     }
 
     public void bindTrackCard(final TrackItem track, final View itemView, final int position) {
-        TrackCardViewHolder viewHolder = (TrackCardViewHolder) itemView.getTag();
+        final TrackCardViewHolder viewHolder = (TrackCardViewHolder) itemView.getTag();
         viewHolder.resetAdditionalInformation();
 
         engagementsPresenter.bind(viewHolder, track, getEventContextMetadata());
@@ -77,7 +77,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
         viewHolder.overflowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View overflowButton) {
-                menuPresenter.show((FragmentActivity) itemView.getContext(), itemView, track, position);
+                menuPresenter.show((FragmentActivity) itemView.getContext(), viewHolder.overflowButton, track, position);
             }
         });
     }

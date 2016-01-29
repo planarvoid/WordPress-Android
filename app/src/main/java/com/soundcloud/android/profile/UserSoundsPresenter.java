@@ -3,16 +3,19 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
@@ -28,9 +31,12 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
+
+    private final MixedItemClickListener itemClickListener;
 
     private Collection<UserSoundsItem> HOLDER_SOURCE_COLLECTION_TO_USER_SOUND_ITEMS(ModelCollection<? extends ApiEntityHolderSource> modelCollection, int collectionType) {
         List<UserSoundsItem> items = new ArrayList<>();
@@ -40,24 +46,6 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
         items.addAll(Lists.transform(
                 modelCollection.getCollection(),
                 HOLDER_SOURCE_TO_USER_SOUND_ITEMS(collectionType)));
-
-        if (modelCollection.getNextLink().isPresent()) {
-            items.add(UserSoundsItem.fromViewAll(collectionType));
-        }
-
-        items.add(UserSoundsItem.fromDivider());
-
-        return items;
-    }
-
-    private Collection<UserSoundsItem> HOLDER_COLLECTION_TO_USER_SOUND_ITEMS(ModelCollection<? extends ApiEntityHolder> modelCollection, int collectionType) {
-        List<UserSoundsItem> items = new ArrayList<>();
-
-        items.add(UserSoundsItem.fromHeader(collectionType));
-
-        items.addAll(Lists.transform(
-                modelCollection.getCollection(),
-                HOLDER_TO_USER_SOUND_ITEMS(collectionType)));
 
         if (modelCollection.getNextLink().isPresent()) {
             items.add(UserSoundsItem.fromViewAll(collectionType));
@@ -97,7 +85,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
                 final PropertySet properties = holder.toPropertySet();
 
                 if (properties.get(EntityProperty.URN).isTrack()) {
-                    return UserSoundsItem.fromTrackItem(TrackItem.from(properties), collectionType);
+                    final UserSoundsItem userSoundsItem = UserSoundsItem.fromTrackItem(TrackItem.from(properties), collectionType);
+                    return userSoundsItem;
                 } else {
                     return UserSoundsItem.fromPlaylistItem(PlaylistItem.from(properties), collectionType);
                 }
@@ -179,6 +168,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
     private final UserSoundsAdapter adapter;
     private final UserProfileOperations operations;
     private final Resources resources;
+    private final MixedItemClickListener.Factory itemClickListenerFactory;
     private Urn userUrn;
 
     @Inject
@@ -186,12 +176,15 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
                         SwipeRefreshAttacher swipeRefreshAttacher,
                         UserSoundsAdapter adapter,
                         UserProfileOperations operations,
-                        Resources resources) {
-        super(swipeRefreshAttacher, Options.custom().useDividers(Options.DividerMode.NONE).build());
+                        Resources resources,
+                        MixedItemClickListener.Factory itemClickListenerFactory) {
+        super(swipeRefreshAttacher, Options.list().useDividers(Options.DividerMode.NONE).build());
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.operations = operations;
         this.resources = resources;
+        this.itemClickListenerFactory = itemClickListenerFactory;
+        this.itemClickListener = itemClickListenerFactory.create(Screen.USER_SOUNDS, null);
     }
 
     @Override
@@ -243,12 +236,17 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
     }
 
     @Override
-    protected void onItemClicked(View view, int position) {
-        System.out.println("Hello");
+    protected EmptyView.Status handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
     }
 
     @Override
-    protected EmptyView.Status handleError(Throwable error) {
-        return ErrorUtils.emptyViewStatusFromError(error);
+    protected void onItemClicked(View view, int position) {
+        // In the future, this method should gather the playables from the list of items in the adapter
+        // and forward them to the mixedItemClickListener.
+        // Note: The mixed item click listener may need additional love to play through both tracks and playlists, as
+        // that is now supported by the playback functionality.
+
+        itemClickListener.onItemClick(Collections.<ListItem>emptyList(), view, position);
     }
 }
