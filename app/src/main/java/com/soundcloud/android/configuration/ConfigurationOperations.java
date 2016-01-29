@@ -14,6 +14,8 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.utils.CallsiteToken;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.net.HttpHeaders;
 import dagger.Lazy;
 import rx.Observable;
@@ -134,6 +136,12 @@ public class ConfigurationOperations {
                     @Override
                     public void call(ApiResponse apiResponse) {
                         Log.d(TAG, "De-registered device");
+                    }
+                })
+                .doOnError(new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        ErrorUtils.handleThrowable(throwable, CallsiteToken.build());
                     }
                 })
                 .cast(Object.class)
