@@ -21,10 +21,10 @@ import java.util.Collections;
 public class ConfigurationManagerTest extends AndroidUnitTest {
 
     private static final Configuration AUTHORIZED_DEVICE_CONFIG = new Configuration(Collections.<Feature>emptyList(),
-            new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(true, false, null));
+            new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(true, false));
 
     private static final Configuration UNAUTHORIZED_DEVICE_CONFIG = new Configuration(Collections.<Feature>emptyList(),
-            new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(false, true, null));
+            new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(false, true));
 
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountOperations accountOperations;

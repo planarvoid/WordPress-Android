@@ -22,7 +22,6 @@ import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +31,7 @@ import android.support.annotation.VisibleForTesting;
 public class LoginTask extends AuthTask {
 
     @VisibleForTesting
-    static String CONFLICTING_DEVICE_KEY = "conflictingDeviceKey";
+    static String IS_CONFLICTING_DEVICE = "isConflictingDevice";
 
     private FetchUserTask fetchUserTask;
     private final ConfigurationOperations configurationOperations;
@@ -65,23 +64,23 @@ public class LoginTask extends AuthTask {
     protected AuthTaskResult login(Bundle data) {
         try {
             Token token = tokenUtils.getToken(data);
-            String conflictingDeviceId = data.getString(CONFLICTING_DEVICE_KEY);
+            boolean isConflictingDevice = data.getBoolean(IS_CONFLICTING_DEVICE);
 
-            if (Strings.isBlank(conflictingDeviceId)) {
+            if (isConflictingDevice) {
+                DeviceManagement deviceManagement = configurationOperations.forceRegisterDevice(token);
+                if (deviceManagement.isUnauthorized()) {
+                    // Still unauthorized after force register. Fail with generic error to avoid looping.
+                    return AuthTaskResult.failure(getString(R.string.error_server_problems_message));
+                }
+            } else {
                 DeviceManagement deviceManagement = configurationOperations.registerDevice(token);
                 if (deviceManagement.isRecoverableBlock()) {
                     // 3 active device limit. Can be force registered by replacing conflicting device.
-                    data.putString(CONFLICTING_DEVICE_KEY, deviceManagement.getConflictingDeviceId());
+                    data.putBoolean(IS_CONFLICTING_DEVICE, true);
                     return AuthTaskResult.deviceConflict(data);
                 } else if (deviceManagement.isUnrecoverableBlock()) {
                     // 10 registered device limit. Cannot proceed until another device de-registers.
                     return AuthTaskResult.deviceBlock();
-                }
-            } else {
-                DeviceManagement deviceManagement = configurationOperations.forceRegisterDevice(token, conflictingDeviceId);
-                if (deviceManagement.isUnauthorized()) {
-                    // Still unauthorized after force register. Fail with generic error to avoid looping.
-                    return AuthTaskResult.failure(getString(R.string.error_server_problems_message));
                 }
             }
 

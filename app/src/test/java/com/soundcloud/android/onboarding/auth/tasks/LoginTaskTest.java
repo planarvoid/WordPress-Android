@@ -15,7 +15,6 @@ import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,19 +113,19 @@ public class LoginTaskTest extends AndroidUnitTest {
     @Test
     public void unauthorizedRecoverableDeviceBlockResultsInDeviceConflictFailure() throws Exception {
         setupMocksToReturnToken();
-        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(false, true, "device-id"));
+        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(false, true));
 
         AuthTaskResult result = loginTask.doInBackground(bundle);
 
         assertThat(result.wasDeviceConflict()).isTrue();
         assertThat(result.getLoginBundle()).isSameAs(bundle);
-        assertThat(result.getLoginBundle().getString(LoginTask.CONFLICTING_DEVICE_KEY)).isEqualTo("device-id");
+        assertThat(result.getLoginBundle().getBoolean(LoginTask.IS_CONFLICTING_DEVICE)).isTrue();
     }
 
     @Test
     public void unauthorizedUnrecoverableDeviceBlockResultsInDeviceBlockFailure() throws Exception {
         setupMocksToReturnToken();
-        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(false, false, Strings.EMPTY));
+        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(false, false));
 
         AuthTaskResult result = loginTask.doInBackground(bundle);
 
@@ -137,9 +136,8 @@ public class LoginTaskTest extends AndroidUnitTest {
     @Test
     public void failureToForceRegisterDeviceReturnsGenericError() throws Exception {
         setupMocksToReturnToken();
-        String conflictingDeviceId = "conflicting";
-        when(configurationOperations.forceRegisterDevice(token, conflictingDeviceId)).thenReturn(new DeviceManagement(false, true, "device-id"));
-        bundle.putString(LoginTask.CONFLICTING_DEVICE_KEY, conflictingDeviceId);
+        when(configurationOperations.forceRegisterDevice(token)).thenReturn(new DeviceManagement(false, true));
+        bundle.putBoolean(LoginTask.IS_CONFLICTING_DEVICE, true);
 
         AuthTaskResult result = loginTask.doInBackground(bundle);
 
@@ -150,9 +148,8 @@ public class LoginTaskTest extends AndroidUnitTest {
     @Test
     public void successfulForceRegisterDeviceContinuesLogin() throws Exception {
         setupMocksToReturnToken();
-        String conflictingDeviceId = "conflicting";
-        when(configurationOperations.forceRegisterDevice(token, conflictingDeviceId)).thenReturn(new DeviceManagement(true, false, null));
-        bundle.putString(LoginTask.CONFLICTING_DEVICE_KEY, conflictingDeviceId);
+        when(configurationOperations.forceRegisterDevice(token)).thenReturn(new DeviceManagement(true, false));
+        bundle.putBoolean(LoginTask.IS_CONFLICTING_DEVICE, true);
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
 
         assertThat(loginTask.doInBackground(bundle).wasSuccess()).isTrue();
@@ -161,7 +158,7 @@ public class LoginTaskTest extends AndroidUnitTest {
     private void setupMocksToReturnToken() throws Exception {
         when(tokenInformationGenerator.getToken(bundle)).thenReturn(token);
         when(fetchUserTask.currentUser()).thenReturn(user);
-        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false, "device-id"));
+        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false));
     }
 
 }
