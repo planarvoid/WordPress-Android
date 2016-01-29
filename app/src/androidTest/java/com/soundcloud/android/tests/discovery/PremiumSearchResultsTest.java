@@ -38,8 +38,7 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
         searchResultsScreen = mainNavHelper
                 .goToDiscovery()
                 .clickSearch()
-                .setSearchQuery(PREMIUM_SEARCH_QUERY)
-                .clickOnCurrentSearchQuery();
+                .doSearch(PREMIUM_SEARCH_QUERY);
     }
 
     public void testSearchHighTierBucketIsOnScreen() {
