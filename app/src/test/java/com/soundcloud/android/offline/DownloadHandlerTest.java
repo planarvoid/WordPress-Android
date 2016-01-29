@@ -5,6 +5,7 @@ import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.download
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -29,6 +31,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
     @Mock DownloadOperations downloadOperations;
     @Mock TrackDownloadsStorage tracksStorage;
     @Mock SecureFileStorage secureFileStorage;
+    @Mock OfflineSyncTracker performanceTracker;
     @Mock WriteResult writeResult;
 
     private DownloadHandler handler;
@@ -58,7 +61,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
         notEnoughSpaceMessage = createMessage(downloadRequest);
         cancelMessage = createMessage(downloadRequest);
 
-        handler = new DownloadHandler(listener, downloadOperations, secureFileStorage, tracksStorage);
+        handler = new DownloadHandler(listener, downloadOperations, secureFileStorage, tracksStorage, performanceTracker);
 
         when(writeResult.success()).thenReturn(true);
         when(tracksStorage.storeCompletedDownload(any(DownloadState.class))).thenReturn(writeResult);
@@ -171,6 +174,39 @@ public class DownloadHandlerTest extends AndroidUnitTest {
         handler.handleMessage(successMessage);
 
         verify(tracksStorage).markTrackAsUnavailable(unavailableResult.getTrack());
+    }
+
+    @Test
+    public void tracksDownloadStartedAndCompleted() {
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
+
+        handler.handleMessage(successMessage);
+
+        InOrder inOrder = inOrder(performanceTracker);
+        inOrder.verify(performanceTracker).downloadStarted(downloadRequest);
+        inOrder.verify(performanceTracker).downloadComplete(downloadRequest);
+    }
+
+    @Test
+    public void tracksDownloadStartedAndCancelled() {
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(cancelledResult);
+
+        handler.handleMessage(cancelMessage);
+
+        InOrder inOrder = inOrder(performanceTracker);
+        inOrder.verify(performanceTracker).downloadStarted(downloadRequest);
+        inOrder.verify(performanceTracker).downloadCancelled(downloadRequest);
+    }
+
+    @Test
+    public void tracksDownloadStartedAndFailed() {
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(failedResult);
+
+        handler.handleMessage(failureMessage);
+
+        InOrder inOrder = inOrder(performanceTracker);
+        inOrder.verify(performanceTracker).downloadStarted(downloadRequest);
+        inOrder.verify(performanceTracker).downloadFailed(downloadRequest);
     }
 
     private Message createMessage(DownloadRequest downloadRequest) {

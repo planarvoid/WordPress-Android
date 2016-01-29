@@ -14,7 +14,6 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONN
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONSUMER_SUBS_PLAN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.DURATION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_CODE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EVENT_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EXTERNAL_MEDIA;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.FORMAT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.HOST;
@@ -31,6 +30,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OFFL
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OS;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYHEAD_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_ID;
@@ -41,7 +41,6 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROM
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPOSTER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOUND;
@@ -186,7 +185,7 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData inPlaylist(Urn playlistUrn) {
+    public EventLoggerEventData inOfflinePlaylist(Urn playlistUrn) {
         addToPayload(IN_PLAYLIST, String.valueOf(playlistUrn));
         return this;
     }
@@ -296,23 +295,18 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData inPlaylist(boolean inPlaylist) {
-        addToPayload(IN_PLAYLIST, inPlaylist);
+    public EventLoggerEventData inOfflinePlaylist(boolean isPartOfPlaylist) {
+        addToPayload(IN_PLAYLIST, isPartOfPlaylist);
         return this;
     }
 
-    public EventLoggerEventData inLikes(boolean inLikes) {
+    public EventLoggerEventData inOfflineLikes(boolean inLikes) {
         addToPayload(IN_LIKES, inLikes);
         return this;
     }
 
     public EventLoggerEventData appVersion(String appVersion) {
         addToPayload(APP_VERSION, appVersion);
-        return this;
-    }
-
-    public EventLoggerEventData eventType(String eventType) {
-        addToPayload(EVENT_TYPE, eventType);
         return this;
     }
 

@@ -14,15 +14,15 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
-import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.OfflineSyncTrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineTrackContext;
+import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PromotedListItem;
@@ -40,7 +40,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 
 public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
@@ -110,7 +109,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playheadPosition(12L)
                 .source("source")
                 .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
+                .inOfflinePlaylist(PLAYLIST_URN)
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA"));
@@ -204,7 +203,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playheadPosition(123L)
                 .source("source")
                 .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
+                .inOfflinePlaylist(PLAYLIST_URN)
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
@@ -300,7 +299,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playheadPosition(12L)
                 .source("source")
                 .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
+                .inOfflinePlaylist(PLAYLIST_URN)
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
@@ -335,7 +334,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .trigger("manual")
                 .source("source")
                 .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
+                .inOfflinePlaylist(PLAYLIST_URN)
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
@@ -370,7 +369,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playheadPosition(12L)
                 .source("source")
                 .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
+                .inOfflinePlaylist(PLAYLIST_URN)
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
@@ -423,25 +422,25 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForPlaylistToOfflineAddEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromAddOfflinePlaylist(PAGE_NAME, Urn.forPlaylist(123L), null);
+        final UIEvent event = UIEvent.fromAddOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, null);
 
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
                 .clickName("playlist_to_offline::add")
-                .clickObject(String.valueOf(Urn.forPlaylist(123L)))
+                .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME));
     }
 
     @Test
     public void createsJsonForPlaylistToOfflineRemoveEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromRemoveOfflinePlaylist(PAGE_NAME, Urn.forPlaylist(123L), null);
+        final UIEvent event = UIEvent.fromRemoveOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, null);
 
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
                 .clickName("playlist_to_offline::remove")
-                .clickObject(String.valueOf(Urn.forPlaylist(123L)))
+                .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME));
     }
 
@@ -449,13 +448,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     public void createsJsonForPlaylistToOfflineRemoveEventForPromotedItem() throws ApiMapperException {
         PromotedListItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
-        final UIEvent event = UIEvent.fromRemoveOfflinePlaylist(PAGE_NAME, Urn.forPlaylist(123L), promotedSourceInfo);
+        final UIEvent event = UIEvent.fromRemoveOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, promotedSourceInfo);
 
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
                 .clickName("playlist_to_offline::remove")
-                .clickObject(String.valueOf(Urn.forPlaylist(123L)))
+                .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME)
                 .adUrn(item.getAdUrn())
                 .monetizationType("promoted")
@@ -463,21 +462,70 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createJsonFromOfflineSyncEvent() throws ApiMapperException {
-        final OfflineTrackContext trackContext = OfflineTrackContext.create(TRACK_URN, CREATOR_URN, Collections.EMPTY_LIST, false);
-        final OfflineSyncEvent event = OfflineSyncEvent.fromDesync(trackContext);
+    public void createJsonFromOfflineSyncStartEventWithPlaylistTrackContext() throws ApiMapperException {
+        final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
+        final OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromStarted(TRACK_URN, trackContext);
 
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
-                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
-                .track(TRACK_URN)
-                .trackOwner(CREATOR_URN)
-                .inPlaylist(false)
-                .inLikes(false)
-                .appVersion(APP_VERSION)
-                .eventType("desync")
-                .eventStage("complete")
+                        .track(TRACK_URN)
+                        .trackOwner(CREATOR_URN)
+                        .appVersion(APP_VERSION)
+                        .inOfflinePlaylist(false)
+                        .inOfflineLikes(true)
+                        .eventStage("start")
+        );
+    }
+
+    @Test
+    public void createJsonFromOfflineSyncFailEventWithLikeTrackContext() throws ApiMapperException {
+        final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
+        final OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromFailed(TRACK_URN, trackContext);
+
+        jsonDataBuilder.buildForOfflineSyncEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
+                        .track(TRACK_URN)
+                        .trackOwner(CREATOR_URN)
+                        .appVersion(APP_VERSION)
+                        .inOfflinePlaylist(false)
+                        .inOfflineLikes(true)
+                        .eventStage("fail")
+        );
+    }
+
+    @Test
+    public void createJsonFromOfflineSyncCancelEventWithLikeTrackContext() throws ApiMapperException {
+        final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
+        final OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromCancelled(TRACK_URN, trackContext);
+
+        jsonDataBuilder.buildForOfflineSyncEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
+                        .track(TRACK_URN)
+                        .trackOwner(CREATOR_URN)
+                        .appVersion(APP_VERSION)
+                        .inOfflinePlaylist(false)
+                        .inOfflineLikes(true)
+                        .eventStage("user_cancelled")
+        );
+    }
+
+    @Test
+    public void createJsonFromOfflineSyncCompleteEventWithLikeTrackContext() throws ApiMapperException {
+        final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
+        final OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromCompleted(TRACK_URN, trackContext);
+
+        jsonDataBuilder.buildForOfflineSyncEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
+                        .track(TRACK_URN)
+                        .trackOwner(CREATOR_URN)
+                        .appVersion(APP_VERSION)
+                        .inOfflinePlaylist(false)
+                        .inOfflineLikes(true)
+                        .eventStage("complete")
         );
     }
 
