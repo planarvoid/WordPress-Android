@@ -868,6 +868,30 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsPlayerUpsellImpressionJson() throws Exception {
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forPlayerImpression(Urn.forTrack(1));
+
+        jsonDataBuilder.build(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", impression.getTimestamp())
+                .pageUrn(Urn.forTrack(1).toString())
+                .impressionName("consumer_sub_ad")
+                .impressionObject("soundcloud:tcode:1017"));
+    }
+
+    @Test
+    public void createsPlayerUpsellClickJson() throws Exception {
+        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlayerClick(Urn.forTrack(1));
+
+        jsonDataBuilder.build(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", click.getTimestamp())
+                .pageUrn(Urn.forTrack(1).toString())
+                .clickName("clickthrough::consumer_sub_ad")
+                .clickObject("soundcloud:tcode:1017"));
+    }
+
+    @Test
     public void createsUpsellImpressionJson() throws Exception {
         UpgradeTrackingEvent impression = UpgradeTrackingEvent.forLikesImpression();
 

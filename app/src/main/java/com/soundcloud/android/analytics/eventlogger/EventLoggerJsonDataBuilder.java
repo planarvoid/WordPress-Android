@@ -353,10 +353,12 @@ public class EventLoggerJsonDataBuilder {
         switch (event.getKind()) {
             case UpgradeTrackingEvent.KIND_UPSELL_CLICK:
                 return transform(buildBaseEvent(CLICK_EVENT, event)
+                        .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
                         .clickName("clickthrough::consumer_sub_ad")
                         .clickObject(event.get(UpgradeTrackingEvent.KEY_TCODE)));
             case UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION:
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                        .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
                         .impressionName("consumer_sub_ad")
                         .impressionObject(event.get(UpgradeTrackingEvent.KEY_TCODE)));
             case UpgradeTrackingEvent.KIND_UPGRADE_SUCCESS:
