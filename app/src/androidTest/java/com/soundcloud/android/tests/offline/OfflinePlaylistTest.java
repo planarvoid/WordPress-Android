@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.OfflinePlaylistsTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
@@ -16,6 +17,7 @@ import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
+@OfflinePlaylistsTest
 public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
 
     public OfflinePlaylistTest() {
