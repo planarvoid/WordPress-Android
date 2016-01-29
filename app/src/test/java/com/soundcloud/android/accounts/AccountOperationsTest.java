@@ -13,18 +13,20 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaybackService;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +63,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Mock private Account scAccount;
     @Mock private Observer observer;
     @Mock private Token token;
+    @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountCleanupAction accountCleanupAction;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
 
@@ -69,7 +72,9 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws CreateModelException {
         accountOperations = new AccountOperations(context(), accountManager, tokenOperations,
-                modelManager, userStorage, eventBus, InjectionSupport.lazyOf(accountCleanupAction), 
+                modelManager, userStorage, eventBus,
+                InjectionSupport.lazyOf(configurationOperations),
+                InjectionSupport.lazyOf(accountCleanupAction),
                 InjectionSupport.lazyOf(clearTrackDownloadsCommand), Schedulers.immediate());
 
         user = ModelFixtures.create(PublicApiUser.class);
@@ -268,6 +273,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnObservableWithAccountRemovalFunction() throws Exception {
+        when(configurationOperations.deregisterDevice()).thenReturn(Observable.empty());
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
 
         AccountManagerFuture future = mock(AccountManagerFuture.class);
@@ -276,6 +282,16 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
         accountOperations.logout().subscribe(observer);
         verify(observer).onCompleted();
+    }
+
+    @Test
+    public void shouldAttemptToDeregisterDeviceOnLogout() {
+        when(configurationOperations.deregisterDevice()).thenReturn(Observable.just(RxUtils.EMPTY_VALUE));
+        when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
+
+        accountOperations.logout().subscribe(observer);
+
+        verify(configurationOperations).deregisterDevice();
     }
 
     @Test

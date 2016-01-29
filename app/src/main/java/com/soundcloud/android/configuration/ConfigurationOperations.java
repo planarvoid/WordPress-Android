@@ -7,11 +7,15 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.utils.CallsiteToken;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.net.HttpHeaders;
 import dagger.Lazy;
 import rx.Observable;
@@ -58,6 +62,7 @@ public class ConfigurationOperations {
             return apiClientRx.get().mappedResponse(configurationRequestBuilderForGet().build(), Configuration.class);
         }
     };
+
     private final Action1<Configuration> saveConfiguration = new Action1<Configuration>() {
         @Override
         public void call(Configuration configuration) {
@@ -121,6 +126,26 @@ public class ConfigurationOperations {
                 .build();
 
         return apiClient.get().fetchMappedResponse(request, Configuration.class).deviceManagement;
+    }
+
+    public Observable<Object> deregisterDevice() {
+        return apiClientRx.get().response(ApiRequest.delete(ApiEndpoints.CONFIGURATION.path())
+                .forPrivateApi(1)
+                .build())
+                .doOnNext(new Action1<ApiResponse>() {
+                    @Override
+                    public void call(ApiResponse apiResponse) {
+                        Log.d(TAG, "De-registered device");
+                    }
+                })
+                .doOnError(new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        ErrorUtils.handleThrowable(throwable, CallsiteToken.build());
+                    }
+                })
+                .cast(Object.class)
+                .onErrorResumeNext(Observable.just(RxUtils.EMPTY_VALUE));
     }
 
     private ApiRequest.Builder configurationRequestBuilderForGet() {
