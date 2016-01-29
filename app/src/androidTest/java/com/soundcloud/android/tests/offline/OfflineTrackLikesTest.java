@@ -8,15 +8,17 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.CollectionsTest;
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
-import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
-public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
+
+public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
+    private static final String OFFLINE_LIKES_PERFORMANCE_TRACKING = "offline_likes_performance_tracking";
 
     private final OfflineContentHelper offlineContentHelper;
     private Context context;
@@ -39,7 +41,6 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         resetOfflineSyncState(context);
     }
 
-    @CollectionsTest
     public void testDownloadActionAvailableWhenUserSubscribed() {
         enableOfflineContent(context);
 
@@ -49,9 +50,11 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         assertThat(trackLikesScreen.overflowButton(), is(visible()));
     }
 
-    @CollectionsTest
+    @EventTrackingTest
     public void testDownloadsTracksWhenEnabledOfflineLikes() {
         enableOfflineContent(context);
+
+        startEventTracking();
 
         final TrackLikesScreen likesScreen = mainNavHelper
                 .goToTrackLikes()
@@ -59,11 +62,13 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSyncedAndWaitToFinish();
 
-        assertEquals(offlineContentHelper.offlineFilesCount(), likesScreen.getTotalLikesCount());
+        // there is one creator opt out track liked
+        assertEquals(offlineContentHelper.offlineFilesCount(), likesScreen.getTotalLikesCount() - 1);
         assertTrue(likesScreen.isLikedTracksTextVisible());
+
+        finishEventTracking(OFFLINE_LIKES_PERFORMANCE_TRACKING);
     }
 
-    @CollectionsTest
     public void testShuffleLikesWhenOfflineWithNoTracksDownloaded() {
         enableOfflineContent(context);
 
