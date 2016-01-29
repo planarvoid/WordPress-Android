@@ -37,7 +37,6 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.TestScheduler;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
@@ -188,14 +187,12 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void forceRegisterReturnsResultOfUnregisterPost() throws Exception {
         Token token = new Token("accessToken", "refreshToken");
-        String deviceId = "device-id";
 
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CONFIGURATION.path())
-                        .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")
-                        .withContent(Collections.singletonMap("conflicting_device", Collections.singletonMap("device_id", deviceId)))),
+                        .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
                 eq(Configuration.class))).thenReturn(configuration);
 
-        assertThat(operations.forceRegisterDevice(token, deviceId)).isSameAs(configuration.deviceManagement);
+        assertThat(operations.forceRegisterDevice(token)).isSameAs(configuration.deviceManagement);
     }
 
     @Test
@@ -211,12 +208,12 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     private Configuration getNoPlanConfiguration() {
         return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan(Plan.NONE, null),
-                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false, null));
+                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false));
     }
 
     private Configuration getHighTierConfiguration() {
         return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan(Plan.HIGH_TIER, null),
-                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false, null));
+                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false));
     }
 
 }

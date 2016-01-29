@@ -54,7 +54,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(app.getAccountOperations()).thenReturn(accountOperations);
         when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
-        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false, "device-id"));
+        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false));
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, fetchUserTask, userStorage,
                 accountOperations, configurationOperations, new TestEventBus());
 

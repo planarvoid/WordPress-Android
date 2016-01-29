@@ -25,8 +25,6 @@ import android.util.Log;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigurationOperations {
@@ -111,12 +109,10 @@ public class ConfigurationOperations {
         return configuration.deviceManagement;
     }
 
-    public DeviceManagement forceRegisterDevice(Token token, String deviceIdToDeregister) throws ApiRequestException, IOException, ApiMapperException {
+    public DeviceManagement forceRegisterDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Forcing device registration");
-        final Map<String, Map<String, String>> content = Collections.singletonMap("conflicting_device", Collections.singletonMap("device_id", deviceIdToDeregister));
         final ApiRequest request = ApiRequest.post(ApiEndpoints.CONFIGURATION.path())
                 .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token))
-                .withContent(content)
                 .forPrivateApi(1)
                 .build();
 
