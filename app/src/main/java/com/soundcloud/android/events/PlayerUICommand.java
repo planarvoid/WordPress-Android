@@ -6,6 +6,8 @@ public final class PlayerUICommand {
     private static final int COLLAPSE_PLAYER = 1;
     private static final int LOCK_PLAYER_EXPANDED = 2;
     private static final int UNLOCK_PLAYER = 3;
+    private static final int FORCE_PLAYER_LANDSCAPE = 4;
+    private static final int FORCE_PLAYER_PORTRAIT = 5;
 
     private final int kind;
 
@@ -37,6 +39,20 @@ public final class PlayerUICommand {
         return new PlayerUICommand(UNLOCK_PLAYER);
     }
 
+    /**
+     * Signal any on-screen instance of the player to be forced into the landscape orientation.
+     */
+    public static PlayerUICommand forcePlayerLandscape() {
+        return new PlayerUICommand(FORCE_PLAYER_LANDSCAPE);
+    }
+
+    /**
+     * Signal any on-screen instance of the player to be forced into the portrait orientation.
+     */
+    public static PlayerUICommand forcePlayerPortrait() {
+        return new PlayerUICommand(FORCE_PLAYER_PORTRAIT);
+    }
+
     private PlayerUICommand(int kind) {
         this.kind = kind;
     }
@@ -55,6 +71,14 @@ public final class PlayerUICommand {
 
     public boolean isUnlock() {
         return kind == UNLOCK_PLAYER;
+    }
+
+    public boolean isForceLandscape() {
+        return kind == FORCE_PLAYER_LANDSCAPE;
+    }
+
+    public boolean isForcePortrait() {
+        return kind == FORCE_PLAYER_PORTRAIT;
     }
 
     @Override

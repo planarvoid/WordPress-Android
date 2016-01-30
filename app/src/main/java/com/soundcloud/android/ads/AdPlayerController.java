@@ -34,7 +34,8 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     private final AdsOperations adsOperations;
     private final PlaySessionController playSessionController;
 
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Subscription playQueueSubscription = RxUtils.invalidSubscription();
+    private Subscription playerCommandSubscription = RxUtils.invalidSubscription();
     private Urn lastSeenAdUrn = Urn.NOT_SET;
 
     private final Action1<PlayerState> setAdHasBeenSeen = new Action1<PlayerState>() {
@@ -74,13 +75,15 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
 
     @Override
     public void onResume(AppCompatActivity activity) {
-        subscription = Observable
+        playQueueSubscription = Observable
                 .combineLatest(
                         eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
                         eventBus.queue(EventQueue.PLAYER_UI),
                         toPlayerState)
                 .doOnNext(setAdHasBeenSeen)
                 .subscribe(new PlayQueueSubscriber(activity));
+
+        playerCommandSubscription = eventBus.queue(EventQueue.PLAYER_COMMAND).subscribe(new PlayerCommandSubscriber(activity));
     }
 
     @Override
@@ -88,7 +91,29 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         if (adsOperations.isCurrentItemVideoAd() && !activity.isChangingConfigurations()) {
             playSessionController.pause();
         }
-        subscription.unsubscribe();
+        playQueueSubscription.unsubscribe();
+        playerCommandSubscription.unsubscribe();
+    }
+
+    private class PlayerCommandSubscriber extends DefaultSubscriber<PlayerUICommand> {
+
+        final WeakReference<Activity> currentActivityRef;
+
+        PlayerCommandSubscriber(Activity activity) {
+            currentActivityRef = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void onNext(PlayerUICommand event) {
+            final Activity currentActivity = currentActivityRef.get();
+            if (currentActivity != null && adsOperations.isCurrentItemVideoAd()) {
+                if (event.isForceLandscape()) {
+                    currentActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                } else if (event.isForcePortrait()) {
+                    currentActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                }
+            }
+        }
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayerState> {
