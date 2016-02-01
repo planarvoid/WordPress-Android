@@ -137,6 +137,8 @@ public class PublicApi {
     };
     private static final int API_LOOKUP_BATCH_SIZE = 200;
     private static final String UNCHECKED = "unchecked";
+    private static final List<String> HIDDEN_HEADERS = Collections.singletonList(AUTH.WWW_AUTH_RESP);
+
     /**
      * We do not want to use cookies, as it will result in continued sessions between logins / logouts
      */
@@ -249,7 +251,14 @@ public class PublicApi {
                 .append(";headers=");
         final Header[] headers = request.getAllHeaders();
         for (Header header : headers) {
-            sb.append(header.toString()).append(';');
+            if (HIDDEN_HEADERS.contains(header.getName())) {
+                sb.append(header.getName())
+                        .append(": ")
+                        .append("[hidden]");
+            } else {
+                sb.append(header.toString());
+            }
+            sb.append(';');
         }
         sb.append("response=").append(response == null ? "NULL" : response.getStatusLine());
         return sb.toString();
