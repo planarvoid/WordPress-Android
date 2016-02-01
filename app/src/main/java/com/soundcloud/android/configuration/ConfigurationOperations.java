@@ -1,6 +1,7 @@
 package com.soundcloud.android.configuration;
 
-import com.soundcloud.android.ApplicationModule;
+import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
+
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -15,15 +16,15 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.net.HttpHeaders;
 import dagger.Lazy;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
-
-import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,6 +32,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigurationOperations {
+
+    static final long CONFIGURATION_STALE_TIME_MILLIS = TimeUnit.HOURS.toMillis(1);
 
     private static final String TAG = "Configuration";
     private static final String PARAM_EXPERIMENT_LAYERS = "experiment_layers";
@@ -44,6 +47,7 @@ public class ConfigurationOperations {
     private final ExperimentOperations experimentOperations;
     private final FeatureOperations featureOperations;
     private final FeatureFlags featureFlags;
+    private final ConfigurationSettingsStorage configurationSettingsStorage;
     private final Scheduler scheduler;
 
     private static final Func2<Object, Configuration, Configuration> TO_UPDATED_CONFIGURATION = new Func2<Object, Configuration, Configuration>() {
@@ -79,21 +83,44 @@ public class ConfigurationOperations {
     @Inject
     public ConfigurationOperations(Lazy<ApiClientRx> apiClientRx, Lazy<ApiClient> apiClient,
                                    ExperimentOperations experimentOperations, FeatureOperations featureOperations,
-                                   FeatureFlags featureFlags, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                                   FeatureFlags featureFlags, ConfigurationSettingsStorage configurationSettingsStorage,
+                                   @Named(HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.apiClient = apiClient;
         this.experimentOperations = experimentOperations;
         this.featureOperations = featureOperations;
         this.featureFlags = featureFlags;
+        this.configurationSettingsStorage = configurationSettingsStorage;
         this.scheduler = scheduler;
     }
 
     Observable<Configuration> update() {
-        final ApiRequest request = configurationRequestBuilderForGet().build();
-        return Observable.zip(experimentOperations.loadAssignment(),
-                apiClientRx.get().mappedResponse(request, Configuration.class).subscribeOn(scheduler),
+        return Observable.zip(
+                experimentOperations.loadAssignment(),
+                updatedConfiguration(configurationRequestBuilderForGet().build()),
                 TO_UPDATED_CONFIGURATION
         );
+    }
+
+    private Observable<Configuration> updatedConfiguration(ApiRequest request) {
+        return apiClientRx.get().mappedResponse(request, Configuration.class)
+                .doOnCompleted(new Action0() {
+                    @Override
+                    public void call() {
+                        configurationSettingsStorage.setLastConfigurationCheckTime(System.currentTimeMillis());
+                    }
+                })
+                .subscribeOn(scheduler);
+    }
+
+    Observable<Configuration> updateIfNecessary() {
+        final long now = System.currentTimeMillis();
+        if (configurationSettingsStorage.getLastConfigurationCheckTime() < now - CONFIGURATION_STALE_TIME_MILLIS) {
+            return update();
+        } else {
+            Log.d(TAG, "Skipping update; recently updated.");
+            return Observable.empty();
+        }
     }
 
     public Observable<Configuration> awaitConfigurationWithPlan(final String expectedPlan) {

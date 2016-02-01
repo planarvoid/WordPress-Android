@@ -17,6 +17,9 @@
             android:key="@string/dev_drawer_action_reset_flags_key"
             android:title="@string/dev_drawer_action_reset_flags_title" />
         <Preference
+            android:key="@string/dev_drawer_action_config_update_key"
+            android:title="@string/dev_drawer_action_config_update_title"/>
+        <Preference
             android:key="@string/dev_drawer_action_policy_sync_key"
             android:title="@string/dev_drawer_action_policy_sync_title"/>
         <Preference

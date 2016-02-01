@@ -208,6 +208,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(StorageModule.CONFIGURATION_SETTINGS)
+    public SharedPreferences provideConfigPrefs() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
     @Named(StorageModule.RECOMMENDATIONS_SYNC)
     public SharedPreferences provideRecommendationPrefs() {
         return provideSharedPreferences();
