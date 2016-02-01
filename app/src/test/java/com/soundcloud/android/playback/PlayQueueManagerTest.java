@@ -112,12 +112,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdateTrackPoliciesOnNewQueue() {
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        verify(policyOperations).updatePolicies(queueUrns);
-    }
-
-    @Test
     public void shouldUpdatePositionOnCurrentQueueWhenContentAndSourceAreUnchanged() {
         PlaySessionSource source1 = new PlaySessionSource("screen:something");
         PlayQueue queue1 = TestPlayQueue.fromUrns(TestUrns.createTrackUrns(1L, 2L, 3L, 5L), source1);

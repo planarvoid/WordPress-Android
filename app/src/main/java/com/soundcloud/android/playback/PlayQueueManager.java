@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
@@ -85,8 +84,6 @@ public class PlayQueueManager implements OriginProvider {
         }
         saveQueue();
         saveCurrentProgress(0L);
-
-        fireAndForget(policyOperations.updatePolicies(playQueue.getTrackItemUrns()));
     }
 
     public boolean isCurrentItem(PlayQueueItem playQueueItem) {

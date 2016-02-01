@@ -1,6 +1,8 @@
 package com.soundcloud.android.policies;
 
-class PolicyUpdateFailure extends RuntimeException {
+import com.soundcloud.android.utils.NonFatalRuntimeException;
+
+public class PolicyUpdateFailure extends NonFatalRuntimeException {
     public PolicyUpdateFailure(Throwable cause) {
         super("Failed updating policies", cause);
     }
