@@ -139,7 +139,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleUpsellEvent(UpgradeTrackingEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUpsell(event));
     }
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {

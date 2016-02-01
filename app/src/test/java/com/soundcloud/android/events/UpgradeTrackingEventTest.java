@@ -4,11 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
 public class UpgradeTrackingEventTest {
+
+    private Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 
     @Test
     public void createsEventForWhyAdsImpression() {
@@ -78,7 +77,7 @@ public class UpgradeTrackingEventTest {
 
     @Test
     public void createsEventForPlaylistItemImpression() {
-        UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlaylistItemImpression();
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlaylistItemImpression("screen", PLAYLIST_URN);
 
         assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION);
         assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1011");
@@ -86,7 +85,7 @@ public class UpgradeTrackingEventTest {
 
     @Test
     public void createsEventForPlaylistItemClick() {
-        UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlaylistItemClick();
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlaylistItemClick("screen", PLAYLIST_URN);
 
         assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_CLICK);
         assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1011");
@@ -94,7 +93,7 @@ public class UpgradeTrackingEventTest {
 
     @Test
     public void createsEventForPlaylistPageImpression() {
-        UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlaylistPageImpression();
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlaylistPageImpression(PLAYLIST_URN);
 
         assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION);
         assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1012");
@@ -102,7 +101,7 @@ public class UpgradeTrackingEventTest {
 
     @Test
     public void createsEventForPlaylistPageClick() {
-        UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlaylistPageClick();
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlaylistPageClick(PLAYLIST_URN);
 
         assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_CLICK);
         assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1012");

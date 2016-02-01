@@ -116,7 +116,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                 return true;
             case R.id.upsell_offline_content:
                 navigator.openUpgrade(context);
-                eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistItemClick());
+                eventBus.publish(EventQueue.TRACKING,
+                        UpgradeTrackingEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(), playlist.getEntityUrn()));
                 return true;
             case R.id.make_offline_available:
                 saveOffline();
@@ -272,7 +273,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             hideAllOfflineContentOptions(menu);
         }
         if (menu.findItem(R.id.upsell_offline_content).isVisible()) {
-            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistItemImpression());
+            eventBus.publish(EventQueue.TRACKING,
+                    UpgradeTrackingEvent.forPlaylistItemImpression(screenProvider.getLastScreenTag(), playlist.getEntityUrn()));
         }
     }
 
