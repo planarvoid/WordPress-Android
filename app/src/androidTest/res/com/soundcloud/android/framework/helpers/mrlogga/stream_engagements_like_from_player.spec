@@ -25,12 +25,16 @@ expected_events:
     local_storage_playback: false
     reposted_by: soundcloud:users:[0-9]+
     policy: 'ALLOW'
+    app_version: '[0-9]+'
+    client_event_id: (\w|-)+
+    monetization_model: (\w|-)+
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: click
   params:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
     client_id: 3152
     connection_type: wifi
     click_attributes:
@@ -47,6 +51,7 @@ expected_events:
   params:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
     client_id: 3152
     connection_type: wifi
     click_attributes:
