@@ -8,16 +8,14 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.OfflinePlaylistsTest;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
-import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
-@OfflinePlaylistsTest
 public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
 
     public OfflinePlaylistTest() {
@@ -39,14 +37,13 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadsPlaylistWhenMadeAvailableOfflineFromItem() {
-        final PlaylistElement firstPlaylist = mainNavHelper
-                .goToCollections()
-                .scrollToPlaylistWithTitle("Offline playlist");
-        firstPlaylist.clickOverflow().clickMakeAvailableOffline();
+        final CollectionScreen collectionScreen = mainNavHelper
+                .goToCollections();
+        collectionScreen
+                .scrollToPlaylistWithTitle("Offline playlist")
+                .clickOverflow().clickMakeAvailableOffline();
 
-        final DownloadImageViewElement downloadElement = firstPlaylist.downloadElement();
-
-        assertThat(downloadElement, is(downloading()));
+        assertThat(collectionScreen.getPlaylistWithTitle("Offline playlist").downloadElement(), is(downloading()));
     }
 
     public void testDownloadPlaylistWhenMadeAvailableOfflineFromPlaylistDetails() {
@@ -91,13 +88,15 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlaylistIsRequestedWhenNetworkIsOff() throws Exception {
-        final PlaylistElement playlist = mainNavHelper.goToCollections().scrollToPlaylistWithTitle("Offline playlist");
+        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
+        collectionScreen.scrollToPlaylistWithTitle("Offline playlist");
         networkManagerClient.switchWifiOff();
-        playlist
+        collectionScreen
+                .getPlaylistWithTitle("Offline playlist")
                 .clickOverflow()
                 .clickMakeAvailableOffline();
 
-        final DownloadImageViewElement downloadElement = playlist.downloadElement();
+        final DownloadImageViewElement downloadElement = collectionScreen.getPlaylistWithTitle("Offline playlist").downloadElement();
         assertThat(downloadElement, is(not(downloading())));
         assertThat("Playlist should be requested ", downloadElement.isRequested());
     }
