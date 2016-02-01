@@ -1,5 +1,6 @@
 package com.soundcloud.android.search;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
@@ -11,9 +12,11 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -49,6 +52,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     @Mock private SearchOperations.SearchPagingFunction searchPagingFunction;
     @Mock private MixedItemClickListener.Factory clickListenerFactory;
     @Mock private MixedItemClickListener clickListener;
+    @Mock private FeatureOperations featureOperations;
     @Mock private Navigator navigator;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -65,7 +69,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
         final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
 
         presenter = new SearchPremiumResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
-                clickListenerFactory, navigator, eventBus);
+                clickListenerFactory, featureOperations, navigator, eventBus);
 
         when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
         when(searchOperations.searchPremiumResultFrom(anyList(), any(Optional.class))).thenReturn(searchResultObservable);
@@ -107,6 +111,17 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
         presenter.onUpsellClicked(context());
 
         verify(navigator).openUpgrade(context());
+    }
+
+    @Test
+    public void shouldNotContainUpsellItemIfHighTierUser() {
+        setupAdapter();
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+
+        final CollectionBinding<ListItem> collectionBinding = presenter.onBuildBinding(new Bundle());
+        final ListItem firstListItem = collectionBinding.adapter().getItem(0);
+
+        assertThat(firstListItem).isInstanceOf(TrackItem.class);
     }
 
     private void setFragmentArguments() {

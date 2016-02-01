@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -40,12 +41,12 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private PlaylistItemRenderer playlistRenderer;
     @Mock private UserItemRenderer userRenderer;
+    @Mock private FeatureOperations featureOperations;
 
     private View premiumItemView;
     private View trackItemView;
     private View playListItemView;
     private View userItemView;
-
 
     @Before
     public void setUp() {
@@ -59,7 +60,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         when(playlistRenderer.createItemView(any(ViewGroup.class))).thenReturn(playListItemView);
         when(userRenderer.createItemView(any(ViewGroup.class))).thenReturn(userItemView);
 
-        renderer = new SearchPremiumContentRenderer(trackRenderer, playlistRenderer, userRenderer, resources());
+        renderer = new SearchPremiumContentRenderer(trackRenderer, playlistRenderer, userRenderer, resources(), featureOperations);
     }
 
     @Test
@@ -109,6 +110,30 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         assertThat(playListItemView.getVisibility()).isEqualTo(GONE);
         assertThat(trackItemView.getVisibility()).isEqualTo(GONE);
         verify(userRenderer).bindItemView(eq(0), eq(userItemView), anyList());
+    }
+
+    @Test
+    public void shouldShowUpsellIconWhenNotHighTierUser() {
+        final View helpItemView = premiumItemView.findViewById(R.id.help);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+
+        renderer.createItemView(new FrameLayout(context()));
+        renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forTrack(123L)));
+
+        assertThat(helpItemView.getVisibility()).isEqualTo(VISIBLE);
+        assertThat(helpItemView.hasOnClickListeners()).isTrue();
+    }
+
+    @Test
+    public void shouldNotShowUpsellIconWhenHighTierUser() {
+        final View helpItemView = premiumItemView.findViewById(R.id.help);
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+
+        renderer.createItemView(new FrameLayout(context()));
+        renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forTrack(123L)));
+
+        assertThat(helpItemView.getVisibility()).isEqualTo(GONE);
+        assertThat(helpItemView.hasOnClickListeners()).isFalse();
     }
 
     private List<SearchPremiumItem> buildSearchPremiumItem(Urn urn) {
