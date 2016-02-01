@@ -13,12 +13,6 @@ public class DownloadImageViewElement {
     private final Waiter waiter;
     private final ViewElement wrappedElement;
 
-    private final Condition isDownloading = new Condition() {
-        @Override
-        public boolean isSatisfied() {
-            return isDownloading();
-        }
-    };
 
     public DownloadImageViewElement(Han driver, ViewElement element) {
         this.waiter = new Waiter(driver);
@@ -45,25 +39,49 @@ public class DownloadImageViewElement {
         return wrappedElement.toDownloadImageView().isDownloaded();
     }
 
-    public boolean waitForDownloadingState() {
-        return waiter.waitForElementCondition(isDownloading);
-    }
-
     public static class IsDownloading extends TypeSafeMatcher<DownloadImageViewElement> {
-
         @Override
         public void describeTo(Description description) {
             description.appendText("downloading");
         }
 
         @Override
-        protected boolean matchesSafely(DownloadImageViewElement element) {
-            return element.waitForDownloadingState();
+        protected boolean matchesSafely(final DownloadImageViewElement element) {
+            return element.waiter.waitForElementCondition(new Condition() {
+                @Override
+                public boolean isSatisfied() {
+                    return element.isDownloading();
+                }
+            });
         }
 
         @Factory
         public static Matcher<DownloadImageViewElement> downloading() {
             return new IsDownloading();
+        }
+
+    }
+
+    public static class IsDownloadingOrDownloaded extends TypeSafeMatcher<DownloadImageViewElement> {
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("downloading or downloaded");
+        }
+
+        @Override
+        protected boolean matchesSafely(final DownloadImageViewElement element) {
+            return element.waiter.waitForElementCondition(new Condition() {
+                @Override
+                public boolean isSatisfied() {
+                    return element.isDownloading() || element.isDownloaded();
+                }
+            });
+        }
+
+        @Factory
+        public static Matcher<DownloadImageViewElement> downloadingOrDownloaded() {
+            return new IsDownloadingOrDownloaded();
         }
 
     }

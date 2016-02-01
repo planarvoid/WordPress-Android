@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.offline;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloading.downloading;
+import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloadingOrDownloaded.downloadingOrDownloaded;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -43,7 +44,7 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
                 .scrollToPlaylistWithTitle("Offline playlist")
                 .clickOverflow().clickMakeAvailableOffline();
 
-        assertThat(collectionScreen.getPlaylistWithTitle("Offline playlist").downloadElement(), is(downloading()));
+        assertThat(collectionScreen.scrollToPlaylistWithTitle("Offline playlist").downloadElement(), is(downloadingOrDownloaded()));
     }
 
     public void testDownloadPlaylistWhenMadeAvailableOfflineFromPlaylistDetails() {
