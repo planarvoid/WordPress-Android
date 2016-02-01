@@ -63,7 +63,7 @@ public final class ErrorUtils {
         if (Fabric.isInitialized()) {
             Crashlytics.setString(ERROR_CONTEXT_TAG, context);
         }
-        if (t instanceof RuntimeException) {
+        if (isFatalException(t)) {
             throw (RuntimeException) t;
         } else if (includeInReports(t)) {
             // don't rethrow checked exceptions
@@ -71,6 +71,10 @@ public final class ErrorUtils {
         } else {
             t.printStackTrace();
         }
+    }
+
+    private static boolean isFatalException(Throwable t) {
+        return t instanceof RuntimeException && !(t instanceof NonFatalRuntimeException);
     }
 
     // This is aimed to be a temporary fix.
