@@ -97,7 +97,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.7.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -131,7 +131,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.7.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -164,7 +164,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.7.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -198,7 +198,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.7.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -233,7 +233,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.7.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -267,7 +267,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.7.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -300,7 +300,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.7.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
@@ -337,7 +337,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.7.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
@@ -375,7 +375,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withPromotedTrack(promotedSource));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", "v1.7.0", event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -404,7 +404,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .clickName("likes_to_offline::add")
                 .pageName(PAGE_NAME));
     }
@@ -415,7 +415,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .clickName("likes_to_offline::remove")
                 .pageName(PAGE_NAME));
     }
@@ -426,7 +426,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .clickName("collection_to_offline::add"));
     }
 
@@ -436,7 +436,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .clickName("collection_to_offline::remove"));
     }
 
@@ -446,7 +446,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .clickName("playlist_to_offline::add")
                 .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME));
@@ -458,7 +458,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .clickName("playlist_to_offline::remove")
                 .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME));
@@ -472,7 +472,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .clickName("playlist_to_offline::remove")
                 .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME)
@@ -488,7 +488,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.7.0", event.getTimestamp())
                         .track(TRACK_URN)
                         .trackOwner(CREATOR_URN)
                         .inOfflinePlaylist(false)
@@ -504,7 +504,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.7.0", event.getTimestamp())
                         .track(TRACK_URN)
                         .trackOwner(CREATOR_URN)
                         .inOfflinePlaylist(false)
@@ -520,7 +520,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.7.0", event.getTimestamp())
                         .track(TRACK_URN)
                         .trackOwner(CREATOR_URN)
                         .inOfflinePlaylist(false)
@@ -536,7 +536,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.7.0", event.getTimestamp())
                         .track(TRACK_URN)
                         .trackOwner(CREATOR_URN)
                         .inOfflinePlaylist(false)
@@ -560,7 +560,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .clickName("share")
                 .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                 .clickObject(TRACK_URN.toString())
@@ -619,7 +619,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .clickName("repost::add")
                 .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                 .clickObject(TRACK_URN.toString())
@@ -646,7 +646,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .clickName("repost::add")
                 .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                 .clickObject(TRACK_URN.toString())
@@ -663,14 +663,14 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForCollectionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
                 .pageName("collection:overview")
                 .clickName("filter_sort::clear")
                 .clickCategory(EventLoggerClickCategories.COLLECTION));
     }
 
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", timestamp)
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", timestamp)
                 .clickName(engagementName)
                 .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                 .clickObject(TRACK_URN.toString())

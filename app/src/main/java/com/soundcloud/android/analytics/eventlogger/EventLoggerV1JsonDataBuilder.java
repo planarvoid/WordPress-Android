@@ -32,7 +32,7 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String CLICK_EVENT = "click";
     private static final String OFFLINE_SYNC_EVENT = "offline_sync";
     private static final String IMPRESSION_EVENT = "impression";
-    private static final String BOOGALOO_VERSION = "v1.4.0";
+    private static final String BOOGALOO_VERSION = "v1.7.0";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
