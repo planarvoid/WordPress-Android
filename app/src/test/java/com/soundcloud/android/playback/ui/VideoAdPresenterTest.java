@@ -73,7 +73,6 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     @Test
     public void videoViewAspectRatioMaintainedForLetterbox() {
         bindLetterboxVideo();
-
         final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
         final int viewWidth = layoutParams.width;
         final int viewHeight = layoutParams.height;
@@ -87,13 +86,20 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     @Test
     public void videoViewAspectRatioMaintainedForVerticalVideo() {
         final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
-        final int viewWidth = layoutParams.width;
-        final int viewHeight = layoutParams.height;
-
-        final float newAspectRatio = (float) viewWidth / (float) viewHeight;
+        final float newAspectRatio = (float) layoutParams.width / (float) layoutParams.height;
         final float originalAspectRatio = (float) VERTICAL_VIDEO_WIDTH / (float) VERTICAL_VIDEO_HEIGHT;
 
         assertThat(newAspectRatio).isEqualTo(originalAspectRatio, Offset.offset(0.001F));
+    }
+
+    @Test
+    public void videoViewCoversEntireScreenForVerticalVideo() {
+        final int viewWidth = adView.findViewById(R.id.video_view).getWidth();
+        final int viewHeight = adView.findViewById(R.id.video_view).getHeight();
+
+        final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
+        assertThat(layoutParams.width).isGreaterThanOrEqualTo(resources().getDisplayMetrics().widthPixels);
+        assertThat(layoutParams.height).isGreaterThanOrEqualTo(resources().getDisplayMetrics().heightPixels);
     }
 
     @Test
@@ -275,7 +281,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         return adView.findViewById(R.id.preview_artwork_overlay);
     }
 
-    private PlayerAdData buildAd(boolean isVertical) {
+    private VideoAd buildAd(boolean isVertical) {
         final int width = isVertical ? VERTICAL_VIDEO_WIDTH : LETTERBOX_VIDEO_WIDTH;
         final int height = isVertical ? VERTICAL_VIDEO_HEIGHT : LETTERBOX_VIDEO_HEIGHT;
         final VideoAd ad = AdFixtures.getVideoAd(Urn.forTrack(123L), ApiVideoSource.create("codec", "url", 1000, width, height));
@@ -285,10 +291,12 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     }
 
     private void bindVerticalVideo() {
-        presenter.bindItemView(adView, new PlayerAd(buildAd(true), PropertySet.create()));
+        adView.findViewById(R.id.video_container).layout(0, 0, VERTICAL_VIDEO_WIDTH, VERTICAL_VIDEO_HEIGHT);
+        presenter.bindItemView(adView, new VideoPlayerAd(buildAd(true), PropertySet.create()));
     }
 
     private void bindLetterboxVideo() {
-        presenter.bindItemView(adView, new PlayerAd(buildAd(false), PropertySet.create()));
+        adView.findViewById(R.id.video_container).layout(0, 0, LETTERBOX_VIDEO_WIDTH, LETTERBOX_VIDEO_HEIGHT);
+        presenter.bindItemView(adView, new VideoPlayerAd(buildAd(false), PropertySet.create()));
     }
 }

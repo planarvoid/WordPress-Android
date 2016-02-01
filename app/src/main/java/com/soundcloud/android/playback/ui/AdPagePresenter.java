@@ -23,7 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-abstract class AdPagePresenter implements PlayerPagePresenter<PlayerAd> {
+abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresenter<T> {
+
+    @Override
+    abstract public void bindItemView(View view, T playerItem);
 
     @Override
     public void onPlayableUpdated(View trackPage, EntityStateChangedEvent trackChangedEvent) {

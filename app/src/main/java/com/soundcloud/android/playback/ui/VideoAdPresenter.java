@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
+class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.OnClickListener {
 
     private enum UIState {
         INITIAL, ACTIVE, INACTIVE, PAUSED
@@ -93,7 +93,7 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
     @Override
     public View createItemView(ViewGroup container, SkipListener skipListener) {
-        final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_vertical_video_page, container, false);
+        final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_video_page, container, false);
         final Holder holder = new Holder(adView, playerOverlayControllerFactory);
         adView.setTag(holder);
         setVideoViewHolder(holder);
@@ -110,7 +110,7 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
     }
 
     @Override
-    public void bindItemView(View view, PlayerAd playerAd) {
+    public void bindItemView(View view, VideoPlayerAd playerAd) {
         final Holder holder = getViewHolder(view);
         adjustLayoutForVideo(playerAd, holder);
         resetSkipButton(holder, resources);
@@ -119,20 +119,40 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
         setClickListener(this, holder.onClickViews);
     }
 
-    private void adjustLayoutForVideo(PlayerAd playerAd, Holder holder) {
+    private void adjustLayoutForVideo(VideoPlayerAd playerAd, Holder holder) {
         final ViewGroup.LayoutParams layoutParams = holder.videoSurfaceView.getLayoutParams();
-        if (playerAd.isVerticalVideo()) {
-            layoutParams.height = resources.getDisplayMetrics().heightPixels;
-            layoutParams.width =  (int) ((float) layoutParams.height * playerAd.getVideoProportion());
-        } else {
+
+        if (playerAd.isLetterboxVideo()) {
             final int horizontalPadding = isOrientationPortrait() ? 2 * ViewUtils.dpToPx(resources, 5) : 0;
             layoutParams.width = resources.getDisplayMetrics().widthPixels - horizontalPadding;
             layoutParams.height = (int) ((float) layoutParams.width / playerAd.getVideoProportion());
+        } else {
+            // Vertical video view should scale like ImageView's CENTER_CROP
+            final int sourceWidth = playerAd.getFirstSource().getWidth();
+            final int sourceHeight = playerAd.getFirstSource().getHeight();
+            final float scaleFactor = centerCropScaleFactor(holder.videoContainer, sourceWidth, sourceHeight);
+            layoutParams.width = (int) ((float) sourceWidth * scaleFactor);
+            layoutParams.height = (int) ((float) sourceHeight * scaleFactor);
         }
+
         holder.videoSurfaceView.setLayoutParams(layoutParams);
         holder.videoOverlay.setLayoutParams(layoutParams);
         holder.setupFadingInterface(playerAd.isVerticalVideo());
         resetUI(holder);
+    }
+
+    // Scale the video while maintaining aspect ratio so that both dimensions (width and height)
+    // of the view will be equal to or larger than the corresponding dimension of the player.
+    private float centerCropScaleFactor(View containerView, float sourceWidth, float sourceHeight) {
+        final int viewWidth = containerView.getWidth();
+        final int viewHeight = containerView.getHeight();
+        float scaleFactor;
+        if (sourceWidth * viewHeight > viewWidth * sourceHeight) {
+            scaleFactor = viewHeight / sourceHeight;
+        } else {
+            scaleFactor = viewWidth / sourceWidth;
+        }
+        return scaleFactor;
     }
 
     private boolean isOrientationPortrait() {
@@ -273,6 +293,7 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
     static class Holder extends AdHolder {
 
+        private final View videoContainer;
         private final SurfaceView videoSurfaceView;
         private final View videoOverlay;
         private final View pauseButton;
@@ -288,6 +309,7 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
             super(adView);
+            videoContainer = adView.findViewById(R.id.video_container);
             videoSurfaceView = (SurfaceView) adView.findViewById(R.id.video_view);
             videoOverlay = adView.findViewById(R.id.video_overlay);
             pauseButton = adView.findViewById(R.id.video_pause_control);

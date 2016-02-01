@@ -475,7 +475,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onResume(playerFragment);
         setupVideoAd();
         View pageView = getVideoAdPageView();
-        ArgumentCaptor<PlayerAd> captorPropertySet = ArgumentCaptor.forClass(PlayerAd.class);
+        ArgumentCaptor<VideoPlayerAd> captorPropertySet = ArgumentCaptor.forClass(VideoPlayerAd.class);
 
         verify(videoAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
 
