@@ -235,7 +235,11 @@ public class PostsStorageTest extends StorageIntegrationTest {
                 TrackProperty.LIKES_COUNT,
                 TrackProperty.PLAY_COUNT,
                 TrackProperty.PLAY_DURATION,
-                TrackProperty.IS_PRIVATE
+                TrackProperty.IS_PRIVATE,
+                TrackProperty.BLOCKED,
+                TrackProperty.SNIPPED,
+                TrackProperty.SUB_MID_TIER,
+                TrackProperty.SUB_HIGH_TIER
         ).put(PostProperty.CREATED_AT, track.getCreatedAt())
                 .put(PlayableProperty.IS_USER_LIKE, false)
                 .put(PlayableProperty.IS_USER_REPOST, false);

@@ -30,6 +30,7 @@
     <!-- New cells -->
     <color name="list_primary">#333333</color>
     <color name="list_secondary">#999999</color>
+    <color name="list_disabled">#cccccc</color>
     <color name="card_full_image_border">#f2f2f2</color>
 
     <!-- Player -->
@@ -46,6 +47,7 @@
     <color name="artwork_overlay">#cc000000</color>
     <color name="timestamp_primary">@color/white</color>
     <color name="timestamp_secondary">#c5c5c5</color>
+    <color name="player_snipped_indicator_background">#1a000000</color>
 
     <!-- Player Ads -->
     <color name="preview_artwork_overlay">#4c000000</color>
@@ -103,7 +105,6 @@
     <color name="usage_bar_free">#ffffff</color>
 
     <color name="user_image_border_color">#1a000000</color>
-    <color name="snipped_indicator_background">#1a000000</color>
 
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>

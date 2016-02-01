@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.Context;
+import android.support.annotation.ColorRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,8 +61,13 @@ public class TrackItemView {
         creator.setText(name);
     }
 
-    public void setTitle(String name) {
+    public void setTitle(String name, @ColorRes int titleColor) {
         title.setText(name);
+        title.setTextColor(getColor(titleColor));
+    }
+
+    private int getColor(int color) {
+        return getContext().getResources().getColor(color);
     }
 
     public void showDuration(String duration) {

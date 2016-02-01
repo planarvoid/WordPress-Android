@@ -45,7 +45,7 @@ class InlinePlaylistTracksAdapter extends ListItemAdapter<TrackItem> implements 
 
     @Override
     public boolean isEnabled(int position) {
-        return getItemViewType(position) != IGNORE_ITEM_VIEW_TYPE;
+        return getItemViewType(position) != IGNORE_ITEM_VIEW_TYPE && !getItem(position).isBlocked();
     }
 
     @Override

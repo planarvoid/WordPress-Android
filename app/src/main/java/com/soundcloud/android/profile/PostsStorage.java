@@ -136,6 +136,10 @@ public class PostsStorage {
                         field(SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
                         field(SoundView.field(TableColumns.SoundView.DURATION)).as(TableColumns.SoundView.DURATION),
                         field(SoundView.field(TableColumns.SoundView.PLAYBACK_COUNT)).as(TableColumns.SoundView.PLAYBACK_COUNT),
+                        field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(TableColumns.SoundView.POLICIES_BLOCKED),
+                        field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(TableColumns.SoundView.POLICIES_SNIPPED),
+                        field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_MID_TIER)).as(TableColumns.SoundView.POLICIES_SUB_MID_TIER),
+                        field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER),
                         field(Posts.field(TableColumns.Posts.TYPE)).as(TableColumns.Posts.TYPE),
                         field(Posts.field(TableColumns.Posts.CREATED_AT)).as(TableColumns.Posts.CREATED_AT),
                         field(Likes.field(TableColumns.Likes._ID)).as(LIKED_ID),
@@ -218,7 +222,10 @@ public class PostsStorage {
             propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.isNotNull(LIKED_ID));
             propertySet.put(PlayableProperty.IS_USER_REPOST, TableColumns.Posts.TYPE_REPOST.equals(cursorReader.getString(TableColumns.Posts.TYPE)));
             propertySet.put(PostProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Posts.CREATED_AT));
-
+            propertySet.put(TrackProperty.BLOCKED, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_BLOCKED));
+            propertySet.put(TrackProperty.SNIPPED, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SNIPPED));
+            propertySet.put(TrackProperty.SUB_MID_TIER, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SUB_MID_TIER));
+            propertySet.put(TrackProperty.SUB_HIGH_TIER, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER));
             return propertySet;
         }
     }
