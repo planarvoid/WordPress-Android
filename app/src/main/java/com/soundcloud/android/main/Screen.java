@@ -105,8 +105,6 @@ public enum Screen {
     SETTINGS_LICENSES("settings:licenses"),
 
     WIDGET("widget"),
-    SUBSCRIBE("subscribe"),
-    SUBSCRIBE_SUCCESS("subscribe_success"),
     SUGGESTED_USERS("suggested_users"),
     VOICE_COMMAND("voice:command"), // context when we play from voice search
     DEEPLINK("deeplink"), // context provided when we intercept a track
@@ -118,7 +116,7 @@ public enum Screen {
     STATIONS_RECENT("stations:recent_stations"),
 
     // PAYMENT
-    UPGRADE("upgrade");
+    UPGRADE("consumer-premium:main");
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
 
