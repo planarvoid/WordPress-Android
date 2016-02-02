@@ -1,7 +1,10 @@
 package com.soundcloud.android.configuration;
 
+import static com.soundcloud.android.configuration.ConfigurationManager.TAG;
+
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.functions.Func1;
@@ -31,6 +34,7 @@ public class PlanStorage {
     }
 
     public void updateUpsells(List<String> values) {
+        Log.d(TAG, "updating upsells: " + values);
         sharedPreferences.edit().putStringSet(UPSELLS, new HashSet<>(values)).apply();
     }
 
