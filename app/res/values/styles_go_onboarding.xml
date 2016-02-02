@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="GoOnboarding" parent="TextAppearance.SoundCloudLightFont" />
+
+    <style name="GoOnboarding.Background">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:src">@drawable/go_onboarding_background</item>
+    </style>
+
+    <style name="GoOnboarding.Overlay">
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+    </style>
+
+    <style name="GoOnboarding.Text" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="GoOnboarding.Text.Headline">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_marginTop">42dp</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+    </style>
+
+    <style name="GoOnboarding.Text.SubText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+    </style>
+
+    <style name="GoOnboarding.SetUpOfflineButton">
+        <item name="android:layout_marginTop">32dp</item>
+        <item name="android:background">@drawable/btn_primary</item>
+        <item name="label_textColor">@color/white</item>
+        <item name="loading_color">@color/white</item>
+    </style>
+
+    <style name="GoOnboarding.SetUpOfflineLaterButton">
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:background">@drawable/btn_secondary</item>
+        <item name="label_textColor">@color/black</item>
+        <item name="loading_color">@color/ak_sc_orange</item>
+    </style>
+
+</resources>

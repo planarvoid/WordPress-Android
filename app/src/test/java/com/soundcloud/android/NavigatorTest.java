@@ -326,16 +326,13 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldOpenPendingActivityFromIntentExtrasWithPendingActivityExtras() {
+    public void shouldOpenPendingActivityFromIntentExtrasWithPending() {
         Bundle extras = new Bundle();
-        Bundle pendingExtras = new Bundle();
-        pendingExtras.putString("key", "value");
         extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, MainActivity.class.getCanonicalName());
 
         navigator.openPendingActivity(activityContext, extras);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra("key", "value")
                 .opensActivity(MainActivity.class);
     }
 
