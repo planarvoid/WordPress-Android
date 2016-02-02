@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:id="@+id/push_all"
+        android:defaultValue="true"
+        android:summary="@string/push_notifications_all_summary"
+        android:title="@string/push_notifications_all_title" />
+
+    <Preference android:layout="@layout/preferences_divider" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_follower"
+        android:title="@string/push_notifications_follower" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_repost"
+        android:title="@string/push_notifications_repost" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_new_post"
+        android:title="@string/push_notifications_new_post" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_like"
+        android:title="@string/push_notifications_like" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_product_updates"
+        android:title="@string/push_notifications_product_updates" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_survey"
+        android:title="@string/push_notifications_survey" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_tips"
+        android:title="@string/push_notifications_tips" />
+
+    <Preference android:layout="@layout/preferences_separator" />
+
+    <CheckBoxPreference
+        android:id="@+id/email_all"
+        android:defaultValue="true"
+        android:summary="@string/email_notifications_all_summary"
+        android:title="@string/email_notifications_all_title" />
+
+    <Preference android:layout="@layout/preferences_divider" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_follower"
+        android:title="@string/email_notifications_follower" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_repost"
+        android:title="@string/email_notifications_repost" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_new_post"
+        android:title="@string/email_notifications_new_post" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_like"
+        android:title="@string/email_notifications_like" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_message"
+        android:title="@string/email_notifications_message" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_comment"
+        android:title="@string/email_notifications_comment" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_private_track"
+        android:title="@string/email_notifications_private_track" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_group"
+        android:title="@string/email_notifications_group" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_product_updates"
+        android:title="@string/email_notifications_product_updates" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_survey"
+        android:title="@string/email_notifications_survey" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_tips"
+        android:title="@string/email_notifications_tips" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_newsletter"
+        android:title="@string/email_notifications_newsletter" />
+
+    <Preference android:layout="@layout/preferences_separator" />
+
+</PreferenceScreen>

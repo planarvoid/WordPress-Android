@@ -230,4 +230,9 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                     }
                 }).show();
     }
+
+    @Override
+    public void onNewNotificationSettingsClicked(View view) {
+        navigator.openNewNotificationSettings(view.getContext());
+    }
 }

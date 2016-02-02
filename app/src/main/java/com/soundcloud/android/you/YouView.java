@@ -119,6 +119,14 @@ public class YouView implements ScrollContent {
         }
     }
 
+    @OnClick(R.id.you_new_notification_settings_link)
+    void onNewNotificationSettingsClicked(View view) {
+        if (listener != null) {
+            listener.onNewNotificationSettingsClicked(view);
+        }
+    }
+
+
     @OnClick(R.id.you_report_bug)
     void onReportBugClicked(View view) {
         if (listener != null) {
@@ -163,6 +171,7 @@ public class YouView implements ScrollContent {
         void onHelpCenterClicked(View view);
         void onLegalClicked(View view);
         void onSignOutClicked(View view);
+        void onNewNotificationSettingsClicked(View view);
     }
 
 }

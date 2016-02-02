@@ -9,9 +9,11 @@ import dagger.Module;
                 SettingsFragment.class,
                 OfflineSettingsActivity.class,
                 NotificationSettingsFragment.class,
+                NewNotificationSettingsFragment.class,
                 OfflineSettingsFragment.class,
                 ClearCacheDialog.class,
                 NotificationSettingsActivity.class,
+                NewNotificationSettingsActivity.class,
                 LegalActivity.class,
                 LicensesActivity.class
         })
