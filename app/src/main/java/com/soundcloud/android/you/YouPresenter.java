@@ -13,6 +13,8 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.users.UserProperty;
@@ -46,6 +48,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
     private final SyncConfig syncConfig;
+    private final FeatureFlags featureFlags;
 
     private Optional<YouView> youViewOpt = Optional.absent();
     private Optional<PropertySet> youOpt = Optional.absent();
@@ -62,7 +65,8 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                         Navigator navigator,
                         BugReporter bugReporter,
                         ApplicationProperties appProperties,
-                        SyncConfig syncConfig) {
+                        SyncConfig syncConfig,
+                        FeatureFlags featureFlags) {
         this.youViewFactory = youViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
@@ -75,6 +79,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
         this.syncConfig = syncConfig;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -94,6 +99,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         setupOfflineSync(youView);
         setupNotifications(youView);
         setupFeedback(youView);
+        setupNewNotifications(youView);
         bindUserIfPresent();
     }
 
@@ -124,6 +130,12 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private void setupNotifications(YouView youView) {
         if (syncConfig.isServerSideNotifications()) {
             youView.hideNotificationSettings();
+        }
+    }
+
+    private void setupNewNotifications(YouView youView) {
+        if (featureFlags.isEnabled(Flag.NEW_NOTIFICATION_SETTINGS)) {
+            youView.showNewNotificationSettings();
         }
     }
 

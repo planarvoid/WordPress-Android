@@ -25,6 +25,7 @@ public class YouView implements ScrollContent {
     @Bind(R.id.you_version_text) TextView versionText;
     @Bind(R.id.you_offline_sync_settings_link) View offlineSettingsView;
     @Bind(R.id.you_notification_settings_link) View notificationSettingsView;
+    @Bind(R.id.you_new_notification_settings_link) View newNotificationSettingsView;
     @Bind(R.id.you_report_bug) View reportBug;
     @Bind(R.id.scroll_view) ScrollView scrollView;
 
@@ -64,6 +65,10 @@ public class YouView implements ScrollContent {
 
     public void hideNotificationSettings() {
         notificationSettingsView.setVisibility(View.GONE);
+    }
+
+    public void showNewNotificationSettings() {
+        newNotificationSettingsView.setVisibility(View.VISIBLE);
     }
 
     void setUsername(String username) {
