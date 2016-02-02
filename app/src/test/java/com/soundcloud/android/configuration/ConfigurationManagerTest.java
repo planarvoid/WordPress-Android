@@ -3,6 +3,7 @@ package com.soundcloud.android.configuration;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -38,25 +39,58 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateWithAuthorizedDeviceResponseSavesConfiguration() {
+    public void forceUpdateWithAuthorizedDeviceResponseSavesConfiguration() {
         when(configurationOperations.update()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
 
-        manager.update();
+        manager.forceUpdate();
 
         verify(configurationOperations).saveConfiguration(AUTHORIZED_DEVICE_CONFIG);
     }
 
     @Test
-    public void updateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
+    public void forceUpdateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
         when(configurationOperations.update()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
 
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
 
-        manager.update();
+        manager.forceUpdate();
 
         logoutSubject.onNext(null);
         verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
+    }
+
+    @Test
+    public void requestedUpdateWithAuthorizedDeviceResponseSavesConfiguration() {
+        when(configurationOperations.updateIfNecessary()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
+
+        manager.requestUpdate();
+
+        verify(configurationOperations).saveConfiguration(AUTHORIZED_DEVICE_CONFIG);
+    }
+
+    @Test
+    public void requestedUpdateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
+        when(configurationOperations.updateIfNecessary()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
+
+        final PublishSubject<Void> logoutSubject = PublishSubject.create();
+        when(accountOperations.logout()).thenReturn(logoutSubject);
+
+        manager.requestUpdate();
+
+        logoutSubject.onNext(null);
+        verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
+    }
+
+    @Test
+    public void requestedUnnecessaryUpdateIsNoOp() {
+        when(configurationOperations.updateIfNecessary()).thenReturn(Observable.<Configuration>empty());
+
+        manager.requestUpdate();
+
+        verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
+        verifyZeroInteractions(accountOperations);
+        verifyZeroInteractions(deviceManagementStorage);
     }
 
 }

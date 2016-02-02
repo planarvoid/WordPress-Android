@@ -28,10 +28,16 @@ public class ConfigurationManager {
         this.deviceManagementStorage = deviceManagementStorage;
     }
 
-    public void update() {
-        Log.d(TAG, "Requesting configuration");
+    public void forceUpdate() {
+        Log.d(TAG, "Forcing configuration update");
         subscription.unsubscribe();
         subscription = configurationOperations.update().subscribe(new ConfigurationSubscriber());
+    }
+
+    public void requestUpdate() {
+        Log.d(TAG, "Requesting configuration update");
+        subscription.unsubscribe();
+        subscription = configurationOperations.updateIfNecessary().subscribe(new ConfigurationSubscriber());
     }
 
     public boolean shouldDisplayDeviceConflict() {

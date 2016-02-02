@@ -4,6 +4,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -35,6 +36,7 @@ public class DevDrawerFragment extends PreferenceFragment {
     @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject DevDrawerExperimentsHelper drawerExperimentsHelper;
+    @Inject ConfigurationManager configurationManager;
     @Inject Navigator navigator;
 
     public DevDrawerFragment() {
@@ -106,6 +108,15 @@ public class DevDrawerFragment extends PreferenceFragment {
                             final CheckBoxPreference chkPreference = (CheckBoxPreference) screen.findPreference(preferenceKey);
                             chkPreference.setChecked(featureFlags.resetAndGet(flag));
                         }
+                        return true;
+                    }
+                });
+
+        screen.findPreference(getString(R.string.dev_drawer_action_config_update_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        configurationManager.forceUpdate();
                         return true;
                     }
                 });

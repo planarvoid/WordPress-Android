@@ -1,9 +1,12 @@
 package com.soundcloud.android.configuration;
 
+import static com.soundcloud.android.configuration.ConfigurationOperations.CONFIGURATION_STALE_TIME_MILLIS;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalMatchers.geq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -11,7 +14,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -22,7 +24,6 @@ import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
-import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -48,24 +49,21 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Mock private ExperimentOperations experimentOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private FeatureFlags featureFlags;
-    @Mock private AccountOperations accountOperations;
-    @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private DeviceManagementStorage deviceManagementStorage;
+    @Mock private ConfigurationSettingsStorage configurationSettingsStorage;
 
     private ConfigurationOperations operations;
     private Configuration configuration;
 
-    private TestSubscriber subscriber;
-    private TestScheduler scheduler;
+    private TestSubscriber<Configuration> configSubscriber = new TestSubscriber<>();
+    private TestSubscriber<Object> subscriber = new TestSubscriber<>();
+    private TestScheduler scheduler = new TestScheduler();
 
     @Before
     public void setUp() throws Exception {
-        subscriber = new TestSubscriber<>();
-        scheduler = new TestScheduler();
-
         configuration = ModelFixtures.create(Configuration.class);
         operations = new ConfigurationOperations(InjectionSupport.lazyOf(apiClientRx), InjectionSupport.lazyOf(apiClient),
-                experimentOperations, featureOperations, featureFlags, scheduler);
+                experimentOperations, featureOperations, featureFlags, configurationSettingsStorage, scheduler);
 
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
@@ -78,11 +76,64 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         final Configuration noPlan = getNoPlanConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
 
-        operations.update().subscribe(subscriber);
+        operations.update().subscribe(configSubscriber);
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
 
-        assertThat(subscriber.getOnNextEvents().get(0)).isSameAs(noPlan);
-        subscriber.assertCompleted();
+        configSubscriber.assertValue(noPlan);
+        configSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void updateSavesUpdateTimestamp() {
+        final Configuration noPlan = getNoPlanConfiguration();
+        final long now = System.currentTimeMillis();
+        when(configurationSettingsStorage.getLastConfigurationCheckTime())
+                .thenReturn(now - CONFIGURATION_STALE_TIME_MILLIS - 1);
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(Observable.just(noPlan));
+
+        operations.update().subscribe(configSubscriber);
+        scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
+
+        verify(configurationSettingsStorage).setLastConfigurationCheckTime(geq(now));
+    }
+
+    @Test
+    public void updateIfNecessaryUpdatesConfigurationIfLastUpdateTooLongAgo() {
+        final Configuration noPlan = getNoPlanConfiguration();
+        when(configurationSettingsStorage.getLastConfigurationCheckTime())
+                .thenReturn(System.currentTimeMillis() - CONFIGURATION_STALE_TIME_MILLIS - 1);
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(Observable.just(noPlan));
+
+        operations.updateIfNecessary().subscribe(configSubscriber);
+        scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
+
+        configSubscriber.assertValue(noPlan);
+        configSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void updateIfNecessaryDoesNotUpdateConfigurationIfRecentlyUpdated() {
+        when(configurationSettingsStorage.getLastConfigurationCheckTime())
+                .thenReturn(System.currentTimeMillis() - CONFIGURATION_STALE_TIME_MILLIS + 1);
+
+        operations.updateIfNecessary().subscribe(configSubscriber);
+        scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
+
+        configSubscriber.assertNoValues();
+        configSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void updateIfNecessaryDoesNotSaveUpdateTimestampIfRecentlyUpdated() {
+        when(configurationSettingsStorage.getLastConfigurationCheckTime())
+                .thenReturn(System.currentTimeMillis() - CONFIGURATION_STALE_TIME_MILLIS + 1);
+
+        operations.updateIfNecessary().subscribe(configSubscriber);
+        scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
+
+        verify(configurationSettingsStorage, never()).setLastConfigurationCheckTime(anyLong());
     }
 
     @Test
@@ -91,11 +142,11 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(Observable.just(highTier));
 
-        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
 
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
-        assertThat(subscriber.getOnNextEvents().get(0)).isSameAs(highTier);
-        subscriber.assertCompleted();
+        assertThat(configSubscriber.getOnNextEvents().get(0)).isSameAs(highTier);
+        configSubscriber.assertCompleted();
     }
 
     @Test
@@ -105,15 +156,15 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(Observable.just(noPlan), Observable.just(withPlan));
 
-        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
 
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
-        subscriber.assertNoValues();
+        configSubscriber.assertNoValues();
 
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
-        subscriber.assertValueCount(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isSameAs(withPlan);
-        subscriber.assertCompleted();
+        configSubscriber.assertValueCount(1);
+        assertThat(configSubscriber.getOnNextEvents().get(0)).isSameAs(withPlan);
+        configSubscriber.assertCompleted();
     }
 
     @Test
@@ -122,7 +173,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(Observable.just(withPlan));
 
-        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
         verify(featureOperations).updatePlan(eq(Plan.HIGH_TIER), anyList());
@@ -133,10 +184,10 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         final Configuration noPlan = getNoPlanConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
 
-        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
 
         scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
-        subscriber.assertError(NoSuchElementException.class);
+        configSubscriber.assertError(NoSuchElementException.class);
     }
 
     @Test
@@ -144,7 +195,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         final Configuration noPlan = getNoPlanConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
 
-        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(subscriber);
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
         scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
 
         verify(featureOperations, never()).updatePlan(anyString(), anyList());
@@ -152,7 +203,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsExperimentsOnUpdate() {
-        operations.update().subscribe(subscriber);
+        operations.update().subscribe(configSubscriber);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())

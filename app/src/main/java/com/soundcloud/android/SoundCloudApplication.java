@@ -182,7 +182,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         imageOperations.initialise(this, applicationProperties);
 
         accountOperations.loadLoggedInUser();
-        configurationManager.update();
         setupCurrentUserAccount();
         generateDeviceKey();
 
