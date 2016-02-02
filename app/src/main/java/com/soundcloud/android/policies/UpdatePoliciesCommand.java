@@ -6,17 +6,22 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.TryWithBackOff;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.WriteResult;
 
+import android.support.annotation.NonNull;
+
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 class UpdatePoliciesCommand extends Command<Collection<Urn>, Collection<ApiPolicyInfo>> {
 
@@ -29,12 +34,22 @@ class UpdatePoliciesCommand extends Command<Collection<Urn>, Collection<ApiPolic
 
     private final ApiClient apiClient;
     private final StorePoliciesCommand storePolicies;
+    private final TryWithBackOff<ModelCollection<ApiPolicyInfo>> tryWithBackOff;
 
     @Inject
     UpdatePoliciesCommand(ApiClient apiClient,
-                          StorePoliciesCommand storePolicies) {
+                          StorePoliciesCommand storePolicies,
+                          TryWithBackOff.Factory tryWithBackOffFactory) {
+        this(apiClient, storePolicies, tryWithBackOffFactory.<ModelCollection<ApiPolicyInfo>>withDefaults());
+    }
+
+    @VisibleForTesting
+    UpdatePoliciesCommand(ApiClient apiClient,
+                          StorePoliciesCommand storePolicies,
+                          TryWithBackOff<ModelCollection<ApiPolicyInfo>> tryWithBackOff) {
         this.apiClient = apiClient;
         this.storePolicies = storePolicies;
+        this.tryWithBackOff = tryWithBackOff;
     }
 
     @Override
@@ -44,7 +59,7 @@ class UpdatePoliciesCommand extends Command<Collection<Urn>, Collection<ApiPolic
             for (List<Urn> urnBatch : Iterables.partition(trackUrns, BATCH_SIZE)) {
                 Log.d(TAG, "Fetching policy batch: " + urnBatch.size());
                 final ModelCollection<ApiPolicyInfo> apiPolicyInfos =
-                        apiClient.fetchMappedResponse(buildApiRequest(urnBatch), TYPE_TOKEN);
+                        tryWithBackOff.call(fetchPoliciesCallable(urnBatch));
 
                 Log.d(TAG, "Writing policy batch");
                 final WriteResult result = storePolicies.call(apiPolicyInfos);
@@ -59,6 +74,16 @@ class UpdatePoliciesCommand extends Command<Collection<Urn>, Collection<ApiPolic
         } catch (Exception e) {
             throw new PolicyUpdateFailure(e);
         }
+    }
+
+    @NonNull
+    private Callable<ModelCollection<ApiPolicyInfo>> fetchPoliciesCallable(final List<Urn> urnBatch) {
+        return new Callable<ModelCollection<ApiPolicyInfo>>() {
+            @Override
+            public ModelCollection<ApiPolicyInfo> call() throws Exception {
+                return apiClient.fetchMappedResponse(buildApiRequest(urnBatch), TYPE_TOKEN);
+            }
+        };
     }
 
     private ApiRequest buildApiRequest(Collection<Urn> trackUrns) {

@@ -18,6 +18,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestStorageResults;
+import com.soundcloud.android.utils.Sleeper;
+import com.soundcloud.android.utils.TryWithBackOff;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class UpdatePoliciesCommandTest extends AndroidUnitTest {
 
@@ -40,10 +43,13 @@ public class UpdatePoliciesCommandTest extends AndroidUnitTest {
 
     @Mock private ApiClient apiClient;
     @Mock private StorePoliciesCommand storePoliciesCommand;
+    @Mock private Sleeper sleeper;
 
     @Before
     public void setUp() {
-        this.command = new UpdatePoliciesCommand(apiClient, storePoliciesCommand);
+        final TryWithBackOff.Factory factory = new TryWithBackOff.Factory(sleeper);
+        this.command = new UpdatePoliciesCommand(apiClient, storePoliciesCommand,
+                factory.<ModelCollection<ApiPolicyInfo>>create(0, TimeUnit.SECONDS, 0, 1));
     }
 
     @Test
