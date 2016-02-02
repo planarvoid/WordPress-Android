@@ -306,7 +306,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
         listenerCaptor.getValue().done();
 
-        verify(navigator).restartForAccountUpgrade(activity, false);
+        verify(navigator).restartForAccountUpgrade(activity);
         verify(activity).finish();
     }
 
@@ -317,7 +317,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
         listenerCaptor.getValue().moreInfo();
 
-        verify(navigator).restartForAccountUpgrade(activity, true);
+        verify(navigator).restartForAccountUpgrade(activity);
         verify(activity).finish();
     }
 

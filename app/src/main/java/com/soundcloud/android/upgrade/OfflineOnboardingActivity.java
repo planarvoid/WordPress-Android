@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.upgrade;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.ScActivity;
@@ -13,7 +13,7 @@ public class OfflineOnboardingActivity extends ScActivity {
 
     @Override
     protected void setActivityContentView() {
-        super.setContentView(R.layout.offline_onboarding);
+        super.setContentView(R.layout.go_onboarding);
     }
 
     @Override

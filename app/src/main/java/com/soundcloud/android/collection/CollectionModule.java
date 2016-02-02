@@ -1,6 +1,7 @@
 package com.soundcloud.android.collection;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.upgrade.OfflineOnboardingActivity;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,

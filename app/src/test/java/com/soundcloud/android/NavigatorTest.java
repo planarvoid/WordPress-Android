@@ -331,7 +331,6 @@ public class NavigatorTest extends AndroidUnitTest {
         Bundle pendingExtras = new Bundle();
         pendingExtras.putString("key", "value");
         extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, MainActivity.class.getCanonicalName());
-        extras.putBundle(Navigator.EXTRA_PENDING_ACTIVITY_EXTRAS, pendingExtras);
 
         navigator.openPendingActivity(activityContext, extras);
 

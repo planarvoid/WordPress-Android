@@ -92,7 +92,7 @@ public class DevDrawerFragment extends PreferenceFragment {
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        navigator.restartForAccountUpgrade(getActivity(), true);
+                        navigator.restartForAccountUpgrade(getActivity());
                         return true;
                     }
                 });
