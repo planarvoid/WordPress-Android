@@ -81,4 +81,14 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
 
         assertThat(errorReason, is("Not available yet in your country"));
     }
+
+    public void testPlayGeoBlockedTrackCanStillLike() {
+        // this should eventually be clickFirstBlockedTrack() when the UI is there
+        final VisualPlayerElement visualPlayerElement = playlistScreen.scrollToPosition(1)
+                .clickTrack(1)
+                .waitForExpandedPlayer();
+
+        assertThat(visualPlayerElement.likeButton().hasVisibility(), is(true));
+        assertThat(visualPlayerElement.shareButton().hasVisibility(), is(true));
+    }
 }
