@@ -32,7 +32,7 @@ public class SearchPremiumResultsActivity extends ScActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final String searchQuery = getIntent().getStringExtra(EXTRA_SEARCH_QUERY);
-        setTitle(getResources().getString(R.string.search_premium_content_results, searchQuery));
+        setTitle("\"" + searchQuery + "\"");
         if (savedInstanceState == null) {
             createFragmentForPremiumResults();
         }

@@ -61,16 +61,18 @@
     <style name="Search.PremiumContent" />
 
     <style name="Search.PremiumContent.Text">
-        <item name="custom_font">@string/interstate_regular</item>
+        <item name="custom_font">@string/interstate_light</item>
         <item name="android:singleLine">true</item>
         <item name="android:textSize">14sp</item>
     </style>
 
     <style name="Search.PremiumContent.Text.ViewAll">
+        <item name="custom_font">@string/interstate_regular</item>
         <item name="android:textColor">@color/discovery_search_premium_view_all</item>
     </style>
 
     <style name="Search.PremiumContent.Text.Upsell">
+        <item name="custom_font">@string/interstate_regular</item>
         <item name="android:textColor">@color/ak_sc_orange</item>
     </style>
 

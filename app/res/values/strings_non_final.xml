@@ -157,9 +157,8 @@
     <string name="playback_upsell_button">Hear full track</string>
 
     <!-- __SEARCH -->
-    <string name="search_premium_content_results_count">Found %1$d SoundCloud CS results</string>
-    <string name="search_premium_content_view_all">See all SoundCloud CS results</string>
+    <string name="search_premium_content_results_count">Found %1$d SoundCloud Go results</string>
+    <string name="search_premium_content_view_all">See all SoundCloud Go results</string>
     <string name="search_premium_content_upsell">Upgrade to hear full tracks</string>
-    <string name="search_premium_content_results">\"%1$s\" Results</string>
 
 </resources>
