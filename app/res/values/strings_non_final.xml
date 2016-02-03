@@ -136,7 +136,7 @@
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Remove ads</string>
     <string name="upsell_stream_start_trial_button">Upgrade now</string>
-    <string name="upsell_stream_upgrade_title">Get SoundCloud Go</string>
+    <string name="upsell_stream_upgrade_title">Get SoundCloud CS</string>
     <string name="upsell_stream_upgrade_description">Offline. Ad-free. Full catalog.</string>
     <string name="upsell_track_preview">Preview</string>
     <string name="upsell_track_geo_blocked">Not yet available in your region</string>
@@ -160,8 +160,8 @@
     <string name="playback_upsell_button">Hear full track</string>
 
     <!-- __SEARCH -->
-    <string name="search_premium_content_results_count">Found %1$d SoundCloud Go results</string>
-    <string name="search_premium_content_view_all">See all SoundCloud Go results</string>
+    <string name="search_premium_content_results_count">Found %1$d SoundCloud CS results</string>
+    <string name="search_premium_content_view_all">See all SoundCloud CS results</string>
     <string name="search_premium_content_upsell">Upgrade to hear full tracks</string>
     <string name="search_premium_content_results">\"%1$s\" Results</string>
 

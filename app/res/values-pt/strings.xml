@@ -377,9 +377,6 @@
   <string name="search_empty">Nenhum resultado encontrado</string>
   <string name="search_empty_subtext">Verifique a ortografia ou tente uma pesquisa diferente</string>
   <string name="search_for_query">Pesquisar \'%s\'</string>
-  <string name="search_premium_content_results_count">Encontrados %1$d resultados do SoundCloud Go</string>
-  <string name="search_premium_content_view_all">Ver todos os resultados do SoundCloud Go</string>
-  <string name="search_premium_content_results">\"%1$s\" resultados</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
   <string name="activity_title_recommendations">Recomendado para você</string>
   <!--@Todo from l10n: what is filled in here?-->
