@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @AutoValue
-public abstract class Shortcut implements SearchSuggestion {
+public abstract class Shortcut extends SearchSuggestion {
 
     public static Shortcut create(Urn urn, String displayText){
         return new AutoValue_Shortcut(urn,
