@@ -6,6 +6,7 @@ import dagger.Module;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 GoOnboardingActivity.class,
+                UnrecoverableErrorDialog.class
         })
 public class UpgradeModule {
 }

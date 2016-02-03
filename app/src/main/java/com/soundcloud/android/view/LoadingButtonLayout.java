@@ -15,6 +15,9 @@ import android.widget.TextView;
 
 public class LoadingButtonLayout extends FrameLayout {
 
+    private String mainActionTextAttr;
+    private String retryActionTextAttr;
+
     public LoadingButtonLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, 0);
@@ -26,8 +29,13 @@ public class LoadingButtonLayout extends FrameLayout {
     }
 
     public void setWaiting() {
+        findLabel().setText(mainActionTextAttr);
         findProgressBar().setVisibility(View.VISIBLE);
-        setEnabled(false);
+    }
+
+    public void setRetry() {
+        findLabel().setText(retryActionTextAttr);
+        findProgressBar().setVisibility(View.GONE);
     }
 
     @Override
@@ -36,16 +44,14 @@ public class LoadingButtonLayout extends FrameLayout {
         findLabel().setAlpha(enabled ? 1 : 0.5f);
     }
 
-    public boolean isWaiting() {
-        return findProgressBar().getVisibility() == View.VISIBLE;
-    }
-
     private void init(Context context, AttributeSet attrs, int defStyle) {
         LayoutInflater.from(context).inflate(R.layout.loading_button, this);
         final TypedArray typeArray = context.obtainStyledAttributes(attrs, R.styleable.LoadingButtonLayout, defStyle, 0);
 
         final TextView label = findLabel();
-        label.setText(getTextAttr(typeArray));
+        mainActionTextAttr = getMainActionTextAttr(typeArray);
+        retryActionTextAttr = getRetryActionTextAttr(typeArray);
+        label.setText(mainActionTextAttr);
         label.setTextColor(getTextColor(typeArray));
         findProgressBar().getIndeterminateDrawable().setColorFilter(getLoadingColor(typeArray), PorterDuff.Mode.SRC_IN);
         typeArray.recycle();
@@ -64,12 +70,15 @@ public class LoadingButtonLayout extends FrameLayout {
         return typeArray.getColor(R.styleable.LoadingButtonLayout_label_textColor, 0);
     }
 
-    private String getTextAttr(TypedArray typeArray) {
-        return typeArray.getString(R.styleable.LoadingButtonLayout_label_text);
+    private String getMainActionTextAttr(TypedArray typeArray) {
+        return typeArray.getString(R.styleable.LoadingButtonLayout_label_action_text);
+    }
+
+    private String getRetryActionTextAttr(TypedArray typeArray) {
+        return typeArray.getString(R.styleable.LoadingButtonLayout_label_retry_text);
     }
 
     private TextView findLabel() {
         return (TextView) findViewById(R.id.label);
     }
-
 }

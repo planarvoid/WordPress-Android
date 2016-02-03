@@ -75,7 +75,8 @@
 
     <declare-styleable name="LoadingButtonLayout">
         <attr name="label_textColor" format="color" />
-        <attr name="label_text" format="string" />
+        <attr name="label_action_text" format="string" />
+        <attr name="label_retry_text" format="string" />
         <attr name="loading_color" format="color" />
     </declare-styleable>
 </resources>

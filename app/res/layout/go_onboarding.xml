@@ -31,14 +31,16 @@
             style="@style/GoOnboarding.SetUpOfflineButton"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            app:label_text="@string/go_onboarding_setup_offline" />
+            app:label_action_text="@string/go_onboarding_setup_offline"
+            app:label_retry_text="@string/go_onboarding_setup_retry" />
 
         <com.soundcloud.android.view.LoadingButtonLayout
             android:id="@+id/btn_go_setup_later"
             style="@style/GoOnboarding.SetUpOfflineLaterButton"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            app:label_text="@string/go_onboarding_setup_later" />
+            app:label_action_text="@string/go_onboarding_setup_later"
+            app:label_retry_text="@string/go_onboarding_setup_retry" />
 
     </LinearLayout>
 </RelativeLayout>

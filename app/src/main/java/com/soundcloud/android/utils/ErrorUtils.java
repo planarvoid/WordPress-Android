@@ -90,6 +90,14 @@ public final class ErrorUtils {
         return exception;
     }
 
+    public static boolean isNetworkError(Throwable e) {
+        if (e instanceof ApiRequestException) {
+            return ((ApiRequestException) e).isNetworkError();
+        } else {
+            return e instanceof IOException;
+        }
+    }
+
     @VisibleForTesting
     static boolean includeInReports(Throwable t) {
         if (t instanceof SyncFailedException || isIOExceptionUnrelatedToParsing(t) || t instanceof PlaylistMissingException) {

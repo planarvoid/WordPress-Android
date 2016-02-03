@@ -1,106 +1,162 @@
 package com.soundcloud.android.upgrade;
 
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.R;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.view.LoadingButtonLayout;
-import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-
-import javax.inject.Inject;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
+import javax.inject.Inject;
+
 class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+    enum StrategyContext {
+        USER_NO_ACTION, USER_SETUP_LATER, USER_SETUP_OFFLINE
+    }
 
     private final Navigator navigator;
     private final UpgradeProgressOperations upgradeProgressOperations;
-    private Subscription subscription = RxUtils.invalidSubscription();
-    private boolean isLoaded = false;
-    private AppCompatActivity activity;
+    private final GoOnboardingView view;
 
-    @Bind(R.id.btn_go_setup_offline) LoadingButtonLayout setUpOfflineButton;
-    @Bind(R.id.btn_go_setup_later) LoadingButtonLayout setUpLaterButton;
+    private AppCompatActivity activity;
+    private Subscription subscription = RxUtils.invalidSubscription();
+
+    private Strategy strategy;
+    private StrategyContext context;
 
     @Inject
-    GoOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations) {
+    GoOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations, GoOnboardingView view) {
         this.navigator = navigator;
         this.upgradeProgressOperations = upgradeProgressOperations;
-    }
-
-    @VisibleForTesting
-    GoOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations,
-                          LoadingButtonLayout setUpOfflineButton, LoadingButtonLayout setUpLaterButton) {
-        this(navigator, upgradeProgressOperations);
-        this.setUpOfflineButton = setUpOfflineButton;
-        this.setUpLaterButton = setUpLaterButton;
+        this.view = view;
     }
 
     @Override
-    public void onCreate(AppCompatActivity activity, Bundle bundle) {
-        this.activity = activity;
-        ButterKnife.bind(this, activity);
-        awaitAccountUpgrade();
-    }
-
-    @VisibleForTesting
-    void awaitAccountUpgrade() {
-        subscription = upgradeProgressOperations.awaitAccountUpgrade()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new UpgradeCompleteSubscriber());
+    public void onCreate(AppCompatActivity anActivity, Bundle bundle) {
+        view.bind(anActivity, this);
+        this.activity = anActivity;
+        context = StrategyContext.USER_NO_ACTION;
+        strategy = new InitStrategy().proceed();
     }
 
     @Override
-    public void onDestroy(AppCompatActivity activity) {
+    public void onDestroy(AppCompatActivity anActivity) {
         subscription.unsubscribe();
-        this.activity = null;
+        activity = null;
     }
 
-    @OnClick(R.id.btn_go_setup_offline)
-    void onSetupOfflineClicked(){
-        if (isLoaded) {
-            goToOfflineOnboarding();
-        } else {
-            setUpOfflineButton.setWaiting();
-            setUpLaterButton.setEnabled(false);
-        }
+    void onSetupOfflineClicked() {
+        context = StrategyContext.USER_SETUP_OFFLINE;
+        strategy = strategy.proceed();
     }
 
-    @OnClick(R.id.btn_go_setup_later)
     void onSetupLaterClicked() {
-        if (isLoaded) {
-            goToStream();
-        } else {
-            setUpLaterButton.setWaiting();
-            setUpOfflineButton.setEnabled(false);
-        }
-    }
-
-    private void goToStream() {
-        navigator.openHome(activity);
-    }
-
-    private void goToOfflineOnboarding() {
-        // TODO
+        context = StrategyContext.USER_SETUP_LATER;
+        strategy = strategy.proceed();
     }
 
     private class UpgradeCompleteSubscriber extends DefaultSubscriber<Object> {
 
         @Override
         public void onCompleted() {
-            isLoaded = true;
-            if (setUpOfflineButton.isWaiting()) {
-                goToOfflineOnboarding();
-            } else if (setUpLaterButton.isWaiting()) {
-                goToStream();
+            strategy = new SuccessStrategy().proceed();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            if (isNetworkError(e)) {
+                strategy = new NetworkErrorStrategy().proceed();
+            } else {
+                strategy = new UnrecoverableErrorStrategy().proceed();
+            }
+            // reporting
+            super.onError(e);
+        }
+
+    }
+
+    interface Strategy {
+        Strategy proceed();
+    }
+
+    private class InitStrategy implements Strategy {
+        @Override
+        public Strategy proceed() {
+            strategy = new PendingStrategy();
+            subscription = upgradeProgressOperations.awaitAccountUpgrade()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new UpgradeCompleteSubscriber());
+            return strategy;
+        }
+    }
+
+    private class PendingStrategy implements Strategy {
+        @Override
+        public Strategy proceed() {
+            switch (context) {
+                case USER_SETUP_LATER:
+                    view.setSetUpLaterButtonWaiting();
+                    return this;
+                case USER_SETUP_OFFLINE:
+                    view.setSetUpOfflineButtonWaiting();
+                    return this;
+                default:
+                    return this;
+            }
+        }
+    }
+
+    private class SuccessStrategy implements Strategy {
+        @Override
+        public Strategy proceed() {
+            switch (context) {
+                case USER_SETUP_LATER:
+                    navigator.openHome(activity);
+                    return this;
+                case USER_SETUP_OFFLINE:
+                    // TODO
+                    return this;
+                default:
+                    return this;
+            }
+        }
+    }
+
+    private class NetworkErrorStrategy implements Strategy {
+        @Override
+        public Strategy proceed() {
+            switch (context) {
+                case USER_SETUP_LATER:
+                    view.setSetUpLaterButtonRetry();
+                    return new InitStrategy();
+                case USER_SETUP_OFFLINE:
+                    view.setSetUpOfflineButtonRetry();
+                    return new InitStrategy();
+                default:
+                    return this;
+            }
+        }
+    }
+
+    private class UnrecoverableErrorStrategy implements Strategy {
+        @Override
+        public Strategy proceed() {
+            switch (context) {
+                case USER_SETUP_LATER:
+                    view.setSetUpLaterButtonRetry();
+                    view.showErrorDialog(activity.getSupportFragmentManager());
+                    return new InitStrategy();
+                case USER_SETUP_OFFLINE:
+                    view.setSetUpOfflineButtonRetry();
+                    view.showErrorDialog(activity.getSupportFragmentManager());
+                    return new InitStrategy();
+                default:
+                    return this;
             }
         }
     }
