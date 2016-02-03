@@ -924,7 +924,7 @@ public class OnboardActivity extends FragmentActivity
                 .setContent(R.drawable.dialog_device_management,
                         R.string.device_management_limit_title,
                         R.string.device_management_limit_active)
-                .setPositiveButton(R.string.device_management_continue, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.device_management_register, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         login(loginBundle);
@@ -949,7 +949,7 @@ public class OnboardActivity extends FragmentActivity
                 .setContent(R.drawable.dialog_device_management,
                         R.string.device_management_limit_title,
                         R.string.device_management_conflict_message)
-                .setPositiveButton(R.string.device_management_continue, null);
+                .setPositiveButton(android.R.string.ok, null);
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictLoggedOut());
     }
 
