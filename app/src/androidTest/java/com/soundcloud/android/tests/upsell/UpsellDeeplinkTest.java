@@ -6,19 +6,17 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.annotation.GoogleAccountTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.matcher.view.IsVisible;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.UpgradeScreen;
+import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 
-@EventTrackingTest
-public class UpsellDeeplinkTest extends TrackingActivityTest<ResolveActivity> {
+public class UpsellDeeplinkTest extends ActivityTest<ResolveActivity> {
 
     public UpsellDeeplinkTest() {
         super(ResolveActivity.class);
