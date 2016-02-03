@@ -15,6 +15,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -52,14 +53,14 @@ public class OfflineContentOperations {
 
     private final Func1<Collection<Urn>, Observable<?>> UPDATE_POLICIES =
             new Func1<Collection<Urn>, Observable<?>>() {
-        @Override
-        public Observable<?> call(Collection<Urn> urns) {
-            if (urns.isEmpty()) {
-                return Observable.just(null);
-            }
-            return policyOperations.updatePolicies(urns);
-        }
-    };
+                @Override
+                public Observable<?> call(Collection<Urn> urns) {
+                    if (urns.isEmpty()) {
+                        return Observable.just(null);
+                    }
+                    return policyOperations.updatePolicies(urns);
+                }
+            };
 
     private final Func1<List<PlaylistItem>, List<Urn>> TO_URN = new Func1<List<PlaylistItem>, List<Urn>>() {
         @Override
@@ -68,10 +69,10 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Func1<List<Urn>, Observable<?>> addOfflinePlaylists = new Func1<List<Urn>, Observable<?>>() {
+    private final Func1<List<Urn>, Observable<TxnResult>> setOfflinePlaylists = new Func1<List<Urn>, Observable<TxnResult>>() {
         @Override
-        public Observable<?> call(List<Urn> playlists) {
-            return offlineContentStorage.addOfflinePlaylists(playlists);
+        public Observable<TxnResult> call(List<Urn> playlists) {
+            return offlineContentStorage.setOfflinePlaylists(playlists);
         }
     };
 
@@ -123,18 +124,19 @@ public class OfflineContentOperations {
     }
 
     public Observable<Void> enableOfflineCollection() {
-        final Observable<Object> storeCollectionsPlaylists = collectionOperations
-                .myPlaylists().map(TO_URN)
-                .flatMap(addOfflinePlaylists);
-
         return offlineContentStorage
                 .storeLikedTrackCollection()
-                .flatMap(continueWith(storeCollectionsPlaylists))
+                .flatMap(continueWith(setMyPlaylistsAsOfflinePlaylists()))
                 .doOnNext(storeOfflineCollectionEnabled)
                 .doOnNext(serviceInitiator.action1Start())
                 .flatMap(refreshMyPlaylists)
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
+    }
+
+    Observable<TxnResult> setMyPlaylistsAsOfflinePlaylists() {
+        return collectionOperations.myPlaylists().map(TO_URN)
+                .flatMap(setOfflinePlaylists);
     }
 
     public void disableOfflineCollection() {

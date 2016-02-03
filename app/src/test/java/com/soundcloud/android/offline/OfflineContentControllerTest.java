@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.requested;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -8,14 +9,13 @@ import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +25,6 @@ import rx.functions.Action0;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -236,15 +234,16 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void markPlaylistOfflineWhenPlaylistCreated() {
-        final List<Urn> playlistsCollection = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
-
+    public void markMyPlaylistsOfflineOnSyncWhenOfflineCollectionEnabled() {
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        setPlaylistsCollection(playlistsCollection);
+        final PublishSubject<TxnResult> markMyPlaylistsOffline = PublishSubject.create();
+        when(offlineContentOperations.setMyPlaylistsAsOfflinePlaylists()).thenReturn(markMyPlaylistsOffline);
 
         controller.subscribe();
-        onCollectionChanged.onNext(SIGNAL);
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, true, PLAYLIST));
 
+        assertThat(markMyPlaylistsOffline.hasObservers()).isTrue();
+        markMyPlaylistsOffline.onNext(new TxnResult());
         startServiceSubscriber.assertValueCount(1);
     }
 
@@ -256,31 +255,5 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         onCollectionChanged.onNext(SIGNAL);
 
         startServiceSubscriber.assertNoValues();
-    }
-
-    @Test
-    public void ignoreOfflineCollectionStateChangedWhenFalse() {
-        setPlaylistsCollection(Urn.forPlaylist(123L));
-
-        controller.subscribe();
-        offlineCollectionStateChanges.onNext(false);
-
-        startServiceSubscriber.assertNoValues();
-    }
-
-    private void setPlaylistsCollection(Urn... urns) {
-        setPlaylistsCollection(Arrays.asList(urns));
-    }
-
-    private void setPlaylistsCollection(List<Urn> playlists) {
-        final List<PlaylistItem> playlistsItemCollection = new ArrayList<>();
-        for (Urn urn : playlists) {
-            playlistsItemCollection.add(createPlaylistItem(urn));
-        }
-        when(collectionOperations.myPlaylists()).thenReturn(Observable.just(playlistsItemCollection));
-    }
-
-    private PlaylistItem createPlaylistItem(Urn urn) {
-        return PlaylistItem.from(PropertySet.from(EntityProperty.URN.bind(urn)));
     }
 }
