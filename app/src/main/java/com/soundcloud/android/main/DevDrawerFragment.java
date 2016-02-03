@@ -16,6 +16,7 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -32,12 +33,16 @@ import javax.inject.Inject;
 @SuppressLint("ValidFragment")
 public class DevDrawerFragment extends PreferenceFragment {
 
+    private static final String DEVICE_CONFIG_SETTINGS = "device_config_settings";
+    private static final String KEY_LAST_CONFIG_CHECK_TIME = "last_config_check_time";
+
     @Inject EventBus eventBus;
     @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject DevDrawerExperimentsHelper drawerExperimentsHelper;
     @Inject ConfigurationManager configurationManager;
     @Inject Navigator navigator;
+    private SharedPreferences.OnSharedPreferenceChangeListener configurationUpdateListener;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -112,14 +117,7 @@ public class DevDrawerFragment extends PreferenceFragment {
                     }
                 });
 
-        screen.findPreference(getString(R.string.dev_drawer_action_config_update_key))
-                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        configurationManager.forceUpdate();
-                        return true;
-                    }
-                });
+        setupForceConfigUpdatePref(screen);
 
         screen.findPreference(getString(R.string.dev_drawer_action_policy_sync_key))
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -142,6 +140,33 @@ public class DevDrawerFragment extends PreferenceFragment {
                     }
                 });
 
+    }
+
+    private void setupForceConfigUpdatePref(PreferenceScreen screen) {
+        final Preference updateConfigPref = screen.findPreference(getString(R.string.dev_drawer_action_config_update_key));
+        updateConfigPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                configurationManager.forceUpdate();
+                return true;
+            }
+        });
+        final SharedPreferences sharedPrefs = getActivity().getSharedPreferences(DEVICE_CONFIG_SETTINGS, Context.MODE_PRIVATE);
+        configurationUpdateListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if (KEY_LAST_CONFIG_CHECK_TIME.equals(key)) {
+                    updateLastConfigUpdateText(updateConfigPref, sharedPreferences);
+                }
+            }
+        };
+        sharedPrefs.registerOnSharedPreferenceChangeListener(configurationUpdateListener);
+        updateLastConfigUpdateText(updateConfigPref, sharedPrefs);
+    }
+
+    private void updateLastConfigUpdateText(Preference preference, SharedPreferences sharedPreferences) {
+        final long lastUpdatedTs = sharedPreferences.getLong(KEY_LAST_CONFIG_CHECK_TIME, 0);
+        preference.setSummary("last updated " + ScTextUtils.formatTimeElapsedSince(getResources(), lastUpdatedTs, true));
     }
 
     private void copyTokenToClipboard() {

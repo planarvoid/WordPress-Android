@@ -27,9 +27,10 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
+import com.soundcloud.android.utils.Sleeper;
+import com.soundcloud.android.utils.TryWithBackOff;
 import com.soundcloud.java.net.HttpHeaders;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +52,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private DeviceManagementStorage deviceManagementStorage;
     @Mock private ConfigurationSettingsStorage configurationSettingsStorage;
+    @Mock private Sleeper sleeper;
 
     private ConfigurationOperations operations;
     private Configuration configuration;
@@ -61,20 +63,24 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
+        when(apiClientRx.getApiClient()).thenReturn(apiClient);
         configuration = ModelFixtures.create(Configuration.class);
-        operations = new ConfigurationOperations(InjectionSupport.lazyOf(apiClientRx), InjectionSupport.lazyOf(apiClient),
-                experimentOperations, featureOperations, featureFlags, configurationSettingsStorage, scheduler);
+        TryWithBackOff.Factory factory = new TryWithBackOff.Factory(sleeper);
+        operations = new ConfigurationOperations(apiClientRx,
+                experimentOperations, featureOperations, featureFlags, configurationSettingsStorage,
+                factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1), scheduler);
 
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
+        when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(configuration);
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(configuration));
         when(featureFlags.isEnabled(Flag.OFFLINE_SYNC)).thenReturn(true);
     }
 
     @Test
-    public void updateReturnsConfiguration() {
+    public void updateReturnsConfiguration() throws Exception {
         final Configuration noPlan = getNoPlanConfiguration();
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
+        when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(noPlan);
 
         operations.update().subscribe(configSubscriber);
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
@@ -99,12 +105,12 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateIfNecessaryUpdatesConfigurationIfLastUpdateTooLongAgo() {
+    public void updateIfNecessaryUpdatesConfigurationIfLastUpdateTooLongAgo() throws Exception {
         final Configuration noPlan = getNoPlanConfiguration();
         when(configurationSettingsStorage.getLastConfigurationCheckTime())
                 .thenReturn(System.currentTimeMillis() - CONFIGURATION_STALE_TIME_MILLIS - 1);
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
-                .thenReturn(Observable.just(noPlan));
+        when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(noPlan);
 
         operations.updateIfNecessary().subscribe(configSubscriber);
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
@@ -202,11 +208,11 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void loadsExperimentsOnUpdate() {
+    public void loadsExperimentsOnUpdate() throws Exception {
         operations.update().subscribe(configSubscriber);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
-        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
+        verify(apiClient).fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
                 .withQueryParam("experiment_layers", "android_listening", "ios")), eq(Configuration.class));
     }
 
