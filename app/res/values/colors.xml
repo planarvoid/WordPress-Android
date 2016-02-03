@@ -9,11 +9,11 @@
     <color name="primary_darker">#1d1d1d</color>
 
     <color name="toggle_on">@color/ak_sc_orange</color>
-    <color name="toggle_on_disabled">#8cff5500</color>
+    <color name="toggle_on_disabled">#7fff5500</color>
     <color name="toggle_on_ripple">#e24b03</color>
     <color name="toggle_on_text">#ffffff</color>
     <color name="toggle_off">#e5e5e5</color>
-    <color name="toggle_off_disabled">#8ce5e5e5</color>
+    <color name="toggle_off_disabled">#7fe5e5e5</color>
     <color name="toggle_off_ripple">#c9c9c9</color>
     <color name="toggle_off_text">#888888</color>
 
