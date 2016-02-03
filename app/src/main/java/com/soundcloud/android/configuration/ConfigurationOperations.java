@@ -22,8 +22,7 @@ import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.net.HttpHeaders;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
-import rx.functions.Action0;
+import rx.Single;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -119,33 +118,28 @@ public class ConfigurationOperations {
     Observable<Configuration> update() {
         return Observable.zip(
                 experimentOperations.loadAssignment(),
-                updatedConfiguration(configurationRequestBuilderForGet().build()),
+                updatedConfiguration(configurationRequestBuilderForGet().build()).toObservable(),
                 TO_UPDATED_CONFIGURATION
         );
     }
 
-    private Observable<Configuration> updatedConfiguration(final ApiRequest request) {
-        return Observable.create(updateConfigurationFunc(request)).doOnCompleted(new Action0() {
+    private Single<Configuration> updatedConfiguration(final ApiRequest request) {
+        return fetchConfigurationWithRetry(request).doOnSuccess(new Action1<Configuration>() {
             @Override
-            public void call() {
+            public void call(Configuration configuration) {
                 configurationSettingsStorage.setLastConfigurationCheckTime(System.currentTimeMillis());
             }
         }).subscribeOn(scheduler);
     }
 
     @NonNull
-    private Observable.OnSubscribe<Configuration> updateConfigurationFunc(final ApiRequest request) {
-        return new Observable.OnSubscribe<Configuration>() {
+    private Single<Configuration> fetchConfigurationWithRetry(final ApiRequest request) {
+        return Single.defer(new Callable<Single<Configuration>>() {
             @Override
-            public void call(Subscriber<? super Configuration> subscriber) {
-                try {
-                    subscriber.onNext(tryWithBackOff.call(fetchConfiguration(request)));
-                    subscriber.onCompleted();
-                } catch (Throwable e) {
-                    subscriber.onError(e);
-                }
+            public Single<Configuration> call() throws Exception {
+                return Single.just(tryWithBackOff.call(fetchConfiguration(request)));
             }
-        };
+        });
     }
 
     private Callable<Configuration> fetchConfiguration(final ApiRequest request) {
