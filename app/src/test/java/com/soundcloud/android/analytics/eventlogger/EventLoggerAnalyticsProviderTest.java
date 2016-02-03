@@ -351,7 +351,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdDeliveryEvents() {
         AdsReceived adsReceived = new AdsReceived(Urn.NOT_SET, Urn.NOT_SET, Urn.NOT_SET);
-        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Urn.forTrack(123), Urn.NOT_SET, "endpoint", adsReceived, false, false);
+        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Urn.forTrack(123), Urn.NOT_SET, "endpoint", adsReceived, false, false, false);
         when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdDeliveredEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
@@ -363,7 +363,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackAdFetchFailedEvents() {
-        AdDeliveryEvent event = AdDeliveryEvent.adsRequestFailed(Urn.forTrack(123), "endpoint", false);
+        AdDeliveryEvent event = AdDeliveryEvent.adsRequestFailed(Urn.forTrack(123), "endpoint", false, false);
         when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdFetchFailedEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);

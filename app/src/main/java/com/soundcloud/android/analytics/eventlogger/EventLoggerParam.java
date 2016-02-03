@@ -47,6 +47,7 @@ class EventLoggerParam {
     static final String AD_REQUEST_ENDPOINT = "request_endpoint";
     static final String AD_SELECTION_OPTIMIZED = "selection_optimized";
     static final String ADS_RECEIVED= "ads_received";
+    static final String PLAYER_VISIBLE = "is_player_visible";
 
     // performance & error event params
     static final String LATENCY = "latency";

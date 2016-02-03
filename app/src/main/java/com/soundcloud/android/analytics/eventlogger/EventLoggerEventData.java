@@ -38,6 +38,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_TYPE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_VISIBLE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYHEAD_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
@@ -179,6 +180,11 @@ class EventLoggerEventData {
 
     public EventLoggerEventData adsRequestSuccess(boolean requestSuccessful) {
         addToPayload(AD_REQUEST_SUCCESS, requestSuccessful);
+        return this;
+    }
+
+    public EventLoggerEventData playerVisible(boolean playerVisible) {
+        addToPayload(PLAYER_VISIBLE, playerVisible);
         return this;
     }
 

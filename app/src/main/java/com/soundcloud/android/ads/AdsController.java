@@ -9,6 +9,7 @@ import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -61,6 +62,7 @@ public class AdsController {
     private Optional<ApiAdsForTrack> adsForNextTrack = Optional.absent();
     private boolean didReplaceNextAd;
     private boolean isForeground;
+    private boolean isPlayerVisible;
 
     private static final Func1<PlayQueueEvent, Boolean> IS_QUEUE_UPDATE = new Func1<PlayQueueEvent, Boolean>() {
         @Override
@@ -105,7 +107,7 @@ public class AdsController {
     private final Func1<PropertySet, Observable<ApiAdsForTrack>> fetchAds = new Func1<PropertySet, Observable<ApiAdsForTrack>>() {
         @Override
         public Observable<ApiAdsForTrack> call(PropertySet propertySet) {
-            return adsOperations.ads(propertySet.get(TrackProperty.URN), isForeground);
+            return adsOperations.ads(propertySet.get(TrackProperty.URN), isPlayerVisible, isForeground);
         }
     };
 
@@ -188,6 +190,9 @@ public class AdsController {
 
         eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE)
                 .subscribe(new ActivityStateSubscriber());
+
+        eventBus.queue(EventQueue.PLAYER_UI)
+                .subscribe(new PlayerStateSubscriber());
     }
 
     public void reconfigureAdForNextTrack() {
@@ -210,7 +215,11 @@ public class AdsController {
             final String endpoint = String.format(ApiEndpoints.ADS.path(), monetizableUrn.toEncodedString());
             final Optional<AdData> nextTrackAdData = adsOperations.getNextTrackAdData();
             final Urn selectedAdUrn = nextTrackAdData.isPresent() ? nextTrackAdData.get().getAdUrn() : Urn.NOT_SET;
-            eventBus.publish(EventQueue.TRACKING, AdDeliveryEvent.adDelivered(monetizableUrn, selectedAdUrn, endpoint, adsForNextTrack.get().toAdsReceived(), didReplaceNextAd, isForeground));
+            eventBus.publish(EventQueue.TRACKING,
+                    AdDeliveryEvent.adDelivered(monetizableUrn,
+                            selectedAdUrn, endpoint, adsForNextTrack.get().toAdsReceived(),
+                            didReplaceNextAd, isPlayerVisible, isForeground)
+            );
         }
     }
 
@@ -371,6 +380,13 @@ public class AdsController {
         @Override
         public void onNext(ActivityLifeCycleEvent latestState) {
             isForeground = latestState.isForeground();
+        }
+    }
+
+    private class PlayerStateSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+        @Override
+        public void onNext(PlayerUIEvent latestState) {
+            isPlayerVisible = latestState.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
         }
     }
 }

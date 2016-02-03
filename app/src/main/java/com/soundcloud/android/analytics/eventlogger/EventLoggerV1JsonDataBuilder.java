@@ -37,7 +37,7 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String CLICK_EVENT = "click";
     private static final String OFFLINE_SYNC_EVENT = "offline_sync";
     private static final String IMPRESSION_EVENT = "impression";
-    private static final String BOOGALOO_VERSION = "v1.13.0";
+    private static final String BOOGALOO_VERSION = "v1.14.0";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
@@ -79,6 +79,7 @@ public class EventLoggerV1JsonDataBuilder {
     private EventLoggerEventData buildBaseAdDeliveryEvent(AdDeliveryEvent eventData) {
         return buildBaseEvent("ad_delivery", eventData)
                 .monetizedObject(eventData.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .playerVisible(eventData.playerVisible)
                 .inForeground(eventData.inForeground)
                 .adsRequested(eventData.adsRequested)
                 .adsEndpoint(eventData.get(AdTrackingKeys.KEY_ADS_ENDPOINT));
@@ -88,7 +89,7 @@ public class EventLoggerV1JsonDataBuilder {
         final EventLoggerEventData data = buildBaseAdDeliveryEvent(eventData)
                 .adsRequestSuccess(true)
                 .adOptimized(eventData.adOptimized)
-                .adsReceived(transform(eventData.adsReceived.ads));
+                .adsReceived(mapToJson(eventData.adsReceived.ads));
 
         if (eventData.adUrn.isAd()) {
             data.adUrn(eventData.adUrn.toString());
@@ -323,7 +324,7 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    private String transform(HashMap<String, Object> data) {
+    private String mapToJson(HashMap<String, Object> data) {
         try {
             return jsonTransformer.toJson(data);
         } catch (ApiMapperException e) {

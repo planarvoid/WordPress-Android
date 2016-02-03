@@ -63,13 +63,13 @@ public class AdsOperations {
         this.featureFlags = featureFlags;
     }
 
-    public Observable<ApiAdsForTrack> ads(Urn sourceUrn, boolean inForeground) {
+    public Observable<ApiAdsForTrack> ads(Urn sourceUrn, boolean playerVisible, boolean inForeground) {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
         final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi(1);
 
         return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
                 .subscribeOn(scheduler)
-                .doOnError(logFailedAds(sourceUrn, endpoint, inForeground))
+                .doOnError(logFailedAds(sourceUrn, endpoint, playerVisible, inForeground))
                 .doOnNext(logAds(sourceUrn))
                 .doOnNext(cacheAudioAdTrack);
     }
@@ -83,12 +83,13 @@ public class AdsOperations {
         };
     }
 
-    private Action1<Throwable> logFailedAds(final Urn sourceUrn, final String endpoint, final boolean inForeground) {
+    private Action1<Throwable> logFailedAds(final Urn sourceUrn, final String endpoint,
+                                            final boolean playerVisible, final boolean inForeground) {
         return new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
                 Log.i(ADS_TAG, "Failed to retrieve ads for " + sourceUrn.toString(), throwable);
-                eventBus.publish(EventQueue.TRACKING, AdDeliveryEvent.adsRequestFailed(sourceUrn, endpoint, inForeground));
+                eventBus.publish(EventQueue.TRACKING, AdDeliveryEvent.adsRequestFailed(sourceUrn, endpoint, playerVisible, inForeground));
             }
         };
     }

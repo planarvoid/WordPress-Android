@@ -71,7 +71,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        assertThat(adsOperations.ads(TRACK_URN, true).toBlocking().first()).isEqualTo(fullAdsForTrack);
+        assertThat(adsOperations.ads(TRACK_URN, true, true).toBlocking().first()).isEqualTo(fullAdsForTrack);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        adsOperations.ads(TRACK_URN, true).subscribe();
+        adsOperations.ads(TRACK_URN, true, true).subscribe();
 
         verify(storeTracksCommand).call(Arrays.asList(fullAdsForTrack.audioAd().get().getApiTrack()));
     }

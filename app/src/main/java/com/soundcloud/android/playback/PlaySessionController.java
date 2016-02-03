@@ -168,6 +168,7 @@ public class PlaySessionController {
         @Override
         public void call(StateTransition stateTransition) {
             adsController.reconfigureAdForNextTrack();
+            adsController.publishAdDeliveryEventIfUpcoming();
         }
     };
 

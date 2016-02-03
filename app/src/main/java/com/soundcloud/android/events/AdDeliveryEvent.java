@@ -11,30 +11,32 @@ public class AdDeliveryEvent extends TrackingEvent {
 
     public final boolean adsRequested;
     public final boolean inForeground;
+    public final boolean playerVisible;
 
     public AdsReceived adsReceived;
     public boolean adOptimized;
     public Urn adUrn;
 
-    private AdDeliveryEvent(String kind, Urn monetizableUrn, boolean adsRequested, String endpoint, boolean inForeground) {
+    private AdDeliveryEvent(String kind, Urn monetizableUrn, boolean adsRequested, String endpoint, boolean playerVisible, boolean inForeground) {
         super(kind, System.currentTimeMillis());
         this.put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, monetizableUrn.toString());
         this.put(AdTrackingKeys.KEY_ADS_ENDPOINT, endpoint);
         this.adsRequested = adsRequested;
         this.inForeground = inForeground;
+        this.playerVisible = playerVisible;
     }
 
     public static AdDeliveryEvent adDelivered(Urn monetizableUrn, Urn adUrn, String endpoint, AdsReceived adsReceived,
-                                              boolean adOptimized, boolean inForeground) {
-        AdDeliveryEvent event = new AdDeliveryEvent(AD_DELIVERED_KIND, monetizableUrn, true, endpoint, inForeground);
+                                              boolean adOptimized, boolean playerVisible, boolean inForeground) {
+        AdDeliveryEvent event = new AdDeliveryEvent(AD_DELIVERED_KIND, monetizableUrn, true, endpoint, playerVisible, inForeground);
         event.adOptimized = adOptimized;
         event.adUrn = adUrn;
         event.adsReceived = adsReceived;
         return event;
     }
 
-    public static AdDeliveryEvent adsRequestFailed(Urn monetizableUrn, String endpoint, boolean inForeground) {
-        return new AdDeliveryEvent(AD_FAILED_KIND, monetizableUrn, true, endpoint, inForeground);
+    public static AdDeliveryEvent adsRequestFailed(Urn monetizableUrn, String endpoint, boolean playerVisible, boolean inForeground) {
+        return new AdDeliveryEvent(AD_FAILED_KIND, monetizableUrn, true, endpoint, playerVisible, inForeground);
     }
 
     public static class AdsReceived {

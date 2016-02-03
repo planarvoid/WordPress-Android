@@ -322,6 +322,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void onStateTransitionTriesToReconfigureAd() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
         verify(adsController).reconfigureAdForNextTrack();
+        verify(adsController).publishAdDeliveryEventIfUpcoming();
     }
 
     @Test

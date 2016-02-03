@@ -21,17 +21,18 @@ public class AdDeliveryEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventForFailedAdFetch() {
-        AdDeliveryEvent event = AdDeliveryEvent.adsRequestFailed(TRACK_URN, ADS_ENDPOINT, true);
+        AdDeliveryEvent event = AdDeliveryEvent.adsRequestFailed(TRACK_URN, ADS_ENDPOINT, false, true);
 
         assertThat(event.getKind()).isEqualTo(AdDeliveryEvent.AD_FAILED_KIND);
         assertThat(event.get("monetizable_track_urn")).isEqualTo(TRACK_URN.toString());
         assertThat(event.get("request_endpoint")).isEqualTo(ADS_ENDPOINT);
+        assertThat(event.playerVisible).isFalse();
         assertThat(event.inForeground).isTrue();
     }
 
     @Test
     public void shouldCreateEventForAdDelivery() {
-        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(TRACK_URN, VIDEO_AD_URN, ADS_ENDPOINT, ALL_ADS_RECEIVED, false, true);
+        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(TRACK_URN, VIDEO_AD_URN, ADS_ENDPOINT, ALL_ADS_RECEIVED, false, true, true);
 
         assertThat(event.getKind()).isEqualTo(AdDeliveryEvent.AD_DELIVERED_KIND);
         assertThat(event.get("monetizable_track_urn")).isEqualTo(TRACK_URN.toString());
@@ -39,6 +40,7 @@ public class AdDeliveryEventTest extends AndroidUnitTest {
         assertThat(event.get("request_endpoint")).isEqualTo(ADS_ENDPOINT);
         assertThat(event.adsReceived).isEqualTo(ALL_ADS_RECEIVED);
         assertThat(event.adOptimized).isFalse();
+        assertThat(event.playerVisible).isTrue();
         assertThat(event.inForeground).isTrue();
     }
 
