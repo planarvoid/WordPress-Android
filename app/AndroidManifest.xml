@@ -98,7 +98,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".collection.OfflineOnboardingActivity" />
+        <activity android:name=".upgrade.GoOnboardingActivity" />
 
         <activity android:name=".search.PlayFromVoiceSearchActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
             <intent-filter android:priority="1">
@@ -245,7 +245,6 @@
         <activity android:label="@string/title_notification_settings" android:name=".settings.NotificationSettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
         <activity android:label="@string/title_about" android:name=".settings.LicensesActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
         <activity android:label="@string/title_legal" android:name=".settings.LegalActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
-        <activity android:name=".upgrade.UpgradeProgressActivity"/>
 
         <activity android:name=".accounts.LogoutActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>

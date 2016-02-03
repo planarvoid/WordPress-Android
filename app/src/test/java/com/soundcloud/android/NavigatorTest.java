@@ -72,6 +72,32 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void launchHome() {
+        final Intent intent = new Intent();
+        Referrer.FACEBOOK.addToIntent(intent);
+        Screen.AUTH_LOG_IN.addToIntent(intent);
+
+        navigator.launchHome(activityContext, intent.getExtras());
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsScreen(Screen.AUTH_LOG_IN)
+                .containsReferrer(Referrer.FACEBOOK)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .opensActivity(MainActivity.class);
+    }
+
+    @Test
+    public void launchHomeWithoutExtra() {
+        navigator.launchHome(activityContext, null);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsScreen(Screen.UNKNOWN)
+                .containsReferrer(Referrer.HOME_BUTTON)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .opensActivity(MainActivity.class);
+    }
+
+    @Test
     public void openUpgrade() {
         navigator.openUpgrade(activityContext);
         assertThat(activityContext).nextStartedIntent().opensActivity(UpgradeActivity.class);
@@ -300,17 +326,13 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldOpenPendingActivityFromIntentExtrasWithPendingActivityExtras() {
+    public void shouldOpenPendingActivityFromIntentExtrasWithPending() {
         Bundle extras = new Bundle();
-        Bundle pendingExtras = new Bundle();
-        pendingExtras.putString("key", "value");
         extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, MainActivity.class.getCanonicalName());
-        extras.putBundle(Navigator.EXTRA_PENDING_ACTIVITY_EXTRAS, pendingExtras);
 
         navigator.openPendingActivity(activityContext, extras);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra("key", "value")
                 .opensActivity(MainActivity.class);
     }
 

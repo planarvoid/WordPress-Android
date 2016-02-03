@@ -1,13 +1,12 @@
 package com.soundcloud.android.main;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.rx.eventbus.EventBus;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
 
 import javax.inject.Inject;
 
@@ -15,11 +14,7 @@ public class LauncherActivity extends TrackedActivity {
 
     @Inject AccountOperations accountOperations;
     @Inject EventBus eventBus;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    @Inject Navigator navigator;
 
     @Override
     protected void setActivityContentView() {
@@ -29,34 +24,24 @@ public class LauncherActivity extends TrackedActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (accountOperations.isUserLoggedIn()) {
-                    startActivity(getMainActivityIntentWithExtras());
-                } else {
-                    accountOperations.triggerLoginFlow(LauncherActivity.this);
-                }
-            }
-        });
+        if (accountOperations.isUserLoggedIn()) {
+            handleLoggedInUser();
+        } else {
+            accountOperations.triggerLoginFlow(LauncherActivity.this);
+        }
     }
 
-    private Intent getMainActivityIntentWithExtras() {
-        final Intent intent = new Intent(this, MainActivity.class);
+    private void handleLoggedInUser() {
         final Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            intent.putExtras(extras);
+        if (hasPendingActivity(extras)) {
+            navigator.openPendingActivity(this, extras);
+        } else {
+            navigator.launchHome(this, extras);
         }
+    }
 
-        if (!Referrer.hasReferrer(intent)) {
-            Referrer.HOME_BUTTON.addToIntent(intent);
-        }
-
-        if (!Screen.hasScreen(intent)) {
-            Screen.UNKNOWN.addToIntent(intent);
-        }
-
-        return intent;
+    private boolean hasPendingActivity(@Nullable Bundle extras) {
+        return extras != null && extras.containsKey(Navigator.EXTRA_PENDING_ACTIVITY);
     }
 
 }

@@ -89,13 +89,13 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
 
     @Override
     public void done() {
-        navigator.restartForAccountUpgrade(activity, false);
+        navigator.restartForAccountUpgrade(activity);
         activity.finish();
     }
 
     @Override
     public void moreInfo() {
-        navigator.restartForAccountUpgrade(activity, true);
+        navigator.restartForAccountUpgrade(activity);
         activity.finish();
     }
 

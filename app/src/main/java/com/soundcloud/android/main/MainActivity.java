@@ -1,6 +1,5 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.ConfigurationUpdateLightCycle;
@@ -24,7 +23,6 @@ public class MainActivity extends ScActivity {
 
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
-    @Inject Navigator navigator;
 
     @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle PlayerController playerController;
@@ -43,14 +41,6 @@ public class MainActivity extends ScActivity {
         }
         castConnectionHelper.reconnectSessionIfPossible();
 
-        handlePendingActivity();
-    }
-
-    private void handlePendingActivity() {
-        final Bundle extras = getIntent().getExtras();
-        if (extras != null && extras.containsKey(Navigator.EXTRA_PENDING_ACTIVITY)) {
-            navigator.openPendingActivity(this, extras);
-        }
     }
 
     @Override
