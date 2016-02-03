@@ -6,7 +6,6 @@ import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
@@ -41,7 +40,7 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
         resetOfflineSyncState(context);
     }
 
-    public void testDownloadActionAvailableWhenUserSubscribed() {
+    public void testOfflineSyncMenuAvailableWhenUserSubscribed() {
         enableOfflineContent(context);
 
         final TrackLikesScreen trackLikesScreen = mainNavHelper.goToTrackLikes();
@@ -51,7 +50,7 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
     }
 
     @EventTrackingTest
-    public void testDownloadsTracksWhenEnabledOfflineLikes() {
+    public void testOfflineSyncOfOfflineLikes() {
         enableOfflineContent(context);
 
         startEventTracking();
@@ -67,18 +66,6 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertTrue(likesScreen.isLikedTracksTextVisible());
 
         finishEventTracking(OFFLINE_LIKES_PERFORMANCE_TRACKING);
-    }
-
-    public void testShuffleLikesWhenOfflineWithNoTracksDownloaded() {
-        enableOfflineContent(context);
-
-        final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
-        networkManagerClient.switchWifiOff();
-
-        likesScreen.clickShuffleButton();
-
-        final String message = solo.getString(R.string.playback_missing_playable_tracks);
-        assertTrue(waiter.expectToastWithText(toastObserver, message));
     }
 
     @Override
