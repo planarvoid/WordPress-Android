@@ -17,6 +17,7 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
 
     private boolean playSessionIsActive;
     private boolean adOverlayShown;
+    private boolean blocked;
 
     public PlayerOverlayController(View overlay, OverlayAnimator overlayAnimator) {
         this.overlay = overlay;
@@ -33,8 +34,12 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
         configureOverlay();
     }
 
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
+
     private void configureOverlay() {
-        if (notScrubbing() && isExpanded() && playingAndNotShowingAd()) {
+        if (!blocked && notScrubbing() && isExpanded() && playingAndNotShowingAd()) {
             overlayAnimator.hideOverlay(overlay);
         } else if (isExpanded()) {
             overlayAnimator.showOverlay(overlay);
@@ -45,7 +50,7 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
     public void setAlphaFromCollapse(float alpha) {
         alphaFromCollapse = alpha;
 
-        if (playingAndNotShowingAd()) {
+        if (!blocked && playingAndNotShowingAd()) {
             overlayAnimator.setAlpha(overlay, alphaFromCollapse);
         }
     }
@@ -61,7 +66,7 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
         if (isScrubbing) {
             overlayAnimator.showOverlay(overlay);
 
-        } else if (playingAndNotShowingAd() && isExpanded()) {
+        } else if (!blocked && playingAndNotShowingAd() && isExpanded()) {
             overlayAnimator.hideOverlay(overlay);
         }
     }

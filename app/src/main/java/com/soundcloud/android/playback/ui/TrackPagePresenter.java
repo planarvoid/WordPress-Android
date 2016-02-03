@@ -179,6 +179,17 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.upsellButton.setVisibility(showHighTierUpsell ? View.VISIBLE : View.GONE);
 
         holder.errorViewController.setUrn(trackState.getUrn());
+
+        configureBlockedState(holder, blocked);
+
+        setClickListener(this, holder.onClickViews);
+    }
+
+    private void configureBlockedState(TrackPageHolder holder, boolean blocked) {
+        for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
+            playerOverlayController.setBlocked(blocked);
+        }
+
         if (blocked) {
             holder.errorViewController.showError(ErrorViewController.ErrorState.BLOCKED);
         } else {
@@ -186,8 +197,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 holder.timestamp.setVisibility(View.VISIBLE);
             }
         }
-
-        setClickListener(this, holder.onClickViews);
     }
 
     private void updatePlayButton(TrackPageHolder holder, boolean blocked) {

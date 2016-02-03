@@ -43,6 +43,14 @@ public class PlayerOverlayControllerTest {
     }
 
     @Test
+    public void shouldNotHideOverlayImmediatelyOnSetExpandedWhilePlayingIfBlocked() {
+        setPlayingState();
+        controller.setBlocked(true);
+        controller.setAlphaFromCollapse(0);
+        verify(overlayAnimator, never()).setAlpha(overlay, 0);
+    }
+
+    @Test
     public void shouldShowOverlayImmediatelyOnSetCollapsedWhilePlaying() {
         setPlayingState();
         controller.setAlphaFromCollapse(1);
@@ -73,6 +81,19 @@ public class PlayerOverlayControllerTest {
     }
 
     @Test
+    public void shouldNotHideOverlayOnSetExpandedWhilePlayingAfterScrubStateSetToNoneIfBlocked() {
+        setPlayingState();
+        controller.setBlocked(true);
+        controller.setAlphaFromCollapse(0);
+        controller.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
+        Mockito.reset(overlayAnimator);
+
+        controller.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
+
+        verify(overlayAnimator, never()).hideOverlay(overlay);
+    }
+
+    @Test
     public void shouldHideOverlayOnSetExpandedWhilePlayingAfterScrubStateCancelled() {
         setPlayingState();
         controller.setAlphaFromCollapse(0);
@@ -82,6 +103,19 @@ public class PlayerOverlayControllerTest {
         controller.scrubStateChanged(ScrubController.SCRUB_STATE_CANCELLED);
 
         verify(overlayAnimator).hideOverlay(overlay);
+    }
+
+    @Test
+    public void shouldNotHideOverlayOnSetExpandedWhilePlayingAfterScrubStateCancelledIfBlocked() {
+        setPlayingState();
+        controller.setBlocked(true);
+        controller.setAlphaFromCollapse(0);
+        controller.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
+        Mockito.reset(overlayAnimator);
+
+        controller.scrubStateChanged(ScrubController.SCRUB_STATE_CANCELLED);
+
+        verify(overlayAnimator, never()).hideOverlay(overlay);
     }
 
     @Test
@@ -153,6 +187,15 @@ public class PlayerOverlayControllerTest {
     }
 
     @Test
+    public void shouldNotHideOverlayOnShowPlayingStateWhileExpandedAndNotScrubbing() {
+        controller.setBlocked(true);
+        controller.setAlphaFromCollapse(0);
+        setPlayingState();
+
+        verify(overlayAnimator, never()).hideOverlay(overlay);
+    }
+
+    @Test
     public void shouldHideOverlayOnShowPlayingStateWhileExpandedAfterCancellingScrubbing() {
         controller.setAlphaFromCollapse(0);
         controller.scrubStateChanged(ScrubController.SCRUB_STATE_CANCELLED);
@@ -161,5 +204,16 @@ public class PlayerOverlayControllerTest {
         setPlayingState();
 
         verify(overlayAnimator).hideOverlay(overlay);
+    }
+    @Test
+    public void shouldNotHideOverlayOnShowPlayingStateWhileExpandedAfterCancellingScrubbing() {
+        controller.setBlocked(true);
+        controller.setAlphaFromCollapse(0);
+        controller.scrubStateChanged(ScrubController.SCRUB_STATE_CANCELLED);
+        Mockito.reset(overlayAnimator);
+
+        setPlayingState();
+
+        verify(overlayAnimator, never()).hideOverlay(overlay);
     }
 }
