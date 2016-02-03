@@ -30,7 +30,7 @@ import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
-import com.soundcloud.android.upgrade.OfflineOnboardingActivity;
+import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
@@ -158,7 +158,7 @@ public class Navigator {
     }
 
     public void openOfflineOnboarding(Context context) {
-        context.startActivity(new Intent(context, OfflineOnboardingActivity.class));
+        context.startActivity(new Intent(context, GoOnboardingActivity.class));
     }
 
     @Deprecated // use method that passes Screen, remove this after tabs
@@ -342,7 +342,7 @@ public class Navigator {
     }
 
     public void restartForAccountUpgrade(Activity context) {
-        restartAppAndNavigateTo(context, OfflineOnboardingActivity.class);
+        restartAppAndNavigateTo(context, GoOnboardingActivity.class);
     }
 
     public void restartApp(Activity context) {

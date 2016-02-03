@@ -1,12 +1,12 @@
 package com.soundcloud.android.main;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.rx.eventbus.EventBus;
-
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 
@@ -25,13 +25,13 @@ public class LauncherActivity extends TrackedActivity {
     protected void onResume() {
         super.onResume();
         if (accountOperations.isUserLoggedIn()) {
-            openHome();
+            handleLoggedInUser();
         } else {
             accountOperations.triggerLoginFlow(LauncherActivity.this);
         }
     }
 
-    private void openHome() {
+    private void handleLoggedInUser() {
         final Bundle extras = getIntent().getExtras();
         if (hasPendingActivity(extras)) {
             navigator.openPendingActivity(this, extras);

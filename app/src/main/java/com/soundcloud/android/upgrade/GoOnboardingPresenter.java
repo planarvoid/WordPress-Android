@@ -1,8 +1,8 @@
 package com.soundcloud.android.upgrade;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.rx.RxUtils;
@@ -10,15 +10,16 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.LoadingButtonLayout;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class OfflineOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+
+class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final Navigator navigator;
     private final UpgradeProgressOperations upgradeProgressOperations;
@@ -27,20 +28,20 @@ class OfflineOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActi
     private AppCompatActivity activity;
 
     @Bind(R.id.btn_go_setup_offline) LoadingButtonLayout setUpOfflineButton;
-    @Bind(R.id.btn_go_setup_later) LoadingButtonLayout skipOfflineButton;
+    @Bind(R.id.btn_go_setup_later) LoadingButtonLayout setUpLaterButton;
 
     @Inject
-    OfflineOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations) {
+    GoOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations) {
         this.navigator = navigator;
         this.upgradeProgressOperations = upgradeProgressOperations;
     }
 
     @VisibleForTesting
-    OfflineOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations,
-                               LoadingButtonLayout setUpOfflineButton, LoadingButtonLayout skipOfflineButton) {
+    GoOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations,
+                          LoadingButtonLayout setUpOfflineButton, LoadingButtonLayout setUpLaterButton) {
         this(navigator, upgradeProgressOperations);
         this.setUpOfflineButton = setUpOfflineButton;
-        this.skipOfflineButton = skipOfflineButton;
+        this.setUpLaterButton = setUpLaterButton;
     }
 
     @Override
@@ -69,7 +70,7 @@ class OfflineOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActi
             goToOfflineOnboarding();
         } else {
             setUpOfflineButton.setWaiting();
-            skipOfflineButton.setEnabled(false);
+            setUpLaterButton.setEnabled(false);
         }
     }
 
@@ -78,7 +79,7 @@ class OfflineOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActi
         if (isLoaded) {
             goToStream();
         } else {
-            skipOfflineButton.setWaiting();
+            setUpLaterButton.setWaiting();
             setUpOfflineButton.setEnabled(false);
         }
     }
@@ -98,7 +99,7 @@ class OfflineOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActi
             isLoaded = true;
             if (setUpOfflineButton.isWaiting()) {
                 goToOfflineOnboarding();
-            } else if (skipOfflineButton.isWaiting()) {
+            } else if (setUpLaterButton.isWaiting()) {
                 goToStream();
             }
         }

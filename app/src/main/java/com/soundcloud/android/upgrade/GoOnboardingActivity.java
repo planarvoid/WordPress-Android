@@ -7,9 +7,10 @@ import com.soundcloud.lightcycle.LightCycle;
 
 import javax.inject.Inject;
 
-public class OfflineOnboardingActivity extends ScActivity {
+public class GoOnboardingActivity extends ScActivity {
 
-    @Inject @LightCycle OfflineOnboardingPresenter presenter;
+    @Inject @LightCycle
+    GoOnboardingPresenter presenter;
 
     @Override
     protected void setActivityContentView() {

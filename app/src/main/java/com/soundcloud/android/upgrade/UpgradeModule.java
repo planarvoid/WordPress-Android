@@ -5,7 +5,7 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                OfflineOnboardingActivity.class,
+                GoOnboardingActivity.class,
         })
 public class UpgradeModule {
 }
