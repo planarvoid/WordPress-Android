@@ -13,11 +13,11 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
-public class SnippetsInStreamTest extends TrackingActivityTest<MainActivity> {
+public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
 
     private static final String STREAM_UPSELL_TRACKING_TEST = "stream_upsell_tracking_test";
 
-    public SnippetsInStreamTest() {
+    public StreamUpsellTest() {
         super(MainActivity.class);
     }
 
