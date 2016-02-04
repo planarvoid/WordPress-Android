@@ -65,6 +65,14 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void isInErrorStateReturnsTrueIfLastTransitionWasError() {
+        final Player.StateTransition lastTransition = new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, TRACK_URN);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
+
+        assertThat(provider.isInErrorState()).isTrue();
+    }
+
+    @Test
     public void isGetCurrentProgressReturns0IfCurrentTrackDidNotStartPlaying() {
         sendIdleStateEvent();
 
