@@ -313,6 +313,13 @@ public class TestUser {
             "1-21686-196444133-fbc606e15e1b6c",
             196444133,
             true);
+    public static final TestUser followingOneTrackOnePlaylistUser = new TestUser(
+            "user-329253335",
+            "followingOneTrackOnePlaylistUser@gmail.com",
+            "passwordForTheTrackPlaylistFollowerUser",
+            "1-21686-204010094-e06aaa996ab00c",
+            204010094,
+            true);
 
     // not used directly in a test, but user info is kept here for documentation
     public static final TestUser adUser = new TestUser(
@@ -335,5 +342,12 @@ public class TestUser {
             "passwordyeah88",
             "",
             200690360,
+            true);
+    public static final TestUser oneTrackOnePlaylistUser = new TestUser(
+            "oneTrackOnePlaylistUser",
+            "onetrackoneplaylistuser@gmail.com",
+            "passwordForTheTrackPlaylistUser",
+            "1-21686-204008734-7419586a6a5b2e",
+            204008734,
             true);
 }
