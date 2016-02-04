@@ -4,11 +4,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.payments.UpgradeActivity;
+import com.soundcloud.android.payments.NativeConversionActivity;
 
 public class UpgradeScreen extends Screen {
 
-    private static final Class ACTIVITY = UpgradeActivity.class;
+    private static final Class ACTIVITY = NativeConversionActivity.class;
 
     public UpgradeScreen(Han solo) {
         super(solo);
@@ -35,11 +35,7 @@ public class UpgradeScreen extends Screen {
     }
 
     public ViewElement upgradeButton() {
-        return testDriver.findOnScreenElement(With.id(R.id.upgrade_buy));
-    }
-
-    public boolean isDisplayingSuccess() {
-        return testDriver.findOnScreenElement(With.id(R.id.success_header)).isOnScreen();
+        return testDriver.findOnScreenElement(With.id(R.id.conversion_buy));
     }
 
 }

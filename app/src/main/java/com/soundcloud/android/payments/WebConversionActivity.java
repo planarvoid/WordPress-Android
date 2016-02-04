@@ -1,4 +1,4 @@
-package com.soundcloud.android.offline;
+package com.soundcloud.android.payments;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.ScActivity;
@@ -7,18 +7,16 @@ import com.soundcloud.lightcycle.LightCycle;
 
 import javax.inject.Inject;
 
-public class OfflineContentOnboardingActivity extends ScActivity {
-
-    @Inject @LightCycle OfflineContentOnboardingPresenter presenter;
+public class WebConversionActivity extends ScActivity {
+    @Inject @LightCycle WebConversionPresenter presenter;
 
     @Override
     public Screen getScreen() {
-        return Screen.PURCHASED;
+        return Screen.CONVERSION;
     }
 
     @Override
     protected void setActivityContentView() {
-        setContentView(R.layout.offline_content_onboarding);
+        super.setContentView(R.layout.conversion_activity);
     }
-
 }

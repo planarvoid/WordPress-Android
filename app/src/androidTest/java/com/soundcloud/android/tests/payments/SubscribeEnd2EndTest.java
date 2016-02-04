@@ -8,7 +8,6 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.PaymentErrorScreen;
-import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
@@ -35,13 +34,13 @@ public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
     @PaymentTest
     public void testUserCanSubscribe() {
         PaymentStateHelper.resetTestAccount();
-        UpgradeScreen upgradeScreen = settingsScreen
+        settingsScreen
                 .clickSubscribe()
                 .clickBuyForSuccess();
         waiter.waitTwoSeconds();
         BillingResponse.success().insertInto(solo.getCurrentActivity());
-        waiter.waitFiveSeconds();
-        assertTrue(upgradeScreen.isDisplayingSuccess());
+
+        // TODO: Is it possible to assert on Go Onboarding screen after app restart?
     }
 
     @PaymentTest

@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- __UPGRADE -->
+    <!-- __SUBS -->
     <string name="pref_subscriptions_header">Subscriptions</string>
     <string name="pref_subscription_buy_title">Upgrade</string>
     <string name="pref_subscription_buy_summary">Upgrade your account</string>
-    <string name="upgrade_page_title">Upgrade</string>
-    <string name="upgrade_title">SoundCloud CS</string>
-    <string name="upgrade_description">No ads. Offline listening. Support creators.</string>
-    <string name="upgrade_buy_price">Subscribe for %s/month</string>
-    <string name="upgrade_features_title">SoundCloud CS features:</string>
-    <string name="upgrade_feature_1_title">No more ads</string>
-    <string name="upgrade_feature_1_description">Remove all audio ads and interstitials from all platforms</string>
-    <string name="upgrade_feature_2_title">Offline listening</string>
-    <string name="upgrade_feature_2_description">Download tracks to your phone, so you can listen to them offline</string>
-    <string name="upgrade_feature_3_title">Support creators</string>
-    <string name="upgrade_feature_3_description">Directly support creators and SoundCloud</string>
-    <string name="upgrade_success_title">Welcome to SoundCloud CS!</string>
-    <string name="upgrade_success_description">You are now able to enjoy SoundCloud offline and ad-free</string>
-    <string name="upgrade_success_ok">Ok, got it</string>
-    <string name="upgrade_success_more">More about offline listening</string>
+
+    <!-- __CONVERSION -->
+    <string name="conversion_page_title">Subscribe</string>
+    <string name="conversion_title">Get SoundCloud CS</string>
+    <string name="conversion_price">%s / month</string>
+    <string name="conversion_feature_1">Play all tracks</string>
+    <string name="conversion_feature_2">Listen offline, anywhere</string>
+    <string name="conversion_feature_3">Go ad-free</string>
+    <string name="conversion_buy_loading">Loading</string>
+    <string name="conversion_buy_trial">Try it free for %d days</string>
+    <string name="conversion_buy_no_trial">Subscribe</string>
+    <string name="conversion_buy_retry">Loading failed. Retry?</string>
 
     <!-- __PAYMENTS -->
     <string name="payments_error_title_unavailable">Product unavailable</string>

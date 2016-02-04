@@ -6,6 +6,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,22 +31,22 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
-public class UpgradePresenterTest extends AndroidUnitTest {
+public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     private static final String PRODUCT_ID = "id";
     private static final String PRICE = "$100";
 
-    @Mock private PaymentOperations paymentOperations;
+    @Mock private NativePaymentOperations paymentOperations;
     @Mock private PaymentErrorPresenter paymentErrorPresenter;
     @Mock private PaymentErrorView paymentErrorView;
-    @Mock private UpgradeView upgradeView;
+    @Mock private ConversionView conversionView;
     @Mock private Navigator navigator;
 
     @Mock private AppCompatActivity activity;
     @Mock private ActionBar actionBar;
-    @Captor private ArgumentCaptor<UpgradeView.Listener> listenerCaptor;
+    @Captor private ArgumentCaptor<ConversionView.Listener> listenerCaptor;
 
-    private UpgradePresenter presenter;
+    private NativeConversionPresenter presenter;
 
     private TestObserver testObserver;
 
@@ -53,7 +54,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     public void setUp() {
         testObserver = new TestObserver();
         when(activity.getSupportFragmentManager()).thenReturn(mock(FragmentManager.class));
-        presenter = new UpgradePresenter(paymentOperations, paymentErrorPresenter, upgradeView, new TestEventBus(), navigator);
+        presenter = new NativeConversionPresenter(paymentOperations, paymentErrorPresenter, conversionView, new TestEventBus(), navigator);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
 
@@ -76,7 +77,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(upgradeView).showBuyButton(PRICE);
+        verify(conversionView).showPrice(PRICE);
+        verify(conversionView).setBuyButtonReady();
     }
 
     @Test
@@ -86,7 +88,8 @@ public class UpgradePresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(upgradeView).showBuyButton(PRICE);
+        verify(conversionView).showPrice(PRICE);
+        verify(conversionView).setBuyButtonReady();
     }
 
     @Test
@@ -95,7 +98,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(upgradeView, never()).showBuyButton(anyString());
+        verify(conversionView, never()).setBuyButtonReady();
     }
 
     @Test
@@ -110,13 +113,13 @@ public class UpgradePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void restoringVerificationObservableShowsSuccess() {
+    public void restoringVerificationObservableTriggersSuccess() {
         setupSuccessfulConnection();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, Observable.just(PurchaseStatus.SUCCESS)));
 
         presenter.onCreate(activity, null);
 
-        verify(upgradeView).showSuccess();
+        verify(navigator).restartForAccountUpgrade(activity);
     }
 
     @Test
@@ -230,7 +233,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
 
         presenter.handleBillingResult(TestBillingResults.cancelled());
 
-        verify(upgradeView).showBuyButton(PRICE);
+        verify(conversionView).setBuyButtonReady();
     }
 
     @Test
@@ -270,7 +273,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(upgradeView).showBuyButton(PRICE);
+        verify(conversionView).setBuyButtonReady();
     }
 
     @Test
@@ -279,10 +282,10 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         when(paymentOperations.purchase(details.getId())).thenReturn(Observable.just("token"));
         presenter.onCreate(activity, null);
 
-        verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
+        verify(conversionView).setupContentView(eq(activity), listenerCaptor.capture());
         listenerCaptor.getValue().startPurchase();
 
-        verify(upgradeView).disableBuyButton();
+        verify(conversionView).setBuyButtonLoading();
     }
 
     @Test
@@ -292,33 +295,11 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         when(paymentOperations.purchase(details.getId())).thenReturn(Observable.<String>error(exception));
         presenter.onCreate(activity, null);
 
-        verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
+        verify(conversionView).setupContentView(eq(activity), listenerCaptor.capture());
         listenerCaptor.getValue().startPurchase();
 
         verify(paymentErrorPresenter).onError(exception);
-        verify(upgradeView).enableBuyButton();
-    }
-
-    @Test
-    public void goesToStreamOnDoneClick() {
-        presenter.onCreate(activity, null);
-
-        verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
-        listenerCaptor.getValue().done();
-
-        verify(navigator).restartForAccountUpgrade(activity);
-        verify(activity).finish();
-    }
-
-    @Test
-    public void goesToOfflineOnboardingOnMoreInfoClick() {
-        presenter.onCreate(activity, null);
-
-        verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
-        listenerCaptor.getValue().moreInfo();
-
-        verify(navigator).restartForAccountUpgrade(activity);
-        verify(activity).finish();
+        verify(conversionView, times(2)).setBuyButtonReady();
     }
 
     @Test
@@ -329,7 +310,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.cancelled());
 
-        verify(upgradeView).enableBuyButton();
+        verify(conversionView, times(2)).setBuyButtonReady();
     }
 
     @Test
@@ -362,7 +343,7 @@ public class UpgradePresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.success());
 
-        verify(upgradeView).showSuccess();
+        verify(navigator).restartForAccountUpgrade(activity);
     }
 
     @Test

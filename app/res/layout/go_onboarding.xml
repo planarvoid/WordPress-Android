@@ -24,21 +24,21 @@
             android:layout_height="wrap_content"
             android:text="@string/go_onboarding_subtext" />
 
-        <com.soundcloud.android.view.LoadingButtonLayout
+        <com.soundcloud.android.view.LoadingButton
             android:id="@+id/btn_go_setup_offline"
             style="@style/GoOnboarding.PrimaryButton"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            app:label_action_text="@string/go_onboarding_setup_offline"
-            app:label_retry_text="@string/go_onboarding_setup_retry" />
+            app:actionText="@string/go_onboarding_setup_offline"
+            app:retryText="@string/go_onboarding_setup_retry" />
 
-        <com.soundcloud.android.view.LoadingButtonLayout
+        <com.soundcloud.android.view.LoadingButton
             android:id="@+id/btn_go_setup_later"
             style="@style/GoOnboarding.SecondaryButton"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            app:label_action_text="@string/go_onboarding_setup_later"
-            app:label_retry_text="@string/go_onboarding_setup_retry" />
+            app:actionText="@string/go_onboarding_setup_later"
+            app:retryText="@string/go_onboarding_setup_retry" />
 
     </LinearLayout>
 </merge>

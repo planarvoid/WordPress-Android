@@ -42,7 +42,8 @@ public enum ApiEndpoints {
     POLICIES("/policies/tracks"),
 
     // consumer subs
-    PRODUCTS("/products/google-play"),
+    WEB_PRODUCTS("/products/android-web"),
+    NATIVE_PRODUCTS("/products/google-play"),
     CHECKOUT("/checkout"),
     CHECKOUT_URN("/checkout/%s"),
 

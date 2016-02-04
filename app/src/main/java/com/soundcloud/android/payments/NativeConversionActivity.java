@@ -12,31 +12,31 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 
-public class UpgradeActivity extends ScActivity {
+public class NativeConversionActivity extends ScActivity {
 
-    @Inject @LightCycle UpgradePresenter upgradePresenter;
+    @Inject @LightCycle NativeConversionPresenter nativeConversionPresenter;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 
     @VisibleForTesting
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        upgradePresenter.handleBillingResult(new BillingResult(requestCode, resultCode, data));
+        nativeConversionPresenter.handleBillingResult(new BillingResult(requestCode, resultCode, data));
     }
 
     @Override
     public Screen getScreen() {
-        return Screen.UPGRADE;
+        return Screen.CONVERSION;
     }
 
     @Override
     protected void setActivityContentView() {
-        super.setContentView(R.layout.upgrade_activity);
+        super.setContentView(R.layout.conversion_activity);
         baseLayoutHelper.setupActionBar(this);
     }
 
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
-        return upgradePresenter.getState();
+        return nativeConversionPresenter.getState();
     }
 }

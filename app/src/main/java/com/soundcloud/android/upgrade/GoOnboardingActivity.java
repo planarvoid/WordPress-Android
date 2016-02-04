@@ -19,7 +19,7 @@ public class GoOnboardingActivity extends ScActivity {
 
     @Override
     public Screen getScreen() {
-        return Screen.OFFLINE_ONBOARDING;
+        return Screen.PURCHASED;
     }
 
 }

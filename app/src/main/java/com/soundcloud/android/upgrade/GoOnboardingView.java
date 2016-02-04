@@ -4,7 +4,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.LoadingButtonLayout;
+import com.soundcloud.android.view.LoadingButton;
 
 import android.app.Activity;
 import android.support.v4.app.FragmentManager;
@@ -13,8 +13,8 @@ import javax.inject.Inject;
 
 class GoOnboardingView {
 
-    @Bind(R.id.btn_go_setup_offline) LoadingButtonLayout setUpOfflineButton;
-    @Bind(R.id.btn_go_setup_later) LoadingButtonLayout setUpLaterButton;
+    @Bind(R.id.btn_go_setup_offline) LoadingButton setUpOfflineButton;
+    @Bind(R.id.btn_go_setup_later) LoadingButton setUpLaterButton;
     private GoOnboardingPresenter presenter;
 
     @Inject
@@ -38,14 +38,14 @@ class GoOnboardingView {
 
     void reset() {
         setEnabled(true);
-        setUpLaterButton.setNormal();
-        setUpOfflineButton.setNormal();
+        setUpLaterButton.setLoading(false);
+        setUpOfflineButton.setLoading(false);
     }
 
     void setSetUpOfflineButtonWaiting() {
         setUpLaterButton.setEnabled(false);
         setUpOfflineButton.setEnabled(false);
-        setUpOfflineButton.setWaiting();
+        setUpOfflineButton.setLoading(true);
     }
 
     void setSetUpOfflineButtonRetry() {
@@ -55,7 +55,7 @@ class GoOnboardingView {
 
     void setSetUpLaterButtonWaiting() {
         setEnabled(false);
-        setUpLaterButton.setWaiting();
+        setUpLaterButton.setLoading(true);
     }
 
     void setSetUpLaterButtonRetry() {
