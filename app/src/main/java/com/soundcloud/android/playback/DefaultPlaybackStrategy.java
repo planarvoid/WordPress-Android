@@ -7,7 +7,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -122,7 +121,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     }
 
     private long getPosition(Urn urn) {
-        return playSessionStateProvider.getLastProgressForTrack(urn).getPosition();
+        return playSessionStateProvider.getLastProgressForItem(urn).getPosition();
     }
 
     @Override

@@ -124,7 +124,7 @@ public interface Player {
             return reason == Reason.ERROR_FAILED;
         }
 
-        public boolean trackEnded() {
+        public boolean playbackEnded() {
             return newState == PlayerState.IDLE && reason == Reason.PLAYBACK_COMPLETE;
         }
 
