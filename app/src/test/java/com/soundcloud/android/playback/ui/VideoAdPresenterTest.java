@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import android.content.res.Configuration;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.ApiVideoSource;
-import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -63,6 +61,58 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         presenter = new VideoAdPresenter(mediaPlayerVideoAdapter, imageOperations, pageListener, playerOverlayControllerFactory, deviceHelper, resources());
         adView = presenter.createItemView(new FrameLayout(context()), null);
         bindVerticalVideo();
+    }
+
+    @Test
+    public void videoViewNotVisibleOnVerticalVideoBind() {
+        bindVerticalVideo();
+
+        assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
+    }
+
+    @Test
+    public void letterboxVideoBindShowsLoadingIndicatorAndLetterboxBackgroundButNotVideoView() {
+        bindLetterboxVideo();
+
+        assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
+        assertThat(adView.findViewById(R.id.letterbox_background)).isVisible();
+        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+    }
+
+    @Test
+    public void loadingIndicatorVisibleOnVerticalVideoBind() {
+        bindVerticalVideo();
+
+        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+    }
+
+    @Test
+    public void videoViewShouldBeVisibleAndLoadingIndicatorGoneAfterPlaybackStarts() {
+        bindLetterboxVideo();
+
+        presenter.setPlayState(adView, createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
+        assertThat(adView.findViewById(R.id.video_view)).isVisible();
+        assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
+    }
+
+    @Test
+    public void loadingIndicatorAndVideoViewAreVisibleOnPlaybackBuffering() {
+        bindLetterboxVideo();
+
+        presenter.setPlayState(adView, createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
+        presenter.setPlayState(adView, createStateTransition(PlayerState.BUFFERING, Player.Reason.NONE), true, true);
+
+        assertThat(adView.findViewById(R.id.video_view)).isVisible();
+        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+    }
+
+    @Test
+    public void loadingIndicatorIsntVisibleWhenPlaybackPaused() {
+        bindLetterboxVideo();
+
+        presenter.setPlayState(adView, createStateTransition(PlayerState.IDLE, Player.Reason.NONE), true, true);
+
+        assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
     }
 
     @Test
