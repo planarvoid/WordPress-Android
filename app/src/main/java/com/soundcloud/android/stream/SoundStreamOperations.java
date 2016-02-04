@@ -106,12 +106,10 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
     private final Func1<List<StreamItem>, List<StreamItem>> appendUpsellAfterSnippet = new Func1<List<StreamItem>, List<StreamItem>>() {
         @Override
         public List<StreamItem> call(List<StreamItem> streamItems) {
-            if (featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)) {
-                if (upsellOperations.canDisplayUpsellInStream() && canAddDistinctItemOfKind(streamItems, UPSELL)) {
-                    Optional<StreamItem> upsellable = getFirstUpsellable(streamItems);
-                    if (upsellable.isPresent()) {
-                        streamItems.add(streamItems.indexOf(upsellable.get()) + 1, new UpsellNotificationItem());
-                    }
+            if (upsellOperations.canDisplayUpsellInStream() && canAddDistinctItemOfKind(streamItems, UPSELL)) {
+                Optional<StreamItem> upsellable = getFirstUpsellable(streamItems);
+                if (upsellable.isPresent()) {
+                    streamItems.add(streamItems.indexOf(upsellable.get()) + 1, new UpsellNotificationItem());
                 }
             }
             return streamItems;

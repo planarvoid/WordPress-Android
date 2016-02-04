@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
@@ -45,7 +46,6 @@ import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -306,7 +306,6 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         final List<PropertySet> streamItems = createItems(PAGE_SIZE, 123L);
         streamItems.add(upsellableItemIndex, upsellableTrackProperties);
 
-        when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
         when(upsellOperations.canDisplayUpsellInStream()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
 
@@ -317,7 +316,6 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     public void shouldNotShowUpsellWhenNoUpsellableTrackIsPresent() {
         final List<PropertySet> streamItems = createItems(PAGE_SIZE, 123L);
 
-        when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
         when(upsellOperations.canDisplayUpsellInStream()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
 
@@ -330,7 +328,6 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         final List<PropertySet> streamItems = createItems(PAGE_SIZE, 123L);
         streamItems.add(upsellableItemIndex, upsellableTrackProperties);
 
-        when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
         when(upsellOperations.canDisplayUpsellInStream()).thenReturn(false);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
 
@@ -346,7 +343,6 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         streamItems.add(secondUpsellableTrackIndex, upsellableTrackProperties);
 
         final Urn trackUrnAfterSecondUpsellable = streamItems.get(secondUpsellableTrackIndex + 1).get(TrackProperty.URN);
-        when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
         when(upsellOperations.canDisplayUpsellInStream()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
 
@@ -375,7 +371,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
 
         operations.urnsForPlayback().subscribe(subscriber);
 
-        subscriber.assertReceivedOnNext(Arrays.asList(Arrays.asList(propertySet)));
+        subscriber.assertReceivedOnNext(singletonList(singletonList(propertySet)));
     }
 
     @Override
