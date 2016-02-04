@@ -11,6 +11,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
@@ -55,7 +56,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final Urn CREATOR_URN = Urn.forUser(123L);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
     private static final Urn STATION_URN = Urn.forTrackStation(123L);
-    private static final String CONSUMER_SUBS_PLAN = "THE HIGHEST TIER IMAGINABLE";
+    private static final Plan CONSUMER_SUBS_PLAN = Plan.HIGH_TIER;
     public static final Urn QUERY_URN = new Urn("soundcloud:radio:6d2547a");
     private static final String PAGE_NAME = "page_name";
     public static final String SOURCE = "stations";

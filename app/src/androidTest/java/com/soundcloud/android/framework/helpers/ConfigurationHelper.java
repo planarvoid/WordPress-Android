@@ -43,9 +43,9 @@ public class ConfigurationHelper {
         disableFeature(context, FeatureName.REMOVE_AUDIO_ADS);
 
         planStorage.getUpsellUpdates()
-                .doOnNext(new Action1<List<String>>() {
+                .doOnNext(new Action1<List<Plan>>() {
                     @Override
-                    public void call(List<String> strings) {
+                    public void call(List<Plan> plans) {
                         if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
                             planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
                         }
@@ -94,7 +94,7 @@ public class ConfigurationHelper {
     }
 
     private static void disableFeature(Context context, final String name) {
-        final Feature feature = new Feature(name, false, Collections.singletonList(Plan.HIGH_TIER));
+        final Feature feature = new Feature(name, false, Collections.singletonList(Plan.HIGH_TIER.planId));
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
         featureStorage.update(feature);

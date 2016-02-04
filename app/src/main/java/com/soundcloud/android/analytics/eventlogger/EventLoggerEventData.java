@@ -57,6 +57,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.URL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
@@ -220,8 +221,8 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData consumerSubsPlan(String plan) {
-        addToPayload(CONSUMER_SUBS_PLAN, plan);
+    public EventLoggerEventData consumerSubsPlan(Plan plan) {
+        addToPayload(CONSUMER_SUBS_PLAN, plan.planId);
         return this;
     }
 

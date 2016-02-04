@@ -2,6 +2,7 @@ package com.soundcloud.android.configuration.features;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
@@ -49,7 +50,7 @@ public class FeatureStorageTest extends AndroidUnitTest {
     public void updateFeatureStoresPlans() {
         storage.update(new Feature("plan_related_feature", false, Arrays.asList("mid_tier", "high_tier")));
 
-        assertThat(storage.getPlans("plan_related_feature")).containsOnly("mid_tier", "high_tier");
+        assertThat(storage.getPlans("plan_related_feature")).containsOnly(Plan.MID_TIER, Plan.HIGH_TIER);
     }
 
     @Test

@@ -76,11 +76,11 @@ public class ConfigurationOperations {
         }
     };
 
-    private static Func1<Configuration, Boolean> isExpectedPlan(final String planId) {
+    private static Func1<Configuration, Boolean> isExpectedPlan(final Plan plan) {
         return new Func1<Configuration, Boolean>() {
             @Override
             public Boolean call(Configuration configuration) {
-                return configuration.plan.id.equals(planId);
+                return configuration.userPlan.currentPlan.equals(plan);
             }
         };
     }
@@ -161,7 +161,7 @@ public class ConfigurationOperations {
         }
     }
 
-    public Observable<Configuration> awaitConfigurationWithPlan(final String expectedPlan) {
+    public Observable<Configuration> awaitConfigurationWithPlan(final Plan expectedPlan) {
         return Observable.interval(POLLING_INITIAL_DELAY, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS, scheduler)
                 .take(POLLING_MAX_ATTEMPTS)
                 .flatMap(toFetchConfiguration)
@@ -218,7 +218,7 @@ public class ConfigurationOperations {
         experimentOperations.update(configuration.assignment);
         if (featureFlags.isEnabled(Flag.OFFLINE_SYNC)) {
             featureOperations.updateFeatures(configuration.features);
-            featureOperations.updatePlan(configuration.plan.id, configuration.plan.upsells);
+            featureOperations.updatePlan(configuration.userPlan);
         }
     }
 

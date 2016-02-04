@@ -5,7 +5,6 @@ import static com.soundcloud.android.configuration.ConfigurationManager.TAG;
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -14,7 +13,6 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 public class PlanStorage {
@@ -29,24 +27,24 @@ public class PlanStorage {
         this.sharedPreferences = sharedPreferences;
     }
 
-    public void updatePlan(String value) {
-        sharedPreferences.edit().putString(PLAN, value).apply();
+    public void updatePlan(Plan plan) {
+        sharedPreferences.edit().putString(PLAN, plan.planId).apply();
     }
 
-    public void updateUpsells(List<String> values) {
-        Log.d(TAG, "updating upsells: " + values);
-        sharedPreferences.edit().putStringSet(UPSELLS, new HashSet<>(values)).apply();
+    public void updateUpsells(List<Plan> plans) {
+        Log.d(TAG, "updating upsells: " + plans);
+        sharedPreferences.edit().putStringSet(UPSELLS, Plan.toIds(plans)).apply();
     }
 
-    public String getPlan() {
-        return sharedPreferences.getString(PLAN, Plan.NONE);
+    public Plan getPlan() {
+        return Plan.fromId(sharedPreferences.getString(PLAN, Plan.FREE_TIER.planId));
     }
 
-    public List<String> getUpsells() {
-        return Lists.newArrayList(sharedPreferences.getStringSet(UPSELLS, Collections.<String>emptySet()));
+    public List<Plan> getUpsells() {
+        return Plan.fromIds(sharedPreferences.getStringSet(UPSELLS, Collections.<String>emptySet()));
     }
 
-    public Observable<List<String>> getUpsellUpdates() {
+    public Observable<List<Plan>> getUpsellUpdates() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
                 .filter(new Func1<String, Boolean>() {
                     @Override
@@ -54,9 +52,9 @@ public class PlanStorage {
                         return s.equals(UPSELLS);
                     }
                 })
-                .map(new Func1<String, List<String>>() {
+                .map(new Func1<String, List<Plan>>() {
                     @Override
-                    public List<String> call(String s) {
+                    public List<Plan> call(String s) {
                         return getUpsells();
                     }
                 });
