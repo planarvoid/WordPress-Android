@@ -62,10 +62,14 @@
     <string name="offline_not_available_offline">Not available offline</string>
 
     <!-- __OFFLINE ONBOARDING -->
-    <string name="go_onboarding_header">Welcome to \n SoundCloud Go</string>
+    <string name="go_onboarding_header">Welcome to \nSoundCloud Go</string>
     <string name="go_onboarding_subtext">Now you\'ve got access to our expanded catalog, ad-free and offline.</string>
+    <string name="go_onboarding_setup_retry">Loading failed. Retry?</string>
     <string name="go_onboarding_setup_offline">Set up offline listening</string>
     <string name="go_onboarding_setup_later">Do it later</string>
+    <string name="go_onboarding_error_dialog_title">Something went wrong</string>
+    <string name="go_onboarding_error_dialog_msg">There was a problem enabling your new features and content. Please restart the application.</string>
+    <string name="go_onboarding_error_dialog_button">Try again later</string>
 
     <!-- __OFFLINE SETTINGS -->
     <string name="pref_offline_settings">Offline Sync Settings</string>
