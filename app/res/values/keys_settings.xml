@@ -40,7 +40,6 @@
     <string name="key_email_notifications_like">emailNotificationsLike</string>
     <string name="key_email_notifications_message">emailNotificationsMessage</string>
     <string name="key_email_notifications_comment">emailNotificationsComment</string>
-    <string name="key_email_notifications_private_track">emailNotificationsPrivateTrack</string>
     <string name="key_email_notifications_group">emailNotificationsGroup</string>
     <string name="key_email_notifications_product_updates">emailNotificationsProductUpdates</string>
     <string name="key_email_notifications_survey">emailNotificationsSurvey</string>

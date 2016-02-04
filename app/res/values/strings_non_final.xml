@@ -180,7 +180,6 @@
     <string name="email_notifications_like">Like on your post</string>
     <string name="email_notifications_message">New message</string>
     <string name="email_notifications_comment">Comment on your post</string>
-    <string name="email_notifications_private_track">New private track shared</string>
     <string name="email_notifications_group">New group post</string>
     <string name="email_notifications_product_updates">Product updates</string>
     <string name="email_notifications_survey">Invite to survey</string>

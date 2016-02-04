@@ -85,11 +85,6 @@
 
     <SwitchPreference
         android:defaultValue="true"
-        android:key="@string/key_email_notifications_private_track"
-        android:title="@string/email_notifications_private_track" />
-
-    <SwitchPreference
-        android:defaultValue="true"
         android:key="@string/key_email_notifications_group"
         android:title="@string/email_notifications_group" />
 
