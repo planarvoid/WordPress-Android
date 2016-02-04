@@ -299,13 +299,6 @@ public class TestUser {
             "1-21686-190276054-5b745361a448ac",
             190276054,
             true);
-    public static final TestUser freeMonetizedUser = new TestUser(
-            "user-712335208",
-            "sc.ht.listener1@gmail.com",
-            "s0undcl0ud_HT2016",
-            "1-21686-197818552-f855a13009456a",
-            197818552,
-            true);
     public static final TestUser playlistExplosionUser = new TestUser(
             "user-986959733-404206267",
             "androidtest+playlist+explode@soundcloud.com",

@@ -23,7 +23,7 @@ public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.freeMonetizedUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.upsellUser.logIn(getInstrumentation().getTargetContext());
     }
 
     @Override
