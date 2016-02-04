@@ -16,6 +16,7 @@
     <string name="conversion_buy_trial">Try it free for %d days</string>
     <string name="conversion_buy_no_trial">Subscribe</string>
     <string name="conversion_buy_retry">Loading failed. Retry?</string>
+    <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They\'re how we keep SoundCloud free for listeners. Want to lose the interruptions? Go ad-free with SoundCloud Go.</string>
 
     <!-- __PAYMENTS -->
     <string name="payments_error_title_unavailable">Product unavailable</string>
@@ -140,7 +141,7 @@
     <string name="user_profile_likes_view_all">View all likes</string>
 
     <!-- __UPSELL -->
-    <string name="upsell_remove_ads">Remove ads</string>
+    <string name="upsell_remove_ads">Go ad-free</string>
     <string name="upsell_stream_start_trial_button">Try it free for 30 days</string>
     <string name="upsell_stream_upgrade_title">Upgrade to SoundCloud Go</string>
     <string name="upsell_stream_upgrade_description">Get our expanded catalog, with offline listening and zero ads.</string>
