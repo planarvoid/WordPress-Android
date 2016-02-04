@@ -233,7 +233,11 @@ public class PlaySessionController {
 
     public void togglePlayback() {
         if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack() || playQueueManager.getCurrentPlayQueueItem().isVideo()) {
-            playbackStrategyProvider.get().togglePlayback();
+            if (playSessionStateProvider.isInErrorState()){
+                playCurrent();
+            } else {
+                playbackStrategyProvider.get().togglePlayback();
+            }
         } else {
             playCurrent();
         }

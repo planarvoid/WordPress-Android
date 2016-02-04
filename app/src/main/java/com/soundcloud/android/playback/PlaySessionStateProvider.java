@@ -71,6 +71,10 @@ public class PlaySessionStateProvider {
         return lastStateTransition.playSessionIsActive();
     }
 
+    public boolean isInErrorState() {
+        return lastStateTransition.wasError();
+    }
+
     public PlaybackProgress getLastProgressEvent() {
         return getLastProgressForTrack(currentPlayingUrn);
     }
