@@ -62,8 +62,8 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
                 .clickKeepLikesSyncedAndWaitToFinish();
 
         // there is one creator opt out track liked
-        assertEquals(offlineContentHelper.offlineFilesCount(), likesScreen.getTotalLikesCount() - 1);
         assertTrue(likesScreen.isLikedTracksTextVisible());
+        assertEquals(offlineContentHelper.offlineFilesCount(), likesScreen.getTotalLikesCount() - 1);
 
         finishEventTracking(OFFLINE_LIKES_PERFORMANCE_TRACKING);
     }

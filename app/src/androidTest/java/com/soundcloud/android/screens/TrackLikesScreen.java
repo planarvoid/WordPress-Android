@@ -82,9 +82,9 @@ public class TrackLikesScreen extends Screen {
 
     public boolean isLikedTracksTextVisible() {
         int count = tracks().size();
-        final String downloadInProgress =
+        final String likedTracksCount =
                 testDriver.getQuantityString(R.plurals.number_of_liked_tracks_you_liked, count, count);
-        return testDriver.isElementDisplayed(text(downloadInProgress));
+        return testDriver.isElementDisplayed(text(likedTracksCount));
     }
 
     public List<TrackItemElement> tracks(With with) {
