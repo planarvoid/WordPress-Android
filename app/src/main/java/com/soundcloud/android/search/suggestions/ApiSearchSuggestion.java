@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @AutoValue
-abstract class ApiSearchSuggestion implements SearchSuggestion {
+abstract class ApiSearchSuggestion extends SearchSuggestion {
 
     @JsonCreator
     public static ApiSearchSuggestion create(

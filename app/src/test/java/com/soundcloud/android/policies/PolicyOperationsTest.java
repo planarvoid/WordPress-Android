@@ -38,7 +38,6 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
     @Mock private ClearTableCommand clearTableCommand;
     @Mock private UpdatePoliciesCommand updatePoliciesCommand;
-    @Mock private LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand;
     @Mock private TxnResult writeResult;
     @Mock private LoadPolicyUpdateTimeCommand policyUpdateTimeCommand;
     @Mock private PolicyStorage policyStorage;
@@ -50,7 +49,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new PolicyOperations(clearTableCommand, updatePoliciesCommand, loadTracksForPolicyUpdateCommand,
+        operations = new PolicyOperations(clearTableCommand, updatePoliciesCommand,
                 policyUpdateTimeCommand, Schedulers.immediate(), policyStorage, eventBus);
     }
 
@@ -83,14 +82,13 @@ public class PolicyOperationsTest extends AndroidUnitTest {
                 ModelFixtures.apiPolicyInfo(TRACK_URN2, false, ApiPolicyInfo.ALLOW, false)
         );
 
-        when(loadTracksForPolicyUpdateCommand.call(null)).thenReturn(tracks);
+        when(policyStorage.loadTracksForPolicyUpdate()).thenReturn(tracks);
         when(updatePoliciesCommand.call(tracks)).thenReturn(policies);
         when(writeResult.success()).thenReturn(true);
 
         List<Urn> result = operations.updateTrackPolicies();
         assertThat(result).containsAll(tracks);
 
-        verify(loadTracksForPolicyUpdateCommand).call(null);
         verify(updatePoliciesCommand).call(tracks);
     }
 
@@ -102,7 +100,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
                 ModelFixtures.apiPolicyInfo(TRACK_URN2, false, ApiPolicyInfo.ALLOW, false)
         );
 
-        when(loadTracksForPolicyUpdateCommand.call(null)).thenReturn(tracks);
+        when(policyStorage.loadTracksForPolicyUpdate()).thenReturn(tracks);
         when(updatePoliciesCommand.call(tracks)).thenReturn(policies);
         when(writeResult.success()).thenReturn(true);
 
@@ -114,7 +112,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Test
     public void updateTrackPoliciesReturnEmptyListWhenPolicyFetchFailed() throws Exception {
         List<Urn> tracks = asList(TRACK_URN, TRACK_URN2);
-        when(loadTracksForPolicyUpdateCommand.call(null)).thenReturn(tracks);
+        when(policyStorage.loadTracksForPolicyUpdate()).thenReturn(tracks);
         when(updatePoliciesCommand.call(tracks)).thenThrow(new RuntimeException("expected exception"));
 
         List<Urn> result = operations.updateTrackPolicies();
@@ -124,7 +122,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Test
     public void updateTrackPoliciesReportsFetchFailures() {
         List<Urn> tracks = asList(TRACK_URN, TRACK_URN2);
-        when(loadTracksForPolicyUpdateCommand.call(null)).thenReturn(tracks);
+        when(policyStorage.loadTracksForPolicyUpdate()).thenReturn(tracks);
         when(updatePoliciesCommand.call(tracks)).thenThrow(new PolicyUpdateFailure(new IOException()));
 
         operations.updateTrackPolicies();
@@ -137,7 +135,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Test
     public void updateTrackPoliciesReportsInsertFailures() {
         List<Urn> tracks = asList(TRACK_URN, TRACK_URN2);
-        when(loadTracksForPolicyUpdateCommand.call(null)).thenReturn(tracks);
+        when(policyStorage.loadTracksForPolicyUpdate()).thenReturn(tracks);
         when(updatePoliciesCommand.call(tracks)).thenThrow(
                 new PolicyUpdateFailure(new PropellerWriteException("faild", new Exception())));
 
@@ -155,7 +153,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
                 ModelFixtures.apiPolicyInfo(TRACK_URN, true, ApiPolicyInfo.MONETIZE, false),
                 ModelFixtures.apiPolicyInfo(TRACK_URN2, false, ApiPolicyInfo.ALLOW, false)
         );
-        when(loadTracksForPolicyUpdateCommand.toObservable(null)).thenReturn(just(tracks));
+        when(policyStorage.tracksForPolicyUpdate()).thenReturn(just(tracks));
         when(updatePoliciesCommand.toObservable(tracks)).thenReturn(just(policies));
 
         operations.refreshedTrackPolicies().subscribe(observer);
@@ -167,7 +165,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Test
     public void refreshedTrackPoliciesForwardsErrorsFromPolicyFetch() throws Exception {
         final RuntimeException exception = new RuntimeException();
-        when(loadTracksForPolicyUpdateCommand.toObservable(null)).thenReturn(Observable.<List<Urn>>error(exception));
+        when(policyStorage.tracksForPolicyUpdate()).thenReturn(Observable.<List<Urn>>error(exception));
 
         operations.refreshedTrackPolicies().subscribe(observer);
 

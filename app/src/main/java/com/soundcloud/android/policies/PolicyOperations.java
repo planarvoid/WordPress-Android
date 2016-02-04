@@ -43,7 +43,6 @@ public class PolicyOperations {
     private final ClearTableCommand clearTableCommand;
     private final UpdatePoliciesCommand updatePoliciesCommand;
     private final LoadPolicyUpdateTimeCommand loadPolicyUpdateTimeCommand;
-    private final LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand;
     private final Scheduler scheduler;
     private final PolicyStorage policyStorage;
     private final EventBus eventBus;
@@ -62,7 +61,6 @@ public class PolicyOperations {
 
     @Inject
     PolicyOperations(ClearTableCommand clearTableCommand, UpdatePoliciesCommand updatePoliciesCommand,
-                     LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand,
                      LoadPolicyUpdateTimeCommand loadPolicyUpdateTimeCommand,
                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                      PolicyStorage policyStorage, EventBus eventBus) {
@@ -70,7 +68,6 @@ public class PolicyOperations {
         this.scheduler = scheduler;
         this.updatePoliciesCommand = updatePoliciesCommand;
         this.loadPolicyUpdateTimeCommand = loadPolicyUpdateTimeCommand;
-        this.loadTracksForPolicyUpdateCommand = loadTracksForPolicyUpdateCommand;
         this.policyStorage = policyStorage;
         this.eventBus = eventBus;
     }
@@ -93,7 +90,7 @@ public class PolicyOperations {
 
     public List<Urn> updateTrackPolicies() {
         try {
-            final List<Urn> urns = loadTracksForPolicyUpdateCommand.call(null);
+            final List<Urn> urns = policyStorage.loadTracksForPolicyUpdate();
             updatePoliciesCommand.call(urns);
             return urns;
         } catch (Exception ex) {
@@ -103,7 +100,7 @@ public class PolicyOperations {
     }
 
     public Observable<List<Urn>> refreshedTrackPolicies() {
-        return loadTracksForPolicyUpdateCommand.toObservable(null)
+        return policyStorage.tracksForPolicyUpdate()
                 .doOnNext(clearTrackPolicies)
                 .flatMap(updatePoliciesCommand.toContinuation())
                 .flatMap(RxUtils.<ApiPolicyInfo>iterableToObservable())

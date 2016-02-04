@@ -1,16 +1,35 @@
 package com.soundcloud.android.search.suggestions;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.List;
 import java.util.Map;
 
-public interface SearchSuggestion {
-    Urn getUrn();
+public abstract class SearchSuggestion {
+    abstract Urn getUrn();
 
-    String getQuery();
+    abstract String getQuery();
 
-    List<Map<String, Integer>> getHighlights();
+    abstract List<Map<String, Integer>> getHighlights();
 
-    boolean isRemote();
+    abstract boolean isRemote();
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o != null && o instanceof SearchSuggestion) {
+            SearchSuggestion that = (SearchSuggestion) o;
+            return MoreObjects.equal(this.getUrn(), that.getUrn());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public final int hashCode() {
+        return MoreObjects.hashCode(getUrn());
+    }
 }

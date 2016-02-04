@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
@@ -122,11 +121,10 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        RecyclerView recyclerView = getRecyclerView();
         final int spanCount = resources.getInteger(R.integer.collection_grid_span_count);
         final GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), spanCount);
         layoutManager.setSpanSizeLookup(createSpanSizeLookup(spanCount));
-        recyclerView.setLayoutManager(layoutManager);
+        getRecyclerView().setLayoutManager(layoutManager);
     }
 
     @Override
@@ -175,7 +173,11 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
         return new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                return adapter.getItem(position).isPlaylistItem() ? 1 : spanCount;
+                if (position < adapter.getItemCount() && adapter.getItem(position).isPlaylistItem()) {
+                    return 1;
+                } else {
+                    return spanCount;
+                }
             }
         };
     }

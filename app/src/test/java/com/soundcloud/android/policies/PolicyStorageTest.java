@@ -9,6 +9,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class PolicyStorageTest extends StorageIntegrationTest {
@@ -17,7 +18,7 @@ public class PolicyStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsblockedStatusesForStoredTracks() {
-        storage = new PolicyStorage(propellerRx());
+        storage = new PolicyStorage(propeller());
 
         final ApiTrack blockedTrack = testFixtures().insertBlockedTrack();
         final ApiTrack unblockedTrack = testFixtures().insertTrack();
@@ -32,7 +33,7 @@ public class PolicyStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsblockedStatusesForStoredTracksInBatches() {
-        storage = new PolicyStorage(propellerRx(), 2);
+        storage = new PolicyStorage(propeller(), 2);
 
         final ApiTrack blockedTrack = testFixtures().insertBlockedTrack();
         final ApiTrack blockedTrack2 = testFixtures().insertBlockedTrack();
@@ -49,7 +50,7 @@ public class PolicyStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsblockedStatusesLeavesOutUnstoredTrack() {
-        storage = new PolicyStorage(propellerRx());
+        storage = new PolicyStorage(propeller());
 
         final ApiTrack blockedTrack = testFixtures().insertBlockedTrack();
         final ApiTrack uninsertedTrack = ModelFixtures.create(ApiTrack.class);
@@ -60,5 +61,16 @@ public class PolicyStorageTest extends StorageIntegrationTest {
 
         assertThat(blockedStatuses.get(blockedTrack.getUrn())).isTrue();
         assertThat(blockedStatuses.containsKey(uninsertedTrack.getUrn())).isFalse();
+    }
+
+    @Test
+    public void shouldLoadAllTracksForPolicyUpdate() {
+        storage = new PolicyStorage(propeller());
+        final Urn track1 = testFixtures().insertTrack().getUrn();
+        final Urn track2 = testFixtures().insertTrack().getUrn();
+
+        final List<Urn> result = storage.loadTracksForPolicyUpdate();
+
+        assertThat(result).containsExactly(track1, track2);
     }
 }
