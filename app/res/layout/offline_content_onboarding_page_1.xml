@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="16dp">
+
+    <ImageView
+        android:id="@+id/tooltip_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/tooltip_header"
+        android:layout_centerInParent="true"
+        android:src="@drawable/onboarding_offlinecontent_dotsmenu" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/tooltip_header"
+        style="@style/GoOnboarding.Text.Headline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/tooltip_description"
+        android:layout_marginTop="72dp"
+        android:text="@string/offline_content_onboarding_save_offline_title"
+        tools:text="Choose what to save offline" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/tooltip_description"
+        style="@style/GoOnboarding.Text.SubText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/offline_content_onboarding_save_offline_desc"
+        tools:text="Use the three dots to make likes or playlists available offline on a case-by-case basis." />
+
+    <com.soundcloud.android.view.CustomFontButton
+        android:id="@+id/page_0_next"
+        style="@style/GoOnboarding.SecondaryButton"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:text="@string/offline_content_onboarding_next"
+        tools:text="Next" />
+
+</RelativeLayout>
+

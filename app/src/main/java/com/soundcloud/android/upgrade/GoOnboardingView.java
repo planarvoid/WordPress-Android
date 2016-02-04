@@ -36,6 +36,12 @@ class GoOnboardingView {
         presenter.onSetupLaterClicked();
     }
 
+    void reset() {
+        setEnabled(true);
+        setUpLaterButton.setNormal();
+        setUpOfflineButton.setNormal();
+    }
+
     void setSetUpOfflineButtonWaiting() {
         setUpLaterButton.setEnabled(false);
         setUpOfflineButton.setEnabled(false);
@@ -43,21 +49,23 @@ class GoOnboardingView {
     }
 
     void setSetUpOfflineButtonRetry() {
-        setUpLaterButton.setEnabled(true);
-        setUpOfflineButton.setEnabled(true);
+        setEnabled(true);
         setUpOfflineButton.setRetry();
     }
 
     void setSetUpLaterButtonWaiting() {
-        setUpOfflineButton.setEnabled(false);
-        setUpOfflineButton.setEnabled(false);
+        setEnabled(false);
         setUpLaterButton.setWaiting();
     }
 
     void setSetUpLaterButtonRetry() {
-        setUpOfflineButton.setEnabled(true);
-        setUpOfflineButton.setEnabled(true);
+        setEnabled(true);
         setUpLaterButton.setRetry();
+    }
+
+    private void setEnabled(boolean isEnabled) {
+        setUpLaterButton.setEnabled(isEnabled);
+        setUpOfflineButton.setEnabled(isEnabled);
     }
 
     void showErrorDialog(FragmentManager fragmentManager) {

@@ -117,9 +117,11 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
             switch (context) {
                 case USER_SETUP_LATER:
                     navigator.openHome(activity);
+                    view.reset();
                     return this;
                 case USER_SETUP_OFFLINE:
-                    // TODO
+                    navigator.openOfflineContentOnboarding(activity);
+                    view.reset();
                     return this;
                 default:
                     return this;
