@@ -92,6 +92,7 @@ public enum DeepLink {
             case "record":
                 return RECORD;
             case "soundcloudgo":
+            case "go":
                 return SOUNDCLOUD_GO_UPSELL;
             default:
                 return ENTITY;
@@ -125,6 +126,9 @@ public enum DeepLink {
             case "/tracks/search":
             case "/people/search":
                 return SEARCH;
+            case "/soundcloudgo":
+            case "/go":
+                return SOUNDCLOUD_GO_UPSELL;
             default:
                 if (isWebViewUrl(uri)) {
                     return WEB_VIEW;
