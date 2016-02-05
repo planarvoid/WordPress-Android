@@ -1,5 +1,7 @@
 package com.soundcloud.android.configuration;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,6 +23,14 @@ public enum Plan {
     @Override
     public String toString() {
         return planId;
+    }
+
+    public boolean isUpgradeFrom(@NonNull Plan existingPlan) {
+        return this.compareTo(existingPlan) > 0;
+    }
+
+    public boolean isDowngradeFrom(@NonNull Plan existingPlan) {
+        return this.compareTo(existingPlan) < 0;
     }
 
     public static Plan fromId(String planId) {
