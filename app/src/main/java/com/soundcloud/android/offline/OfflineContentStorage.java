@@ -12,6 +12,7 @@ import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -95,10 +96,15 @@ class OfflineContentStorage {
         );
     }
 
-    public Observable<TxnResult> addOfflinePlaylists(final List<Urn> expectedOfflinePlaylists) {
-        return propellerRx.bulkUpsert(OfflineContent.TABLE, buildContentValuesForPlaylist(expectedOfflinePlaylists));
+    public Observable<TxnResult> setOfflinePlaylists(final List<Urn> expectedOfflinePlaylists) {
+        return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propeller) {
+                step(propeller.delete(OfflineContent.TABLE, offlinePlaylistsFilter()));
+                step(propeller.bulkInsert(OfflineContent.TABLE, buildContentValuesForPlaylist(expectedOfflinePlaylists)));
+            }
+        });
     }
-
 
     public Observable<ChangeResult> deleteLikedTrackCollection() {
         return propellerRx.delete(OfflineContent.TABLE, offlineLikesFilter());
@@ -151,6 +157,9 @@ class OfflineContentStorage {
                 .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_COLLECTION);
     }
 
+    private Where offlinePlaylistsFilter() {
+        return filter().whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
+    }
 
     private Where playlistFilter(Urn urn) {
         return filter()

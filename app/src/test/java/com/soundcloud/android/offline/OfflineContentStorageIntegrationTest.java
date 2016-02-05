@@ -80,10 +80,15 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
     }
 
     @Test
-    public void addOfflinePlaylists() {
-        final Urn expectedPlaylist = Urn.forPlaylist(345L);
-        contentStorage.addOfflinePlaylists(singletonList(expectedPlaylist)).subscribe();
+    public void setOfflinePlaylists() {
+        testFixtures().insertLikesMarkedForOfflineSync();
+        final Urn previousPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
+        final Urn expectedPlaylist = Urn.forPlaylist(345678L);
 
+        contentStorage.setOfflinePlaylists(singletonList(expectedPlaylist)).subscribe();
+
+        databaseAssertions().assertIsNotOfflinePlaylist(previousPlaylist);
         databaseAssertions().assertIsOfflinePlaylist(expectedPlaylist);
+        databaseAssertions().assertLikedTracksIsOffline();
     }
 }

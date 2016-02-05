@@ -10,6 +10,7 @@ import com.soundcloud.android.events.UrnEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -66,6 +67,26 @@ public class OfflineContentController {
         }
     };
 
+    private final Func1<TxnResult, Boolean> TO_SUCCESS = new Func1<TxnResult, Boolean>() {
+        @Override
+        public Boolean call(TxnResult txnResult) {
+            return txnResult.success();
+        }
+    };
+
+    private final Func1<SyncResult, Observable<Boolean>> toOfflinePlaylist = new Func1<SyncResult, Observable<Boolean>>() {
+        @Override
+        public Observable<Boolean> call(SyncResult syncResult) {
+            if (syncResult.hasChangedEntities() && offlineContentOperations.isOfflineCollectionEnabled()) {
+                return offlineContentOperations
+                        .setMyPlaylistsAsOfflinePlaylists()
+                        .map(TO_SUCCESS);
+            } else {
+                return offlineContentOperations.isOfflinePlaylist(syncResult.getFirstUrn());
+            }
+        }
+    };
+
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
@@ -84,10 +105,10 @@ public class OfflineContentController {
     public void subscribe() {
         subscription = offlineContentEvents()
                 .doOnSubscribe(serviceInitiator.action0Start())
-                // TODO : when shutting down the feature, some entities
-                // states change. It means, we should start the service, let it
-                // publish entities updates and then let it stop itself.
-                // https://github.com/soundcloud/SoundCloud-Android/issues/4742
+                        // TODO : when shutting down the feature, some entities
+                        // states change. It means, we should start the service, let it
+                        // publish entities updates and then let it stop itself.
+                        // https://github.com/soundcloud/SoundCloud-Android/issues/4742
                 .doOnUnsubscribe(serviceInitiator.action0Stop())
                 .subscribe(serviceInitiator.startSubscriber());
     }
@@ -121,7 +142,7 @@ public class OfflineContentController {
     private Observable<?> offlinePlaylistSynced() {
         return eventBus.queue(EventQueue.SYNC_RESULT)
                 .filter(IS_PLAYLIST_SYNCED_FILTER)
-                .flatMap(isOfflinePlaylist)
+                .flatMap(toOfflinePlaylist)
                 .filter(RxUtils.IS_TRUE);
     }
 
