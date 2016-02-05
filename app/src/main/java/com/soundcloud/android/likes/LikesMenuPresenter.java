@@ -34,6 +34,8 @@ class LikesMenuPresenter {
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
 
+    private boolean optionsMenuPrepared;
+
     @Inject
     public LikesMenuPresenter(FeatureOperations featureOperations,
                               OfflineContentOperations offlineContentOperations,
@@ -51,6 +53,7 @@ class LikesMenuPresenter {
 
     public boolean onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.likes_actions, menu);
+        optionsMenuPrepared = false;
         return true;
     }
 
@@ -88,10 +91,11 @@ class LikesMenuPresenter {
     public void onPrepareOptionsMenu(Menu menu) {
         if (featureOperations.isOfflineContentOrUpsellEnabled()) {
             configureOfflineContentMenu(menu);
-            if (featureOperations.upsellOfflineContent()) {
+            if (featureOperations.upsellOfflineContent() && optionsMenuPrepared) {
                 eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesImpression());
             }
         }
+        optionsMenuPrepared = true;
     }
 
     private void configureOfflineContentMenu(Menu menu) {
