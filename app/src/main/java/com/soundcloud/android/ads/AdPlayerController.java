@@ -7,6 +7,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -28,8 +29,10 @@ import javax.inject.Singleton;
 
 @Singleton
 public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActivity> {
+
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
+    private final PlaySessionController playSessionController;
 
     private Subscription subscription = RxUtils.invalidSubscription();
     private Urn lastSeenAdUrn = Urn.NOT_SET;
@@ -63,9 +66,10 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     };
 
     @Inject
-    public AdPlayerController(final EventBus eventBus, AdsOperations adsOperations) {
+    public AdPlayerController(final EventBus eventBus, AdsOperations adsOperations, PlaySessionController playSessionController) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
+        this.playSessionController = playSessionController;
     }
 
     @Override
@@ -81,6 +85,9 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
 
     @Override
     public void onPause(AppCompatActivity activity) {
+        if (adsOperations.isCurrentItemVideoAd() && !activity.isChangingConfigurations()) {
+            playSessionController.pause();
+        }
         subscription.unsubscribe();
     }
 
