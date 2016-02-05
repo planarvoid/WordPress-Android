@@ -20,11 +20,6 @@ public enum Plan {
         this.planId = planId;
     }
 
-    @Override
-    public String toString() {
-        return planId;
-    }
-
     public boolean isUpgradeFrom(@NonNull Plan existingPlan) {
         return this.compareTo(existingPlan) > 0;
     }
