@@ -39,9 +39,9 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isPlayingCurrentPlayQueueTrackReturnsFalseOnEmptyPQ() {
+    public void isPlayingCurrentPlayQueueItemReturnsFalseOnEmptyPQ() {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
-        assertThat(provider.isPlayingCurrentPlayQueueTrack()).isFalse();
+        assertThat(provider.isPlayingCurrentPlayQueueItem()).isFalse();
     }
 
     @Test
@@ -53,18 +53,6 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isPlayingTrackReturnsFalseIfNoPlayStateEventIsReceived() {
-        assertThat(provider.isPlayingTrack(TRACK)).isFalse();
-    }
-
-    @Test
-    public void isPlayingTrackReturnsTrueIfLastTransitionHappenedOnTheTargetTrack() {
-        sendIdleStateEvent();
-
-        assertThat(provider.isPlayingTrack(TRACK)).isTrue();
-    }
-
-    @Test
     public void isInErrorStateReturnsTrueIfLastTransitionWasError() {
         final Player.StateTransition lastTransition = new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
@@ -72,33 +60,32 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
         assertThat(provider.isInErrorState()).isTrue();
     }
 
-    @Test
-    public void isGetCurrentProgressReturns0IfCurrentTrackDidNotStartPlaying() {
+    public void isGetCurrentProgressReturns0IfCurrentItemDidNotStartPlaying() {
         sendIdleStateEvent();
 
-        assertThat(provider.getLastProgressForTrack(TRACK_URN).getPosition()).isEqualTo(0L);
+        assertThat(provider.getLastProgressForItem(TRACK_URN).getPosition()).isEqualTo(0L);
     }
 
     @Test
     public void returnsLastProgressEventByUrnFromEventQueue() throws Exception {
         final PlaybackProgressEvent playbackProgressEvent = PlaybackProgressEvent.create(createPlaybackProcess(1L, 2L), TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgressEvent);
-        assertThat(provider.getLastProgressForTrack(TRACK_URN)).isSameAs(playbackProgressEvent.getPlaybackProgress());
+        assertThat(provider.getLastProgressForItem(TRACK_URN)).isSameAs(playbackProgressEvent.getPlaybackProgress());
     }
 
     @Test
     public void returnsEmptyProgressByUrnIfNoProgressReceived() throws Exception {
-        assertThat(provider.getLastProgressForTrack(TRACK_URN)).isEqualTo(PlaybackProgress.empty());
+        assertThat(provider.getLastProgressForItem(TRACK_URN)).isEqualTo(PlaybackProgress.empty());
     }
 
     @Test
-    public void onStateTransitionForPlayStoresPlayingTrackProgress() throws Exception {
+    public void onStateTransitionForPlayStoresPlayingItemProgress() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN, 1, 456));
 
         Urn nextTrackUrn = Urn.forTrack(321);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, nextTrackUrn, 123, 456));
 
-        assertThat(provider.getLastProgressForTrack(nextTrackUrn)).isEqualTo(createPlaybackProcess(123, 456));
+        assertThat(provider.getLastProgressForItem(nextTrackUrn)).isEqualTo(createPlaybackProcess(123, 456));
     }
 
     private void sendIdleStateEvent() {
@@ -107,7 +94,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStateTransitionForTrackEndSavesQueueWithPositionWithZero() throws Exception {
+    public void onStateTransitionForItemEndSavesQueueWithPositionWithZero() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, TRACK_URN, 123, 456));
         verify(playQueueManager).saveCurrentProgress(0);
     }
@@ -127,7 +114,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForBufferingDoesNotSaveProgressIfResuming() throws Exception {
-        when(playQueueManager.wasLastSavedTrack(TRACK_URN)).thenReturn(true);
+        when(playQueueManager.wasLastSavedItem(TRACK_URN)).thenReturn(true);
         when(playQueueManager.getLastSavedProgressPosition()).thenReturn(123L);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, TRACK_URN, 0, 456));
         verify(playQueueManager, never()).saveCurrentProgress(anyLong());

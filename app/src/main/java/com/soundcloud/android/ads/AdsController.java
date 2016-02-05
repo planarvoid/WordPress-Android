@@ -199,7 +199,7 @@ public class AdsController {
     }
 
     public void onPlayStateTransition(Player.StateTransition stateTransition) {
-        if (adsOperations.isCurrentItemAudioAd() && stateTransition.trackEnded()) {
+        if (adsOperations.isCurrentItemAudioAd() && stateTransition.playbackEnded()) {
             final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
             if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
                 ((OverlayAdData) monetizableAdData.get()).setMetaAdCompleted();
