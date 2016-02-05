@@ -6,7 +6,7 @@ Running on a feature team model means there are different expecations when you c
 
 1. Work on a branch and open up a `WIP` PR on GitHub.
 1. Make tested and working commits, and push them frequently.
-1. When your changes are ready for final review, replace the `WIP` lable with `AWAITING REVIEW`. Team members are expected to regularly visit the open PRs page and review PRs flagged as awaiting a review.
+1. When your changes are ready for final review, replace the `WIP` label with `AWAITING REVIEW`. Team members are expected to regularly visit the open PRs page and review those flagged as awaiting a review.
 1. Wait for two thumbs up for your PR before you merge it. Alternatively, wait for one thumb up if you paired on your PR.
 
 ## Make it simple for others to review your code
