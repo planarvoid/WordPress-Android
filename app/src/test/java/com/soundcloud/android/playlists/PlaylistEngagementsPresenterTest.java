@@ -230,6 +230,8 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenUpgradeScreenWhenClickingOnUpsell() {
+        controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
+
         controller.onUpsell(context);
 
         verify(navigator).openUpgrade(context);

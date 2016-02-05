@@ -19,6 +19,7 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.OfflineSyncTrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -48,6 +49,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String UDID = "udid";
     private static final String UUID = "uuid";
     private static final int APP_VERSION_CODE = 386;
+    private static final int CLIENT_ID = 3152;
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String CONNECTION_TYPE = "3g";
@@ -561,16 +563,16 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
-                .clickName("share")
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickObject(TRACK_URN.toString())
-                .clickSource(SOURCE)
-                .clickSourceUrn(STATION_URN.toString())
-                .queryUrn(QUERY_URN.toString())
-                .pageName(PAGE_NAME)
-                .experiment("exp_android_listening", 2345)
-                .experiment("exp_android_ui", 3456)
-                .pageUrn(TRACK_URN.toString())
+                        .clickName("share")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .clickSource(SOURCE)
+                        .clickSourceUrn(STATION_URN.toString())
+                        .queryUrn(QUERY_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .experiment("exp_android_listening", 2345)
+                        .experiment("exp_android_ui", 3456)
+                        .pageUrn(TRACK_URN.toString())
         );
     }
 
@@ -620,12 +622,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
-                .clickName("repost::add")
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickObject(TRACK_URN.toString())
-                .pageName(PAGE_NAME)
-                .pageUrn(TRACK_URN.toString())
-                .fromOverflowMenu(true)
+                        .clickName("repost::add")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
+                        .fromOverflowMenu(true)
         );
     }
 
@@ -647,13 +649,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
-                .clickName("repost::add")
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickObject(TRACK_URN.toString())
-                .pageName(PAGE_NAME)
-                .pageUrn(TRACK_URN.toString())
-                .clickSource("stream")
-                .fromOverflowMenu(true)
+                        .clickName("repost::add")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
+                        .clickSource("stream")
+                        .fromOverflowMenu(true)
         );
     }
 
@@ -669,16 +671,93 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .clickCategory(EventLoggerClickCategories.COLLECTION));
     }
 
+    @Test
+    public void createsPlayerUpsellImpressionJson() throws Exception {
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forPlayerImpression(TRACK_URN);
+
+        jsonDataBuilder.buildForUpsell(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", "v1.7.0", impression.getTimestamp())
+                .pageName("tracks:main")
+                .pageUrn(TRACK_URN.toString())
+                .impressionName("consumer_sub_ad")
+                .impressionObject("soundcloud:tcode:1017"));
+    }
+
+    @Test
+    public void createsPlayerUpsellClickJson() throws ApiMapperException {
+        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlayerClick(TRACK_URN);
+
+        jsonDataBuilder.buildForUpsell(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", click.getTimestamp())
+                .pageName("tracks:main")
+                .pageUrn(TRACK_URN.toString())
+                .clickCategory("consumer_subs")
+                .clickName("clickthrough::consumer_sub_ad")
+                .clickObject("soundcloud:tcode:1017"));
+    }
+
+    @Test
+    public void createsStreamUpsellClickJson() throws Exception {
+        UpgradeTrackingEvent click = UpgradeTrackingEvent.forStreamClick();
+
+        jsonDataBuilder.buildForUpsell(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", click.getTimestamp())
+                        .clickCategory("consumer_subs")
+                        .clickName("clickthrough::consumer_sub_ad")
+                        .clickObject("soundcloud:tcode:1027")
+                        .pageName("stream:main")
+        );
+    }
+
+    @Test
+    public void createsLikesUpsellImpressionJson() throws Exception {
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forLikesImpression();
+
+        jsonDataBuilder.buildForUpsell(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", "v1.7.0", impression.getTimestamp())
+                .pageName("collection:likes")
+                .impressionName("consumer_sub_ad")
+                .impressionObject("soundcloud:tcode:1009"));
+    }
+
+    @Test
+    public void createsPlaylistItemUpsellClickJson() throws Exception {
+        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlaylistItemClick(PAGE_NAME, PLAYLIST_URN);
+
+        jsonDataBuilder.buildForUpsell(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", click.getTimestamp())
+                .pageName(PAGE_NAME)
+                .pageUrn(PLAYLIST_URN.toString())
+                .clickCategory("consumer_subs")
+                .clickName("clickthrough::consumer_sub_ad")
+                .clickObject("soundcloud:tcode:1011"));
+    }
+
+    @Test
+    public void createsUpgradeSuccessImpressionJson() throws Exception {
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forUpgradeSuccess();
+
+        jsonDataBuilder.buildForUpsell(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", "v1.7.0", impression.getTimestamp())
+                .impressionName("consumer_sub_upgrade_success"));
+    }
+
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
         verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", timestamp)
-                .clickName(engagementName)
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickObject(TRACK_URN.toString())
-                .clickSource(SOURCE)
-                .clickSourceUrn(STATION_URN.toString())
-                .queryUrn(QUERY_URN.toString())
-                .pageName(PAGE_NAME)
-                .pageUrn(TRACK_URN.toString())
+                        .clickName(engagementName)
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .clickSource(SOURCE)
+                        .clickSourceUrn(STATION_URN.toString())
+                        .queryUrn(QUERY_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
         );
     }
 
@@ -690,7 +769,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
-        return new EventLoggerEventDataV1(eventName, boogalooVersion, 3152, UDID, LOGGED_IN_USER.toString(), timestamp, ConnectionType.WIFI.getValue(), String.valueOf(APP_VERSION_CODE));
+        return new EventLoggerEventDataV1(eventName, boogalooVersion, CLIENT_ID, UDID, LOGGED_IN_USER.toString(), timestamp, ConnectionType.WIFI.getValue(), String.valueOf(APP_VERSION_CODE));
     }
 
     private EventContextMetadata createEventContextMetadata() {

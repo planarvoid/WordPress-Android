@@ -14,6 +14,7 @@ import com.soundcloud.android.events.OfflineSyncTrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -68,6 +69,31 @@ public class EventLoggerV1JsonDataBuilder {
                 return transform(buildFacebookInvitesImpressionEvent(event));
             default:
                 throw new IllegalStateException("Unexpected FacebookInvitesEvent type: " + event);
+        }
+    }
+
+    public String buildForUpsell(UpgradeTrackingEvent event) {
+        switch (event.getKind()) {
+            case UpgradeTrackingEvent.KIND_UPSELL_CLICK:
+                return transform(buildBaseEvent(CLICK_EVENT, event)
+                        .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
+                        .clickName("clickthrough::consumer_sub_ad")
+                        .clickObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
+                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME))
+                        .pageUrn(event.get(UpgradeTrackingEvent.KEY_PAGE_URN)));
+
+            case UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION:
+                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                        .impressionName("consumer_sub_ad")
+                        .impressionObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
+                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME))
+                        .pageUrn(event.get(UpgradeTrackingEvent.KEY_PAGE_URN)));
+
+            case UpgradeTrackingEvent.KIND_UPGRADE_SUCCESS:
+                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                        .impressionName("consumer_sub_upgrade_success"));
+            default:
+                throw new IllegalArgumentException("Unexpected upsell tracking event type " + event);
         }
     }
 

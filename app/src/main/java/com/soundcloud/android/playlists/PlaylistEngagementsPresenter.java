@@ -246,13 +246,15 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     @Override
     public void onUpsellImpression() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistPageImpression());
+        eventBus.publish(EventQueue.TRACKING,
+                UpgradeTrackingEvent.forPlaylistPageImpression(playlistWithTracks.getUrn()));
     }
 
     @Override
     public void onUpsell(Context context) {
         navigator.openUpgrade(context);
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistPageClick());
+        eventBus.publish(EventQueue.TRACKING,
+                UpgradeTrackingEvent.forPlaylistPageClick(playlistWithTracks.getUrn()));
     }
 
     @Override
