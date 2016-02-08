@@ -17,6 +17,7 @@ import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func2;
+import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -34,8 +35,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     private final AdsOperations adsOperations;
     private final PlaySessionController playSessionController;
 
-    private Subscription playQueueSubscription = RxUtils.invalidSubscription();
-    private Subscription playerCommandSubscription = RxUtils.invalidSubscription();
+    private Subscription subscription = RxUtils.invalidSubscription();
     private Urn lastSeenAdUrn = Urn.NOT_SET;
 
     private final Action1<PlayerState> setAdHasBeenSeen = new Action1<PlayerState>() {
@@ -75,15 +75,14 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
 
     @Override
     public void onResume(AppCompatActivity activity) {
-        playQueueSubscription = Observable
+        subscription = new CompositeSubscription(Observable
                 .combineLatest(
                         eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
                         eventBus.queue(EventQueue.PLAYER_UI),
                         toPlayerState)
                 .doOnNext(setAdHasBeenSeen)
-                .subscribe(new PlayQueueSubscriber(activity));
-
-        playerCommandSubscription = eventBus.queue(EventQueue.PLAYER_COMMAND).subscribe(new PlayerCommandSubscriber(activity));
+                .subscribe(new PlayQueueSubscriber(activity)),
+                eventBus.queue(EventQueue.PLAYER_COMMAND).subscribe(new PlayerCommandSubscriber(activity)));
     }
 
     @Override
@@ -91,8 +90,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         if (adsOperations.isCurrentItemVideoAd() && !activity.isChangingConfigurations()) {
             playSessionController.pause();
         }
-        playQueueSubscription.unsubscribe();
-        playerCommandSubscription.unsubscribe();
+        subscription.unsubscribe();
     }
 
     private class PlayerCommandSubscriber extends DefaultSubscriber<PlayerUICommand> {

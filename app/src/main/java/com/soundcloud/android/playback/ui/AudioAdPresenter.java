@@ -215,7 +215,7 @@ class AudioAdPresenter extends AdPagePresenter<PlayerAd> implements View.OnClick
         private Subscription adImageSubscription = RxUtils.invalidSubscription();
 
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
-            super(adView, R.id.play_controls);
+            super(adView);
             fullbleedAdArtworkView = (ImageView) adView.findViewById(R.id.fullbleed_ad_artwork);
             centeredAdArtworkView = (ImageView) adView.findViewById(R.id.centered_ad_artwork);
             centeredAdOverlay = adView.findViewById(R.id.centered_ad_overlay);

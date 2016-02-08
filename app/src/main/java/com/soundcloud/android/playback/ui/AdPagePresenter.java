@@ -173,11 +173,11 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
             }
         };
 
-        AdHolder(View adView, int playControlsViewId) {
+        AdHolder(View adView) {
             this.playButton = adView.findViewById(R.id.player_play);
             this.nextButton = adView.findViewById(R.id.player_next);
             this.previousButton = adView.findViewById(R.id.player_previous);
-            this.playControlsHolder = adView.findViewById(playControlsViewId);
+            this.playControlsHolder = adView.findViewById(R.id.play_controls);
             this.skipAd = adView.findViewById(R.id.skip_ad);
             this.timeUntilSkip = (TextView) adView.findViewById(R.id.time_until_skip);
             this.previewArtworkOverlay = adView.findViewById(R.id.preview_artwork_overlay);

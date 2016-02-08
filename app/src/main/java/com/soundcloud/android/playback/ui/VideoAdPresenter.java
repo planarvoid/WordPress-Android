@@ -135,7 +135,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         holder.videoOverlayContainer.setLayoutParams(layoutParams);
         holder.fullscreenButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationPortrait() ? View.VISIBLE : View.GONE);
         holder.shrinkButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationLandscape() ? View.VISIBLE : View.GONE);
-        holder.setupFadingInterface(playerAd.isVerticalVideo() || !isOrientationPortrait(), playerAd.isLetterboxVideo());
+        holder.setupFadingInterface(playerAd.isVerticalVideo() || !isOrientationPortrait());
 
         if (holder.getUIState() != UIState.INITIAL) {
             setInactiveUI(holder, adView.getContext(), true);
@@ -180,11 +180,11 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     }
 
     private boolean isOrientationPortrait() {
-        return deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
+        return deviceHelper.isOrientation(Configuration.ORIENTATION_PORTRAIT);
     }
 
     private boolean isOrientationLandscape() {
-        return deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_LANDSCAPE;
+        return deviceHelper.isOrientation(Configuration.ORIENTATION_LANDSCAPE);
     }
 
     public void setVideoViewHolder(Holder holder) {
@@ -347,7 +347,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         private UIState currentUIState = UIState.INITIAL;
 
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
-            super(adView, R.id.video_play_controls);
+            super(adView);
             videoContainer = adView.findViewById(R.id.video_container);
             videoSurfaceView = (SurfaceView) adView.findViewById(R.id.video_view);
             videoOverlayContainer = adView.findViewById(R.id.video_overlay_container);
@@ -374,21 +374,17 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
             currentUIState = state;
         }
 
-        void setupFadingInterface(boolean enableAllFadeableElements, boolean includeLayoutControls) {
+        void setupFadingInterface(boolean enableAllFadeableElements) {
             final List<View> fadeViews = enableAllFadeableElements ?
-                    getAllFadeableElementViews(includeLayoutControls) : Collections.singletonList(videoLayoutControls);
+                    getAllFadeableElementViews() : Collections.singletonList(videoLayoutControls);
             final List<View> fadeViewsWithPause = new ArrayList<View>(fadeViews);
             fadeViewsWithPause.add(pauseButton);
             fadingViews = Iterables.filter(fadeViews, presentInConfig);
             fadingViewsWithPause = Iterables.filter(fadeViewsWithPause, presentInConfig);
         }
 
-        private List<View> getAllFadeableElementViews(boolean includeLayoutControls) {
-            if (includeLayoutControls) {
-                return Arrays.asList(advertisementLabel, whyAds, ctaButton, previewContainer, videoLayoutControls);
-            } else {
-                return Arrays.asList(advertisementLabel, whyAds, ctaButton, previewContainer);
-            }
+        private List<View> getAllFadeableElementViews() {
+            return Arrays.asList(advertisementLabel, whyAds, ctaButton, previewContainer, videoLayoutControls);
         }
 
     }
