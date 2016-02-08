@@ -166,6 +166,8 @@
     <string name="search_premium_content_upsell">Upgrade to hear full tracks</string>
 
     <!-- __NOTIFICATION SETTINGS -->
+    <string name="new_notification_settings">(New) Notification settings</string>
+
     <string name="push_notifications_all_title">Push notifications</string>
     <string name="push_notifications_all_summary">Turn on all mobile notifications\nor select which to receive</string>
     <string name="push_notifications_follower">New follower</string>
