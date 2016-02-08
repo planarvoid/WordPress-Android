@@ -4,6 +4,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.configuration.experiments.AppboySyncNotificationsExperiment;
@@ -23,13 +24,14 @@ public class AnalyticsConnectorTest {
     @Mock private AppCompatActivity activity;
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
     @Mock private AppboySyncNotificationsExperiment notificationsExperiment;
+    @Mock private AccountOperations accountOperations;
 
     private AnalyticsConnector analyticsConnector;
 
     @Before
     public void setUp() throws Exception {
         when(notificationsExperiment.configure()).thenReturn(Observable.<Boolean>empty());
-        analyticsConnector = new AnalyticsConnector(appboyWrapper, appboyPlaySessionState, notificationsExperiment);
+        analyticsConnector = new AnalyticsConnector(appboyWrapper, appboyPlaySessionState, notificationsExperiment, accountOperations);
     }
 
     @Test
@@ -103,5 +105,13 @@ public class AnalyticsConnectorTest {
         analyticsConnector.onStop(activity);
 
         verify(appboyWrapper).closeSession(activity);
+    }
+
+    @Test
+    public void shouldNotRegisterForInAppMessagesForCrawlerUsers() {
+        when(accountOperations.isCrawler()).thenReturn(true);
+        analyticsConnector.onResume(activity);
+
+        verify(appboyWrapper, never()).registerInAppMessageManager(activity);
     }
 }
