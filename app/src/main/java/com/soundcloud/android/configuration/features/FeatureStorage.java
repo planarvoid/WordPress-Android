@@ -2,10 +2,10 @@ package com.soundcloud.android.configuration.features;
 
 import static com.soundcloud.android.configuration.ConfigurationManager.TAG;
 
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -14,7 +14,6 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 public class FeatureStorage {
@@ -52,9 +51,9 @@ public class FeatureStorage {
         sharedPreferences.edit().putBoolean(key + ENABLED_POSTFIX, enabled).apply();
     }
 
-    private void updatePlans(String key, List<String> values) {
-        Log.d(TAG, "updating plans: " + values);
-        sharedPreferences.edit().putStringSet(key + PLANS_POSTFIX, new HashSet<>(values)).apply();
+    private void updatePlans(String key, List<Plan> plans) {
+        Log.d(TAG, "updating plans: " + plans);
+        sharedPreferences.edit().putStringSet(key + PLANS_POSTFIX, Plan.toIds(plans)).apply();
     }
 
     public boolean isEnabled(String name, boolean defaultValue) {
@@ -76,8 +75,8 @@ public class FeatureStorage {
         };
     }
 
-    public List<String> getPlans(String name) {
-        return Lists.newArrayList(sharedPreferences.getStringSet(name + PLANS_POSTFIX, Collections.<String>emptySet()));
+    public List<Plan> getPlans(String name) {
+        return Plan.fromIds(sharedPreferences.getStringSet(name + PLANS_POSTFIX, Collections.<String>emptySet()));
     }
 
     public void clear() {

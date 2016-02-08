@@ -85,7 +85,7 @@ public class FeatureOperationsTest {
     public void doNotUpsellOfflineContentIfAvailableForHighTierButHighTierIsNotAvailable() {
         when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(false);
         when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(Arrays.asList(Plan.HIGH_TIER));
-        when(planStorage.getUpsells()).thenReturn(new ArrayList<String>());
+        when(planStorage.getUpsells()).thenReturn(new ArrayList<Plan>());
 
         assertThat(featureOperations.upsellOfflineContent()).isFalse();
     }
@@ -93,7 +93,7 @@ public class FeatureOperationsTest {
     @Test
     public void doNotUpsellOfflineContentIfUnavailableForHighTier() {
         when(featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false)).thenReturn(false);
-        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(new ArrayList<String>());
+        when(featureStorage.getPlans(FeatureName.OFFLINE_SYNC)).thenReturn(new ArrayList<Plan>());
         when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.HIGH_TIER));
 
         assertThat(featureOperations.upsellOfflineContent()).isFalse();
@@ -120,7 +120,7 @@ public class FeatureOperationsTest {
     public void doNotUpsellRemoveAdsIfAvailableForHighTierButHighTierIsNotAvailable() {
         when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(false);
         when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(Arrays.asList(Plan.HIGH_TIER));
-        when(planStorage.getUpsells()).thenReturn(new ArrayList<String>());
+        when(planStorage.getUpsells()).thenReturn(new ArrayList<Plan>());
 
         assertThat(featureOperations.upsellRemoveAudioAds()).isFalse();
     }
@@ -128,7 +128,7 @@ public class FeatureOperationsTest {
     @Test
     public void doNotUpsellRemoveAdsIfUnavailableForHighTier() {
         when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(false);
-        when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(new ArrayList<String>());
+        when(featureStorage.getPlans(FeatureName.REMOVE_AUDIO_ADS)).thenReturn(new ArrayList<Plan>());
         when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.HIGH_TIER));
 
         assertThat(featureOperations.upsellRemoveAudioAds()).isFalse();

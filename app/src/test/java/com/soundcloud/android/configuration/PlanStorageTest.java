@@ -32,7 +32,7 @@ public class PlanStorageTest extends AndroidUnitTest {
 
     @Test
     public void returnsDefaultIfNotSet() {
-        assertThat(storage.getPlan()).isEqualTo(Plan.NONE);
+        assertThat(storage.getPlan()).isEqualTo(Plan.FREE_TIER);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class PlanStorageTest extends AndroidUnitTest {
 
         storage.clear();
 
-        assertThat(storage.getPlan()).isEqualTo(Plan.NONE);
+        assertThat(storage.getPlan()).isEqualTo(Plan.FREE_TIER);
     }
 
 }

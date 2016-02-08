@@ -5,9 +5,7 @@ import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiR
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.geq;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -40,6 +38,7 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.TestScheduler;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
@@ -182,7 +181,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
-        verify(featureOperations).updatePlan(eq(Plan.HIGH_TIER), anyList());
+        verify(featureOperations).updatePlan(withPlan.userPlan);
     }
 
     @Test
@@ -204,7 +203,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
         scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
 
-        verify(featureOperations, never()).updatePlan(anyString(), anyList());
+        verify(featureOperations, never()).updatePlan(any(UserPlan.class));
     }
 
     @Test
@@ -238,7 +237,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations.registerDevice(token);
 
         verify(featureOperations).updateFeatures(TestFeatures.asList());
-        verify(featureOperations).updatePlan(configuration.plan.id, configuration.plan.upsells);
+        verify(featureOperations).updatePlan(configuration.userPlan);
         verify(experimentOperations).update(configuration.assignment);
     }
 
@@ -260,7 +259,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations.saveConfiguration(authorized);
 
         verify(featureOperations).updateFeatures(TestFeatures.asList());
-        verify(featureOperations).updatePlan(authorized.plan.id, authorized.plan.upsells);
+        verify(featureOperations).updatePlan(authorized.userPlan);
         verify(experimentOperations).update(authorized.assignment);
     }
 
@@ -285,12 +284,14 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     private Configuration getNoPlanConfiguration() {
-        return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan(Plan.NONE, null),
+        final UserPlan userPlan = new UserPlan(Plan.FREE_TIER.planId, Collections.<String>emptyList());
+        return new Configuration(ConfigurationBlueprint.createFeatures(), userPlan,
                 ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false));
     }
 
     private Configuration getHighTierConfiguration() {
-        return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan(Plan.HIGH_TIER, null),
+        final UserPlan userPlan = new UserPlan(Plan.HIGH_TIER.planId, Collections.<String>emptyList());
+        return new Configuration(ConfigurationBlueprint.createFeatures(), userPlan,
                 ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false));
     }
 

@@ -12,18 +12,18 @@ import java.util.List;
 public class Configuration {
 
     public final List<Feature> features;
-    public final UserPlan plan;
+    public final UserPlan userPlan;
     public final Assignment assignment;
     public final DeviceManagement deviceManagement;
 
     @JsonCreator
     public Configuration(
             @JsonProperty("features") List<Feature> features,
-            @JsonProperty("plan") UserPlan plan,
+            @JsonProperty("plan") UserPlan userPlan,
             @JsonProperty("experiments") List<Layer> experimentLayers,
             @JsonProperty("device_management") DeviceManagement deviceManagement) {
         this.features = Collections.unmodifiableList(features);
-        this.plan = plan;
+        this.userPlan = userPlan;
         this.assignment = experimentLayers == null ? Assignment.empty() : new Assignment(experimentLayers);
         this.deviceManagement = deviceManagement;
     }

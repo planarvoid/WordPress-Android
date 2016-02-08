@@ -28,7 +28,6 @@ public class ConfigurationHelper {
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
     private static final String PREFS_FACEBOOK_INVITES_SETTINGS = "facebook_invites";
-    private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
     private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
     private static final String TAG = "TestRunner";
 
@@ -43,9 +42,9 @@ public class ConfigurationHelper {
         disableFeature(context, FeatureName.REMOVE_AUDIO_ADS);
 
         planStorage.getUpsellUpdates()
-                .doOnNext(new Action1<List<String>>() {
+                .doOnNext(new Action1<List<Plan>>() {
                     @Override
-                    public void call(List<String> strings) {
+                    public void call(List<Plan> plans) {
                         if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
                             planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
                         }
@@ -94,7 +93,7 @@ public class ConfigurationHelper {
     }
 
     private static void disableFeature(Context context, final String name) {
-        final Feature feature = new Feature(name, false, Collections.singletonList(Plan.HIGH_TIER));
+        final Feature feature = new Feature(name, false, Collections.singletonList(Plan.HIGH_TIER.planId));
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
         featureStorage.update(feature);
