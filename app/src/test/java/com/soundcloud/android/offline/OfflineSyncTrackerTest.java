@@ -3,7 +3,7 @@ package com.soundcloud.android.offline;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineSyncTrackingEvent;
+import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -27,8 +27,8 @@ public class OfflineSyncTrackerTest {
         performanceTracker.downloadStarted(DOWNLOAD_REQUEST);
 
         assertTrackingEventSent(
-                eventBus.lastEventOn(EventQueue.TRACKING, OfflineSyncTrackingEvent.class),
-                OfflineSyncTrackingEvent.KIND_START);
+                eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
+                OfflinePerformanceEvent.KIND_START);
     }
 
     @Test
@@ -36,8 +36,8 @@ public class OfflineSyncTrackerTest {
         performanceTracker.downloadComplete(DOWNLOAD_REQUEST);
 
         assertTrackingEventSent(
-                eventBus.lastEventOn(EventQueue.TRACKING, OfflineSyncTrackingEvent.class),
-                OfflineSyncTrackingEvent.KIND_COMPLETE);
+                eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
+                OfflinePerformanceEvent.KIND_COMPLETE);
     }
 
     @Test
@@ -45,8 +45,8 @@ public class OfflineSyncTrackerTest {
         performanceTracker.downloadCancelled(DOWNLOAD_REQUEST);
 
         assertTrackingEventSent(
-                eventBus.lastEventOn(EventQueue.TRACKING, OfflineSyncTrackingEvent.class),
-                OfflineSyncTrackingEvent.KIND_USER_CANCEL);
+                eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
+                OfflinePerformanceEvent.KIND_USER_CANCEL);
     }
 
     @Test
@@ -54,11 +54,11 @@ public class OfflineSyncTrackerTest {
         performanceTracker.downloadFailed(DOWNLOAD_REQUEST);
 
         assertTrackingEventSent(
-                eventBus.lastEventOn(EventQueue.TRACKING, OfflineSyncTrackingEvent.class),
-                OfflineSyncTrackingEvent.KIND_FAIL);
+                eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
+                OfflinePerformanceEvent.KIND_FAIL);
     }
 
-    private void assertTrackingEventSent(OfflineSyncTrackingEvent event, String kind) {
+    private void assertTrackingEventSent(OfflinePerformanceEvent event, String kind) {
         assertThat(event.getKind()).isEqualTo(kind);
         assertThat(event.getTrackUrn()).isEqualTo(DOWNLOAD_REQUEST.getTrack());
         assertThat(event.getTrackOwner()).isEqualTo(DOWNLOAD_REQUEST.getTrackingData().getCreatorUrn());

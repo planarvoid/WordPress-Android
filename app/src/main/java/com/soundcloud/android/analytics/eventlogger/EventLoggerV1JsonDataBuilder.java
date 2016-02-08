@@ -10,7 +10,7 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
-import com.soundcloud.android.events.OfflineSyncTrackingEvent;
+import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -126,7 +126,7 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    public String buildForOfflineSyncEvent(OfflineSyncTrackingEvent event) {
+    public String buildForOfflineSyncEvent(OfflinePerformanceEvent event) {
         final EventLoggerEventData eventLoggerEventData = buildBaseEvent(OFFLINE_SYNC_EVENT, event)
                 .eventStage(event.getKind())
                 .track(event.getTrackUrn())

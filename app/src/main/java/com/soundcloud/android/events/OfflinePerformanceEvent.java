@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
 
-public class OfflineSyncTrackingEvent extends TrackingEvent {
+public class OfflinePerformanceEvent extends TrackingEvent {
 
     public static final String KIND_START = "start";
     public static final String KIND_FAIL = "fail";
@@ -14,26 +14,26 @@ public class OfflineSyncTrackingEvent extends TrackingEvent {
     private final TrackingMetadata metadata;
 
 
-    private OfflineSyncTrackingEvent(String kind, Urn track, TrackingMetadata metadata) {
+    private OfflinePerformanceEvent(String kind, Urn track, TrackingMetadata metadata) {
         super(kind, System.currentTimeMillis());
         this.track = track;
         this.metadata = metadata;
     }
 
-    public static OfflineSyncTrackingEvent fromCompleted(Urn track, TrackingMetadata trackingMetadata) {
-        return new OfflineSyncTrackingEvent(KIND_COMPLETE, track, trackingMetadata);
+    public static OfflinePerformanceEvent fromCompleted(Urn track, TrackingMetadata trackingMetadata) {
+        return new OfflinePerformanceEvent(KIND_COMPLETE, track, trackingMetadata);
     }
 
-    public static OfflineSyncTrackingEvent fromStarted(Urn track, TrackingMetadata trackingMetadata) {
-        return new OfflineSyncTrackingEvent(KIND_START, track, trackingMetadata);
+    public static OfflinePerformanceEvent fromStarted(Urn track, TrackingMetadata trackingMetadata) {
+        return new OfflinePerformanceEvent(KIND_START, track, trackingMetadata);
     }
 
-    public static OfflineSyncTrackingEvent fromCancelled(Urn track, TrackingMetadata trackingMetadata) {
-        return new OfflineSyncTrackingEvent(KIND_USER_CANCEL, track, trackingMetadata);
+    public static OfflinePerformanceEvent fromCancelled(Urn track, TrackingMetadata trackingMetadata) {
+        return new OfflinePerformanceEvent(KIND_USER_CANCEL, track, trackingMetadata);
     }
 
-    public static OfflineSyncTrackingEvent fromFailed(Urn track, TrackingMetadata trackingMetadata) {
-        return new OfflineSyncTrackingEvent(KIND_FAIL, track, trackingMetadata);
+    public static OfflinePerformanceEvent fromFailed(Urn track, TrackingMetadata trackingMetadata) {
+        return new OfflinePerformanceEvent(KIND_FAIL, track, trackingMetadata);
     }
 
     public Urn getTrackUrn() {

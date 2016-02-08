@@ -17,7 +17,7 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.OfflineSyncTrackingEvent;
+import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
@@ -487,7 +487,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createJsonFromOfflineSyncStartEventWithPlaylistTrackContext() throws ApiMapperException {
         final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
-        final OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromStarted(TRACK_URN, trackContext);
+        final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStarted(TRACK_URN, trackContext);
 
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 
@@ -503,7 +503,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createJsonFromOfflineSyncFailEventWithLikeTrackContext() throws ApiMapperException {
         final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
-        final OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromFailed(TRACK_URN, trackContext);
+        final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromFailed(TRACK_URN, trackContext);
 
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 
@@ -519,7 +519,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createJsonFromOfflineSyncCancelEventWithLikeTrackContext() throws ApiMapperException {
         final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
-        final OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromCancelled(TRACK_URN, trackContext);
+        final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCancelled(TRACK_URN, trackContext);
 
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 
@@ -535,7 +535,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createJsonFromOfflineSyncCompleteEventWithLikeTrackContext() throws ApiMapperException {
         final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
-        final OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromCompleted(TRACK_URN, trackContext);
+        final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCompleted(TRACK_URN, trackContext);
 
         jsonDataBuilder.buildForOfflineSyncEvent(event);
 
