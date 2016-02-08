@@ -1,7 +1,6 @@
 package com.soundcloud.android.events;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.java.objects.MoreObjects;
 
 @AutoValue
 public abstract class StreamEvent {
@@ -16,11 +15,6 @@ public abstract class StreamEvent {
 
     public boolean isNewItemsEvent() {
         return getKind() == STREAM_REFRESHED;
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).add("kind", getKind()).toString();
     }
 
 }
