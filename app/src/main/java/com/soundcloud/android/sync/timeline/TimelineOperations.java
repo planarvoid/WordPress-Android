@@ -6,6 +6,7 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
@@ -35,18 +36,21 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
     private final SyncInitiator syncInitiator;
     private final ContentStats contentStats;
     private final Scheduler scheduler;
+    private final SyncStateStorage syncStateStorage;
     private final List<ItemT> noMorePagesSentinel = Collections.emptyList();
 
     public TimelineOperations(SyncContent syncContent,
                               TimelineStorage storage,
                               SyncInitiator syncInitiator,
                               ContentStats contentStats,
-                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                              SyncStateStorage syncStateStorage) {
         this.syncContent = syncContent;
         this.storage = storage;
         this.syncInitiator = syncInitiator;
         this.contentStats = contentStats;
         this.scheduler = scheduler;
+        this.syncStateStorage = syncStateStorage;
     }
 
     protected Observable<List<ItemT>> initialTimelineItems(boolean syncCompleted) {
@@ -171,5 +175,9 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
             return iterator.previous().getCreatedAt();
         }
         return null;
+    }
+
+    public Observable<Long> getLastSync() {
+        return syncStateStorage.getLastSync(syncContent.content.uri);
     }
 }

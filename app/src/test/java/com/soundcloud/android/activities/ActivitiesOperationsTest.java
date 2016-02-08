@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
 import com.soundcloud.java.collections.PropertySet;
@@ -21,8 +22,9 @@ public class ActivitiesOperationsTest extends TimelineOperationsTest<ActivityIte
     protected TimelineOperations<ActivityItem> buildOperations(ActivitiesStorage storage,
                                                                SyncInitiator syncInitiator,
                                                                ContentStats contentStats,
-                                                               Scheduler scheduler) {
-        return new ActivitiesOperations(storage, syncInitiator, contentStats, scheduler);
+                                                               Scheduler scheduler,
+                                                               SyncStateStorage syncStateStorage) {
+        return new ActivitiesOperations(storage, syncInitiator, contentStats, scheduler, syncStateStorage);
     }
 
     @Override
