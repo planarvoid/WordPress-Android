@@ -18,6 +18,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -77,6 +78,12 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
             case R.id.player_previous:
                 listener.onPrevious();
                 break;
+            case R.id.video_fullscreen_control:
+                listener.onFullscreen();
+                break;
+            case R.id.video_shrink_control:
+                listener.onShrink();
+                break;
             case R.id.cta_button:
                 listener.onClickThrough();
                 break;
@@ -110,35 +117,52 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     }
 
     @Override
-    public void bindItemView(View view, VideoPlayerAd playerAd) {
-        final Holder holder = getViewHolder(view);
-        adjustLayoutForVideo(playerAd, holder);
+    public void bindItemView(View adView, VideoPlayerAd playerAd) {
+        final Holder holder = getViewHolder(adView);
+        adjustLayoutForVideo(adView, playerAd, holder);
         resetSkipButton(holder, resources);
         displayPreview(playerAd, holder, imageOperations, resources);
         styleCallToActionButton(holder, playerAd, resources);
         setClickListener(this, holder.onClickViews);
     }
 
-    private void adjustLayoutForVideo(VideoPlayerAd playerAd, Holder holder) {
-        final ViewGroup.LayoutParams layoutParams = holder.videoSurfaceView.getLayoutParams();
+    private void adjustLayoutForVideo(View adView, VideoPlayerAd playerAd, Holder holder) {
+        final LayoutParams layoutParams = adjustedVideoViewLayoutParams(playerAd, holder);
+        final int backgroundColor = resources.getColor(isOrientationLandscape() ? R.color.ad_landscape_video_background : R.color.ad_default_background);
 
-        if (playerAd.isLetterboxVideo()) {
-            final int horizontalPadding = isOrientationPortrait() ? 2 * ViewUtils.dpToPx(resources, 5) : 0;
-            layoutParams.width = resources.getDisplayMetrics().widthPixels - horizontalPadding;
-            layoutParams.height = (int) ((float) layoutParams.width / playerAd.getVideoProportion());
+        adView.setBackgroundColor(backgroundColor);
+        holder.videoSurfaceView.setLayoutParams(layoutParams);
+        holder.videoOverlayContainer.setLayoutParams(layoutParams);
+        holder.fullscreenButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationPortrait() ? View.VISIBLE : View.GONE);
+        holder.shrinkButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationLandscape() ? View.VISIBLE : View.GONE);
+        holder.setupFadingInterface(playerAd.isVerticalVideo() || !isOrientationPortrait());
+
+        if (holder.getUIState() != UIState.INITIAL) {
+            setInactiveUI(holder, adView.getContext(), true);
         } else {
-            // Vertical video view should scale like ImageView's CENTER_CROP
+            resetUI(holder);
+        }
+    }
+
+    private LayoutParams adjustedVideoViewLayoutParams(VideoPlayerAd playerAd, Holder holder) {
+        final LayoutParams layoutParams = holder.videoSurfaceView.getLayoutParams();
+
+        if (playerAd.isVerticalVideo()) { // Vertical video view should scale like ImageView's CENTER_CROP
             final int sourceWidth = playerAd.getFirstSource().getWidth();
             final int sourceHeight = playerAd.getFirstSource().getHeight();
             final float scaleFactor = centerCropScaleFactor(holder.videoContainer, sourceWidth, sourceHeight);
             layoutParams.width = (int) ((float) sourceWidth * scaleFactor);
             layoutParams.height = (int) ((float) sourceHeight * scaleFactor);
+        } else if (isOrientationPortrait()) {
+            final int horizontalPadding = 2 * ViewUtils.dpToPx(resources, 5);
+            layoutParams.width = holder.videoContainer.getWidth() - horizontalPadding;
+            layoutParams.height = (int) ((float) layoutParams.width / playerAd.getVideoProportion());
+        } else { // Landscape View
+            layoutParams.height = holder.videoContainer.getHeight();
+            layoutParams.width = (int) ((float) layoutParams.height * playerAd.getVideoProportion());
         }
 
-        holder.videoSurfaceView.setLayoutParams(layoutParams);
-        holder.videoOverlay.setLayoutParams(layoutParams);
-        holder.setupFadingInterface(playerAd.isVerticalVideo());
-        resetUI(holder);
+        return layoutParams;
     }
 
     // Scale the video while maintaining aspect ratio so that both dimensions (width and height)
@@ -156,7 +180,11 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     }
 
     private boolean isOrientationPortrait() {
-        return deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
+        return deviceHelper.isOrientation(Configuration.ORIENTATION_PORTRAIT);
+    }
+
+    private boolean isOrientationLandscape() {
+        return deviceHelper.isOrientation(Configuration.ORIENTATION_LANDSCAPE);
     }
 
     public void setVideoViewHolder(Holder holder) {
@@ -302,8 +330,12 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
         private final View videoContainer;
         private final SurfaceView videoSurfaceView;
+        private final View videoOverlayContainer;
+        private final View videoLayoutControls;
         private final View videoOverlay;
         private final View pauseButton;
+        private final View fullscreenButton;
+        private final View shrinkButton;
         private final View advertisementLabel;
 
         private final PlayerOverlayController playerOverlayController;
@@ -318,14 +350,18 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
             super(adView);
             videoContainer = adView.findViewById(R.id.video_container);
             videoSurfaceView = (SurfaceView) adView.findViewById(R.id.video_view);
+            videoOverlayContainer = adView.findViewById(R.id.video_overlay_container);
+            videoLayoutControls = adView.findViewById(R.id.video_layout_control);
             videoOverlay = adView.findViewById(R.id.video_overlay);
             pauseButton = adView.findViewById(R.id.video_pause_control);
+            fullscreenButton = adView.findViewById(R.id.video_fullscreen_control);
+            shrinkButton = adView.findViewById(R.id.video_shrink_control);
             advertisementLabel = adView.findViewById(R.id.advertisement);
 
             playerOverlayController = playerOverlayControllerFactory.create(videoOverlay);
 
-            List<View> clickViews = Arrays.asList(playButton, nextButton, previousButton,
-                    pauseButton, videoOverlay, videoSurfaceView, ctaButton, whyAds, skipAd);
+            List<View> clickViews = Arrays.asList(playButton, nextButton, previousButton, shrinkButton,
+                    fullscreenButton, pauseButton, videoOverlay, videoSurfaceView, ctaButton, whyAds, skipAd);
 
             onClickViews = Iterables.filter(clickViews, presentInConfig);
         }
@@ -339,7 +375,8 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         }
 
         void setupFadingInterface(boolean enableAllFadeableElements) {
-            final List<View> fadeViews = enableAllFadeableElements ? getAllFadeableElementViews() : Collections.<View>emptyList();
+            final List<View> fadeViews = enableAllFadeableElements ?
+                    getAllFadeableElementViews() : Collections.singletonList(videoLayoutControls);
             final List<View> fadeViewsWithPause = new ArrayList<View>(fadeViews);
             fadeViewsWithPause.add(pauseButton);
             fadingViews = Iterables.filter(fadeViews, presentInConfig);
@@ -347,7 +384,8 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         }
 
         private List<View> getAllFadeableElementViews() {
-            return Arrays.asList(advertisementLabel, whyAds, ctaButton, previewContainer);
+            return Arrays.asList(advertisementLabel, whyAds, ctaButton, previewContainer, videoLayoutControls);
         }
+
     }
 }

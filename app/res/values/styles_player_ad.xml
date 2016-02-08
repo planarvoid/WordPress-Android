@@ -88,4 +88,22 @@
         <item name="android:background">@drawable/btn_video_ad_pause</item>
     </style>
 
+    <style name="AdVideoFullscreen">
+        <item name="android:layout_width">15dp</item>
+        <item name="android:layout_height">15dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:background">@drawable/btn_video_ad_fullscreen</item>
+    </style>
+
+    <style name="AdVideoShrink">
+        <item name="android:layout_width">15dp</item>
+        <item name="android:layout_height">15dp</item>
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:background">@drawable/btn_video_ad_shrink</item>
+    </style>
+
 </resources>

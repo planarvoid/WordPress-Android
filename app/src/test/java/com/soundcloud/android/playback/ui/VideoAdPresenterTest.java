@@ -29,6 +29,7 @@ import org.mockito.Mock;
 
 import java.util.concurrent.TimeUnit;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.android.api.Assertions.assertThat;
@@ -65,14 +66,23 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void letterboxVideoDoesNotHaveFadingElements() {
+    public void videoViewAspectRatioMaintainedForLetterbox() {
         bindLetterboxVideo();
-        assertThat(fadingViews().iterator().hasNext()).isFalse();
+        final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
+        final int viewWidth = layoutParams.width;
+        final int viewHeight = layoutParams.height;
+
+        final float newAspectRatio = (float) viewWidth / (float) viewHeight;
+        final float originalAspectRatio = (float) LETTERBOX_VIDEO_WIDTH / (float) LETTERBOX_VIDEO_HEIGHT;
+
+        assertThat(newAspectRatio).isEqualTo(originalAspectRatio, Offset.offset(0.001F));
     }
 
     @Test
-    public void videoViewAspectRatioMaintainedForLetterbox() {
+    public void videoViewAspectRatioMaintainedForLandscape() {
+        when(deviceHelper.getCurrentOrientation()).thenReturn(ORIENTATION_LANDSCAPE);
         bindLetterboxVideo();
+
         final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
         final int viewWidth = layoutParams.width;
         final int viewHeight = layoutParams.height;
@@ -208,6 +218,20 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         adView.findViewById(R.id.skip_ad).performClick();
 
         verify(pageListener).onSkipAd();
+    }
+
+    @Test
+    public void clickFullscreenShouldFullscreen() {
+        adView.findViewById(R.id.video_fullscreen_control).performClick();
+
+        verify(pageListener).onFullscreen();
+    }
+
+    @Test
+    public void clickShrinkShouldShrink() {
+        adView.findViewById(R.id.video_shrink_control).performClick();
+
+        verify(pageListener).onShrink();
     }
 
     @Test

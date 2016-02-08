@@ -90,6 +90,10 @@ public class DeviceHelper {
         return context.getResources().getConfiguration().orientation;
     }
 
+    public boolean isOrientation(int orientation) {
+        return getCurrentOrientation() == orientation;
+    }
+
     public static String getBuildInfo() {
         return MoreObjects.toStringHelper("Build")
                 .add("Brand", Build.BRAND)

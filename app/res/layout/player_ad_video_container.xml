@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/video_container"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <SurfaceView
+        android:id="@+id/video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
+
+    <FrameLayout
+        android:id="@+id/video_overlay_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
+
+        <com.soundcloud.android.playback.ui.view.ArtworkAdOverlayView
+            android:id="@+id/video_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/artwork_overlay"/>
+
+        <FrameLayout
+            android:id="@+id/video_layout_control"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/player_gradient_height"
+                android:background="@drawable/player_gradient_top"/>
+
+            <Button android:id="@+id/video_fullscreen_control"
+                    style="@style/AdVideoFullscreen"/>
+
+            <Button android:id="@+id/video_shrink_control"
+                    style="@style/AdVideoShrink"/>
+
+        </FrameLayout>
+
+    </FrameLayout>
+
+</FrameLayout>

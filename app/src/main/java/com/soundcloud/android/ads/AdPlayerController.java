@@ -17,6 +17,7 @@ import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func2;
+import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -74,13 +75,14 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
 
     @Override
     public void onResume(AppCompatActivity activity) {
-        subscription = Observable
+        subscription = new CompositeSubscription(Observable
                 .combineLatest(
                         eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
                         eventBus.queue(EventQueue.PLAYER_UI),
                         toPlayerState)
                 .doOnNext(setAdHasBeenSeen)
-                .subscribe(new PlayQueueSubscriber(activity));
+                .subscribe(new PlayQueueSubscriber(activity)),
+                eventBus.queue(EventQueue.PLAYER_COMMAND).subscribe(new PlayerCommandSubscriber(activity)));
     }
 
     @Override
@@ -89,6 +91,27 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
             playSessionController.pause();
         }
         subscription.unsubscribe();
+    }
+
+    private class PlayerCommandSubscriber extends DefaultSubscriber<PlayerUICommand> {
+
+        final WeakReference<Activity> currentActivityRef;
+
+        PlayerCommandSubscriber(Activity activity) {
+            currentActivityRef = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void onNext(PlayerUICommand event) {
+            final Activity currentActivity = currentActivityRef.get();
+            if (currentActivity != null && adsOperations.isCurrentItemVideoAd()) {
+                if (event.isForceLandscape()) {
+                    currentActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                } else if (event.isForcePortrait()) {
+                    currentActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                }
+            }
+        }
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayerState> {
