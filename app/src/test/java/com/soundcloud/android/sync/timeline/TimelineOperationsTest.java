@@ -208,9 +208,9 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
     @Test
     public void getLastSyncReturnsLastTimestamp() {
         final TestSubscriber<Long> subscriber = new TestSubscriber<>();
-        when(syncStateStorage.getLastSync(syncContent.content.uri)).thenReturn(Observable.just(123L));
+        when(syncStateStorage.lastSyncTime(syncContent.content.uri)).thenReturn(Observable.just(123L));
 
-        operations.getLastSync().subscribe(subscriber);
+        operations.lastSyncTime().subscribe(subscriber);
 
         subscriber.assertValue(123L);
     }

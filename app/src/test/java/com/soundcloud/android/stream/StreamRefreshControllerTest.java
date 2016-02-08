@@ -44,7 +44,7 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
 
     @Test
     public void onResumeEmitsRefreshStreamEventWhenStale() throws Exception {
-        when(operations.getLastSync()).thenReturn(Observable.just(-1L));
+        when(operations.lastSyncTime()).thenReturn(Observable.just(-1L));
 
         controller.onResume(activity);
         scheduler.advanceTimeBy(30, TimeUnit.SECONDS);
@@ -54,7 +54,7 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
 
     @Test
     public void onResumeDoesNotEmitRefreshStreamEventWhenNotStale() throws Exception {
-        when(operations.getLastSync()).thenReturn(Observable.just(dateProvider.getCurrentTime()));
+        when(operations.lastSyncTime()).thenReturn(Observable.just(dateProvider.getCurrentTime()));
 
         controller.onResume(activity);
         scheduler.advanceTimeBy(30, TimeUnit.SECONDS);

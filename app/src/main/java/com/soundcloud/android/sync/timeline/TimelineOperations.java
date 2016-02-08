@@ -177,7 +177,7 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
         return null;
     }
 
-    public Observable<Long> getLastSync() {
-        return syncStateStorage.getLastSync(syncContent.content.uri);
+    public Observable<Long> lastSyncTime() {
+        return syncStateStorage.lastSyncTime(syncContent.content.uri);
     }
 }

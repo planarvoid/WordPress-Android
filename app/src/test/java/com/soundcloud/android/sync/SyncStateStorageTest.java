@@ -91,14 +91,14 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
     public void getLastSyncShouldReturnLastTimestamp() {
         testFixtures().insertSuccessfulSync(SyncContent.MySoundStream, 123L);
 
-        storage.getLastSync(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
+        storage.lastSyncTime(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
 
         timeSubscriber.assertValue(123L);
     }
 
     @Test
     public void getLastSyncShouldReturnNotSetTheFirstTime() {
-        storage.getLastSync(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
+        storage.lastSyncTime(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
 
         timeSubscriber.assertValue(-1L);
     }

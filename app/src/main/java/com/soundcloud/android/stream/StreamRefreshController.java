@@ -67,7 +67,7 @@ public class StreamRefreshController extends DefaultActivityLightCycle<AppCompat
     private Subscription streamRefreshSubscription() {
         return Observable
                 .interval(VERIFY_INTERVAL_MS, TimeUnit.MILLISECONDS, scheduler)
-                .flatMap(continueWith(operations.getLastSync()))
+                .flatMap(continueWith(operations.lastSyncTime()))
                 .filter(canUpdateStream)
                 .flatMap(continueWith(operations.updatedStreamItems()))
                 .map(returning(fromStreamRefresh()))
