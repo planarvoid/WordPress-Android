@@ -13,6 +13,7 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
@@ -125,7 +126,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onResume(Fragment fragment) {
         fragmentManager = fragment.getFragmentManager();
-        foregroundSubscription =  eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber());
+        foregroundSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber());
     }
 
     @Override
@@ -234,11 +235,11 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     private TrackingEvent getOfflinePlaylistTrackingEvent(boolean isMarkedForOffline) {
         return isMarkedForOffline ?
-                UIEvent.fromAddOfflinePlaylist(
+                OfflineInteractionEvent.fromAddOfflinePlaylist(
                         Screen.PLAYLIST_DETAILS.get(),
                         playlistWithTracks.getUrn(),
                         playSessionSourceInfo.getPromotedSourceInfo()) :
-                UIEvent.fromRemoveOfflinePlaylist(
+                OfflineInteractionEvent.fromRemoveOfflinePlaylist(
                         Screen.PLAYLIST_DETAILS.get(),
                         playlistWithTracks.getUrn(),
                         playSessionSourceInfo.getPromotedSourceInfo());

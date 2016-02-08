@@ -8,7 +8,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
@@ -84,7 +84,8 @@ class LikesMenuPresenter {
             ConfirmRemoveOfflineDialogFragment.showForLikes(fragmentManager);
         } else {
             fireAndForget(offlineOperations.disableOfflineLikedTracks());
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
+            eventBus.publish(EventQueue.TRACKING,
+                    OfflineInteractionEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
         }
     }
 

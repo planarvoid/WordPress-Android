@@ -10,6 +10,7 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -99,18 +100,6 @@ public class EventLoggerV1JsonDataBuilder {
 
     public String buildForUIEvent(UIEvent event) {
         switch (event.getKind()) {
-            case UIEvent.KIND_OFFLINE_PLAYLIST_ADD:
-                return transform(buildClickEvent("playlist_to_offline::add", event));
-            case UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
-                return transform(buildClickEvent("playlist_to_offline::remove", event));
-            case UIEvent.KIND_OFFLINE_LIKES_ADD:
-                return transform(buildClickEvent("likes_to_offline::add", event));
-            case UIEvent.KIND_OFFLINE_LIKES_REMOVE:
-                return transform(buildClickEvent("likes_to_offline::remove", event));
-            case UIEvent.KIND_OFFLINE_COLLECTION_ADD:
-                return transform(buildClickEvent("collection_to_offline::add", event));
-            case UIEvent.KIND_OFFLINE_COLLECTION_REMOVE:
-                return transform(buildClickEvent("collection_to_offline::remove", event));
             case UIEvent.KIND_SHARE:
                 return transform(buildEngagementEvent("share", event));
             case UIEvent.KIND_REPOST:
@@ -126,7 +115,25 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    public String buildForOfflineSyncEvent(OfflinePerformanceEvent event) {
+    public String buildForOfflineInteractionEvent(OfflineInteractionEvent event) {
+        if (OfflineInteractionEvent.KIND_LIMIT_BELOW_USAGE.equals(event.getKind())) {
+            return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                    .impressionCategory("consumer_subs")
+                    .impressionName(event.getKind())
+                    .pageName(event.getPageName()));
+        } else {
+            return transform(buildBaseEvent(CLICK_EVENT, event)
+                    .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
+                    .clickName(event.getKind())
+                    .pageName(event.getPageName())
+                    .clickObject(event.getClickObject())
+                    .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
+                    .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
+                    .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN)));
+        }
+    }
+
+    public String buildForOfflinePerformanceEvent(OfflinePerformanceEvent event) {
         final EventLoggerEventData eventLoggerEventData = buildBaseEvent(OFFLINE_SYNC_EVENT, event)
                 .eventStage(event.getKind())
                 .track(event.getTrackUrn())

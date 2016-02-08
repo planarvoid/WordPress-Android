@@ -6,8 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -37,8 +36,8 @@ public class OfflineLikesDialogTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("page_name");
         dialog.onClick(mock(DialogInterface.class), 0);
 
-        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_OFFLINE_LIKES_ADD);
+        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
+        assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_LIKES_ADD);
         assertThat(trackingEvent.getAttributes()
                 .containsValue("page_name")).isTrue();
     }

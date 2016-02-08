@@ -9,6 +9,7 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -100,13 +101,19 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleFacebookInvitesEvent((FacebookInvitesEvent) event);
         } else if (event instanceof CollectionEvent) {
             handleCollectionEvent((CollectionEvent) event);
+        } else if (event instanceof OfflineInteractionEvent) {
+            handleOfflineInteractionEvent((OfflineInteractionEvent) event);
         } else if (event instanceof OfflinePerformanceEvent) {
-            handleOfflineSyncEvent((OfflinePerformanceEvent) event);
+            handleOfflinePerformanceEvent((OfflinePerformanceEvent) event);
         }
     }
 
-    private void handleOfflineSyncEvent(OfflinePerformanceEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForOfflineSyncEvent(event));
+    private void handleOfflineInteractionEvent(OfflineInteractionEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForOfflineInteractionEvent(event));
+    }
+
+    private void handleOfflinePerformanceEvent(OfflinePerformanceEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForOfflinePerformanceEvent(event));
     }
 
     private void handleCollectionEvent(CollectionEvent event) {
@@ -163,14 +170,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             case UIEvent.KIND_UNLIKE:
             case UIEvent.KIND_REPOST:
             case UIEvent.KIND_UNREPOST:
-                trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
-                break;
-            case UIEvent.KIND_OFFLINE_LIKES_ADD:
-            case UIEvent.KIND_OFFLINE_LIKES_REMOVE:
-            case UIEvent.KIND_OFFLINE_COLLECTION_ADD:
-            case UIEvent.KIND_OFFLINE_COLLECTION_REMOVE:
-            case UIEvent.KIND_OFFLINE_PLAYLIST_ADD:
-            case UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
             case UIEvent.KIND_SHARE:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
