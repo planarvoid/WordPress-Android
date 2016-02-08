@@ -28,7 +28,6 @@ public class ConfigurationHelper {
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
     private static final String PREFS_FACEBOOK_INVITES_SETTINGS = "facebook_invites";
-    private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
     private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
     private static final String TAG = "TestRunner";
 
