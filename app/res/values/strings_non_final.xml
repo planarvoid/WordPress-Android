@@ -165,4 +165,29 @@
     <string name="search_premium_content_view_all">See all SoundCloud Go results</string>
     <string name="search_premium_content_upsell">Upgrade to hear full tracks</string>
 
+    <!-- __NOTIFICATION SETTINGS -->
+    <string name="push_notifications_all_title">Push notifications</string>
+    <string name="push_notifications_all_summary">Turn on all mobile notifications\nor select which to receive</string>
+    <string name="push_notifications_follower">New follower</string>
+    <string name="push_notifications_repost">Repost of your post</string>
+    <string name="push_notifications_new_post">New post by followed user</string>
+    <string name="push_notifications_like">Like on your post</string>
+    <string name="push_notifications_product_updates">Product updates</string>
+    <string name="push_notifications_survey">Invite to survey</string>
+    <string name="push_notifications_tips">Tips and best practices</string>
+
+    <string name="email_notifications_all_title">Email notifications</string>
+    <string name="email_notifications_all_summary">Turn on all email notifications\nor select which to receive</string>
+    <string name="email_notifications_follower">New follower</string>
+    <string name="email_notifications_repost">Repost of your post</string>
+    <string name="email_notifications_new_post">New post by followed user</string>
+    <string name="email_notifications_like">Like on your post</string>
+    <string name="email_notifications_message">New message</string>
+    <string name="email_notifications_comment">Comment on your post</string>
+    <string name="email_notifications_group">New group post</string>
+    <string name="email_notifications_product_updates">Product updates</string>
+    <string name="email_notifications_survey">Invite to survey</string>
+    <string name="email_notifications_tips">Tips and best practices</string>
+    <string name="email_notifications_newsletter">SoundCloud newsletter</string>
+
 </resources>

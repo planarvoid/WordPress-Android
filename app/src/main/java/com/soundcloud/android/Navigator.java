@@ -26,6 +26,7 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.settings.LegalActivity;
+import com.soundcloud.android.settings.NewNotificationSettingsActivity;
 import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
@@ -244,6 +245,10 @@ public class Navigator {
     public void openTrackComments(Context context, Urn trackUrn) {
         context.startActivity(new Intent(context, TrackCommentsActivity.class)
                 .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
+    }
+
+    public void openNewNotificationSettings(Context context) {
+        context.startActivity(new Intent(context, NewNotificationSettingsActivity.class));
     }
 
     private Intent createHomeIntent(Context context) {
