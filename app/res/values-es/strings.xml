@@ -195,7 +195,9 @@
   <string name="onboarding_gender_option_nopref">Prefiero no decirlo</string>
   <string name="ok_got_it">De acuerdo</string>
   <!--__LANDING-->
-  <string name="signup_button">Accede con tu dirección de email</string>
+  <string name="landing_title">Encuentra tu música favorita.</string>
+  <string name="landing_sub_title">Descubre nuevos artistas.</string>
+  <string name="signup_button">Regístrate con tu dirección de email</string>
   <string name="login_header">O accede con tu cuenta</string>
   <!--__ONBOARDING CATEGORIES-->
   <string tools:ignore="UnusedResources" name="category_facebook_friends">Amigos de Facebook</string>
@@ -564,11 +566,14 @@
   <string name="you_view_public_profile">Ver perfil público</string>
   <string name="you_app_version">Versión %s de la aplicación</string>
   <!--__NEW STREAM-->
+  <string name="stream_playlist_header_text">%1$s %2$s una lista</string>
+  <string name="stream_track_header_text">%1$s %2$s una pista</string>
   <string name="stream_posted_action">ha publicado</string>
   <string name="stream_reposted_action">ha reposteado</string>
   <string name="stream_promoted_action">ha promocionado</string>
   <string name="stream_track">pista</string>
   <string name="stream_playlist">lista</string>
+  <string name="stream_promoted_playable">promocionó %s</string>
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
         ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>-->
