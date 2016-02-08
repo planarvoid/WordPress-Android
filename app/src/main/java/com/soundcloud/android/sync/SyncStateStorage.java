@@ -48,9 +48,9 @@ public class SyncStateStorage {
         return propellerRx.query(query).map(scalar(Boolean.class)).defaultIfEmpty(false);
     }
 
-    public Observable<Long> lastSyncTime(Uri uri) {
+    public Observable<Long> lastSyncAttemptTime(Uri uri) {
         final Query query = Query.from(Collections)
-                .select(TableColumns.Collections.LAST_SYNC)
+                .select(TableColumns.Collections.LAST_SYNC_ATTEMPT)
                 .whereIn(TableColumns.Collections.URI, uri.toString());
         return propellerRx.query(query).map(scalar(Long.class)).defaultIfEmpty((long) Consts.NOT_SET);
     }
