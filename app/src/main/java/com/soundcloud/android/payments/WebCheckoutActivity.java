@@ -25,7 +25,7 @@ public class WebCheckoutActivity extends ScActivity {
 
     @Override
     public void onBackPressed() {
-        if (!presenter.onBackPressed()) {
+        if (!presenter.handleBackPress()) {
             super.onBackPressed();
         }
     }
