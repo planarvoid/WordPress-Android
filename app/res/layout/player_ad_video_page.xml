@@ -6,9 +6,7 @@
         android:layout_height="match_parent"
         android:background="@color/ad_default_background">
 
-    <include
-        android:id="@+id/video_container"
-        layout="@layout/player_ad_video_container" />
+    <include layout="@layout/player_ad_video_container"/>
     <include layout="@layout/player_gradient"/>
     <include layout="@layout/player_ad_expanded_header"/>
 

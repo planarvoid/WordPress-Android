@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/video_container"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
     <SurfaceView
         android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"/>
 
     <FrameLayout
         android:id="@+id/video_overlay_container"
@@ -18,7 +21,7 @@
             android:id="@+id/video_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/artwork_overlay" />
+            android:background="@color/artwork_overlay"/>
 
         <FrameLayout
             android:id="@+id/video_layout_control"
@@ -28,18 +31,16 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/player_gradient_height"
-                android:background="@drawable/player_gradient_top" />
+                android:background="@drawable/player_gradient_top"/>
 
-            <Button
-                android:id="@+id/video_fullscreen_control"
-                style="@style/AdVideoFullscreen" />
+            <Button android:id="@+id/video_fullscreen_control"
+                    style="@style/AdVideoFullscreen"/>
 
-            <Button
-                android:id="@+id/video_shrink_control"
-                style="@style/AdVideoShrink" />
+            <Button android:id="@+id/video_shrink_control"
+                    style="@style/AdVideoShrink"/>
 
         </FrameLayout>
 
     </FrameLayout>
 
-</merge>
+</FrameLayout>
