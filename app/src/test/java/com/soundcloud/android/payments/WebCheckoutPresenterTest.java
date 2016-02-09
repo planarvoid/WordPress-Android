@@ -1,6 +1,7 @@
 package com.soundcloud.android.payments;
 
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +41,15 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
 
         verify(view).loadUrl(WebCheckoutInterface.PAYMENT_FORM_URL);
+    }
+
+    @Test
+    public void loadsFormOnRetry() {
+        presenter.onCreate(activity, null);
+
+        presenter.onRetry();
+
+        verify(view, times(2)).loadUrl(WebCheckoutInterface.PAYMENT_FORM_URL);
     }
 
     @Test
