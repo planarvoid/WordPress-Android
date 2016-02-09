@@ -17,6 +17,7 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -402,54 +403,116 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createsJsonForLikesToOfflineAddEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromAddOfflineLikes(PAGE_NAME);
+    public void createsJsonForGoOnboardingStartEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromOnboardingStart();
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
-                .clickName("likes_to_offline::add")
+                .clickName("offline_sync_onboarding::start")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForGoOnboardingDismissEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromOnboardingDismiss();
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickName("offline_sync_onboarding::dismiss")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForGoOnboardingAutomaticSyncEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromOnboardingWithAutomaticSync();
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickName("offline_sync_onboarding::automatic_collection_sync")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForGoOnboardingManualSyncEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromOnboardingWithManualSync();
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickName("offline_sync_onboarding::manual_sync")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForWifiOnlyOfflineSyncEnabledEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.forOnlyWifiOverWifiToggle(true);
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickName("only_sync_over_wifi::enable")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForWifiOnlyOfflineSyncDisabledEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.forOnlyWifiOverWifiToggle(false);
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickName("only_sync_over_wifi::disable")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForEnableOfflineCollectionSyncEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromEnableCollectionSync(PAGE_NAME);
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickName("automatic_collection_sync::enable")
+                .clickCategory("consumer_subs")
                 .pageName(PAGE_NAME));
     }
 
     @Test
-    public void createsJsonForLikesToOfflineRemoveEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromRemoveOfflineLikes(PAGE_NAME);
+    public void createsJsonForDisableOfflineCollectionEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromDisableCollectionSync(PAGE_NAME);
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
-                .clickName("likes_to_offline::remove")
+                .clickName("automatic_collection_sync::disable")
+                .clickCategory("consumer_subs")
                 .pageName(PAGE_NAME));
     }
 
     @Test
-    public void createsJsonForCollectionToOfflineAddEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleOfflineCollection(true);
+    public void createsJsonForDisableOfflineCollectionFromPlaylistEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromDisableCollectionSync(PAGE_NAME, Optional.of(PLAYLIST_URN));
 
-        jsonDataBuilder.buildForUIEvent(event);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
-                .clickName("collection_to_offline::add"));
-    }
-
-    @Test
-    public void createsJsonForCollectionToOfflineRemoveEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleOfflineCollection(false);
-
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
-                .clickName("collection_to_offline::remove"));
+                .clickName("automatic_collection_sync::disable")
+                .clickCategory("consumer_subs")
+                .clickObject(PLAYLIST_URN.toString())
+                .pageName(PAGE_NAME));
     }
 
     @Test
     public void createsJsonForPlaylistToOfflineAddEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromAddOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, null);
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromAddOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, null);
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickCategory("consumer_subs")
                 .clickName("playlist_to_offline::add")
                 .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME));
@@ -457,11 +520,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForPlaylistToOfflineRemoveEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromRemoveOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, null);
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, null);
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickCategory("consumer_subs")
                 .clickName("playlist_to_offline::remove")
                 .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME));
@@ -469,13 +533,14 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForPlaylistToOfflineRemoveEventForPromotedItem() throws ApiMapperException {
-        PromotedListItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        final PromotedListItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
-        final UIEvent event = UIEvent.fromRemoveOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, promotedSourceInfo);
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, promotedSourceInfo);
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickCategory("consumer_subs")
                 .clickName("playlist_to_offline::remove")
                 .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME)
@@ -485,11 +550,47 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsJsonForEnableOfflineLikesEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromEnableOfflineLikes(PAGE_NAME);
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickName("automatic_likes_sync::enable")
+                .clickCategory("consumer_subs")
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForLikesToOfflineRemoveEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflineLikes(PAGE_NAME);
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v1.7.0", event.getTimestamp())
+                .clickName("automatic_likes_sync::disable")
+                .clickCategory("consumer_subs")
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForOfflineStorageLimitBelowUsage() throws Exception {
+        OfflineInteractionEvent impression = OfflineInteractionEvent.forStorageBelowLimitImpression();
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", "v1.7.0", impression.getTimestamp())
+                .pageName("settings:offline_sync_settings")
+                .impressionCategory("consumer_subs")
+                .impressionName("offline_storage::limit_below_usage"));
+    }
+
+    @Test
     public void createJsonFromOfflineSyncStartEventWithPlaylistTrackContext() throws ApiMapperException {
         final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStarted(TRACK_URN, trackContext);
 
-        jsonDataBuilder.buildForOfflineSyncEvent(event);
+        jsonDataBuilder.buildForOfflinePerformanceEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.7.0", event.getTimestamp())
                         .track(TRACK_URN)
@@ -505,7 +606,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromFailed(TRACK_URN, trackContext);
 
-        jsonDataBuilder.buildForOfflineSyncEvent(event);
+        jsonDataBuilder.buildForOfflinePerformanceEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.7.0", event.getTimestamp())
                         .track(TRACK_URN)
@@ -521,7 +622,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCancelled(TRACK_URN, trackContext);
 
-        jsonDataBuilder.buildForOfflineSyncEvent(event);
+        jsonDataBuilder.buildForOfflinePerformanceEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.7.0", event.getTimestamp())
                         .track(TRACK_URN)
@@ -537,7 +638,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCompleted(TRACK_URN, trackContext);
 
-        jsonDataBuilder.buildForOfflineSyncEvent(event);
+        jsonDataBuilder.buildForOfflinePerformanceEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.7.0", event.getTimestamp())
                         .track(TRACK_URN)

@@ -18,7 +18,7 @@ import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -33,7 +33,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -192,8 +191,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
-        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_OFFLINE_PLAYLIST_ADD);
+        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
+        assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_ADD);
         assertThat(trackingEvent.getAttributes()
                 .containsValue(String.valueOf(playlist.getEntityUrn()))).isTrue();
     }
@@ -217,8 +216,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, activity);
 
-        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE);
+        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
+        assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_REMOVE);
         assertThat(trackingEvent.getAttributes()
                 .containsValue(String.valueOf(playlist.getEntityUrn()))).isTrue();
     }

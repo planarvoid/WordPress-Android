@@ -14,6 +14,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -139,9 +140,10 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
 
     private void saveOffline() {
         fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlist.getEntityUrn()));
-        eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromAddOfflinePlaylist(
-                        screenProvider.getLastScreenTag(), playlist.getEntityUrn(), getPromotedSourceIfExists()));
+        eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromAddOfflinePlaylist(
+                screenProvider.getLastScreenTag(),
+                playlist.getEntityUrn(),
+                getPromotedSourceIfExists()));
     }
 
     private void removeFromOffline(FragmentManager fragmentManager) {
@@ -149,9 +151,10 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlist.getEntityUrn(), getPromotedSourceIfExists());
         } else {
             fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn()));
-            eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromRemoveOfflinePlaylist(
-                            screenProvider.getLastScreenTag(), playlist.getEntityUrn(), getPromotedSourceIfExists()));
+            eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromRemoveOfflinePlaylist(
+                    screenProvider.getLastScreenTag(),
+                    playlist.getEntityUrn(),
+                    getPromotedSourceIfExists()));
         }
     }
 

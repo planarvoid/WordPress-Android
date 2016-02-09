@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -47,7 +47,8 @@ public class OfflineLikesDialog extends DialogFragment implements DialogInterfac
     @Override
     public void onClick(DialogInterface dialog, int which) {
         fireAndForget(offlineOperations.enableOfflineLikedTracks());
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddOfflineLikes(screenProvider.getLastScreenTag()));
+        eventBus.publish(EventQueue.TRACKING,
+                OfflineInteractionEvent.fromEnableOfflineLikes(screenProvider.getLastScreenTag()));
     }
 
     @Override

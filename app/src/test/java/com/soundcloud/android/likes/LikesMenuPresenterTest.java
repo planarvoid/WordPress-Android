@@ -12,8 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -136,8 +135,8 @@ public class LikesMenuPresenterTest extends AndroidUnitTest {
 
         likesMenuPresenter.onOptionsItemSelected(makeOfflineUnavailableItem, context, fragmentManager);
 
-        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(trackingEvent.getKind()).isEqualTo(UIEvent.KIND_OFFLINE_LIKES_REMOVE);
+        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
+        assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_LIKES_REMOVE);
         assertThat(trackingEvent.getAttributes()
                 .containsValue("page_name")).isTrue();
     }
