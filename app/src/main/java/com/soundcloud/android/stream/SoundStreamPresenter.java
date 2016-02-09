@@ -12,6 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.StreamEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
@@ -26,6 +27,9 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -60,6 +64,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     private final MixedItemClickListener itemClickListener;
     private final StationsOperations stationsOperations;
     private final Navigator navigator;
+    private final FeatureFlags featureFlags;
 
     private CompositeSubscription viewLifeCycle;
     private Fragment fragment;
@@ -73,7 +78,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
                          EventBus eventBus,
                          MixedItemClickListener.Factory itemClickListenerFactory,
                          FacebookInvitesDialogPresenter invitesDialogPresenter,
-                         Navigator navigator) {
+                         Navigator navigator,
+                         FeatureFlags featureFlags) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build());
         this.streamOperations = streamOperations;
         this.adapter = adapter;
@@ -82,7 +88,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
         this.navigator = navigator;
-        
+        this.featureFlags = featureFlags;
+
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
 
         adapter.setOnFacebookInvitesClickListener(this);
@@ -123,6 +130,10 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
+
+        if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
+            viewLifeCycle.add(eventBus.subscribe(EventQueue.STREAM, new StreamEventSubscriber()));
+        }
     }
 
     private void addScrollListeners() {
@@ -264,4 +275,10 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         eventBus.publish(EventQueue.TRACKING, event);
     }
 
+    private class StreamEventSubscriber extends DefaultSubscriber<StreamEvent> {
+        @Override
+        public void onNext(StreamEvent streamEvent) {
+            // TODO: Show new posts overlay
+        }
+    }
 }

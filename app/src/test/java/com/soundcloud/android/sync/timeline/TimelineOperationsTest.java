@@ -12,6 +12,7 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -38,20 +39,22 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
 
     @Mock protected SyncInitiator syncInitiator;
     @Mock protected ContentStats contentStats;
+    @Mock protected SyncStateStorage syncStateStorage;
     protected StorageT storage;
     protected TestSubscriber<List<ItemT>> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUpTimelineTest() throws Exception {
         storage = provideStorageMock();
-        operations = buildOperations(storage, syncInitiator, contentStats, Schedulers.immediate());
+        operations = buildOperations(storage, syncInitiator, contentStats, Schedulers.immediate(), syncStateStorage);
         syncContent = provideSyncContent();
     }
 
     protected abstract TimelineOperations<ItemT> buildOperations(StorageT storage,
                                                                  SyncInitiator syncInitiator,
                                                                  ContentStats contentStats,
-                                                                 Scheduler scheduler);
+                                                                 Scheduler scheduler,
+                                                                 SyncStateStorage syncStateStorage);
 
     protected abstract StorageT provideStorageMock();
 
@@ -200,6 +203,16 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
         verifyZeroInteractions(storage);
         subscriber.assertValue(Collections.<ItemT>emptyList());
         subscriber.assertCompleted();
+    }
+
+    @Test
+    public void getLastSyncReturnsLastTimestamp() {
+        final TestSubscriber<Long> subscriber = new TestSubscriber<>();
+        when(syncStateStorage.lastSyncAttemptTime(syncContent.content.uri)).thenReturn(Observable.just(123L));
+
+        operations.lastSyncAttemptTime().subscribe(subscriber);
+
+        subscriber.assertValue(123L);
     }
 
     protected List<PropertySet> createItems(int length, long lastItemTimestamp) {
