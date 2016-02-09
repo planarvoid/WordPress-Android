@@ -31,7 +31,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
     @Mock DownloadOperations downloadOperations;
     @Mock TrackDownloadsStorage tracksStorage;
     @Mock SecureFileStorage secureFileStorage;
-    @Mock OfflineSyncTracker performanceTracker;
+    @Mock OfflinePerformanceTracker performanceTracker;
     @Mock WriteResult writeResult;
 
     private DownloadHandler handler;
@@ -184,7 +184,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
         InOrder inOrder = inOrder(performanceTracker);
         inOrder.verify(performanceTracker).downloadStarted(downloadRequest);
-        inOrder.verify(performanceTracker).downloadComplete(downloadRequest);
+        inOrder.verify(performanceTracker).downloadComplete(successResult);
     }
 
     @Test
@@ -195,7 +195,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
         InOrder inOrder = inOrder(performanceTracker);
         inOrder.verify(performanceTracker).downloadStarted(downloadRequest);
-        inOrder.verify(performanceTracker).downloadCancelled(downloadRequest);
+        inOrder.verify(performanceTracker).downloadCancelled(cancelledResult);
     }
 
     @Test
@@ -206,7 +206,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
         InOrder inOrder = inOrder(performanceTracker);
         inOrder.verify(performanceTracker).downloadStarted(downloadRequest);
-        inOrder.verify(performanceTracker).downloadFailed(downloadRequest);
+        inOrder.verify(performanceTracker).downloadFailed(failedResult);
     }
 
     private Message createMessage(DownloadRequest downloadRequest) {

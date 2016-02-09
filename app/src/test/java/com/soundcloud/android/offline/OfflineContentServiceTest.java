@@ -63,7 +63,6 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         deletePendingRemoval = Observable.empty();
         downloadQueue = new DownloadQueue();
 
-        when(downloadHandler.getCurrentTrack()).thenReturn(Urn.NOT_SET);
         when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class)))
                 .thenReturn(downloadMessage);
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
@@ -123,13 +122,12 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
                 .build());
         when(downloadHandler.isDownloading()).thenReturn(true);
         when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
-        when(downloadHandler.getCurrentTrack()).thenReturn(downloadRequest1.getTrack());
 
         startService();
 
         final InOrder inOrder = inOrder(publisher);
         inOrder.verify(publisher).publishRequested(singletonList(downloadRequest2.getTrack()));
-        inOrder.verify(publisher).publishDownloading(downloadHandler.getCurrentTrack());
+        inOrder.verify(publisher).publishDownloading(downloadHandler.getCurrentRequest().getTrack());
     }
 
     @Test
@@ -299,7 +297,6 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Test
     public void republishDownloadingWhenRestartingService() {
         when(downloadHandler.isDownloading()).thenReturn(true);
-        when(downloadHandler.getCurrentTrack()).thenReturn(downloadRequest1.getTrack());
         when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
         setUpsDownloads(downloadRequest1, downloadRequest2);
 

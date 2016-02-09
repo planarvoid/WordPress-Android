@@ -1,11 +1,10 @@
 package com.soundcloud.android.events;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
-
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class OfflinePerformanceEventTest {
 
@@ -41,6 +40,14 @@ public class OfflinePerformanceEventTest {
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCancelled(TRACK_URN, TRACK_CONTEXT);
 
         assertThat(event.getKind()).isEqualTo(OfflinePerformanceEvent.KIND_USER_CANCEL);
+        assertThatTrackContextValuesAreEqual(event, TRACK_URN, TRACK_CONTEXT);
+    }
+
+    @Test
+    public void createSyncErrorFromStorageLimitReachedEvent() {
+        final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStorageLimit(TRACK_URN, TRACK_CONTEXT);
+
+        assertThat(event.getKind()).isEqualTo(OfflinePerformanceEvent.KIND_STORAGE_LIMIT);
         assertThatTrackContextValuesAreEqual(event, TRACK_URN, TRACK_CONTEXT);
     }
 
