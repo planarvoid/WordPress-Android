@@ -46,11 +46,21 @@ public final class UpgradeTrackingEvent extends TrackingEvent {
 
     public static UpgradeTrackingEvent forSettingsClick() {
         return new UpgradeTrackingEvent(KIND_UPSELL_CLICK, TrackingCode.UPSELL_SETTINGS)
-                .put(KEY_PAGE_NAME, Screen.SETTINGS_OFFLINE.get());
+                .put(KEY_PAGE_NAME, Screen.SETTINGS_MAIN.get());
     }
 
     public static UpgradeTrackingEvent forSettingsImpression() {
         return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPSELL_SETTINGS)
+                .put(KEY_PAGE_NAME, Screen.SETTINGS_MAIN.get());
+    }
+
+    public static UpgradeTrackingEvent forUpgradeFromSettingsClick() {
+        return new UpgradeTrackingEvent(KIND_UPSELL_CLICK, TrackingCode.UPSELL_SETTINGS_UPGRADE)
+                .put(KEY_PAGE_NAME, Screen.SETTINGS_OFFLINE.get());
+    }
+
+    public static UpgradeTrackingEvent forUpgradeFromSettingsImpression() {
+        return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPSELL_SETTINGS_UPGRADE)
                 .put(KEY_PAGE_NAME, Screen.SETTINGS_OFFLINE.get());
     }
 

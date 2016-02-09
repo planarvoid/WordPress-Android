@@ -16,6 +16,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.ImageAlertDialog;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -79,6 +80,8 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private void setupUpsell() {
         findPreference(SUBSCRIBE).setOnPreferenceClickListener(this);
+
+        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeFromSettingsImpression());
         setupClearContent();
     }
 
@@ -208,6 +211,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     }
 
     private void openSubscribeScreen() {
+        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeFromSettingsClick());
         navigator.openUpgrade(getActivity());
     }
 
