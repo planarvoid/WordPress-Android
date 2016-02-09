@@ -34,10 +34,18 @@ public class ConfigurationManager {
         subscription = configurationOperations.update().subscribe(new ConfigurationSubscriber());
     }
 
-    public void requestUpdate() {
+    void requestUpdate() {
         Log.d(TAG, "Requesting configuration update");
         subscription.unsubscribe();
         subscription = configurationOperations.updateIfNecessary().subscribe(new ConfigurationSubscriber());
+    }
+
+    boolean isPendingDowngrade() {
+        return configurationOperations.isPendingDowngrade();
+    }
+
+    boolean isPendingHighTierUpgrade() {
+        return configurationOperations.isPendingHighTierUpgrade();
     }
 
     public boolean shouldDisplayDeviceConflict() {

@@ -31,8 +31,8 @@ public class PlanStorageTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsDefaultIfNotSet() {
-        assertThat(storage.getPlan()).isEqualTo(Plan.FREE_TIER);
+    public void returnsUndefinedIfNotSet() {
+        assertThat(storage.getPlan()).isEqualTo(Plan.UNDEFINED);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class PlanStorageTest extends AndroidUnitTest {
 
         storage.clear();
 
-        assertThat(storage.getPlan()).isEqualTo(Plan.FREE_TIER);
+        assertThat(storage.getPlan()).isEqualTo(Plan.UNDEFINED);
     }
 
 }

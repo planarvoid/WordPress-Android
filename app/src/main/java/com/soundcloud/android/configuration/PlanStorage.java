@@ -40,6 +40,7 @@ public class PlanStorage {
     }
 
     public void updatePlan(Plan plan) {
+        Log.d(TAG, "updating plan: " + plan);
         sharedPreferences.edit().putString(KEY_PLAN, plan.planId).apply();
     }
 
@@ -49,7 +50,7 @@ public class PlanStorage {
     }
 
     public Plan getPlan() {
-        return Plan.fromId(sharedPreferences.getString(KEY_PLAN, Plan.FREE_TIER.planId));
+        return Plan.fromId(sharedPreferences.getString(KEY_PLAN, Plan.UNDEFINED.planId));
     }
 
     public List<Plan> getUpsells() {
