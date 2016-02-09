@@ -4,11 +4,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.payments.NativeConversionActivity;
+import com.soundcloud.android.payments.WebConversionActivity;
 
 public class UpgradeScreen extends Screen {
 
-    private static final Class ACTIVITY = NativeConversionActivity.class;
+    private static final Class ACTIVITY = WebConversionActivity.class;
 
     public UpgradeScreen(Han solo) {
         super(solo);
