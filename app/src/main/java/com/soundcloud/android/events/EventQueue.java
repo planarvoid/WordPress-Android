@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.playback.Player.StateTransition;
 
+import com.soundcloud.android.configuration.UserPlanChangedEvent;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -34,7 +35,7 @@ public final class EventQueue {
     public static final Queue<UploadEvent> UPLOAD = Queue.of(UploadEvent.class).onError(ON_ERROR).replay(UploadEvent.idle()).get();
     public static final Queue<PolicyUpdateEvent> POLICY_UPDATES = Queue.of(PolicyUpdateEvent.class).onError(ON_ERROR).get();
     public static final Queue<StreamEvent> STREAM = Queue.of(StreamEvent.class).onError(ON_ERROR).get();
-
+    public static final Queue<UserPlanChangedEvent> USER_PLAN_CHANGE = Queue.of(UserPlanChangedEvent.class).onError(ON_ERROR).get();
 
     // tracking event queues
     public static final Queue<TrackingEvent> TRACKING = Queue.of(TrackingEvent.class).onError(ON_ERROR).get();
