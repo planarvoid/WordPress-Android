@@ -1,6 +1,11 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ADS_RECEIVED;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_ENDPOINT;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_MADE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_SUCCESS;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_SELECTION_OPTIMIZED;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ANONYMOUS_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.BITRATE;
@@ -19,6 +24,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.HOST
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_CATEGORY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_OBJECT;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_FOREGROUND;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_LIKES;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATENCY;
@@ -32,6 +38,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_TYPE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_VISIBLE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYHEAD_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
@@ -153,6 +160,41 @@ class EventLoggerEventData {
 
     public EventLoggerEventData impressionCategory(String impressionCategory) {
         addToPayload(IMPRESSION_CATEGORY, impressionCategory);
+        return this;
+    }
+
+    public EventLoggerEventData inForeground(boolean inForeground) {
+        addToPayload(IN_FOREGROUND, inForeground);
+        return this;
+    }
+
+    public EventLoggerEventData adsRequested(boolean adsRequested) {
+        addToPayload(AD_REQUEST_MADE, adsRequested);
+        return this;
+    }
+
+    public EventLoggerEventData adsEndpoint(String adsEndpoint) {
+        addToPayload(AD_REQUEST_ENDPOINT, adsEndpoint);
+        return this;
+    }
+
+    public EventLoggerEventData adsRequestSuccess(boolean requestSuccessful) {
+        addToPayload(AD_REQUEST_SUCCESS, requestSuccessful);
+        return this;
+    }
+
+    public EventLoggerEventData playerVisible(boolean playerVisible) {
+        addToPayload(PLAYER_VISIBLE, playerVisible);
+        return this;
+    }
+
+    public EventLoggerEventData adOptimized(boolean optimized) {
+        addToPayload(AD_SELECTION_OPTIMIZED, optimized);
+        return this;
+    }
+
+    public EventLoggerEventData adsReceived(String adsReceived) {
+        addToPayload(ADS_RECEIVED, adsReceived);
         return this;
     }
 
@@ -414,5 +456,6 @@ class EventLoggerEventData {
                 .add("version", version)
                 .add("payload", payload).toString();
     }
+
 
 }

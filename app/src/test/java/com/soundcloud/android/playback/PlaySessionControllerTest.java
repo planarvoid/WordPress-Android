@@ -322,6 +322,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void onStateTransitionTriesToReconfigureAd() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
         verify(adsController).reconfigureAdForNextTrack();
+        verify(adsController).publishAdDeliveryEventIfUpcoming();
     }
 
     @Test
@@ -594,6 +595,13 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
         assertThat(event.getAttributes().get("ad_track_urn")).isEqualTo(Urn.forTrack(123).toString());
+    }
+
+    @Test
+    public void settingPlayQueueItemAttemptsAdDeliveryEventPublishIfTrackChanged() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(321L)));
+        controller.setCurrentPlayQueueItem(trackPlayQueueItem);
+        verify(adsController).publishAdDeliveryEventIfUpcoming();
     }
 
     @Test

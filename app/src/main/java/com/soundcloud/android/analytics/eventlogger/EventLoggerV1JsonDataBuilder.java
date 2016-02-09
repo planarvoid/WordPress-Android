@@ -7,6 +7,7 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -26,6 +27,8 @@ import com.soundcloud.java.optional.Optional;
 import android.content.res.Resources;
 
 import javax.inject.Inject;
+
+import java.util.HashMap;
 import java.util.Map;
 
 public class EventLoggerV1JsonDataBuilder {
@@ -34,7 +37,7 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String CLICK_EVENT = "click";
     private static final String OFFLINE_SYNC_EVENT = "offline_sync";
     private static final String IMPRESSION_EVENT = "impression";
-    private static final String BOOGALOO_VERSION = "v1.7.0";
+    private static final String BOOGALOO_VERSION = "v1.14.0";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
@@ -60,6 +63,44 @@ public class EventLoggerV1JsonDataBuilder {
 
     public String buildForAudioEvent(PlaybackSessionEvent event) {
         return transform(buildAudioEvent(event));
+    }
+
+    public String buildForAdDelivery(AdDeliveryEvent event) {
+        switch (event.getKind()) {
+            case AdDeliveryEvent.AD_DELIVERED_KIND:
+                return buildAdDeliveredEvent(event);
+            case AdDeliveryEvent.AD_FAILED_KIND:
+                return buildAdRequestFailedEvent(event);
+            default:
+                throw new IllegalStateException("Unexpected ad delivery type: " + event);
+        }
+    }
+
+    private EventLoggerEventData buildBaseAdDeliveryEvent(AdDeliveryEvent eventData) {
+        return buildBaseEvent("ad_delivery", eventData)
+                .monetizedObject(eventData.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .playerVisible(eventData.playerVisible)
+                .inForeground(eventData.inForeground)
+                .adsRequested(eventData.adsRequested)
+                .adsEndpoint(eventData.get(AdTrackingKeys.KEY_ADS_ENDPOINT));
+    }
+
+    private String buildAdDeliveredEvent(AdDeliveryEvent eventData) {
+        final EventLoggerEventData data = buildBaseAdDeliveryEvent(eventData)
+                .adsRequestSuccess(true)
+                .adOptimized(eventData.adOptimized)
+                .adsReceived(mapToJson(eventData.adsReceived.ads));
+
+        if (eventData.adUrn.isAd()) {
+            data.adUrn(eventData.adUrn.toString());
+        }
+
+        return transform(data);
+    }
+
+    private String buildAdRequestFailedEvent(AdDeliveryEvent eventData) {
+        return transform(buildBaseAdDeliveryEvent(eventData)
+                .adsRequestSuccess(false));
     }
 
     public String buildForFacebookInvites(FacebookInvitesEvent event) {
@@ -276,6 +317,14 @@ public class EventLoggerV1JsonDataBuilder {
     }
 
     private String transform(EventLoggerEventData data) {
+        try {
+            return jsonTransformer.toJson(data);
+        } catch (ApiMapperException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private String mapToJson(HashMap<String, Object> data) {
         try {
             return jsonTransformer.toJson(data);
         } catch (ApiMapperException e) {

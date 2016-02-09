@@ -145,7 +145,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         this.adOperations = adOperations;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
-
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
     }

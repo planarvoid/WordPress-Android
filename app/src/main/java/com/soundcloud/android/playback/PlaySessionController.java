@@ -168,6 +168,7 @@ public class PlaySessionController {
         @Override
         public void call(StateTransition stateTransition) {
             adsController.reconfigureAdForNextTrack();
+            adsController.publishAdDeliveryEventIfUpcoming();
         }
     };
 
@@ -291,6 +292,7 @@ public class PlaySessionController {
 
     public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {
         if (!playQueueManager.getCurrentPlayQueueItem().equals(playQueueItem)) {
+            adsController.publishAdDeliveryEventIfUpcoming();
             publishSkipEventIfAudioAd();
             playQueueManager.setCurrentPlayQueueItem(playQueueItem);
         }
