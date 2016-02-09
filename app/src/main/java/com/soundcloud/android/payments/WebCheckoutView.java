@@ -42,8 +42,8 @@ class WebCheckoutView {
     }
 
     @SuppressLint("AddJavascriptInterface")
-    public void setupJavaScriptInterface(String name, Object jsInterface) {
-        webView.addJavascriptInterface(jsInterface, name);
+    public void setupJavaScriptInterface(String name, WebCheckoutInterface checkoutInterface) {
+        webView.addJavascriptInterface(checkoutInterface, name);
     }
 
     public void loadUrl(String url) {
