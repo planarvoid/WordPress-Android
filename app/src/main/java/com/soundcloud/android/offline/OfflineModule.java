@@ -16,7 +16,8 @@ import javax.inject.Singleton;
                 OfflineContentService.class,
                 OfflineSettingsStorage.class,
                 OfflineLikesDialog.class,
-                AlarmManagerReceiver.class
+                AlarmManagerReceiver.class,
+                OfflineContentOnboardingActivity.class
         })
 public class OfflineModule {
 

@@ -28,6 +28,11 @@ public class LoadingButtonLayout extends FrameLayout {
         init(context, attrs, defStyle);
     }
 
+    public void setNormal() {
+        findLabel().setText(mainActionTextAttr);
+        findProgressBar().setVisibility(View.GONE);
+    }
+
     public void setWaiting() {
         findLabel().setText(mainActionTextAttr);
         findProgressBar().setVisibility(View.VISIBLE);

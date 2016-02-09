@@ -19,6 +19,8 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOnboardingActivity;
+import com.soundcloud.android.offline.OfflineContentOnboardingPresenter;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -158,8 +160,18 @@ public class Navigator {
         context.startActivity(new Intent(context, SettingsActivity.class));
     }
 
-    public void openOfflineOnboarding(Context context) {
+    public void openGoOnboarding(Context context) {
         context.startActivity(new Intent(context, GoOnboardingActivity.class));
+    }
+
+    public void openOfflineContentOnboarding(Context context) {
+        openOfflineContentOnboarding(context, OfflineContentOnboardingPresenter.PAGE_1);
+    }
+
+    public void openOfflineContentOnboarding(Context context, int page) {
+        final Intent intent = new Intent(context, OfflineContentOnboardingActivity.class);
+        intent.putExtra(OfflineContentOnboardingPresenter.EXTRA_PAGE, page);
+        context.startActivity(intent);
     }
 
     @Deprecated // use method that passes Screen, remove this after tabs
