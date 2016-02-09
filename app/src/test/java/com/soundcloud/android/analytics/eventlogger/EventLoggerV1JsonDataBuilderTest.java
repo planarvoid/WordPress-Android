@@ -86,7 +86,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
         when(deviceHelper.getUdid()).thenReturn(UDID);
         when(deviceHelper.getAppVersionCode()).thenReturn(APP_VERSION_CODE);
-        when(featureOperations.getCurrentPlan()).thenReturn(CONSUMER_SUBS_PLAN);
+        when(featureOperations.getPlan()).thenReturn(CONSUMER_SUBS_PLAN);
     }
 
     @Test

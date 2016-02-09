@@ -210,7 +210,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .trackOwner(event.getCreatorUrn())
                 .uuid(event.getUUID())
                 .localStoragePlayback(event.isOfflineTrack())
-                .consumerSubsPlan(featureOperations.getCurrentPlan())
+                .consumerSubsPlan(featureOperations.getPlan())
                 .trigger(getTrigger(event.getTrackSourceInfo()))
                 .protocol(event.get(PlaybackSessionEvent.KEY_PROTOCOL))
                 .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))

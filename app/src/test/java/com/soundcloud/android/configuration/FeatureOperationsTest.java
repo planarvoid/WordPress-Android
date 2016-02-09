@@ -146,7 +146,7 @@ public class FeatureOperationsTest {
     public void getPlanReturnsStoredPlan() {
         when(planStorage.getPlan()).thenReturn(Plan.HIGH_TIER);
 
-        assertThat(featureOperations.getCurrentPlan()).isEqualTo(Plan.HIGH_TIER);
+        assertThat(featureOperations.getPlan()).isEqualTo(Plan.HIGH_TIER);
     }
 
 }

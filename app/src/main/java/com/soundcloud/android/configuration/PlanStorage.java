@@ -40,7 +40,6 @@ public class PlanStorage {
     }
 
     public void updatePlan(Plan plan) {
-        Log.d(TAG, "updating plan: " + plan);
         sharedPreferences.edit().putString(KEY_PLAN, plan.planId).apply();
     }
 

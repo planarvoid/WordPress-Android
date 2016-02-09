@@ -27,7 +27,7 @@ public class FeatureOperations {
         planStorage.updateUpsells(userPlan.upsells);
     }
 
-    public Plan getCurrentPlan() {
+    public Plan getPlan() {
         return planStorage.getPlan();
     }
 

@@ -373,10 +373,6 @@ public class Navigator {
         restartAppAndNavigateTo(context, GoOnboardingActivity.class);
     }
 
-    public void restartForAccountDowngrade(Activity context) {
-        // TODO
-    }
-
     public void restartApp(Activity context) {
         restartAppAndNavigateTo(context, null);
     }
