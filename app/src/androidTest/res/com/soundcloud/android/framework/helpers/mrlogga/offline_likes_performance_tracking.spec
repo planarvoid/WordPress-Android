@@ -13,7 +13,8 @@ expected_events:
     page_name: collection:likes
     connection_type: wifi
     user: soundcloud:users:136770909
-    click_name: likes_to_offline::add
+    click_name: automatic_likes_sync::enable
+    click_category: consumer_subs
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: offline_sync
