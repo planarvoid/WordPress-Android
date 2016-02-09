@@ -100,12 +100,12 @@ public final class UpgradeTrackingEvent extends TrackingEvent {
 
     public static UpgradeTrackingEvent forUpgradeButtonImpression() {
         return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPGRADE_BUTTON)
-                .put(KEY_PAGE_NAME, Screen.UPGRADE.get());
+                .put(KEY_PAGE_NAME, Screen.CONVERSION.get());
     }
 
     public static UpgradeTrackingEvent forUpgradeButtonClick() {
         return new UpgradeTrackingEvent(KIND_UPSELL_CLICK, TrackingCode.UPGRADE_BUTTON)
-                .put(KEY_PAGE_NAME, Screen.UPGRADE.get());
+                .put(KEY_PAGE_NAME, Screen.CONVERSION.get());
     }
 
     public static UpgradeTrackingEvent forUpgradeSuccess() {

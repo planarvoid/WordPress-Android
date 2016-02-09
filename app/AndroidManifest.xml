@@ -252,11 +252,13 @@
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
 
         <!-- payments -->
-        <activity android:label="@string/upgrade_page_title" android:name=".payments.UpgradeActivity"/>
+        <activity android:name=".payments.NativeConversionActivity" android:theme="@style/Theme.SoundCloud.Translucent" />
+        <activity android:name=".payments.WebConversionActivity" android:theme="@style/Theme.SoundCloud.Translucent" />
+        <activity android:label="@string/conversion_page_title" android:name=".payments.WebCheckoutActivity" android:configChanges="orientation|screenSize" />
 
         <!-- discovery -->
         <activity android:label="@string/activity_title_recommendations" android:name=".discovery.RecommendedTracksActivity"/>
-        <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".discovery.SearchActivity" android:theme="@style/Theme.SoundCloud.Search"/>
+        <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".discovery.SearchActivity" android:theme="@style/Theme.SoundCloud.Translucent"/>
         <activity android:name=".search.SearchPremiumResultsActivity"/>
         <activity android:label="@string/discovery_search_title" android:name=".discovery.PlaylistDiscoveryActivity"/>
 

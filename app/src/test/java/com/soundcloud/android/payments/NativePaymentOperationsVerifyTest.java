@@ -29,13 +29,13 @@ import rx.schedulers.TestScheduler;
 
 import java.util.concurrent.TimeUnit;
 
-public class PaymentOperationsVerifyTest extends AndroidUnitTest {
+public class NativePaymentOperationsVerifyTest extends AndroidUnitTest {
 
     @Mock private ApiClientRx api;
     @Mock private BillingService billingService;
     @Mock private TokenStorage tokenStorage;
 
-    private PaymentOperations paymentOperations;
+    private NativePaymentOperations paymentOperations;
     private BillingResult billingResult;
     private TestObserver<PurchaseStatus> observer;
     private TestScheduler scheduler;
@@ -43,7 +43,7 @@ public class PaymentOperationsVerifyTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         scheduler = new TestScheduler();
-        paymentOperations = new PaymentOperations(scheduler, api, billingService, tokenStorage);
+        paymentOperations = new NativePaymentOperations(scheduler, api, billingService, tokenStorage);
         billingResult = TestBillingResults.success();
         observer = new TestObserver<>();
         when(tokenStorage.getCheckoutToken()).thenReturn("token_123");

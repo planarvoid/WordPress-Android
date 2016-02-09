@@ -316,11 +316,11 @@ public class ApplicationModule {
     }
 
     @Provides
-    public Navigator provideNavigator() {
+    public Navigator provideNavigator(FeatureFlags featureFlags) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new SmoothNavigator();
+            return new SmoothNavigator(featureFlags);
         } else {
-            return new Navigator();
+            return new Navigator(featureFlags);
         }
     }
 

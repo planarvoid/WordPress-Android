@@ -22,7 +22,7 @@ import android.app.Activity;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-class PaymentOperations {
+class NativePaymentOperations {
 
     private static final int API_VERSION = 1;
     private static final int VERIFY_THROTTLE_SECONDS = 2;
@@ -83,11 +83,11 @@ class PaymentOperations {
     };
 
     @Inject
-    PaymentOperations(ApiClientRx api, BillingService playBilling, TokenStorage tokenStorage) {
+    NativePaymentOperations(ApiClientRx api, BillingService playBilling, TokenStorage tokenStorage) {
         this(ScSchedulers.HIGH_PRIO_SCHEDULER, api, playBilling, tokenStorage);
     }
 
-    PaymentOperations(Scheduler scheduler, ApiClientRx api, BillingService playBilling, TokenStorage tokenStorage) {
+    NativePaymentOperations(Scheduler scheduler, ApiClientRx api, BillingService playBilling, TokenStorage tokenStorage) {
         this.scheduler = scheduler;
         this.api = api;
         this.playBilling = playBilling;
@@ -206,7 +206,7 @@ class PaymentOperations {
 
     private Observable<AvailableProducts> fetchAvailableProducts() {
         final ApiRequest request =
-                ApiRequest.get(ApiEndpoints.PRODUCTS.path())
+                ApiRequest.get(ApiEndpoints.NATIVE_PRODUCTS.path())
                         .forPrivateApi(API_VERSION)
                         .build();
         return api.mappedResponse(request, AvailableProducts.class).subscribeOn(scheduler);

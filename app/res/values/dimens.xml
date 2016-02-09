@@ -57,8 +57,6 @@
 
     <dimen name="explore_category_page_size">1px</dimen>
 
-    <dimen name="buy_button_margin">36dp</dimen>
-
     <!-- will correspond to the arrow height -->
     <dimen name="view_pager_divider_width">1dp</dimen>
 
@@ -164,5 +162,9 @@
     <!-- Explore -->
     <dimen name="explore_padding_left_right">0dp</dimen>
     <dimen name="explore_padding_top_bottom">16dp</dimen>
+
+    <!-- Conversion -->
+    <dimen name="conversion_width">272dp</dimen>
+    <dimen name="conversion_height">400dp</dimen>
 
 </resources>

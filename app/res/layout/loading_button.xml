@@ -4,13 +4,14 @@
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/label"
         style="@style/LoadingButton"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
 
     <ProgressBar
         android:id="@+id/progress"
         style="@style/LoadingProgress"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent" />
+        android:layout_toLeftOf="@id/label"
+        android:layout_centerVertical="true" />
 
 </merge>

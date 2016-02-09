@@ -20,11 +20,11 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> implements UpgradeView.Listener {
+class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements ConversionView.Listener {
 
-    private final PaymentOperations paymentOperations;
+    private final NativePaymentOperations paymentOperations;
     private final PaymentErrorPresenter paymentErrorPresenter;
-    private final UpgradeView upgradeView;
+    private final ConversionView conversionView;
     private final EventBus eventBus;
     private final Navigator navigator;
 
@@ -37,11 +37,11 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
     private ProductDetails details;
 
     @Inject
-    UpgradePresenter(PaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
-                     UpgradeView upgradeView, EventBus eventBus, Navigator navigator) {
+    NativeConversionPresenter(NativePaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
+                              ConversionView conversionView, EventBus eventBus, Navigator navigator) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorPresenter = paymentErrorPresenter;
-        this.upgradeView = upgradeView;
+        this.conversionView = conversionView;
         this.eventBus = eventBus;
         this.navigator = navigator;
     }
@@ -49,7 +49,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
     @Override
     public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
         this.activity = activity;
-        upgradeView.setupContentView(activity, this);
+        conversionView.setupContentView(activity, this);
         paymentErrorPresenter.setActivity(activity);
         restoreState = (TransactionState) activity.getLastCustomNonConfigurationInstance();
         clearExistingError(activity);
@@ -83,19 +83,12 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
     @Override
     public void startPurchase() {
         subscribeToPurchase(paymentOperations.purchase(details.getId()).cache());
-        upgradeView.disableBuyButton();
+        conversionView.setBuyButtonLoading();
         eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeButtonClick());
     }
 
     @Override
-    public void done() {
-        navigator.restartForAccountUpgrade(activity);
-        activity.finish();
-    }
-
-    @Override
-    public void moreInfo() {
-        navigator.restartForAccountUpgrade(activity);
+    public void close() {
         activity.finish();
     }
 
@@ -103,7 +96,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
         if (result.isForRequest()) {
             if (result.isOk()) {
                 restoreState = null;
-                upgradeView.hideBuyButton();
+                conversionView.setBuyButtonLoading();
                 subscribeToStatus(paymentOperations.verify(result.getPayload()).cache());
             } else {
                 paymentErrorPresenter.showCancelled();
@@ -111,7 +104,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
                 if (details == null) {
                     initConnection();
                 } else {
-                    upgradeView.enableBuyButton();
+                    conversionView.setBuyButtonReady();
                 }
             }
         }
@@ -161,7 +154,8 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
         public void onNext(ProductStatus result) {
             if (result.isSuccess()) {
                 details = result.getDetails();
-                upgradeView.showBuyButton(details.getPrice());
+                conversionView.showPrice(details.getPrice());
+                conversionView.setBuyButtonReady();
                 eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeButtonImpression());
             } else {
                 paymentErrorPresenter.showConnectionError();
@@ -180,7 +174,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
         public void onError(Throwable e) {
             super.onError(e);
             paymentErrorPresenter.onError(e);
-            upgradeView.enableBuyButton();
+            conversionView.setBuyButtonReady();
         }
     }
 
@@ -213,7 +207,7 @@ class UpgradePresenter extends DefaultActivityLightCycle<AppCompatActivity> impl
     }
 
     private void upgradeSuccess() {
-        upgradeView.showSuccess();
+        navigator.restartForAccountUpgrade(activity);
         eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeSuccess());
     }
 

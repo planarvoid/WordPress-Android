@@ -17,8 +17,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.DataSetObserver;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
@@ -265,7 +263,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     }
 
     private void setupBackground(final AppCompatActivity activity) {
-        activity.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         activity.findViewById(R.id.search_screen_bg).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

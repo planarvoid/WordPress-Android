@@ -28,19 +28,19 @@ import android.app.Activity;
 
 import java.util.ArrayList;
 
-public class PaymentOperationsTest extends AndroidUnitTest {
+public class NativePaymentOperationsTest extends AndroidUnitTest {
 
     @Mock private ApiClientRx api;
     @Mock private BillingService billingService;
     @Mock private TokenStorage tokenStorage;
     @Mock private Activity activity;
 
-    private PaymentOperations paymentOperations;
+    private NativePaymentOperations paymentOperations;
 
     @Before
     public void setUp() throws Exception {
-        paymentOperations = new PaymentOperations(Schedulers.immediate(), api, billingService, tokenStorage);
-        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())), eq(AvailableProducts.class)))
+        paymentOperations = new NativePaymentOperations(Schedulers.immediate(), api, billingService, tokenStorage);
+        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.NATIVE_PRODUCTS.path())), eq(AvailableProducts.class)))
                 .thenReturn(availableProductsObservable());
         when(api.mappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
                 .withContent(new StartCheckout("product_id"))), eq(CheckoutStarted.class)))
@@ -78,7 +78,7 @@ public class PaymentOperationsTest extends AndroidUnitTest {
 
         paymentOperations.queryProduct().subscribe();
 
-        verify(api).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())), eq(AvailableProducts.class));
+        verify(api).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.NATIVE_PRODUCTS.path())), eq(AvailableProducts.class));
     }
 
     @Test

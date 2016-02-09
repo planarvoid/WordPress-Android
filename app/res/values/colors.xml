@@ -4,6 +4,8 @@
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
 
+    <color name="translucent_white">#ccffffff</color>
+
     <color name="primary">#ffffff</color>
     <color name="primary_dark">#bbbbbb</color>
     <color name="primary_darker">#1d1d1d</color>
@@ -105,7 +107,7 @@
     <color name="usage_bar_used">#fe3c06</color>
     <color name="usage_bar_limit">#ffae87</color>
     <color name="usage_bar_free">#ffffff</color>
-
+    <color name="translucent_background">#80000000</color>
     <color name="user_image_border_color">#1a000000</color>
 
     <!-- Notifications -->
@@ -137,7 +139,6 @@
     <color name="recommended_for_you_text">#666666</color>
     <color name="search_query_text">#333333</color>
     <color name="search_hint_text">#CCCCCC</color>
-    <color name="search_screen_background">#80000000</color>
     <color name="discovery_tags_title">#666666</color>
     <color name="discovery_search_premium_view_all">#666666</color>
 

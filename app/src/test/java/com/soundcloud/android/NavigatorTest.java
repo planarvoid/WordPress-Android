@@ -19,7 +19,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.payments.UpgradeActivity;
+import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -58,7 +58,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        navigator = new Navigator();
+        navigator = new Navigator(flags);
         appContext = context();
         activityContext = new Activity();
     }
@@ -100,7 +100,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void openUpgrade() {
         navigator.openUpgrade(activityContext);
-        assertThat(activityContext).nextStartedIntent().opensActivity(UpgradeActivity.class);
+        assertThat(activityContext).nextStartedIntent().opensActivity(NativeConversionActivity.class);
     }
 
     @Test
