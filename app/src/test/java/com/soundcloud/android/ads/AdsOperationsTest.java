@@ -59,6 +59,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
 
         when(featureFlags.isEnabled(Flag.VIDEO_ADS)).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.SERVE_DEMO_VIDEO_AD)).thenReturn(false);
     }
 
     @Test
@@ -322,6 +323,22 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(playQueueManager).replace(same(trackQueueItem), listCaptor.capture());
         final List value = listCaptor.getValue();
         assertPlayQueueItemsEqual(value, Arrays.asList(new VideoQueueItem(VideoAd.create(videoAd, TRACK_URN)), TestPlayQueueItem.createTrack(TRACK_URN)));
+    }
+
+    @Test
+    public void insertRandomDemoVideoAdIfBothVideoFeatureFlagsEnabled() throws Exception {
+        when(featureFlags.isEnabled(Flag.VIDEO_ADS)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.SERVE_DEMO_VIDEO_AD)).thenReturn(true);
+
+        final ApiAdsForTrack ads = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
+
+        adsOperations.applyAdToUpcomingTrack(ads);
+
+        final ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
+        verify(playQueueManager).replace(same(trackQueueItem), listCaptor.capture());
+        final PlayQueueItem adItem = (PlayQueueItem) listCaptor.getValue().get(0);
+        assertThat(adItem.isVideo()).isTrue();
+        assertThat(adItem.getAdData().get().getAdUrn().isAd()).isTrue();
     }
 
     private void verifyAudioAdInserted(ApiAdsForTrack adsForTrack, Optional<LeaveBehindAd> leaveBehindAdOptional) {
