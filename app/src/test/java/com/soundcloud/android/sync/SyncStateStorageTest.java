@@ -88,26 +88,35 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void lastSyncAttemptTimeShouldReturnLastTimestampOnSucessfulSync() {
+    public void lastSyncOrAttemptTimeShouldReturnLastTimestampOnSucessfulSync() {
         testFixtures().insertSuccessfulSync(SyncContent.MySoundStream, 123L);
 
-        storage.lastSyncAttemptTime(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
+        storage.lastSyncOrAttemptTime(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
 
         timeSubscriber.assertValue(123L);
     }
 
     @Test
-    public void lastSyncAttemptTimeShouldReturnLastTimestampOnFailedSync() {
-        testFixtures().insertSyncAttempt(SyncContent.MySoundStream, 234L);
+    public void lastSyncOrAttemptTimeShouldReturnLastAttemptTimestampOnFailedSync() {
+        testFixtures().insertSyncAttemptAndLast(SyncContent.MySoundStream, 234L, 123L);
 
-        storage.lastSyncAttemptTime(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
+        storage.lastSyncOrAttemptTime(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
 
         timeSubscriber.assertValue(234L);
     }
 
     @Test
-    public void lastSyncAttemptTimeShouldReturnNotSetTheFirstTime() {
-        storage.lastSyncAttemptTime(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
+    public void lastSyncOrAttemptTimeShouldReturnLastTimestampOnSuccess() {
+        testFixtures().insertSyncAttemptAndLast(SyncContent.MySoundStream, 123L, 234L);
+
+        storage.lastSyncOrAttemptTime(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
+
+        timeSubscriber.assertValue(234L);
+    }
+
+    @Test
+    public void lastSyncOrAttemptTimeShouldReturnNotSetTheFirstTime() {
+        storage.lastSyncOrAttemptTime(SyncContent.MySoundStream.content.uri).subscribe(timeSubscriber);
 
         timeSubscriber.assertValue(-1L);
     }

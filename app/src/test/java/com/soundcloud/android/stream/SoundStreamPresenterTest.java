@@ -1,7 +1,10 @@
 package com.soundcloud.android.stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +14,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.StreamEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
@@ -22,6 +26,7 @@ import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -32,6 +37,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -46,6 +52,7 @@ import android.view.View;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class SoundStreamPresenterTest extends AndroidUnitTest {
@@ -67,6 +74,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private StationsOperations stationsOperations;
     @Mock private View view;
     @Mock private FeatureFlags featureFlags;
+    @Mock private NewItemsIndicator newItemsIndicator;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -83,7 +91,8 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 itemClickListenerFactory,
                 facebookInvitesDialogPresenter,
                 navigator,
-                featureFlags);
+                featureFlags,
+                newItemsIndicator);
 
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
@@ -197,7 +206,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                 CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(playingTrack), Urn.NOT_SET, 0));
 
-        adapter.updateNowPlaying(playingTrack);
+        verify(adapter).updateNowPlaying(playingTrack);
     }
 
     @Test
@@ -209,7 +218,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                 CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(playingTrack), Urn.NOT_SET, 0));
 
-        adapter.updateNowPlaying(playingTrack);
+        verify(adapter).updateNowPlaying(playingTrack);
     }
 
     @Test
@@ -300,4 +309,47 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 
+    @Test
+    public void onRefreshableOverlayClickedUpdatesStreamAgain() {
+        when(streamOperations.initialStreamItems())
+                .thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onRefreshableOverlayClicked();
+
+        verify(streamOperations, times(2)).initialStreamItems();
+    }
+
+    @Test
+    public void onStreamRefreshNewItemsSinceDate() {
+        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
+        when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
+        when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class)))
+                .thenReturn(new Date(123L));
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        eventBus.publish(EventQueue.STREAM, StreamEvent.fromStreamRefresh());
+
+        verify(newItemsIndicator).update(5);
+    }
+
+    @Test
+    public void shouldResetOverlayOnRefreshBinding() {
+        presenter.onRefreshBinding();
+
+        verify(newItemsIndicator).hideAndReset();
+    }
+
+    @Test
+    public void shouldSetOverlayViewOnViewCreated() {
+        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        verify(newItemsIndicator).setView(any(View.class));
+    }
 }

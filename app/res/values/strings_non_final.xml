@@ -190,4 +190,10 @@
     <string name="email_notifications_tips">Tips and best practices</string>
     <string name="email_notifications_newsletter">SoundCloud newsletter</string>
 
+    <!-- __STREAM -->
+    <plurals name="stream_new_posts">
+        <item quantity="one">1 new post</item>
+        <item quantity="other">%s new posts</item> <!-- 9+ new posts -->
+    </plurals>
+
 </resources>

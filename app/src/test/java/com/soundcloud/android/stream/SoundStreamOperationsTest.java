@@ -376,6 +376,16 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         subscriber.assertReceivedOnNext(singletonList(singletonList(propertySet)));
     }
 
+    @Test
+    public void shouldReturnNewItemsSinceTimestamp() {
+        final TestSubscriber<Integer> subscriber = new TestSubscriber<>();
+        when(soundStreamStorage.timelineItemCountSince(123L)).thenReturn(Observable.just(3));
+
+        operations.newItemsSince(123L).subscribe(subscriber);
+
+        subscriber.assertValue(3);
+    }
+
     @Override
     protected List<StreamItem> viewModelsFromPropertySets(List<PropertySet> propertySets) {
         final List<StreamItem> items = new ArrayList<>(propertySets.size());

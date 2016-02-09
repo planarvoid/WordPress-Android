@@ -13,7 +13,7 @@ public abstract class StreamEvent {
 
     public abstract int getKind();
 
-    public boolean isNewItemsEvent() {
+    public boolean isStreamRefreshed() {
         return getKind() == STREAM_REFRESHED;
     }
 
