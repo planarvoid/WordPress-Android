@@ -5,21 +5,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 
-public class OfflineSyncTrackerTest {
+public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
 
     private final DownloadRequest DOWNLOAD_REQUEST = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(123));
     private final TestEventBus eventBus = new TestEventBus();
 
-    private OfflineSyncTracker performanceTracker;
+    private OfflinePerformanceTracker performanceTracker;
 
     @Before
     public void setUp() {
-        performanceTracker = new OfflineSyncTracker(eventBus);
+        performanceTracker = new OfflinePerformanceTracker(eventBus);
     }
 
     @Test
@@ -33,7 +34,7 @@ public class OfflineSyncTrackerTest {
 
     @Test
     public void testDownloadComplete() {
-        performanceTracker.downloadComplete(DOWNLOAD_REQUEST);
+        performanceTracker.downloadComplete(DownloadState.success(DOWNLOAD_REQUEST));
 
         assertTrackingEventSent(
                 eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
@@ -42,7 +43,7 @@ public class OfflineSyncTrackerTest {
 
     @Test
     public void testDownloadCancelled() {
-        performanceTracker.downloadCancelled(DOWNLOAD_REQUEST);
+        performanceTracker.downloadCancelled(DownloadState.canceled(DOWNLOAD_REQUEST));
 
         assertTrackingEventSent(
                 eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
@@ -51,11 +52,20 @@ public class OfflineSyncTrackerTest {
 
     @Test
     public void testDownloadFailed() {
-        performanceTracker.downloadFailed(DOWNLOAD_REQUEST);
+        performanceTracker.downloadFailed(DownloadState.error(DOWNLOAD_REQUEST));
 
         assertTrackingEventSent(
                 eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
                 OfflinePerformanceEvent.KIND_FAIL);
+    }
+
+    @Test
+    public void testStorageLimitReachedError() {
+        performanceTracker.downloadFailed(DownloadState.notEnoughSpace(DOWNLOAD_REQUEST));
+
+        assertTrackingEventSent(
+                eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
+                OfflinePerformanceEvent.KIND_STORAGE_LIMIT);
     }
 
     private void assertTrackingEventSent(OfflinePerformanceEvent event, String kind) {

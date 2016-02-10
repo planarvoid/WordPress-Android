@@ -58,6 +58,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String UUID = "uuid";
     private static final int APP_VERSION_CODE = 386;
     private static final int CLIENT_ID = 3152;
+    private static final String BOOGALOO_VERSION = "v1.14.0";
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String CONNECTION_TYPE = "3g";
@@ -108,7 +109,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -142,7 +143,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -175,7 +176,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -209,7 +210,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -244,7 +245,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -278,7 +279,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -311,7 +312,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
@@ -348,7 +349,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
@@ -386,7 +387,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withPromotedTrack(promotedSource));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -415,7 +416,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("offline_sync_onboarding::start")
                 .clickCategory("consumer_subs"));
     }
@@ -426,7 +427,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("offline_sync_onboarding::dismiss")
                 .clickCategory("consumer_subs"));
     }
@@ -437,7 +438,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("offline_sync_onboarding::automatic_collection_sync")
                 .clickCategory("consumer_subs"));
     }
@@ -448,7 +449,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("offline_sync_onboarding::manual_sync")
                 .clickCategory("consumer_subs"));
     }
@@ -459,7 +460,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("only_sync_over_wifi::enable")
                 .clickCategory("consumer_subs"));
     }
@@ -470,7 +471,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("only_sync_over_wifi::disable")
                 .clickCategory("consumer_subs"));
     }
@@ -481,7 +482,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("automatic_collection_sync::enable")
                 .clickCategory("consumer_subs")
                 .pageName(PAGE_NAME));
@@ -493,7 +494,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("automatic_collection_sync::disable")
                 .clickCategory("consumer_subs")
                 .pageName(PAGE_NAME));
@@ -505,7 +506,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("automatic_collection_sync::disable")
                 .clickCategory("consumer_subs")
                 .clickObject(PLAYLIST_URN.toString())
@@ -518,7 +519,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickCategory("consumer_subs")
                 .clickName("playlist_to_offline::add")
                 .clickObject(String.valueOf(PLAYLIST_URN))
@@ -531,7 +532,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickCategory("consumer_subs")
                 .clickName("playlist_to_offline::remove")
                 .clickObject(String.valueOf(PLAYLIST_URN))
@@ -546,7 +547,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickCategory("consumer_subs")
                 .clickName("playlist_to_offline::remove")
                 .clickObject(String.valueOf(PLAYLIST_URN))
@@ -562,7 +563,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("automatic_likes_sync::enable")
                 .clickCategory("consumer_subs")
                 .pageName(PAGE_NAME));
@@ -574,7 +575,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .clickName("automatic_likes_sync::disable")
                 .clickCategory("consumer_subs")
                 .pageName(PAGE_NAME));
@@ -586,7 +587,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflineInteractionEvent(impression);
 
-        verify(jsonTransformer).toJson(getEventData("impression", "v1.14.0", impression.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
                 .pageName("settings:offline_sync_settings")
                 .impressionCategory("consumer_subs")
                 .impressionName("offline_storage::limit_below_usage"));
@@ -599,7 +600,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflinePerformanceEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
                         .track(TRACK_URN)
                         .trackOwner(CREATOR_URN)
                         .inOfflinePlaylist(false)
@@ -615,7 +616,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflinePerformanceEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
                         .track(TRACK_URN)
                         .trackOwner(CREATOR_URN)
                         .inOfflinePlaylist(false)
@@ -631,7 +632,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflinePerformanceEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
                         .track(TRACK_URN)
                         .trackOwner(CREATOR_URN)
                         .inOfflinePlaylist(false)
@@ -647,7 +648,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForOfflinePerformanceEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
                         .track(TRACK_URN)
                         .trackOwner(CREATOR_URN)
                         .inOfflinePlaylist(false)
@@ -727,7 +728,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                         .clickName("share")
                         .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                         .clickObject(TRACK_URN.toString())
@@ -786,7 +787,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                         .clickName("repost::add")
                         .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                         .clickObject(TRACK_URN.toString())
@@ -813,7 +814,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                         .clickName("repost::add")
                         .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                         .clickObject(TRACK_URN.toString())
@@ -830,7 +831,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForCollectionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName("collection:overview")
                 .clickName("filter_sort::clear")
                 .clickCategory(EventLoggerClickCategories.COLLECTION));
@@ -842,7 +843,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUpsell(impression);
 
-        verify(jsonTransformer).toJson(getEventData("impression", "v1.14.0", impression.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
                 .pageName("tracks:main")
                 .pageUrn(TRACK_URN.toString())
                 .impressionName("consumer_sub_ad")
@@ -855,7 +856,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUpsell(click);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", click.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, click.getTimestamp())
                 .pageName("tracks:main")
                 .pageUrn(TRACK_URN.toString())
                 .clickCategory("consumer_subs")
@@ -869,7 +870,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUpsell(click);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", click.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, click.getTimestamp())
                         .clickCategory("consumer_subs")
                         .clickName("clickthrough::consumer_sub_ad")
                         .clickObject("soundcloud:tcode:1027")
@@ -883,7 +884,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUpsell(impression);
 
-        verify(jsonTransformer).toJson(getEventData("impression", "v1.14.0", impression.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
                 .pageName("collection:likes")
                 .impressionName("consumer_sub_ad")
                 .impressionObject("soundcloud:tcode:1009"));
@@ -895,7 +896,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUpsell(click);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", click.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, click.getTimestamp())
                 .pageName(PAGE_NAME)
                 .pageUrn(PLAYLIST_URN.toString())
                 .clickCategory("consumer_subs")
@@ -909,12 +910,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUpsell(impression);
 
-        verify(jsonTransformer).toJson(getEventData("impression", "v1.14.0", impression.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
                 .impressionName("consumer_sub_upgrade_success"));
     }
 
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
-        verify(jsonTransformer).toJson(getEventData("click", "v1.14.0", timestamp)
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, timestamp)
                         .clickName(engagementName)
                         .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                         .clickObject(TRACK_URN.toString())

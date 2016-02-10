@@ -9,6 +9,7 @@ public class OfflinePerformanceEvent extends TrackingEvent {
     public static final String KIND_FAIL = "fail";
     public static final String KIND_USER_CANCEL = "user_cancelled";
     public static final String KIND_COMPLETE = "complete";
+    public static final String KIND_STORAGE_LIMIT = "storage_limit_reached";
 
     private final Urn track;
     private final TrackingMetadata metadata;
@@ -34,6 +35,10 @@ public class OfflinePerformanceEvent extends TrackingEvent {
 
     public static OfflinePerformanceEvent fromFailed(Urn track, TrackingMetadata trackingMetadata) {
         return new OfflinePerformanceEvent(KIND_FAIL, track, trackingMetadata);
+    }
+
+    public static OfflinePerformanceEvent fromStorageLimit(Urn track, TrackingMetadata trackingMetadata) {
+        return new OfflinePerformanceEvent(KIND_STORAGE_LIMIT, track, trackingMetadata);
     }
 
     public Urn getTrackUrn() {
