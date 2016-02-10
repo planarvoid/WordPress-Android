@@ -22,7 +22,7 @@
             android:layout_height="@dimen/discovery_search_cell_text_height"
             android:gravity="center_vertical"
             android:paddingLeft="@dimen/discovery_cell_text_padding"
-            tools:text="Found 57 SoundCloud CS Results" />
+            tools:text="Found 57 SoundCloud Go Results" />
 
         <ImageView
             android:id="@+id/help"
@@ -57,7 +57,7 @@
             android:gravity="center"
             android:paddingBottom="@dimen/discovery_cell_text_view_all_padding"
             android:text="@string/search_premium_content_view_all"
-            tools:text="SEE ALL SOUNDCLOUD CS RESULTS" />
+            tools:text="SEE ALL SOUNDCLOUD Go RESULTS" />
 
         <ImageView
             android:layout_width="@dimen/discovery_cell_image_view_all_size"
