@@ -270,7 +270,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         queue.set(requests);
         publisher.publishRequested(newArrayList(transform(requests, TO_TRACK_URN)));
 
-        if (muteNotification) {
+        if (muteNotification || queue.isEmpty()) {
             notificationController.reset();
         } else {
             startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(queue));

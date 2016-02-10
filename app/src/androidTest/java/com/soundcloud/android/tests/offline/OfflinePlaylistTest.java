@@ -42,9 +42,13 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
                 .goToCollections();
         collectionScreen
                 .scrollToPlaylistWithTitle("Offline playlist")
-                .clickOverflow().clickMakeAvailableOffline();
+                .clickOverflow()
+                .clickMakeAvailableOffline();
 
-        assertThat(collectionScreen.scrollToPlaylistWithTitle("Offline playlist").downloadElement(), is(downloadingOrDownloaded()));
+        PlaylistDetailsScreen playlistDetailsScreen =
+                collectionScreen.scrollToPlaylistWithTitle("Offline playlist").click();
+
+        assertThat(playlistDetailsScreen.headerDownloadElement(), is(downloadingOrDownloaded()));
     }
 
     public void testDownloadPlaylistWhenMadeAvailableOfflineFromPlaylistDetails() {
