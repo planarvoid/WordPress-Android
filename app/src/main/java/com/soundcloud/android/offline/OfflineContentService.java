@@ -122,8 +122,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             subscription.unsubscribe();
             if (downloadHandler.isDownloading()) {
                 downloadHandler.cancel();
+            } else {
+                stopAndFinish(null);
             }
-            stop();
         }
         return START_NOT_STICKY;
     }
@@ -168,13 +169,14 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Override
     public void onCancel(DownloadState state) {
         Log.d(TAG, "onCancel> state = [" + state + "]");
-        notificationController.onDownloadCancel(state);
 
         if (isStopping) {
             Log.d(TAG, "onCancel> Service is stopping.");
-            stop();
+            notificationController.reset();
+            stopAndFinish(state);
         } else {
             Log.d(TAG, "onCancel> Download next.");
+            notificationController.onDownloadCancel(state);
             downloadNextOrFinish(state);
         }
     }
@@ -190,7 +192,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private void stopAndFinish(DownloadState result) {
+    private void stopAndFinish(@Nullable DownloadState result) {
         Log.d(TAG, "stopAndFinish> last result = [" + result + "]");
         stop();
         notificationController.onDownloadsFinished(result);
