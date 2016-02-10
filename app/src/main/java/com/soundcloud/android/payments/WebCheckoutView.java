@@ -10,6 +10,7 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 
 import javax.inject.Inject;
 
@@ -17,13 +18,24 @@ class WebCheckoutView {
 
     @Bind(R.id.payment_form) WebView webView;
     @Bind(R.id.loading) View loading;
+    @Bind(R.id.retry) Button retry;
+
+    interface Listener {
+        void onRetry();
+    }
 
     @Inject
     public WebCheckoutView() {}
 
-    void setupContentView(AppCompatActivity activity) {
+    void setupContentView(AppCompatActivity activity, final Listener listener) {
         ButterKnife.bind(this, activity);
         configureWebView();
+        retry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onRetry();
+            }
+        });
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -51,8 +63,14 @@ class WebCheckoutView {
     }
 
     public void setLoading(boolean isLoading) {
+        retry.setVisibility(View.GONE);
         loading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         webView.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
+    }
+
+    public void setRetry() {
+        loading.setVisibility(View.GONE);
+        retry.setVisibility(View.VISIBLE);
     }
 
     public boolean handleBackPress() {
