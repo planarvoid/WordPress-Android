@@ -20,7 +20,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
@@ -34,7 +33,6 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -81,7 +79,6 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
     @Mock private ListItemAdapter<TrackItem> adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private FeatureOperations featureOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private Navigator navigator;
 
@@ -99,7 +96,6 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
                 playQueueManager,
                 new PlaylistPresenter(imageOperations),
                 expandPlayerSubscriberProvider,
-                featureOperations,
                 accountOperations,
                 navigator
         );
@@ -113,27 +109,6 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
         when(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn())).thenReturn(playlistTrackUrns);
         when(playbackInitiator.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(312L));
-    }
-
-    @Test
-    public void showsUpsellWhenClickingOnHighTierTrackAndUserCanUpgrade() {
-        final ListView list = (ListView) createFragmentView().findViewById(android.R.id.list);
-        when(adapter.getItem(0)).thenReturn(new TrackItem(TestPropertySets.upsellableTrack()));
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-
-        list.getOnItemClickListener().onItemClick(list, mock(View.class), /* offset for header */ 1, 123);
-
-        verify(navigator).openUpgrade(fragment.getActivity());
-    }
-
-    @Test
-    public void doesNotShowUpsellWhenClickingOnHighTierTrackAndUserCannotUpgrade() {
-        final ListView list = (ListView) createFragmentView().findViewById(android.R.id.list);
-        when(adapter.getItem(0)).thenReturn(new TrackItem(TestPropertySets.upsellableTrack()));
-
-        list.getOnItemClickListener().onItemClick(list, mock(View.class), /* offset for header */ 1, 123);
-
-        verify(navigator, never()).openUpgrade(any(Context.class));
     }
 
     @Test

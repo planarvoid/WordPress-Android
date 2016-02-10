@@ -2,7 +2,6 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissingException;
-import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.Navigator;
@@ -13,7 +12,6 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
@@ -102,7 +100,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     @Inject AccountOperations accountOperations;
     @Inject Navigator navigator;
-    @Inject FeatureOperations featureOperations;
 
     private PlaylistDetailsController controller;
 
@@ -172,7 +169,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                            PlayQueueManager playQueueManager,
                            PlaylistPresenter playlistPresenter,
                            Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                           FeatureOperations featureOperations,
                            AccountOperations accountOperations,
                            Navigator navigator) {
         this.controllerProvider = controllerProvider;
@@ -186,7 +182,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.playQueueManager = playQueueManager;
         this.playlistPresenter = playlistPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
-        this.featureOperations = featureOperations;
         this.accountOperations = accountOperations;
         this.navigator = navigator;
         addLifeCycleComponents();
@@ -360,17 +355,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
         }
 
-        if (shouldShowUpsell(initialTrack)) {
-            navigator.openUpgrade(getActivity());
-        } else {
-            playbackInitiator.playTracks(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn()),
-                    initialTrack.getEntityUrn(), trackPosition, playSessionSource)
-                    .subscribe(playbackSubscriber);
-        }
-    }
-
-    private boolean shouldShowUpsell(TrackItem item) {
-        return isHighTierPreview(item) && featureOperations.upsellHighTier();
+        playbackInitiator.playTracks(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn()),
+                initialTrack.getEntityUrn(), trackPosition, playSessionSource)
+                .subscribe(playbackSubscriber);
     }
 
     private PlaySessionSource getPlaySessionSource() {

@@ -136,7 +136,11 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
                 showAddToPlaylistDialog(track);
                 return true;
             case R.id.start_station:
-                startStationPresenter.startStationForTrack(context, track.getUrn());
+                if (track.isBlocked()){
+                    startStationPresenter.startStation(context, Urn.forTrackStation(track.getUrn().getNumericId()));
+                } else {
+                    startStationPresenter.startStationForTrack(context, track.getUrn());
+                }
                 return true;
             default:
                 return false;
