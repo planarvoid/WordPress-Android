@@ -88,8 +88,8 @@ public final class OfflineStoragePreference extends Preference {
     public void updateAndRefresh() {
         if (offlineUsage != null) {
             offlineUsage.update();
+            updateView();
         }
-        updateView();
     }
 
     private void updateView() {
