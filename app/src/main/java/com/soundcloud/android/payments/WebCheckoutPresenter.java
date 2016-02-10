@@ -7,7 +7,6 @@ import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,7 +39,6 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
         this.eventBus = eventBus;
     }
 
-    @SuppressLint("AddJavascriptInterface")
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.activity = activity;
@@ -58,12 +56,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
                 getProductFromIntent());
 
         view.setLoading(true);
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                view.setRetry();
-            }
-        }, TIMEOUT_MILLIS);
+        startTimeout();
 
         view.setupJavaScriptInterface(WebCheckoutInterface.JAVASCRIPT_OBJECT_NAME, checkoutInterface);
         view.loadUrl(WebCheckoutInterface.PAYMENT_FORM_URL);
@@ -76,7 +69,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
 
     @Override
     public void onLoad() {
-        handler.removeCallbacksAndMessages(null);
+        cancelTimeout();
         // WebView callbacks are not on the UI thread
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -99,7 +92,21 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
+        cancelTimeout();
         this.activity = null;
+    }
+
+    private void startTimeout() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                view.setRetry();
+            }
+        }, TIMEOUT_MILLIS);
+    }
+
+    private void cancelTimeout() {
+        handler.removeCallbacksAndMessages(null);
     }
 
 }
