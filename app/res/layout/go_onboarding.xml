@@ -8,12 +8,12 @@
         style="@style/GoOnboarding.WelcomeBackground" />
 
     <LinearLayout
-        style="@style/GoOnboarding.Container"
+        style="@style/GoOnboarding.WelcomeContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.soundcloud.android.view.CustomFontTextView
-            style="@style/GoOnboarding.Text.Title"
+            style="@style/GoOnboarding.Text.WelcomeTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/go_onboarding_header" />

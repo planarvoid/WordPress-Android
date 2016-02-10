@@ -57,7 +57,7 @@ public class OfflineContentOnboardingPresenter extends DefaultActivityLightCycle
     }
 
     private void setGoToPage1Listener(AppCompatActivity activity) {
-        activity.findViewById(R.id.page_0_next).setOnClickListener(new View.OnClickListener() {
+        activity.findViewById(R.id.next_page).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 navigator.openOfflineContentOnboarding(view.getContext(), PAGE_2);
