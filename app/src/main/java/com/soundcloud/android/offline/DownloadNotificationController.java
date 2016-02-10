@@ -56,17 +56,18 @@ class DownloadNotificationController {
     }
 
     public Notification onPendingRequests(DownloadQueue pendingQueue) {
+
         final int pendingAndCompleted = pendingQueue.size() + previousDownloads.size();
         totalDownloads = currentDownload == null ? pendingAndCompleted : pendingAndCompleted + 1;
         totalBytesToDownload = currentDownload == null ? completedBytes : completedBytes + currentDownload.getTotalBytes();
 
-        for (DownloadRequest request : pendingQueue.getRequests()){
+        for (DownloadRequest request : pendingQueue.getRequests()) {
             totalBytesToDownload += MP3Helper.calculateFileSizeInBytes(request.getDuration());
         }
 
         progressNotification = notificationBuilderProvider.get();
 
-        if (currentDownload == null){
+        if (currentDownload == null) {
             return updateProgressNotification(pendingQueue.getFirst(), new ProgressNotificationData(
                     calculateCurrentDownload(previousDownloads.size(), totalDownloads), totalDownloads,
                     calculateAdjustedProgress((int) completedBytes, totalBytesToDownload)));
@@ -115,6 +116,10 @@ class DownloadNotificationController {
             notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
         }
 
+        reset();
+    }
+
+    public void reset() {
         totalDownloads = 0;
         completedBytes = 0;
         previousDownloads = new ArrayList<>();

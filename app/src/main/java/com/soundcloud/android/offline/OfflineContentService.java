@@ -27,7 +27,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -169,6 +168,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Override
     public void onCancel(DownloadState state) {
         Log.d(TAG, "onCancel> state = [" + state + "]");
+        notificationController.onDownloadCancel(state);
 
         if (isStopping) {
             Log.d(TAG, "onCancel> Service is stopping.");
@@ -241,38 +241,40 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             publisher.publishDownloaded(updates.tracksToRestore());
             publisher.publishUnavailable(updates.unavailableTracks());
 
-            final ArrayList<DownloadRequest> requests = newArrayList(updates.tracksToDownload());
+            final List<DownloadRequest> requests = newArrayList(updates.tracksToDownload());
+            final boolean noContentRequested = updates.userExpectedOfflineContent().isEmpty();
+
             if (downloadHandler.isDownloading()) {
                 final DownloadRequest currentRequest = downloadHandler.getCurrentRequest();
                 if (requests.contains(currentRequest)) {
                     Log.d(OfflineContentService.TAG, "Keep downloading." + currentRequest);
                     requests.remove(currentRequest);
-                    setNewRequests(requests);
+                    setNewRequests(requests, noContentRequested);
                     publisher.publishDownloading(currentRequest.getTrack());
                 } else {
                     Log.d(OfflineContentService.TAG, "Cancelling " + currentRequest);
-                    setNewRequests(requests);
+                    setNewRequests(requests, noContentRequested);
                     // download cancelled event is sent in the callback.
                     downloadHandler.cancel();
                     publisher.publishRemoved(currentRequest.getTrack());
                 }
             } else {
-                setNewRequests(requests);
+                setNewRequests(requests, noContentRequested);
                 downloadNextOrFinish(null);
             }
         }
     }
 
-    private void setNewRequests(ArrayList<DownloadRequest> requests) {
+    private void setNewRequests(List<DownloadRequest> requests, boolean muteNotification) {
         Log.d(OfflineContentService.TAG, "setNewRequests requests = [" + requests + "]");
         queue.set(requests);
-        updateNotification();
         publisher.publishRequested(newArrayList(transform(requests, TO_TRACK_URN)));
-    }
 
-    private void updateNotification() {
-        if (!queue.isEmpty()) {
+        if (muteNotification) {
+            notificationController.reset();
+        } else {
             startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(queue));
         }
     }
+
 }

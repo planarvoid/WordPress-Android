@@ -25,4 +25,8 @@ class ExpectedOfflineContent  {
         this.emptyPlaylists = unmodifiableCollection(emptyPlaylists);
         this.requests = unmodifiableCollection(requests);
     }
+
+    public boolean isEmpty() {
+        return requests.isEmpty();
+    }
 }

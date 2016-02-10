@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -265,6 +266,15 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     @Test
+    public void mutesNotificationWhenNoContentIsRequestedForDownload() {
+        setUpsDownloads();
+
+        startService();
+
+        verify(notificationController).reset();
+    }
+
+    @Test
     public void cancelRequestWhenDownloadingATrackNotRequestedAnyMore() {
         when(downloadHandler.isDownloading()).thenReturn(true);
         when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
@@ -361,7 +371,12 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     private void setUpsDownloads(DownloadRequest... requests) {
-        setUpOfflineContentUpdates(builder().tracksToDownload(Arrays.asList(requests)).build());
+        ExpectedOfflineContent expectedOfflineContent = mock(ExpectedOfflineContent.class);
+        when(expectedOfflineContent.isEmpty()).thenReturn(requests.length == 0);
+
+        setUpOfflineContentUpdates(builder()
+                .tracksToDownload(Arrays.asList(requests))
+                .userExpectedOfflineContent(expectedOfflineContent).build());
     }
 
     private void setUpOfflineContentUpdates(OfflineContentUpdates updates) {
