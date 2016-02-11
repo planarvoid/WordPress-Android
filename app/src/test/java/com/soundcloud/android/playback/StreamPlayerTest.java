@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAudioAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
@@ -18,6 +20,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,12 +35,15 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Mock private Player.PlayerListener playerListener;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
 
+    private TestEventBus eventBus = new TestEventBus();
+
     private Urn trackUrn = Urn.forTrack(123L);
     private PropertySet track = PropertySet.from(
             TrackProperty.URN.bind(trackUrn),
             TrackProperty.PLAY_DURATION.bind(456L)
     );
     private AudioPlaybackItem audioPlaybackItem = AudioPlaybackItem.create(track, 123L);
+    private AudioPlaybackItem offlinePlaybackItem = AudioPlaybackItem.forOffline(track, 123L);
     private VideoPlaybackItem videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(trackUrn));
 
     @Before
@@ -51,7 +57,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlayer(mediaPlayerAudioAdapter, mediaPlayerVideoAdapter, skippyAdapter, networkConnectionHelper);
+        streamPlayerWrapper = new StreamPlayer(mediaPlayerAudioAdapter, mediaPlayerVideoAdapter, skippyAdapter, networkConnectionHelper, eventBus);
         streamPlayerWrapper.setListener(playerListener);
     }
 
@@ -137,6 +143,16 @@ public class StreamPlayerTest extends AndroidUnitTest {
         verify(mediaPlayerAudioAdapter).play(audioPlaybackItem);
     }
 
+    @Test
+    public void playLogsErrorOnOfflinePlayWhenSkippyFailedToInitialize() {
+        when(skippyAdapter.init()).thenReturn(false);
+        instantiateStreamPlaya();
+
+        streamPlayerWrapper.play(offlinePlaybackItem);
+
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYBACK_ERROR).getCategory())
+                .isEqualTo(PlaybackErrorEvent.CATEGORY_OFFLINE_PLAY_UNAVAILABLE);
+    }
 
     @Test
     public void playSetsListenerToSkippy() {
