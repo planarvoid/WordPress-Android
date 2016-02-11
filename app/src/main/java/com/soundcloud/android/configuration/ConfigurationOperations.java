@@ -165,7 +165,7 @@ public class ConfigurationOperations {
         return Observable.interval(POLLING_INITIAL_DELAY, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS, scheduler)
                 .take(POLLING_MAX_ATTEMPTS)
                 .flatMap(toFetchConfiguration)
-                .first(isExpectedPlan(expectedPlan)).doOnNext(saveConfiguration);
+                .takeFirst(isExpectedPlan(expectedPlan)).doOnNext(saveConfiguration);
     }
 
     public DeviceManagement registerDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {

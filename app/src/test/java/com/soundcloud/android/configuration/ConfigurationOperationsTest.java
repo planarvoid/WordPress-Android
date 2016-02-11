@@ -39,7 +39,6 @@ import rx.schedulers.TestScheduler;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigurationOperationsTest extends AndroidUnitTest {
@@ -192,7 +191,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
 
         scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
-        configSubscriber.assertError(NoSuchElementException.class);
+        configSubscriber.assertNoValues();
     }
 
     @Test
@@ -204,6 +203,18 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
 
         verify(featureOperations, never()).updatePlan(any(UserPlan.class));
+    }
+
+    @Test
+    public void awaitConfigurationWithPlanReturnsEmptyWhenNoPlanChangeToHighTierAfterRetries() {
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.<Configuration>empty());
+
+        operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
+        scheduler.advanceTimeBy(10, TimeUnit.SECONDS);
+
+        configSubscriber.assertNoErrors();
+        configSubscriber.assertNoValues();
+        configSubscriber.assertCompleted();
     }
 
     @Test

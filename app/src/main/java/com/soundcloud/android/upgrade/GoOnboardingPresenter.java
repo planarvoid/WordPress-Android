@@ -62,9 +62,20 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     private class UpgradeCompleteSubscriber extends DefaultSubscriber<Object> {
 
+        private boolean hasPlan = false;
+
         @Override
         public void onCompleted() {
-            strategy = new SuccessStrategy().proceed();
+            if (hasPlan) {
+                strategy = new SuccessStrategy().proceed();
+            } else {
+                strategy = new UnrecoverableErrorStrategy().proceed();
+            }
+        }
+
+        @Override
+        public void onNext(Object args) {
+            hasPlan = true;
         }
 
         @Override

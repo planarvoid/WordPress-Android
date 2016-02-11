@@ -23,6 +23,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 public class GoOnboardingPresenterTest extends AndroidUnitTest {
@@ -30,9 +31,8 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     @Mock private AppCompatActivity activity;
     @Mock private Navigator navigator;
     @Mock private UpgradeProgressOperations upgradeProgressOperations;
-
     private GoOnboardingViewStub view;
-
+    private List<Urn> policiesUpdate = Collections.singletonList(Urn.forTrack(123));
     private GoOnboardingPresenter presenter;
 
     @Before
@@ -43,7 +43,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingSetUpLaterOpensStreamIfAccountUpgradeAlreadyCompleted() {
-        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.<List<Urn>>empty());
+        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.just(policiesUpdate));
 
         presenter.onCreate(activity, null);
         presenter.onSetupLaterClicked();
@@ -71,6 +71,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         presenter.onSetupLaterClicked();
 
         verify(navigator, never()).openStream(any(Activity.class), any(Screen.class));
+        subject.onNext(policiesUpdate);
         subject.onCompleted();
 
         verify(navigator).openHome(any(Activity.class));
@@ -127,7 +128,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingSetupOfflineOpensOfflineContentOnboardingIfAccountUpgradeAlreadyCompleted() {
-        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.<List<Urn>>empty());
+        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.just(policiesUpdate));
 
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
@@ -154,6 +155,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
 
+        subject.onNext(policiesUpdate);
         subject.onCompleted();
 
         verify(navigator).openOfflineContentOnboarding(any(Activity.class));
@@ -220,6 +222,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         error.onError(new IOException());
 
         presenter.onSetupOfflineClicked();
+        success.onNext(policiesUpdate);
         success.onCompleted();
 
         verify(navigator).openOfflineContentOnboarding(any(Activity.class));
@@ -250,7 +253,17 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
 
-        assertThat(view.isErrorDialogShown()).isTrue();
+        assertThat(view.isErrorDialogShown).isTrue();
+    }
+
+    @Test
+    public void displayErrorDialogOnNoPlanChange() {
+        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.<List<Urn>>empty());
+
+        presenter.onCreate(activity, null);
+        presenter.onSetupOfflineClicked();
+
+        assertThat(view.isErrorDialogShown).isTrue();
     }
 
     private static class GoOnboardingViewStub extends GoOnboardingView {
@@ -303,8 +316,5 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
             isErrorDialogShown = true;
         }
 
-        public boolean isErrorDialogShown() {
-            return isErrorDialogShown;
-        }
     }
 }
