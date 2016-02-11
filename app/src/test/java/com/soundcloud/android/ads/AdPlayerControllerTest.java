@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -228,7 +229,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     private void setVideoAdIsPlaying(boolean verticalVideo) {
-        final ApiVideoSource videoSource = verticalVideo ? AdFixtures.getApiVideoSource(300, 600) : AdFixtures.getApiVideoSource(600, 300);
+        final ApiVideoSource videoSource = verticalVideo ? AdFixtures.getApiVideoSource(300, 600, Consts.NOT_SET) : AdFixtures.getApiVideoSource(600, 300, Consts.NOT_SET);
         final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L), videoSource));
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);

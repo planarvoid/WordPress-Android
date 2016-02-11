@@ -121,6 +121,10 @@ public class ApplicationProperties {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
+    public boolean canAccessVideoCodecCapabilities() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
     public String getCastReceiverAppId() {
         return castReceiverAppId;
     }

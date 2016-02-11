@@ -7,6 +7,7 @@ import com.soundcloud.java.strings.Strings;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.media.CamcorderProfile;
 import android.os.Build;
 import android.provider.Settings;
 
@@ -88,6 +89,10 @@ public class DeviceHelper {
 
     public int getCurrentOrientation() {
         return context.getResources().getConfiguration().orientation;
+    }
+
+    public boolean hasCamcorderProfile(int camcorderProfile) {
+        return CamcorderProfile.hasProfile(camcorderProfile);
     }
 
     public boolean isOrientation(int orientation) {
