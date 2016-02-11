@@ -70,7 +70,7 @@
     <string name="go_onboarding_error_dialog_button">Try again later</string>
 
     <string name="offline_content_onboarding_next">Next</string>
-    <string name="offline_content_onboarding_save_offline_desc">Use the three dots to make likes or playlists avaible offline on a case-by-case basis.</string>
+    <string name="offline_content_onboarding_save_offline_desc">Use the three dots to make likes or playlists available offline on a case-by-case basis.</string>
     <string name="offline_content_onboarding_save_offline_title">Choose what to save offline</string>
     <string name="offline_content_onboarding_choose_desc">Choose what to save</string>
     <string name="offline_content_onboarding_save_now">Save everything now</string>

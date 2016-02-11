@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-    <dimen name="explore_category_page_size">.5px</dimen><!-- ratio used for pager adapter -->
+    <dimen name="explore_category_page_size">.5px</dimen>
+    <!-- ratio used for pager adapter -->
     <dimen name="playlist_header_padding">10dp</dimen>
     <dimen name="player_engagement">48dp</dimen>
     <dimen name="player_title_top">48dp</dimen>
@@ -14,10 +15,17 @@
 
     <!-- stream -->
     <dimen name="cards_header_min_height">72dp</dimen>
-    
+
     <!-- card grids -->
     <dimen name="grids_padding_left_right">8dp</dimen>
 
     <!-- explore -->
     <dimen name="explore_padding_left_right">16dp</dimen>
+
+    <!-- Go Onboarding  -->
+    <dimen name="go_onboarding_offline_content_text_width">355dp</dimen>
+    <dimen name="go_onboarding_tooltip_margin_bottom">24dp</dimen>
+    <dimen name="go_onboarding_tooltip_margin_top">16dp</dimen>
+    <dimen name="go_onboarding_tooltip_size">64dp</dimen>
+
 </resources>
