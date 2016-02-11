@@ -353,7 +353,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
             hideCloseButton();
             activateSearchView();
             displaySearchView(SUGGESTIONS_VIEW_INDEX);
-            tracker.trackScreenEvent();
+            tracker.trackMainScreenEvent();
         }
     }
 
