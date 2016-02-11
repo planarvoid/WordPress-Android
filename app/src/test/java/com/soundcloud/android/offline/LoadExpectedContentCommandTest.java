@@ -126,22 +126,42 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void returnsOfflinePlaylistsOrderedByPlaylistCreationDate() throws Exception {
+    public void doesNotReturnTracksNotInOfflinePlaylists() {
+        final ApiPlaylist playlist = testFixtures().insertPlaylist();
+        insertSyncablePlaylistTrack(playlist, 1);
+
+        ExpectedOfflineContent toBeOffline = command.call(null);
+
+        assertThat(toBeOffline.requests).isEmpty();
+    }
+
+    @Test
+    public void returnsOfflinePlaylistsOrderedByPlaylistLikedOrThenCreationDate() throws Exception {
+        final Date OLDEST = new Date(0);
+        final Date OLDER = new Date(100);
+        final Date OLD = new Date(200L);
+        final Date NEW = new Date(300L);
+
         ApiUser user = testFixtures().insertUser();
 
-        final ApiPlaylist apiPlaylist2 = testFixtures().insertPlaylistWithCreationDate(user, new Date(100));
-        testFixtures().insertPlaylistMarkedForOfflineSync(apiPlaylist2);
-        final ApiTrack playlistTrack2 = insertSyncablePlaylistTrack(apiPlaylist2, 0);
+        final ApiPlaylist olderCreatedPlaylist = testFixtures().insertPlaylistWithCreationDate(user, OLDER);
+        testFixtures().insertPlaylistMarkedForOfflineSync(olderCreatedPlaylist);
+        final ApiTrack trackInOlderCreatedPlaylist = insertSyncablePlaylistTrack(olderCreatedPlaylist, 0);
 
-        final ApiPlaylist apiPlaylist1 = testFixtures().insertPlaylistWithCreationDate(user, new Date(20023094823L));
-        testFixtures().insertPlaylistMarkedForOfflineSync(apiPlaylist1);
-        final ApiTrack playlistTrack1 = insertSyncablePlaylistTrack(apiPlaylist1, 0);
+        final ApiPlaylist newlyLikedPlaylist = testFixtures().insertLikedPlaylist(OLDEST, NEW);
+        testFixtures().insertPlaylistMarkedForOfflineSync(newlyLikedPlaylist);
+        final ApiTrack trackInNewlyLikedPlaylist = insertSyncablePlaylistTrack(newlyLikedPlaylist, 0);
+
+        final ApiPlaylist oldCreatedPlaylist = testFixtures().insertPlaylistWithCreationDate(user, OLD);
+        testFixtures().insertPlaylistMarkedForOfflineSync(oldCreatedPlaylist);
+        final ApiTrack trackInOldCreatedPlaylist = insertSyncablePlaylistTrack(oldCreatedPlaylist, 0);
 
         ExpectedOfflineContent toBeOffline = command.call(null);
 
         assertThat(toBeOffline.requests).containsExactly(
-                downloadRequestFromPlaylists(playlistTrack1),
-                downloadRequestFromPlaylists(playlistTrack2)
+                downloadRequestFromPlaylists(trackInNewlyLikedPlaylist),
+                downloadRequestFromPlaylists(trackInOldCreatedPlaylist),
+                downloadRequestFromPlaylists(trackInOlderCreatedPlaylist)
         );
     }
 

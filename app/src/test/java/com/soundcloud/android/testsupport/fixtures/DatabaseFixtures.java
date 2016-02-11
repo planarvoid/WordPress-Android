@@ -436,8 +436,16 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiPlaylist insertLikedPlaylist(Date creationDate, Date likedDate) {
+        return insertLikedPlaylist(likedDate, insertPlaylistWithCreatedAt(creationDate));
+    }
+
     public ApiPlaylist insertLikedPlaylist(Date likedDate) {
-        ApiPlaylist playlist = insertPlaylist();
+        return insertLikedPlaylist(likedDate, insertPlaylist());
+    }
+
+    @NonNull
+    private ApiPlaylist insertLikedPlaylist(Date likedDate, ApiPlaylist playlist) {
         insertPlaylist(playlist);
         insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         return playlist;

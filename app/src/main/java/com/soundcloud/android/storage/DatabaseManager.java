@@ -61,6 +61,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
             // views
             db.execSQL(Tables.Shortcuts.SQL);
+            db.execSQL(Tables.OfflinePlaylistTracks.SQL);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -79,6 +80,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.TrackDownloads.TABLE.name(), db);
         dropTable(Tables.OfflineContent.TABLE.name(), db);
         dropTable(LegacyTables.RecentStations.TABLE.name(), db);
+        dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
 
         // legacy tables
         for (Table t : Table.values()) {
@@ -680,11 +682,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     /*
      * Fix SoundAssociationView dropping
+     * Creates view OfflinePlaylistTracks
      */
     private static boolean upgradeTo68(SQLiteDatabase db, int oldVersion) {
         try {
             // this view isn't used anymore
             dropView("SoundAssociationView", db);
+            db.execSQL(Tables.OfflinePlaylistTracks.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 68);
@@ -715,5 +719,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         SchemaMigrationHelper.recreate(Table.PlaylistTracksView, db);
         SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
         SchemaMigrationHelper.recreate(Table.ActivityView, db);
+
+        SchemaMigrationHelper.dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
+        db.execSQL(Tables.OfflinePlaylistTracks.SQL);
     }
 }
