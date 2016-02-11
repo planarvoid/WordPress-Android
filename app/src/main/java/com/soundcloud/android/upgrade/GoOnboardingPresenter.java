@@ -3,9 +3,12 @@ package com.soundcloud.android.upgrade;
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -22,6 +25,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final Navigator navigator;
     private final UpgradeProgressOperations upgradeProgressOperations;
     private final GoOnboardingView view;
+    private final EventBus eventBus;
 
     private AppCompatActivity activity;
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -30,10 +34,11 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private StrategyContext context;
 
     @Inject
-    GoOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations, GoOnboardingView view) {
+    GoOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations, GoOnboardingView view, EventBus eventBus) {
         this.navigator = navigator;
         this.upgradeProgressOperations = upgradeProgressOperations;
         this.view = view;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -128,10 +133,14 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
             switch (context) {
                 case USER_SETUP_LATER:
                     navigator.openHome(activity);
+                    eventBus.publish(EventQueue.TRACKING,
+                            OfflineInteractionEvent.fromOnboardingDismiss());
                     view.reset();
                     return this;
                 case USER_SETUP_OFFLINE:
                     navigator.openOfflineContentOnboarding(activity);
+                    eventBus.publish(EventQueue.TRACKING,
+                            OfflineInteractionEvent.fromOnboardingStart());
                     view.reset();
                     return this;
                 default:
