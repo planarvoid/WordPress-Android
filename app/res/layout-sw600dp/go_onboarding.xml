@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ImageView
+        android:id="@+id/landing_background_image"
+        style="@style/GoOnboarding.WelcomeBackground" />
+
+    <LinearLayout
+        style="@style/GoOnboarding.WelcomeContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            style="@style/GoOnboarding.Text.WelcomeTitle"
+            android:layout_width="@dimen/go_onboarding_text_width"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/go_onboarding_header" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            style="@style/GoOnboarding.Text.WelcomeSubTitle"
+            android:layout_width="@dimen/go_onboarding_text_width"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/go_onboarding_subtext" />
+
+        <LinearLayout
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical"
+            tools:showIn="@layout/go_onboarding">
+
+            <com.soundcloud.android.view.LoadingButton
+                android:id="@+id/btn_go_setup_offline"
+                style="@style/GoOnboarding.PrimaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                app:actionText="@string/go_onboarding_setup_offline"
+                app:retryText="@string/go_onboarding_setup_retry" />
+
+            <com.soundcloud.android.view.LoadingButton
+                android:id="@+id/btn_go_setup_later"
+                style="@style/GoOnboarding.SecondaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                app:actionText="@string/go_onboarding_setup_later"
+                app:retryText="@string/go_onboarding_setup_retry" />
+        </LinearLayout>
+
+    </LinearLayout>
+</merge>

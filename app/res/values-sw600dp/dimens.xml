@@ -28,4 +28,10 @@
     <!-- explore -->
     <dimen name="explore_padding_left_right">16dp</dimen>
 
+    <!-- Go Onboarding  -->
+    <dimen name="go_onboarding_title_text_size">48sp</dimen>
+    <dimen name="go_onboarding_sub_title_text_size">20sp</dimen>
+    <dimen name="go_onboarding_sub_title_margin_top">32dp</dimen>
+    <dimen name="go_onboarding_sub_title_margin_bottom">62dp</dimen>
+
 </resources>
