@@ -175,10 +175,11 @@ public class IntentResolver {
     }
 
     private void showUpgradeScreen(Context context, String referrer) {
-        trackForegroundEvent(referrer);
         if (featureOperations.upsellHighTier()) {
+            trackForegroundEvent(referrer, Screen.CONVERSION);
             navigator.openUpgrade(context);
         } else {
+            trackForegroundEvent(referrer);
             navigator.openStream(context, Screen.DEEPLINK);
         }
     }
@@ -271,7 +272,11 @@ public class IntentResolver {
     }
 
     private void trackForegroundEvent(String referrer) {
-        trackForegroundEvent(ForegroundEvent.open(Screen.DEEPLINK, referrer));
+        trackForegroundEvent(referrer, Screen.DEEPLINK);
+    }
+
+    private void trackForegroundEvent(String referrer, Screen screen) {
+        trackForegroundEvent(ForegroundEvent.open(screen, referrer));
     }
 
     private void trackForegroundEvent(ForegroundEvent event) {

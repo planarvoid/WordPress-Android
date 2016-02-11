@@ -377,7 +377,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verifyTrackingEvent(Referrer.OTHER);
+        verifyTrackingEvent(Referrer.OTHER, Screen.CONVERSION);
         verify(navigator).openUpgrade(context);
     }
 
@@ -419,11 +419,15 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     private void verifyTrackingEvent(Referrer referrer) {
+        verifyTrackingEvent(referrer, Screen.DEEPLINK);
+    }
+
+    private void verifyTrackingEvent(Referrer referrer, Screen screen) {
         ForegroundEvent event = captureForegroundEvent();
 
         assertThat(event.getKind()).isEqualTo(ForegroundEvent.KIND_OPEN);
         assertThat(event.get(ForegroundEvent.KEY_REFERRER)).isEqualTo(referrer.value());
-        assertThat(event.get(ForegroundEvent.KEY_PAGE_NAME)).isEqualTo(Screen.DEEPLINK.get());
+        assertThat(event.get(ForegroundEvent.KEY_PAGE_NAME)).isEqualTo(screen.get());
     }
 
 }
