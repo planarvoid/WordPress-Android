@@ -320,6 +320,13 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     @Test
+    public void updatesNotificationWithDownloadProgress() {
+        service.onProgress(downloadState1);
+
+        verify(notificationController).onDownloadProgress(downloadState1);
+    }
+
+    @Test
     public void startServiceWithDownloadActionDoesNotCreateNotificationWhenNoPendingDownloadsExists() {
         setupNoDownloadRequest();
 
@@ -349,6 +356,37 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
 
         verify(offlineContentScheduler).cancelPendingRetries();
+    }
+
+    @Test
+    public void stopIntentCancelsCurrentDownload() {
+        when(downloadHandler.isDownloading()).thenReturn(true);
+
+        stopService();
+
+        verify(downloadHandler).cancel();
+    }
+
+    @Test
+    public void stopIntentResetsNotification() {
+        when(downloadHandler.isDownloading()).thenReturn(true);
+
+        stopService();
+        service.onCancel(downloadState1);
+
+        verify(notificationController).reset();
+        verify(notificationController).onDownloadsFinished(downloadState1);
+    }
+
+    @Test
+    public void destroyServiceUnsubscribesObservables() {
+        PublishSubject<OfflineContentUpdates> loadUpdates = PublishSubject.create();
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(loadUpdates);
+
+        startService();
+        service.onDestroy();
+
+        assertThat(loadUpdates.hasObservers()).isFalse();
     }
 
     private int startService() {
