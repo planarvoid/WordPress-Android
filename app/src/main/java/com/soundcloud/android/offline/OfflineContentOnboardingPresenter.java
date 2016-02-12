@@ -4,7 +4,10 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -19,11 +22,14 @@ public class OfflineContentOnboardingPresenter extends DefaultActivityLightCycle
     public static final int PAGE_1 = 1;
     public static final int PAGE_2 = 2;
 
+    private final EventBus eventBus;
     private final Navigator navigator;
     private final OfflineContentOperations offlineContentOperations;
 
     @Inject
-    OfflineContentOnboardingPresenter(Navigator navigator, OfflineContentOperations offlineContentOperations) {
+    OfflineContentOnboardingPresenter(EventBus eventBus, Navigator navigator,
+                                      OfflineContentOperations offlineContentOperations) {
+        this.eventBus = eventBus;
         this.navigator = navigator;
         this.offlineContentOperations = offlineContentOperations;
     }
@@ -76,6 +82,8 @@ public class OfflineContentOnboardingPresenter extends DefaultActivityLightCycle
             @Override
             public void onClick(View v) {
                 navigator.openCollection(activity);
+                eventBus.publish(EventQueue.TRACKING,
+                        OfflineInteractionEvent.fromOnboardingWithManualSync());
             }
         });
     }
@@ -86,6 +94,8 @@ public class OfflineContentOnboardingPresenter extends DefaultActivityLightCycle
             public void onClick(View view) {
                 fireAndForget(offlineContentOperations.enableOfflineCollection());
                 navigator.openCollection(activity);
+                eventBus.publish(EventQueue.TRACKING,
+                        OfflineInteractionEvent.fromOnboardingWithAutomaticSync());
             }
         });
     }

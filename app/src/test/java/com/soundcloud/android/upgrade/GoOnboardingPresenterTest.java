@@ -9,9 +9,12 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -31,6 +34,8 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     @Mock private AppCompatActivity activity;
     @Mock private Navigator navigator;
     @Mock private UpgradeProgressOperations upgradeProgressOperations;
+
+    private TestEventBus eventBus = new TestEventBus();
     private GoOnboardingViewStub view;
     private List<Urn> policiesUpdate = Collections.singletonList(Urn.forTrack(123));
     private GoOnboardingPresenter presenter;
@@ -38,7 +43,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         view = new GoOnboardingViewStub();
-        presenter = new GoOnboardingPresenter(navigator, upgradeProgressOperations, view);
+        presenter = new GoOnboardingPresenter(navigator, upgradeProgressOperations, view, eventBus);
     }
 
     @Test
@@ -50,6 +55,17 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
         assertThat(view.isSetUpLaterButtonWaiting).isFalse();
         verify(navigator).openHome(any(Activity.class));
+    }
+
+    @Test
+    public void clickingSetUpLaterSendsOnboardingDismissTrackingEventIfAccountUpgradeAlreadyCompleted() {
+        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.just(policiesUpdate));
+
+        presenter.onCreate(activity, null);
+        presenter.onSetupLaterClicked();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class).getKind())
+                .isEqualTo(OfflineInteractionEvent.KIND_ONBOARDING_DISMISS);
     }
 
     @Test
@@ -135,6 +151,17 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
         assertThat(view.isSetUpOfflineButtonWaiting).isFalse();
         verify(navigator).openOfflineContentOnboarding(any(Activity.class));
+    }
+
+    @Test
+    public void clickingSetupOfflineSendsOnboardingStartTrackingEventIfAccountUpgradeAlreadyCompleted() {
+        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.just(policiesUpdate));
+
+        presenter.onCreate(activity, null);
+        presenter.onSetupOfflineClicked();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class).getKind())
+                .isEqualTo(OfflineInteractionEvent.KIND_ONBOARDING_START);
     }
 
     @Test
