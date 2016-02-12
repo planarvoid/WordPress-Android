@@ -69,7 +69,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         subscriber = new TestSubscriber<>();
 
-        when(serviceInitiator.action1Start()).thenReturn(startServiceAction);
+        when(serviceInitiator.startFromUserAction()).thenReturn(startServiceAction);
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(LIKED_TRACKS));
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
                 Observable.<Collection<ApiPolicyInfo>>just(Collections.<ApiPolicyInfo>emptyList()));
