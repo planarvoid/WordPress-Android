@@ -10,10 +10,8 @@ import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
-import com.soundcloud.android.screens.elements.ToolBarElement;
 
 @EventTrackingTest
 public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
@@ -36,10 +34,7 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
     }
 
-    // Ignored until we fix: https://github.com/soundcloud/SoundCloud-Android/issues/3202
-    public void ignore_testUpgradePageEvents() {
-        ToolBarElement toolBarElement = new HomeScreen(solo).actionBar();
-
+    public void testUpgradePageEvents() {
         OfflineSettingsScreen offlineSettingsScreen = mainNavHelper.goToOfflineSettings();
         assertThat(offlineSettingsScreen, is(visible()));
 
@@ -50,7 +45,7 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
         UpgradeScreen upgradeScreen = offlineSettingsScreen.clickSubscribe();
         assertThat(upgradeScreen, is(visible()));
 
-        upgradeScreen.clickBuyForFailure();
+        upgradeScreen.clickBuyForWebCheckout();
 
         finishEventTracking(UPGRADE_TEST_SCENARIO);
     }

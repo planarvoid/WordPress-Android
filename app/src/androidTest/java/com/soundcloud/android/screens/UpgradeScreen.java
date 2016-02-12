@@ -29,6 +29,11 @@ public class UpgradeScreen extends Screen {
         return new PaymentErrorScreen(testDriver);
     }
 
+    public WebCheckoutScreen clickBuyForWebCheckout() {
+        clickBuy();
+        return new WebCheckoutScreen(testDriver);
+    }
+
     private UpgradeScreen clickBuy() {
         upgradeButton().click();
         return this;
