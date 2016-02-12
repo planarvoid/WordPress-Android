@@ -80,7 +80,7 @@ public class StreamCardElement {
     }
 
     public VisualPlayerElement click() {
-        wrapped.click();
+        wrapped.findElement(R.id.image).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
