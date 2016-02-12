@@ -1,6 +1,7 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropTable;
+import static com.soundcloud.android.storage.SchemaMigrationHelper.dropView;
 
 import com.soundcloud.android.utils.ErrorUtils;
 
@@ -19,7 +20,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 67;
+    public static final int DATABASE_VERSION = 68;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -83,6 +84,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         for (Table t : Table.values()) {
             SchemaMigrationHelper.drop(t, db);
         }
+        dropView(Tables.Shortcuts.TABLE.name(), db);
 
         onCreate(db);
     }
@@ -192,6 +194,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 67:
                             success = upgradeTo67(db, oldVersion);
+                            break;
+                        case 68:
+                            success = upgradeTo68(db, oldVersion);
                             break;
                         default:
                             break;
@@ -669,6 +674,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 67);
+        }
+        return false;
+    }
+
+    /*
+     * Fix SoundAssociationView dropping
+     */
+    private static boolean upgradeTo68(SQLiteDatabase db, int oldVersion) {
+        try {
+            // this view isn't used anymore
+            dropView("SoundAssociationView", db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 68);
         }
         return false;
     }
