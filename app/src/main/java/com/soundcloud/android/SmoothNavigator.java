@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 
 import android.annotation.SuppressLint;
@@ -43,5 +44,11 @@ public class SmoothNavigator extends Navigator {
         };
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity, sharedElements);
         activity.startActivity(new Intent(activity, SearchActivity.class), options.toBundle());
+    }
+
+    @Override
+    public void openUpgrade(Activity activity) {
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity);
+        activity.startActivity(new Intent(activity, WebConversionActivity.class), options.toBundle());
     }
 }

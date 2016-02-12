@@ -34,6 +34,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -116,7 +117,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                 handleShare(context);
                 return true;
             case R.id.upsell_offline_content:
-                navigator.openUpgrade(context);
+                navigator.openUpgrade((Activity) context);
                 eventBus.publish(EventQueue.TRACKING,
                         UpgradeTrackingEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(), playlist.getEntityUrn()));
                 return true;

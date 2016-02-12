@@ -41,6 +41,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
@@ -253,7 +254,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     @Override
     public void onUpsell(Context context) {
-        navigator.openUpgrade(context);
+        navigator.openUpgrade((Activity) context);
         eventBus.publish(EventQueue.TRACKING,
                 UpgradeTrackingEvent.forPlaylistPageClick(playlistWithTracks.getUrn()));
     }

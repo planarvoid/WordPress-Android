@@ -2,11 +2,17 @@
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/conversion_outside"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/translucent_background">
+    android:layout_height="match_parent">
 
-    <include layout="@layout/conversion_common" />
+    <View
+        android:id="@+id/conversion_outside"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/translucent_background" />
+
+    <include
+        android:id="@+id/conversion_content"
+        layout="@layout/conversion_common" />
 
 </FrameLayout>
