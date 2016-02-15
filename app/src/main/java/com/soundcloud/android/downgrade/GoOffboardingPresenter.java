@@ -1,10 +1,8 @@
-package com.soundcloud.android.upgrade;
+package com.soundcloud.android.downgrade;
 
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -17,14 +15,15 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+
     enum StrategyContext {
-        USER_NO_ACTION, USER_SETUP_LATER, USER_SETUP_OFFLINE
+        USER_NO_ACTION, USER_CONTINUE, USER_RESUBSCRIBE
     }
 
     private final Navigator navigator;
-    private final UpgradeProgressOperations upgradeProgressOperations;
-    private final GoOnboardingView view;
+    private final DowngradeProgressOperations operations;
+    private final GoOffboardingView view;
     private final EventBus eventBus;
 
     private AppCompatActivity activity;
@@ -34,9 +33,12 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private StrategyContext context;
 
     @Inject
-    GoOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations, GoOnboardingView view, EventBus eventBus) {
+    GoOffboardingPresenter(Navigator navigator,
+                           DowngradeProgressOperations operations,
+                           GoOffboardingView view,
+                           EventBus eventBus) {
         this.navigator = navigator;
-        this.upgradeProgressOperations = upgradeProgressOperations;
+        this.operations = operations;
         this.view = view;
         this.eventBus = eventBus;
     }
@@ -55,32 +57,21 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         activity = null;
     }
 
-    void onSetupOfflineClicked() {
-        context = StrategyContext.USER_SETUP_OFFLINE;
+    void onResubscribeClicked() {
+        context = StrategyContext.USER_RESUBSCRIBE;
         strategy = strategy.proceed();
     }
 
-    void onSetupLaterClicked() {
-        context = StrategyContext.USER_SETUP_LATER;
+    void onContinueClicked() {
+        context = StrategyContext.USER_CONTINUE;
         strategy = strategy.proceed();
     }
 
-    private class UpgradeCompleteSubscriber extends DefaultSubscriber<Object> {
-
-        private boolean hasPlan = false;
-
-        @Override
-        public void onCompleted() {
-            if (hasPlan) {
-                strategy = new SuccessStrategy().proceed();
-            } else {
-                strategy = new UnrecoverableErrorStrategy().proceed();
-            }
-        }
+    private class DowngradeCompleteSubscriber extends DefaultSubscriber<Object> {
 
         @Override
         public void onNext(Object args) {
-            hasPlan = true;
+            strategy = new SuccessStrategy().proceed();
         }
 
         @Override
@@ -104,9 +95,9 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             strategy = new PendingStrategy();
-            subscription = upgradeProgressOperations.awaitAccountUpgrade()
+            subscription = operations.awaitAccountDowngrade()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new UpgradeCompleteSubscriber());
+                    .subscribe(new DowngradeCompleteSubscriber());
             return strategy;
         }
     }
@@ -115,11 +106,11 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             switch (context) {
-                case USER_SETUP_LATER:
-                    view.setSetUpLaterButtonWaiting();
+                case USER_CONTINUE:
+                    view.setContinueButtonWaiting();
                     return this;
-                case USER_SETUP_OFFLINE:
-                    view.setSetUpOfflineButtonWaiting();
+                case USER_RESUBSCRIBE:
+                    view.setResubscribeButtonWaiting();
                     return this;
                 default:
                     return this;
@@ -131,16 +122,18 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             switch (context) {
-                case USER_SETUP_LATER:
+                case USER_CONTINUE:
                     navigator.openHomeAsRootScreen(activity);
-                    eventBus.publish(EventQueue.TRACKING,
-                            OfflineInteractionEvent.fromOnboardingDismiss());
+                    //TODO
+//                    eventBus.publish(EventQueue.TRACKING,
+//                            OfflineInteractionEvent.fromOnboardingDismiss());
                     view.reset();
                     return this;
-                case USER_SETUP_OFFLINE:
-                    navigator.openOfflineContentOnboarding(activity);
-                    eventBus.publish(EventQueue.TRACKING,
-                            OfflineInteractionEvent.fromOnboardingStart());
+                case USER_RESUBSCRIBE:
+                    navigator.openUpgrade(activity);
+                    //TODO
+//                    eventBus.publish(EventQueue.TRACKING,
+//                            OfflineInteractionEvent.fromOnboardingStart());
                     view.reset();
                     return this;
                 default:
@@ -153,11 +146,11 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             switch (context) {
-                case USER_SETUP_LATER:
-                    view.setSetUpLaterButtonRetry();
+                case USER_CONTINUE:
+                    view.setContinueButtonRetry();
                     return new InitStrategy();
-                case USER_SETUP_OFFLINE:
-                    view.setSetUpOfflineButtonRetry();
+                case USER_RESUBSCRIBE:
+                    view.setResubscribeButtonRetry();
                     return new InitStrategy();
                 default:
                     return this;
@@ -169,12 +162,12 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             switch (context) {
-                case USER_SETUP_LATER:
-                    view.setSetUpLaterButtonRetry();
+                case USER_CONTINUE:
+                    view.setContinueButtonRetry();
                     view.showErrorDialog(activity.getSupportFragmentManager());
                     return new InitStrategy();
-                case USER_SETUP_OFFLINE:
-                    view.setSetUpOfflineButtonRetry();
+                case USER_RESUBSCRIBE:
+                    view.setResubscribeButtonRetry();
                     view.showErrorDialog(activity.getSupportFragmentManager());
                     return new InitStrategy();
                 default:
@@ -182,4 +175,5 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
             }
         }
     }
+
 }

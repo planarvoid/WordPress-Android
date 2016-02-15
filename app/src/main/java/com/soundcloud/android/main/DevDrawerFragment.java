@@ -104,6 +104,24 @@ public class DevDrawerFragment extends PreferenceFragment {
                     }
                 });
 
+        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_flow_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        navigator.restartForAccountUpgrade(getActivity());
+                        return true;
+                    }
+                });
+
+        screen.findPreference(getString(R.string.dev_drawer_action_downgrade_flow_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        navigator.restartForAccountDowngrade(getActivity());
+                        return true;
+                    }
+                });
+
         screen.findPreference(getString(R.string.dev_drawer_action_reset_flags_key))
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
