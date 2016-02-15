@@ -21,6 +21,10 @@ class ConfigurationSettingsStorage {
         this.sharedPreferences = sharedPreferences;
     }
 
+    void clear() {
+        sharedPreferences.edit().clear().apply();
+    }
+
     void setLastConfigurationUpdateTime(long timestamp) {
         sharedPreferences.edit().putLong(LAST_CONFIG_UPDATE_TIME, timestamp).apply();
     }

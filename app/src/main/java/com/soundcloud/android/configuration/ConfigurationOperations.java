@@ -250,4 +250,8 @@ public class ConfigurationOperations {
     public void clearPendingPlanChanges() {
         configurationSettingsStorage.clearPendingPlanChanges();
     }
+
+    public void clearConfigurationSettings() {
+        configurationSettingsStorage.clear();
+    }
 }

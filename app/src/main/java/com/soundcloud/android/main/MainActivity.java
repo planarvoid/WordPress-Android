@@ -29,7 +29,6 @@ public class MainActivity extends ScActivity {
     @Inject @LightCycle ActionBarHelper actionBarHelper;
     @Inject @LightCycle GcmManager gcmManager;
     @Inject @LightCycle FacebookInvitesController facebookInvitesController;
-    @Inject @LightCycle ConfigurationUpdateLightCycle configurationUpdateLightCycle;
 
     protected void onCreate(Bundle savedInstanceState) {
         redirectToResolverIfNecessary(getIntent());
