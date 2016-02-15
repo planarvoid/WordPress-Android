@@ -52,7 +52,6 @@ public class FeatureStorage {
     }
 
     private void updatePlans(String key, List<Plan> plans) {
-        Log.d(TAG, "updating plans: " + plans);
         sharedPreferences.edit().putStringSet(key + PLANS_POSTFIX, Plan.toIds(plans)).apply();
     }
 
