@@ -72,6 +72,10 @@ public class Navigator {
         context.startActivity(createHomeIntent(context));
     }
 
+    public void openHomeAsRootScreen(Context context) {
+        context.startActivity(rootScreen(createHomeIntent(context)));
+    }
+
     public void launchHome(Context context, @Nullable Bundle extras) {
         final Intent homeIntent = createHomeIntent(context);
         if (extras != null) {
@@ -171,10 +175,6 @@ public class Navigator {
         context.startActivity(new Intent(context, SettingsActivity.class));
     }
 
-    public void openGoOnboarding(Context context) {
-        context.startActivity(new Intent(context, GoOnboardingActivity.class));
-    }
-
     public void openOfflineContentOnboarding(Context context) {
         openOfflineContentOnboarding(context, OfflineContentOnboardingPresenter.PAGE_1);
     }
@@ -223,8 +223,8 @@ public class Navigator {
         context.startActivity(createStreamIntent(screen));
     }
 
-    public void openCollection(Context context) {
-        context.startActivity(new Intent(Actions.COLLECTION).setFlags(FLAGS_TOP));
+    public void openCollectionAsRootScreen(Context context) {
+        context.startActivity(rootScreen(new Intent(Actions.COLLECTION).setFlags(FLAGS_TOP)));
     }
 
     public void openLauncher(Context context) {
@@ -276,6 +276,12 @@ public class Navigator {
 
     private Intent createHomeIntent(Context context) {
         return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
+
+    private Intent rootScreen(Intent intent) {
+        return intent
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 
     private Intent createResolveIntent(Context context, Urn urn) {

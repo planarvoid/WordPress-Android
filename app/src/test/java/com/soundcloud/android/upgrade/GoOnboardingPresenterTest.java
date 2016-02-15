@@ -54,7 +54,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         presenter.onSetupLaterClicked();
 
         assertThat(view.isSetUpLaterButtonWaiting).isFalse();
-        verify(navigator).openHome(any(Activity.class));
+        verify(navigator).openHomeAsRootScreen(any(Activity.class));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         subject.onNext(policiesUpdate);
         subject.onCompleted();
 
-        verify(navigator).openHome(any(Activity.class));
+        verify(navigator).openHomeAsRootScreen(any(Activity.class));
     }
 
     @Test

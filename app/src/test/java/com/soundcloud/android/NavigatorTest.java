@@ -72,6 +72,16 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void openHomeAsRootScreen() {
+        navigator.openHomeAsRootScreen(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .opensActivity(MainActivity.class);
+    }
+
+    @Test
     public void launchHome() {
         final Intent intent = new Intent();
         Referrer.FACEBOOK.addToIntent(intent);
@@ -95,6 +105,16 @@ public class NavigatorTest extends AndroidUnitTest {
                 .containsReferrer(Referrer.HOME_BUTTON)
                 .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .opensActivity(MainActivity.class);
+    }
+
+    @Test
+    public void openCollectionAsRootScreen() {
+        navigator.openCollectionAsRootScreen(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .containsAction(Actions.COLLECTION);
     }
 
     @Test
