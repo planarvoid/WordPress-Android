@@ -27,7 +27,7 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
     public void scrollDownBeyondThresholdEmitsHideToListener() {
         scrollListener.onScrolled(null, 0, threshold);
 
-        verify(listener).onScrollHideOverlay();
+        verify(listener).onScrollHideIndicator();
     }
 
     @Test
@@ -36,7 +36,7 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
 
         scrollListener.onScrolled(null, 0, -threshold);
 
-        verify(listener).onScrollShowOverlay();
+        verify(listener).onScrollShowIndicator();
     }
 
     @Test
@@ -44,15 +44,15 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
         scrollListener.onScrolled(null, 0, threshold);
         scrollListener.onScrolled(null, 0, -threshold);
 
-        verify(listener).onScrollHideOverlay();
-        verify(listener).onScrollShowOverlay();
+        verify(listener).onScrollHideIndicator();
+        verify(listener).onScrollShowIndicator();
     }
 
     @Test
     public void scrollDownWithinThresholdDoesNotHide() {
         scrollListener.onScrolled(null, 0, threshold-1);
 
-        verify(listener, never()).onScrollHideOverlay();
+        verify(listener, never()).onScrollHideIndicator();
     }
 
     @Test
@@ -61,7 +61,7 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
 
         scrollListener.onScrolled(null, 0, -threshold+1);
 
-        verify(listener, never()).onScrollShowOverlay();
+        verify(listener, never()).onScrollShowIndicator();
     }
 
     @Test
@@ -70,7 +70,7 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
         scrollListener.onScrolled(null, 0, 1);
         scrollListener.onScrolled(null, 0, 1);
 
-        verify(listener, times(1)).onScrollHideOverlay();
+        verify(listener, times(1)).onScrollHideIndicator();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
         scrollListener.onScrolled(null, 0, -1);
         scrollListener.onScrolled(null, 0, threshold-1);
 
-        verify(listener, never()).onScrollHideOverlay();
+        verify(listener, never()).onScrollHideIndicator();
     }
 
     @Test
@@ -87,8 +87,8 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
         scrollListener.onScrolled(null, 0, threshold);
         scrollListener.onScrolled(null, 0, -threshold+1);
 
-        verify(listener).onScrollHideOverlay();
-        verify(listener, never()).onScrollShowOverlay();
+        verify(listener).onScrollHideIndicator();
+        verify(listener, never()).onScrollShowIndicator();
     }
 
     @Test
@@ -98,7 +98,7 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
         scrollListener.onScrolled(null, 0, threshold);
         scrollListener.onScrolled(null, 0, -threshold);
 
-        verify(listener).onScrollHideOverlay();
-        verify(listener, never()).onScrollShowOverlay();
+        verify(listener).onScrollHideIndicator();
+        verify(listener, never()).onScrollShowIndicator();
     }
 }

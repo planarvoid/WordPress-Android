@@ -298,27 +298,25 @@
         <item name="custom_font">@string/interstate_light</item>
     </style>
 
-    <style name="RefreshOverlay" />
+    <style name="NewItemsIndicator" />
 
-    <style name="RefreshOverlay.Card">
+    <style name="NewItemsIndicator.Base">
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:layout_centerHorizontal">true</item>
         <item name="android:layout_marginTop">10dp</item>
-        <item name="android:padding">0dp</item>
-        <item name="cardElevation">4dp</item>
-        <item name="cardBackgroundColor">@color/white</item>
-        <item name="cardCornerRadius">14dp</item>
-        <item name="contentPadding">0dp</item>
-    </style>
-
-    <style name="RefreshOverlay.Text">
         <item name="android:paddingBottom">4dp</item>
         <item name="android:paddingLeft">24dp</item>
         <item name="android:paddingRight">24dp</item>
         <item name="android:paddingTop">4dp</item>
         <item name="android:text">@plurals/stream_new_posts</item>
         <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:background">@drawable/indicator_pill</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="NewItemsIndicator.Text" parent="NewItemsIndicator.Base">
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">6dp</item>
     </style>
 
 </resources>

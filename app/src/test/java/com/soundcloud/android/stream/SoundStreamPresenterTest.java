@@ -49,6 +49,7 @@ import rx.Observable;
 import rx.Observer;
 
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -316,7 +317,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        presenter.onRefreshableOverlayClicked();
+        presenter.onNewItemsIndicatorClicked();
 
         verify(streamOperations, times(2)).initialStreamItems();
     }
@@ -350,6 +351,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        verify(newItemsIndicator).setView(any(View.class));
+        verify(newItemsIndicator).setTextView(any(TextView.class));
     }
 }

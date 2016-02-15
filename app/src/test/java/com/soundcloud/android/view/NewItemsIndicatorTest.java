@@ -21,7 +21,6 @@ import android.widget.TextView;
 public class NewItemsIndicatorTest extends AndroidUnitTest {
 
     private static final int TEXT_RESOURCE_ID = R.plurals.stream_new_posts;
-    private static final int REFRESH_OVERLAY_TEXT_ID = R.id.refresh_overlay_text;
     private static final String NEW_POST = "1 new post";
     private static final String NEW_POSTS_3 = "3 new posts";
     private static final String NEW_POSTS_9_PLUS = "9+ new posts";
@@ -29,8 +28,7 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
 
     @Mock NewItemsIndicatorScrollListener scrollListener;
     @Mock NewItemsIndicator.Listener listener;
-    @Mock View view;
-    @Mock TextView textView;
+    @Mock TextView view;
     @Mock Animation animation;
 
     @Captor private ArgumentCaptor<View.OnClickListener> onClickListenerCaptor;
@@ -41,13 +39,12 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(view.isShown()).thenReturn(true);
         when(view.getAnimation()).thenReturn(animation);
-        when(view.findViewById(REFRESH_OVERLAY_TEXT_ID)).thenReturn(textView);
 
         newItemsIndicator = new NewItemsIndicator(context(), scrollListener);
         newItemsIndicator.setNewItems(2);
         newItemsIndicator.setClickListener(listener);
         newItemsIndicator.setTextResourceId(TEXT_RESOURCE_ID);
-        newItemsIndicator.setView(view);
+        newItemsIndicator.setTextView(view);
     }
 
     @Test
@@ -56,7 +53,7 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
 
         onClickListenerCaptor.getValue().onClick(view);
 
-        verify(listener).onRefreshableOverlayClicked();
+        verify(listener).onNewItemsIndicatorClicked();
     }
 
     @Test
@@ -110,7 +107,7 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
 
         newItemsIndicator.update(3);
 
-        verify(textView).setText(NEW_POSTS_3);
+        verify(view).setText(NEW_POSTS_3);
     }
 
     @Test
@@ -119,7 +116,7 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
 
         newItemsIndicator.update(12);
 
-        verify(textView).setText(NEW_POSTS_9_PLUS);
+        verify(view).setText(NEW_POSTS_9_PLUS);
     }
 
     @Test
@@ -128,7 +125,7 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
 
         newItemsIndicator.update(1);
 
-        verify(textView).setText(NEW_POST);
+        verify(view).setText(NEW_POST);
     }
 
     @Test
@@ -153,7 +150,7 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
     public void shouldHideOnScrollDownWhenVisible() {
         when(view.isShown()).thenReturn(true);
 
-        newItemsIndicator.onScrollHideOverlay();
+        newItemsIndicator.onScrollHideIndicator();
 
         verify(view).setVisibility(View.GONE);
     }
@@ -162,7 +159,7 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
     public void shouldShowOnScrollUpWhenHidden() {
         when(view.isShown()).thenReturn(false);
 
-        newItemsIndicator.onScrollShowOverlay();
+        newItemsIndicator.onScrollShowIndicator();
 
         verify(view).setVisibility(View.VISIBLE);
     }
@@ -172,7 +169,7 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
         when(animation.hasStarted()).thenReturn(true);
         when(animation.hasEnded()).thenReturn(true);
 
-        newItemsIndicator.onScrollHideOverlay();
+        newItemsIndicator.onScrollHideIndicator();
 
         verify(view).setVisibility(View.GONE);
     }
@@ -182,41 +179,27 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
         when(animation.hasStarted()).thenReturn(true);
         when(animation.hasEnded()).thenReturn(false);
 
-        newItemsIndicator.onScrollHideOverlay();
+        newItemsIndicator.onScrollHideIndicator();
 
         verify(view, never()).setVisibility(View.GONE);
     }
 
     @Test
-    public void shouldClearScrollListenerOnClear() {
+    public void shouldClearScrollListenerOnDestroy() {
         newItemsIndicator.destroy();
 
         verify(scrollListener).destroy();
     }
 
     @Test
-    public void shouldResetNewItemsOnClear() {
-        newItemsIndicator.destroy();
-
-        assertThat(newItemsIndicator.getNewItems()).isEqualTo(0);
-    }
-
-    @Test
-    public void shouldHideOnClear() {
-        newItemsIndicator.destroy();
-
-        verify(view).setVisibility(View.GONE);
-    }
-
-    @Test
-    public void shouldResetNewItemsOnReset() {
+    public void shouldResetNewItemsOnHideAndReset() {
         newItemsIndicator.hideAndReset();
 
         assertThat(newItemsIndicator.getNewItems()).isEqualTo(0);
     }
 
     @Test
-    public void shouldHideOnReset() {
+    public void shouldHideOnHideAndReset() {
         newItemsIndicator.hideAndReset();
 
         verify(view).setVisibility(View.GONE);

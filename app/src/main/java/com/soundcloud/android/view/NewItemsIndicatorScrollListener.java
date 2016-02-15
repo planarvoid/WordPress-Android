@@ -52,12 +52,12 @@ public class NewItemsIndicatorScrollListener extends RecyclerView.OnScrollListen
 
     private void setVisibility() {
         if (visible && distance > threshold) {
-            listener.onScrollHideOverlay();
+            listener.onScrollHideIndicator();
             if (autoReset) {
                 resetVisibility(false);
             }
         } else if (!visible && distance < -threshold) {
-            listener.onScrollShowOverlay();
+            listener.onScrollShowIndicator();
             if (autoReset) {
                 resetVisibility(true);
             }
@@ -73,9 +73,9 @@ public class NewItemsIndicatorScrollListener extends RecyclerView.OnScrollListen
     }
 
     public interface Listener {
-        void onScrollShowOverlay();
+        void onScrollShowIndicator();
 
-        void onScrollHideOverlay();
+        void onScrollHideIndicator();
     }
 
 }

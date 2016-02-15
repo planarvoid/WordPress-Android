@@ -52,6 +52,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -159,7 +160,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     }
 
     private void initializeNewItemsIndicator(View view) {
-        newItemsIndicator.setView(view.findViewById(R.id.refresh_overlay));
+        newItemsIndicator.setTextView((TextView) view.findViewById(R.id.new_items_indicator));
         getRecyclerView().addOnScrollListener(newItemsIndicator.getScrollListener());
 
         viewLifeCycle.add(
@@ -317,7 +318,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     }
 
     @Override
-    public void onRefreshableOverlayClicked() {
+    public void onNewItemsIndicatorClicked() {
         scrollToTop();
         softReload();
     }

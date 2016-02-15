@@ -25,7 +25,7 @@ public class NewItemsIndicator implements NewItemsIndicatorScrollListener.Listen
     private final Context context;
 
     private int newItems;
-    private View overlayView;
+    private TextView indicatorTextView;
     @PluralsRes private int textResourceId = Consts.NOT_SET;
     @Nullable private Listener clickListener;
 
@@ -60,24 +60,25 @@ public class NewItemsIndicator implements NewItemsIndicatorScrollListener.Listen
         return scrollListener;
     }
 
-    public void setView(@NonNull View view) {
-        this.overlayView = view;
-        assignOverlayClickListener();
+    public void setTextView(@NonNull TextView textView) {
+        this.indicatorTextView = textView;
+        assignIndicatorClickListener();
         scrollListener.setListener(this);
-
         if (newItems > 0) {
             show();
         }
     }
 
     public void hideAndReset() {
-        hide();
+        if (indicatorTextView.isShown() || isAnimating()) {
+            hide();
+        }
         newItems = 0;
     }
 
     public void destroy() {
         scrollListener.destroy();
-        overlayView = null;
+        indicatorTextView = null;
     }
 
     public void update(int newItems) {
@@ -92,43 +93,41 @@ public class NewItemsIndicator implements NewItemsIndicatorScrollListener.Listen
     private void hide() {
         scrollListener.resetVisibility(false);
 
-        if (overlayView != null) {
-            overlayView.setAnimation(slideOutAnimation());
-            overlayView.setVisibility(View.GONE);
+        if (indicatorTextView != null) {
+            indicatorTextView.setAnimation(slideOutAnimation());
+            indicatorTextView.setVisibility(View.GONE);
         }
     }
 
     private void show() {
         scrollListener.resetVisibility(true);
 
-        if (overlayView != null && newItems > 0) {
-            setOverlayText();
-            if (!overlayView.isShown()) {
-                overlayView.setAnimation(slideInAnimation());
-                overlayView.setVisibility(View.VISIBLE);
+        if (indicatorTextView != null && newItems > 0) {
+            setIndicatorText();
+            if (!indicatorTextView.isShown()) {
+                indicatorTextView.setAnimation(slideInAnimation());
+                indicatorTextView.setVisibility(View.VISIBLE);
             }
         }
     }
 
-    private void assignOverlayClickListener() {
-        overlayView.setOnClickListener(new View.OnClickListener() {
+    private void assignIndicatorClickListener() {
+        indicatorTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 newItems = 0;
                 hide();
                 if (clickListener != null) {
-                    clickListener.onRefreshableOverlayClicked();
+                    clickListener.onNewItemsIndicatorClicked();
                 }
             }
         });
     }
 
-    private void setOverlayText() {
-        TextView textView = (TextView) overlayView.findViewById(R.id.refresh_overlay_text);
-
-        if (textView != null && textResourceId != Consts.NOT_SET) {
+    private void setIndicatorText() {
+        if (textResourceId != Consts.NOT_SET) {
             String newItemsString = newItems > 9 ? "9+" : String.valueOf(newItems);
-            textView.setText(context.getResources().getQuantityString(textResourceId, newItems, newItemsString));
+            indicatorTextView.setText(context.getResources().getQuantityString(textResourceId, newItems, newItemsString));
         }
     }
 
@@ -147,26 +146,26 @@ public class NewItemsIndicator implements NewItemsIndicatorScrollListener.Listen
     }
 
     private boolean isAnimating() {
-        Animation animation = overlayView.getAnimation();
+        Animation animation = indicatorTextView.getAnimation();
         return animation != null && (animation.hasStarted() && !animation.hasEnded());
     }
 
     @Override
-    public void onScrollHideOverlay() {
-        if (overlayView != null && overlayView.isShown() && !isAnimating()) {
+    public void onScrollHideIndicator() {
+        if (indicatorTextView != null && indicatorTextView.isShown() && !isAnimating()) {
             hide();
         }
     }
 
     @Override
-    public void onScrollShowOverlay() {
-        if (overlayView != null && !overlayView.isShown() && !isAnimating()) {
+    public void onScrollShowIndicator() {
+        if (indicatorTextView != null && !indicatorTextView.isShown() && !isAnimating()) {
             show();
         }
     }
 
     public interface Listener {
-        void onRefreshableOverlayClicked();
+        void onNewItemsIndicatorClicked();
     }
 
 }
