@@ -6,6 +6,8 @@ import com.soundcloud.annotations.VisibleForTesting;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.PluralsRes;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
@@ -23,9 +25,9 @@ public class NewItemsIndicator implements NewItemsIndicatorScrollListener.Listen
     private final Context context;
 
     private int newItems;
-    private int textResourceId = Consts.NOT_SET;
     private View overlayView;
-    private Listener clickListener;
+    @PluralsRes private int textResourceId = Consts.NOT_SET;
+    @Nullable private Listener clickListener;
 
     @Inject
     public NewItemsIndicator(Context context,

@@ -112,7 +112,6 @@ public class SoundStreamStorage implements TimelineStorage {
                 .select(STREAM_SELECTION)
                 .whereLt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
                 .whereNull(SoundStreamView.PROMOTED_ID)
-                .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
         return propellerRx.query(query).map(new StreamItemMapper());
@@ -124,7 +123,6 @@ public class SoundStreamStorage implements TimelineStorage {
                 .select(STREAM_SELECTION)
                 .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
                 .whereNull(SoundStreamView.PROMOTED_ID)
-                .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
         return database.query(query).toList(new StreamItemMapper());
