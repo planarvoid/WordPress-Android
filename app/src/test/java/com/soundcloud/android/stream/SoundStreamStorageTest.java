@@ -257,6 +257,17 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadStreamItemsCountSinceOnlyCountsItemsNewerThanTheGivenTimestamp() {
+        TestObserver<Integer> observer = new TestObserver<>();
+        testFixtures().insertStreamTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP);
+        testFixtures().insertStreamTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP + 1);
+
+        storage.timelineItemCountSince(TIMESTAMP).subscribe(observer);
+
+        assertThat(observer.getOnNextEvents()).containsExactly(1);
+    }
+
+    @Test
     public void loadingStreamItemsIncludesTierInformation() {
         final ApiTrack track = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);

@@ -714,6 +714,15 @@ public class DatabaseFixtures {
         insertInto(Table.Collections, cv);
     }
 
+    public void insertSyncAttemptAndLast(SyncContent syncContent, long attempt, long last) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, attempt);
+        cv.put(TableColumns.Collections.LAST_SYNC, last);
+        cv.put(TableColumns.Collections.URI, syncContent.content.uri.toString());
+        insertInto(Table.Collections, cv);
+    }
+
+
     public void insertSuccessfulSync(SyncContent syncContent, long when) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, when);

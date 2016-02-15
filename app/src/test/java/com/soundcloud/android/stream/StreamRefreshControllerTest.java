@@ -19,11 +19,12 @@ import rx.schedulers.TestScheduler;
 import android.support.v7.app.AppCompatActivity;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class StreamRefreshControllerTest extends AndroidUnitTest {
 
-    public static final StreamEvent REFRESH_STREAM_EVENT = StreamEvent.fromStreamRefresh();
+    private static final StreamEvent REFRESH_STREAM_EVENT = StreamEvent.fromStreamRefresh();
 
     @Mock AppCompatActivity activity;
     @Mock SoundStreamOperations operations;
@@ -44,7 +45,7 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
 
     @Test
     public void onResumeEmitsRefreshStreamEventWhenStale() throws Exception {
-        when(operations.lastSyncAttemptTime()).thenReturn(Observable.just(-1L));
+        when(operations.lastSyncTime()).thenReturn(Observable.just(-1L));
 
         controller.onResume(activity);
         scheduler.advanceTimeBy(30, TimeUnit.SECONDS);
@@ -54,7 +55,18 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
 
     @Test
     public void onResumeDoesNotEmitRefreshStreamEventWhenNotStale() throws Exception {
-        when(operations.lastSyncAttemptTime()).thenReturn(Observable.just(dateProvider.getCurrentTime()));
+        when(operations.lastSyncTime()).thenReturn(Observable.just(dateProvider.getCurrentTime()));
+
+        controller.onResume(activity);
+        scheduler.advanceTimeBy(30, TimeUnit.SECONDS);
+
+        eventBus.verifyNoEventsOn(EventQueue.STREAM);
+    }
+
+    @Test
+    public void onSyncErrorDoesNotPropagateToSubscriber() {
+        when(operations.lastSyncTime()).thenReturn(Observable.just(-1L));
+        when(operations.updatedStreamItems()).thenReturn(Observable.<List<StreamItem>>error(new Throwable()));
 
         controller.onResume(activity);
         scheduler.advanceTimeBy(30, TimeUnit.SECONDS);

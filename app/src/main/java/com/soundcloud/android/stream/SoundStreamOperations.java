@@ -164,6 +164,11 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
         this.featureFlags = featureFlags;
     }
 
+    public Observable<Integer> newItemsSince(long time) {
+        return soundStreamStorage.timelineItemCountSince(time)
+                .subscribeOn(scheduler);
+    }
+
     @Override
     protected Func1<List<PropertySet>, List<StreamItem>> toViewModels() {
         return TO_STREAM_ITEMS;
