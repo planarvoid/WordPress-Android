@@ -20,7 +20,7 @@
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/tooltip_header"
         style="@style/GoOnboarding.Text.Headline"
-        android:layout_width="@dimen/go_onboarding_offline_content_text_width"
+        android:layout_width="@dimen/go_onboarding_text_width"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tooltip_image"
         android:layout_centerHorizontal="true"
@@ -30,7 +30,7 @@
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/tooltip_description"
         style="@style/GoOnboarding.Text.SubText"
-        android:layout_width="@dimen/go_onboarding_offline_content_text_width"
+        android:layout_width="@dimen/go_onboarding_text_width"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tooltip_header"
         android:layout_centerHorizontal="true"

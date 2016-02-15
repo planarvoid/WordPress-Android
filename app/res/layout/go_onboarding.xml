@@ -19,7 +19,7 @@
             android:text="@string/go_onboarding_header" />
 
         <com.soundcloud.android.view.CustomFontTextView
-            style="@style/GoOnboarding.Text.SubText"
+            style="@style/GoOnboarding.Text.WelcomeSubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/go_onboarding_subtext" />
