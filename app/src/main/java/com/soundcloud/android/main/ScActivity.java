@@ -9,6 +9,7 @@ import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.analytics.AnalyticsConnector;
 import com.soundcloud.android.cast.CastConnectionHelper;
+import com.soundcloud.android.configuration.ConfigurationUpdateLightCycle;
 import com.soundcloud.android.image.ImageOperationsController;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.policies.PolicyUpdateController;
@@ -43,6 +44,7 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
     @Inject @LightCycle protected ScreenTracker screenTracker;
     @Inject @LightCycle ForegroundController foregroundController;
     @Inject @LightCycle StreamRefreshController streamRefreshController;
+    @Inject @LightCycle ConfigurationUpdateLightCycle configurationUpdateLightCycle;
 
     @Inject ApplicationProperties applicationProperties;
     @Inject protected AccountOperations accountOperations;
