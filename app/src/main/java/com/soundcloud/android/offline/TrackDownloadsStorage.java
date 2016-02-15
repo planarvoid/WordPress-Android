@@ -8,11 +8,9 @@ import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.PLAYLIS
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITION;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
 import static com.soundcloud.android.storage.Tables.TrackDownloads;
-import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.Order.ASC;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
-import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
@@ -28,7 +26,6 @@ import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 import rx.functions.Func1;
-import rx.functions.Func2;
 
 import android.content.ContentValues;
 
@@ -51,6 +48,17 @@ class TrackDownloadsStorage {
         @Override
         public OfflineState call(CursorReader cursorReader) {
             return OfflineStateMapper.fromDates(cursorReader, true);
+        }
+    };
+
+    private static final Func1<List<OfflineState>, OfflineState> TO_COLLECTION_STATE = new Func1<List<OfflineState>, OfflineState>() {
+        @Override
+        public OfflineState call(List<OfflineState> offlineStates) {
+            return OfflineState.getOfflineState(
+                    offlineStates.contains(OfflineState.REQUESTED),
+                    offlineStates.contains(OfflineState.DOWNLOADED),
+                    offlineStates.contains(OfflineState.UNAVAILABLE)
+            );
         }
     };
 
@@ -96,34 +104,13 @@ class TrackDownloadsStorage {
     }
 
     public Observable<OfflineState> getLikesOfflineState() {
-        return Observable.zip(hasPendingLikedTrackDownloads(), hasDownloadedTracks(), new Func2<Boolean, Boolean, OfflineState>() {
-            @Override
-            public OfflineState call(Boolean hasPendingDownloads, Boolean hasDownloadedTracks) {
-                if (hasPendingDownloads) {
-                    return OfflineState.REQUESTED;
-                } else if (hasDownloadedTracks) {
-                    return OfflineState.DOWNLOADED;
-                } else {
-                    return OfflineState.UNAVAILABLE;
-                }
-            }
-        });
-    }
-
-    private Observable<Boolean> hasDownloadedTracks() {
-        final Query query = Query.apply(exists(Query.from(TrackDownloads.TABLE)
-                .innerJoin(Likes.name(), likedTrackFilter())
-                .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)));
-
-        return propellerRx.query(query).map(scalar(Boolean.class));
-    }
-
-    private Observable<Boolean> hasPendingLikedTrackDownloads() {
-        final Query query = Query.apply(exists(Query.from(TrackDownloads.TABLE)
-                .innerJoin(Likes.name(), likedTrackFilter())
-                .where(OfflineFilters.REQUESTED_DOWNLOAD_FILTER)));
-
-        return propellerRx.query(query).map(scalar(Boolean.class));
+        return propellerRx
+                .query(Query
+                        .from(TrackDownloads.TABLE)
+                        .innerJoin(Likes.name(), likedTrackFilter()))
+                .map(CURSOR_TO_OFFLINE_STATE)
+                .toList()
+                .map(TO_COLLECTION_STATE);
     }
 
     private Where likedTrackFilter() {
