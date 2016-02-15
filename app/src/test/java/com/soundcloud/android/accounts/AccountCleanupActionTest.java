@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.commands.ClearTableCommand;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
@@ -55,6 +56,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private StationsOperations stationsOperations;
     @Mock private CollectionOperations collectionOperations;
     @Mock private SoundStreamOperations soundStreamOperations;
+    @Mock private ConfigurationOperations configurationOperations;
 
     @Before
     public void setup() {
