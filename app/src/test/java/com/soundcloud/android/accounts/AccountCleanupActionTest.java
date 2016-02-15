@@ -61,7 +61,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
         action = new AccountCleanupAction(legacyUserAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, syncCleanupAction, planStorage,
                 removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations,
-                collectionOperations, soundStreamOperations);
+                collectionOperations, soundStreamOperations, configurationOperations);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
