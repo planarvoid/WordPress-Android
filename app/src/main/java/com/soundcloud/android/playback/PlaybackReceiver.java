@@ -52,7 +52,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             if (Action.PLAY.equals(action)) {
                 playbackService.play(getPlaybackItem(intent));
             } else if (Action.PRELOAD.equals(action)) {
-                playbackService.preload(intent.<Urn>getParcelableExtra(PlaybackService.ActionExtras.URN));
+                playbackService.preload(getPreloadItem(intent));
             } else if (Action.TOGGLE_PLAYBACK.equals(action)) {
                 playbackService.togglePlayback();
             } else if (Action.RESUME.equals(action)) {
@@ -80,6 +80,10 @@ class PlaybackReceiver extends BroadcastReceiver {
 
     private PlaybackItem getPlaybackItem(Intent intent) {
         return (PlaybackItem) intent.getParcelableExtra(PlaybackService.ActionExtras.PLAYBACK_ITEM);
+    }
+
+    private PreloadItem getPreloadItem(Intent intent) {
+        return (PreloadItem) intent.getParcelableExtra(PlaybackService.ActionExtras.PRELOAD_ITEM);
     }
 
     private void trackPlayControlEvent(Intent intent) {

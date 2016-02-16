@@ -27,7 +27,9 @@ import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DebugUtils;
@@ -54,10 +56,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @VisibleForTesting
     static final String SKIPPY_INIT_ERROR_COUNT_KEY = "SkippyAdapter.initErrorCount";
     static final String SKIPPY_INIT_SUCCESS_COUNT_KEY = "SkippyAdapter.initSuccessCount";
-
-    private static final int PLAY_TYPE_DEFAULT = 0;
-    private static final int PLAY_TYPE_STREAM_UNINTERRUPTED = 1; // for ads
-    private static final int PLAY_TYPE_OFFLINE = 2;
 
     private static final long POSITION_START = 0L;
     private static final int INIT_ERROR_CUSTOM_LOG_LINE_COUNT = 5000;
@@ -118,9 +116,9 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         return initSuccess;
     }
 
-    public void preload(Urn track) {
+    public void preload(PreloadItem preloadItem) {
         try {
-            skippyPreloader.cue(buildRemoteUrl(track), 0);
+            skippyPreloader.cue(buildRemoteUrl(preloadItem.getUrn(), preloadItem.getPlaybackType()), 0);
         } catch (UnsatisfiedLinkError e) {
             // #4454. Remove in upcoming release as instances drop
             ErrorUtils.handleSilentException(e);
@@ -130,21 +128,16 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @Override
     public void play(PlaybackItem playbackItem) {
         switch(playbackItem.getPlaybackType()) {
-            case AUDIO_DEFAULT:
-                play(playbackItem.getUrn(), playbackItem.getStartPosition(), PLAY_TYPE_DEFAULT);
-                break;
-            case AUDIO_OFFLINE:
-                play(playbackItem.getUrn(), playbackItem.getStartPosition(), PLAY_TYPE_OFFLINE);
-                break;
             case AUDIO_UNINTERRUPTED:
-                play(playbackItem.getUrn(), POSITION_START, PLAY_TYPE_STREAM_UNINTERRUPTED);
+                play(playbackItem.getUrn(), POSITION_START, PlaybackType.AUDIO_UNINTERRUPTED);
                 break;
             default:
-                throw new IllegalStateException("SkippyAdapter does not support this item type: " + playbackItem.getPlaybackType());
+                play(playbackItem.getUrn(), playbackItem.getStartPosition(), playbackItem.getPlaybackType());
+                break;
         }
     }
 
-    private void play(Urn track, long fromPos, int playType) {
+    private void play(Urn track, long fromPos, PlaybackType playType) {
         currentTrackUrn = track;
 
         if (!accountOperations.isUserLoggedIn()) {
@@ -177,11 +170,11 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             currentStreamUrl = trackUrl;
 
             switch (playType){
-                case PLAY_TYPE_STREAM_UNINTERRUPTED :
-                    skippy.playAd(currentStreamUrl, fromPos);
+                case AUDIO_UNINTERRUPTED:
+                    skippy.play(currentStreamUrl, fromPos);
                     break;
 
-                case PLAY_TYPE_OFFLINE :
+                case AUDIO_OFFLINE:
                     final DeviceSecret deviceSecret = cryptoOperations.checkAndGetDeviceKey();
                     skippy.playOffline(currentStreamUrl, fromPos, deviceSecret.getKey(), deviceSecret.getInitVector());
                     break;
@@ -194,23 +187,31 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         }
     }
 
-    private String buildStreamUrl(int playType) {
+    private String buildStreamUrl(PlaybackType playType) {
         checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
 
-        if (playType == PLAY_TYPE_OFFLINE){
+        if (playType == PlaybackType.AUDIO_OFFLINE) {
             return secureFileStorage.getFileUriForOfflineTrack(currentTrackUrn).toString();
         } else {
-            return buildRemoteUrl(currentTrackUrn);
+            return buildRemoteUrl(currentTrackUrn, playType);
         }
     }
 
-    private String buildRemoteUrl(Urn trackUrn) {
+    private String buildRemoteUrl(Urn trackUrn, PlaybackType playType) {
+        if (playType == PlaybackType.AUDIO_SNIPPET){
+            return getApiUrlBuilder(trackUrn, ApiEndpoints.HLS_SNIPPET_STREAM).build();
+        } else {
+            return getApiUrlBuilder(trackUrn, ApiEndpoints.HLS_STREAM).withQueryParam("can_snip", false).build();
+        }
+    }
+
+    private ApiUrlBuilder getApiUrlBuilder(Urn trackUrn, ApiEndpoints endpoint) {
         Token token = accountOperations.getSoundCloudToken();
-        ApiUrlBuilder builder = urlBuilder.from(ApiEndpoints.HLS_STREAM, trackUrn);
+        ApiUrlBuilder builder = urlBuilder.from(endpoint, trackUrn);
         if (token.valid()) {
             builder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken());
         }
-        return builder.build();
+        return builder;
     }
 
     @Override

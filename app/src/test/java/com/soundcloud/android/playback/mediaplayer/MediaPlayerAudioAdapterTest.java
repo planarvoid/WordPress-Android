@@ -27,6 +27,7 @@ import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -71,7 +72,7 @@ public class MediaPlayerAudioAdapterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<Player.StateTransition> stateCaptor;
 
     private Urn trackUrn = Urn.forTrack(123L);
-    private PlaybackItem playbackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET);
+    private PlaybackItem playbackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
     private int duration = 20000;
 
     private Urn userUrn;
@@ -166,7 +167,7 @@ public class MediaPlayerAudioAdapterTest extends AndroidUnitTest {
     public void preparedListenerShouldReportTimeToPlay() {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
         when(dateProvider.getCurrentDate()).thenReturn(new Date(0));
-        mediaPlayerAudioAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET));
+        mediaPlayerAudioAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT));
         when(dateProvider.getCurrentDate()).thenReturn(new Date(1000));
         mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
 
@@ -609,7 +610,7 @@ public class MediaPlayerAudioAdapterTest extends AndroidUnitTest {
     public void shouldResumePlaybackAtSpecifiedTime() {
         when(mediaPlayer.getDuration()).thenReturn(duration);
 
-        mediaPlayerAudioAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET));
+        mediaPlayerAudioAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT));
         mediaPlayerAudioAdapter.onPrepared(mediaPlayer);
 
         InOrder inOrder = inOrder(mediaPlayer);

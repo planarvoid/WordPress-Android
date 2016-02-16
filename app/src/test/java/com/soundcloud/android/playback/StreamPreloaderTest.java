@@ -36,7 +36,8 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
     private final TestEventBus eventBus = new TestEventBus();
     private final Urn nextTrackUrn = Urn.forTrack(123L);
-    private PropertySet track = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn));
+    private final PropertySet track = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn), TrackProperty.SNIPPED.bind(true));
+    private final PreloadItem preloadItem = new AutoParcel_PreloadItem(nextTrackUrn, PlaybackType.AUDIO_SNIPPET);
 
     @Before
     public void setUp() throws Exception {
@@ -55,7 +56,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         firePlayQueueItemChanged();
         publishValidPlaybackConditions();
 
-        verify(serviceInitiator).preload(nextTrackUrn);
+        verify(serviceInitiator).preload(preloadItem);
     }
 
     @Test
@@ -71,7 +72,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.NOT_SET));
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.TWO_G);
 
-        verify(serviceInitiator).preload(nextTrackUrn);
+        verify(serviceInitiator).preload(preloadItem);
     }
 
     @Test
@@ -83,7 +84,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         firePlayQueueItemChanged();
         publishValidPlaybackConditions();
 
-        verify(serviceInitiator, never()).preload(any(Urn.class));
+        verify(serviceInitiator, never()).preload(any(PreloadItem.class));
     }
 
     @Test
@@ -95,7 +96,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         firePlayQueueItemChanged();
         publishValidPlaybackConditions();
 
-        verify(serviceInitiator, never()).preload(any(Urn.class));
+        verify(serviceInitiator, never()).preload(any(PreloadItem.class));
     }
 
     @Test
@@ -108,7 +109,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         firePlayQueueItemChanged();
         publishValidPlaybackConditions();
 
-        verify(serviceInitiator, never()).preload(any(Urn.class));
+        verify(serviceInitiator, never()).preload(any(PreloadItem.class));
     }
 
     @Test
@@ -119,7 +120,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         firePlayQueueItemChanged();
         publishValidPlaybackConditions();
 
-        verify(serviceInitiator, never()).preload(any(Urn.class));
+        verify(serviceInitiator, never()).preload(any(PreloadItem.class));
     }
 
 
@@ -134,7 +135,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.WIFI);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
 
-        verify(serviceInitiator, never()).preload(any(Urn.class));
+        verify(serviceInitiator, never()).preload(any(PreloadItem.class));
     }
 
     @Test
@@ -147,7 +148,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.UNKNOWN);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
 
-        verify(serviceInitiator, never()).preload(any(Urn.class));
+        verify(serviceInitiator, never()).preload(any(PreloadItem.class));
     }
 
     @Test
@@ -162,7 +163,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.NOT_SET));
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.TWO_G);
 
-        verify(serviceInitiator, never()).preload(any(Urn.class));
+        verify(serviceInitiator, never()).preload(any(PreloadItem.class));
     }
 
     private void setupValidNextTrack() {

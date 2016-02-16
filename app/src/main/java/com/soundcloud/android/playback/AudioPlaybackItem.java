@@ -1,12 +1,11 @@
 package com.soundcloud.android.playback;
 
-import android.os.Parcelable;
-
+import auto.parcel.AutoParcel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 
-import auto.parcel.AutoParcel;
+import android.os.Parcelable;
 
 @AutoParcel
 public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
@@ -15,12 +14,16 @@ public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
         return new AutoParcel_AudioPlaybackItem(track.get(TrackProperty.URN), startPosition, track.get(TrackProperty.PLAY_DURATION), playbackType);
     }
 
-    public static AudioPlaybackItem create(Urn trackUrn, long startPosition, long duration) {
-        return new AutoParcel_AudioPlaybackItem(trackUrn, startPosition, duration, PlaybackType.AUDIO_DEFAULT);
+    public static AudioPlaybackItem create(Urn trackUrn, long startPosition, long duration, PlaybackType playbackType) {
+        return new AutoParcel_AudioPlaybackItem(trackUrn, startPosition, duration, playbackType);
     }
 
     public static AudioPlaybackItem create(PropertySet track, long startPosition) {
         return create(track, startPosition, PlaybackType.AUDIO_DEFAULT);
+    }
+
+    public static AudioPlaybackItem forSnippet(PropertySet track, long startPosition) {
+        return create(track, startPosition, PlaybackType.AUDIO_SNIPPET);
     }
 
     public static AudioPlaybackItem forOffline(PropertySet track, long startPosition) {
