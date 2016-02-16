@@ -14,7 +14,6 @@ import dagger.Module;
                 WebViewActivity.class,
                 MetadataFragment.class,
                 DevDrawerFragment.class,
-                EmailOptInDialogFragment.class,
                 FullImageDialog.class
         }, includes = {AssociationsModule.class, AnalyticsModule.class})
 public class MainModule {

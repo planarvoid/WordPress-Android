@@ -109,13 +109,6 @@
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Please sign in to open this link.</string>
 
-    <!-- __EMAIL OPT-IN -->
-    <string name="optin_title">SoundCloud Newsletter</string>
-    <string name="optin_question">Do you want to receive email updates about SoundCloud?</string>
-    <string name="optin_info">This includes newsletters, product updates, special offers and surveys. You can withdraw your consent at any time. To do so, open Soundcloud.com and go to settings.</string>
-    <string name="optin_yes">Yes, please</string>
-    <string name="optin_no">No, thank you</string>
-
     <!-- __EMPTY STATES -->
     <string name="info_empty_other_message">This person hasn’t added a profile description yet.</string>
     <string name="info_empty_you_message">Your profile is empty.</string>

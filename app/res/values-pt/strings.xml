@@ -102,12 +102,6 @@
   <string name="authentication_email_other_error_message">Lamentamos, não conseguimos criar uma conta para você com os detalhes que você forneceu.</string>
   <!--__DEEPLINKS-->
   <string name="error_toast_user_not_logged_in">Faça login para abrir este link.</string>
-  <!--__EMAIL OPT-IN-->
-  <string name="optin_title">Boletim da SoundCloud</string>
-  <string name="optin_question">Deseja receber atualizações de email sobre a SoundCloud?</string>
-  <string name="optin_info">As atualizações são boletins, atualizações de produtos, ofertas especiais e pesquisas. Você pode anular seu consentimento a qualquer momento. Para fazer isso, abra Soundcloud.com e vá para as configurações.</string>
-  <string name="optin_yes">Sim, por favor</string>
-  <string name="optin_no">Não, obrigado</string>
   <!--__EMPTY STATES-->
   <string name="info_empty_other_message">Essa pessoa ainda não adicionou uma descrição do perfil.</string>
   <string name="info_empty_you_message">Seu perfil está vazio.</string>

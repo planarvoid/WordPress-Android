@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
 import static android.util.Log.INFO;
-import static com.soundcloud.android.onboarding.OnboardingOperations.ONBOARDING_TAG;
+import static com.soundcloud.android.onboarding.OnboardActivity.ONBOARDING_TAG;
 import static com.soundcloud.android.utils.ErrorUtils.log;
 
 import com.soundcloud.android.R;

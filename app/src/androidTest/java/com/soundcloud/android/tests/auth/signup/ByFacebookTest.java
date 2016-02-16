@@ -5,7 +5,6 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.screens.EmailOptInScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
@@ -34,10 +33,7 @@ public class ByFacebookTest extends SignUpTest {
         fbWebViewScreen.typeEmail(Facebook.getEmail());
         fbWebViewScreen.submit();
 
-        final EmailOptInScreen optInScreen = new EmailOptInScreen(solo);
-        assertThat(optInScreen, is(visible()));
-
-        final StreamScreen streamScreen = optInScreen.clickNo();
+        StreamScreen streamScreen = new StreamScreen(solo);
         assertThat(streamScreen, is(visible()));
     }
 }
