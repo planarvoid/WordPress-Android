@@ -147,7 +147,7 @@ class DownloadNotificationController {
         return Iterables.tryFind(previousDownloads, new Predicate<DownloadState>() {
             @Override
             public boolean apply(DownloadState downloadState) {
-                return downloadState.isNotEnoughSpace();
+                return downloadState.isNotEnoughSpace() || downloadState.isNotEnoughMinimumSpace();
             }
         }).isPresent();
     }

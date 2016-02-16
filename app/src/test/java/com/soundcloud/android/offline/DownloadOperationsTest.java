@@ -62,6 +62,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         when(response.isSuccess()).thenReturn(true);
         when(response.getInputStream()).thenReturn(downloadStream);
         when(fileStorage.isEnoughSpace(anyLong())).thenReturn(true);
+        when(fileStorage.isEnoughMinimumSpace()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
     }
@@ -190,6 +191,31 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         when(fileStorage.isEnoughSpace(anyLong())).thenReturn(false);
 
         assertThat(operations.download(downloadRequest, listener).isNotEnoughSpace()).isTrue();
+    }
+
+    @Test
+    public void doesNotDownloadTrackWhenNotEnoughMinimumSpace() {
+        when(fileStorage.isEnoughMinimumSpace()).thenReturn(false);
+
+        operations.download(downloadRequest, listener);
+
+        verifyZeroInteractions(httpClient);
+    }
+
+    @Test
+    public void doesNotStoreTrackWhenNotEnoughMinimumSpace() throws IOException, EncryptionException {
+        when(fileStorage.isEnoughMinimumSpace()).thenReturn(false);
+
+        operations.download(downloadRequest, listener);
+
+        verify(fileStorage, never()).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+    }
+
+    @Test
+    public void returnsNotEnoughMinimumSpaceResult() {
+        when(fileStorage.isEnoughMinimumSpace()).thenReturn(false);
+
+        assertThat(operations.download(downloadRequest, listener).isNotEnoughMinimumSpace()).isTrue();
     }
 
     @Test

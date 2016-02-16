@@ -51,6 +51,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     private final DownloadState unavailableTrackResult1 = DownloadState.unavailable(downloadRequest1);
     private final DownloadState failedResult1 =
             DownloadState.connectionError(downloadRequest1, ConnectionState.NOT_ALLOWED);
+    private final DownloadState notEnoughMinimumSpace = DownloadState.notEnoughMinimumSpace(downloadRequest1);
 
     private Observable<List<Urn>> deletePendingRemoval;
     private OfflineContentService service;
@@ -246,6 +247,27 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     @Test
+    public void showsNotificationWhenNotEnoughMinimumSpace() {
+        setUpsDownloads(downloadRequest1);
+
+        startServiceWithResultRequested();
+        service.onError(notEnoughMinimumSpace);
+
+        verify(notificationController).onDownloadsFinished(notEnoughMinimumSpace, true);
+    }
+
+    @Test
+    public void stopsWithoutRetryingWhenNotEnoughMinimumSpace() {
+        setUpsDownloads(downloadRequest1);
+
+        startService();
+        service.onError(notEnoughMinimumSpace);
+
+        verify(offlineContentScheduler, never()).scheduleRetry();
+        verify(downloadHandler).quit();
+    }
+
+    @Test
     public void continueDownloadNextTrackWhenTrackUnavailableForDownload() {
         setUpsDownloads(downloadRequest1);
 
@@ -295,7 +317,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         verify(downloadHandler).cancel();
     }
-    
+
     @Test
     public void publishRemovedWhenDownloadingATrackNotRequestedAnyMore() {
         when(downloadHandler.isDownloading()).thenReturn(true);
