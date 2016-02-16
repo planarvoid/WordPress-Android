@@ -11,6 +11,7 @@ import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.discovery.SearchTracker;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
@@ -71,13 +72,17 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     private final EventBus eventBus;
     private final FeatureFlags featureFlags;
     private final Navigator navigator;
+    private final SearchTracker searchTracker;
 
-    private final Action1<SearchResult> publishOnFirstPage = new Action1<SearchResult>() {
+    private final Action1<SearchResult> trackSearch = new Action1<SearchResult>() {
         @Override
-        public void call(SearchResult ignored) {
+        public void call(SearchResult searchResult) {
+            final Screen trackingScreen = getTrackingScreen();
+            searchTracker.setQueryUrnForScreen(trackingScreen, searchResult.queryUrn);
             if (publishSearchSubmissionEvent) {
                 publishSearchSubmissionEvent = false;
-                eventBus.publish(EventQueue.TRACKING, SearchEvent.searchStart(getTrackingScreen(), pagingFunction.getSearchQuerySourceInfo()));
+                searchTracker.trackSearchSubmission(trackingScreen, searchResult.queryUrn);
+                searchTracker.trackResultsScreenEvent(trackingScreen);
             }
         }
     };
@@ -91,7 +96,8 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     @Inject
     SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher, SearchOperations searchOperations,
                            SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
-                           EventBus eventBus, FeatureFlags featureFlags, Navigator navigator) {
+                           EventBus eventBus, FeatureFlags featureFlags, Navigator navigator,
+                           SearchTracker searchTracker) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
@@ -99,6 +105,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
         this.eventBus = eventBus;
         this.featureFlags = featureFlags;
         this.navigator = navigator;
+        this.searchTracker = searchTracker;
     }
 
     @Override
@@ -119,6 +126,7 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     @Override
     public void onDestroy(Fragment fragment) {
         fragmentLifeCycle.unsubscribe();
+        searchTracker.reset();
         super.onDestroy(fragment);
     }
 
@@ -139,7 +147,9 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
         adapter.setPremiumContentListener(this);
         pagingFunction = searchOperations.pagingFunction(searchType);
         return CollectionBinding
-                .from(searchOperations.searchResult(searchQuery, searchType).doOnNext(publishOnFirstPage), toPresentationModels)
+                .from(searchOperations
+                        .searchResult(searchQuery, searchType)
+                        .doOnNext(trackSearch), toPresentationModels)
                 .withAdapter(adapter)
                 .withPager(pagingFunction)
                 .build();

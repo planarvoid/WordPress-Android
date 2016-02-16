@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.explore.ExploreGenre;
 
@@ -7,6 +8,7 @@ public final class ScreenEvent extends TrackingEvent {
 
     public static final String KEY_SCREEN = "screen";
     public static final String KEY_GENRE = "genre";
+    public static final String KEY_QUERY_URN = "query_urn";
 
     public static ScreenEvent create(Screen screen) {
         return new ScreenEvent(screen.get());
@@ -14,6 +16,10 @@ public final class ScreenEvent extends TrackingEvent {
 
     public static ScreenEvent create(String screen) {
         return new ScreenEvent(screen);
+    }
+
+    public static ScreenEvent create(String screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        return new ScreenEvent(screen).put(KEY_QUERY_URN, searchQuerySourceInfo.getQueryUrn().toString());
     }
 
     public static ScreenEvent create(String screen, ExploreGenre genre) {

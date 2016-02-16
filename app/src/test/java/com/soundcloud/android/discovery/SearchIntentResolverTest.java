@@ -74,6 +74,6 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
     public void shouldTrackScreen() {
         intentResolver.handle(context(), intent);
 
-        verify(tracker).trackScreenEvent();
+        verify(tracker).trackMainScreenEvent();
     }
 }

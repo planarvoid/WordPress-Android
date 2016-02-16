@@ -46,7 +46,7 @@ class SearchIntentResolver {
         } else if (isInterceptedUri(intent)) {
             handleUri(context, intent);
         } else {
-            tracker.trackScreenEvent();
+            tracker.trackMainScreenEvent();
         }
     }
 

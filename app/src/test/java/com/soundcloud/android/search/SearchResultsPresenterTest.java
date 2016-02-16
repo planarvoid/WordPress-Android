@@ -14,6 +14,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.discovery.SearchTracker;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
@@ -71,6 +72,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private TrackItemRenderer trackItemRenderer;
     @Mock private FeatureFlags featureFlags;
     @Mock private Navigator navigator;
+    @Mock private SearchTracker searchTracker;
 
     @Captor private ArgumentCaptor<List<ListItem>> listArgumentCaptor;
 
@@ -82,7 +84,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new SearchResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
-                clickListenerFactory, eventBus, featureFlags, navigator);
+                clickListenerFactory, eventBus, featureFlags, navigator, searchTracker);
 
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, Urn.forTrack(1));
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
@@ -220,6 +222,15 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onDestroy(fragmentRule.getFragment());
 
         eventBus.verifyUnsubscribed();
+    }
+
+    @Test
+    public void resetsSearchTrackerOnDestroy() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+        presenter.onDestroy(fragmentRule.getFragment());
+
+        verify(searchTracker).reset();
     }
 
     @Test
