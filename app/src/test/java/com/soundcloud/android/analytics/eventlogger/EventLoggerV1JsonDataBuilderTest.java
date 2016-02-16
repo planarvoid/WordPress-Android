@@ -1,8 +1,5 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,7 +10,6 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
@@ -902,6 +898,31 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .clickCategory("consumer_subs")
                 .clickName("clickthrough::consumer_sub_ad")
                 .clickObject("soundcloud:tcode:1011"));
+    }
+
+    @Test
+    public void createsResubscribeClickJson() throws Exception {
+        UpgradeTrackingEvent click = UpgradeTrackingEvent.forResubscribeClick();
+
+        jsonDataBuilder.buildForUpsell(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, click.getTimestamp())
+                .pageName("collection:offline_offboarding")
+                .clickCategory("consumer_subs")
+                .clickName("clickthrough::consumer_sub_resubscribe")
+                .clickObject("soundcloud:tcode:4002"));
+    }
+
+    @Test
+    public void createsResubscribeImpressionJson() throws Exception {
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forResubscribeImpression();
+
+        jsonDataBuilder.buildForUpsell(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
+                .pageName("collection:offline_offboarding")
+                .impressionName("consumer_sub_resubscribe")
+                .impressionObject("soundcloud:tcode:4002"));
     }
 
     @Test

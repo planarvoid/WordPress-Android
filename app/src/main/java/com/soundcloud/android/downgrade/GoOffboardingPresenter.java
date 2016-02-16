@@ -3,6 +3,8 @@ package com.soundcloud.android.downgrade;
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -49,6 +51,10 @@ class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity
         this.activity = activity;
         context = StrategyContext.USER_NO_ACTION;
         strategy = new InitStrategy().proceed();
+    }
+
+    void trackResubscribeButtonImpression() {
+        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forResubscribeImpression());
     }
 
     @Override
@@ -124,16 +130,11 @@ class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity
             switch (context) {
                 case USER_CONTINUE:
                     navigator.openHomeAsRootScreen(activity);
-                    //TODO
-//                    eventBus.publish(EventQueue.TRACKING,
-//                            OfflineInteractionEvent.fromOnboardingDismiss());
                     view.reset();
                     return this;
                 case USER_RESUBSCRIBE:
                     navigator.openUpgrade(activity);
-                    //TODO
-//                    eventBus.publish(EventQueue.TRACKING,
-//                            OfflineInteractionEvent.fromOnboardingStart());
+                    eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forResubscribeClick());
                     view.reset();
                     return this;
                 default:

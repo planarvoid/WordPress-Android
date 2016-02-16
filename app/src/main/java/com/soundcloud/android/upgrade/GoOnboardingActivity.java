@@ -9,8 +9,7 @@ import javax.inject.Inject;
 
 public class GoOnboardingActivity extends LoggedInActivity {
 
-    @Inject @LightCycle
-    GoOnboardingPresenter presenter;
+    @Inject @LightCycle GoOnboardingPresenter presenter;
 
     @Override
     protected void setActivityContentView() {
@@ -22,4 +21,8 @@ public class GoOnboardingActivity extends LoggedInActivity {
         return Screen.OFFLINE_ONBOARDING;
     }
 
+    @Override
+    protected boolean receiveConfigurationUpdates() {
+        return false;
+    }
 }

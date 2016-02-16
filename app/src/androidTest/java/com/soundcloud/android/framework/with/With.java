@@ -6,6 +6,7 @@ import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.objects.MoreObjects;
 
 import android.content.res.Resources;
+import android.support.annotation.StringRes;
 import android.view.View;
 
 import java.util.Arrays;
@@ -22,6 +23,10 @@ public abstract class With implements Predicate<ViewElement> {
 
     public static With id(int viewId) {
         return new WithId(viewId);
+    }
+
+    public static With text(@StringRes int textId) {
+        return new WithText(resources.getString(textId));
     }
 
     public static With text(String... text) {

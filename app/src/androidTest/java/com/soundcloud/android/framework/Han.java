@@ -167,10 +167,6 @@ public class Han {
         solo.clickLongOnView(view);
     }
 
-    public void clickOnButtonWithText(int textId) {
-        solo.clickOnButton(getString(textId));
-    }
-
     public String getString(int resId, Object... args) {
         return solo.getCurrentActivity().getString(resId, args);
     }

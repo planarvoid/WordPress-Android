@@ -22,6 +22,11 @@ public class LauncherActivity extends RootActivity {
     }
 
     @Override
+    protected boolean receiveConfigurationUpdates() {
+        return false;
+    }
+
+    @Override
     protected void setActivityContentView() {
         setContentView(R.layout.launch);
     }

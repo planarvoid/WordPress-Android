@@ -38,7 +38,7 @@ public class ScreenTracker extends ActivityLightCycleDispatcher<AppCompatActivit
     }
 
     private Screen getScreen(AppCompatActivity activity) {
-        checkState(activity instanceof RootActivity, "ScreenTrackingController required an RootActivity");
+        checkState(activity instanceof RootActivity, "ScreenTracker requires a RootActivity");
         return ((RootActivity) activity).getScreen();
     }
 

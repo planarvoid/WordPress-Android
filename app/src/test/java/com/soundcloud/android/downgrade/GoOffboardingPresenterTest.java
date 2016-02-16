@@ -10,12 +10,11 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
@@ -45,6 +44,14 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldSendImpressionEventForResubscribeButton() {
+        presenter.trackResubscribeButtonImpression();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
+                .isEqualTo(UpgradeTrackingEvent.KIND_RESUBSCRIBE_IMPRESSION);
+    }
+
+    @Test
     public void clickingContinueOpensStreamIfDowngradeAlreadyCompleted() {
         when(operations.awaitAccountDowngrade()).thenReturn(Observable.just(downgradeResult));
 
@@ -53,18 +60,6 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
 
         assertThat(view.isContinueButtonWaiting).isFalse();
         verify(navigator).openHomeAsRootScreen(any(Activity.class));
-    }
-
-    @Ignore//TODO: tracking
-    @Test
-    public void clickingContinueSendsOnboardingDismissTrackingEventIfDowngradeAlreadyCompleted() {
-        when(operations.awaitAccountDowngrade()).thenReturn(Observable.just(downgradeResult));
-
-        presenter.onCreate(activity, null);
-        presenter.onContinueClicked();
-
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class).getKind())
-                .isEqualTo(OfflineInteractionEvent.KIND_ONBOARDING_DISMISS);
     }
 
     @Test
@@ -152,16 +147,15 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         verify(navigator).openUpgrade(any(Activity.class));
     }
 
-    @Ignore//TODO: tracking
     @Test
-    public void clickingResubscribeSendsOnboardingStartTrackingEventIfDowngradeAlreadyCompleted() {
+    public void clickingResubscribeSendsClickEvent() {
         when(operations.awaitAccountDowngrade()).thenReturn(Observable.just(downgradeResult));
 
         presenter.onCreate(activity, null);
         presenter.onResubscribeClicked();
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class).getKind())
-                .isEqualTo(OfflineInteractionEvent.KIND_ONBOARDING_START);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
+                .isEqualTo(UpgradeTrackingEvent.KIND_RESUBSCRIBE_CLICK);
     }
 
     @Test

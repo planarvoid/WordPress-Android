@@ -134,6 +134,20 @@ public class EventLoggerV1JsonDataBuilder {
             case UpgradeTrackingEvent.KIND_UPGRADE_SUCCESS:
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
                         .impressionName("consumer_sub_upgrade_success"));
+
+            case UpgradeTrackingEvent.KIND_RESUBSCRIBE_CLICK:
+                return transform(buildBaseEvent(CLICK_EVENT, event)
+                        .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
+                        .clickName("clickthrough::consumer_sub_resubscribe")
+                        .clickObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
+                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)));
+
+            case UpgradeTrackingEvent.KIND_RESUBSCRIBE_IMPRESSION:
+                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                        .impressionName("consumer_sub_resubscribe")
+                        .impressionObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
+                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)));
+
             default:
                 throw new IllegalArgumentException("Unexpected upsell tracking event type " + event);
         }
