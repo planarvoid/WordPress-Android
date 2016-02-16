@@ -132,7 +132,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         public Strategy proceed() {
             switch (context) {
                 case USER_SETUP_LATER:
-                    navigator.openHome(activity);
+                    navigator.openHomeAsRootScreen(activity);
                     eventBus.publish(EventQueue.TRACKING,
                             OfflineInteractionEvent.fromOnboardingDismiss());
                     view.reset();

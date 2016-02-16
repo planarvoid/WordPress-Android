@@ -81,7 +81,7 @@ public class OfflineContentOnboardingPresenter extends DefaultActivityLightCycle
         activity.findViewById(R.id.page_1_choose_what_to_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigator.openCollection(activity);
+                navigator.openCollectionAsRootScreen(activity);
                 eventBus.publish(EventQueue.TRACKING,
                         OfflineInteractionEvent.fromOnboardingWithManualSync());
             }
@@ -93,7 +93,7 @@ public class OfflineContentOnboardingPresenter extends DefaultActivityLightCycle
             @Override
             public void onClick(View view) {
                 fireAndForget(offlineContentOperations.enableOfflineCollection());
-                navigator.openCollection(activity);
+                navigator.openCollectionAsRootScreen(activity);
                 eventBus.publish(EventQueue.TRACKING,
                         OfflineInteractionEvent.fromOnboardingWithAutomaticSync());
             }
