@@ -30,8 +30,6 @@ ext {
   networkManagerApkPath = "$outputsDir/androidnetworkmanager-${rootProject.('networkManager')}.apk"
 
   buildSrcDir = 'buildsystem'
-
-  httpProxy = 'proxy-development.int.s-cloud.net:3128'
 }
 
 buildscript {

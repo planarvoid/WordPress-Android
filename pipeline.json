@@ -36,7 +36,7 @@
           },
           {
             "compile_test_apk": {
-              "cmd": "./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
+              "cmd": "http_proxy=proxy-development.int.s-cloud.net:3128 ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
