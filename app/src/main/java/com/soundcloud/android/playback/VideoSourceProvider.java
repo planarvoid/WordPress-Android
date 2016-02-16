@@ -1,11 +1,5 @@
 package com.soundcloud.android.playback;
 
-import android.annotation.TargetApi;
-import android.media.MediaCodecInfo;
-import android.media.MediaCodecList;
-import android.media.MediaFormat;
-import android.os.Build;
-
 import com.soundcloud.android.ads.VideoSource;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -23,13 +17,12 @@ import javax.inject.Inject;
 import static android.media.CamcorderProfile.QUALITY_1080P;
 import static android.media.CamcorderProfile.QUALITY_480P;
 import static android.media.CamcorderProfile.QUALITY_720P;
+import static com.soundcloud.android.playback.PlaybackConstants.VIDEO_RESOLUTION_1080P;
+import static com.soundcloud.android.playback.PlaybackConstants.VIDEO_RESOLUTION_360P;
+import static com.soundcloud.android.playback.PlaybackConstants.VIDEO_RESOLUTION_480P;
+import static com.soundcloud.android.playback.PlaybackConstants.VIDEO_RESOLUTION_720P;
 
 public class VideoSourceProvider {
-
-    static final int RESOLUTION_HEIGHT_PX_1080P = 1080;
-    static final int RESOLUTION_HEIGHT_PX_720P = 720;
-    static final int RESOLUTION_HEIGHT_PX_480P = 480;
-    static final int RESOLUTION_HEIGHT_PX_360P = 360;
 
     static final String MP4_TYPE = "video/mp4"; // We only support H.264 AVC at the moment
     private static final List<String> SUPPORTED_FORMATS = Collections.singletonList(MP4_TYPE);
@@ -42,14 +35,17 @@ public class VideoSourceProvider {
 
     private final ApplicationProperties applicationProperties;
     private final DeviceHelper deviceHelper;
+    private final MediaCodecInfoProvider mediaCodecInfoProvider;
     private final NetworkConnectionHelper networkConnectionHelper;
 
     @Inject
     public VideoSourceProvider(ApplicationProperties applicationProperties,
                                DeviceHelper deviceHelper,
+                               MediaCodecInfoProvider mediaCodecInfoProvider,
                                NetworkConnectionHelper networkConnectionHelper) {
         this.applicationProperties = applicationProperties;
         this.deviceHelper = deviceHelper;
+        this.mediaCodecInfoProvider = mediaCodecInfoProvider;
         this.networkConnectionHelper = networkConnectionHelper;
     }
 
@@ -89,63 +85,31 @@ public class VideoSourceProvider {
     // as per http://developer.android.com/guide/appendix/media-formats.html
     private int maxResolutionForDevice() {
         if (deviceHelper.hasCamcorderProfile(QUALITY_1080P)) {
-            return RESOLUTION_HEIGHT_PX_1080P;
+            return VIDEO_RESOLUTION_1080P;
         } else if (deviceHelper.hasCamcorderProfile(QUALITY_720P)) {
-            return RESOLUTION_HEIGHT_PX_720P;
+            return VIDEO_RESOLUTION_720P;
         } else if (deviceHelper.hasCamcorderProfile(QUALITY_480P)) {
-            return RESOLUTION_HEIGHT_PX_480P;
-        } else if (applicationProperties.canAccessVideoCodecCapabilities()) {
-            return maxResolutionForDeviceFromCodec();
+            return VIDEO_RESOLUTION_480P;
+        } else if (applicationProperties.canAccessCodecInformation()) {
+            return mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice();
         } else {
-            return RESOLUTION_HEIGHT_PX_360P;
+            return VIDEO_RESOLUTION_360P;
         }
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private int maxResolutionForDeviceFromCodec() {
-        final MediaCodecInfo.VideoCapabilities videoCapabilities = VideoDecoderCodecCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_AVC);
-        if (videoCapabilities != null) {
-            final int maxHeightSupported = videoCapabilities.getSupportedHeights().getUpper();
-            if (maxHeightSupported >= RESOLUTION_HEIGHT_PX_1080P) {
-                return RESOLUTION_HEIGHT_PX_1080P;
-            } else if (maxHeightSupported >= RESOLUTION_HEIGHT_PX_720P) {
-                return RESOLUTION_HEIGHT_PX_720P;
-            } else if (maxHeightSupported >= RESOLUTION_HEIGHT_PX_480P) {
-                return RESOLUTION_HEIGHT_PX_480P;
-            }
-        }
-        return RESOLUTION_HEIGHT_PX_360P;
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static MediaCodecInfo.VideoCapabilities VideoDecoderCodecCapabilitiesForType(String mimeType) {
-        final MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
-        for (MediaCodecInfo codecInfo : mediaCodecList.getCodecInfos()) {
-            if (!codecInfo.isEncoder()) {
-                String[] types = codecInfo.getSupportedTypes();
-                for (String type : types) {
-                    if (type.equals(mimeType)) {
-                        return codecInfo.getCapabilitiesForType(mimeType).getVideoCapabilities();
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     private int maxResolutionForConnection(ConnectionType connectionType) {
             switch (connectionType) {
                 case WIFI:
-                    return RESOLUTION_HEIGHT_PX_1080P;
+                return VIDEO_RESOLUTION_1080P;
                 case FOUR_G:
-                    return RESOLUTION_HEIGHT_PX_720P;
+                    return VIDEO_RESOLUTION_720P;
                 case THREE_G:
-                    return RESOLUTION_HEIGHT_PX_480P;
+                    return VIDEO_RESOLUTION_480P;
                 case TWO_G:
                 case OFFLINE:
                 case UNKNOWN:
                 default:
-                    return RESOLUTION_HEIGHT_PX_360P;
+                    return VIDEO_RESOLUTION_360P;
             }
     }
 

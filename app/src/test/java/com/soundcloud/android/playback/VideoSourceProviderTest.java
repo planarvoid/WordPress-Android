@@ -34,6 +34,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
 
     @Mock private ApplicationProperties applicationProperties;
     @Mock private DeviceHelper deviceHelper;
+    @Mock private MediaCodecInfoProvider mediaCodecInfoProvider;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
 
     private VideoSourceProvider videoSourceProvider;
@@ -42,10 +43,10 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         when(deviceHelper.hasCamcorderProfile(anyInt())).thenReturn(false);
-        when(applicationProperties.canAccessVideoCodecCapabilities()).thenReturn(false);
+        when(applicationProperties.canAccessCodecInformation()).thenReturn(false);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
 
-        videoSourceProvider = new VideoSourceProvider(applicationProperties, deviceHelper, networkConnectionHelper);
+        videoSourceProvider = new VideoSourceProvider(applicationProperties, deviceHelper, mediaCodecInfoProvider, networkConnectionHelper);
         videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), VALID_SOURCES));
     }
 
@@ -80,7 +81,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deviceCapableUpTo1080pViaCamcorderProfileAndOnUnknownConnectionReturns360pSourceAsDefault() {
+    public void deviceCapableUpTo1080pViaCamcorderProfileAndOnUnknownConnectionReturnsLowestSourceAsDefault() {
         when(deviceHelper.hasCamcorderProfile(CamcorderProfile.QUALITY_1080P)).thenReturn(true);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.UNKNOWN);
         final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
@@ -119,6 +120,34 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 
         assertVideoSource(videoSource, SOURCE_360P);
+    }
+
+    @Test
+    public void deviceNotCapableOfCamcorderProfileAndCodecCapableOf1080PReturns1080PSourceForWIFI() {
+        when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
+        when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.VIDEO_RESOLUTION_1080P);
+
+        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        assertVideoSource(videoSource, SOURCE_1080P);
+    }
+
+    @Test
+    public void deviceNotCapableOfCamcorderProfileAndCodecCapableOf1080PReturns480PSourceFor3G() {
+        when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
+        when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.VIDEO_RESOLUTION_1080P);
+        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.THREE_G);
+
+        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        assertVideoSource(videoSource, SOURCE_480P);
+    }
+
+    @Test
+    public void deviceNotCapableOfCamcorderProfileAndCodecCapableOf720PReturns720PSourceForWIFI() {
+        when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
+        when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.VIDEO_RESOLUTION_720P);
+
+        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        assertVideoSource(videoSource, SOURCE_720P);
     }
 
     private void assertVideoSource(VideoSource videoSource, ApiVideoSource apiVideoSource) {
