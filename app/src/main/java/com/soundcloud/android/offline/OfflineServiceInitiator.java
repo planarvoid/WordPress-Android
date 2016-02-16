@@ -17,37 +17,29 @@ class OfflineServiceInitiator {
         this.context = context;
     }
 
-    void start() {
-        OfflineContentService.start(context);
-    }
-
-    void stop() {
-        OfflineContentService.stop(context);
-    }
-
-    Action0 action0Start() {
+    Action0 start() {
         return new Action0() {
             @Override
             public void call() {
-                start();
+                OfflineContentService.start(context);
             }
         };
     }
 
-    Action0 action0Stop() {
+    Action0 stop() {
         return new Action0() {
             @Override
             public void call() {
-                stop();
+                OfflineContentService.stop(context);
             }
         };
     }
 
-    Action1<Object> action1Start() {
+    Action1<Object> startFromUserAction() {
         return new Action1<Object>() {
             @Override
             public void call(Object ignored) {
-                start();
+                OfflineContentService.startFromUserAction(context);
             }
         };
     }
@@ -56,7 +48,7 @@ class OfflineServiceInitiator {
         return new DefaultSubscriber<Void>() {
             @Override
             public void onNext(Void ignored) {
-                start();
+                OfflineContentService.start(context);
             }
         };
     }

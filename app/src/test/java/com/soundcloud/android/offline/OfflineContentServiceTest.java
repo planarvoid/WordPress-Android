@@ -212,13 +212,26 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void connectionErrorNotificationWhenTrackDownloadFailed() {
+    public void connectionErrorNotificationWhenTrackDownloadFailedWithResultRequested() {
+        setUpsDownloads(downloadRequest1);
+
+        startServiceWithResultRequested();
+        service.onError(failedResult1);
+
+        verify(notificationController).onConnectionError(failedResult1, true);
+    }
+
+    @Test
+    public void connectionErrorNotificationWithMultipleStartsWhenTrackDownloadFailedWithResultRequested() {
         setUpsDownloads(downloadRequest1);
 
         startService();
+        startServiceWithResultRequested();
+        startService();
+
         service.onError(failedResult1);
 
-        verify(notificationController).onConnectionError(failedResult1);
+        verify(notificationController).onConnectionError(failedResult1, true);
     }
 
     @Test
@@ -316,7 +329,27 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     public void showsNotificationWhenAllTrackDownloaded() {
         service.onSuccess(downloadState1);
 
-        verify(notificationController).onDownloadsFinished(downloadState1);
+        verify(notificationController).onDownloadsFinished(downloadState1, false);
+    }
+
+    @Test
+    public void showsNotificationWhenAllTrackDownloadedWithResultRequested() {
+        startServiceWithResultRequested();
+
+        service.onSuccess(downloadState1);
+
+        verify(notificationController).onDownloadsFinished(downloadState1, true);
+    }
+
+    @Test
+    public void showsNotificationAfterMultipleStartsWhenAllTrackDownloadedWithResultRequested() {
+        startService();
+        startServiceWithResultRequested();
+        startService();
+
+        service.onSuccess(downloadState1);
+
+        verify(notificationController).onDownloadsFinished(downloadState1, true);
     }
 
     @Test
@@ -375,7 +408,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         service.onCancel(downloadState1);
 
         verify(notificationController).reset();
-        verify(notificationController).onDownloadsFinished(downloadState1);
+        verify(notificationController).onDownloadsFinished(downloadState1, false);
     }
 
     @Test
@@ -392,6 +425,13 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     private int startService() {
         Intent intent = new Intent(context(), OfflineContentService.class);
         intent.setAction(OfflineContentService.ACTION_START);
+        return service.onStartCommand(intent, 0, 0);
+    }
+
+    private int startServiceWithResultRequested() {
+        Intent intent = new Intent(context(), OfflineContentService.class);
+        intent.setAction(OfflineContentService.ACTION_START);
+        intent.putExtra(OfflineContentService.EXTRA_SHOW_RESULT, true);
         return service.onStartCommand(intent, 0, 0);
     }
 

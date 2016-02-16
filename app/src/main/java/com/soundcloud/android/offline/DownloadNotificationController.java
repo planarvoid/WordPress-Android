@@ -105,7 +105,16 @@ class DownloadNotificationController {
         }
     }
 
-    public void onDownloadsFinished(@Nullable DownloadState lastDownload) {
+    public void onDownloadsFinished(@Nullable DownloadState lastDownload, boolean showResult) {
+        if (showResult) {
+            showNotificationForDownloads(lastDownload);
+        } else {
+            notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
+        }
+        reset();
+    }
+
+    private void showNotificationForDownloads(@Nullable DownloadState lastDownload) {
         if (hasStorageErrors()) {
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
                     completedWithStorageErrorsNotification());
@@ -115,8 +124,6 @@ class DownloadNotificationController {
         } else {
             notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
         }
-
-        reset();
     }
 
     public void reset() {
@@ -145,16 +152,20 @@ class DownloadNotificationController {
         }).isPresent();
     }
 
-    public void onConnectionError(DownloadState lastDownload) {
-        final NotificationCompat.Builder notification = buildBaseCompletedNotification();
+    public void onConnectionError(DownloadState lastDownload, boolean showResult) {
+        if (showResult) {
+            final NotificationCompat.Builder notification = buildBaseCompletedNotification();
 
-        notification.setContentIntent(getPendingIntent(lastDownload.request));
-        notification.setContentTitle(resources.getString(R.string.offline_update_paused));
-        notification.setContentText(
-                resources.getString(lastDownload.connectionState == ConnectionState.DISCONNECTED ?
-                        R.string.no_network_connection : R.string.no_wifi_connection));
+            notification.setContentIntent(getPendingIntent(lastDownload.request));
+            notification.setContentTitle(resources.getString(R.string.offline_update_paused));
+            notification.setContentText(
+                    resources.getString(lastDownload.connectionState == ConnectionState.DISCONNECTED ?
+                            R.string.no_network_connection : R.string.no_wifi_connection));
 
-        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, notification.build());
+            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, notification.build());
+        } else {
+            notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
+        }
     }
 
     private Notification completedWithStorageErrorsNotification() {

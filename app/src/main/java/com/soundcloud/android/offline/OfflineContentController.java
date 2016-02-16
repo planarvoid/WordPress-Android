@@ -104,12 +104,12 @@ public class OfflineContentController {
 
     public void subscribe() {
         subscription = offlineContentEvents()
-                .doOnSubscribe(serviceInitiator.action0Start())
+                .doOnSubscribe(serviceInitiator.start())
                         // TODO : when shutting down the feature, some entities
                         // states change. It means, we should start the service, let it
                         // publish entities updates and then let it stop itself.
                         // https://github.com/soundcloud/SoundCloud-Android/issues/4742
-                .doOnUnsubscribe(serviceInitiator.action0Stop())
+                .doOnUnsubscribe(serviceInitiator.stop())
                 .subscribe(serviceInitiator.startSubscriber());
     }
 

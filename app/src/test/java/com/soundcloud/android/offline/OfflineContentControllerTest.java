@@ -59,8 +59,8 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         offlineCollectionStateChanges = PublishSubject.create();
 
         startServiceSubscriber = new TestSubscriber<>();
-        when(serviceInitiator.action0Start()).thenReturn(startServiceAction);
-        when(serviceInitiator.action0Stop()).thenReturn(stopServiceAction);
+        when(serviceInitiator.start()).thenReturn(startServiceAction);
+        when(serviceInitiator.stop()).thenReturn(stopServiceAction);
         when(serviceInitiator.startSubscriber()).thenReturn(startServiceSubscriber);
         when(settingsStorage.getWifiOnlyOfflineSyncStateChange()).thenReturn(wifiOnlyToggleSetting);
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(offlineLikeToggle);

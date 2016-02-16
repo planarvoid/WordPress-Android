@@ -35,6 +35,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     public static final String TAG = "OfflineContent";
     @VisibleForTesting static final String ACTION_START = "action_start_download";
     @VisibleForTesting static final String ACTION_STOP = "action_stop_download";
+    @VisibleForTesting static final String EXTRA_SHOW_RESULT = "extra_show_result";
 
     @Inject DownloadOperations downloadOperations;
     @Inject OfflineContentOperations offlineContentOperations;
@@ -48,6 +49,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private DownloadHandler downloadHandler;
     private Subscription subscription = RxUtils.invalidSubscription();
     private boolean isStopping;
+    private boolean showResult;
 
     private final Func1<List<Urn>, Observable<Collection<Urn>>> removeTracks = new Func1<List<Urn>, Observable<Collection<Urn>>>() {
         @Override
@@ -58,6 +60,12 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     public static void start(Context context) {
         context.startService(createIntent(context, ACTION_START));
+    }
+
+    public static void startFromUserAction(Context context) {
+        final Intent intent = createIntent(context, ACTION_START);
+        intent.putExtra(EXTRA_SHOW_RESULT, true);
+        context.startService(intent);
     }
 
     public static void stop(Context context) {
@@ -103,6 +111,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     public int onStartCommand(Intent intent, int flags, int startId) {
         final String action = intent.getAction();
         isStopping = ACTION_STOP.equals(intent.getAction());
+        showResult = intent.getBooleanExtra(EXTRA_SHOW_RESULT, showResult);
 
         Log.d(TAG, " Starting offlineContentService for action: " + action);
         offlineContentScheduler.cancelPendingRetries();
@@ -153,8 +162,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         if (state.isConnectionError()) {
             Log.d(TAG, "onError> Connection error.");
-            notificationController.onConnectionError(state);
-            stopAndRetryLater();
+            stopAndRetryLater(state);
         } else {
             Log.d(TAG, "onError> Download next.");
             downloadNextOrFinish(state);
@@ -195,13 +203,14 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private void stopAndFinish(@Nullable DownloadState result) {
         Log.d(TAG, "stopAndFinish> last result = [" + result + "]");
         stop();
-        notificationController.onDownloadsFinished(result);
+        notificationController.onDownloadsFinished(result, showResult);
     }
 
-    private void stopAndRetryLater() {
+    private void stopAndRetryLater(DownloadState state) {
         Log.d(TAG, "stopAndRetryLater>");
         offlineContentScheduler.scheduleRetry();
         stop();
+        notificationController.onConnectionError(state, showResult);
     }
 
     private void download(DownloadRequest request) {
