@@ -19,66 +19,66 @@ import org.junit.Test;
 
 import java.util.Collections;
 
-public class SearchItemTest extends AndroidUnitTest {
+public class SearchResultItemTest extends AndroidUnitTest {
 
-    private SearchItem searchItem;
+    private SearchResultItem searchResultItem;
 
     @Test
     public void shouldAssertCorrectSearchItemTrackType() {
         final Urn trackUrn = Urn.forTrack(123L);
-        searchItem = SearchItem.fromUrn(trackUrn);
+        searchResultItem = SearchResultItem.fromUrn(trackUrn);
 
-        assertThat(searchItem.isTrack()).isTrue();
-        assertThat(searchItem.isPlaylist()).isFalse();
-        assertThat(searchItem.isUser()).isFalse();
-        assertThat(searchItem.isUpsell()).isFalse();
-        assertThat(searchItem.isPremiumContent()).isFalse();
+        assertThat(searchResultItem.isTrack()).isTrue();
+        assertThat(searchResultItem.isPlaylist()).isFalse();
+        assertThat(searchResultItem.isUser()).isFalse();
+        assertThat(searchResultItem.isUpsell()).isFalse();
+        assertThat(searchResultItem.isPremiumContent()).isFalse();
     }
 
     @Test
     public void shouldAssertCorrectSearchItemPlaylistType() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        searchItem = SearchItem.fromUrn(playlistUrn);
+        searchResultItem = SearchResultItem.fromUrn(playlistUrn);
 
-        assertThat(searchItem.isPlaylist()).isTrue();
-        assertThat(searchItem.isTrack()).isFalse();
-        assertThat(searchItem.isUser()).isFalse();
-        assertThat(searchItem.isUpsell()).isFalse();
-        assertThat(searchItem.isPremiumContent()).isFalse();
+        assertThat(searchResultItem.isPlaylist()).isTrue();
+        assertThat(searchResultItem.isTrack()).isFalse();
+        assertThat(searchResultItem.isUser()).isFalse();
+        assertThat(searchResultItem.isUpsell()).isFalse();
+        assertThat(searchResultItem.isPremiumContent()).isFalse();
     }
 
     @Test
     public void shouldAssertCorrectSearchItemUserType() {
         final Urn userUrn = Urn.forUser(123L);
-        searchItem = SearchItem.fromUrn(userUrn);
+        searchResultItem = SearchResultItem.fromUrn(userUrn);
 
-        assertThat(searchItem.isUser()).isTrue();
-        assertThat(searchItem.isTrack()).isFalse();
-        assertThat(searchItem.isPlaylist()).isFalse();
-        assertThat(searchItem.isUpsell()).isFalse();
-        assertThat(searchItem.isPremiumContent()).isFalse();
+        assertThat(searchResultItem.isUser()).isTrue();
+        assertThat(searchResultItem.isTrack()).isFalse();
+        assertThat(searchResultItem.isPlaylist()).isFalse();
+        assertThat(searchResultItem.isUpsell()).isFalse();
+        assertThat(searchResultItem.isPremiumContent()).isFalse();
     }
 
     @Test
     public void shouldCheckPremiumContentHasCorrectUrn() {
-        searchItem = SearchItem.fromUrn(SearchPremiumItem.PREMIUM_URN);
+        searchResultItem = SearchResultItem.fromUrn(SearchPremiumItem.PREMIUM_URN);
 
-        assertThat(searchItem.isPremiumContent()).isTrue();
-        assertThat(searchItem.isUser()).isFalse();
-        assertThat(searchItem.isTrack()).isFalse();
-        assertThat(searchItem.isPlaylist()).isFalse();
-        assertThat(searchItem.isUpsell()).isFalse();
+        assertThat(searchResultItem.isPremiumContent()).isTrue();
+        assertThat(searchResultItem.isUser()).isFalse();
+        assertThat(searchResultItem.isTrack()).isFalse();
+        assertThat(searchResultItem.isPlaylist()).isFalse();
+        assertThat(searchResultItem.isUpsell()).isFalse();
     }
 
     @Test
     public void shouldCheckSearchUpsellHasCorrectUrn() {
-        searchItem = SearchItem.fromUrn(SearchUpsellItem.UPSELL_URN);
+        searchResultItem = SearchResultItem.fromUrn(SearchUpsellItem.UPSELL_URN);
 
-        assertThat(searchItem.isUpsell()).isTrue();
-        assertThat(searchItem.isUser()).isFalse();
-        assertThat(searchItem.isTrack()).isFalse();
-        assertThat(searchItem.isPlaylist()).isFalse();
-        assertThat(searchItem.isPremiumContent()).isFalse();
+        assertThat(searchResultItem.isUpsell()).isTrue();
+        assertThat(searchResultItem.isUser()).isFalse();
+        assertThat(searchResultItem.isTrack()).isFalse();
+        assertThat(searchResultItem.isPlaylist()).isFalse();
+        assertThat(searchResultItem.isPremiumContent()).isFalse();
     }
 
     @Test
@@ -87,7 +87,7 @@ public class SearchItemTest extends AndroidUnitTest {
         propertySet.put(EntityProperty.URN, Urn.forTrack(123L));
         propertySet.put(TrackProperty.DESCRIPTION, "IronMan");
 
-        final ListItem listItem = SearchItem.fromPropertySet(propertySet).build();
+        final ListItem listItem = SearchResultItem.fromPropertySet(propertySet).build();
 
         assertThat(listItem).isInstanceOf(TrackItem.class);
     }
@@ -98,7 +98,7 @@ public class SearchItemTest extends AndroidUnitTest {
         propertySet.put(EntityProperty.URN, Urn.forPlaylist(123L));
         propertySet.put(PlaylistProperty.IS_POSTED, true);
 
-        final ListItem listItem = SearchItem.fromPropertySet(propertySet).build();
+        final ListItem listItem = SearchResultItem.fromPropertySet(propertySet).build();
 
         assertThat(listItem).isInstanceOf(PlaylistItem.class);
     }
@@ -109,7 +109,7 @@ public class SearchItemTest extends AndroidUnitTest {
         propertySet.put(EntityProperty.URN, Urn.forUser(123L));
         propertySet.put(UserProperty.COUNTRY, "Argentina");
 
-        final ListItem listItem = SearchItem.fromPropertySet(propertySet).build();
+        final ListItem listItem = SearchResultItem.fromPropertySet(propertySet).build();
 
         assertThat(listItem).isInstanceOf(UserItem.class);
     }
@@ -119,14 +119,14 @@ public class SearchItemTest extends AndroidUnitTest {
         final PropertySet propertySet = PropertySet.create();
         propertySet.put(EntityProperty.URN, SearchUpsellItem.UPSELL_URN);
 
-        final ListItem listItem = SearchItem.fromPropertySet(propertySet).build();
+        final ListItem listItem = SearchResultItem.fromPropertySet(propertySet).build();
 
         assertThat(listItem).isInstanceOf(SearchUpsellItem.class);
     }
 
     @Test
     public void shouldBuildPremiumItem() {
-        ListItem listItem = SearchItem.buildPremiumItem(Collections.<PropertySet>emptyList(), Optional.<Link>absent(), 100);
+        ListItem listItem = SearchResultItem.buildPremiumItem(Collections.<PropertySet>emptyList(), Optional.<Link>absent(), 100);
 
         assertThat(listItem).isInstanceOf(SearchPremiumItem.class);
     }

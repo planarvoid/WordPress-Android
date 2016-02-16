@@ -1,9 +1,12 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.search.SearchPagerAdapter.TAB_ALL;
+import static com.soundcloud.android.search.SearchPagerAdapter.TAB_TRACKS;
+import static com.soundcloud.android.search.SearchPagerAdapter.TAB_PLAYLISTS;
+import static com.soundcloud.android.search.SearchPagerAdapter.TAB_PEOPLE;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.discovery.SearchTracker;
-import com.soundcloud.android.main.Screen;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
@@ -53,7 +56,7 @@ public class TabbedSearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        searchTracker.trackResultsScreenEvent(Screen.SEARCH_EVERYTHING);
+        searchTracker.trackResultsScreenEvent(TAB_ALL);
     }
 
     @Override
@@ -104,17 +107,17 @@ public class TabbedSearchFragment extends Fragment {
         @Override
         public void onPageSelected(int pageSelected) {
             switch (pageSelected) {
-                case SearchPagerAdapter.TAB_ALL:
-                    searchTracker.trackResultsScreenEvent(Screen.SEARCH_EVERYTHING);
+                case TAB_ALL:
+                    searchTracker.trackResultsScreenEvent(TAB_ALL);
                     break;
-                case SearchPagerAdapter.TAB_TRACKS:
-                    searchTracker.trackResultsScreenEvent(Screen.SEARCH_TRACKS);
+                case TAB_TRACKS:
+                    searchTracker.trackResultsScreenEvent(TAB_TRACKS);
                     break;
-                case SearchPagerAdapter.TAB_PLAYLISTS:
-                    searchTracker.trackResultsScreenEvent(Screen.SEARCH_PLAYLISTS);
+                case TAB_PLAYLISTS:
+                    searchTracker.trackResultsScreenEvent(TAB_PLAYLISTS);
                     break;
-                case SearchPagerAdapter.TAB_PEOPLE:
-                    searchTracker.trackResultsScreenEvent(Screen.SEARCH_USERS);
+                case TAB_PEOPLE:
+                    searchTracker.trackResultsScreenEvent(TAB_PEOPLE);
                     break;
                 default:
                     throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");
