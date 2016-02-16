@@ -669,7 +669,7 @@ public class DatabaseFixtures {
     public void insertUnavailableTrackDownload(Urn trackUrn, long unavailableTimestamp) {
         ContentValuesBuilder cv = ContentValuesBuilder.values();
         cv.put(TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TrackDownloads.REQUESTED_AT, 33333333L);
+        cv.put(TrackDownloads.REQUESTED_AT, unavailableTimestamp - 1);
         cv.put(TrackDownloads.UNAVAILABLE_AT, unavailableTimestamp);
         insertInto(TrackDownloads.TABLE, cv.get());
     }
