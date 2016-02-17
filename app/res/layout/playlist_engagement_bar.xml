@@ -16,6 +16,11 @@
         android:layout_width="wrap_content"
         tools:text="1234" />
 
+    <com.soundcloud.android.view.IconToggleButton
+        android:id="@+id/toggle_download"
+        style="@style/PlaylistAction.ToggleButton.DownloadBase.Download"
+        android:layout_width="wrap_content" />
+
     <ImageView
         android:id="@+id/playlist_details_overflow_button"
         style="@style/PlaylistAction.Overflow"
