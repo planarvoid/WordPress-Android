@@ -103,7 +103,8 @@
     <string name="pref_offline_remove_all_offline_content">Remove content saved offline</string>
     <string name="pref_offline_remove_all_offline_content_description">This will remove any content that is saved offline by the SoundCloud app.</string>
     <string name="offline_cannot_set_limit_below_usage">Limit cannot be set below current storage usage.</string>
-    <string name="sign_out_description_offline">You will have to re-connect your SoundCloud account. All tracks saved offline will be removed from this device.</string>
+    <string name="sign_out_title_offline">Signing out removes all offline tracks</string>
+    <string name="sign_out_description_offline">The next time you sign in, you’ll be able to decide which tracks and playlists should be saved again.</string>
     <string name="disable_offline_collection_title">Stop automatically saving playlists &amp; likes?</string>
     <string name="disable_offline_collection_body">Your new likes and playlists won\'t save automatically anymore and existing saved sounds will be removed from offline listening.</string>
     <!-- offline playlist creation -->
