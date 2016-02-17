@@ -14,7 +14,7 @@ public final class EventQueue {
     private static final Action1<Throwable> ON_ERROR = new Action1<Throwable>() {
         @Override
         public void call(Throwable throwable) {
-            ErrorUtils.handleThrowable(throwable, getClass());
+            ErrorUtils.handleThrowable(throwable, EventQueue.class);
         }
     };
 
