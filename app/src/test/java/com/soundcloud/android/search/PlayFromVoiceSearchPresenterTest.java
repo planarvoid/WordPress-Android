@@ -1,33 +1,34 @@
 package com.soundcloud.android.search;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
+import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.robolectric.Robolectric;
-import org.robolectric.Shadows;
-import org.robolectric.util.ActivityController;
 import rx.Observable;
 
 import android.app.SearchManager;
 import android.content.Intent;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,54 +36,61 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-// TODO : Test the presenter not the activity
-public class PlayFromVoiceSearchActivityTest extends AndroidUnitTest {
+public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     
     private static final String QUERY = "query";
     private static final String GENRE = "genre";
 
     private SearchResult searchResult;
 
+    @Mock private AppCompatActivity activity;
     @Mock private SearchOperations searchOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Random random;
-    private ActivityController<PlayFromVoiceSearchActivity> controller;
+    @Mock private Navigator navigator;
+    @Mock private PlaybackToastHelper playbackToastHelper;
+    private TestEventBus eventBus;
+    private PlayFromVoiceSearchPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
-        final PlayFromVoiceSearchActivity activity = new PlayFromVoiceSearchActivity(searchOperations, playbackInitiator, random);
-        controller = ActivityController.of(Robolectric.getShadowsAdapter(), activity);
+        eventBus = new TestEventBus();
+        when(activity.findViewById(R.id.progress)).thenReturn(new View(context()));
+        presenter = new PlayFromVoiceSearchPresenter(searchOperations, playbackInitiator, random, playbackToastHelper, navigator, eventBus);
     }
 
     @Test
     public void onResumeFinishesWithNoIntentAction() throws Exception {
-        controller.withIntent(new Intent()).create().resume();
+        when(activity.getIntent()).thenReturn(new Intent());
 
-        assertThat(controller.get().isFinishing()).isTrue();
+        presenter.onCreate(activity, null);
+        presenter.onResume(activity);
+
+        verify(activity).finish();
     }
 
     @Test
     public void trackSearchErrorFallsBackToSearchActivity() throws Exception {
         Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
         when(searchOperations.searchResult(QUERY, SearchOperations.TYPE_TRACKS)).thenReturn(searchObservable);
+        when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
-        controller.withIntent(getPlayFromSearchIntent(QUERY)).create().resume();
+        presenter.onCreate(activity, null);
+        presenter.onResume(activity);
 
-        Intent searchIntent = Shadows.shadowOf(context()).getShadowApplication().getNextStartedActivity();
-        assertThat(searchIntent.getAction()).isEqualTo(Actions.PERFORM_SEARCH);
-        assertThat(searchIntent.getStringExtra(SearchManager.QUERY)).isEqualTo(QUERY);
+        verify(navigator).performSearch(activity, QUERY);
     }
 
     @Test
     public void trackSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
         searchResult = SearchResult.fromPropertySetSource(new ArrayList(), Optional.<Link>absent(), Optional.<Urn>absent());
         when(searchOperations.searchResult(QUERY, SearchOperations.TYPE_TRACKS)).thenReturn(Observable.just(searchResult));
+        when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
-        controller.withIntent(getPlayFromSearchIntent(QUERY)).create().resume();
+        presenter.onCreate(activity, null);
+        presenter.onResume(activity);
 
-        Intent searchIntent = Shadows.shadowOf(context()).getShadowApplication().getNextStartedActivity();
-        assertThat(searchIntent.getAction()).isEqualTo(Actions.PERFORM_SEARCH);
-        assertThat(searchIntent.getStringExtra(SearchManager.QUERY)).isEqualTo(QUERY);
+        verify(navigator).performSearch(activity, QUERY);
     }
 
     @Test
@@ -91,8 +99,10 @@ public class PlayFromVoiceSearchActivityTest extends AndroidUnitTest {
         searchResult = SearchResult.fromPropertySetSource(Collections.singletonList(apiTrack), Optional.<Link>absent(),
                 Optional.<Urn>absent());
         when(searchOperations.searchResult(QUERY, SearchOperations.TYPE_TRACKS)).thenReturn(Observable.just(searchResult));
+        when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
-        controller.withIntent(getPlayFromSearchIntent(QUERY)).create().resume();
+        presenter.onCreate(activity, null);
+        presenter.onResume(activity);
 
         verify(playbackInitiator).playTrackWithRecommendationsLegacy(eq(apiTrack.getUrn()), any(PlaySessionSource.class));
     }
@@ -101,24 +111,24 @@ public class PlayFromVoiceSearchActivityTest extends AndroidUnitTest {
     public void genreSearchErrorFallsBackToSearchActivity() throws Exception {
         Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
         when(searchOperations.searchResult(GENRE, SearchOperations.TYPE_PLAYLISTS)).thenReturn(searchObservable);
+        when(activity.getIntent()).thenReturn(getPlayFromSearchWithGenreIntent(GENRE));
 
-        controller.withIntent(getPlayFromSearchWithGenreIntent(GENRE)).create().resume();
+        presenter.onCreate(activity, null);
+        presenter.onResume(activity);
 
-        Intent searchIntent = Shadows.shadowOf(context()).getShadowApplication().getNextStartedActivity();
-        assertThat(searchIntent.getAction()).isEqualTo(Actions.PERFORM_SEARCH);
-        assertThat(searchIntent.getStringExtra(SearchManager.QUERY)).isEqualTo(GENRE);
+        verify(navigator).performSearch(activity, GENRE);
     }
 
     @Test
     public void genreSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
         Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
         when(searchOperations.searchResult(GENRE, SearchOperations.TYPE_PLAYLISTS)).thenReturn(searchObservable);
+        when(activity.getIntent()).thenReturn(getPlayFromSearchWithGenreIntent(GENRE));
 
-        controller.withIntent(getPlayFromSearchWithGenreIntent(GENRE)).create().resume();
+        presenter.onCreate(activity, null);
+        presenter.onResume(activity);
 
-        Intent searchIntent = Shadows.shadowOf(context()).getShadowApplication().getNextStartedActivity();
-        assertThat(searchIntent.getAction()).isEqualTo(Actions.PERFORM_SEARCH);
-        assertThat(searchIntent.getStringExtra(SearchManager.QUERY)).isEqualTo(GENRE);
+        verify(navigator).performSearch(activity, GENRE);
     }
 
     @Test
@@ -131,13 +141,12 @@ public class PlayFromVoiceSearchActivityTest extends AndroidUnitTest {
 
         when(searchOperations.searchResult(GENRE, SearchOperations.TYPE_PLAYLISTS)).thenReturn(searchResultObservable);
         when(random.nextInt(2)).thenReturn(1);
+        when(activity.getIntent()).thenReturn(getPlayFromSearchWithGenreIntent(GENRE));
 
-        controller.withIntent(getPlayFromSearchWithGenreIntent(GENRE)).create().resume();
+        presenter.onCreate(activity, null);
+        presenter.onResume(activity);
 
-        Intent searchIntent = Shadows.shadowOf(context()).getShadowApplication().getNextStartedActivity();
-        assertThat(searchIntent.getAction()).isEqualTo(Actions.PLAYLIST);
-        assertThat(searchIntent.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).isEqualTo(apiPlaylist.getUrn());
-        assertThat(searchIntent.getBooleanExtra("autoplay", false)).isTrue();
+        verify(navigator).openPlaylistWithAutoPlay(activity, apiPlaylist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
     }
 
     private Intent getPlayFromSearchIntent(String query) {

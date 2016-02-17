@@ -42,6 +42,7 @@ import com.soundcloud.java.optional.Optional;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -101,6 +102,10 @@ public class Navigator {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false));
     }
 
+    public void openPlaylistWithAutoPlay(Context context, Urn playlist, Screen screen) {
+        context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, true));
+    }
+
     public void openPlaylist(Context context, Urn playlist, Screen screen, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo));
     }
@@ -136,6 +141,14 @@ public class Navigator {
                 .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE, searchType)
                 .putParcelableArrayListExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, sourceSetList)
                 .putExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
+        context.startActivity(intent);
+    }
+
+    public void performSearch(Context context, String query) {
+        final Intent intent = new Intent(Actions.PERFORM_SEARCH)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .putExtra(SearchManager.QUERY, query);
+
         context.startActivity(intent);
     }
 
