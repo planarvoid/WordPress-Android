@@ -1,3 +1,9 @@
+GIT
+  remote: git@github.com:soundcloud/test-user-generator.git
+  revision: 10dfd3c15ccf27691205c6c4a5ed65442c92a56b
+  specs:
+    test-user-generator (0.0.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -42,6 +48,7 @@ DEPENDENCIES
   rake (= 10.1.1)
   rest-client (= 1.6.7)
   rubotium (= 0.0.31)
+  test-user-generator!
   version (= 1.0.0)
 
 BUNDLED WITH
