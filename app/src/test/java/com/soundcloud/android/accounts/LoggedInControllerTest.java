@@ -14,16 +14,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 import android.support.v7.app.AppCompatActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AccountPlaybackControllerTest {
+public class LoggedInControllerTest {
     @Mock private AccountOperations accountOperations;
     @Mock private ServiceInitiator serviceInitiator;
     @Mock private AppCompatActivity activity;
 
-    private AccountPlaybackController lightCycle;
+    private LoggedInController lightCycle;
 
     @Before
     public void setUp() throws Exception {
-       lightCycle = new AccountPlaybackController(accountOperations, serviceInitiator);
+       lightCycle = new LoggedInController(accountOperations, serviceInitiator);
     }
 
     @Test

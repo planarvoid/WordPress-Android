@@ -3,7 +3,8 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountPlaybackController;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.accounts.LoggedInController;
 import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -29,12 +30,13 @@ public abstract class LoggedInActivity extends RootActivity {
     @Inject @LightCycle CastConnectionHelper castConnectionHelper;
     @Inject @LightCycle UnauthorisedRequestReceiver.LightCycle unauthorisedRequestLightCycle;
     @Inject @LightCycle UserRemovedController userRemovedController;
-    @Inject @LightCycle AccountPlaybackController accountPlaybackController;
+    @Inject @LightCycle LoggedInController loggedInController;
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject @LightCycle PlaybackNotificationController playbackNotificationController;
     @Inject @LightCycle ActionBarHelper actionMenuController;
     @Inject @LightCycle StreamRefreshController streamRefreshController;
     @Inject @LightCycle ConfigurationUpdateLightCycle configurationUpdateLightCycle;
+    @Inject AccountOperations accountOperations;
 
     public LoggedInActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);

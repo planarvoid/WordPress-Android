@@ -9,7 +9,7 @@ public abstract class PlayerActivity extends LoggedInActivity {
 
     @Override
     public void onBackPressed() {
-        if (!playerController.handleBackPressed()) {
+        if (accountOperations.isCrawler() || !playerController.handleBackPressed()) {
             super.onBackPressed();
         }
     }

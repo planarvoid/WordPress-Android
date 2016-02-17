@@ -23,7 +23,6 @@ public class MainActivity extends PlayerActivity {
 
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
-    @Inject AccountOperations accountOperations;
 
     @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
@@ -54,13 +53,6 @@ public class MainActivity extends PlayerActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        if (accountOperations.isCrawler()) {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     protected void onNewIntent(Intent intent) {
         redirectToResolverIfNecessary(intent);
         super.onNewIntent(intent);
@@ -79,15 +71,6 @@ public class MainActivity extends PlayerActivity {
     private void redirectFacebookDeeplinkToResolver(Uri data) {
         startActivity(new Intent(this, ResolveActivity.class).setAction(Intent.ACTION_VIEW).setData(data));
         finish();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (!accountOperations.isUserLoggedIn()) {
-            accountOperations.triggerLoginFlow(this);
-            finish();
-        }
     }
 
     @Override
