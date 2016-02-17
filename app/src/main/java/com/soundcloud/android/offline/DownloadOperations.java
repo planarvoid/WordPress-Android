@@ -78,6 +78,10 @@ class DownloadOperations {
     }
 
     DownloadState download(DownloadRequest request, DownloadProgressListener listener) {
+        if (!fileStorage.isEnoughMinimumSpace()) {
+            return DownloadState.notEnoughMinimumSpace(request);
+        }
+
         if (!fileStorage.isEnoughSpace(calculateFileSizeInBytes(request.getDuration()))) {
             return DownloadState.notEnoughSpace(request);
         }

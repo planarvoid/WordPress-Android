@@ -25,6 +25,7 @@ public class SecureFileStorage {
     private static final String DIRECTORY_NAME = "offline";
     private static final String ENC_FILE_EXTENSION = ".enc";
     private static final int FREE_SPACE_BUFFER = 100 * 1024 * 1024;
+    private static final int MINIMUM_SPACE = 5 * 1024 * 1024; // 5MB
 
     protected final File OFFLINE_DIR;
 
@@ -65,6 +66,10 @@ public class SecureFileStorage {
             isRunningEncryption = false;
             IOUtils.close(output);
         }
+    }
+
+    public boolean isEnoughMinimumSpace() {
+        return isEnoughSpace(MINIMUM_SPACE);
     }
 
     private boolean deleteFile(File file) {

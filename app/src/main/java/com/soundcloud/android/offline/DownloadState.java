@@ -10,7 +10,7 @@ import com.soundcloud.java.objects.MoreObjects;
 
 public final class DownloadState {
 
-    private enum Status {PROGRESS, SUCCESS, CANCELLED, UNAVAILABLE, NOT_ENOUGH_SPACE, CONNECTION_ERROR, ERROR}
+    private enum Status {PROGRESS, SUCCESS, CANCELLED, UNAVAILABLE, NOT_ENOUGH_SPACE, NOT_ENOUGH_MINIMUM_SPACE, CONNECTION_ERROR, ERROR}
 
     final Status status;
     final DownloadRequest request;
@@ -62,6 +62,11 @@ public final class DownloadState {
         return new DownloadState(Status.NOT_ENOUGH_SPACE, request);
     }
 
+    public static DownloadState notEnoughMinimumSpace(DownloadRequest request) {
+        Log.d(OfflineContentService.TAG, "Not enough minimum space");
+        return new DownloadState(Status.NOT_ENOUGH_MINIMUM_SPACE, request);
+    }
+
     public static DownloadState canceled(DownloadRequest request) {
         Log.d(OfflineContentService.TAG, "Download cancelled: " + request.getTrack());
         return new DownloadState(Status.CANCELLED, request);
@@ -93,6 +98,10 @@ public final class DownloadState {
 
     public boolean isNotEnoughSpace() {
         return status == Status.NOT_ENOUGH_SPACE;
+    }
+
+    public boolean isNotEnoughMinimumSpace() {
+        return status == Status.NOT_ENOUGH_MINIMUM_SPACE;
     }
 
     public boolean isDownloadFailed() {
