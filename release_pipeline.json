@@ -36,7 +36,7 @@
           },
           {
             "build_test_apk": {
-              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 clean assembleAcceptanceTest downloadNetworkManagerApkCI",
+              "cmd": "http_proxy=proxy-development.int.s-cloud.net:3128 BUILD_TYPE=releaseNoProguard ./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 clean assembleAcceptanceTest downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
