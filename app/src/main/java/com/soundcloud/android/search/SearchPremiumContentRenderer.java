@@ -92,14 +92,29 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
         }
 
         getView(itemView, R.id.premium_item_container).setOnClickListener(null);
-        getView(itemView, R.id.view_all_container).setOnClickListener(new ViewAllClickListener(premiumContentListener, premiumItems));
 
         final TextView resultsCountTextView = getTextView(itemView, R.id.results_count);
         resultsCountTextView.setText(getResultsCountText(premiumItem));
         resultsCountTextView.setOnClickListener(null);
         getTextView(itemView, R.id.view_all).setText(getViewAllText());
 
+        setupViewAllButton(itemView, premiumItems);
         setupHighTierHelpItem(itemView);
+    }
+
+    private void setupViewAllButton(View itemView, List<SearchPremiumItem> premiumItems) {
+        final View viewAllResultsView = getView(itemView, R.id.view_all_container);
+        final View viewAllResultsDividerView  = getView(itemView, R.id.view_all_container_divider);
+
+        final SearchPremiumItem premiumItem = premiumItems.get(0);
+        if (premiumItem.getResultsCount() > 1) {
+            viewAllResultsDividerView.setVisibility(View.VISIBLE);
+            viewAllResultsView.setVisibility(View.VISIBLE);
+            viewAllResultsView.setOnClickListener(new ViewAllClickListener(premiumContentListener, premiumItems));
+        } else {
+            viewAllResultsDividerView.setVisibility(View.GONE);
+            viewAllResultsView.setVisibility(View.GONE);
+        }
     }
 
     private void addItemView(View premiumItemView) {

@@ -69,8 +69,14 @@
 
     </RelativeLayout>
 
-    <View style="@style/Divider.Section" />
-    <View style="@style/Divider.Background" />
-    <View style="@style/Divider.Section" />
+    <LinearLayout
+        android:id="@+id/view_all_container_divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <View style="@style/Divider.Section" />
+        <View style="@style/Divider.Background" />
+        <View style="@style/Divider.Section" />
+    </LinearLayout>
 
 </LinearLayout>
