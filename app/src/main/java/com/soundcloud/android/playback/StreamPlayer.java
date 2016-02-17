@@ -192,7 +192,7 @@ class StreamPlayer implements PlayerListener {
 
         if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT) {
             return videoPlayerDelegate;
-        } else if (skippyFailedToInitialize || PlaybackConstants.FORCE_MEDIA_PLAYER) {
+        } else if (skippyFailedToInitialize) {
             return mediaPlayerDelegate;
         }
         return skippyPlayerDelegate;
