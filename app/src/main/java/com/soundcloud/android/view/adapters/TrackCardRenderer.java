@@ -57,7 +57,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.default_track_card, parent, false);
-        inflatedView.setTag(new TrackCardViewHolder(inflatedView, imageOperations, featureFlags, featureOperations, navigator, resources));
+        inflatedView.setTag(new TrackCardViewHolder(inflatedView, imageOperations, navigator, resources));
         return inflatedView;
     }
 

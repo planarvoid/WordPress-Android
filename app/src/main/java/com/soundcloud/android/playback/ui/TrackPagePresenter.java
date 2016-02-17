@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.Player.StateTransition;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
-import static com.soundcloud.android.tracks.TieredTracks.isTrackPreview;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
@@ -167,25 +166,32 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.footerUser.setText(trackState.getUserName());
         holder.footerTitle.setText(trackState.getTitle());
 
-        final boolean blocked = trackState.isBlocked();
-        holder.artworkView.setEnabled(!blocked);
-        configurePlayButtons(holder, blocked);
-
         holder.upsellButton.setTag(trackState.getUrn());
 
-        holder.previewIndicator.setVisibility(isTrackPreview(trackState) ? View.VISIBLE : View.GONE);
-
-        final boolean showHighTierUpsell = featureOperations.upsellHighTier() && isHighTierPreview(trackState);
-        holder.upsellButton.setVisibility(showHighTierUpsell ? View.VISIBLE : View.GONE);
+        configureHighTierStates(trackState, holder, featureOperations);
+        configureBlockedState(holder, trackState);
 
         holder.errorViewController.setUrn(trackState.getUrn());
-
-        configureBlockedState(holder, blocked);
 
         setClickListener(this, holder.onClickViews);
     }
 
-    private void configureBlockedState(TrackPageHolder holder, boolean blocked) {
+    private void configureHighTierStates(PlayerTrackState trackState, TrackPageHolder holder,
+                                         FeatureOperations featureOperations) {
+        if (isHighTierPreview(trackState)) {
+            holder.previewIndicator.setVisibility(View.VISIBLE);
+            holder.upsellButton.setVisibility(featureOperations.upsellHighTier() ? View.VISIBLE : View.GONE);
+        } else {
+            holder.previewIndicator.setVisibility(View.GONE);
+            holder.upsellButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void configureBlockedState(TrackPageHolder holder, PlayerTrackState trackState) {
+        final boolean blocked = trackState.isBlocked();
+        holder.artworkView.setEnabled(!blocked);
+        configurePlayButtons(holder, blocked);
+
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             playerOverlayController.setBlocked(blocked);
         }
