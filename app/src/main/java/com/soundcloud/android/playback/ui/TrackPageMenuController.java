@@ -6,9 +6,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -18,7 +18,6 @@ import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -110,7 +109,6 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     private void initStationsOption() {
-        popupMenuWrapper.setItemVisible(R.id.start_station, featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH));
         popupMenuWrapper.setItemEnabled(R.id.start_station, IOUtils.isConnected(activity));
     }
 

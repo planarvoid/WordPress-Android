@@ -19,7 +19,6 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
@@ -95,10 +94,8 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
 
         @Override
         public List<StreamItem> call(List<StreamItem> streamItems) {
-            if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
-                if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddDistinctItemOfKind(streamItems, NOTIFICATION)) {
-                    streamItems.add(0, new StationOnboardingStreamItem());
-                }
+            if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddDistinctItemOfKind(streamItems, NOTIFICATION)) {
+                streamItems.add(0, new StationOnboardingStreamItem());
             }
             return streamItems;
         }

@@ -3,8 +3,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/start_station"
-        android:title="@string/stations_start_track_station"
-        android:visible="false" />
+        android:title="@string/stations_start_track_station" />
     <item
         android:id="@+id/add_to_likes"
         android:title="@string/btn_like" />
@@ -14,10 +13,6 @@
     <item
         android:id="@+id/remove_from_playlist"
         android:title="@string/remove_from_playlist"
-        android:visible="false" />
-    <item
-        android:id="@+id/play_related_tracks"
-        android:title="@string/play_related_tracks"
         android:visible="false" />
     <item
         android:id="@+id/toggle_repost"

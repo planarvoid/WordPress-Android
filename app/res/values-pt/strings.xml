@@ -35,9 +35,6 @@
   <string name="comments">Comentários</string>
   <string name="display_name">Nome</string>
   <!--__RELATED TRACKS-->
-  <string name="play_related_tracks">Reproduzir faixas relacionadas</string>
-  <string name="unable_to_play_related_tracks">Não é possível reproduzir as faixas relacionadas</string>
-  <string name="loading_related_tracks">Carregando faixas relacionadas...</string>
   <string name="following_zero">Seguido por você</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_stats_user_liked">Curtido por você</string>
