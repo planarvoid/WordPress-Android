@@ -5,6 +5,7 @@ import static com.soundcloud.java.checks.Preconditions.checkState;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -21,10 +22,8 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
-import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 
@@ -33,7 +32,7 @@ import java.util.List;
 import java.util.Random;
 
 @SuppressWarnings({"PMD.AccessorClassGeneration"})
-public class PlayFromVoiceSearchActivity extends Activity {
+public class PlayFromVoiceSearchActivity extends RootActivity {
 
     private static final String ANDROID_INTENT_EXTRA_GENRE = "android.intent.extra.genre";
 
@@ -72,9 +71,13 @@ public class PlayFromVoiceSearchActivity extends Activity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void setActivityContentView() {
         setContentView(R.layout.resolve);
+    }
+
+    @Override
+    public Screen getScreen() {
+        return Screen.UNKNOWN;
     }
 
     @Override

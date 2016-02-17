@@ -4,7 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -18,7 +18,7 @@ import android.os.Bundle;
 import javax.inject.Inject;
 import java.io.File;
 
-public class UploadActivity extends ScActivity {
+public class UploadActivity extends LoggedInActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject RecordingOperations operations;

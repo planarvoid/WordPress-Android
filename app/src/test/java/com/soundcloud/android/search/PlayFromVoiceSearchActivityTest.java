@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+// TODO : Test the presenter not the activity
 public class PlayFromVoiceSearchActivityTest extends AndroidUnitTest {
     
     private static final String QUERY = "query";

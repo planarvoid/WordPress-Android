@@ -1,7 +1,7 @@
 package com.soundcloud.android.payments;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -12,7 +12,7 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 
-public class NativeConversionActivity extends ScActivity {
+public class NativeConversionActivity extends LoggedInActivity {
 
     @Inject @LightCycle NativeConversionPresenter nativeConversionPresenter;
 

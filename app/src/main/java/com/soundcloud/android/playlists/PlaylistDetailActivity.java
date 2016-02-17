@@ -4,13 +4,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.main.PlayerController;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
-import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -20,7 +18,7 @@ import android.support.v4.app.Fragment;
 
 import javax.inject.Inject;
 
-public class PlaylistDetailActivity extends ScActivity {
+public class PlaylistDetailActivity extends PlayerActivity {
 
     static final String LOG_TAG = "PlaylistDetails";
 
@@ -28,8 +26,6 @@ public class PlaylistDetailActivity extends ScActivity {
     public static final String EXTRA_AUTO_PLAY = "autoplay";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
     public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
-
-    @Inject @LightCycle PlayerController playerController;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 
@@ -105,10 +101,4 @@ public class PlaylistDetailActivity extends ScActivity {
         return Screen.PLAYLIST_DETAILS;
     }
 
-    @Override
-    public void onBackPressed() {
-        if (!playerController.handleBackPressed()) {
-            super.onBackPressed();
-        }
-    }
 }

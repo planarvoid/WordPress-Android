@@ -3,21 +3,16 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.AccountPlaybackController;
 import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.analytics.AnalyticsConnector;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.ConfigurationUpdateLightCycle;
-import com.soundcloud.android.image.ImageOperationsController;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.policies.PolicyUpdateController;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.stream.StreamRefreshController;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
 
 import android.app.Fragment;
 import android.content.Intent;
@@ -29,27 +24,19 @@ import javax.inject.Inject;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends LightCycleAppCompatActivity {
+public abstract class LoggedInActivity extends RootActivity {
 
     @Inject @LightCycle CastConnectionHelper castConnectionHelper;
-    @Inject @LightCycle ActivityLifeCyclePublisher activityLifeCyclePublisher;
     @Inject @LightCycle UnauthorisedRequestReceiver.LightCycle unauthorisedRequestLightCycle;
     @Inject @LightCycle UserRemovedController userRemovedController;
-    @Inject @LightCycle ImageOperationsController imageOperationsController;
     @Inject @LightCycle AccountPlaybackController accountPlaybackController;
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject @LightCycle PlaybackNotificationController playbackNotificationController;
     @Inject @LightCycle ActionBarHelper actionMenuController;
-    @Inject @LightCycle AnalyticsConnector analyticsConnector;
-    @Inject @LightCycle protected ScreenTracker screenTracker;
-    @Inject @LightCycle ForegroundController foregroundController;
     @Inject @LightCycle StreamRefreshController streamRefreshController;
     @Inject @LightCycle ConfigurationUpdateLightCycle configurationUpdateLightCycle;
 
-    @Inject ApplicationProperties applicationProperties;
-    @Inject protected AccountOperations accountOperations;
-
-    public ScActivity() {
+    public LoggedInActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
@@ -66,8 +53,6 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
         getMenuInflater().inflate(R.menu.empty, menu);
         return true;
     }
-
-    abstract public Screen getScreen();
 
     protected void configureMainOptionMenuItems(Menu menu) {
         actionMenuController.onCreateOptionsMenu(menu, getMenuInflater());

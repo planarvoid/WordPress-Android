@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class WebViewActivity extends TrackedActivity {
+public class WebViewActivity extends RootActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         final Uri uri = getIntent() != null ? getIntent().getData() : null;
@@ -28,6 +28,11 @@ public class WebViewActivity extends TrackedActivity {
         } else {
             finish();
         }
+    }
+
+    @Override
+    public Screen getScreen() {
+        return Screen.UNKNOWN;
     }
 
     @Override

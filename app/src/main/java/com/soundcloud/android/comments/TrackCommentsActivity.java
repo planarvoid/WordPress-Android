@@ -6,8 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.PlayerController;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -29,11 +28,10 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-public class TrackCommentsActivity extends ScActivity {
+public class TrackCommentsActivity extends PlayerActivity {
 
     public static final String EXTRA_COMMENTED_TRACK_URN = "extra";
 
-    @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
@@ -105,13 +103,6 @@ public class TrackCommentsActivity extends ScActivity {
     @Override
     public Screen getScreen() {
         return Screen.PLAYER_COMMENTS;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!playerController.handleBackPressed()) {
-            super.onBackPressed();
-        }
     }
 
     private class TrackSubscriber extends DefaultSubscriber<PropertySet> {
