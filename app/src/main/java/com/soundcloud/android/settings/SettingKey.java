@@ -35,7 +35,8 @@ public class SettingKey {
     public static final String WIFI_ONLY = "offline.wifiOnlySync";
     public static final String OFFLINE_STORAGE_LIMIT = "offline.storageLimit";
     public static final String OFFLINE_REMOVE_ALL_OFFLINE_CONTENT = "offline.removeAllOfflineContent";
-    public static final String SUBSCRIBE = "buySubscription";
+    public static final String BUY_SUBSCRIPTION = "buySubscription";
+    public static final String RESTORE_SUBSCRIPTION = "restoreSubscription";
 
     // Legal
     public static final String TERMS_OF_SERVICE = "terms_of_service";
