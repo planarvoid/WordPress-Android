@@ -59,7 +59,7 @@
     <string name="no_wifi_connection">No Wi-Fi connection</string>
     <string name="offline_not_available_offline">Not available offline</string>
 
-    <!-- __OFFLINE ONBOARDING -->
+    <!-- __GO ONBOARDING -->
     <string name="go_onboarding_header">Welcome to \nSoundCloud Go</string>
     <string name="go_onboarding_subtext">Now you\'ve got access to our expanded catalog, ad-free and offline.</string>
     <string name="go_onboarding_setup_retry">Loading failed. Retry?</string>
@@ -76,6 +76,12 @@
     <string name="offline_content_onboarding_save_now">Save everything now</string>
     <string name="offline_content_onboarding_save_collections_desc">Go to Offline listening in our settings to make all your current and future likes and playlists available offline automatically.</string>
     <string name="offline_content_onboarding_save_collections_title">Save everything automatically</string>
+
+    <!-- __GO OFFBOARDING -->
+    <string name="go_offboarding_title">Your SoundCloud Go subscription has ended</string>
+    <string name="go_offboarding_description">Please give us a moment to update your subscription settings.\n\nWe\'re sad to see you go (no pun intended). If you miss having ad-free, offline access to our expanded catalog, don\'t worry. You can come back anytime.</string>
+    <string name="go_offboarding_primary_button_text">Resubscribe</string>
+    <string name="go_offboarding_secondary_button_text">Continue</string>
 
     <!-- __OFFLINE SETTINGS -->
     <string name="pref_offline_settings">Offline Listening Settings</string>

@@ -12,6 +12,7 @@ import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -380,7 +381,7 @@ public class Navigator {
     }
 
     public void restartForAccountDowngrade(Activity context) {
-        // TODO
+        restartAppAndNavigateTo(context, GoOffboardingActivity.class);
     }
 
     public void restartApp(Activity context) {

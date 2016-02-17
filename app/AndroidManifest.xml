@@ -102,6 +102,9 @@
             android:name=".upgrade.GoOnboardingActivity"
             android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
         <activity
+            android:name=".downgrade.GoOffboardingActivity"
+            android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
+        <activity
             android:name=".offline.OfflineContentOnboardingActivity"
             android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
 
