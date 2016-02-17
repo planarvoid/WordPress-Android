@@ -85,7 +85,7 @@
     <string name="pref_offline_wifi_only_description">When this is turned on, we will only save tracks offline over a Wi-Fi connection.</string>
     <string name="pref_offline_settings_summary">Manage your Offline Sync settings</string>
     <string name="pref_offline_storage_limit">Storage Limit</string>
-    <string name="pref_offline_storage_limit_description">This will define how much of your available\nspace is allocated to the SoundCloud app.</string>
+    <string name="pref_offline_storage_limit_description">This will define how much of your available space is allocated to the SoundCloud app.</string>
     <string name="pref_offline_storage_free_gb">%1$.1f GB free of %2$.1f GB</string>
     <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
     <string name="pref_offline_storage_usage">Storage Usage</string>
