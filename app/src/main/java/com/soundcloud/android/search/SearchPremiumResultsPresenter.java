@@ -29,7 +29,6 @@ import rx.Observable;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -115,7 +114,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
 
     @Override
     public void onUpsellClicked(Context context) {
-        navigator.openUpgrade((Activity) context);
+        navigator.openUpgrade(context);
     }
 
     @Override

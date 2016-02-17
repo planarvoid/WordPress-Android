@@ -20,8 +20,8 @@ import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -41,7 +41,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
@@ -254,7 +253,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     @Override
     public void onUpsell(Context context) {
-        navigator.openUpgrade((Activity) context);
+        navigator.openUpgrade(context);
         eventBus.publish(EventQueue.TRACKING,
                 UpgradeTrackingEvent.forPlaylistPageClick(playlistWithTracks.getUrn()));
     }

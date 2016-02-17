@@ -7,7 +7,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
@@ -50,7 +49,7 @@ class WhyAdsDialogPresenter {
                 .setPositiveButton(R.string.upsell_remove_ads, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog11, int which) {
-                navigator.openUpgrade((Activity) context);
+                navigator.openUpgrade(context);
                 eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forWhyAdsClick());
             }
         })

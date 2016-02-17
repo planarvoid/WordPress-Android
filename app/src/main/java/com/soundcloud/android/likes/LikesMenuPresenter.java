@@ -16,7 +16,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
@@ -75,7 +74,7 @@ class LikesMenuPresenter {
         if (featureOperations.isOfflineContentEnabled()) {
             syncLikesDialogProvider.get().show(fragmentManager);
         } else {
-            navigator.openUpgrade((Activity) context);
+            navigator.openUpgrade(context);
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesClick());
         }
     }

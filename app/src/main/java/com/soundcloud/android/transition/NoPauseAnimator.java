@@ -18,8 +18,7 @@ import java.util.ArrayList;
 public class NoPauseAnimator extends Animator {
 
     private final Animator animator;
-    private final ArrayMap<AnimatorListener, AnimatorListener> listeners =
-            new ArrayMap<>();
+    private final ArrayMap<AnimatorListener, AnimatorListener> listeners = new ArrayMap<>();
 
     public NoPauseAnimator(Animator animator) {
         this.animator = animator;
@@ -131,32 +130,32 @@ public class NoPauseAnimator extends Animator {
     }
 
     static class AnimatorListenerWrapper implements Animator.AnimatorListener {
-        private final Animator mAnimator;
-        private final Animator.AnimatorListener mListener;
+        private final Animator animator;
+        private final Animator.AnimatorListener listener;
 
         public AnimatorListenerWrapper(Animator animator, Animator.AnimatorListener listener) {
-            mAnimator = animator;
-            mListener = listener;
+            this.animator = animator;
+            this.listener = listener;
         }
 
         @Override
         public void onAnimationStart(Animator animator) {
-            mListener.onAnimationStart(mAnimator);
+            listener.onAnimationStart(this.animator);
         }
 
         @Override
         public void onAnimationEnd(Animator animator) {
-            mListener.onAnimationEnd(mAnimator);
+            listener.onAnimationEnd(this.animator);
         }
 
         @Override
         public void onAnimationCancel(Animator animator) {
-            mListener.onAnimationCancel(mAnimator);
+            listener.onAnimationCancel(this.animator);
         }
 
         @Override
         public void onAnimationRepeat(Animator animator) {
-            mListener.onAnimationRepeat(mAnimator);
+            listener.onAnimationRepeat(this.animator);
         }
     }
 

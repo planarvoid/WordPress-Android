@@ -23,7 +23,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscriber;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -60,7 +59,7 @@ class TrackPageListener extends PageListener {
     }
 
     public void onUpsell(final Context activityContext, final Urn trackUrn) {
-        navigator.openUpgrade((Activity) activityContext);
+        navigator.openUpgrade(activityContext);
         eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlayerClick(trackUrn));
     }
 
