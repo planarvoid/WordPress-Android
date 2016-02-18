@@ -9,10 +9,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 public class SearchPagerAdapter extends FragmentPagerAdapter {
 
-    protected static final int TAB_ALL = 0;
-    protected static final int TAB_TRACKS = 1;
-    protected static final int TAB_PLAYLISTS = 2;
-    protected static final int TAB_PEOPLE = 3;
+    protected static final int TAB_ALL = SearchOperations.TYPE_ALL;
+    protected static final int TAB_TRACKS = SearchOperations.TYPE_TRACKS;
+    protected static final int TAB_PLAYLISTS = SearchOperations.TYPE_PLAYLISTS;
+    protected static final int TAB_PEOPLE = SearchOperations.TYPE_USERS;
 
     private final Resources resources;
     private final String query;
@@ -29,13 +29,13 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch(position) {
             case TAB_ALL:
-                return SearchResultsFragment.create(SearchOperations.TYPE_ALL, query, firstTime);
+                return SearchResultsFragment.create(TAB_ALL, query, firstTime);
             case TAB_TRACKS:
-                return SearchResultsFragment.create(SearchOperations.TYPE_TRACKS, query, false);
+                return SearchResultsFragment.create(TAB_TRACKS, query, false);
             case TAB_PLAYLISTS:
-                return SearchResultsFragment.create(SearchOperations.TYPE_PLAYLISTS, query, false);
+                return SearchResultsFragment.create(TAB_PLAYLISTS, query, false);
             case TAB_PEOPLE:
-                return SearchResultsFragment.create(SearchOperations.TYPE_USERS, query, false);
+                return SearchResultsFragment.create(TAB_PEOPLE, query, false);
             default:
                 throw new IllegalArgumentException("Unexpected position for getEntityHolder " + position);
         }

@@ -48,7 +48,7 @@ class SearchResultsAdapter
 
     @Override
     public int getBasicItemViewType(int position) {
-        final SearchItem item = SearchItem.fromUrn(getItem(position).getEntityUrn());
+        final SearchResultItem item = SearchResultItem.fromUrn(getItem(position).getEntityUrn());
         if (item.isUser()) {
             return TYPE_USER;
         } else if (item.isTrack()) {

@@ -30,7 +30,7 @@ class SearchModelCollection<T> extends ModelCollection<T> {
 
     SearchModelCollection(List<T> collection, Map<String, Link> links) {
         super(collection, links);
-        premiumContent = absent();
+        this.premiumContent = absent();
         this.tracksCount = 0;
         this.playlistsCount = 0;
         this.usersCount = 0;

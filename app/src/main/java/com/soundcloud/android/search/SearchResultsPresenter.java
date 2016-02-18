@@ -1,9 +1,5 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.search.SearchOperations.TYPE_ALL;
-import static com.soundcloud.android.search.SearchOperations.TYPE_PLAYLISTS;
-import static com.soundcloud.android.search.SearchOperations.TYPE_TRACKS;
-import static com.soundcloud.android.search.SearchOperations.TYPE_USERS;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
@@ -11,10 +7,7 @@ import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.discovery.SearchTracker;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -45,7 +38,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
+class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
         implements SearchPremiumContentRenderer.OnPremiumContentClickListener {
 
     private final Func1<SearchResult, List<ListItem>> toPresentationModels = new Func1<SearchResult, List<ListItem>>() {
@@ -56,11 +49,11 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
             final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
             if (premiumContent.isPresent() && featureFlags.isEnabled(Flag.SEARCH_RESULTS_HIGH_TIER)) {
                 final SearchResult premiumSearchResult = premiumContent.get();
-                searchItems.add(SearchItem.buildPremiumItem(premiumSearchResult.getItems(),
+                searchItems.add(SearchResultItem.buildPremiumItem(premiumSearchResult.getItems(),
                         premiumSearchResult.nextHref, premiumSearchResult.getResultsCount()));
             }
             for (PropertySet source : sourceSetsItems) {
-                searchItems.add(SearchItem.fromPropertySet(source).build());
+                searchItems.add(SearchResultItem.fromPropertySet(source).build());
             }
             return searchItems;
         }
@@ -77,12 +70,11 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     private final Action1<SearchResult> trackSearch = new Action1<SearchResult>() {
         @Override
         public void call(SearchResult searchResult) {
-            final Screen trackingScreen = getTrackingScreen();
-            searchTracker.setQueryUrnForScreen(trackingScreen, searchResult.queryUrn);
+            searchTracker.setQueryUrnForSearchType(searchType, searchResult.queryUrn);
             if (publishSearchSubmissionEvent) {
                 publishSearchSubmissionEvent = false;
-                searchTracker.trackSearchSubmission(trackingScreen, searchResult.queryUrn);
-                searchTracker.trackResultsScreenEvent(trackingScreen);
+                searchTracker.trackSearchSubmission(searchType, searchResult.queryUrn);
+                searchTracker.trackResultsScreenEvent(searchType);
             }
         }
     };
@@ -175,14 +167,15 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     protected void onItemClicked(View view, int position) {
         final Urn urn = adapter.getItem(position).getEntityUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn);
-        trackSearchItemClick(urn, searchQuerySourceInfo);
-        clickListenerFactory.create(getTrackingScreen(), searchQuerySourceInfo).onItemClick(adapter.getItems(), view, position);
+        searchTracker.trackSearchItemClick(searchType, urn, searchQuerySourceInfo);
+        clickListenerFactory.create(searchTracker.getTrackingScreen(searchType),
+                searchQuerySourceInfo).onItemClick(adapter.getItems(), view, position);
     }
 
     @Override
     public void onPremiumItemClicked(View view, List<ListItem> premiumItems) {
-        //TODO: SearchQuerySourceInfo is null until search premium content tracking is implemented
-        clickListenerFactory.create(getTrackingScreen(), null).onItemClick(buildPlaylistWithPremiumContent(premiumItems), view, 0);
+        clickListenerFactory.create(searchTracker.getTrackingScreen(searchType),
+                null).onItemClick(buildPlaylistWithPremiumContent(premiumItems), view, 0);
     }
 
     @Override
@@ -193,31 +186,5 @@ public class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     @Override
     public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource, Optional<Link> nextHref) {
         navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource, nextHref);
-    }
-
-    private void trackSearchItemClick(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
-        final SearchItem searchItem = SearchItem.fromUrn(urn);
-        if (searchItem.isTrack()) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapTrackOnScreen(getTrackingScreen(), searchQuerySourceInfo));
-        } else if (searchItem.isPlaylist()) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(getTrackingScreen(), searchQuerySourceInfo));
-        } else if (searchItem.isUser()) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapUserOnScreen(getTrackingScreen(), searchQuerySourceInfo));
-        }
-    }
-
-    private Screen getTrackingScreen() {
-        switch (searchType) {
-            case TYPE_ALL:
-                return Screen.SEARCH_EVERYTHING;
-            case TYPE_TRACKS:
-                return Screen.SEARCH_TRACKS;
-            case TYPE_PLAYLISTS:
-                return Screen.SEARCH_PLAYLISTS;
-            case TYPE_USERS:
-                return Screen.SEARCH_USERS;
-            default:
-                throw new IllegalArgumentException("Query type not valid");
-        }
     }
 }

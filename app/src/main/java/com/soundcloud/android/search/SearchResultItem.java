@@ -15,17 +15,17 @@ import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
-class SearchItem {
+class SearchResultItem {
 
     private final Urn urn;
     private final Optional<PropertySet> source;
 
-    private SearchItem(Urn urn) {
+    private SearchResultItem(Urn urn) {
         this.urn = buildItemUrn(urn);
         this.source = absent();
     }
 
-    private SearchItem(PropertySet propertySet) {
+    private SearchResultItem(PropertySet propertySet) {
         Preconditions.checkNotNull(propertySet);
         this.urn = buildItemUrn(propertySet.get(EntityProperty.URN));
         this.source = Optional.of(propertySet);
@@ -35,12 +35,12 @@ class SearchItem {
         return (urn != null) ? urn : Urn.NOT_SET;
     }
 
-    static SearchItem fromUrn(Urn urn) {
-        return new SearchItem(urn);
+    static SearchResultItem fromUrn(Urn urn) {
+        return new SearchResultItem(urn);
     }
 
-    static SearchItem fromPropertySet(PropertySet propertySet) {
-        return new SearchItem(propertySet);
+    static SearchResultItem fromPropertySet(PropertySet propertySet) {
+        return new SearchResultItem(propertySet);
     }
 
     boolean isTrack() {

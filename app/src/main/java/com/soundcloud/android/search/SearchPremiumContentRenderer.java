@@ -72,7 +72,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     public void bindItemView(int position, View itemView, List<SearchPremiumItem> premiumItems) {
         final SearchPremiumItem premiumItem = premiumItems.get(0);
         final PropertySet premiumItemSource = premiumItem.getSourceSet().get(0);
-        final SearchItem item = SearchItem.fromUrn(premiumItemSource.get(EntityProperty.URN));
+        final SearchResultItem item = SearchResultItem.fromUrn(premiumItemSource.get(EntityProperty.URN));
 
         if (item.isTrack()) {
             trackItemView.setVisibility(View.VISIBLE);
@@ -190,7 +190,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
                 final List<PropertySet> propertySets = premiumItems.get(0).getSourceSet();
                 final List<ListItem> premiumItemList = new ArrayList<>(propertySets.size());
                 for (PropertySet source : propertySets) {
-                    premiumItemList.add(SearchItem.fromPropertySet(source).build());
+                    premiumItemList.add(SearchResultItem.fromPropertySet(source).build());
                 }
                 listener.onPremiumItemClicked(view, premiumItemList);
             }
