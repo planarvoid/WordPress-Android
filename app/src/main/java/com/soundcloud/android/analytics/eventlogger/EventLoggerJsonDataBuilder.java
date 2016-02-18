@@ -59,7 +59,9 @@ public class EventLoggerJsonDataBuilder {
 
     public String build(ScreenEvent event) {
         try {
-            return jsonTransformer.toJson(buildBaseEvent(PAGEVIEW_EVENT, event).pageName(event.getScreenTag()));
+            return jsonTransformer.toJson(buildBaseEvent(PAGEVIEW_EVENT, event)
+                    .pageName(event.getScreenTag())
+                    .queryUrn(event.getQueryUrn()));
         } catch (ApiMapperException e) {
             throw new IllegalArgumentException(e);
         }

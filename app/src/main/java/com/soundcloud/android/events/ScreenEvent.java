@@ -3,6 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.explore.ExploreGenre;
+import com.soundcloud.java.strings.Strings;
 
 public final class ScreenEvent extends TrackingEvent {
 
@@ -38,5 +39,12 @@ public final class ScreenEvent extends TrackingEvent {
     @Override
     public String toString() {
         return "user entered " + getScreenTag();
+    }
+
+    public String getQueryUrn() {
+        if (getAttributes().containsKey(KEY_QUERY_URN)) {
+            return get(KEY_QUERY_URN);
+        }
+        return Strings.EMPTY;
     }
 }

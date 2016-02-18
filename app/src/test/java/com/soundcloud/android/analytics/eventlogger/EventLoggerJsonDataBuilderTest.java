@@ -93,6 +93,17 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsScreenEventJsonWithQueryUrn() throws ApiMapperException {
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(),
+                new SearchQuerySourceInfo(new Urn("soundcloud:search:123")));
+
+        jsonDataBuilder.build(screenEvent);
+
+        verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp())
+                .pageName(Screen.SEARCH_EVERYTHING.get()).queryUrn("soundcloud:search:123")));
+    }
+
+    @Test
     public void createsAudioAdCompanionDisplayClickEventJson() throws ApiMapperException {
         final Urn monetizedTrackUrn = Urn.forTrack(123L);
         final AudioAd audioAd = AdFixtures.getAudioAd(monetizedTrackUrn);
