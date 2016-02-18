@@ -15,6 +15,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.PullToRefreshEvent;
 import com.soundcloud.android.events.StreamEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
@@ -144,7 +145,9 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     @Override
     protected CollectionBinding<StreamItem> onRefreshBinding() {
         newItemsIndicator.hideAndReset();
-        return CollectionBinding.from(streamOperations.updatedStreamItems())
+        return CollectionBinding.from(
+                streamOperations.updatedStreamItems()
+                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.STREAM))))
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();

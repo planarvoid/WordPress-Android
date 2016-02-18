@@ -3,6 +3,8 @@ package com.soundcloud.android.collection;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PullToRefreshEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -192,7 +194,10 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
 
     @Override
     protected CollectionBinding<CollectionItem> onRefreshBinding() {
-        final Observable<MyCollection> collections = collectionOperations.updatedCollections(currentOptions).observeOn(AndroidSchedulers.mainThread());
+        final Observable<MyCollection> collections =
+                collectionOperations.updatedCollections(currentOptions)
+                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.COLLECTIONS)))
+                        .observeOn(AndroidSchedulers.mainThread());
         return CollectionBinding.from(collections.doOnError(new OnErrorAction()).doOnNext(clearOnNext), toCollectionItems)
                 .withAdapter(adapter)
                 .build();
