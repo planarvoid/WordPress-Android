@@ -24,13 +24,10 @@
     <string name="website">Website</string>
     <string name="imprint">Imprint</string>
     <string name="privacy">Privacy</string>
-    <string name="legal">Legal</string>
-    <string name="legal_summary">Legal information</string>
     <string name="terms_of_use">Terms of use</string>
     <string name="privacy_policy">Privacy policy</string>
     <string name="contact_support">Contact support</string>
     <string name="copyright_information">Copyright information</string>
-    <string name="version">Version</string>
     <!-- @Todo from l10n: please explain -->
     <string name="account_one_active">You can only have one active account</string>
     <string name="comments">Comments</string>
@@ -421,29 +418,18 @@
     <string name="discovery_search_title">Search</string>
 
     <!-- __SETTINGS -->
-    <string name="pref_app_details">App details</string>
-    <string name="pref_basic_settings">Basic settings</string>
     <string name="pref_clear_cache">Clear application cache</string>
     <string name="pref_clear_cache_desc">Clear the application cache to free up memory on your device</string>
-    <string name="pref_connection_and_data">Connection and data</string>
     <string name="pref_privacy">Privacy</string>
-    <string name="pref_help">Help</string>
-    <string name="pref_help_desc">Access the SoundCloud support site</string>
     <string name="pref_autoplay_related">Autoplay related tracks</string>
     <string name="pref_autoplay_related_desc">When a playlist ends, play tracks based on the last track</string>
     <string name="pref_revoke_access">Sign out</string>
-    <string name="pref_revoke_desc">Sign out current user</string>
     <string name="pref_sync_wifi_only">Only update data over Wi-Fi</string>
     <string name="pref_sync_wifi_only_description">Only update new likes etc. over Wi-Fi</string>
     <string name="pref_analytics">Analytics</string>
     <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app, which helps us improve the app. For details, refer to our Privacy policy.</string>
     <string name="pref_crashlogs">Crashlogs</string>
     <string name="pref_crashlogs_desc">Enabling crash logs helps us improve the app significantly. We don’t collect any personal data. For details, refer to our Privacy policy.</string>
-    <string name="playback_error_logging">Playback error logging : %s</string>
-    <string name="enabled">Enabled</string>
-    <string name="disabled">Disabled</string>
-    <string name="wifi_settings">Wireless &amp; network settings</string>
-    <string name="wifi_settings_summary">Edit your settings. Use Wi-Fi for best performance.</string>
     <string name="cache_clearing">Clearing cache</string>
     <string name="cache_clearing_message">Deleting cached files...</string>
     <string name="cache_cleared">Cache cleared</string>
@@ -458,11 +444,9 @@
     <string name="title_notification_settings">Notification settings</string>
 
     <!-- __SETTINGS (PUSH) NOTIFICATIONS -->
-    <string name="pref_notifications">Push notifications</string>
     <string name="pref_notifications_activity">Activity</string>
     <string name="pref_notifications_comments">Comments</string>
     <string name="pref_notifications_comments_description">Receive notifications about new comments on your sounds.</string>
-    <string name="pref_notifications_description">Which notifications would you like to receive?</string>
     <string name="pref_notifications_likes">Likes</string>
     <string name="pref_notifications_likes_description">Receive notifications about new likes on your sounds.</string>
     <string name="pref_notifications_followers">Followers</string>
