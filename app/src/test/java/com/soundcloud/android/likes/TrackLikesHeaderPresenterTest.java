@@ -63,7 +63,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private OfflineStateOperations offlineStateOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private FeatureOperations featureOperations;
-    @Mock private LikesMenuPresenter likesMenuPresenter;
     @Mock private ListItemAdapter<TrackItem> adapter;
     @Mock private Fragment fragment;
     @Mock private View layoutView;

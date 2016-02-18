@@ -5,8 +5,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
-import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -41,7 +39,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
         @Override
         public void call() {
-
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffleMyLikes());
         }
     };
@@ -83,6 +80,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @Override
     public void onResume(Fragment fragment) {
+        // TODO: Update download visibility (featureOperations.isOfflineContentOrUpsellEnabled())
         if (featureOperations.isOfflineContentOrUpsellEnabled()) {
             if (featureOperations.isOfflineContentEnabled()) {
                 subscribeForOfflineContentUpdates();
@@ -93,6 +91,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     public void updateTrackCount(int size) {
+        // TODO: Update like download visibility (size < 0 && featureOperations.isOfflineContentOrUpsellEnabled())
         if (headerView.isViewCreated()) {
             headerView.updateTrackCount(size);
         }
