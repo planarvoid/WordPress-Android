@@ -343,9 +343,8 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
-    public VisualPlayerElement waitForInterstitialToLoad() {
-        waiter.waitForElement(R.id.interstitial);
-        return this;
+    public boolean waitForInterstitialToLoad() {
+        return waiter.waitForElement(R.id.interstitial);
     }
 
     public VisualPlayerElement waitForLeaveBehindToLoad() {
