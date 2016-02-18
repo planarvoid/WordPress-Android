@@ -78,7 +78,7 @@ public class AudioAdTest extends AdBaseTest {
 
     public void testShowWhyAdsDialogWhenClickingWhyAds() {
         swipeToAd();
-        WhyAdsScreen dialog = playerElement.clickWhyAds();
+        WhyAdsScreen dialog = playerElement.clickWhyAdsForUpsell();
         assertThat(dialog, is(visible()));
 
         dialog.clickOK();

@@ -238,6 +238,7 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
+    @SuppressWarnings("unused")
     public WhyAdsScreen clickWhyAds() {
         whyAds().click();
         return new WhyAdsScreen(testDriver);
