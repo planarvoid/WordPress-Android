@@ -378,7 +378,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER, Screen.CONVERSION);
-        verify(navigator).openUpgrade(context);
+        verify(navigator).openUpgradeFromDeeplink(context);
     }
 
     @Test

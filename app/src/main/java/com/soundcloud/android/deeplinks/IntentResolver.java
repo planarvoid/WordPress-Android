@@ -177,7 +177,7 @@ public class IntentResolver {
     private void showUpgradeScreen(Context context, String referrer) {
         if (featureOperations.upsellHighTier()) {
             trackForegroundEvent(referrer, Screen.CONVERSION);
-            navigator.openUpgrade(context);
+            navigator.openUpgradeFromDeeplink(context);
         } else {
             trackForegroundEvent(referrer);
             navigator.openStream(context, Screen.DEEPLINK);
