@@ -151,8 +151,8 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayerExpanded());
 
-        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
         verify(slidingPanel).setTouchEnabled(false);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
     }
 
     @Test
