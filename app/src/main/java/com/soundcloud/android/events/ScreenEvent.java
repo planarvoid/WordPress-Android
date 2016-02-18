@@ -36,15 +36,12 @@ public final class ScreenEvent extends TrackingEvent {
         return get(KEY_SCREEN);
     }
 
+    public String getQueryUrn() {
+        return getAttributes().containsKey(KEY_QUERY_URN) ? get(KEY_QUERY_URN) : Strings.EMPTY;
+    }
+
     @Override
     public String toString() {
         return "user entered " + getScreenTag();
-    }
-
-    public String getQueryUrn() {
-        if (getAttributes().containsKey(KEY_QUERY_URN)) {
-            return get(KEY_QUERY_URN);
-        }
-        return Strings.EMPTY;
     }
 }
