@@ -132,7 +132,7 @@ public class SearchTrackerTest {
         assertThat(event.getAttributes().get("type")).isEqualTo("track");
         assertThat(event.getAttributes().get("context")).isEqualTo("everything");
         assertThat(event.getAttributes().get("page_name")).isEqualTo("search:everything");
-        assertThat(event.getAttributes().get("click_name")).isEqualTo("play");
+        assertThat(event.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:1");
         assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(event.getClickPosition()).isEqualTo(0);
@@ -147,7 +147,7 @@ public class SearchTrackerTest {
         assertThat(event.getAttributes().get("type")).isEqualTo("track");
         assertThat(event.getAttributes().get("context")).isEqualTo("tracks");
         assertThat(event.getAttributes().get("page_name")).isEqualTo("search:tracks");
-        assertThat(event.getAttributes().get("click_name")).isEqualTo("play");
+        assertThat(event.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:1");
         assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(event.getClickPosition()).isEqualTo(0);
@@ -162,7 +162,7 @@ public class SearchTrackerTest {
         assertThat(event.getAttributes().get("type")).isEqualTo("playlist");
         assertThat(event.getAttributes().get("context")).isEqualTo("playlists");
         assertThat(event.getAttributes().get("page_name")).isEqualTo("search:playlists");
-        assertThat(event.getAttributes().get("click_name")).isEqualTo("open_playlist");
+        assertThat(event.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:playlists:1");
         assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(event.getClickPosition()).isEqualTo(1);
@@ -177,7 +177,7 @@ public class SearchTrackerTest {
         assertThat(event.getAttributes().get("type")).isEqualTo("user");
         assertThat(event.getAttributes().get("context")).isEqualTo("people");
         assertThat(event.getAttributes().get("page_name")).isEqualTo("search:people");
-        assertThat(event.getAttributes().get("click_name")).isEqualTo("open_profile");
+        assertThat(event.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:users:1");
         assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(event.getClickPosition()).isEqualTo(0);

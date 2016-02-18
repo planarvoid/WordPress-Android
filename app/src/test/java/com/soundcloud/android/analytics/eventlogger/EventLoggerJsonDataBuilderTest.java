@@ -665,7 +665,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
                 .pageName("search:everything")
-                .clickName("open_profile")
+                .clickName("item_navigation")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
@@ -678,7 +678,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
                 .pageName("search:everything")
-                .clickName("play")
+                .clickName("item_navigation")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
@@ -691,7 +691,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
                 .pageName("search:everything")
-                .clickName("open_playlist")
+                .clickName("item_navigation")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
