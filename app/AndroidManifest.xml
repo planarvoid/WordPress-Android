@@ -261,7 +261,7 @@
         <!-- payments -->
         <activity android:name=".payments.NativeConversionActivity" android:theme="@style/Theme.SoundCloud.Translucent" />
         <activity android:name=".payments.WebConversionActivity" android:theme="@style/Theme.SoundCloud.Translucent" />
-        <activity android:label="@string/conversion_page_title" android:name=".payments.WebCheckoutActivity" android:configChanges="orientation|screenSize" />
+        <activity android:label="@string/conversion_page_title" android:name=".payments.WebCheckoutActivity" android:configChanges="orientation|screenSize" android:windowSoftInputMode="adjustResize" />
 
         <!-- discovery -->
         <activity android:label="@string/activity_title_recommendations" android:name=".discovery.RecommendedTracksActivity"/>
