@@ -1,9 +1,12 @@
 package com.soundcloud.android.tests.player.ads;
 
+import static com.soundcloud.android.utils.Log.ADS_TAG;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.tests.TestConsts;
+import com.soundcloud.android.utils.Log;
 
 import android.net.Uri;
 
@@ -17,20 +20,21 @@ public class InterstitialTest extends AdBaseTest {
 
     @Override
     public void setUp() throws Exception {
+        Log.d(AdsOperations., "InterstitialTest.setUp->");
         super.setUp();
-        System.out.println("InterstitialTest.setUp");
+        Log.d(ADS_TAG, "<-InterstitialTest.setUp");
     }
 
     public void testShouldShowInterstitial() {
-        System.out.println("InterstitialTest.testShouldShowInterstitial");
+        Log.d(ADS_TAG, "InterstitialTest.testShouldShowInterstitial");
 
-        System.out.println("InterstitialTest.setUp::swipeNext->");
+        Log.d(ADS_TAG, "InterstitialTest.setUp::swipeNext->");
         playerElement.swipeNext(); // to monetizableTrack
-        System.out.println("InterstitialTest.setUp::<-swipeNext");
+        Log.d(ADS_TAG, "InterstitialTest.setUp::<-swipeNext");
 
-        System.out.println("InterstitialTest.setUp::waitForPlayState->");
+        Log.d(ADS_TAG, "InterstitialTest.setUp::waitForPlayState->");
         assertTrue(playerElement.waitForPlayState());
-        System.out.println("InterstitialTest.setUp::<-waitForPlayState");
+        Log.d(ADS_TAG, "InterstitialTest.setUp::<-waitForPlayState");
 
         assertThat("Interstitial loaded", playerElement.waitForInterstitialToLoad());
         assertThat("Display interstitial", playerElement.isInterstitialVisible());

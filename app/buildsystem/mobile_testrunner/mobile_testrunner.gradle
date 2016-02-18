@@ -44,7 +44,7 @@ task runLollipopTests << {
           "log.tag.TestRunner": "DEBUG",
           "log.tag.PlaybackService": "DEBUG",
           "log.tag.ScAds": "DEBUG",
-          "log.tag.SoundCloudApplication": "DEBUG",
+          "log.tag.SoundCloudApplication": "DEBUG"
           ]
 
   runTests("Lollipop", excludeAnnotations, systemProperties)
