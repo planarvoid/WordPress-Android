@@ -229,7 +229,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     private void setVideoAdIsPlaying(boolean verticalVideo) {
-        final ApiVideoSource videoSource = verticalVideo ? AdFixtures.getApiVideoSource(300, 600, Consts.NOT_SET) : AdFixtures.getApiVideoSource(600, 300, Consts.NOT_SET);
+        final ApiVideoSource videoSource = verticalVideo ? AdFixtures.getApiVideoSource(300, 600) : AdFixtures.getApiVideoSource(600, 300);
         final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L), videoSource));
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);

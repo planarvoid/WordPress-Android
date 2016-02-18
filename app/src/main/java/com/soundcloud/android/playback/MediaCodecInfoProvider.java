@@ -13,12 +13,13 @@ import java.util.Arrays;
 
 import javax.inject.Inject;
 
-import static com.soundcloud.android.playback.PlaybackConstants.VIDEO_MIMETYPE_AVC;
-import static com.soundcloud.android.playback.PlaybackConstants.VIDEO_RESOLUTION_1080P;
-import static com.soundcloud.android.playback.PlaybackConstants.VIDEO_RESOLUTION_360P;
-import static com.soundcloud.android.playback.PlaybackConstants.VIDEO_RESOLUTION_480P;
-import static com.soundcloud.android.playback.PlaybackConstants.VIDEO_RESOLUTION_720P;
+import static com.soundcloud.android.playback.PlaybackConstants.MIME_TYPE_AVC;
+import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_1080P;
+import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_360P;
+import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_480P;
+import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_720P;
 
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 class MediaCodecInfoProvider {
 
     @Inject
@@ -26,9 +27,8 @@ class MediaCodecInfoProvider {
         // for injection
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public int maxResolutionSupportForAvcOnDevice() {
-        final CodecCapabilities codecCapabilities = getDecoderCodecCapabilitiesForMimeType(VIDEO_MIMETYPE_AVC);
+        final CodecCapabilities codecCapabilities = getDecoderCodecCapabilitiesForMimeType(MIME_TYPE_AVC);
         int highestSupportedAVCLevel = Consts.NOT_SET;
 
         if (codecCapabilities != null) {
@@ -41,7 +41,6 @@ class MediaCodecInfoProvider {
         return resolutionForAvcLevel(highestSupportedAVCLevel);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private int resolutionForAvcLevel(int level) {
         // (Codec level -> max resolution @ 30FPS) mapping from https://en.wikipedia.org/wiki/H.264/MPEG-4_AVC#Levels
         switch (level) {
@@ -54,19 +53,18 @@ class MediaCodecInfoProvider {
             case CodecProfileLevel.AVCLevel2:
             case CodecProfileLevel.AVCLevel21:
             case CodecProfileLevel.AVCLevel22:
-                return VIDEO_RESOLUTION_360P;
+                return RESOLUTION_PX_360P;
             case CodecProfileLevel.AVCLevel3:
-                return VIDEO_RESOLUTION_480P;
+                return RESOLUTION_PX_480P;
             case CodecProfileLevel.AVCLevel31:
             case CodecProfileLevel.AVCLevel32:
-                return VIDEO_RESOLUTION_720P;
+                return RESOLUTION_PX_720P;
             case CodecProfileLevel.AVCLevel4:
             default:
-                return VIDEO_RESOLUTION_1080P;
+                return RESOLUTION_PX_1080P;
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private CodecCapabilities getDecoderCodecCapabilitiesForMimeType(String mimeType) {
         for (int i = 0; i < MediaCodecList.getCodecCount(); i++) {
             final MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);

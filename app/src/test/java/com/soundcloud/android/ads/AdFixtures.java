@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -126,6 +127,10 @@ public class AdFixtures {
                 Arrays.asList("audio_finish1", "audio_finish2"),
                 Arrays.asList("audio_skip1", "audio_skip2")
         );
+    }
+
+    public static ApiVideoSource getApiVideoSource(int width, int height) {
+        return getApiVideoSource(width, height, "video/mp4", Consts.NOT_SET);
     }
 
     public static ApiVideoSource getApiVideoSource(int width, int height, int bitRate) {
