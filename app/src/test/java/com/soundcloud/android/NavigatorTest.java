@@ -36,6 +36,7 @@ import org.mockito.Mock;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -150,6 +151,19 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .containsAction(Actions.PLAYLIST)
                 .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlist)
+                .containsScreen(Screen.SEARCH_PLAYLISTS);
+    }
+
+    @Test
+    public void openPlaylistWithAutoPlay() {
+        Urn playlist = Urn.forPlaylist(123L);
+
+        navigator.openPlaylistWithAutoPlay(activityContext, playlist, Screen.SEARCH_PLAYLISTS);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Actions.PLAYLIST)
+                .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlist)
+                .containsExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, true)
                 .containsScreen(Screen.SEARCH_PLAYLISTS);
     }
 
@@ -321,6 +335,15 @@ public class NavigatorTest extends AndroidUnitTest {
                 .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE, searchType)
                 .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, propertySets)
                 .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
+    }
+
+    @Test
+    public void performSearch() {
+        navigator.performSearch(activityContext, "query");
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Actions.PERFORM_SEARCH)
+                .containsExtra(SearchManager.QUERY, "query");
     }
 
     @Test

@@ -1,6 +1,6 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -11,7 +11,7 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class VerifyAgeActivity extends ScActivity {
+public class VerifyAgeActivity extends LoggedInActivity {
 
     static final String EXTRA_USER_TO_FOLLOW_URN = "userToFollowUrn";
 

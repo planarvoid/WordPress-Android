@@ -2,8 +2,7 @@ package com.soundcloud.android.activities;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.actionbar.ActionBarHelper;
-import com.soundcloud.android.main.PlayerController;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
@@ -12,8 +11,7 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class ActivitiesActivity extends ScActivity {
-    @Inject @LightCycle PlayerController playerController;
+public class ActivitiesActivity extends PlayerActivity {
     @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
@@ -32,13 +30,6 @@ public class ActivitiesActivity extends ScActivity {
     @Override
     protected void setActivityContentView() {
         baseLayoutHelper.setBaseLayoutWithMargins(this);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!playerController.handleBackPressed()) {
-            super.onBackPressed();
-        }
     }
 
     @Override

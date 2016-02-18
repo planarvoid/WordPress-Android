@@ -1,20 +1,25 @@
 package com.soundcloud.android.main;
 
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.rx.eventbus.EventBus;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+
 import javax.inject.Inject;
 
-public class LauncherActivity extends TrackedActivity {
+public class LauncherActivity extends RootActivity {
 
     @Inject AccountOperations accountOperations;
     @Inject EventBus eventBus;
     @Inject Navigator navigator;
+
+    @Override
+    public Screen getScreen() {
+        return Screen.UNKNOWN;
+    }
 
     @Override
     protected void setActivityContentView() {

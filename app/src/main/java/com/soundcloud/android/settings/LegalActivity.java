@@ -1,6 +1,6 @@
 package com.soundcloud.android.settings;
 
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 
@@ -8,7 +8,7 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class LegalActivity extends ScActivity {
+public class LegalActivity extends LoggedInActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 

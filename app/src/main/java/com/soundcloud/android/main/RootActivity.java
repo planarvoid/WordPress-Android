@@ -2,21 +2,24 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.AnalyticsConnector;
+import com.soundcloud.android.image.ImageOperationsController;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
 
 import javax.inject.Inject;
 
-/*
- * This base class can be used for lifecycle tracking where extending from ScActivity is not necessary.
- */
-public abstract class TrackedActivity extends LightCycleAppCompatActivity {
+public abstract class RootActivity extends LightCycleAppCompatActivity {
 
     @Inject @LightCycle ActivityLifeCyclePublisher lifeCyclePublisher;
     @Inject @LightCycle AnalyticsConnector analyticsConnector;
+    @Inject @LightCycle ImageOperationsController imageOperationsController;
+    @Inject @LightCycle protected ScreenTracker screenTracker;
+    @Inject @LightCycle ForegroundController foregroundController;
 
-    public TrackedActivity() {
+    public RootActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
+
+    abstract public Screen getScreen();
 
 }

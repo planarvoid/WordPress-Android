@@ -2,13 +2,11 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.main.PlayerController;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,14 +15,12 @@ import android.support.v4.app.Fragment;
 import javax.inject.Inject;
 import java.util.ArrayList;
 
-public class SearchPremiumResultsActivity extends ScActivity {
+public class SearchPremiumResultsActivity extends PlayerActivity {
 
     public static final String EXTRA_SEARCH_QUERY = "searchQuery";
     public static final String EXTRA_SEARCH_TYPE = "searchType";
     public static final String EXTRA_PREMIUM_CONTENT_RESULTS = "searchPremiumContent";
     public static final String EXTRA_PREMIUM_CONTENT_NEXT_HREF = "searchPremiumNextHref";
-
-    @Inject @LightCycle PlayerController playerController;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 
@@ -59,10 +55,4 @@ public class SearchPremiumResultsActivity extends ScActivity {
         baseLayoutHelper.setBaseLayout(this);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (!playerController.handleBackPressed()) {
-            super.onBackPressed();
-        }
-    }
 }

@@ -5,7 +5,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.main.TrackedActivity;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.onboarding.auth.tasks.RecoverPasswordTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-public class RecoverActivity extends TrackedActivity {
+public class RecoverActivity extends RootActivity {
 
     @Inject EventBus eventBus;
     @Inject PublicApi publicApi;
@@ -36,6 +36,11 @@ public class RecoverActivity extends TrackedActivity {
         if (savedInstanceState == null) {
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_FORGOT_PASSWORD));
         }
+    }
+
+    @Override
+    public Screen getScreen() {
+        return Screen.UNKNOWN;
     }
 
     @Override
