@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.player.ads;
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.utils.Log;
@@ -20,7 +19,7 @@ public class InterstitialTest extends AdBaseTest {
 
     @Override
     public void setUp() throws Exception {
-        Log.d(AdsOperations., "InterstitialTest.setUp->");
+        Log.d(ADS_TAG, "InterstitialTest.setUp->");
         super.setUp();
         Log.d(ADS_TAG, "<-InterstitialTest.setUp");
     }
