@@ -15,16 +15,12 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSubscriber;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
@@ -39,7 +35,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -138,9 +133,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         menu.setItemEnabled(R.id.add_to_likes, false);
         menu.setItemVisible(R.id.add_to_playlist, !isOwnedPlaylist());
         menu.setItemVisible(R.id.remove_from_playlist, isOwnedPlaylist());
-        menu.setItemVisible(R.id.play_related_tracks, featureFlags.isEnabled(Flag.PLAY_RELATED_TRACKS));
-        menu.setItemEnabled(R.id.play_related_tracks, IOUtils.isConnected(button.getContext()));
-        menu.setItemVisible(R.id.start_station, featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH));
         menu.setItemEnabled(R.id.start_station, IOUtils.isConnected(button.getContext()));
 
         configureAdditionalEngagementsOptions(menu);
@@ -199,14 +191,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                             }
                         });
                 return true;
-            case R.id.play_related_tracks:
-                playRelatedTracksWithDelayedLoadingDialog(
-                        context,
-                        context.getString(R.string.loading_related_tracks),
-                        context.getString(R.string.unable_to_play_related_tracks),
-                        1
-                );
-                return true;
             case R.id.start_station:
                 startStationPresenter.startStationForTrack(context, track.getEntityUrn());
                 return true;
@@ -217,25 +201,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
 
     private void handleShare(Context context) {
         shareOperations.share(context, track.getSource(), getEventContextMetadata(), getPromotedSource());
-    }
-
-    private void playRelatedTracksWithDelayedLoadingDialog(Context context, String loadingMessage, String onErrorToastText, int startPosition) {
-        DelayedLoadingDialogPresenter delayedLoadingDialogPresenter = dialogBuilder
-                .setLoadingMessage(loadingMessage)
-                .setOnErrorToastText(onErrorToastText)
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        relatedTracksPlaybackSubscription.unsubscribe();
-                    }
-                })
-                .create()
-                .show(context);
-
-        relatedTracksPlaybackSubscription = playbackInitiator
-                .playTrackWithRecommendations(track.getEntityUrn(), new PlaySessionSource(screenProvider.getLastScreenTag()), startPosition)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper, delayedLoadingDialogPresenter));
     }
 
     private void showAddToPlaylistDialog() {
@@ -341,35 +306,4 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         return this.promotedSourceInfo;
     }
 
-    private static class ExpandAndDismissDialogSubscriber extends ExpandPlayerSubscriber {
-
-        private final Context context;
-        private final DelayedLoadingDialogPresenter delayedLoadingDialogPresenter;
-
-        public ExpandAndDismissDialogSubscriber(Context context,
-                                                EventBus eventBus,
-                                                PlaybackToastHelper playbackToastHelper,
-                                                DelayedLoadingDialogPresenter delayedLoadingDialogPresenter) {
-            super(eventBus, playbackToastHelper);
-            this.context = context;
-            this.delayedLoadingDialogPresenter = delayedLoadingDialogPresenter;
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            delayedLoadingDialogPresenter.onError(context);
-            // Call on error after dismissing the dialog in order to report errors to Fabric.
-            super.onError(e);
-        }
-
-        @Override
-        public void onNext(PlaybackResult result) {
-            if (result.isSuccess()) {
-                expandPlayer();
-                delayedLoadingDialogPresenter.onSuccess();
-            } else {
-                delayedLoadingDialogPresenter.onError(context);
-            }
-        }
-    }
 }

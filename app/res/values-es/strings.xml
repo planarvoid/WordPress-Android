@@ -34,10 +34,6 @@
   <string name="account_one_active">Solo puedes tener una cuenta activa</string>
   <string name="comments">Comentarios</string>
   <string name="display_name">Nombre</string>
-  <!--__RELATED TRACKS-->
-  <string name="play_related_tracks">Reproducir pistas similares</string>
-  <string name="unable_to_play_related_tracks">No se puede reproducir pistas similares</string>
-  <string name="loading_related_tracks">Cargando pistas similares...</string>
   <string name="following_zero">Le sigues tú</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_stats_user_liked">Te gusta</string>

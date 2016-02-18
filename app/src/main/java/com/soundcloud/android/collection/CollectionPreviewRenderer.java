@@ -8,7 +8,6 @@ import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 
 import android.content.res.Resources;
@@ -59,10 +58,8 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     }
 
     private void setupRecentStationsView(CollectionPreviewView recentStationsView) {
-        if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
-            recentStationsView.setVisibility(View.VISIBLE);
-            recentStationsView.setOnClickListener(goToRecentStationsListener);
-        }
+        recentStationsView.setVisibility(View.VISIBLE);
+        recentStationsView.setOnClickListener(goToRecentStationsListener);
     }
 
     private CollectionPreviewView getRecentStationsPreviewView(View view) {

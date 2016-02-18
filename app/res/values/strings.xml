@@ -36,11 +36,6 @@
     <string name="comments">Comments</string>
     <string name="display_name">Name</string>
 
-    <!-- __RELATED TRACKS -->
-    <string name="play_related_tracks">Play related tracks</string>
-    <string name="unable_to_play_related_tracks">Unable to play related tracks</string>
-    <string name="loading_related_tracks">Loading related tracks...</string>
-
     <string name="following_zero">Followed by you</string>
 
     <!-- __ACCESSIBILITY -->
