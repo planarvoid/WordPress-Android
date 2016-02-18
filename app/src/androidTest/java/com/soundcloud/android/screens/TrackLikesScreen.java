@@ -2,6 +2,7 @@ package com.soundcloud.android.screens;
 
 import static com.soundcloud.android.framework.with.With.text;
 
+import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
@@ -25,7 +26,8 @@ public class TrackLikesScreen extends Screen {
 
     protected static final Class ACTIVITY = MainActivity.class;
 
-    private TrackLikesToolbarElement toolbarElement;
+    private final TrackLikesToolbarElement toolbarElement;
+    private final With updateInProgress = With.text(testDriver.getString(R.string.offline_update_in_progress));
 
     public TrackLikesScreen(Han solo) {
         super(solo);
@@ -68,7 +70,12 @@ public class TrackLikesScreen extends Screen {
 
     public boolean waitForLikesDownloadToFinish() {
         waitForLikesToStartDownloading();
-        return waiter.waitForTextToDisappear(testDriver.getString(R.string.offline_update_in_progress));
+        return waiter.waitForNetworkCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return !testDriver.isElementDisplayed(updateInProgress);
+            }
+        });
     }
 
     public void waitForLikesToStartDownloading() {
