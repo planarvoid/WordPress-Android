@@ -1,6 +1,6 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -23,6 +23,7 @@ public class MainActivity extends PlayerActivity {
 
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
+    @Inject Navigator navigator;
 
     @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
@@ -71,6 +72,19 @@ public class MainActivity extends PlayerActivity {
     private void redirectFacebookDeeplinkToResolver(Uri data) {
         startActivity(new Intent(this, ResolveActivity.class).setAction(Intent.ACTION_VIEW).setData(data));
         finish();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setupUpgradeUpsell();
+    }
+
+    private void setupUpgradeUpsell() {
+        if (getIntent().getBooleanExtra(Navigator.EXTRA_UPGRADE_INTENT, false)) {
+            getIntent().removeExtra(Navigator.EXTRA_UPGRADE_INTENT);
+            navigator.openUpgrade(this);
+        }
     }
 
     @Override

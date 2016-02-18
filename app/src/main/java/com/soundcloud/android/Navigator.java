@@ -62,6 +62,7 @@ public class Navigator {
 
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_PENDING_ACTIVITY = "restart.pending_activity";
+    public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
 
     private final FeatureFlags featureFlags;
 
@@ -97,6 +98,10 @@ public class Navigator {
 
     public void openUpgrade(Context context) {
         context.startActivity(new Intent(context, featureFlags.isEnabled(Flag.FEATURE_WEB_UPGRADE_FLOW) ? WebConversionActivity.class : NativeConversionActivity.class));
+    }
+
+    public void openUpgradeFromDeeplink(Context context) {
+        context.startActivity(createHomeIntent(context).putExtra(EXTRA_UPGRADE_INTENT, true));
     }
 
     public void openPlaylist(Context context, Urn playlist, Screen screen) {

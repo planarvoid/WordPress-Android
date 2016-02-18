@@ -125,6 +125,14 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void openUpgradeFromDeeplink() {
+        navigator.openUpgradeFromDeeplink(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(MainActivity.class)
+                .containsExtra(Navigator.EXTRA_UPGRADE_INTENT, true);
+    }
+
+    @Test
     public void opensPlaylist() {
         PromotedPlaylistItem playlist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
         Urn playlistUrn = playlist.getEntityUrn();
