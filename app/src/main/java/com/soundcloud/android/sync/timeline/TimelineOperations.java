@@ -180,4 +180,8 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
     public Observable<Long> lastSyncTime() {
         return syncStateStorage.lastSyncOrAttemptTime(syncContent.content.uri);
     }
+
+    public Observable<Boolean> hasSyncedBefore() {
+        return syncStateStorage.hasSyncedBefore(syncContent.content.uri);
+    }
 }

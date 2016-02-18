@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.stream.StreamItem.Kind.NOTIFICATION;
 import static com.soundcloud.android.stream.StreamItem.Kind.PLAYABLE;
@@ -163,6 +164,14 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
 
     public Observable<Integer> newItemsSince(long time) {
         return soundStreamStorage.timelineItemCountSince(time)
+                .subscribeOn(scheduler);
+    }
+
+    public Observable<List<StreamItem>> updatedStreamItemsForStart() {
+        return hasSyncedBefore()
+                .filter(IS_TRUE)
+                .flatMap(continueWith(updatedTimelineItems()))
+                .onErrorResumeNext(Observable.<List<StreamItem>>empty())
                 .subscribeOn(scheduler);
     }
 
