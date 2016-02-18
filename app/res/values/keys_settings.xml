@@ -48,6 +48,7 @@
 
     <!-- Subscription settings -->
     <string name="key_subscription_buy">buySubscription</string>
+    <string name="key_subscription_restore">restoreSubscription</string>
 
     <!-- Offline sync settings -->
     <string name="key_offline_collection">offline.offlineCollections</string>

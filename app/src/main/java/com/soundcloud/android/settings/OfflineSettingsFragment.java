@@ -6,12 +6,14 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_COLLECTION;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_REMOVE_ALL_OFFLINE_CONTENT;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_STORAGE_LIMIT;
-import static com.soundcloud.android.settings.SettingKey.SUBSCRIBE;
+import static com.soundcloud.android.settings.SettingKey.RESTORE_SUBSCRIPTION;
+import static com.soundcloud.android.settings.SettingKey.BUY_SUBSCRIPTION;
 import static com.soundcloud.android.settings.SettingKey.WIFI_ONLY;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.ImageAlertDialog;
 import com.soundcloud.android.events.EventQueue;
@@ -51,6 +53,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Inject EventBus eventBus;
     @Inject Navigator navigator;
     @Inject FeatureFlags featureFlags;
+    @Inject ConfigurationManager configurationManager;
 
     private CompositeSubscription subscription;
 
@@ -67,22 +70,14 @@ public class OfflineSettingsFragment extends PreferenceFragment
         super.onViewCreated(view, savedInstanceState);
         subscription = new CompositeSubscription();
         if (featureOperations.isOfflineContentEnabled()) {
-            addPreferencesFromResource(R.xml.settings_offline);
+            addPreferencesFromResource(R.xml.settings_subs_offline_user);
             setupOffline();
         } else if (featureOperations.upsellHighTier()) {
-            addPreferencesFromResource(R.xml.settings_subscribe);
-            setupUpsell();
-        } else {
-            addPreferencesFromResource(R.xml.settings_offline_clear);
-            setupClearContent();
+            addPreferencesFromResource(R.xml.settings_subs_free_user);
+            findPreference(BUY_SUBSCRIPTION).setOnPreferenceClickListener(this);
+            findPreference(RESTORE_SUBSCRIPTION).setOnPreferenceClickListener(this);
+            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeFromSettingsImpression());
         }
-    }
-
-    private void setupUpsell() {
-        findPreference(SUBSCRIBE).setOnPreferenceClickListener(this);
-
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeFromSettingsImpression());
-        setupClearContent();
     }
 
     private void setupOffline() {
@@ -199,8 +194,11 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Override
     public boolean onPreferenceClick(Preference preference) {
         switch (preference.getKey()) {
-            case SUBSCRIBE:
+            case BUY_SUBSCRIPTION:
                 openSubscribeScreen();
+                return true;
+            case RESTORE_SUBSCRIPTION:
+                restoreSubscription(preference);
                 return true;
             case OFFLINE_REMOVE_ALL_OFFLINE_CONTENT:
                 showRemoveAllOfflineContentDialog();
@@ -208,6 +206,11 @@ public class OfflineSettingsFragment extends PreferenceFragment
             default:
                 return false;
         }
+    }
+
+    private void restoreSubscription(Preference preference) {
+        preference.setEnabled(false);
+        configurationManager.forceUpdate();
     }
 
     private void openSubscribeScreen() {
