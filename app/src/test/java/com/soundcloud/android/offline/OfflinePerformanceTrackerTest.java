@@ -68,6 +68,15 @@ public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
                 OfflinePerformanceEvent.KIND_STORAGE_LIMIT);
     }
 
+    @Test
+    public void testStorageLimitReachedErrorForMinimumSpace() {
+        performanceTracker.downloadFailed(DownloadState.notEnoughMinimumSpace(DOWNLOAD_REQUEST));
+
+        assertTrackingEventSent(
+                eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
+                OfflinePerformanceEvent.KIND_STORAGE_LIMIT);
+    }
+
     private void assertTrackingEventSent(OfflinePerformanceEvent event, String kind) {
         assertThat(event.getKind()).isEqualTo(kind);
         assertThat(event.getTrackUrn()).isEqualTo(DOWNLOAD_REQUEST.getTrack());

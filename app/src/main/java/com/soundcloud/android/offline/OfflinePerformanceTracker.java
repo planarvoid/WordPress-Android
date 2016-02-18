@@ -37,7 +37,7 @@ class OfflinePerformanceTracker {
     }
 
     public void downloadFailed(DownloadState downloadState) {
-        if (downloadState.isNotEnoughSpace()) {
+        if (downloadState.isNotEnoughSpace() || downloadState.isNotEnoughMinimumSpace()) {
             eventBus.publish(EventQueue.TRACKING, OfflinePerformanceEvent.fromStorageLimit(
                     downloadState.getTrack(), downloadState.request.getTrackingData()));
         } else {
