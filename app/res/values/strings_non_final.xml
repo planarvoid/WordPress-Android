@@ -16,7 +16,7 @@
     <string name="conversion_buy_trial">Try it free for %d days</string>
     <string name="conversion_buy_no_trial">Upgrade now</string>
     <string name="conversion_buy_retry">Loading failed. Retry?</string>
-    <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They\'re how we keep SoundCloud free for listeners.\nWant to lose the interruptions? Go ad-free with SoundCloud Go.</string>
+    <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They\'re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad-free with SoundCloud Go.</string>
 
     <!-- __PAYMENTS -->
     <string name="payments_error_title_unavailable">Product unavailable</string>
