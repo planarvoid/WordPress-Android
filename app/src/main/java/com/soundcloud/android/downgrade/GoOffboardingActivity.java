@@ -1,13 +1,13 @@
 package com.soundcloud.android.downgrade;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.lightcycle.LightCycle;
 
 import javax.inject.Inject;
 
-public class GoOffboardingActivity extends ScActivity {
+public class GoOffboardingActivity extends RootActivity {
 
     @Inject @LightCycle GoOffboardingPresenter presenter;
 
