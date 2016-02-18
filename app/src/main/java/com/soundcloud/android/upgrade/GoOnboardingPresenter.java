@@ -19,7 +19,7 @@ import javax.inject.Inject;
 
 class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
     enum StrategyContext {
-        USER_NO_ACTION, USER_SETUP_LATER, USER_SETUP_OFFLINE
+        USER_NO_ACTION, USER_CLICKED_START
     }
 
     private final Navigator navigator;
@@ -56,12 +56,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     void onSetupOfflineClicked() {
-        context = StrategyContext.USER_SETUP_OFFLINE;
-        strategy = strategy.proceed();
-    }
-
-    void onSetupLaterClicked() {
-        context = StrategyContext.USER_SETUP_LATER;
+        context = StrategyContext.USER_CLICKED_START;
         strategy = strategy.proceed();
     }
 
@@ -114,53 +109,34 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private class PendingStrategy implements Strategy {
         @Override
         public Strategy proceed() {
-            switch (context) {
-                case USER_SETUP_LATER:
-                    view.setSetUpLaterButtonWaiting();
-                    return this;
-                case USER_SETUP_OFFLINE:
-                    view.setSetUpOfflineButtonWaiting();
-                    return this;
-                default:
-                    return this;
+            if (context == StrategyContext.USER_CLICKED_START) {
+                view.setSetUpOfflineButtonWaiting();
             }
+            return this;
         }
     }
 
     private class SuccessStrategy implements Strategy {
         @Override
         public Strategy proceed() {
-            switch (context) {
-                case USER_SETUP_LATER:
-                    navigator.openHomeAsRootScreen(activity);
-                    eventBus.publish(EventQueue.TRACKING,
-                            OfflineInteractionEvent.fromOnboardingDismiss());
-                    view.reset();
-                    return this;
-                case USER_SETUP_OFFLINE:
-                    navigator.openOfflineContentOnboarding(activity);
-                    eventBus.publish(EventQueue.TRACKING,
-                            OfflineInteractionEvent.fromOnboardingStart());
-                    view.reset();
-                    return this;
-                default:
-                    return this;
+            if (context == StrategyContext.USER_CLICKED_START) {
+                navigator.openCollectionAsRootScreen(activity);
+                eventBus.publish(EventQueue.TRACKING,
+                        OfflineInteractionEvent.fromOnboardingStart());
+                view.reset();
             }
+            return this;
         }
     }
 
     private class NetworkErrorStrategy implements Strategy {
         @Override
         public Strategy proceed() {
-            switch (context) {
-                case USER_SETUP_LATER:
-                    view.setSetUpLaterButtonRetry();
-                    return new InitStrategy();
-                case USER_SETUP_OFFLINE:
-                    view.setSetUpOfflineButtonRetry();
-                    return new InitStrategy();
-                default:
-                    return this;
+            if (context == StrategyContext.USER_CLICKED_START) {
+                view.setSetUpOfflineButtonRetry();
+                return new InitStrategy();
+            } else {
+                return this;
             }
         }
     }
@@ -168,17 +144,12 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private class UnrecoverableErrorStrategy implements Strategy {
         @Override
         public Strategy proceed() {
-            switch (context) {
-                case USER_SETUP_LATER:
-                    view.setSetUpLaterButtonRetry();
-                    view.showErrorDialog(activity.getSupportFragmentManager());
-                    return new InitStrategy();
-                case USER_SETUP_OFFLINE:
-                    view.setSetUpOfflineButtonRetry();
-                    view.showErrorDialog(activity.getSupportFragmentManager());
-                    return new InitStrategy();
-                default:
-                    return this;
+            if (context == StrategyContext.USER_CLICKED_START) {
+                view.setSetUpOfflineButtonRetry();
+                view.showErrorDialog(activity.getSupportFragmentManager());
+                return new InitStrategy();
+            } else {
+                return this;
             }
         }
     }

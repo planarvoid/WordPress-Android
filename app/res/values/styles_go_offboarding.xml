@@ -11,7 +11,7 @@
     </style>
 
     <style name="GoOffboarding.Container">
-        <item name="android:layout_marginTop">@dimen/go_onboarding_container_top_margin</item>
+        <item name="android:layout_marginTop">@dimen/android_status_bar_stub_height</item>
         <item name="android:orientation">vertical</item>
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:layout_centerHorizontal">true</item>

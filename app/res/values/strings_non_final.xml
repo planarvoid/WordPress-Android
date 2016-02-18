@@ -62,22 +62,14 @@
     <string name="offline_not_available_offline">Not available offline</string>
 
     <!-- __GO ONBOARDING -->
-    <string name="go_onboarding_header">Welcome to \nSoundCloud Go</string>
-    <string name="go_onboarding_subtext">Now you\'ve got access to our expanded catalog, ad-free and offline.</string>
-    <string name="go_onboarding_setup_retry">Loading failed. Retry?</string>
-    <string name="go_onboarding_setup_offline">Set up offline listening</string>
-    <string name="go_onboarding_setup_later">Do it later</string>
+    <string name="go_onboarding_header">Welcome to SoundCloud Go</string>
+    <string name="go_onboarding_title">Save your music offline</string>
+    <string name="go_onboarding_subtext">Use the arrow to save all your likes or any of your playlists offline.</string>
+    <string name="go_onboarding_start">Get started</string>
+    <string name="go_onboarding_retry">Loading failed. Retry?</string>
     <string name="go_onboarding_error_dialog_title">Something went wrong</string>
     <string name="go_onboarding_error_dialog_msg">There was a problem enabling your new features and content. Please restart the application.</string>
     <string name="go_onboarding_error_dialog_button">Try again later</string>
-
-    <string name="offline_content_onboarding_next">Next</string>
-    <string name="offline_content_onboarding_save_offline_desc">Use the three dots to save all your likes or any individual playlist offline.</string>
-    <string name="offline_content_onboarding_save_offline_title">Choose what to save offline</string>
-    <string name="offline_content_onboarding_choose_desc">Choose what to save</string>
-    <string name="offline_content_onboarding_save_now">Save everything now</string>
-    <string name="offline_content_onboarding_save_collections_desc">Go to Offline listening in our settings to make all your current and future likes and playlists available offline automatically.</string>
-    <string name="offline_content_onboarding_save_collections_title">Save everything automatically</string>
 
     <!-- __GO OFFBOARDING -->
     <string name="go_offboarding_title">Your SoundCloud Go subscription has ended</string>

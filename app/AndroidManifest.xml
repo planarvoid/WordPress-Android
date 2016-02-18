@@ -104,9 +104,6 @@
         <activity
             android:name=".downgrade.GoOffboardingActivity"
             android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
-        <activity
-            android:name=".offline.OfflineContentOnboardingActivity"
-            android:theme="@style/Theme.SoundCloud.TranslucentStatus" />
 
         <activity android:name=".search.PlayFromVoiceSearchActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
             <intent-filter android:priority="1">

@@ -10,50 +10,9 @@
         <item name="android:src">@drawable/go_onboarding_background</item>
     </style>
 
-    <style name="GoOnboarding.OfflineContentBackground">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:scaleType">centerCrop</item>
-        <item name="android:src">@drawable/offlinecontent_onboarding_background</item>
-    </style>
-
-    <style name="GoOnboarding.Container">
-        <item name="android:layout_marginTop">@dimen/go_onboarding_container_top_margin</item>
-    </style>
-
-    <style name="GoOnboarding.WelcomeContainer" parent="GoOnboarding.Container">
-        <item name="android:orientation">vertical</item>
-        <item name="android:layout_alignParentTop">true</item>
-        <item name="android:layout_centerHorizontal">true</item>
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-    </style>
-
-    <style name="GoOnboarding.OfflineContentContainer" parent="GoOnboarding.Container">
-        <item name="android:layout_marginLeft">16dp</item>
-        <item name="android:layout_marginRight">16dp</item>
-        <item name="android:layout_marginBottom">16dp</item>
-    </style>
-
-    <style name="GoOnboarding.Text.WelcomeTitle">
-        <item name="android:textSize">@dimen/go_onboarding_title_text_size</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:layout_marginTop">22dp</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
-    </style>
-
-    <style name="GoOnboarding.Text.WelcomeSubTitle">
-        <item name="android:textSize">@dimen/go_onboarding_sub_title_text_size</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:layout_marginTop">@dimen/go_onboarding_sub_title_margin_top</item>
-        <item name="android:layout_marginBottom">@dimen/go_onboarding_sub_title_margin_bottom</item>
-    </style>
-
-    <style name="GoOnboarding.Tooltip" parent="TextAppearance.SoundCloudLightFont">
-        <item name="android:layout_marginBottom">@dimen/go_onboarding_tooltip_margin_bottom</item>
-        <item name="android:layout_marginTop">@dimen/go_onboarding_tooltip_margin_top</item>
-        <item name="android:gravity">center_horizontal</item>
+    <style name="GoOnboarding.WelcomeContainer">
+        <item name="android:layout_marginTop">@dimen/android_status_bar_stub_height</item>
+        <item name="android:padding">16dp</item>
     </style>
 
     <style name="GoOnboarding.Text" parent="TextAppearance.SoundCloudLightFont">
@@ -61,15 +20,29 @@
         <item name="android:maxWidth">320dp</item>
     </style>
 
-    <style name="GoOnboarding.Text.Headline">
-        <item name="android:textSize">18sp</item>
+    <style name="GoOnboarding.Text.Header">
+        <item name="android:textSize">@dimen/go_onboarding_header_text_size</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_marginTop">@dimen/android_status_bar_stub_height</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+    </style>
+
+    <style name="GoOnboarding.Text.Title">
+        <item name="android:textSize">@dimen/go_onboarding_title_text_size</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="GoOnboarding.Text.SubText">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">@dimen/go_onboarding_sub_title_text_size</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:layout_marginTop">10dp</item>
+    </style>
+
+    <style name="GoOnboarding.Tooltip" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:layout_marginBottom">@dimen/go_onboarding_tooltip_margin_bottom</item>
+        <item name="android:layout_marginTop">@dimen/go_onboarding_tooltip_margin_top</item>
+        <item name="android:gravity">center_horizontal</item>
     </style>
 
     <style name="GoOnboarding.Button" parent="TextAppearance.SoundCloudLightFont">
