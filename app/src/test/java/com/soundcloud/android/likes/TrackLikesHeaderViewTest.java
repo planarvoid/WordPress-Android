@@ -23,11 +23,12 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
     @Mock private FragmentManager fragmentManager;
     @Mock private PlaybackInitiator playbackInitiator;
+    @Mock private TrackLikesHeaderView.LikesHeaderListener listener;
 
     @Before
     public void setUp() throws Exception {
         trackLikesHeaderView = new TrackLikesHeaderView(resources(), new DownloadableHeaderView(resources()));
-        trackLikesHeaderView.onViewCreated(View.inflate(context(), R.layout.track_likes_header, null));
+        trackLikesHeaderView.onViewCreated(View.inflate(context(), R.layout.track_likes_header, null), listener);
     }
 
     @Test

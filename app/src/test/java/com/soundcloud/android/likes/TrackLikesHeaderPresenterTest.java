@@ -8,21 +8,27 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -30,18 +36,18 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 
+import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
@@ -58,17 +64,19 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     private TrackLikesHeaderPresenter presenter;
 
     @Mock private TrackLikesHeaderView headerView;
-    @Mock private TrackLikeOperations likeOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private OfflineStateOperations offlineStateOperations;
-    @Mock private PlaybackInitiator playbackInitiator;
+    @Mock private TrackLikeOperations likeOperations;
     @Mock private FeatureOperations featureOperations;
+    @Mock private PlaybackInitiator playbackInitiator;
+    @Mock private OfflineLikesDialog offlineLikesDialog;
+    @Mock private Navigator navigator;
+
     @Mock private ListItemAdapter<TrackItem> adapter;
     @Mock private Fragment fragment;
     @Mock private View layoutView;
     @Mock private ListView listView;
     @Mock private FragmentManager fragmentManager;
-    @Captor private ArgumentCaptor<View.OnClickListener> onClickListenerCaptor;
 
     private TestEventBus eventBus;
     private List<Urn> likedTrackUrns;
@@ -78,12 +86,15 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         presenter = new TrackLikesHeaderPresenter(
                 headerView,
+                offlineContentOperations,
                 offlineStateOperations,
+                likeOperations,
+                featureOperations,
                 playbackInitiator,
                 TestSubscribers.expandPlayerSubscriber(),
-                featureOperations,
-                eventBus,
-                likeOperations);
+                InjectionSupport.providerOf(offlineLikesDialog),
+                navigator,
+                eventBus);
 
         likedTrackUrns = asList(TRACK1, TRACK2);
         when(fragment.getFragmentManager()).thenReturn(fragmentManager);
@@ -128,8 +139,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onViewCreated(fragment, layoutView, null);
 
-        verify(headerView).setOnShuffleButtonClick(onClickListenerCaptor.capture());
-        onClickListenerCaptor.getValue().onClick(null);
+        presenter.onShuffle();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_SHUFFLE_LIKES);
     }
@@ -286,6 +296,81 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         presenter.onResume(fragment);
 
         verify(headerView, never()).show(OfflineState.DOWNLOADED);
+    }
+
+    @Test
+    public void showsSyncLikesDialogWhenOfflineLikesEnabled() {
+        presenter.onViewCreated(fragment, layoutView, null);
+
+        presenter.onMakeAvailableOffline(true);
+
+        verify(offlineLikesDialog).show(any(FragmentManager.class));
+    }
+
+    @Test
+    public void disablesLikesSyncingWhenOfflineLikesDisabled() {
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.<Void>just(null));
+        presenter.onViewCreated(fragment, layoutView, null);
+
+        presenter.onMakeAvailableOffline(false);
+
+        verify(offlineContentOperations).disableOfflineLikedTracks();
+        verifyZeroInteractions(offlineLikesDialog);
+    }
+
+    @Test
+    public void opensUpgradeFlowOnUpsellClick() {
+        presenter.onViewCreated(fragment, layoutView, null);
+
+        presenter.onUpsell();
+
+        verify(navigator).openUpgrade(any(Activity.class));
+    }
+
+    @Test
+    public void showsOfflineDownloadOptionWhenOfflineLikesDisabled() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(false));
+
+        presenter.onViewCreated(fragment, layoutView, null);
+        presenter.onResume(fragment);
+
+        verify(headerView).setDownloadedButtonState(false);
+    }
+
+    @Test
+    public void showsOfflineRemovalOptionWhenOfflineTracksEnabled() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(true));
+
+        presenter.onViewCreated(fragment, layoutView, null);
+        presenter.onResume(fragment);
+
+        verify(headerView).setDownloadedButtonState(true);
+    }
+
+    @Test
+    public void neverShowsDownloadButtonIfOfflineAndUpsellUnavailable() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        when(featureOperations.upsellOfflineContent()).thenReturn(false);
+
+        presenter.onViewCreated(fragment, layoutView, null);
+        presenter.onResume(fragment);
+
+        verify(headerView, never()).setDownloadedButtonState(anyBoolean());
+    }
+
+    @Test
+    public void sendsTrackingEventWhenRemovingOfflineLikes() {
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.<Void>empty());
+        when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(false);
+
+        presenter.onViewCreated(fragment, layoutView, null);
+        presenter.onMakeAvailableOffline(false);
+
+        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
+        assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_LIKES_REMOVE);
+        assertThat(trackingEvent.getAttributes().containsValue(Screen.LIKES.get())).isTrue();
     }
 
     private void enableOfflineLikes() {

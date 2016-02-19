@@ -1,23 +1,30 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
+import com.soundcloud.android.Navigator;
+import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
+import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
+import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -26,7 +33,7 @@ import android.view.View;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> {
+public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> implements TrackLikesHeaderView.LikesHeaderListener {
 
     private final TrackLikesHeaderView headerView;
     private final OfflineStateOperations offlineStateOperations;
@@ -35,6 +42,11 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final FeatureOperations featureOperations;
     private final EventBus eventBus;
     private final TrackLikeOperations likeOperations;
+    private final Navigator navigator;
+    private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
+    private final OfflineContentOperations offlineContentOperations;
+
+    private Fragment fragment;
 
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
         @Override
@@ -43,55 +55,51 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         }
     };
 
-    private final View.OnClickListener onShuffleButtonClick = new View.OnClickListener() {
-        @Override
-        public void onClick(final View view) {
-            playbackInitiator.playTracksShuffled(likeOperations.likedTrackUrns(), new PlaySessionSource(Screen.LIKES))
-                    .doOnCompleted(sendShuffleLikesAnalytics)
-                    .subscribe(expandPlayerSubscriberProvider.get());
-        }
-    };
-
-    private Subscription foregroundSubscription = RxUtils.invalidSubscription();
+    private CompositeSubscription foregroundSubscription = new CompositeSubscription();
 
     @Inject
     public TrackLikesHeaderPresenter(TrackLikesHeaderView headerView,
+                                     OfflineContentOperations offlineContentOperations,
                                      OfflineStateOperations offlineStateOperations,
+                                     TrackLikeOperations likeOperations,
+                                     FeatureOperations featureOperations,
                                      PlaybackInitiator playbackInitiator,
                                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                                     FeatureOperations featureOperations,
-                                     EventBus eventBus,
-                                     TrackLikeOperations likeOperations) {
+                                     Provider<OfflineLikesDialog> syncLikesDialogProvider,
+                                     Navigator navigator,
+                                     EventBus eventBus) {
         this.headerView = headerView;
         this.offlineStateOperations = offlineStateOperations;
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.syncLikesDialogProvider = syncLikesDialogProvider;
         this.featureOperations = featureOperations;
         this.eventBus = eventBus;
         this.likeOperations = likeOperations;
+        this.navigator = navigator;
+        this.offlineContentOperations = offlineContentOperations;
     }
 
     @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        headerView.onViewCreated(view);
-        headerView.setOnShuffleButtonClick(onShuffleButtonClick);
+        this.fragment = fragment;
+        headerView.onViewCreated(view, this);
     }
 
     @Override
     public void onResume(Fragment fragment) {
-        // TODO: Update download visibility (featureOperations.isOfflineContentOrUpsellEnabled())
-        if (featureOperations.isOfflineContentOrUpsellEnabled()) {
-            if (featureOperations.isOfflineContentEnabled()) {
-                subscribeForOfflineContentUpdates();
-            }
+        if (featureOperations.isOfflineContentEnabled()) {
+            subscribeForOfflineContentUpdates();
+        } else if (featureOperations.upsellOfflineContent()) {
+            headerView.showUpsell();
+            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesImpression());
         } else {
             headerView.show(OfflineState.NOT_OFFLINE);
         }
     }
 
     public void updateTrackCount(int size) {
-        // TODO: Update like download visibility (size < 0 && featureOperations.isOfflineContentOrUpsellEnabled())
         if (headerView.isViewCreated()) {
             headerView.updateTrackCount(size);
         }
@@ -103,10 +111,14 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                         .filter(OfflineContentChangedEvent.HAS_LIKED_COLLECTION_CHANGE)
                         .map(OfflineContentChangedEvent.TO_OFFLINE_STATE);
 
-        foregroundSubscription = offlineLikesState
+        foregroundSubscription.add(offlineLikesState
                 .startWith(offlineStateOperations.loadLikedTracksOfflineState())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new OfflineLikesSettingSubscriber());
+                .subscribe(new OfflineLikesStateSubscriber()));
+
+        foregroundSubscription.add(offlineContentOperations.getOfflineLikedTracksStatusChanges()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new UpdateDownloadButtonSubscriber()));
     }
 
     @Override
@@ -117,13 +129,55 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     @Override
     public void onDestroyView(Fragment fragment) {
         headerView.onDestroyView();
+        this.fragment = null;
     }
 
-    private class OfflineLikesSettingSubscriber extends DefaultSubscriber<OfflineState> {
+    private class OfflineLikesStateSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
         public void onNext(OfflineState offlineState) {
             if (featureOperations.isOfflineContentEnabled()) {
                 headerView.show(offlineState);
+            }
+        }
+    }
+
+    @Override
+    public void onShuffle() {
+        playbackInitiator.playTracksShuffled(likeOperations.likedTrackUrns(), new PlaySessionSource(Screen.LIKES))
+                .doOnCompleted(sendShuffleLikesAnalytics)
+                .subscribe(expandPlayerSubscriberProvider.get());
+    }
+
+    @Override
+    public void onUpsell() {
+        navigator.openUpgrade(fragment.getActivity());
+        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesClick());
+    }
+
+    @Override
+    public void onMakeAvailableOffline(boolean isChecked) {
+        if (isChecked) {
+            syncLikesDialogProvider.get().show(fragment.getFragmentManager());
+        } else {
+            disableOfflineLikes();
+        }
+    }
+
+    private void disableOfflineLikes() {
+        if (offlineContentOperations.isOfflineCollectionEnabled()) {
+            ConfirmRemoveOfflineDialogFragment.showForLikes(fragment.getFragmentManager());
+        } else {
+            fireAndForget(offlineContentOperations.disableOfflineLikedTracks());
+            eventBus.publish(EventQueue.TRACKING,
+                    OfflineInteractionEvent.fromRemoveOfflineLikes(Screen.LIKES.get()));
+        }
+    }
+
+    private final class UpdateDownloadButtonSubscriber extends DefaultSubscriber<Boolean> {
+        @Override
+        public void onNext(Boolean offlineLikesEnabled) {
+            if (featureOperations.isOfflineContentEnabled()) {
+                headerView.setDownloadedButtonState(offlineLikesEnabled);
             }
         }
     }

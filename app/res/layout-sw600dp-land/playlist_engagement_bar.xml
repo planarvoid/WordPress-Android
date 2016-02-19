@@ -28,7 +28,7 @@
 
     <com.soundcloud.android.view.IconToggleButton
         android:id="@+id/toggle_download"
-        style="@style/PlaylistAction.ToggleButton.DownloadBase.Download"
+        style="@style/EngagementAction.ToggleButton.DownloadBase.Download"
         android:layout_width="wrap_content" />
 
     <Button

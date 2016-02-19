@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
@@ -21,8 +22,16 @@ class TrackLikesHeaderView {
     private final DownloadableHeaderView downloadableHeaderView;
 
     @Bind(R.id.shuffle_btn) ImageButton shuffleButton;
+    @Bind(R.id.toggle_download) ToggleButton downloadToggle;
 
     private int trackCount;
+    private LikesHeaderListener listener;
+
+    interface LikesHeaderListener {
+        void onShuffle();
+        void onUpsell();
+        void onMakeAvailableOffline(boolean isAvailable);
+    }
 
     @Inject
     TrackLikesHeaderView(Resources resources, DownloadableHeaderView downloadableHeaderView) {
@@ -35,10 +44,17 @@ class TrackLikesHeaderView {
         return headerView;
     }
 
-    void onViewCreated(View view) {
+    void onViewCreated(View view, final LikesHeaderListener listener) {
+        this.listener = listener;
         headerView = view.findViewById(R.id.track_likes_header);
         downloadableHeaderView.onViewCreated(headerView);
         ButterKnife.bind(this, headerView);
+        shuffleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onShuffle();
+            }
+        });
     }
 
     public boolean isViewCreated() {
@@ -49,10 +65,7 @@ class TrackLikesHeaderView {
         downloadableHeaderView.onDestroyView();
         ButterKnife.unbind(this);
         headerView = null;
-    }
-
-    void setOnShuffleButtonClick(View.OnClickListener listener) {
-        shuffleButton.setOnClickListener(listener);
+        listener = null;
     }
 
     public void show(OfflineState state) {
@@ -60,6 +73,30 @@ class TrackLikesHeaderView {
         if (state == OfflineState.NOT_OFFLINE || state == OfflineState.DOWNLOADED) {
             updateTrackCount(trackCount);
         }
+    }
+
+    public void setDownloadedButtonState(final boolean isOffline) {
+        downloadToggle.setVisibility(View.VISIBLE);
+        downloadToggle.setChecked(isOffline);
+        downloadToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onMakeAvailableOffline(!isOffline);
+                downloadToggle.setChecked(false);
+            }
+        });
+    }
+
+    public void showUpsell() {
+        downloadToggle.setVisibility(View.VISIBLE);
+        downloadToggle.setChecked(false);
+        downloadToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onUpsell();
+                downloadToggle.setChecked(false);
+            }
+        });
     }
 
     void updateTrackCount(int trackCount) {

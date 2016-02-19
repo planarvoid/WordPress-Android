@@ -172,7 +172,7 @@ public class OfflineContentOperations {
         final Observable<Boolean> changedEventObservable = eventBus
                 .queue(EventQueue.OFFLINE_CONTENT_CHANGED)
                 .filter(OfflineContentChangedEvent.HAS_LIKED_COLLECTION_CHANGE)
-                .map(OfflineContentChangedEvent.TO_LIKED_TRACKS_OFFLINE_STATUS_CHANGE);
+                .map(OfflineContentChangedEvent.TO_LIKES_COLLECTION_MARKED_OFFLINE);
         return isOfflineLikedTracksEnabled().concatWith(changedEventObservable);
     }
 
