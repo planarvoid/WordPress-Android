@@ -38,6 +38,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     private OnEngagementListener listener;
 
     @Bind(R.id.toggle_like) ToggleButton likeToggle;
+    @Bind(R.id.toggle_download) ToggleButton downloadToggle;
     @Bind(R.id.playlist_details_overflow_button) View overflowButton;
 
     @Inject
@@ -84,22 +85,59 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         ButterKnife.unbind(this);
     }
 
-    void setOfflineOptionsMenu(boolean isAvailable) {
+    void setOfflineOptionsMenu(final boolean isAvailable) {
         popupMenuWrapper.setItemVisible(R.id.make_offline_available, !isAvailable);
         popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, isAvailable);
         popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
+
+        if (featureFlags.isEnabled(Flag.PLAYLIST_DOWNLOAD_OUTSIDE_OVERFLOW)) {
+            showDownloadToggleWithState(isAvailable);
+        } else {
+            downloadToggle.setVisibility(View.GONE);
+        }
+    }
+
+    private void showDownloadToggleWithState(final boolean isAvailable) {
+        downloadToggle.setVisibility(View.VISIBLE);
+        downloadToggle.setChecked(isAvailable);
+        downloadToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onMakeOfflineAvailable(!isAvailable);
+            }
+        });
     }
 
     void showUpsell() {
         popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, true);
         popupMenuWrapper.setItemVisible(R.id.make_offline_available, false);
         popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, false);
+        downloadToggle.setVisibility(View.GONE);
+
+        if (featureFlags.isEnabled(Flag.PLAYLIST_DOWNLOAD_OUTSIDE_OVERFLOW)) {
+            showDownloadToggleForUpsell();
+        } else {
+            downloadToggle.setVisibility(View.GONE);
+        }
+    }
+
+    private void showDownloadToggleForUpsell() {
+        downloadToggle.setVisibility(View.VISIBLE);
+        downloadToggle.setChecked(false);
+        downloadToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onUpsell(v.getContext());
+                downloadToggle.setChecked(false);
+            }
+        });
     }
 
     void hideOfflineContentOptions() {
         popupMenuWrapper.setItemVisible(R.id.make_offline_available, false);
         popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, false);
         popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
+        downloadToggle.setVisibility(View.GONE);
     }
 
     void showPublicOptionsForYourTrack() {

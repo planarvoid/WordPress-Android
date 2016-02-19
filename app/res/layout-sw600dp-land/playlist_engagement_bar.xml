@@ -26,6 +26,11 @@
         android:id="@+id/toggle_like"
         style="@style/PlayerLikeBase.PlayerLike" />
 
+    <com.soundcloud.android.view.IconToggleButton
+        android:id="@+id/toggle_download"
+        style="@style/PlaylistAction.ToggleButton.DownloadBase.Download"
+        android:layout_width="wrap_content" />
+
     <Button
         android:id="@+id/playlist_details_overflow_button"
         style="@style/PlayerMore" />

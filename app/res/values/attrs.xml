@@ -80,4 +80,8 @@
         <attr name="retryText" format="string" />
         <attr name="loadingColor" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="IconToggleButton">
+        <attr name="itb_icon" format="reference" />
+    </declare-styleable>
 </resources>
