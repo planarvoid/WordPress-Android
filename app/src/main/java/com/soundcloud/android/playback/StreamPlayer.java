@@ -88,8 +88,8 @@ class StreamPlayer implements PlayerListener {
         currentPlayer.play(playbackItem);
     }
 
-    public void preload(Urn urn) {
-        skippyPlayerDelegate.preload(urn);
+    public void preload(PreloadItem preloadItem) {
+        skippyPlayerDelegate.preload(preloadItem);
     }
 
     private void prepareForPlay(PlaybackItem playbackItem) {
@@ -145,7 +145,7 @@ class StreamPlayer implements PlayerListener {
     public void onPlaystateChanged(Player.StateTransition stateTransition) {
         if (shouldFallbackToMediaPlayer(stateTransition)) {
             final long currentProgress = skippyPlayerDelegate.getProgress();
-            final PlaybackItem updatedItem = AudioPlaybackItem.create(lastItemPlayed.getUrn(), currentProgress, lastItemPlayed.getDuration());
+            final PlaybackItem updatedItem = AudioPlaybackItem.create(lastItemPlayed.getUrn(), currentProgress, lastItemPlayed.getDuration(), lastItemPlayed.getPlaybackType());
             configureNextPlayerToUse(mediaPlayerDelegate);
             mediaPlayerDelegate.play(updatedItem);
         } else {

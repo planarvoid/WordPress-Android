@@ -65,6 +65,8 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                     serviceInitiator.play(AudioPlaybackItem.forAudioAd(track));
                 } else if (offlinePlaybackOperations.shouldPlayOffline(track)) {
                     serviceInitiator.play(AudioPlaybackItem.forOffline(track, getPosition(trackUrn)));
+                } else if (track.get(TrackProperty.SNIPPED)) {
+                    serviceInitiator.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));
                 } else {
                     serviceInitiator.play(AudioPlaybackItem.create(track, getPosition(trackUrn)));
                 }
