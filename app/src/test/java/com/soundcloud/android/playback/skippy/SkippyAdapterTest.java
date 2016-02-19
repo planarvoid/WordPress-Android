@@ -63,6 +63,7 @@ import org.mockito.Mockito;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Message;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
 
 import java.io.IOException;
@@ -639,6 +640,16 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @NonNull
     private PreloadItem getPreloadItem() {
         return new PreloadItem() {
+            @Override
+            public int describeContents() {
+                return 0;
+            }
+
+            @Override
+            public void writeToParcel(Parcel dest, int flags) {
+
+            }
+
             @Override
             public Urn getUrn() {
                 return trackUrn;
