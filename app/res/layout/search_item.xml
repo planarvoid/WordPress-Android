@@ -13,7 +13,7 @@
         android:id="@+id/search_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:foreground="?android:attr/selectableItemBackground"
+        android:foreground="?attr/selectableItemBackground"
         auto:cardElevation="@dimen/discovery_cell_elevation"
         auto:cardUseCompatPadding="true">
 

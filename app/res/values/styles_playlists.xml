@@ -137,7 +137,7 @@
         <item name="android:padding">8dp</item>
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>
-        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
     </style>
 
     <style name="PlaylistAction.Button">

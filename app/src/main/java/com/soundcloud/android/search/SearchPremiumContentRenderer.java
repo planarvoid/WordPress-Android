@@ -150,7 +150,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
 
     private void setListItemBackground(View containerView, View listItemView) {
         TypedValue outValue = new TypedValue();
-        containerView.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+        containerView.getContext().getTheme().resolveAttribute(R.attr.selectableItemBackground, outValue, true);
         listItemView.setBackgroundResource(outValue.resourceId);
     }
 

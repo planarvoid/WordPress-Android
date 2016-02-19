@@ -5,7 +5,7 @@
     android:id="@+id/collections_playlist_item"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:foreground="?android:attr/selectableItemBackground">
+    android:foreground="?attr/selectableItemBackground">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -78,7 +78,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:src="@drawable/ic_playlist_menu"
-            android:background="?android:attr/selectableItemBackground" />
+            android:background="?attr/selectableItemBackground" />
     </RelativeLayout>
 
 </FrameLayout>
