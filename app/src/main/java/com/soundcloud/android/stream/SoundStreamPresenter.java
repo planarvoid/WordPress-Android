@@ -323,6 +323,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
             public void call(Subscriber<? super Long> subscriber) {
                 Date date = streamOperations.getFirstItemTimestamp(adapter.getItems());
                 subscriber.onNext(date == null ? Consts.NOT_SET : date.getTime());
+                subscriber.onCompleted();
             }
         });
     }
