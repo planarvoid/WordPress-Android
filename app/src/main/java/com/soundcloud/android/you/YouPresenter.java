@@ -26,6 +26,7 @@ import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -230,17 +231,42 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
 
     @Override
     public void onSignOutClicked(final View view) {
-        new AlertDialog.Builder(view.getContext())
+        showSignOutPrompt(view.getContext());
+    }
+
+    private void showSignOutPrompt(final Context activityContext) {
+        if (offlineContentOperations.hasOfflineContent()) {
+            showOfflineContentSignOutPrompt(activityContext);
+        } else {
+            showDefaultSignOutPrompt(activityContext);
+        }
+    }
+
+    private void showOfflineContentSignOutPrompt(final Context activityContext) {
+        new AlertDialog.Builder(activityContext)
+                .setTitle(R.string.sign_out_title_offline)
+                .setMessage(R.string.sign_out_description_offline)
+                .setPositiveButton(R.string.ok_got_it, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        LogoutActivity.start(activityContext);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showDefaultSignOutPrompt(final Context activityContext) {
+        new AlertDialog.Builder(activityContext)
                 .setTitle(R.string.sign_out_title)
-                .setMessage(offlineContentOperations.hasOfflineContent()
-                        ? R.string.sign_out_description_offline
-                        : R.string.sign_out_description)
+                .setMessage(R.string.sign_out_description)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        LogoutActivity.start(view.getContext());
+                        LogoutActivity.start(activityContext);
                     }
-                }).show();
+                })
+                .show();
     }
 
     @Override

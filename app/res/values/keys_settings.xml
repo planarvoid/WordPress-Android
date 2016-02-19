@@ -3,17 +3,10 @@
            tools:ignore="MissingTranslation">
 
     <!-- General settings -->
-    <string name="key_general">generalSettings</string>
-    <string name="key_notifications">notificationSettings</string>
     <string name="key_autoplay_related_enabled">autoplay_related_enabled</string>
-    <string name="key_logout">logout</string>
     <string name="key_analytics_enabled">analytics_enabled</string>
     <string name="key_report_crashes">acra.enable</string>
-    <string name="key_wireless">wireless</string>
     <string name="key_clear_cache">clearCache</string>
-    <string name="key_help">help</string>
-    <string name="key_legal">legal</string>
-    <string name="key_version">version</string>
     <string name="key_sync_wifi_only">syncWifiOnly</string>
 
     <!-- Notification settings -->
