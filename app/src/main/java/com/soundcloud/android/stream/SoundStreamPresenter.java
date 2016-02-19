@@ -5,6 +5,8 @@ import static com.soundcloud.android.events.FacebookInvitesEvent.forCreatorDismi
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerClick;
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerDismiss;
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerShown;
+import static com.soundcloud.android.rx.RxUtils.IS_VALID_TIMESTAMP;
+import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -43,6 +45,7 @@ import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -124,6 +127,10 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         super.onCreate(fragment, bundle);
         this.fragment = fragment;
         getBinding().connect();
+
+        if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
+            refreshAndUpdateIndicator();
+        }
     }
 
     @Override
@@ -157,19 +164,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
             initializeNewItemsIndicator(view);
         }
-    }
-
-    private void initializeNewItemsIndicator(View view) {
-        newItemsIndicator.setTextView((TextView) view.findViewById(R.id.new_items_indicator));
-        getRecyclerView().addOnScrollListener(newItemsIndicator.getScrollListener());
-
-        viewLifeCycle.add(
-                eventBus.queue(EventQueue.STREAM)
-                        .filter(FILTER_STREAM_REFRESH_EVENTS)
-                        .flatMap(newItemsSinceVisible())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnNext(updateNewItemsIndicator())
-                        .subscribe());
     }
 
     private void addScrollListeners() {
@@ -323,12 +317,46 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         softReload();
     }
 
-    private Func1<StreamEvent, Observable<Integer>> newItemsSinceVisible() {
-        return new Func1<StreamEvent, Observable<Integer>>() {
+    private Observable<Long> mostRecentTimestamp() {
+        return Observable.create(new Observable.OnSubscribe<Long>() {
             @Override
-            public Observable<Integer> call(StreamEvent streamEvent) {
+            public void call(Subscriber<? super Long> subscriber) {
                 Date date = streamOperations.getFirstItemTimestamp(adapter.getItems());
-                long time = date == null ? Consts.NOT_SET : date.getTime();
+                subscriber.onNext(date == null ? Consts.NOT_SET : date.getTime());
+                subscriber.onCompleted();
+            }
+        });
+    }
+
+    private void initializeNewItemsIndicator(View view) {
+        newItemsIndicator.setTextView((TextView) view.findViewById(R.id.new_items_indicator));
+        getRecyclerView().addOnScrollListener(newItemsIndicator.getScrollListener());
+
+        viewLifeCycle.add(
+                eventBus.queue(EventQueue.STREAM)
+                        .filter(FILTER_STREAM_REFRESH_EVENTS)
+                        .flatMap(continueWith(updateIndicatorFromMostRecent()))
+                        .subscribe());
+    }
+
+    private void refreshAndUpdateIndicator() {
+        streamOperations.updatedStreamItemsForStart()
+                .flatMap(continueWith(updateIndicatorFromMostRecent()))
+                .subscribe();
+    }
+
+    private Observable<Integer> updateIndicatorFromMostRecent() {
+        return mostRecentTimestamp()
+                .filter(IS_VALID_TIMESTAMP)
+                .flatMap(newItemsCount())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(updateNewItemsIndicator());
+    }
+
+    private Func1<Long, Observable<Integer>> newItemsCount() {
+        return new Func1<Long, Observable<Integer>>() {
+            @Override
+            public Observable<Integer> call(Long time) {
                 return streamOperations.newItemsSince(time);
             }
         };

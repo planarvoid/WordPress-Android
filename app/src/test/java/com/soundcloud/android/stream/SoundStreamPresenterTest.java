@@ -96,6 +96,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 newItemsIndicator);
 
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
+        when(streamOperations.updatedStreamItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);
     }
@@ -335,6 +336,44 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.STREAM, StreamEvent.fromStreamRefresh());
 
         verify(newItemsIndicator).update(5);
+    }
+
+    @Test
+    public void onStreamRefreshUpdatesOnlyWhenThereAreVisibleItems() {
+        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
+        when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
+        when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(null);
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        eventBus.publish(EventQueue.STREAM, StreamEvent.fromStreamRefresh());
+
+        verify(newItemsIndicator, never()).update(5);
+    }
+
+    @Test
+    public void shouldRefreshOnCreate() {
+        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
+        when(streamOperations.updatedStreamItemsForStart()).thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
+        when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(new Date(123L));
+        when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(newItemsIndicator).update(5);
+    }
+
+    @Test
+    public void shouldNotUpdateIndicatorWhenUpdatedItemsForStartIsEmpty() {
+        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
+        when(streamOperations.updatedStreamItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
+        when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(new Date(123L));
+        when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(newItemsIndicator, never()).update(5);
     }
 
     @Test

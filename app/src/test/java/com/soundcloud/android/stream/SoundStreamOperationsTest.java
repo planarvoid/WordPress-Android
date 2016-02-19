@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static rx.Observable.from;
 
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -381,6 +382,31 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         operations.newItemsSince(123L).subscribe(subscriber);
 
         subscriber.assertValue(3);
+    }
+
+    @Test
+    public void shouldUpdateStreamForStartWhenSyncedBefore() {
+        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        final List<StreamItem> viewModels = viewModelsFromPropertySets(items);
+
+        when(syncStateStorage.hasSyncedBefore(SYNC_CONTENT.content.uri)).thenReturn(Observable.just(true));
+        when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncInitiator.refreshTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(storage.timelineItems(PAGE_SIZE)).thenReturn(from(items));
+
+        operations.updatedStreamItemsForStart().subscribe(subscriber);
+
+        subscriber.assertValue(viewModels);
+    }
+
+    @Test
+    public void shouldNotUpdateStreamForStartWhenNeverSyncedBefore() {
+        when(syncStateStorage.hasSyncedBefore(SYNC_CONTENT.content.uri)).thenReturn(Observable.just(false));
+        when(syncInitiator.refreshTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+
+        operations.updatedStreamItemsForStart().subscribe(subscriber);
+
+        subscriber.assertNoValues();
     }
 
     @Override
