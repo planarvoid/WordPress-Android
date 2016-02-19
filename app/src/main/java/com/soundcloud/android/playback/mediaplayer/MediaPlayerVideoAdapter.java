@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.mediaplayer;
 
-import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -9,12 +8,14 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.ads.VideoSource;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.VideoPlaybackItem;
+import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -32,11 +33,11 @@ public class MediaPlayerVideoAdapter implements Player, SurfaceHolder.Callback, 
     public static final String TAG = "MediaPlayerVideoAdapter";
     public static final int MAX_CONNECT_RETRIES = 2;
 
-    private final Context context;
     private final MediaPlayerManager mediaPlayerManager;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final CurrentDateProvider currentDateProvider;
     private final PlayerHandler playerHandler;
+    private final VideoSourceProvider videoSourceProvider;
 
     private volatile MediaPlayer mediaPlayer;
     private SurfaceHolder surfaceHolder;
@@ -48,17 +49,17 @@ public class MediaPlayerVideoAdapter implements Player, SurfaceHolder.Callback, 
     private double loadPercent;
 
     @Inject
-    public MediaPlayerVideoAdapter(Context context,
-                                   MediaPlayerManager mediaPlayerManager,
+    public MediaPlayerVideoAdapter(MediaPlayerManager mediaPlayerManager,
                                    NetworkConnectionHelper networkConnectionHelper,
                                    CurrentDateProvider currentDateProvider,
-                                   PlayerHandler playerHandler) {
-        this.context = context.getApplicationContext();
+                                   PlayerHandler playerHandler,
+                                   VideoSourceProvider videoSourceProvider) {
         this.mediaPlayerManager = mediaPlayerManager;
         this.networkConnectionHelper = networkConnectionHelper;
         this.currentDateProvider = currentDateProvider;
         this.playerHandler = playerHandler;
         this.playerHandler.setVideoPlayerAdapterWeakReference(this);
+        this.videoSourceProvider = videoSourceProvider;
     }
 
     @Override
@@ -83,10 +84,10 @@ public class MediaPlayerVideoAdapter implements Player, SurfaceHolder.Callback, 
         this.videoPlaybackItem = videoPlaybackItem;
 
         try {
-            final String videoUrl = this.videoPlaybackItem.getSources().get(0).getUrl();
+            final VideoSource videoSource = videoSourceProvider.selectOptimalSource(this.videoPlaybackItem);
             mediaPlayer.setDisplay(surfaceHolder);
             mediaPlayer.setScreenOnWhilePlaying(true);
-            mediaPlayer.setDataSource(videoUrl);
+            mediaPlayer.setDataSource(videoSource.getUrl());
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
             Log.d(TAG, "Failed to load video media :/");

@@ -121,6 +121,10 @@ public class ApplicationProperties {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
+    public boolean canAccessCodecInformation() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+    }
+
     public String getCastReceiverAppId() {
         return castReceiverAppId;
     }
