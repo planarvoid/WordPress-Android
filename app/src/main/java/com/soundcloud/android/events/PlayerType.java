@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 public enum PlayerType {
-    SKIPPY("Skippy"), MEDIA_PLAYER("MediaPlayer"), VIDEO_PLAYER("VideoPlayer");
+    SKIPPY("Skippy"), MEDIA_PLAYER("MediaPlayer");
 
     private final String value;
 

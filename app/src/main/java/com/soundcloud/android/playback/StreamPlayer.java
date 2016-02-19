@@ -7,8 +7,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Player.PlayerListener;
-import com.soundcloud.android.playback.mediaplayer.MediaPlayerAudioAdapter;
-import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
+import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
@@ -28,8 +27,7 @@ class StreamPlayer implements PlayerListener {
     @VisibleForTesting
     static boolean skippyFailedToInitialize;
 
-    private final MediaPlayerAudioAdapter mediaPlayerDelegate;
-    private final MediaPlayerVideoAdapter videoPlayerDelegate;
+    private final MediaPlayerAdapter mediaPlayerDelegate;
     private final SkippyAdapter skippyPlayerDelegate;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final EventBus eventBus;
@@ -42,13 +40,11 @@ class StreamPlayer implements PlayerListener {
     private Player.StateTransition lastStateTransition = Player.StateTransition.DEFAULT;
 
     @Inject
-    public StreamPlayer(MediaPlayerAudioAdapter mediaPlayerAudioAdapter,
-                        MediaPlayerVideoAdapter mediaPlayerVideoAdapter,
+    public StreamPlayer(MediaPlayerAdapter mediaPlayerAdapter,
                         SkippyAdapter skippyAdapter,
                         NetworkConnectionHelper networkConnectionHelper,
                         EventBus eventBus) {
-        mediaPlayerDelegate = mediaPlayerAudioAdapter;
-        videoPlayerDelegate = mediaPlayerVideoAdapter;
+        mediaPlayerDelegate = mediaPlayerAdapter;
         skippyPlayerDelegate = skippyAdapter;
         this.networkConnectionHelper = networkConnectionHelper;
         this.eventBus = eventBus;
@@ -57,7 +53,7 @@ class StreamPlayer implements PlayerListener {
             skippyFailedToInitialize = !skippyPlayerDelegate.init();
         }
 
-        currentPlayer = skippyFailedToInitialize ? mediaPlayerAudioAdapter : skippyAdapter;
+        currentPlayer = skippyFailedToInitialize ? mediaPlayerAdapter : skippyAdapter;
     }
 
     /**
@@ -127,7 +123,6 @@ class StreamPlayer implements PlayerListener {
 
     public void destroy() {
         // call stop first as it will save the queue/position
-        videoPlayerDelegate.destroy();
         mediaPlayerDelegate.destroy();
         if (!skippyFailedToInitialize) {
             skippyPlayerDelegate.destroy();
@@ -189,13 +184,11 @@ class StreamPlayer implements PlayerListener {
         if (playbackItem.getPlaybackType() == PlaybackType.AUDIO_OFFLINE && skippyFailedToInitialize) {
             logOfflinePlayNotAvailable();
         }
-
-        if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT) {
-            return videoPlayerDelegate;
-        } else if (skippyFailedToInitialize) {
+        if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT || skippyFailedToInitialize) {
             return mediaPlayerDelegate;
+        } else {
+            return skippyPlayerDelegate;
         }
-        return skippyPlayerDelegate;
     }
 
     private boolean isUsingSkippyPlayer() {

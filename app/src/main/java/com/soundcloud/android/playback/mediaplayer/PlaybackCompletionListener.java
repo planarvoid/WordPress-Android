@@ -7,14 +7,14 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 @VisibleForTesting
-class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
+class PlaybackCompletionListener implements MediaPlayer.OnCompletionListener {
 
     @VisibleForTesting
     /* package */ static final int COMPLETION_TOLERANCE_MS = 3000;
-    private final MediaPlayerAudioAdapter mediaPlayerAudioAdapter;
+    private final MediaPlayerAdapter mediaPlayerAdapter;
 
-    TrackCompletionListener(MediaPlayerAudioAdapter mediaPlayerAudioAdapter) {
-        this.mediaPlayerAudioAdapter = mediaPlayerAudioAdapter;
+    PlaybackCompletionListener(MediaPlayerAdapter mediaPlayerAdapter) {
+        this.mediaPlayerAdapter = mediaPlayerAdapter;
     }
 
     @Override
@@ -25,32 +25,32 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
         final int duration = mediaPlayer.getDuration();
 
         if (shouldAutoRetry(lastPosition, duration)) {
-            mediaPlayerAudioAdapter.setResumeTimeAndInvokeErrorListener(mediaPlayer, lastPosition);
+            mediaPlayerAdapter.setResumeTimeAndInvokeErrorListener(mediaPlayer, lastPosition);
 
             Log.w(PlaybackService.TAG, "premature end of track [lastPosition = " + lastPosition
                     + ", duration = " + duration + ", diff = "+ (duration - lastPosition) + "]");
 
-        } else if (mediaPlayerAudioAdapter.isInErrorState()) {
+        } else if (mediaPlayerAdapter.isInErrorState()) {
             // onComplete must have been called in error state
-            mediaPlayerAudioAdapter.stop(mediaPlayer);
+            mediaPlayerAdapter.stop(mediaPlayer);
 
         } else {
-            mediaPlayerAudioAdapter.onTrackEnded();
+            mediaPlayerAdapter.onPlaybackEnded();
         }
     }
 
     private boolean shouldAutoRetry(long lastPosition, long duration) {
-        return mediaPlayerAudioAdapter.isSeekable() && duration - lastPosition > COMPLETION_TOLERANCE_MS;
+        return mediaPlayerAdapter.isSeekable() && duration - lastPosition > COMPLETION_TOLERANCE_MS;
     }
 
     private long getTargetStopPosition(MediaPlayer mediaPlayer) {
-        if (mediaPlayerAudioAdapter.hasValidSeekPosition()){
-            final long seekPos = mediaPlayerAudioAdapter.getSeekPosition();
+        if (mediaPlayerAdapter.hasValidSeekPosition()){
+            final long seekPos = mediaPlayerAdapter.getSeekPosition();
             Log.d(PlaybackService.TAG, "Calculating end pos from Seek position " + seekPos);
             return seekPos;
 
-        } else if (mediaPlayerAudioAdapter.isTryingToResumeTrack()){
-            final long resumeTime = mediaPlayerAudioAdapter.getResumeTime();
+        } else if (mediaPlayerAdapter.isTryingToResumePlayback()){
+            final long resumeTime = mediaPlayerAdapter.getResumeTime();
             Log.d(PlaybackService.TAG, "Calculating end pos from resume position " + resumeTime);
             return resumeTime;
 
@@ -68,6 +68,6 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
     }
 
     private boolean mediaPlayerHasReset(MediaPlayer mp) {
-        return mp.getCurrentPosition() <= 0 && mediaPlayerAudioAdapter.isPlayerPlaying();
+        return mp.getCurrentPosition() <= 0 && mediaPlayerAdapter.isPlayerPlaying();
     }
 }
