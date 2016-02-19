@@ -6,4 +6,9 @@
         <item name="android:elevation">@dimen/toolbar_elevation</item>
     </style>
 
+    <style name="Theme.SoundCloud.Conversion" parent="Theme.SoundCloud.Translucent">
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterTransition">@transition/conversion_enter</item>
+    </style>
+
 </resources>

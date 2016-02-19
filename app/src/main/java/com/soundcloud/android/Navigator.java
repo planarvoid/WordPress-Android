@@ -96,8 +96,14 @@ public class Navigator {
         context.startActivity(homeIntent);
     }
 
-    public void openUpgrade(Context context) {
-        context.startActivity(new Intent(context, featureFlags.isEnabled(Flag.FEATURE_WEB_UPGRADE_FLOW) ? WebConversionActivity.class : NativeConversionActivity.class));
+    public void openUpgrade(Context activityContext) {
+        activityContext.startActivity(new Intent(activityContext, getUpgradeClass()));
+    }
+
+    protected Class getUpgradeClass() {
+        return featureFlags.isEnabled(Flag.FEATURE_WEB_UPGRADE_FLOW)
+                ? WebConversionActivity.class
+                : NativeConversionActivity.class;
     }
 
     public void openUpgradeFromDeeplink(Context context) {

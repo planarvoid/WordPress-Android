@@ -9,6 +9,7 @@
     android:background="@color/translucent_background">
 
     <ScrollView
+        android:id="@+id/conversion_content"
         style="@style/ConversionScrollable"
         tools:ignore="UselessParent">
 

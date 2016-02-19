@@ -8,6 +8,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.SharedElementCallback;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Pair;
 import android.view.View;
@@ -44,4 +45,12 @@ public class SmoothNavigator extends Navigator {
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity, sharedElements);
         activity.startActivity(new Intent(activity, SearchActivity.class), options.toBundle());
     }
+
+    @Override
+    public void openUpgrade(Context activityContext) {
+        Activity activity = (Activity) activityContext;
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity);
+        activity.startActivity(new Intent(activity, getUpgradeClass()), options.toBundle());
+    }
+
 }
