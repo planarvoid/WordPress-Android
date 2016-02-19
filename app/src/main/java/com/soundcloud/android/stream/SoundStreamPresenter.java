@@ -127,7 +127,10 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         super.onCreate(fragment, bundle);
         this.fragment = fragment;
         getBinding().connect();
-        refreshAndUpdateIndicator();
+
+        if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
+            refreshAndUpdateIndicator();
+        }
     }
 
     @Override
