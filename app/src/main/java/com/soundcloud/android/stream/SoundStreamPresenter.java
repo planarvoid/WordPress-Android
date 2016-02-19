@@ -317,7 +317,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         softReload();
     }
 
-    private Observable<Long> lastVisibleItem() {
+    private Observable<Long> mostRecentTimestamp() {
         return Observable.create(new Observable.OnSubscribe<Long>() {
             @Override
             public void call(Subscriber<? super Long> subscriber) {
@@ -335,18 +335,18 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         viewLifeCycle.add(
                 eventBus.queue(EventQueue.STREAM)
                         .filter(FILTER_STREAM_REFRESH_EVENTS)
-                        .flatMap(continueWith(updateIndicatorFromLastVisible()))
+                        .flatMap(continueWith(updateIndicatorFromMostRecent()))
                         .subscribe());
     }
 
     private void refreshAndUpdateIndicator() {
         streamOperations.updatedStreamItemsForStart()
-                .flatMap(continueWith(updateIndicatorFromLastVisible()))
+                .flatMap(continueWith(updateIndicatorFromMostRecent()))
                 .subscribe();
     }
 
-    private Observable<Integer> updateIndicatorFromLastVisible() {
-        return lastVisibleItem()
+    private Observable<Integer> updateIndicatorFromMostRecent() {
+        return mostRecentTimestamp()
                 .filter(IS_VALID_TIMESTAMP)
                 .flatMap(newItemsCount())
                 .observeOn(AndroidSchedulers.mainThread())
