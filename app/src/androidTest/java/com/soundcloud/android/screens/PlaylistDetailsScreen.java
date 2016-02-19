@@ -6,6 +6,7 @@ import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.ListElement;
@@ -26,9 +27,34 @@ public class PlaylistDetailsScreen extends Screen {
         super(solo);
     }
 
+    public CollectionScreen goBackToCollections(){
+        testDriver.goBack();
+        return new CollectionScreen(testDriver);
+    }
+
     public PlaylistDetailsScreen scrollToBottom() {
         tracksListElement().scrollToBottom();
         return this;
+    }
+
+    public ConfirmDisableSyncCollectionScreen clickDownloadToDisableSyncCollection() {
+        getDownloadToggle().click();
+        return new ConfirmDisableSyncCollectionScreen(testDriver, MainActivity.class);
+    }
+
+    public PlaylistDetailsScreen clickDownloadToggle() {
+        getDownloadToggle().click();
+        return this;
+    }
+
+    public UpgradeScreen clickDownloadToggleForUpsell() {
+        getDownloadToggle().click();
+        return new UpgradeScreen(testDriver);
+    }
+
+    public ViewElement getDownloadToggle() {
+        return testDriver
+                .findOnScreenElement(With.id(R.id.toggle_download));
     }
 
     public PlaylistOverflowMenu clickPlaylistOverflowButton() {

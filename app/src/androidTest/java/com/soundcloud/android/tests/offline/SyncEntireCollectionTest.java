@@ -42,10 +42,13 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
         final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
         assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
 
-        final PlaylistElement playlist = collectionScreen.scrollToFirstPlaylist();
-        playlist.clickOverflow()
-                .clickMakeUnavailableOfflineToDisableSyncCollection()
-                .clickOk();
+        final PlaylistElement playlist = collectionScreen
+                .scrollToFirstPlaylist()
+                .click()
+                .clickDownloadToDisableSyncCollection()
+                .clickOkForPlaylistDetails()
+                .goBackToCollections()
+                .scrollToFirstPlaylist();
 
         assertThat(playlist.downloadElement().isVisible(), is(false));
         assertThat(checkSyncEntireCollectionStatus(), is(false));
@@ -57,10 +60,13 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
         final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
         assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
 
-        final PlaylistElement playlist = collectionScreen.scrollToFirstPlaylist();
-        playlist.clickOverflow()
-                .clickMakeUnavailableOfflineToDisableSyncCollection()
-                .clickCancel();
+        final PlaylistElement playlist = collectionScreen
+                .scrollToFirstPlaylist()
+                .click()
+                .clickDownloadToDisableSyncCollection()
+                .clickCancelForPlaylistDetails()
+                .goBackToCollections()
+                .scrollToFirstPlaylist();
 
         assertThat(playlist.downloadElement().isVisible(), is(true));
         assertThat(checkSyncEntireCollectionStatus(), is(true));
@@ -68,16 +74,19 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
 
     public void testDisablingSyncEntireCollectionViaPlaylistLeavesOtherContentDownloaded() {
         enableSyncEntireCollection();
-        final CollectionScreen screen = mainNavHelper.goToCollections();
-        final PlaylistElement playlist1 = screen.scrollToFirstPlaylist();
+        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
 
-        playlist1.clickOverflow()
-                .clickMakeUnavailableOfflineToDisableSyncCollection()
-                .clickOk();
+        final PlaylistElement playlist1 = collectionScreen
+                .scrollToFirstPlaylist()
+                .click()
+                .clickDownloadToDisableSyncCollection()
+                .clickOkForPlaylistDetails()
+                .goBackToCollections()
+                .scrollToFirstPlaylist();
 
         assertThat(playlist1.downloadElement().isVisible(), is(false));
 
-        final PlaylistElement playlist2 = screen.scrollToPlaylistWithTitle("Offline playlist");
+        final PlaylistElement playlist2 = collectionScreen.scrollToPlaylistWithTitle("Offline playlist");
 
         assertThat(playlist2.downloadElement().isVisible(), is(true));
     }

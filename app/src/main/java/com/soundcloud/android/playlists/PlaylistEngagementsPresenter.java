@@ -211,6 +211,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             playlistEngagementsView.setOfflineOptionsMenu(isPlaylistOfflineAvailable);
         } else if (featureOperations.upsellOfflineContent()) {
             playlistEngagementsView.showUpsell();
+            eventBus.publish(EventQueue.TRACKING,
+                    UpgradeTrackingEvent.forPlaylistPageImpression(playlistWithTracks.getUrn()));
         } else {
             playlistEngagementsView.hideOfflineContentOptions();
         }
@@ -243,12 +245,6 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                         Screen.PLAYLIST_DETAILS.get(),
                         playlistWithTracks.getUrn(),
                         playSessionSourceInfo.getPromotedSourceInfo());
-    }
-
-    @Override
-    public void onUpsellImpression() {
-        eventBus.publish(EventQueue.TRACKING,
-                UpgradeTrackingEvent.forPlaylistPageImpression(playlistWithTracks.getUrn()));
     }
 
     @Override

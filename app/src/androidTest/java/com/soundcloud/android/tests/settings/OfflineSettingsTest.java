@@ -51,7 +51,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertTrue(offlineSettingsScreen.isVisible());
 
         OfflineSettingsScreen screen = offlineSettingsScreen.toggleSyncCollectionOn();
-        screen.toggleSyncCollectionOff().clickCancel();
+        screen.toggleSyncCollectionOff().clickCancelForPlaylistDetails();
 
         assertThat(screen.isOfflineCollectionChecked(), is(true));
     }

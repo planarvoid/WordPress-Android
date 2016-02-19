@@ -55,14 +55,12 @@ public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainAct
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
                 .goToCollections()
                 .scrollToAndClickPlaylistWithTitle("Offline tracking playlist")
-                .clickPlaylistOverflowButton()
-                .clickMakeAvailableOffline();
+                .clickDownloadToggle();
 
         DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
         assertThat(downloadElement, is(downloading()));
 
-        assertThat(playlistDetailsScreen.clickPlaylistOverflowButton()
-                .clickMakeUnavailableOffline()
+        assertThat(playlistDetailsScreen.clickDownloadToggle()
                 .headerDownloadElement().isVisible(), is(false));
 
         finishEventTracking(OFFLINE_PLAYLIST_CANCEL_DOWNLOAD_TRACKING);
