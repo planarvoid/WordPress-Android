@@ -90,11 +90,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, isAvailable);
         popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
 
-        if (featureFlags.isEnabled(Flag.PLAYLIST_DOWNLOAD_OUTSIDE_OVERFLOW)) {
-            showDownloadToggleWithState(isAvailable);
-        } else {
-            downloadToggle.setVisibility(View.GONE);
-        }
+        showDownloadToggleWithState(isAvailable);
     }
 
     private void showDownloadToggleWithState(final boolean isAvailable) {
@@ -114,11 +110,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, false);
         downloadToggle.setVisibility(View.GONE);
 
-        if (featureFlags.isEnabled(Flag.PLAYLIST_DOWNLOAD_OUTSIDE_OVERFLOW)) {
-            showDownloadToggleForUpsell();
-        } else {
-            downloadToggle.setVisibility(View.GONE);
-        }
+        showDownloadToggleForUpsell();
     }
 
     private void showDownloadToggleForUpsell() {
@@ -224,7 +216,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         }
     }
 
-    void setOnEngagement(OnEngagementListener listener){
+    void setOnEngagement(OnEngagementListener listener) {
         this.listener = listener;
     }
 
@@ -233,7 +225,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
-                                      int checkedStringId) {
+                                    int checkedStringId) {
         final String buttonLabel = count < 0 ? Strings.EMPTY : numberFormatter.format(count);
         button.setTextOn(buttonLabel);
         button.setTextOff(buttonLabel);
@@ -261,12 +253,19 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     public interface OnEngagementListener {
         void onToggleLike(boolean isLiked);
+
         void onToggleRepost(boolean isReposted, boolean showResultToast);
+
         void onShare();
+
         void onMakeOfflineAvailable(boolean isMarkedForOffline);
+
         void onUpsellImpression();
+
         void onUpsell(Context context);
+
         void onPlayShuffled();
+
         void onDeletePlaylist();
     }
 }
