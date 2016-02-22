@@ -14,6 +14,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PullToRefreshEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
@@ -244,6 +245,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     public void onRefresh() {
         playlistSubscription.unsubscribe();
         playlistSubscription = playlistOperations.updatedPlaylistInfo(getPlaylistUrn())
+                // Experiment: track pull to refresh counts
+                .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.PLAYLIST_DETAILS)))
                 .observeOn(mainThread())
                 .subscribe(new RefreshSubscriber());
     }

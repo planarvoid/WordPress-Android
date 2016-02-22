@@ -378,6 +378,8 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldResetOverlayOnRefreshBinding() {
+        when(streamOperations.updatedStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
+
         presenter.onRefreshBinding();
 
         verify(newItemsIndicator).hideAndReset();

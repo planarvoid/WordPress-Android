@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PullToRefreshEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -110,7 +111,10 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
     @Override
     protected CollectionBinding<TrackItem> onRefreshBinding() {
-        return CollectionBinding.from(likeOperations.updatedLikedTracks(), TrackItem.fromPropertySets())
+        return CollectionBinding.from(
+                likeOperations.updatedLikedTracks()
+                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.LIKES))),
+                TrackItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
