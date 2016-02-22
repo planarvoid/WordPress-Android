@@ -42,6 +42,7 @@ import rx.functions.Action0;
 import rx.functions.Func1;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -50,7 +51,8 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle implements PlaylistEngagementsView.OnEngagementListener {
+public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle<Fragment>
+        implements PlaylistEngagementsView.OnEngagementListener {
 
     private Context context;
     private FragmentManager fragmentManager;
@@ -98,6 +100,16 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.playbackToastHelper = playbackToastHelper;
         this.navigator = navigator;
         this.shareOperations = shareOperations;
+    }
+
+    @Override
+    public void onCreate(Fragment fragment, Bundle bundle) {
+        super.onCreate(fragment, bundle);
+        if (featureOperations.upsellOfflineContent()) {
+            Urn playlistUrn = fragment.getArguments().getParcelable(PlaylistDetailFragment.EXTRA_URN);
+            eventBus.publish(EventQueue.TRACKING,
+                    UpgradeTrackingEvent.forPlaylistPageImpression(playlistUrn));
+        }
     }
 
     @VisibleForTesting
@@ -211,8 +223,6 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             playlistEngagementsView.setOfflineOptionsMenu(isPlaylistOfflineAvailable);
         } else if (featureOperations.upsellOfflineContent()) {
             playlistEngagementsView.showUpsell();
-            eventBus.publish(EventQueue.TRACKING,
-                    UpgradeTrackingEvent.forPlaylistPageImpression(playlistWithTracks.getUrn()));
         } else {
             playlistEngagementsView.hideOfflineContentOptions();
         }
