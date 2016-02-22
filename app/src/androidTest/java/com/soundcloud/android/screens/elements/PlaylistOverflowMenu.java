@@ -6,8 +6,6 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.screens.ConfirmDeletePlaylistScreen;
-import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.UpgradeScreen;
 
 public class PlaylistOverflowMenu extends PopupMenuElement {
     public PlaylistOverflowMenu(Han testDriver) {
@@ -17,29 +15,6 @@ public class PlaylistOverflowMenu extends PopupMenuElement {
     public VisualPlayerElement shuffle() {
         shuffleItem().click();
         return new VisualPlayerElement(testDriver);
-    }
-
-    public PlaylistDetailsScreen clickMakeAvailableOffline() {
-        getMakeAvailableOfflineItem().click();
-        return new PlaylistDetailsScreen(testDriver);
-    }
-
-    public PlaylistDetailsScreen clickMakeUnavailableOffline() {
-        getMakeUnvailableOfflineItem().click();
-        return new PlaylistDetailsScreen(testDriver);
-    }
-
-    public UpgradeScreen clickUpsell() {
-        getMakeAvailableOfflineItem().click();
-        return new UpgradeScreen(testDriver);
-    }
-
-    public ViewElement getMakeAvailableOfflineItem() {
-        return findOnScreenElement(With.text(testDriver.getString(R.string.make_offline_available)));
-    }
-
-    public ViewElement getMakeUnvailableOfflineItem() {
-        return findOnScreenElement(With.text(testDriver.getString(R.string.make_offline_unavailable)));
     }
 
     public ConfirmDeletePlaylistScreen clickDelete() {

@@ -18,7 +18,6 @@ import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -87,19 +86,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("some tag");
         presenter = new PlaylistItemMenuPresenter(context, eventBus, popupMenuWrapperFactory, accountOperations,
                 playlistOperations, likeOperations, repostOperations, shareOperations, screenProvider, featureOperations,
-                featureFlags, offlineOperations, navigator);
+                featureFlags, offlineOperations);
 
         button = new View(new FragmentActivity());
-    }
-
-    @Test
-    public void clickingOnUpsellItemNavigatesToUpgrade() {
-        when(menuItem.getItemId()).thenReturn(R.id.upsell_offline_content);
-
-        presenter.show(button, playlist, menuOptions);
-        presenter.onMenuItemClick(menuItem, context);
-
-        verify(navigator).openUpgrade(context);
     }
 
     @Test
@@ -170,56 +159,6 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         assertThat(uiEvent.isFromOverflow()).isTrue();
         assertThat(uiEvent.getAttributes()
                 .containsValue(String.valueOf(playlist.getEntityUrn().getNumericId()))).isTrue();
-    }
-
-    @Test
-    public void clickingOnMakeOfflineAvailableMarksPlaylistAsOfflineContent() {
-        final PublishSubject<Void> offlineObservable = PublishSubject.create();
-        when(offlineOperations.makePlaylistAvailableOffline(playlist.getEntityUrn())).thenReturn(offlineObservable);
-        when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
-
-        presenter.show(button, playlist, menuOptions);
-        presenter.onMenuItemClick(menuItem, context);
-
-        assertThat(offlineObservable.hasObservers()).isTrue();
-    }
-
-    @Test
-    public void clickingOnMakeOfflineAvailablePublishTrackingEvent() {
-        when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
-
-        presenter.show(button, playlist, menuOptions);
-        presenter.onMenuItemClick(menuItem, context);
-
-        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
-        assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_ADD);
-        assertThat(trackingEvent.getAttributes()
-                .containsValue(String.valueOf(playlist.getEntityUrn()))).isTrue();
-    }
-
-    @Test
-    public void clickingOnMakeOfflineUnavailableRemovedPlaylistFromOfflineContent() {
-        final PublishSubject<Void> offlineObservable = PublishSubject.create();
-        when(offlineOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn())).thenReturn(offlineObservable);
-        when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
-
-        presenter.show(button, playlist, menuOptions);
-        presenter.onMenuItemClick(menuItem, activity);
-
-        assertThat(offlineObservable.hasObservers()).isTrue();
-    }
-
-    @Test
-    public void clickingOnMakeOfflineUnavailablePublishTrackingEvent() {
-        when(menuItem.getItemId()).thenReturn(R.id.make_offline_unavailable);
-
-        presenter.show(button, playlist, menuOptions);
-        presenter.onMenuItemClick(menuItem, activity);
-
-        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
-        assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_REMOVE);
-        assertThat(trackingEvent.getAttributes()
-                .containsValue(String.valueOf(playlist.getEntityUrn()))).isTrue();
     }
 
     @Test

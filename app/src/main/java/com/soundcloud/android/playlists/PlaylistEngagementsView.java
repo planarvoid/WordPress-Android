@@ -76,9 +76,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     @OnClick(R.id.playlist_details_overflow_button)
     void onOverflowButtonClicked() {
         popupMenuWrapper.show();
-        if (popupMenuWrapper.findItem(R.id.upsell_offline_content).isVisible()) {
-            listener.onUpsellImpression();
-        }
     }
 
     public void onDestroyView() {
@@ -86,14 +83,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     void setOfflineOptionsMenu(final boolean isAvailable) {
-        popupMenuWrapper.setItemVisible(R.id.make_offline_available, !isAvailable);
-        popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, isAvailable);
-        popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
-
-        showDownloadToggleWithState(isAvailable);
-    }
-
-    private void showDownloadToggleWithState(final boolean isAvailable) {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(isAvailable);
         downloadToggle.setOnClickListener(new View.OnClickListener() {
@@ -105,15 +94,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     void showUpsell() {
-        popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, true);
-        popupMenuWrapper.setItemVisible(R.id.make_offline_available, false);
-        popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, false);
-        downloadToggle.setVisibility(View.GONE);
-
-        showDownloadToggleForUpsell();
-    }
-
-    private void showDownloadToggleForUpsell() {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(false);
         downloadToggle.setOnClickListener(new View.OnClickListener() {
@@ -126,9 +106,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     void hideOfflineContentOptions() {
-        popupMenuWrapper.setItemVisible(R.id.make_offline_available, false);
-        popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, false);
-        popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
         downloadToggle.setVisibility(View.GONE);
     }
 
@@ -196,15 +173,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
             case R.id.share:
                 getListener().onShare();
                 return true;
-            case R.id.make_offline_available:
-                getListener().onMakeOfflineAvailable(true);
-                return true;
-            case R.id.make_offline_unavailable:
-                getListener().onMakeOfflineAvailable(false);
-                return true;
-            case R.id.upsell_offline_content:
-                getListener().onUpsell(context);
-                return true;
             case R.id.shuffle:
                 getListener().onPlayShuffled();
                 return true;
@@ -259,8 +227,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         void onShare();
 
         void onMakeOfflineAvailable(boolean isMarkedForOffline);
-
-        void onUpsellImpression();
 
         void onUpsell(Context context);
 

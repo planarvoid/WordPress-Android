@@ -27,4 +27,14 @@ public class ConfirmDisableSyncCollectionScreen extends Screen {
         waiter.waitForDialogToClose();
     }
 
+    public PlaylistDetailsScreen clickCancelForPlaylistDetails() {
+        clickCancel();
+        return new PlaylistDetailsScreen(testDriver);
+    }
+
+    public PlaylistDetailsScreen clickOkForPlaylistDetails() {
+        clickOk();
+        return new PlaylistDetailsScreen(testDriver);
+    }
+
 }
