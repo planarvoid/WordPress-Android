@@ -9,11 +9,11 @@
     android:background="@color/translucent_background">
 
     <ScrollView
-        android:id="@+id/conversion_content"
         style="@style/ConversionScrollable"
         tools:ignore="UselessParent">
 
         <FrameLayout
+            android:id="@+id/conversion_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <include layout="@layout/conversion_common" />
