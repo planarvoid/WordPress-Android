@@ -14,10 +14,10 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.TextView;
 
-public class DownloadableHeaderViewTest extends AndroidUnitTest {
+public class DownloadStateViewTest extends AndroidUnitTest {
 
     private final String inProgressText = resources().getString(R.string.offline_update_in_progress);
-    private DownloadableHeaderView downloadableHeaderView;
+    private DownloadStateView downloadStateView;
 
     @Mock private Fragment fragment;
     @Mock private PlaybackInitiator playbackInitiator;
@@ -26,14 +26,14 @@ public class DownloadableHeaderViewTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         header = View.inflate(context(), R.layout.track_likes_header, null);
-        downloadableHeaderView = new DownloadableHeaderView(resources());
-        downloadableHeaderView.onViewCreated(header);
+        downloadStateView = new DownloadStateView(resources());
+        downloadStateView.onViewCreated(header);
     }
 
     @Ignore("Blocks on AnimUtils")
     public void displayInProgressTextWhenDownloading() {
-        downloadableHeaderView.setHeaderText("Header test text");
-        downloadableHeaderView.show(OfflineState.DOWNLOADING);
+        downloadStateView.setHeaderText("Header test text");
+        downloadStateView.show(OfflineState.DOWNLOADING);
 
         assertThat(getHeaderText()).hasText(inProgressText);
         assertThat(header.findViewById(R.id.header_download_state)).isVisible();
@@ -41,8 +41,8 @@ public class DownloadableHeaderViewTest extends AndroidUnitTest {
 
     @Test
     public void displayHeaderTextWhenDownloaded() {
-        downloadableHeaderView.setHeaderText("Header test text");
-        downloadableHeaderView.show(OfflineState.DOWNLOADED);
+        downloadStateView.setHeaderText("Header test text");
+        downloadStateView.show(OfflineState.DOWNLOADED);
 
         assertThat(getHeaderText()).hasText("Header test text");
         assertThat(header.findViewById(R.id.header_download_state)).isVisible();
@@ -50,8 +50,8 @@ public class DownloadableHeaderViewTest extends AndroidUnitTest {
 
     @Test
     public void displayHeadTextWhenNoOffline() {
-        downloadableHeaderView.setHeaderText("Header test text");
-        downloadableHeaderView.show(OfflineState.NOT_OFFLINE);
+        downloadStateView.setHeaderText("Header test text");
+        downloadStateView.show(OfflineState.NOT_OFFLINE);
 
         assertThat(getHeaderText()).hasText("Header test text");
         assertThat(header.findViewById(R.id.header_download_state)).isGone();

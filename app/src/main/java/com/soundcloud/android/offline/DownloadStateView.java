@@ -10,7 +10,8 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-public class DownloadableHeaderView {
+public class DownloadStateView {
+
     private final Resources resources;
 
     @Bind(R.id.header_download_state) DownloadImageView downloadStateView;
@@ -19,16 +20,12 @@ public class DownloadableHeaderView {
     private String headerText;
 
     @Inject
-    public DownloadableHeaderView(Resources resources) {
+    public DownloadStateView(Resources resources) {
         this.resources = resources;
     }
 
     public void onViewCreated(View view) {
         ButterKnife.bind(this, view);
-    }
-
-    public void onDestroyView() {
-        ButterKnife.unbind(this);
     }
 
     public void setHeaderText(String text) {

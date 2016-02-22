@@ -2,52 +2,55 @@ package com.soundcloud.android.likes;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
-import com.soundcloud.android.offline.DownloadableHeaderView;
+import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
-import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
-import javax.inject.Inject;
-
+@AutoFactory(allowSubclasses = true)
 class TrackLikesHeaderView {
 
-    @Nullable private View headerView;
-    private final Resources resources;
-    private final DownloadableHeaderView downloadableHeaderView;
+    private Resources resources;
+    private DownloadStateView downloadStateView;
 
     @Bind(R.id.shuffle_btn) ImageButton shuffleButton;
     @Bind(R.id.toggle_download) ToggleButton downloadToggle;
 
-    private int trackCount;
-    private LikesHeaderListener listener;
+    private Optional<View> headerOpt;
 
-    interface LikesHeaderListener {
+    private int trackCount;
+    private final Listener listener;
+
+    interface Listener {
         void onShuffle();
         void onUpsell();
         void onMakeAvailableOffline(boolean isAvailable);
     }
 
-    @Inject
-    TrackLikesHeaderView(Resources resources, DownloadableHeaderView downloadableHeaderView) {
+    TrackLikesHeaderView(@Provided Resources resources,
+                         @Provided DownloadStateView downloadStateView,
+                         View view,
+                         Listener listener) {
         this.resources = resources;
-        this.downloadableHeaderView = downloadableHeaderView;
-    }
-
-    @VisibleForTesting
-    View getHeaderView() {
-        return headerView;
-    }
-
-    void onViewCreated(View view, final LikesHeaderListener listener) {
+        this.downloadStateView = downloadStateView;
         this.listener = listener;
-        headerView = view.findViewById(R.id.track_likes_header);
-        downloadableHeaderView.onViewCreated(headerView);
+
+        setupView(view, downloadStateView, listener);
+    }
+
+    private void setupView(View view, DownloadStateView downloadStateView, final TrackLikesHeaderView.Listener listener) {
+        final View headerView = view.findViewById(R.id.track_likes_header);
+        downloadStateView.onViewCreated(headerView);
+        headerOpt = Optional.of(headerView);
+
         ButterKnife.bind(this, headerView);
         shuffleButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,19 +60,13 @@ class TrackLikesHeaderView {
         });
     }
 
-    public boolean isViewCreated() {
-        return headerView != null;
-    }
-
-    void onDestroyView() {
-        downloadableHeaderView.onDestroyView();
-        ButterKnife.unbind(this);
-        headerView = null;
-        listener = null;
+    @VisibleForTesting
+    View getHeaderView() {
+        return headerOpt.get();
     }
 
     public void show(OfflineState state) {
-        downloadableHeaderView.show(state);
+        downloadStateView.show(state);
         if (state == OfflineState.NOT_OFFLINE || state == OfflineState.DOWNLOADED) {
             updateTrackCount(trackCount);
         }
@@ -101,9 +98,11 @@ class TrackLikesHeaderView {
 
     void updateTrackCount(int trackCount) {
         this.trackCount = trackCount;
-        headerView.setVisibility(trackCount == 0 ? View.GONE : View.VISIBLE);
-        downloadableHeaderView.setHeaderText(getHeaderText(trackCount));
-        updateShuffleButton(trackCount);
+        if (headerOpt.isPresent()) {
+            headerOpt.get().setVisibility(trackCount == 0 ? View.GONE : View.VISIBLE);
+            downloadStateView.setHeaderText(getHeaderText(trackCount));
+            updateShuffleButton(trackCount);
+        }
     }
 
     private String getHeaderText(int likedTracks) {

@@ -5,7 +5,6 @@ import static com.soundcloud.android.framework.with.With.text;
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.viewelements.CheckableElement;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -131,11 +130,6 @@ public class TrackLikesScreen extends Screen {
 
     public ViewElement offlineToggle() {
         return testDriver.findOnScreenElement(With.id(R.id.toggle_download));
-    }
-
-    public boolean isOfflineToggleChecked() {
-        final ViewElement toggle = testDriver.findOnScreenElement(With.id(R.id.toggle_download));
-        return new CheckableElement(toggle).isChecked();
     }
 
     public DownloadImageViewElement headerDownloadElement() {

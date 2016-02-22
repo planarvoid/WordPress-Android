@@ -17,7 +17,6 @@
         style="@style/TrackLikesHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
         app:layout_collapseMode="none"
         app:layout_scrollFlags="scroll"
         tools:showIn="@layout/track_likes_fragment">
