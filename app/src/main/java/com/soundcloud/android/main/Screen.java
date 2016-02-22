@@ -65,9 +65,9 @@ public enum Screen {
     SEARCH_TRACKS("search:tracks"),
     SEARCH_PLAYLISTS("search:playlists"),
     SEARCH_USERS("search:people"),
+    SEARCH_PREMIUM_CONTENT("search:high_tier"),
     SEARCH_SUGGESTIONS("search:suggestions"),
     SEARCH_PLAYLIST_DISCO("search:tags"),
-    SEARCH_PREMIUM_CONTENT("search:premium_content"),
     SEARCH_RECOMMENDED_TRACKS("search:recommended_tracks"),
 
     // recommendations

@@ -76,6 +76,26 @@ public final class UpgradeTrackingEvent extends TrackingEvent {
                 .put(KEY_PAGE_NAME, Screen.LIKES.get());
     }
 
+    public static UpgradeTrackingEvent forSearchResultsImpression(Screen screen) {
+        return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPSELL_SEARCH_RESULTS)
+                .put(KEY_PAGE_NAME, screen.get());
+    }
+
+    public static UpgradeTrackingEvent forSearchResultsClick(Screen screen) {
+        return new UpgradeTrackingEvent(KIND_UPSELL_CLICK, TrackingCode.UPSELL_SEARCH_RESULTS)
+                .put(KEY_PAGE_NAME, screen.get());
+    }
+
+    public static UpgradeTrackingEvent forSearchPremiumResultsImpression(Screen screen) {
+        return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPSELL_SEARCH_PREMIUM_RESULTS)
+                .put(KEY_PAGE_NAME, screen.get());
+    }
+
+    public static UpgradeTrackingEvent forSearchPremiumResultsClick(Screen screen) {
+        return new UpgradeTrackingEvent(KIND_UPSELL_CLICK, TrackingCode.UPSELL_SEARCH_PREMIUM_RESULTS)
+                .put(KEY_PAGE_NAME, screen.get());
+    }
+
     public static UpgradeTrackingEvent forPlaylistItemImpression(String screen, Urn playlistUrn) {
         return new UpgradeTrackingEvent(KIND_UPSELL_IMPRESSION, TrackingCode.UPSELL_PLAYLIST_ITEM)
                 .put(KEY_PAGE_NAME, screen)

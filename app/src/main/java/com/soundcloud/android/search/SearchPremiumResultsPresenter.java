@@ -8,10 +8,11 @@ import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_S
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -57,7 +58,9 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
         @Override
         public SearchResult call(SearchResult searchResult) {
             if (featureOperations.upsellHighTier()) {
-                return searchResult.addItem(0, PropertySet.create().put(EntityProperty.URN, SearchUpsellItem.UPSELL_URN));
+                searchTracker.trackPremiumResultsUpsellImpression();
+                final PropertySet upsellItem = PropertySet.create().put(EntityProperty.URN, SearchUpsellItem.UPSELL_URN);
+                searchResult.addItem(0, upsellItem);
             }
             return searchResult;
         }
@@ -66,10 +69,12 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
     private final SearchOperations searchOperations;
     private final SearchResultsAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
+    private final FeatureOperations featureOperations;
     private final Navigator navigator;
     private final EventBus eventBus;
-    private final FeatureOperations featureOperations;
+    private final SearchTracker searchTracker;
 
+    private SearchOperations.SearchPagingFunction pagingFunction;
     private CompositeSubscription viewLifeCycle;
 
     private int searchType;
@@ -82,7 +87,8 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
                                   MixedItemClickListener.Factory clickListenerFactory,
                                   FeatureOperations featureOperations,
                                   Navigator navigator,
-                                  EventBus eventBus) {
+                                  EventBus eventBus,
+                                  SearchTracker searchTracker) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
@@ -90,6 +96,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
         this.featureOperations = featureOperations;
         this.navigator = navigator;
         this.eventBus = eventBus;
+        this.searchTracker = searchTracker;
     }
 
     @Override
@@ -114,13 +121,17 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
 
     @Override
     public void onUpsellClicked(Context context) {
+        searchTracker.trackPremiumResultsUpsellClick();
         navigator.openUpgrade(context);
     }
 
     @Override
     protected void onItemClicked(View view, int position) {
-        //TODO: SearchQuerySourceInfo is null until search premium content tracking is implemented
-        clickListenerFactory.create(Screen.SEARCH_PREMIUM_CONTENT, null).onItemClick(adapter.getItems(), view, position);
+        final Urn urn = adapter.getItem(position).getEntityUrn();
+        final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn);
+        searchTracker.trackSearchPremiumItemClick(urn, searchQuerySourceInfo);
+        clickListenerFactory.create(searchTracker.getPremiumTrackingScreen(),
+                searchQuerySourceInfo).onItemClick(adapter.getItems(), view, position);
     }
 
     @Override
@@ -129,12 +140,12 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
         searchType = bundle.getInt(EXTRA_SEARCH_TYPE);
         final List<PropertySet> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
         final Optional<Link> nextHref = Optional.fromNullable((Link) bundle.getParcelable(EXTRA_PREMIUM_CONTENT_NEXT_HREF));
-        return createCollectionBinding(searchOperations.searchPremiumResultFrom(premiumContentList, nextHref).map(addUpsellItem));
+        return createCollectionBinding(searchOperations.searchPremiumResultFrom(premiumContentList, nextHref));
     }
 
     @Override
     protected CollectionBinding<ListItem> onRefreshBinding() {
-        return createCollectionBinding(searchOperations.searchPremiumResult(searchQuery, searchType).map(addUpsellItem));
+        return createCollectionBinding(searchOperations.searchPremiumResult(searchQuery, searchType));
     }
 
     @Override
@@ -144,10 +155,11 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
 
     private CollectionBinding<ListItem> createCollectionBinding(Observable<SearchResult> searchResultObservable) {
         adapter.setUpsellListener(this);
+        pagingFunction = searchOperations.pagingPremiumFunction(searchType);
         return CollectionBinding
-                .from(searchResultObservable, TO_PRESENTATION_MODELS)
+                .from(searchResultObservable.map(addUpsellItem), TO_PRESENTATION_MODELS)
                 .withAdapter(adapter)
-                .withPager(searchOperations.pagingPremiumFunction(searchType))
+                .withPager(pagingFunction)
                 .build();
     }
 }
