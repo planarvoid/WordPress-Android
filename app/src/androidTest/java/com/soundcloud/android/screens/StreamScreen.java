@@ -50,7 +50,7 @@ public class StreamScreen extends Screen {
     }
 
     public PlaylistDetailsScreen scrollToFirstNotPromotedPlaylistAndClickIt() {
-        scrollToFirstNotPromotedPlaylist().click();
+        scrollToFirstNotPromotedPlaylist().clickToPlay();
         return new PlaylistDetailsScreen(testDriver);
     }
 
@@ -67,12 +67,12 @@ public class StreamScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstTrackCard() {
-        scrollToFirstTrack().click();
+        scrollToFirstTrack().clickToPlay();
         return new VisualPlayerElement(testDriver);
     }
 
     public VisualPlayerElement clickFirstNotPromotedTrackCard() {
-        return scrollToFirstNotPromotedTrackCard().click();
+        return scrollToFirstNotPromotedTrackCard().clickToPlay();
     }
 
     public StreamCardElement scrollToFirstNotPromotedTrackCard() {
@@ -94,7 +94,7 @@ public class StreamScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstRepostedTrack() {
-        return scrollToFirstRepostedTrack().click();
+        return scrollToFirstRepostedTrack().clickToPlay();
     }
 
     public TrackItemMenuElement clickFirstTrackCardOverflowButton() {
