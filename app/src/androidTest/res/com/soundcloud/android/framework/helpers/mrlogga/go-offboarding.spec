@@ -7,7 +7,7 @@ expected_events:
   name: impression
   params:
     impression_name: consumer_sub_resubscribe
-    anonymous_id: e701578a826ac3a39b67fa31e5d97a91
+    anonymous_id: '[0-9a-z-]+'
     impression_object: soundcloud:tcode:4002
     ts: '[0-9]+'
     app_version: '[0-9]+'
@@ -19,7 +19,7 @@ expected_events:
 - !ruby/object:MrLoggerLogger::Event
   name: click
   params:
-    anonymous_id: e701578a826ac3a39b67fa31e5d97a91
+    anonymous_id: '[0-9a-z-]+'
     ts: '[0-9]+'
     app_version: '[0-9]+'
     client_id: 3152
