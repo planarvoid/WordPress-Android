@@ -344,7 +344,12 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean waitForInterstitialToLoad() {
-        return waiter.waitForElement(R.id.interstitial);
+        return waiter.waitForNetworkCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return testDriver.findOnScreenElement(With.id(R.id.interstitial)).hasVisibility();
+            }
+        });
     }
 
     public VisualPlayerElement waitForLeaveBehindToLoad() {
