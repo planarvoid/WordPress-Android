@@ -34,7 +34,7 @@ public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
         VisualPlayerElement player = mainNavHelper
                 .goToStream()
                 .scrollToFirstSnippedTrack()
-                .click();
+                .clickToPlay();
 
         assertThat(player.clickUpgrade(), is(visible()));
     }
