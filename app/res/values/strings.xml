@@ -112,7 +112,7 @@
     <!-- __EMAIL OPT-IN -->
     <string name="optin_title">SoundCloud Newsletter</string>
     <string name="optin_question">Do you want to receive email updates about SoundCloud?</string>
-    <string name="optin_info">This includes Newsletters, Product updates, Special offers and Surveys. You can withdraw your consent at any time. To do so, open Soundcloud.com and go to settings.</string>
+    <string name="optin_info">This includes newsletters, product updates, special offers and surveys. You can withdraw your consent at any time. To do so, open Soundcloud.com and go to settings.</string>
     <string name="optin_yes">Yes, please</string>
     <string name="optin_no">No, thank you</string>
 
@@ -135,15 +135,15 @@
     <string name="list_empty_you_followers_secondary">Share your favorite tracks and playlists to build your community</string>
 
     <string name="empty_you_sounds_message">You haven’t uploaded any sounds yet.</string>
-    <string name="empty_user_sounds_message">This user hasn’t uploaded any public sounds yet.</string>
+    <string name="empty_user_sounds_message">This person hasn’t uploaded any public sounds yet.</string>
 
     <!-- new profile -->
-    <string name="new_empty_user_posts_message">This user hasn’t uploaded\nany public sounds yet.</string>
-    <string name="new_empty_user_playlists_message">This user currently has no playlists.</string>
-    <string name="new_empty_user_likes_text">This user hasn’t chosen any likes yet.</string>
+    <string name="new_empty_user_posts_message">This person hasn’t uploaded\nany public sounds yet.</string>
+    <string name="new_empty_user_playlists_message">This person currently has no playlists.</string>
+    <string name="new_empty_user_likes_text">This person doesn’t have any likes yet.</string>
     <!-- @Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\’t followed by anyone yet." -->
-    <string name="new_empty_user_followers_text">This user isn’t being followed by anyone yet.</string>
-    <string name="new_empty_user_followings_text">This user isn’t following anyone yet.</string>
+    <string name="new_empty_user_followers_text">This person isn’t being followed by anyone yet.</string>
+    <string name="new_empty_user_followings_text">This person isn’t following anyone yet.</string>
 
     <!-- __ERRORS -->
     <!-- @Todo from l10n: move these error messages to other categories -->
