@@ -4,6 +4,7 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.playback.StreamCacheConfig;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.skippy.SkippyPreloader;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -36,6 +37,10 @@ public class SkippyFactory {
 
     public Skippy create() {
         return new Skippy(context);
+    }
+
+    public SkippyPreloader createPreloader() {
+        return new SkippyPreloader(null);
     }
 
     public Skippy create(Skippy.PlayListener listener) {
