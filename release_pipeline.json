@@ -153,7 +153,7 @@
         },
         {
           "deploy_beta": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployBeta versionizeFollowUpBeta commitVersionBump",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 deployBeta versionizeFollowUpBeta commitVersionBump",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -189,7 +189,7 @@
         ],
         {
           "rollout_release_1_percent_and_followup_beta": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseOnePercent deployFollowUpBeta",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 deployReleaseOnePercent deployFollowUpBeta",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -199,7 +199,7 @@
         },
         {
           "rollout_release_5_percent": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseFivePercent",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 deployReleaseFivePercent",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -209,7 +209,7 @@
         },
         {
           "rollout_release_100_percent": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseRolloutFull",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 deployReleaseRolloutFull",
             "manual": true,
             "localBranch": true,
             "artifacts": [
