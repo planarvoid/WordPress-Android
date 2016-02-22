@@ -325,6 +325,13 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         assertThat(skipAd()).isVisible();
     }
 
+    @Test
+    public void onBackgroundShouldDetachSurfaceViewWithMediaPlayer() {
+        presenter.onBackground(adView);
+
+        verify(mediaPlayerVideoAdapter).surfaceDestroyed(null);
+    }
+
     private Iterable<View> fadingViews() {
         VideoAdPresenter.Holder holder = (VideoAdPresenter.Holder) adView.getTag();
         return holder.fadingViews;
