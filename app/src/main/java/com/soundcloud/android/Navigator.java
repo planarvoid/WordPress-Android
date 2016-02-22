@@ -20,6 +20,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.payments.WebConversionActivity;
@@ -286,6 +287,10 @@ public class Navigator {
 
     public void openNewNotificationSettings(Context context) {
         context.startActivity(new Intent(context, NewNotificationSettingsActivity.class));
+    }
+
+    public void openOfflineSettingsOnboarding(Context context) {
+        context.startActivity(new Intent(context, OfflineSettingsOnboardingActivity.class));
     }
 
     private Intent createHomeIntent(Context context) {

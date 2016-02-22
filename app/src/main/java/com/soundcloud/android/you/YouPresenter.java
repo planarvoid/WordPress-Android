@@ -12,6 +12,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -50,6 +51,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private final ApplicationProperties appProperties;
     private final SyncConfig syncConfig;
     private final FeatureFlags featureFlags;
+    private final OfflineSettingsStorage settingsStorage;
 
     private Optional<YouView> youViewOpt = Optional.absent();
     private Optional<PropertySet> youOpt = Optional.absent();
@@ -67,7 +69,8 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                         BugReporter bugReporter,
                         ApplicationProperties appProperties,
                         SyncConfig syncConfig,
-                        FeatureFlags featureFlags) {
+                        FeatureFlags featureFlags,
+                        OfflineSettingsStorage settingsStorage) {
         this.youViewFactory = youViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
@@ -81,6 +84,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         this.appProperties = appProperties;
         this.syncConfig = syncConfig;
         this.featureFlags = featureFlags;
+        this.settingsStorage = settingsStorage;
     }
 
     @Override
@@ -106,7 +110,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
 
     @Override
     public void resetScroll() {
-        if (youViewOpt.isPresent()){
+        if (youViewOpt.isPresent()) {
             youViewOpt.get().resetScroll();
         }
     }
@@ -163,7 +167,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                 headerView.getProfileImageView());
     }
 
-    private class YouSubscriber extends DefaultSubscriber<PropertySet>{
+    private class YouSubscriber extends DefaultSubscriber<PropertySet> {
         @Override
         public void onNext(PropertySet user) {
             youOpt = Optional.of(user);
@@ -198,10 +202,19 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
 
     @Override
     public void onOfflineSettingsClicked(View view) {
-        navigator.openOfflineSettings(view.getContext());
+        if (showOfflineSettingsOnboarding()) {
+            navigator.openOfflineSettingsOnboarding(view.getContext());
+        } else {
+            navigator.openOfflineSettings(view.getContext());
+        }
         if (featureOperations.upsellHighTier()) {
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsClick());
         }
+    }
+
+    private boolean showOfflineSettingsOnboarding() {
+        return featureOperations.isOfflineContentEnabled()
+                && !settingsStorage.hasSeenOfflineSettingsOnboarding();
     }
 
     @Override
