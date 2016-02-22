@@ -49,7 +49,7 @@ android {
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
     beta {
@@ -65,7 +65,7 @@ android {
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-beta.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
     end2end {
@@ -81,7 +81,7 @@ android {
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-beta.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
     release {
@@ -97,7 +97,7 @@ android {
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
     releaseNoProguard {
@@ -113,7 +113,7 @@ android {
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
     release_non_play_store {
@@ -129,7 +129,7 @@ android {
       resValue "bool", "google_plus_enabled", "false"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
   }
 }
