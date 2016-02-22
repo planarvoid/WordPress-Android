@@ -52,7 +52,6 @@
     <string name="offline_likes_dialog_title">Save your likes offline</string>
     <string name="offline_likes_dialog_message">This will save your current and future likes offline so you can listen without Wi-Fi or data connection.</string>
     <string name="make_offline_available">Save offline</string>
-    <string name="make_offline_unavailable">Remove from offline</string>
     <string name="offline_dialog_go_online_continue">Continue</string>
     <string name="offline_dialog_go_online_error_title">Your subscription could not be verified</string>
     <string name="offline_dialog_go_online_error_content">Because this device has been offline for more than 30 days, we could not verify your subscription. To regain access to your offline content, connect to the Internet with this device.</string>

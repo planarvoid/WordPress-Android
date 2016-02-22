@@ -45,8 +45,7 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
     public void testPlayOfflineTracksOnlyWhenContentDownloaded() throws Exception {
         likesScreen
-                .clickOverflowButton()
-                .clickMakeAvailableOffline()
+                .toggleOfflineEnabled()
                 .clickKeepLikesSyncedAndWaitToFinish();
 
         assertThat(likesScreen.headerDownloadElement(), is(not(downloading())));

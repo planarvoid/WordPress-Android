@@ -79,8 +79,7 @@ public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainAct
         final TrackLikesScreen likesScreen = mainNavHelper
                 .goToCollections()
                 .clickLikedTracksPreview()
-                .clickOverflowButton()
-                .clickMakeAvailableOffline()
+                .toggleOfflineEnabled()
                 .clickKeepLikesSynced();
 
         DownloadImageViewElement downloadElement = likesScreen.headerDownloadElement();
