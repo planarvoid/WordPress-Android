@@ -12,5 +12,6 @@ public class TrackingCode {
     public static final int UPSELL_PLAYER = 1017;
 
     public static final int UPGRADE_BUTTON = 3002;
+    public static final int RESUBSCRIBE_BUTTON = 4002;
 
 }

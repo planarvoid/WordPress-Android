@@ -162,4 +162,21 @@ public class UpgradeTrackingEventTest {
         assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPGRADE_SUCCESS);
     }
 
+    @Test
+    public void createsEventForResubscribeImpression() {
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forResubscribeImpression();
+
+        assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_RESUBSCRIBE_IMPRESSION);
+        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:4002");
+        assertThat(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)).isEqualTo("collection:offline_offboarding");
+    }
+
+    @Test
+    public void createsEventForResubscribeButtonClick() {
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forResubscribeClick();
+
+        assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_RESUBSCRIBE_CLICK);
+        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:4002");
+        assertThat(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)).isEqualTo("collection:offline_offboarding");
+    }
 }

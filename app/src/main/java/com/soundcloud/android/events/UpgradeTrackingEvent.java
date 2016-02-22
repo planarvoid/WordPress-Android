@@ -8,7 +8,9 @@ import org.jetbrains.annotations.NotNull;
 public final class UpgradeTrackingEvent extends TrackingEvent {
 
     public static final String KIND_UPSELL_IMPRESSION = "upsell_impression";
+    public static final String KIND_RESUBSCRIBE_IMPRESSION = "resub_impression";
     public static final String KIND_UPSELL_CLICK = "upsell_click";
+    public static final String KIND_RESUBSCRIBE_CLICK = "resub_click";
     public static final String KIND_UPGRADE_SUCCESS = "upgrade_complete";
 
     public static final String KEY_TCODE = "tcode";
@@ -120,6 +122,16 @@ public final class UpgradeTrackingEvent extends TrackingEvent {
 
     public static UpgradeTrackingEvent forUpgradeSuccess() {
         return new UpgradeTrackingEvent(KIND_UPGRADE_SUCCESS);
+    }
+
+    public static UpgradeTrackingEvent forResubscribeImpression() {
+        return new UpgradeTrackingEvent(KIND_RESUBSCRIBE_IMPRESSION, TrackingCode.RESUBSCRIBE_BUTTON)
+                .put(KEY_PAGE_NAME, Screen.OFFLINE_OFFBOARDING.get());
+    }
+
+    public static UpgradeTrackingEvent forResubscribeClick() {
+        return new UpgradeTrackingEvent(KIND_RESUBSCRIBE_CLICK, TrackingCode.RESUBSCRIBE_BUTTON)
+                .put(KEY_PAGE_NAME, Screen.OFFLINE_OFFBOARDING.get());
     }
 
     private static String toTrackingCodeUrn(int trackingCode) {
