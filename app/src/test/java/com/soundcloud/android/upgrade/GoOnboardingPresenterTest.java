@@ -2,7 +2,6 @@ package com.soundcloud.android.upgrade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,7 +10,6 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -47,102 +45,6 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clickingSetUpLaterOpensStreamIfAccountUpgradeAlreadyCompleted() {
-        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.just(policiesUpdate));
-
-        presenter.onCreate(activity, null);
-        presenter.onSetupLaterClicked();
-
-        assertThat(view.isSetUpLaterButtonWaiting).isFalse();
-        verify(navigator).openHomeAsRootScreen(any(Activity.class));
-    }
-
-    @Test
-    public void clickingSetUpLaterSendsOnboardingDismissTrackingEventIfAccountUpgradeAlreadyCompleted() {
-        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.just(policiesUpdate));
-
-        presenter.onCreate(activity, null);
-        presenter.onSetupLaterClicked();
-
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class).getKind())
-                .isEqualTo(OfflineInteractionEvent.KIND_ONBOARDING_DISMISS);
-    }
-
-    @Test
-    public void clickingSetUpLaterShowsProgressSpinnerIfAccountUpgradeOngoing() {
-        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.<List<Urn>>never());
-        presenter.onCreate(activity, null);
-
-        presenter.onSetupLaterClicked();
-
-        assertThat(view.isSetUpLaterButtonWaiting).isTrue();
-    }
-
-    @Test
-    public void clickingSetUpLaterAwaitsAccountUpgradeBeforeProceeding() {
-        PublishSubject<List<Urn>> subject = PublishSubject.create();
-        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(subject);
-
-        presenter.onCreate(activity, null);
-        presenter.onSetupLaterClicked();
-
-        verify(navigator, never()).openStream(any(Activity.class), any(Screen.class));
-        subject.onNext(policiesUpdate);
-        subject.onCompleted();
-
-        verify(navigator).openHomeAsRootScreen(any(Activity.class));
-    }
-
-    @Test
-    public void displaySetupLaterRetryOnNetworkError() {
-        final PublishSubject<List<Urn>> subject = PublishSubject.create();
-        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(subject);
-
-        presenter.onCreate(activity, null);
-        presenter.onSetupLaterClicked();
-
-        assertThat(view.isSetUpLaterButtonWaiting).isTrue();
-        subject.onError(new IOException());
-        assertThat(view.isSetUpLaterButtonRetry).isTrue();
-    }
-
-    @Test
-    public void displaySetupLaterRetryOnNetworkErrorWhenErrorAlreadyOccurred() {
-        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.<List<Urn>>error(new IOException()));
-
-        presenter.onCreate(activity, null);
-        presenter.onSetupLaterClicked();
-
-        assertThat(view.isSetUpLaterButtonWaiting).isFalse();
-        assertThat(view.isSetUpLaterButtonRetry).isTrue();
-    }
-
-    @Test
-    public void displaySetupLaterRetryOnApiRequestExceptionForNetworkError() {
-        final PublishSubject<List<Urn>> subject = PublishSubject.create();
-        when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(subject);
-
-        presenter.onCreate(activity, null);
-        presenter.onSetupLaterClicked();
-
-        assertThat(view.isSetUpLaterButtonWaiting).isTrue();
-        subject.onError(ApiRequestException.networkError(null, new IOException()));
-        assertThat(view.isSetUpLaterButtonRetry).isTrue();
-    }
-
-    @Test
-    public void displaySetupLaterRetryOnApiRequestExceptionForNetworkErrorAlreadyOccurred() {
-        when(upgradeProgressOperations.awaitAccountUpgrade())
-                .thenReturn(Observable.<List<Urn>>error(ApiRequestException.networkError(null, new IOException())));
-
-        presenter.onCreate(activity, null);
-        presenter.onSetupLaterClicked();
-
-        assertThat(view.isSetUpLaterButtonWaiting).isFalse();
-        assertThat(view.isSetUpLaterButtonRetry).isTrue();
-    }
-
-    @Test
     public void clickingSetupOfflineOpensOfflineContentOnboardingIfAccountUpgradeAlreadyCompleted() {
         when(upgradeProgressOperations.awaitAccountUpgrade()).thenReturn(Observable.just(policiesUpdate));
 
@@ -150,7 +52,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         presenter.onSetupOfflineClicked();
 
         assertThat(view.isSetUpOfflineButtonWaiting).isFalse();
-        verify(navigator).openOfflineContentOnboarding(any(Activity.class));
+        verify(navigator).openCollectionAsRootScreen(any(Activity.class));
     }
 
     @Test
@@ -185,7 +87,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         subject.onNext(policiesUpdate);
         subject.onCompleted();
 
-        verify(navigator).openOfflineContentOnboarding(any(Activity.class));
+        verify(navigator).openCollectionAsRootScreen(any(Activity.class));
     }
 
     @Test
@@ -252,7 +154,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         success.onNext(policiesUpdate);
         success.onCompleted();
 
-        verify(navigator).openOfflineContentOnboarding(any(Activity.class));
+        verify(navigator).openCollectionAsRootScreen(any(Activity.class));
     }
 
     @Test
@@ -296,8 +198,6 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     private static class GoOnboardingViewStub extends GoOnboardingView {
         private boolean isSetUpOfflineButtonWaiting;
         private boolean isSetUpOfflineButtonRetry;
-        private boolean isSetUpLaterButtonWaiting;
-        private boolean isSetUpLaterButtonRetry;
         private boolean isErrorDialogShown;
 
         @Override
@@ -309,8 +209,6 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         void reset() {
             isSetUpOfflineButtonWaiting = false;
             isSetUpOfflineButtonRetry = false;
-            isSetUpLaterButtonWaiting = false;
-            isSetUpLaterButtonRetry = false;
             isErrorDialogShown = false;
         }
 
@@ -324,18 +222,6 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         void setSetUpOfflineButtonRetry() {
             isSetUpOfflineButtonWaiting = false;
             isSetUpOfflineButtonRetry = true;
-        }
-
-        @Override
-        void setSetUpLaterButtonWaiting() {
-            isSetUpLaterButtonWaiting = true;
-            isSetUpLaterButtonRetry = false;
-        }
-
-        @Override
-        void setSetUpLaterButtonRetry() {
-            isSetUpLaterButtonWaiting = false;
-            isSetUpLaterButtonRetry = true;
         }
 
         @Override

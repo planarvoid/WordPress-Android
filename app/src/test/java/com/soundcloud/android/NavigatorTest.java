@@ -48,7 +48,6 @@ import java.util.List;
 public class NavigatorTest extends AndroidUnitTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
-    public static final int SEARCH_TYPE = 0;
 
     @Mock private FeatureFlags flags;
 

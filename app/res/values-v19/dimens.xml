@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Go Onboarding  -->
-    <dimen name="go_onboarding_container_top_margin">30dp</dimen>
+    <dimen name="android_status_bar_stub_height">14dp</dimen>
 </resources>

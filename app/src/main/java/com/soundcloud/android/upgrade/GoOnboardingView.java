@@ -13,8 +13,7 @@ import javax.inject.Inject;
 
 class GoOnboardingView {
 
-    @Bind(R.id.btn_go_setup_offline) LoadingButton setUpOfflineButton;
-    @Bind(R.id.btn_go_setup_later) LoadingButton setUpLaterButton;
+    @Bind(R.id.btn_go_setup_start) LoadingButton setUpOfflineButton;
     private GoOnboardingPresenter presenter;
 
     @Inject
@@ -26,24 +25,17 @@ class GoOnboardingView {
         ButterKnife.bind(this, activity);
     }
 
-    @OnClick(R.id.btn_go_setup_offline)
+    @OnClick(R.id.btn_go_setup_start)
     void onSetupOfflineClicked() {
         presenter.onSetupOfflineClicked();
     }
 
-    @OnClick(R.id.btn_go_setup_later)
-    void onSetupLaterClicked() {
-        presenter.onSetupLaterClicked();
-    }
-
     void reset() {
         setEnabled(true);
-        setUpLaterButton.setLoading(false);
         setUpOfflineButton.setLoading(false);
     }
 
     void setSetUpOfflineButtonWaiting() {
-        setUpLaterButton.setEnabled(false);
         setUpOfflineButton.setEnabled(false);
         setUpOfflineButton.setLoading(true);
     }
@@ -53,18 +45,7 @@ class GoOnboardingView {
         setUpOfflineButton.setRetry();
     }
 
-    void setSetUpLaterButtonWaiting() {
-        setEnabled(false);
-        setUpLaterButton.setLoading(true);
-    }
-
-    void setSetUpLaterButtonRetry() {
-        setEnabled(true);
-        setUpLaterButton.setRetry();
-    }
-
     private void setEnabled(boolean isEnabled) {
-        setUpLaterButton.setEnabled(isEnabled);
         setUpOfflineButton.setEnabled(isEnabled);
     }
 
