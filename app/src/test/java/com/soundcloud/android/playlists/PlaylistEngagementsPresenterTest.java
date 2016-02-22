@@ -18,6 +18,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -30,6 +31,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -42,11 +44,13 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -56,14 +60,16 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.view.ViewGroup;
+import android.os.Bundle;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
+
+    private static final Urn PLAYLIST_URN = Urn.forPlaylist(123);
+
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_fragment, fragmentArgs());
 
     private PlaylistEngagementsPresenter controller;
     private PlaylistWithTracks playlistWithTracks;
@@ -72,23 +78,25 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     private Observable<List<Urn>> playlistTrackurns = Observable.just(Arrays.asList(Urn.forTrack(1)));
 
     @Mock private RepostOperations repostOperations;
-    @Mock private Context context;
     @Mock private AccountOperations accountOperations;
     @Mock private LikeOperations likeOperations;
     @Mock private PlaylistEngagementsView engagementsView;
-    @Mock private ViewGroup rootView;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private PlaylistOperations playlistOperations;
-    @Mock private Fragment fragment;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private Navigator navigator;
     @Mock private ShareOperations shareOperations;
-    @Mock private FragmentManager fragmentManager;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
     private OnEngagementListener onEngagementListener;
+
+    private static Bundle fragmentArgs() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(PlaylistDetailFragment.EXTRA_URN, PLAYLIST_URN);
+        return bundle;
+    }
 
     @Before
     public void setup() {
@@ -96,12 +104,9 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller = new PlaylistEngagementsPresenter(eventBus, repostOperations, accountOperations, likeOperations,
                 engagementsView, featureOperations, offlineContentOperations, playbackInitiator,
                 playlistOperations, playbackToastHelper, navigator, shareOperations);
-        when(rootView.getContext()).thenReturn(context);
-        when(context.getResources()).thenReturn(resources());
-        when(fragment.getFragmentManager()).thenReturn(fragmentManager);
 
-        controller.bindView(rootView);
-        controller.onResume(fragment);
+        controller.bindView(fragmentRule.getView());
+        controller.onResume(fragmentRule.getFragment());
         playlistWithTracks = createPlaylistInfoWithSharing(Sharing.PUBLIC);
 
         verify(engagementsView).setOnEngagement(listenerCaptor.capture());
@@ -113,7 +118,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
     @After
     public void tearDown() {
-        controller.onPause(fragment);
+        controller.onPause(fragmentRule.getFragment());
     }
 
     @Test
@@ -175,7 +180,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
                 .pageUrn(playlistWithTracks.getUrn())
                 .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                 .build();
-        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), eventContextMetadata, null);
+        verify(shareOperations).share(fragmentRule.getActivity(), playlistWithTracks.getSourceSet(), eventContextMetadata, null);
     }
 
     @Test
@@ -211,7 +216,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     public void shouldUnsubscribeFromOngoingSubscriptionsWhenActivityDestroyed() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        controller.onPause(fragment);
+        controller.onPause(fragmentRule.getFragment());
 
         eventBus.verifyUnsubscribed();
     }
@@ -232,17 +237,17 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     public void shouldOpenUpgradeScreenWhenClickingOnUpsell() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        controller.onUpsell(context);
+        controller.onUpsell(fragmentRule.getActivity());
 
-        verify(navigator).openUpgrade(context);
+        verify(navigator).openUpgrade(fragmentRule.getActivity());
     }
 
     @Test
     public void shouldBeAbleToUnsubscribeThenResubscribeToChangeEvents() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        controller.onPause(fragment);
-        controller.onResume(fragment);
+        controller.onPause(fragmentRule.getFragment());
+        controller.onResume(fragmentRule.getFragment());
 
         // make sure starting to listen again does not try to use a subscription that had already been closed
         // (in which case unsubscribe is called more than once)
@@ -314,7 +319,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
                 .pageUrn(playlistWithTracks.getUrn())
                 .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                 .build();
-        verify(shareOperations).share(context, playlistWithTracks.getSourceSet(), eventContextMetadata, null);
+        verify(shareOperations).share(fragmentRule.getActivity(), playlistWithTracks.getSourceSet(), eventContextMetadata, null);
     }
 
     @Test
@@ -522,6 +527,25 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
         verify(engagementsView).enableShuffle();
+    }
+
+    @Test
+    public void shouldTrackUpsellImpressionInOnCreateWhenFeatureAvailable() {
+        when(featureOperations.upsellOfflineContent()).thenReturn(true);
+
+        controller.onCreate(fragmentRule.getFragment(), null);
+
+        UpgradeTrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeTrackingEvent.class);
+        assertThat(event.get(UpgradeTrackingEvent.KEY_PAGE_URN)).isEqualTo(PLAYLIST_URN.toString());
+    }
+
+    @Test
+    public void shouldNotTrackUpsellImpressionInOnCreateWhenFeatureNotAvailable() {
+        when(featureOperations.upsellOfflineContent()).thenReturn(false);
+
+        controller.onCreate(fragmentRule.getFragment(), null);
+
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     private PlaylistWithTracks createPlaylistInfoWithSharing(Sharing sharing) {
