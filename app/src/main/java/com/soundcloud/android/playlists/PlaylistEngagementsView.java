@@ -82,7 +82,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         ButterKnife.unbind(this);
     }
 
-    void setOfflineOptionsMenu(final boolean isAvailable) {
+    void showMakeAvailableOfflineButton(final boolean isAvailable) {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(isAvailable);
         downloadToggle.setOnClickListener(new View.OnClickListener() {
@@ -105,7 +105,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         });
     }
 
-    void hideOfflineContentOptions() {
+    void hideMakeAvailableOfflineButton() {
         downloadToggle.setVisibility(View.GONE);
     }
 

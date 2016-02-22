@@ -287,7 +287,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(singletonList(playlistWithTracks.getUrn()), false));
 
-        verify(engagementsView).setOfflineOptionsMenu(true);
+        verify(engagementsView).showMakeAvailableOfflineButton(true);
     }
 
     @Test
@@ -297,7 +297,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(playlistWithTracks.getUrn()));
 
-        verify(engagementsView).setOfflineOptionsMenu(false);
+        verify(engagementsView).showMakeAvailableOfflineButton(false);
     }
 
     @Test
@@ -351,7 +351,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
                 .put(PlaylistProperty.IS_POSTED, true);
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
-        verify(engagementsView).setOfflineOptionsMenu(true);
+        verify(engagementsView).showMakeAvailableOfflineButton(true);
     }
 
     @Test
@@ -362,7 +362,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
                 .put(PlaylistProperty.IS_POSTED, true);
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
-        verify(engagementsView).setOfflineOptionsMenu(false);
+        verify(engagementsView).showMakeAvailableOfflineButton(false);
     }
 
     @Test
@@ -384,7 +384,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
                 .put(PlaylistProperty.IS_POSTED, true);
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
-        verify(engagementsView).hideOfflineContentOptions();
+        verify(engagementsView).hideMakeAvailableOfflineButton();
     }
 
     @Test
@@ -394,18 +394,18 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC);
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
-        verify(engagementsView).hideOfflineContentOptions();
+        verify(engagementsView).hideMakeAvailableOfflineButton();
     }
 
     @Test
-    public void doesNotHideOfflineOptionsWhenPlaylistIsLikedByTheCurrentUser() {
+    public void showsOfflineOptionsWhenPlaylistIsLikedByTheCurrentUser() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
                 .put(PlaylistProperty.IS_USER_LIKE, true);
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
-        verify(engagementsView, never()).hideOfflineContentOptions();
+        verify(engagementsView).showMakeAvailableOfflineButton(false);
     }
 
     @Test
@@ -415,7 +415,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC);
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
-        verify(engagementsView).hideOfflineContentOptions();
+        verify(engagementsView).hideMakeAvailableOfflineButton();
     }
 
     @Test

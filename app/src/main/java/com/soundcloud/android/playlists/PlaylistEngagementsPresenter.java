@@ -220,11 +220,11 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     private void updateOfflineAvailability(boolean isPlaylistOfflineAvailable) {
         if (featureOperations.isOfflineContentEnabled() && isEligibleForOfflineContent()) {
-            playlistEngagementsView.setOfflineOptionsMenu(isPlaylistOfflineAvailable);
+            playlistEngagementsView.showMakeAvailableOfflineButton(isPlaylistOfflineAvailable);
         } else if (featureOperations.upsellOfflineContent()) {
             playlistEngagementsView.showUpsell();
         } else {
-            playlistEngagementsView.hideOfflineContentOptions();
+            playlistEngagementsView.hideMakeAvailableOfflineButton();
         }
     }
 
@@ -353,6 +353,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                     playlistEngagementsView.updateLikeItem(
                             changeSet.get(PlayableProperty.LIKES_COUNT),
                             changeSet.get(PlayableProperty.IS_USER_LIKE));
+                    updateOfflineAvailability();
                 }
                 if (changeSet.contains(PlaylistProperty.IS_USER_REPOST)) {
                     playlistEngagementsView.showPublicOptions(
