@@ -9,142 +9,134 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
-import rx.functions.Func1;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+
+import rx.functions.Func1;
+
+import static com.soundcloud.android.profile.UserSoundsItem.fromPlaylistItem;
+import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
 
 public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserSoundsItem>> {
 
+    private final EntityHolderSourceMapper entityHolderSourceMapper;
+    private final EntityHolderMapper entityHolderMapper;
+
     @Inject
-    public UserSoundsMapper() {
+    public UserSoundsMapper(EntityHolderSourceMapper entityHolderSourceMapper, EntityHolderMapper entityHolderMapper) {
+        this.entityHolderSourceMapper = entityHolderSourceMapper;
+        this.entityHolderMapper = entityHolderMapper;
     }
 
     @Override
     public Iterable<UserSoundsItem> call(UserProfileRecord userProfile) {
         final List<UserSoundsItem> items = new ArrayList<>();
 
-        final ModelCollection<? extends ApiEntityHolderSource> spotlight = userProfile.getSpotlight();
-        final ModelCollection<? extends ApiEntityHolder> tracks = userProfile.getTracks();
-        final ModelCollection<? extends ApiEntityHolder> releases = userProfile.getReleases();
-        final ModelCollection<? extends ApiEntityHolder> playlists = userProfile.getPlaylists();
-        final ModelCollection<? extends ApiEntityHolderSource> reposts = userProfile.getReposts();
-        final ModelCollection<? extends ApiEntityHolderSource> likes = userProfile.getLikes();
-
-        if (!spotlight.getCollection().isEmpty()) {
-            items.addAll(holderSourceCollectionToUserSoundItems(spotlight, UserSoundsTypes.SPOTLIGHT));
-        }
-
-        if (!tracks.getCollection().isEmpty()) {
-            items.add(UserSoundsItem.fromHeader(UserSoundsTypes.TRACKS));
-
-            items.addAll(Lists.transform(
-                    tracks.getCollection(),
-                    holderToUserSoundItems(UserSoundsTypes.TRACKS)));
-
-            if (tracks.getNextLink().isPresent()) {
-                items.add(UserSoundsItem.fromViewAll(UserSoundsTypes.TRACKS));
-            }
-
-            items.add(UserSoundsItem.fromDivider());
-        }
-
-        if (!releases.getCollection().isEmpty()) {
-            items.add(UserSoundsItem.fromHeader(UserSoundsTypes.RELEASES));
-
-            items.addAll(Lists.transform(
-                    releases.getCollection(),
-                    holderToUserSoundItems(UserSoundsTypes.RELEASES)));
-
-            if (releases.getNextLink().isPresent()) {
-                items.add(UserSoundsItem.fromViewAll(UserSoundsTypes.RELEASES));
-            }
-
-            items.add(UserSoundsItem.fromDivider());
-        }
-
-        if (!playlists.getCollection().isEmpty()) {
-            items.add(UserSoundsItem.fromHeader(UserSoundsTypes.PLAYLISTS));
-
-            items.addAll(Lists.transform(
-                    playlists.getCollection(),
-                    holderToUserSoundItems(UserSoundsTypes.PLAYLISTS)));
-
-            if (playlists.getNextLink().isPresent()) {
-                items.add(UserSoundsItem.fromViewAll(UserSoundsTypes.PLAYLISTS));
-            }
-
-            items.add(UserSoundsItem.fromDivider());
-        }
-
-        if (!reposts.getCollection().isEmpty()) {
-            items.addAll(holderSourceCollectionToUserSoundItems(reposts, UserSoundsTypes.REPOSTS));
-        }
-
-        if (!likes.getCollection().isEmpty()) {
-            items.addAll(holderSourceCollectionToUserSoundItems(likes, UserSoundsTypes.LIKES));
-        }
+        items.addAll(entityHolderSourceMapper.map(UserSoundsTypes.SPOTLIGHT, userProfile.getSpotlight()));
+        items.addAll(entityHolderMapper.map(UserSoundsTypes.TRACKS, userProfile.getTracks()));
+        items.addAll(entityHolderMapper.map(UserSoundsTypes.RELEASES, userProfile.getReleases()));
+        items.addAll(entityHolderMapper.map(UserSoundsTypes.PLAYLISTS, userProfile.getPlaylists()));
+        items.addAll(entityHolderSourceMapper.map(UserSoundsTypes.REPOSTS, userProfile.getReposts()));
+        items.addAll(entityHolderSourceMapper.map(UserSoundsTypes.LIKES, userProfile.getLikes()));
 
         return items;
     }
 
-    private Function<ApiEntityHolder, UserSoundsItem> holderToUserSoundItems(final int collectionType) {
-        return new Function<ApiEntityHolder, UserSoundsItem>() {
-            @Override
-            public UserSoundsItem apply(ApiEntityHolder holder) {
-                final PropertySet properties = holder.toPropertySet();
+    public static class EntityHolderSourceMapper {
 
-                if (properties.get(EntityProperty.URN).isTrack()) {
-                    return UserSoundsItem.fromTrackItem(TrackItem.from(properties), collectionType);
-                } else {
-                    return UserSoundsItem.fromPlaylistItem(PlaylistItem.from(properties), collectionType);
+        @Inject
+        public EntityHolderSourceMapper() {
+        }
+
+        public List<UserSoundsItem> map(
+                int collectionType,
+                ModelCollection<? extends ApiEntityHolderSource> itemsToMap) {
+            final List<UserSoundsItem> items = new ArrayList<>();
+
+            if (!itemsToMap.getCollection().isEmpty()) {
+                items.add(UserSoundsItem.fromHeader(collectionType));
+
+                items.addAll(Lists.transform(
+                        itemsToMap.getCollection(),
+                        toUserSoundsItem(collectionType)));
+
+                if (itemsToMap.getNextLink().isPresent()) {
+                    items.add(UserSoundsItem.fromViewAll(collectionType));
                 }
+
+                items.add(UserSoundsItem.fromDivider());
             }
-        };
-    }
-
-    private Collection<UserSoundsItem> holderSourceCollectionToUserSoundItems(
-            ModelCollection<? extends ApiEntityHolderSource> modelCollection,
-            int collectionType) {
-        List<UserSoundsItem> items = new ArrayList<>();
-
-        items.add(UserSoundsItem.fromHeader(collectionType));
-
-        items.addAll(Lists.transform(
-                modelCollection.getCollection(),
-                holderSourceToUserSoundItems(collectionType)));
-
-        if (modelCollection.getNextLink().isPresent()) {
-            items.add(UserSoundsItem.fromViewAll(collectionType));
+            return items;
         }
 
-        items.add(UserSoundsItem.fromDivider());
+        private Function<ApiEntityHolderSource, UserSoundsItem> toUserSoundsItem(
+                final int collectionType) {
+            return new Function<ApiEntityHolderSource, UserSoundsItem>() {
+                @Override
+                public UserSoundsItem apply(ApiEntityHolderSource entityHolderSource) {
+                    final Optional<ApiEntityHolder> entityHolder = entityHolderSource
+                            .getEntityHolder();
 
-        return items;
+                    if (entityHolder.isPresent()) {
+                        final PropertySet properties = entityHolder.get().toPropertySet();
+
+                        if (properties.get(EntityProperty.URN).isTrack()) {
+                            return fromTrackItem(TrackItem.from(properties), collectionType);
+                        } else {
+                            return fromPlaylistItem(PlaylistItem.from(properties), collectionType);
+                        }
+                    }
+
+                    return null;
+                }
+            };
+        }
     }
 
-    private Function<ApiEntityHolderSource, UserSoundsItem> holderSourceToUserSoundItems(
-            final int collectionType) {
-        return new Function<ApiEntityHolderSource, UserSoundsItem>() {
-            @Override
-            public UserSoundsItem apply(ApiEntityHolderSource entityHolderSource) {
-                final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
+    public static class EntityHolderMapper {
 
-                if (entityHolder.isPresent()) {
-                    final PropertySet properties = entityHolder.get().toPropertySet();
+        @Inject
+        public EntityHolderMapper() {
+        }
+
+        public List<UserSoundsItem> map(
+                int collectionType,
+                ModelCollection<? extends ApiEntityHolder> itemsToMap) {
+            final List<UserSoundsItem> items = new ArrayList<>();
+
+            if (!itemsToMap.getCollection().isEmpty()) {
+                items.add(UserSoundsItem.fromHeader(collectionType));
+
+                items.addAll(Lists.transform(
+                        itemsToMap.getCollection(),
+                        toUserSoundsItem(collectionType)));
+
+                if (itemsToMap.getNextLink().isPresent()) {
+                    items.add(UserSoundsItem.fromViewAll(collectionType));
+                }
+
+                items.add(UserSoundsItem.fromDivider());
+            }
+            return items;
+        }
+
+        private Function<ApiEntityHolder, UserSoundsItem> toUserSoundsItem(
+                final int collectionType) {
+            return new Function<ApiEntityHolder, UserSoundsItem>() {
+                @Override
+                public UserSoundsItem apply(ApiEntityHolder holder) {
+                    final PropertySet properties = holder.toPropertySet();
 
                     if (properties.get(EntityProperty.URN).isTrack()) {
-                        return UserSoundsItem.fromTrackItem(TrackItem.from(properties), collectionType);
+                        return fromTrackItem(TrackItem.from(properties), collectionType);
                     } else {
-                        return UserSoundsItem.fromPlaylistItem(PlaylistItem.from(properties), collectionType);
+                        return fromPlaylistItem(PlaylistItem.from(properties), collectionType);
                     }
                 }
-
-                return null;
-            }
-        };
+            };
+        }
     }
-
 }
