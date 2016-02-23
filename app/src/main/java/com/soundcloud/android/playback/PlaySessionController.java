@@ -399,9 +399,10 @@ public class PlaySessionController {
                         .map(PropertySetFunctions.mergeWith(PropertySet.from(AdProperty.IS_AUDIO_AD.bind(isAudioAd))))
                         .subscribe(new CurrentTrackSubscriber());
             } else if (playQueueItem.isVideo()) {
-                // Temporarily until PlaySessionController can handle video ads properly
+                if (playSessionStateProvider.isPlaying()) {
+                    playCurrent();
+                }
                 currentPlayQueueTrack = null;
-                playCurrent();
             }
         }
 

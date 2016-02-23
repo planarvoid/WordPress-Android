@@ -133,7 +133,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playQueueTrackChangedHandlerCallsPlayCurrentIfCurrentItemIsVideoAd() {
+    public void playQueueTrackChangedHandlerCallsPlayCurrentIfCurrentItemIsVideoAdIfThePlayerIsInPlaySession() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
         final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(videoItem, Urn.NOT_SET, 0));
@@ -161,11 +162,23 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playQueueTrackChangedHandlerDoesNotCallPlayCurrentIfPlaySessionIsNotActive() {
+    public void playQueueTrackChangedHandlerDoesNotCallPlayCurrentForTrackIfPlaySessionIsNotActive() {
         final Player.StateTransition lastTransition = Mockito.mock(Player.StateTransition.class);
         when(lastTransition.playSessionIsActive()).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+
+        assertThat(playCurrentSubject.hasObservers()).isFalse();
+    }
+
+    @Test
+    public void playQueueTrackChangeHandlerDoesNotCallPlayCurrentForVideoAdIfPlaySessionIsNotActive() {
+        final Player.StateTransition lastTransition = Mockito.mock(Player.StateTransition.class);
+        when(lastTransition.playSessionIsActive()).thenReturn(false);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
+
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(videoItem, Urn.NOT_SET, 0));
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
     }
@@ -238,6 +251,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
         verify(audioManager).onTrackChanged(track, null);
+    }
+
+    @Test
+    public void playQueueChangedHandlerDoesntSetLockScreenStateForCurrentVideoAd() {
+        when(audioManager.isTrackChangeSupported()).thenReturn(true);
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
+
+        InOrder inOrder = Mockito.inOrder(audioManager);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(videoItem, Urn.NOT_SET, 0));
+        inOrder.verify(audioManager, never()).onTrackChanged(any(PropertySet.class), any(Bitmap.class));
     }
 
     @Test
