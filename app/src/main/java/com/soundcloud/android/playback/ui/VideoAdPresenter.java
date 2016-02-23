@@ -8,7 +8,6 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.CircularProgressBar;
 import com.soundcloud.java.collections.Iterables;
 
 import android.content.Context;
@@ -25,7 +24,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ProgressBar;
 
 import javax.inject.Inject;
 
