@@ -508,9 +508,9 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         when(trackPagePresenter.accept(firstTrack)).thenReturn(true);
         when(trackPagePresenter.accept(secondTrack)).thenReturn(true);
         when(playSessionStateProvider.hasLastKnownProgress(TRACK1_URN)).thenReturn(true);
-        when(playSessionStateProvider.getLastProgressForTrack(TRACK1_URN)).thenReturn(firstProgress);
+        when(playSessionStateProvider.getLastProgressForItem(TRACK1_URN)).thenReturn(firstProgress);
         when(playSessionStateProvider.hasLastKnownProgress(TRACK2_URN)).thenReturn(true);
-        when(playSessionStateProvider.getLastProgressForTrack(TRACK2_URN)).thenReturn(secondProgress);
+        when(playSessionStateProvider.getLastProgressForItem(TRACK2_URN)).thenReturn(secondProgress);
         Mockito.reset(audioAdPresenter); // progress gets set on initial bind, which we are not testing
 
         presenter.onTrackChange();

@@ -23,22 +23,15 @@
   <string name="website">Situs Web</string>
   <string name="imprint">Imprint</string>
   <string name="privacy">Privasi</string>
-  <string name="legal">Legal</string>
-  <string name="legal_summary">Informasi legal</string>
   <string name="terms_of_use">Syarat penggunaan</string>
   <string name="privacy_policy">Kebijakan privasi</string>
   <string name="contact_support">Kontak dukungan</string>
   <string name="copyright_information">Informasi Hak Cipta</string>
-  <string name="version">Versi</string>
   <!--@Todo from l10n: please explain-->
   <string name="account_one_active">Anda hanya boleh mempunyai satu akun aktif</string>
   <string name="comments">Komentar</string>
   <!--@Todo from l10n: probably move to non-final since related to offline sync?-->
   <string name="unlimited">tanpa batas</string>
-  <!--__RELATED TRACKS-->
-  <string name="play_related_tracks">Putar lagu-lagu yang terkait</string>
-  <string name="unable_to_play_related_tracks">Tidak dapat memutar lagu-lagu yang terkait</string>
-  <string name="loading_related_tracks">Memuat lagu-lagu yang terkait...</string>
   <string name="following_zero">Diikuti oleh Anda</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_stats_user_liked">Disukai oleh Anda</string>
@@ -300,25 +293,15 @@
   <string name="discovery_search_hint">Cari SoundCloud</string>
   <string name="discovery_search_title">Cari</string>
   <!--__SETTINGS-->
-  <string name="pref_basic_settings">Pengaturan dasar</string>
   <string name="pref_clear_cache_desc">Bersihkan cache aplikasi untuk membebaskan memori di perangkat Anda.</string>
-  <string name="pref_connection_and_data">Koneksi dan data</string>
   <string name="pref_privacy">Privasi</string>
-  <string name="pref_help">Bantuan</string>
-  <string name="pref_help_desc">Akses ke situs dukungan SoundCloud</string>
   <string name="pref_autoplay_related">Putar otomatis lagu-lagu yang terkait</string>
   <string name="pref_autoplay_related_desc">Saat daftar lagu berakhir, putar lagu-lagu berdasarkan lagu terakhir</string>
   <string name="pref_revoke_access">Keluar</string>
-  <string name="pref_revoke_desc">Keluar pengguna saat ini</string>
   <string name="pref_sync_wifi_only">Pembaruan data lewat Wi-Fi saja</string>
   <string name="pref_sync_wifi_only_description">Pembaruan suka baru dsb. lewat Wi-Fi saja</string>
   <string name="pref_analytics">Analitik</string>
   <string name="pref_crashlogs">Catatan Crash</string>
-  <string name="playback_error_logging">Mencatat kesalahan pemutaran: %s</string>
-  <string name="enabled">Diaktifkan</string>
-  <string name="disabled">Dinonaktifkan</string>
-  <string name="wifi_settings">Pengaturan jaringan &amp; nirkabel</string>
-  <string name="wifi_settings_summary">Edit pengaturan Anda. Gunakan Wi-Fi untuk kinerja terbaik.</string>
   <string name="cache_clearing">Membersihkan cache</string>
   <string name="cache_clearing_message">Menghapus berkas cache...</string>
   <!--__SETTINGS SIGN OUT-->

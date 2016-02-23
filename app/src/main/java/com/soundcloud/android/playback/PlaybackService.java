@@ -254,8 +254,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         fadeHandler.removeMessages(FadeHandler.FADE_IN);
     }
 
-    void preload(Urn urn) {
-        streamPlayer.preload(urn);
+    void preload(PreloadItem preloadItem) {
+        streamPlayer.preload(preloadItem);
     }
 
     void play(PlaybackItem playbackItem) {
@@ -312,6 +312,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public interface ActionExtras {
         String POSITION = "seek_position";
         String PLAYBACK_ITEM = "playback_item";
+        String PRELOAD_ITEM = "preload_item";
         String URN = "urn";
     }
 

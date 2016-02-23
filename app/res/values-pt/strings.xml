@@ -23,21 +23,15 @@
   <string name="website">Site</string>
   <string name="imprint">SoundCloud Ltd.</string>
   <string name="privacy">Privacidade</string>
-  <string name="legal">Aviso legal</string>
-  <string name="legal_summary">Informação legal</string>
   <string name="terms_of_use">Termos de uso</string>
   <string name="privacy_policy">Política de privacidade</string>
   <string name="contact_support">Contatar suporte</string>
   <string name="copyright_information">Informações sobre direitos autorais</string>
-  <string name="version">Versão</string>
   <!--@Todo from l10n: please explain-->
   <string name="account_one_active">Você pode ter apenas uma conta ativa</string>
   <string name="comments">Comentários</string>
   <string name="display_name">Nome</string>
   <!--__RELATED TRACKS-->
-  <string name="play_related_tracks">Reproduzir faixas relacionadas</string>
-  <string name="unable_to_play_related_tracks">Não é possível reproduzir as faixas relacionadas</string>
-  <string name="loading_related_tracks">Carregando faixas relacionadas...</string>
   <string name="following_zero">Seguido por você</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_stats_user_liked">Curtido por você</string>
@@ -390,29 +384,18 @@
   <string name="discovery_search_hint">Pesquisar no SoundCloud</string>
   <string name="discovery_search_title">Pesquisar</string>
   <!--__SETTINGS-->
-  <string name="pref_app_details">Detalhes do aplicativo</string>
-  <string name="pref_basic_settings">Configurações básicas</string>
   <string name="pref_clear_cache">Limpar cache do aplicativo</string>
   <string name="pref_clear_cache_desc">Limpe o cache do app para liberar memória no dispositivo</string>
-  <string name="pref_connection_and_data">Conexão e dados</string>
   <string name="pref_privacy">Privacidade</string>
-  <string name="pref_help">Ajuda</string>
-  <string name="pref_help_desc">Acesse o site de suporte da SoundCloud</string>
   <string name="pref_autoplay_related">Reproduzir automaticamente faixas relacionadas</string>
   <string name="pref_autoplay_related_desc">Quando a playlist terminar, reproduzir faixas com base na última faixa</string>
   <string name="pref_revoke_access">Sair</string>
-  <string name="pref_revoke_desc">Sair do usuário atual</string>
   <string name="pref_sync_wifi_only">Atualizar os dados apenas através de Wi-Fi</string>
   <string name="pref_sync_wifi_only_description">Atualizar apenas novas curtidas, etc. através de Wi-Fi</string>
   <string name="pref_analytics">Análise</string>
   <string name="pref_analytics_desc">A ativação das técnicas de análise permite coletar dados sobre o uso deste app, o que nos ajuda a melhorá-lo. Consulte nossa Política de Privacidade para obter mais detalhes.</string>
   <string name="pref_crashlogs">Crashlogs</string>
   <string name="pref_crashlogs_desc">A ativação dos logs de pane nos ajuda a melhorar o aplicativo de forma significativa. Não coletamos dados pessoais. Para obter detalhes, consulte a Política de Privacidade.</string>
-  <string name="playback_error_logging">Registro de erros de reprodução: %s</string>
-  <string name="enabled">Ativado</string>
-  <string name="disabled">Desativado</string>
-  <string name="wifi_settings">Configurações sem fio e de rede</string>
-  <string name="wifi_settings_summary">Edite suas configurações. Use Wi-Fi para um melhor desempenho.</string>
   <string name="cache_clearing">Limpando o cache</string>
   <string name="cache_clearing_message">Excluindo arquivos em cache...</string>
   <string name="cache_cleared">Cache liberado</string>
@@ -424,11 +407,9 @@
   <string name="title_legal">Aviso legal</string>
   <string name="title_notification_settings">Configurações de notificação</string>
   <!--__SETTINGS (PUSH) NOTIFICATIONS-->
-  <string name="pref_notifications">Notificações push</string>
   <string name="pref_notifications_activity">Atividade</string>
   <string name="pref_notifications_comments">Comentários</string>
   <string name="pref_notifications_comments_description">Receba notificações sobre novos comentários sobre seus sons.</string>
-  <string name="pref_notifications_description">Quais notificações você gostaria de receber?</string>
   <string name="pref_notifications_likes">Curtidas</string>
   <string name="pref_notifications_likes_description">Receba notificações sobre novas curtidas sobre seus sons.</string>
   <string name="pref_notifications_followers">Seguidores</string>

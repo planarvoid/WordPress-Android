@@ -69,7 +69,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         subscriber = new TestSubscriber<>();
 
-        when(serviceInitiator.action1Start()).thenReturn(startServiceAction);
+        when(serviceInitiator.startFromUserAction()).thenReturn(startServiceAction);
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(LIKED_TRACKS));
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
                 Observable.<Collection<ApiPolicyInfo>>just(Collections.<ApiPolicyInfo>emptyList()));
@@ -154,7 +154,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final List<Urn> expectedOfflinePlaylists = newArrayList(playlist1, playlist2);
         when(offlineContentStorage.storeLikedTrackCollection()).thenReturn(Observable.just(new ChangeResult(1)));
         when(collectionOperations.myPlaylists()).thenReturn(Observable.just(Arrays.asList(createPlaylistItem(playlist1), createPlaylistItem(playlist2))));
-        when(offlineContentStorage.addOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(new TxnResult()));
+        when(offlineContentStorage.setOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(new TxnResult()));
         final PublishSubject<Boolean> refreshSubject = PublishSubject.create();
         when(syncInitiator.refreshMyPlaylists()).thenReturn(refreshSubject);
 

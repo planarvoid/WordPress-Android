@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import android.content.res.Configuration;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.ApiVideoSource;
-import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -29,6 +27,7 @@ import org.mockito.Mock;
 
 import java.util.concurrent.TimeUnit;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.android.api.Assertions.assertThat;
@@ -65,14 +64,75 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void letterboxVideoDoesNotHaveFadingElements() {
+    public void videoViewNotVisibleOnVerticalVideoBind() {
+        bindVerticalVideo();
+
+        assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
+    }
+
+    @Test
+    public void letterboxVideoBindShowsLoadingIndicatorAndLetterboxBackgroundButNotVideoView() {
         bindLetterboxVideo();
-        assertThat(fadingViews().iterator().hasNext()).isFalse();
+
+        assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
+        assertThat(adView.findViewById(R.id.letterbox_background)).isVisible();
+        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+    }
+
+    @Test
+    public void loadingIndicatorVisibleOnVerticalVideoBind() {
+        bindVerticalVideo();
+
+        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+    }
+
+    @Test
+    public void videoViewShouldBeVisibleAndLoadingIndicatorGoneAfterPlaybackStarts() {
+        bindLetterboxVideo();
+
+        presenter.setPlayState(adView, createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
+        assertThat(adView.findViewById(R.id.video_view)).isVisible();
+        assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
+    }
+
+    @Test
+    public void loadingIndicatorAndVideoViewAreVisibleOnPlaybackBuffering() {
+        bindLetterboxVideo();
+
+        presenter.setPlayState(adView, createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
+        presenter.setPlayState(adView, createStateTransition(PlayerState.BUFFERING, Player.Reason.NONE), true, true);
+
+        assertThat(adView.findViewById(R.id.video_view)).isVisible();
+        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+    }
+
+    @Test
+    public void loadingIndicatorIsntVisibleWhenPlaybackPaused() {
+        bindLetterboxVideo();
+
+        presenter.setPlayState(adView, createStateTransition(PlayerState.IDLE, Player.Reason.NONE), true, true);
+
+        assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
     }
 
     @Test
     public void videoViewAspectRatioMaintainedForLetterbox() {
         bindLetterboxVideo();
+        final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
+        final int viewWidth = layoutParams.width;
+        final int viewHeight = layoutParams.height;
+
+        final float newAspectRatio = (float) viewWidth / (float) viewHeight;
+        final float originalAspectRatio = (float) LETTERBOX_VIDEO_WIDTH / (float) LETTERBOX_VIDEO_HEIGHT;
+
+        assertThat(newAspectRatio).isEqualTo(originalAspectRatio, Offset.offset(0.001F));
+    }
+
+    @Test
+    public void videoViewAspectRatioMaintainedForLandscape() {
+        when(deviceHelper.getCurrentOrientation()).thenReturn(ORIENTATION_LANDSCAPE);
+        bindLetterboxVideo();
+
         final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
         final int viewWidth = layoutParams.width;
         final int viewHeight = layoutParams.height;
@@ -211,6 +271,20 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clickFullscreenShouldFullscreen() {
+        adView.findViewById(R.id.video_fullscreen_control).performClick();
+
+        verify(pageListener).onFullscreen();
+    }
+
+    @Test
+    public void clickShrinkShouldShrink() {
+        adView.findViewById(R.id.video_shrink_control).performClick();
+
+        verify(pageListener).onShrink();
+    }
+
+    @Test
     public void showAboutAdsOnWhyAdsClick() {
         adView.findViewById(R.id.why_ads).performClick();
 
@@ -249,6 +323,13 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         assertThat(timeUntilSkip()).isGone();
         assertThat(previewArtworkOverlay()).isGone();
         assertThat(skipAd()).isVisible();
+    }
+
+    @Test
+    public void onBackgroundShouldDetachSurfaceViewWithMediaPlayer() {
+        presenter.onBackground(adView);
+
+        verify(mediaPlayerVideoAdapter).surfaceDestroyed(null);
     }
 
     private Iterable<View> fadingViews() {

@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.stream.StreamItem.Kind.NOTIFICATION;
 import static com.soundcloud.android.stream.StreamItem.Kind.PLAYABLE;
@@ -19,12 +20,12 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.java.collections.PropertySet;
@@ -94,10 +95,8 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
 
         @Override
         public List<StreamItem> call(List<StreamItem> streamItems) {
-            if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
-                if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddDistinctItemOfKind(streamItems, NOTIFICATION)) {
-                    streamItems.add(0, new StationOnboardingStreamItem());
-                }
+            if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddDistinctItemOfKind(streamItems, NOTIFICATION)) {
+                streamItems.add(0, new StationOnboardingStreamItem());
             }
             return streamItems;
         }
@@ -106,12 +105,10 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
     private final Func1<List<StreamItem>, List<StreamItem>> appendUpsellAfterSnippet = new Func1<List<StreamItem>, List<StreamItem>>() {
         @Override
         public List<StreamItem> call(List<StreamItem> streamItems) {
-            if (featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)) {
-                if (upsellOperations.canDisplayUpsellInStream() && canAddDistinctItemOfKind(streamItems, UPSELL)) {
-                    Optional<StreamItem> upsellable = getFirstUpsellable(streamItems);
-                    if (upsellable.isPresent()) {
-                        streamItems.add(streamItems.indexOf(upsellable.get()) + 1, new UpsellNotificationItem());
-                    }
+            if (upsellOperations.canDisplayUpsellInStream() && canAddDistinctItemOfKind(streamItems, UPSELL)) {
+                Optional<StreamItem> upsellable = getFirstUpsellable(streamItems);
+                if (upsellable.isPresent()) {
+                    streamItems.add(streamItems.indexOf(upsellable.get()) + 1, new UpsellNotificationItem());
                 }
             }
             return streamItems;
@@ -150,9 +147,10 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           FacebookInvitesOperations facebookInvites,
                           StationsOperations stationsOperations, UpsellOperations upsellOperations,
-                          FeatureFlags featureFlags) {
+                          FeatureFlags featureFlags,
+                          SyncStateStorage syncStateStorage) {
 
-        super(SyncContent.MySoundStream, soundStreamStorage, syncInitiator, contentStats, scheduler);
+        super(SyncContent.MySoundStream, soundStreamStorage, syncInitiator, contentStats, scheduler, syncStateStorage);
         this.soundStreamStorage = soundStreamStorage;
         this.removeStalePromotedItemsCommand = removeStalePromotedItemsCommand;
         this.markPromotedItemAsStaleCommand = markPromotedItemAsStaleCommand;
@@ -162,6 +160,19 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
         this.stationsOperations = stationsOperations;
         this.upsellOperations = upsellOperations;
         this.featureFlags = featureFlags;
+    }
+
+    public Observable<Integer> newItemsSince(long time) {
+        return soundStreamStorage.timelineItemCountSince(time)
+                .subscribeOn(scheduler);
+    }
+
+    public Observable<List<StreamItem>> updatedStreamItemsForStart() {
+        return hasSyncedBefore()
+                .filter(IS_TRUE)
+                .flatMap(continueWith(updatedTimelineItems()))
+                .onErrorResumeNext(Observable.<List<StreamItem>>empty())
+                .subscribeOn(scheduler);
     }
 
     @Override

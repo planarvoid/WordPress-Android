@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public final class OfflineStoragePreference extends Preference {
 
@@ -27,7 +26,7 @@ public final class OfflineStoragePreference extends Preference {
     @Bind(R.id.offline_storage_legend_used) TextView storageUsedLabelTextView;
     @Bind(R.id.offline_storage_legend_limit) TextView storageLimitLabelTextView;
 
-    private OnPreferenceChangeListener onStorageLimitChangeListener;
+    private OnStorageLimitChangedListener onStorageLimitChangeListener;
     private OfflineUsage offlineUsage;
     private final Resources resources;
 
@@ -49,15 +48,9 @@ public final class OfflineStoragePreference extends Preference {
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             if (onStorageLimitChangeListener != null) {
-
-                onStorageLimitChangeListener.onPreferenceChange(OfflineStoragePreference.this,
-                        offlineUsage.isUnlimited() ? OfflineSettingsStorage.UNLIMITED : offlineUsage.getActualOfflineLimit());
-
-                if (showLimitToast) {
-                    Toast.makeText(getContext(),
-                            R.string.offline_cannot_set_limit_below_usage, Toast.LENGTH_SHORT).show();
-                    showLimitToast = false;
-                }
+                final long newValue = offlineUsage.isUnlimited() ? OfflineSettingsStorage.UNLIMITED : offlineUsage.getActualOfflineLimit();
+                onStorageLimitChangeListener.onStorageLimitChanged(newValue, showLimitToast);
+                showLimitToast = false;
             }
         }
     };
@@ -69,8 +62,7 @@ public final class OfflineStoragePreference extends Preference {
         resources = context.getResources();
     }
 
-    @Override
-    public void setOnPreferenceChangeListener(OnPreferenceChangeListener onPreferenceChangeListener) {
+    public void setOnStorageLimitChangedListener(OnStorageLimitChangedListener onPreferenceChangeListener) {
         onStorageLimitChangeListener = onPreferenceChangeListener;
     }
 
@@ -96,8 +88,8 @@ public final class OfflineStoragePreference extends Preference {
     public void updateAndRefresh() {
         if (offlineUsage != null) {
             offlineUsage.update();
+            updateView();
         }
-        updateView();
     }
 
     private void updateView() {
@@ -145,4 +137,7 @@ public final class OfflineStoragePreference extends Preference {
                 .addBar(R.color.usage_bar_free, offlineUsage.getUnused());
     }
 
+    interface OnStorageLimitChangedListener {
+        void onStorageLimitChanged(long newStorageLimit, boolean belowLimitWarning);
+    }
 }

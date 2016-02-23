@@ -160,7 +160,7 @@ public class PlaySessionController {
         @Override
         public Boolean call(StateTransition stateTransition) {
             return stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete()
-                    && (stateTransition.trackEnded() || unrecoverableErrorDuringAutoplay(stateTransition));
+                    && (stateTransition.playbackEnded() || unrecoverableErrorDuringAutoplay(stateTransition));
         }
     };
 
@@ -168,6 +168,7 @@ public class PlaySessionController {
         @Override
         public void call(StateTransition stateTransition) {
             adsController.reconfigureAdForNextTrack();
+            adsController.publishAdDeliveryEventIfUpcoming();
         }
     };
 
@@ -232,8 +233,8 @@ public class PlaySessionController {
     }
 
     public void togglePlayback() {
-        if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack() || playQueueManager.getCurrentPlayQueueItem().isVideo()) {
-            if (playSessionStateProvider.isInErrorState()){
+        if (playSessionStateProvider.isPlayingCurrentPlayQueueItem()) {
+            if (playSessionStateProvider.isInErrorState()) {
                 playCurrent();
             } else {
                 playbackStrategyProvider.get().togglePlayback();
@@ -253,7 +254,7 @@ public class PlaySessionController {
 
     public void seek(long position) {
         if (!shouldDisableSkipping()) {
-            if (playSessionStateProvider.isPlayingCurrentPlayQueueTrack()) {
+            if (playSessionStateProvider.isPlayingCurrentPlayQueueItem()) {
                 playbackStrategyProvider.get().seek(position);
             } else {
                 playQueueManager.saveCurrentProgress(position);
@@ -266,7 +267,7 @@ public class PlaySessionController {
             playbackToastHelper.showUnskippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
-                    && !adsOperations.isCurrentItemAudioAd()) {
+                    && !adsOperations.isCurrentItemAd()) {
                 seek(SEEK_POSITION_RESET);
             } else {
                 publishSkipEventIfAudioAd();
@@ -285,12 +286,13 @@ public class PlaySessionController {
     }
 
     public boolean shouldDisableSkipping() {
-        return adsOperations.isCurrentItemAudioAd() &&
-                playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
+        return adsOperations.isCurrentItemAd() &&
+                playSessionStateProvider.getLastProgressEventForCurrentPlayQueueItem().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
 
     public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {
         if (!playQueueManager.getCurrentPlayQueueItem().equals(playQueueItem)) {
+            adsController.publishAdDeliveryEventIfUpcoming();
             publishSkipEventIfAudioAd();
             playQueueManager.setCurrentPlayQueueItem(playQueueItem);
         }

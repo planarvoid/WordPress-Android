@@ -436,8 +436,16 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiPlaylist insertLikedPlaylist(Date creationDate, Date likedDate) {
+        return insertLikedPlaylist(likedDate, insertPlaylistWithCreatedAt(creationDate));
+    }
+
     public ApiPlaylist insertLikedPlaylist(Date likedDate) {
-        ApiPlaylist playlist = insertPlaylist();
+        return insertLikedPlaylist(likedDate, insertPlaylist());
+    }
+
+    @NonNull
+    private ApiPlaylist insertLikedPlaylist(Date likedDate, ApiPlaylist playlist) {
         insertPlaylist(playlist);
         insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         return playlist;
@@ -669,7 +677,7 @@ public class DatabaseFixtures {
     public void insertUnavailableTrackDownload(Urn trackUrn, long unavailableTimestamp) {
         ContentValuesBuilder cv = ContentValuesBuilder.values();
         cv.put(TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TrackDownloads.REQUESTED_AT, 33333333L);
+        cv.put(TrackDownloads.REQUESTED_AT, unavailableTimestamp - 1);
         cv.put(TrackDownloads.UNAVAILABLE_AT, unavailableTimestamp);
         insertInto(TrackDownloads.TABLE, cv.get());
     }
@@ -713,6 +721,15 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Collections.URI, syncContent.content.uri.toString());
         insertInto(Table.Collections, cv);
     }
+
+    public void insertSyncAttemptAndLast(SyncContent syncContent, long attempt, long last) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, attempt);
+        cv.put(TableColumns.Collections.LAST_SYNC, last);
+        cv.put(TableColumns.Collections.URI, syncContent.content.uri.toString());
+        insertInto(Table.Collections, cv);
+    }
+
 
     public void insertSuccessfulSync(SyncContent syncContent, long when) {
         ContentValues cv = new ContentValues();

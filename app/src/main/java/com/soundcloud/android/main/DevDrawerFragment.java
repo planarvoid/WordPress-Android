@@ -99,7 +99,25 @@ public class DevDrawerFragment extends PreferenceFragment {
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        navigator.restartForAccountUpgrade(getActivity(), true);
+                        navigator.restartForAccountUpgrade(getActivity());
+                        return true;
+                    }
+                });
+
+        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_flow_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        navigator.restartForAccountUpgrade(getActivity());
+                        return true;
+                    }
+                });
+
+        screen.findPreference(getString(R.string.dev_drawer_action_downgrade_flow_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        navigator.restartForAccountDowngrade(getActivity());
                         return true;
                     }
                 });
@@ -166,7 +184,7 @@ public class DevDrawerFragment extends PreferenceFragment {
 
     private void updateLastConfigUpdateText(Preference preference, SharedPreferences sharedPreferences) {
         final long lastUpdatedTs = sharedPreferences.getLong(KEY_LAST_CONFIG_CHECK_TIME, 0);
-        preference.setSummary("last updated " + ScTextUtils.formatTimeElapsedSince(getResources(), lastUpdatedTs, true));
+        preference.setSummary("last updated " + ScTextUtils.formatTimeElapsedSince(preference.getContext().getResources(), lastUpdatedTs, true));
     }
 
     private void copyTokenToClipboard() {

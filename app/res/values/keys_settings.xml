@@ -3,17 +3,10 @@
            tools:ignore="MissingTranslation">
 
     <!-- General settings -->
-    <string name="key_general">generalSettings</string>
-    <string name="key_notifications">notificationSettings</string>
     <string name="key_autoplay_related_enabled">autoplay_related_enabled</string>
-    <string name="key_logout">logout</string>
     <string name="key_analytics_enabled">analytics_enabled</string>
     <string name="key_report_crashes">acra.enable</string>
-    <string name="key_wireless">wireless</string>
     <string name="key_clear_cache">clearCache</string>
-    <string name="key_help">help</string>
-    <string name="key_legal">legal</string>
-    <string name="key_version">version</string>
     <string name="key_sync_wifi_only">syncWifiOnly</string>
 
     <!-- Notification settings -->
@@ -25,8 +18,30 @@
     <string name="key_notifications_reposts">notificationsReposts</string>
     <string name="key_notifications_followers">notificationsFollowers</string>
 
+    <!-- New Notification settings -->
+    <string name="key_push_notifications_follower">pushNotificationsFollower</string>
+    <string name="key_push_notifications_repost">pushNotificationsRepost</string>
+    <string name="key_push_notifications_new_post">pushNotificationsNewPost</string>
+    <string name="key_push_notifications_like">pushNotificationsLike</string>
+    <string name="key_push_notifications_product_updates">pushNotificationsProductUpdates</string>
+    <string name="key_push_notifications_survey">pushNotificationsSurvey</string>
+    <string name="key_push_notifications_tips">pushNotificationsTips</string>
+
+    <string name="key_email_notifications_follower">emailNotificationsFollower</string>
+    <string name="key_email_notifications_repost">emailNotificationsRepost</string>
+    <string name="key_email_notifications_new_post">emailNotificationsNewPost</string>
+    <string name="key_email_notifications_like">emailNotificationsLike</string>
+    <string name="key_email_notifications_message">emailNotificationsMessage</string>
+    <string name="key_email_notifications_comment">emailNotificationsComment</string>
+    <string name="key_email_notifications_group">emailNotificationsGroup</string>
+    <string name="key_email_notifications_product_updates">emailNotificationsProductUpdates</string>
+    <string name="key_email_notifications_survey">emailNotificationsSurvey</string>
+    <string name="key_email_notifications_tips">emailNotificationsTips</string>
+    <string name="key_email_notifications_newsletter">emailNotificationsNewsletter</string>
+
     <!-- Subscription settings -->
     <string name="key_subscription_buy">buySubscription</string>
+    <string name="key_subscription_restore">restoreSubscription</string>
 
     <!-- Offline sync settings -->
     <string name="key_offline_collection">offline.offlineCollections</string>

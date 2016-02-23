@@ -19,7 +19,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.payments.UpgradeActivity;
+import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -36,6 +36,7 @@ import org.mockito.Mock;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -47,7 +48,6 @@ import java.util.List;
 public class NavigatorTest extends AndroidUnitTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
-    public static final int SEARCH_TYPE = 0;
 
     @Mock private FeatureFlags flags;
 
@@ -58,7 +58,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        navigator = new Navigator();
+        navigator = new Navigator(flags);
         appContext = context();
         activityContext = new Activity();
     }
@@ -72,9 +72,63 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void openHomeAsRootScreen() {
+        navigator.openHomeAsRootScreen(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .opensActivity(MainActivity.class);
+    }
+
+    @Test
+    public void launchHome() {
+        final Intent intent = new Intent();
+        Referrer.FACEBOOK.addToIntent(intent);
+        Screen.AUTH_LOG_IN.addToIntent(intent);
+
+        navigator.launchHome(activityContext, intent.getExtras());
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsScreen(Screen.AUTH_LOG_IN)
+                .containsReferrer(Referrer.FACEBOOK)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .opensActivity(MainActivity.class);
+    }
+
+    @Test
+    public void launchHomeWithoutExtra() {
+        navigator.launchHome(activityContext, null);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsScreen(Screen.UNKNOWN)
+                .containsReferrer(Referrer.HOME_BUTTON)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .opensActivity(MainActivity.class);
+    }
+
+    @Test
+    public void openCollectionAsRootScreen() {
+        navigator.openCollectionAsRootScreen(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .containsAction(Actions.COLLECTION);
+    }
+
+    @Test
     public void openUpgrade() {
         navigator.openUpgrade(activityContext);
-        assertThat(activityContext).nextStartedIntent().opensActivity(UpgradeActivity.class);
+        assertThat(activityContext).nextStartedIntent().opensActivity(NativeConversionActivity.class);
+    }
+
+    @Test
+    public void openUpgradeFromDeeplink() {
+        navigator.openUpgradeFromDeeplink(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(MainActivity.class)
+                .containsExtra(Navigator.EXTRA_UPGRADE_INTENT, true);
     }
 
     @Test
@@ -104,6 +158,19 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .containsAction(Actions.PLAYLIST)
                 .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlist)
+                .containsScreen(Screen.SEARCH_PLAYLISTS);
+    }
+
+    @Test
+    public void openPlaylistWithAutoPlay() {
+        Urn playlist = Urn.forPlaylist(123L);
+
+        navigator.openPlaylistWithAutoPlay(activityContext, playlist, Screen.SEARCH_PLAYLISTS);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Actions.PLAYLIST)
+                .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlist)
+                .containsExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, true)
                 .containsScreen(Screen.SEARCH_PLAYLISTS);
     }
 
@@ -278,6 +345,15 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void performSearch() {
+        navigator.performSearch(activityContext, "query");
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Actions.PERFORM_SEARCH)
+                .containsExtra(SearchManager.QUERY, "query");
+    }
+
+    @Test
     public void opensTrackComments() {
         Urn trackUrn = Urn.forTrack(123);
 
@@ -300,17 +376,13 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldOpenPendingActivityFromIntentExtrasWithPendingActivityExtras() {
+    public void shouldOpenPendingActivityFromIntentExtrasWithPending() {
         Bundle extras = new Bundle();
-        Bundle pendingExtras = new Bundle();
-        pendingExtras.putString("key", "value");
         extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, MainActivity.class.getCanonicalName());
-        extras.putBundle(Navigator.EXTRA_PENDING_ACTIVITY_EXTRAS, pendingExtras);
 
         navigator.openPendingActivity(activityContext, extras);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra("key", "value")
                 .opensActivity(MainActivity.class);
     }
 

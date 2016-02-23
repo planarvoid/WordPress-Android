@@ -7,7 +7,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -66,6 +65,8 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                     serviceInitiator.play(AudioPlaybackItem.forAudioAd(track));
                 } else if (offlinePlaybackOperations.shouldPlayOffline(track)) {
                     serviceInitiator.play(AudioPlaybackItem.forOffline(track, getPosition(trackUrn)));
+                } else if (track.get(TrackProperty.SNIPPED)) {
+                    serviceInitiator.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));
                 } else {
                     serviceInitiator.play(AudioPlaybackItem.create(track, getPosition(trackUrn)));
                 }
@@ -122,7 +123,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     }
 
     private long getPosition(Urn urn) {
-        return playSessionStateProvider.getLastProgressForTrack(urn).getPosition();
+        return playSessionStateProvider.getLastProgressForItem(urn).getPosition();
     }
 
     @Override

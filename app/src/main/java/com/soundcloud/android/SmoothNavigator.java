@@ -1,12 +1,14 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.properties.FeatureFlags;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.SharedElementCallback;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Pair;
 import android.view.View;
@@ -16,6 +18,9 @@ import java.util.List;
 @TargetApi(21)
 @SuppressLint("NewApi")
 public class SmoothNavigator extends Navigator {
+    public SmoothNavigator(FeatureFlags featureFlags) {
+        super(featureFlags);
+    }
 
     @Override
     public void openSearch(Activity activity) {
@@ -40,4 +45,12 @@ public class SmoothNavigator extends Navigator {
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity, sharedElements);
         activity.startActivity(new Intent(activity, SearchActivity.class), options.toBundle());
     }
+
+    @Override
+    public void openUpgrade(Context activityContext) {
+        Activity activity = (Activity) activityContext;
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity);
+        activity.startActivity(new Intent(activity, getUpgradeClass()), options.toBundle());
+    }
+
 }

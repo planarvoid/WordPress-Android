@@ -5,9 +5,9 @@ import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PullToRefreshEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -52,7 +52,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     @LightCycle final TrackLikesHeaderPresenter headerPresenter;
 
     private final TrackLikeOperations likeOperations;
-    private final FeatureOperations featureOperations;
     private final PlaybackInitiator playbackOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final PagedTracksRecyclerItemAdapter adapter;
@@ -63,7 +62,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
     private Subscription collectionSubscription = RxUtils.invalidSubscription();
     private Subscription entityStateChangedSubscription = RxUtils.invalidSubscription();
-    private Fragment fragment;
 
     @Inject
     TrackLikesPresenter(TrackLikeOperations likeOperations,
@@ -73,7 +71,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
                         SwipeRefreshAttacher swipeRefreshAttacher,
-                        FeatureOperations featureOperations,
                         CollapsingScrollHelper scrollHelper) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
@@ -83,21 +80,13 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
         this.headerPresenter = headerPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
-        this.featureOperations = featureOperations;
         this.scrollHelper = scrollHelper;
     }
 
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        this.fragment = fragment;
         getBinding().connect();
-    }
-
-    @Override
-    public void onResume(Fragment fragment) {
-        super.onResume(fragment);
-        fragment.setMenuVisibility(featureOperations.isOfflineContentOrUpsellEnabled());
     }
 
     @Override
@@ -110,7 +99,10 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
 
     @Override
     protected CollectionBinding<TrackItem> onRefreshBinding() {
-        return CollectionBinding.from(likeOperations.updatedLikedTracks(), TrackItem.fromPropertySets())
+        return CollectionBinding.from(
+                likeOperations.updatedLikedTracks()
+                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.LIKES))),
+                TrackItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
@@ -197,7 +189,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
         @Override
         public void onNext(List<Urn> allLikedTracks) {
             headerPresenter.updateTrackCount(allLikedTracks.size());
-            fragment.setMenuVisibility(!allLikedTracks.isEmpty() && featureOperations.isOfflineContentOrUpsellEnabled());
         }
     }
 

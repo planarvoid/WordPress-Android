@@ -21,7 +21,7 @@ public class DailyUpdateScheduler {
 
     static final int REQUEST_ID = R.id.policy_update_request_id;
     static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
-    static final long POLICY_UPDATE_DELAY = TimeUnit.HOURS.toMillis(24);
+    static final long POLICY_UPDATE_DELAY = TimeUnit.DAYS.toMillis(1);
 
     private final Context context;
     private final AlarmManager alarmManager;
@@ -41,7 +41,8 @@ public class DailyUpdateScheduler {
         if (!isNextUpdateAlreadyScheduled()) {
             Log.d(TAG, "Scheduling new policy update");
             final PendingIntent intent = pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT);
-            alarmManager.setInexactRepeating(ALARM_TYPE, dateProvider.getCurrentTime(), POLICY_UPDATE_DELAY, intent);
+            final long initialDelay = dateProvider.getCurrentTime() + POLICY_UPDATE_DELAY;
+            alarmManager.setInexactRepeating(ALARM_TYPE, initialDelay, AlarmManager.INTERVAL_DAY, intent);
         }
     }
 

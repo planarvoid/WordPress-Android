@@ -6,26 +6,7 @@
         android:layout_height="match_parent"
         android:background="@color/ad_default_background">
 
-    <FrameLayout
-        android:id="@+id/video_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <SurfaceView
-            android:id="@+id/video_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"/>
-
-        <com.soundcloud.android.playback.ui.view.ArtworkAdOverlayView
-            android:id="@+id/video_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@color/artwork_overlay"/>
-
-    </FrameLayout>
-
+    <include layout="@layout/player_ad_video_container"/>
     <include layout="@layout/player_gradient"/>
     <include layout="@layout/player_ad_expanded_header"/>
 
@@ -61,6 +42,13 @@
 
     </FrameLayout>
 
+    <ProgressBar
+        android:id="@+id/video_progress"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"/>
+
     <RelativeLayout
             android:id="@+id/preview_container"
             android:layout_width="match_parent"
@@ -95,7 +83,8 @@
                 android:layout_toRightOf="@id/preview_artwork_container"/>
     </RelativeLayout>
 
-    <include layout="@layout/player_play_controls"/>
+    <include layout="@layout/video_play_controls"/>
+
     <Button android:id="@+id/video_pause_control"
             style="@style/AdVideoPause"
             android:visibility="invisible"/>

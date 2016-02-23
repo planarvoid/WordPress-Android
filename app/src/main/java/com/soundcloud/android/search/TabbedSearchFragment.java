@@ -1,11 +1,12 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.search.SearchPagerAdapter.TAB_ALL;
+import static com.soundcloud.android.search.SearchPagerAdapter.TAB_TRACKS;
+import static com.soundcloud.android.search.SearchPagerAdapter.TAB_PLAYLISTS;
+import static com.soundcloud.android.search.SearchPagerAdapter.TAB_PEOPLE;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
@@ -25,10 +26,10 @@ public class TabbedSearchFragment extends Fragment {
 
     public static final String TAG = "tabbed_search";
 
-    private final static String KEY_QUERY = "query";
+    private static final String KEY_QUERY = "query";
 
-    @Inject EventBus eventBus;
     @Inject Resources resources;
+    @Inject SearchTracker searchTracker;
 
     private ViewPager pager;
 
@@ -47,16 +48,15 @@ public class TabbedSearchFragment extends Fragment {
     }
 
     @VisibleForTesting
-    TabbedSearchFragment(EventBus eventBus, Resources resources) {
-        this.eventBus = eventBus;
+    TabbedSearchFragment(Resources resources, SearchTracker searchTracker) {
         this.resources = resources;
+        this.searchTracker = searchTracker;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Workaround for onPageSelected not being triggered on creation
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_EVERYTHING));
+        searchTracker.trackResultsScreenEvent(TAB_ALL);
     }
 
     @Override
@@ -73,7 +73,8 @@ public class TabbedSearchFragment extends Fragment {
         String query = getArguments().getString(KEY_QUERY);
         boolean firstTime = savedInstanceState == null;
 
-        SearchPagerAdapter searchPagerAdapter = new SearchPagerAdapter(resources, this.getChildFragmentManager(), query, firstTime);
+        SearchPagerAdapter searchPagerAdapter =
+                new SearchPagerAdapter(resources, this.getChildFragmentManager(), query, firstTime);
 
         pager = (ViewPager) view.findViewById(R.id.pager);
         pager.setAdapter(searchPagerAdapter);
@@ -82,7 +83,7 @@ public class TabbedSearchFragment extends Fragment {
 
         TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.tab_indicator);
         tabIndicator.setupWithViewPager(pager);
-        pager.addOnPageChangeListener(new SearchPagerScreenListener(eventBus));
+        pager.addOnPageChangeListener(new SearchPagerScreenListener(searchTracker));
     }
 
     @Override
@@ -93,29 +94,30 @@ public class TabbedSearchFragment extends Fragment {
     }
 
     protected static class SearchPagerScreenListener implements ViewPager.OnPageChangeListener {
-        private final EventBus eventBus;
+        private final SearchTracker searchTracker;
 
-        public SearchPagerScreenListener(EventBus eventBus) {
-            this.eventBus = eventBus;
+        public SearchPagerScreenListener(SearchTracker searchTracker) {
+            this.searchTracker = searchTracker;
         }
 
         @Override
-        public void onPageScrolled(int i, float v, int i2) {}
+        public void onPageScrolled(int i, float v, int i2) {
+        }
 
         @Override
         public void onPageSelected(int pageSelected) {
             switch (pageSelected) {
-                case SearchPagerAdapter.TAB_ALL:
-                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_EVERYTHING));
+                case TAB_ALL:
+                    searchTracker.trackResultsScreenEvent(TAB_ALL);
                     break;
-                case SearchPagerAdapter.TAB_TRACKS:
-                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_TRACKS));
+                case TAB_TRACKS:
+                    searchTracker.trackResultsScreenEvent(TAB_TRACKS);
                     break;
-                case SearchPagerAdapter.TAB_PLAYLISTS:
-                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_PLAYLISTS));
+                case TAB_PLAYLISTS:
+                    searchTracker.trackResultsScreenEvent(TAB_PLAYLISTS);
                     break;
-                case SearchPagerAdapter.TAB_PEOPLE:
-                    eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_USERS));
+                case TAB_PEOPLE:
+                    searchTracker.trackResultsScreenEvent(TAB_PEOPLE);
                     break;
                 default:
                     throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");

@@ -2,14 +2,21 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
+import com.soundcloud.android.events.ConnectionType;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Player.PlayerListener;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAudioAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.strings.Strings;
+import com.soundcloud.rx.eventbus.EventBus;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -25,6 +32,7 @@ class StreamPlayer implements PlayerListener {
     private final MediaPlayerVideoAdapter videoPlayerDelegate;
     private final SkippyAdapter skippyPlayerDelegate;
     private final NetworkConnectionHelper networkConnectionHelper;
+    private final EventBus eventBus;
 
     private Player currentPlayer;
     private PlayerListener playerListener;
@@ -37,11 +45,13 @@ class StreamPlayer implements PlayerListener {
     public StreamPlayer(MediaPlayerAudioAdapter mediaPlayerAudioAdapter,
                         MediaPlayerVideoAdapter mediaPlayerVideoAdapter,
                         SkippyAdapter skippyAdapter,
-                        NetworkConnectionHelper networkConnectionHelper) {
+                        NetworkConnectionHelper networkConnectionHelper,
+                        EventBus eventBus) {
         mediaPlayerDelegate = mediaPlayerAudioAdapter;
         videoPlayerDelegate = mediaPlayerVideoAdapter;
         skippyPlayerDelegate = skippyAdapter;
         this.networkConnectionHelper = networkConnectionHelper;
+        this.eventBus = eventBus;
 
         if (!skippyFailedToInitialize) {
             skippyFailedToInitialize = !skippyPlayerDelegate.init();
@@ -78,8 +88,8 @@ class StreamPlayer implements PlayerListener {
         currentPlayer.play(playbackItem);
     }
 
-    public void preload(Urn urn) {
-        skippyPlayerDelegate.preload(urn);
+    public void preload(PreloadItem preloadItem) {
+        skippyPlayerDelegate.preload(preloadItem);
     }
 
     private void prepareForPlay(PlaybackItem playbackItem) {
@@ -135,7 +145,7 @@ class StreamPlayer implements PlayerListener {
     public void onPlaystateChanged(Player.StateTransition stateTransition) {
         if (shouldFallbackToMediaPlayer(stateTransition)) {
             final long currentProgress = skippyPlayerDelegate.getProgress();
-            final PlaybackItem updatedItem = AudioPlaybackItem.create(lastItemPlayed.getUrn(), currentProgress, lastItemPlayed.getDuration());
+            final PlaybackItem updatedItem = AudioPlaybackItem.create(lastItemPlayed.getUrn(), currentProgress, lastItemPlayed.getDuration(), lastItemPlayed.getPlaybackType());
             configureNextPlayerToUse(mediaPlayerDelegate);
             mediaPlayerDelegate.play(updatedItem);
         } else {
@@ -176,9 +186,13 @@ class StreamPlayer implements PlayerListener {
     }
 
     private Player getNextPlayer(PlaybackItem playbackItem) {
+        if (playbackItem.getPlaybackType() == PlaybackType.AUDIO_OFFLINE && skippyFailedToInitialize) {
+            logOfflinePlayNotAvailable();
+        }
+
         if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT) {
             return videoPlayerDelegate;
-        } else if (skippyFailedToInitialize || PlaybackConstants.FORCE_MEDIA_PLAYER) {
+        } else if (skippyFailedToInitialize) {
             return mediaPlayerDelegate;
         }
         return skippyPlayerDelegate;
@@ -186,5 +200,19 @@ class StreamPlayer implements PlayerListener {
 
     private boolean isUsingSkippyPlayer() {
         return currentPlayer == skippyPlayerDelegate;
+    }
+
+    private void logOfflinePlayNotAvailable() {
+        ErrorUtils.handleSilentException(new StreamPlayer.OfflinePlayUnavailableException());
+        eventBus.publish(EventQueue.PLAYBACK_ERROR, getOfflinePlayUnavailableErrorEvent());
+    }
+
+    @NonNull
+    private PlaybackErrorEvent getOfflinePlayUnavailableErrorEvent() {
+        return new PlaybackErrorEvent(PlaybackErrorEvent.CATEGORY_OFFLINE_PLAY_UNAVAILABLE, PlaybackProtocol.HLS,
+                    Strings.EMPTY, ConnectionType.UNKNOWN);
+    }
+
+    private static class OfflinePlayUnavailableException extends Exception {
     }
 }

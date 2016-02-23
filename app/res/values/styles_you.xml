@@ -75,7 +75,7 @@
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/dark_gray_text</item>
         <item name="android:clickable">true</item>
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
     <style name="TextAppearance.You.Version">

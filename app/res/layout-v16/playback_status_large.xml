@@ -47,7 +47,7 @@
                   android:ellipsize="marquee"/>
         <ImageButton
                 android:layout_width="wrap_content"
-                android:background="?android:selectableItemBackground"
+                android:background="?attr/selectableItemBackground"
                 android:padding="9dp"
                 android:scaleType="centerInside"
                 android:id="@+id/close"
@@ -92,7 +92,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_width="0dp"
                 android:padding="5dp"
-                android:background="?android:selectableItemBackground"
+                android:background="?attr/selectableItemBackground"
                 android:id="@+id/prev"
                 android:layout_height="wrap_content"
                 android:src="@drawable/notifications_previous"/>
@@ -103,7 +103,7 @@
                 android:padding="5dp"
                 android:layout_gravity="center_vertical"
                 android:layout_width="0dp"
-                android:background="?android:selectableItemBackground"
+                android:background="?attr/selectableItemBackground"
                 android:layout_height="wrap_content"
                 android:src="@drawable/notifications_play"/>
 
@@ -112,7 +112,7 @@
                 android:layout_gravity="center_vertical"
                 android:padding="5dp"
                 android:layout_width="0dp"
-                android:background="?android:selectableItemBackground"
+                android:background="?attr/selectableItemBackground"
                 android:id="@+id/next"
                 android:layout_height="wrap_content"
                 android:src="@drawable/notifications_next"/>

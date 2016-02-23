@@ -13,6 +13,7 @@ expected_events:
     connection_type: wifi
     click_name: playlist_to_offline::add
     click_object: soundcloud:playlists:190342938
+    click_category: consumer_subs
     page_name: playlists:main
     user: soundcloud:users:136770909
   version: '1'
@@ -41,6 +42,7 @@ expected_events:
     connection_type: wifi
     click_name: playlist_to_offline::remove
     click_object: soundcloud:playlists:190342938
+    click_category: consumer_subs
     page_name: playlists:main
     user: soundcloud:users:136770909
   version: '1'

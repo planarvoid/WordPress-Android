@@ -709,7 +709,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         };
 
         public void populateViewSets() {
-            List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose);
+            List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose, previewIndicator, upsellButton);
             List<View> hideOnError = Arrays.asList(playButton, timestamp);
             List<View> clickViews = Arrays.asList(artworkView, closeIndicator, bottomClose, playButton, footer, footerPlayToggle, profileLink, upsellButton);
 

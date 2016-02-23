@@ -260,4 +260,49 @@ public interface Tables {
             super("Comments", PrimaryKey.of(BaseColumns._ID));
         }
     }
+
+    class OfflinePlaylistTracks extends BaseTable {
+
+        public static final OfflinePlaylistTracks TABLE = new OfflinePlaylistTracks();
+
+        public static final Column _ID = Column.create(TABLE, BaseColumns._ID);
+        public static final Column _TYPE = Column.create(TABLE, "_type");
+        public static final Column USER_ID = Column.create(TABLE, "user_id");
+        public static final Column DURATION = Column.create(TABLE, "duration");
+        public static final Column WAVEFORM_URL = Column.create(TABLE, "waveform_url");
+        public static final Column SYNCABLE = Column.create(TABLE, "syncable");
+        public static final Column LAST_POLICY_UPDATE = Column.create(TABLE, "last_policy_update");
+        public static final Column CREATED_AT = Column.create(TABLE, "created_at");
+        public static final Column POSITION = Column.create(TABLE, "position");
+
+        static final String SQL = "CREATE VIEW IF NOT EXISTS OfflinePlaylistTracks AS " +
+                "SELECT " +
+                "Sounds._id as _id," +
+                "Sounds._type as _type, " +
+                "Sounds.user_id as user_id, " +
+                "Sounds.duration as duration, " +
+                "Sounds.waveform_url as waveform_url, " +
+                "TrackPolicies.syncable as syncable, " +
+                "TrackPolicies.last_updated as last_policy_update, " +
+                "PlaylistTracks.position as position, " +
+                "MAX(IFNULL(PlaylistLikes.created_at, 0), PlaylistProperties.created_at ) AS created_at " +
+                // ^ The timestamp used to sort
+                "FROM Sounds " +
+                    "INNER JOIN PlaylistTracks ON Sounds._id = PlaylistTracks.track_id " +
+                    // ^ Add PlaylistTracks to tracks
+                    "LEFT JOIN Likes as PlaylistLikes ON (PlaylistTracks.playlist_id = PlaylistLikes._id) AND (PlaylistLikes._type = " + TableColumns.Sounds.TYPE_PLAYLIST + ") " +
+                    // ^ When available, adds the Playlist Like date to the tracks (for sorting purpose)
+                    "LEFT JOIN Sounds as PlaylistProperties ON (PlaylistProperties._id = PlaylistTracks.playlist_id AND PlaylistProperties._type = " + TableColumns.Sounds.TYPE_PLAYLIST + ")" +
+                    // ^ Add the playlist creation date
+                    "INNER JOIN OfflineContent ON PlaylistTracks.playlist_id = OfflineContent._id  AND Sounds._type = " + TableColumns.Sounds.TYPE_TRACK + " " +
+                    // ^ Keep only offline tracks
+                    "INNER JOIN TrackPolicies ON PlaylistTracks.track_id = TrackPolicies.track_id " +
+                    // ^ Keep only tracks with policies
+                "WHERE (PlaylistTracks.removed_at IS NULL) ";
+
+        OfflinePlaylistTracks() {
+            super("OfflinePlaylistTracks", PrimaryKey.of(BaseColumns._ID));
+        }
+
+    }
 }

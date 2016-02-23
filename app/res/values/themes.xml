@@ -33,8 +33,16 @@
         <item name="android:textColorPrimary">@color/dark_gray_text</item>
     </style>
 
-    <style name="Theme.SoundCloud.Search">
+    <style name="Theme.SoundCloud.Translucent">
         <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="Theme.SoundCloud.Conversion" parent="Theme.SoundCloud.Translucent" />
+
+    <style name="Theme.SoundCloud.TranslucentStatus">
+        <item name="android:statusBarColor">@color/translucent_status_bar</item>
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="LollipopDialogStyle" parent="Theme.AppCompat.Light.Dialog">

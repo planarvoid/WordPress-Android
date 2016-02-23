@@ -9,8 +9,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.playlists.PlaylistStorage;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.activities.ActivitiesNotifier;
@@ -125,7 +126,7 @@ public abstract class SyncAdapterServiceTestBase {
 
         SyncAdapterService.performSync(
                 app,
-                extras, result, token, null, syncServiceResultReceiverFactory, Mockito.mock(MyLikesStateProvider.class), Mockito.mock(PlaylistStorage.class), Mockito.mock(SyncConfig.class));
+                extras, result, token, null, syncServiceResultReceiverFactory, Mockito.mock(MyLikesStateProvider.class), Mockito.mock(PlaylistStorage.class), Mockito.mock(SyncConfig.class), Mockito.mock(FeatureFlags.class));
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 

@@ -7,9 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.StationsSoftLaunchTest;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ViewAllStationsScreen;
@@ -17,7 +15,6 @@ import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
-@StationsSoftLaunchTest
 public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     private CollectionScreen collectionScreen;
 
@@ -33,7 +30,6 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH);
 
         collectionScreen = mainNavHelper.goToCollections();
     }

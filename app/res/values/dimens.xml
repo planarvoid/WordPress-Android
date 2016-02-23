@@ -57,8 +57,6 @@
 
     <dimen name="explore_category_page_size">1px</dimen>
 
-    <dimen name="buy_button_margin">36dp</dimen>
-
     <!-- will correspond to the arrow height -->
     <dimen name="view_pager_divider_width">1dp</dimen>
 
@@ -82,9 +80,7 @@
     <!-- Like -->
     <dimen name="likes_header_padding_top">4dp</dimen>
     <dimen name="likes_header_padding_bottom">4dp</dimen>
-    <dimen name="likes_header_padding_right">4dp</dimen>
-    <dimen name="likes_shuffle_button_padding">16dp</dimen>
-    <dimen name="likes_shuffle_button_margin_left">8dp</dimen>
+    <dimen name="likes_header_padding_right">8dp</dimen>
     <dimen name="collection_download_state_margin_right">5dp</dimen>
 
     <!-- Discovery -->
@@ -164,5 +160,20 @@
     <!-- Explore -->
     <dimen name="explore_padding_left_right">0dp</dimen>
     <dimen name="explore_padding_top_bottom">16dp</dimen>
+
+    <!-- Conversion -->
+    <dimen name="conversion_width">272dp</dimen>
+    <dimen name="conversion_height">400dp</dimen>
+
+    <!-- Go Onboarding  -->
+    <dimen name="android_status_bar_stub_height">0dp</dimen>
+    <dimen name="go_onboarding_header_text_size">26sp</dimen>
+    <dimen name="go_onboarding_title_text_size">18sp</dimen>
+    <dimen name="go_onboarding_tooltip_margin_top">78dp</dimen>
+    <dimen name="go_onboarding_tooltip_margin_bottom">50dp</dimen>
+    <dimen name="go_onboarding_tooltip_size">84dp</dimen>
+    <dimen name="go_onboarding_sub_title_text_size">14sp</dimen>
+    <dimen name="go_onboarding_header_width">200dp</dimen>
+    <dimen name="go_onboarding_text_width">360dp</dimen>
 
 </resources>

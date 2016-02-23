@@ -8,6 +8,8 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
@@ -52,6 +54,7 @@ public class SyncAdapterService extends Service {
     @Inject MyLikesStateProvider myLikesStateProvider;
     @Inject PlaylistStorage playlistStorage;
     @Inject SyncConfig syncConfig;
+    @Inject FeatureFlags featureFlags;
 
     public SyncAdapterService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -81,7 +84,7 @@ public class SyncAdapterService extends Service {
 
                         looper.quit();
                     }
-                }, syncServiceResultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig)) {
+                }, syncServiceResultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig, featureFlags)) {
                     Looper.loop(); // wait for results to come in
                 }
                 PublicApi.setBackgroundMode(false);
@@ -126,7 +129,8 @@ public class SyncAdapterService extends Service {
                                @Nullable final Runnable onResult,
                                final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory,
                                MyLikesStateProvider myLikesStateProvider, PlaylistStorage playlistStorage,
-                               SyncConfig syncConfig) {
+                               SyncConfig syncConfig,
+                               FeatureFlags featureFlags) {
         if (token == null || !token.valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
@@ -139,7 +143,7 @@ public class SyncAdapterService extends Service {
 
         final SyncStateManager syncStateManager = new SyncStateManager(app);
 
-        final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, playlistStorage, myLikesStateProvider, syncConfig);
+        final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, playlistStorage, myLikesStateProvider, syncConfig, featureFlags);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
             final SyncServiceResultReceiver syncServiceResultReceiver = syncServiceResultReceiverFactory.create(syncResult, new SyncServiceResultReceiver.OnResultListener() {
@@ -171,7 +175,8 @@ public class SyncAdapterService extends Service {
                                         SyncStateManager syncStateManager,
                                         PlaylistStorage playlistStorage,
                                         MyLikesStateProvider myLikesStateProvider,
-                                        SyncConfig syncConfig) {
+                                        SyncConfig syncConfig,
+                                        FeatureFlags featureFlags) {
 
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
         if (extras.getBoolean(EXTRA_SYNC_PUSH)) {
@@ -184,7 +189,8 @@ public class SyncAdapterService extends Service {
         final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
         final ArrayList<Uri> urisToSync = new ArrayList<>();
         if (syncConfig.shouldUpdateDashboard()) {
-            if (syncConfig.isIncomingEnabled() &&
+            if (!featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM) &&
+                    syncConfig.isIncomingEnabled() &&
                     (manual || syncStateManager.isContentDueForSync(SyncContent.MySoundStream))) {
                 urisToSync.add(Content.ME_SOUND_STREAM.uri);
             }
@@ -207,7 +213,7 @@ public class SyncAdapterService extends Service {
             urisToSync.add(Content.ME_FOLLOWINGS.uri);
         }
 
-        if (myLikesStateProvider.hasLocalChanges()){
+        if (myLikesStateProvider.hasLocalChanges()) {
             urisToSync.add(Content.ME_LIKES.uri);
         }
 
@@ -219,7 +225,7 @@ public class SyncAdapterService extends Service {
         // see if there are any playlists with un-pushed track changes
         final Set<Urn> playlistsDueForSync = playlistStorage.getPlaylistsDueForSync();
         if (playlistsDueForSync != null) {
-            for (Urn playlistDueForSync : playlistsDueForSync){
+            for (Urn playlistDueForSync : playlistsDueForSync) {
                 urisToSync.add(Content.PLAYLIST.forId(playlistDueForSync.getNumericId()));
             }
         }

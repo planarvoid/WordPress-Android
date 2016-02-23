@@ -12,6 +12,10 @@ expected_events:
     ts: '[0-9]+'
     impression_object: soundcloud:tcode:1012
     user: soundcloud:users:147986827
+    app_version: '[0-9]+'
+    connection_type: wifi
+    page_urn: soundcloud:playlists:[0-9]+
+    page_name: playlists:main
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: click
@@ -22,6 +26,11 @@ expected_events:
     click_object: soundcloud:tcode:1012
     ts: '[0-9]+'
     user: soundcloud:users:147986827
+    app_version: '[0-9]+'
+    connection_type: wifi
+    page_urn: soundcloud:playlists:[0-9]+
+    page_name: playlists:main
+    click_category: consumer_subs
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: impression
@@ -32,5 +41,8 @@ expected_events:
     ts: '[0-9]+'
     impression_object: soundcloud:tcode:3002
     user: soundcloud:users:147986827
+    app_version: '[0-9]+'
+    connection_type: wifi
+    page_name: consumer-premium:main
   version: '0'
 

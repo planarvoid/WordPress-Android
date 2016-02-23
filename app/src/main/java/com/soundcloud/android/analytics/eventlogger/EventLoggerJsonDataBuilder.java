@@ -17,7 +17,6 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -60,7 +59,9 @@ public class EventLoggerJsonDataBuilder {
 
     public String build(ScreenEvent event) {
         try {
-            return jsonTransformer.toJson(buildBaseEvent(PAGEVIEW_EVENT, event).pageName(event.getScreenTag()));
+            return jsonTransformer.toJson(buildBaseEvent(PAGEVIEW_EVENT, event)
+                    .pageName(event.getScreenTag())
+                    .queryUrn(event.getQueryUrn()));
         } catch (ApiMapperException e) {
             throw new IllegalArgumentException(e);
         }
@@ -347,26 +348,6 @@ public class EventLoggerJsonDataBuilder {
                 .url(event.getCdnHost())
                 .errorCode(event.getCategory())
                 .connectionType(event.getConnectionType().getValue());
-    }
-
-    public String build(UpgradeTrackingEvent event) {
-        switch (event.getKind()) {
-            case UpgradeTrackingEvent.KIND_UPSELL_CLICK:
-                return transform(buildBaseEvent(CLICK_EVENT, event)
-                        .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
-                        .clickName("clickthrough::consumer_sub_ad")
-                        .clickObject(event.get(UpgradeTrackingEvent.KEY_TCODE)));
-            case UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION:
-                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                        .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
-                        .impressionName("consumer_sub_ad")
-                        .impressionObject(event.get(UpgradeTrackingEvent.KEY_TCODE)));
-            case UpgradeTrackingEvent.KIND_UPGRADE_SUCCESS:
-                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                        .impressionName("consumer_sub_upgrade_success"));
-            default:
-                throw new IllegalArgumentException("Unexpected upsell tracking event type " + event);
-        }
     }
 
     private String transform(EventLoggerEventData data) {

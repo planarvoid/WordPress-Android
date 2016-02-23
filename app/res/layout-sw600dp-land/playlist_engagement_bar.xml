@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:animateLayoutChanges="true">
 
     <com.soundcloud.android.offline.DownloadImageView
         android:id="@+id/header_download_state"
@@ -25,6 +26,11 @@
     <com.soundcloud.android.view.CustomFontToggleButton
         android:id="@+id/toggle_like"
         style="@style/PlayerLikeBase.PlayerLike" />
+
+    <com.soundcloud.android.view.IconToggleButton
+        android:id="@+id/toggle_download"
+        style="@style/EngagementAction.ToggleButton.DownloadBase.Download"
+        android:layout_width="wrap_content" />
 
     <Button
         android:id="@+id/playlist_details_overflow_button"

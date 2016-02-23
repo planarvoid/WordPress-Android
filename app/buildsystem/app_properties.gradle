@@ -28,6 +28,7 @@ android {
       resValue "string", "gcm_gateway_id", ""
       resValue "string", "new_relic_app_token", "AA6cf074186892fc0ca95fdfd742fdf987222b6331"
       resValue "bool", "new_relic_enabled", "false"
+      resValue "string", "web_payment_form_environment", "sandbox"
 
       resValue "bool", "google_plus_enabled", "true"
 
@@ -43,11 +44,12 @@ android {
       resValue "string", "gcm_gateway_id", ""
       resValue "string", "new_relic_app_token", "AA6cf074186892fc0ca95fdfd742fdf987222b6331"
       resValue "bool", "new_relic_enabled", "true"
+      resValue "string", "web_payment_form_environment", "sandbox"
 
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
     beta {
@@ -58,11 +60,12 @@ android {
       resValue "string", "gcm_gateway_id", "android/beta"
       resValue "string", "new_relic_app_token", "AA6cf074186892fc0ca95fdfd742fdf987222b6331"
       resValue "bool", "new_relic_enabled", "true"
+      resValue "string", "web_payment_form_environment", "production"
 
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-beta.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
     end2end {
@@ -73,11 +76,12 @@ android {
       resValue "string", "gcm_gateway_id", ""
       resValue "string", "new_relic_app_token", "AA6cf074186892fc0ca95fdfd742fdf987222b6331"
       resValue "bool", "new_relic_enabled", "true"
+      resValue "string", "web_payment_form_environment", "sandbox"
 
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-beta.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
     release {
@@ -88,11 +92,12 @@ android {
       resValue "string", "gcm_gateway_id", "android/prod"
       resValue "string", "new_relic_app_token", "AA0be6a0d3e7c33f70cd33ae9d4d7f1133a6fad7d0"
       resValue "bool", "new_relic_enabled", "false"
+      resValue "string", "web_payment_form_environment", "production"
 
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
     releaseNoProguard {
@@ -103,11 +108,12 @@ android {
       resValue "string", "gcm_gateway_id", "android/prod"
       resValue "string", "new_relic_app_token", "AA0be6a0d3e7c33f70cd33ae9d4d7f1133a6fad7d0"
       resValue "bool", "new_relic_enabled", "false"
+      resValue "string", "web_payment_form_environment", "production"
 
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
     release_non_play_store {
@@ -118,11 +124,12 @@ android {
       resValue "string", "gcm_gateway_id", "android/prod"
       resValue "string", "new_relic_app_token", "AA0be6a0d3e7c33f70cd33ae9d4d7f1133a6fad7d0"
       resValue "bool", "new_relic_enabled", "false"
+      resValue "string", "web_payment_form_environment", "production"
 
       resValue "bool", "google_plus_enabled", "false"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://eventgateway.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
   }
 }

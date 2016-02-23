@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -50,6 +51,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     private final DownloadState unavailableTrackResult1 = DownloadState.unavailable(downloadRequest1);
     private final DownloadState failedResult1 =
             DownloadState.connectionError(downloadRequest1, ConnectionState.NOT_ALLOWED);
+    private final DownloadState notEnoughMinimumSpace = DownloadState.notEnoughMinimumSpace(downloadRequest1);
 
     private Observable<List<Urn>> deletePendingRemoval;
     private OfflineContentService service;
@@ -62,7 +64,6 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         deletePendingRemoval = Observable.empty();
         downloadQueue = new DownloadQueue();
 
-        when(downloadHandler.getCurrentTrack()).thenReturn(Urn.NOT_SET);
         when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class)))
                 .thenReturn(downloadMessage);
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
@@ -122,13 +123,12 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
                 .build());
         when(downloadHandler.isDownloading()).thenReturn(true);
         when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
-        when(downloadHandler.getCurrentTrack()).thenReturn(downloadRequest1.getTrack());
 
         startService();
 
         final InOrder inOrder = inOrder(publisher);
         inOrder.verify(publisher).publishRequested(singletonList(downloadRequest2.getTrack()));
-        inOrder.verify(publisher).publishDownloading(downloadHandler.getCurrentTrack());
+        inOrder.verify(publisher).publishDownloading(downloadHandler.getCurrentRequest().getTrack());
     }
 
     @Test
@@ -213,13 +213,26 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void connectionErrorNotificationWhenTrackDownloadFailed() {
+    public void connectionErrorNotificationWhenTrackDownloadFailedWithResultRequested() {
+        setUpsDownloads(downloadRequest1);
+
+        startServiceWithResultRequested();
+        service.onError(failedResult1);
+
+        verify(notificationController).onConnectionError(failedResult1, true);
+    }
+
+    @Test
+    public void connectionErrorNotificationWithMultipleStartsWhenTrackDownloadFailedWithResultRequested() {
         setUpsDownloads(downloadRequest1);
 
         startService();
+        startServiceWithResultRequested();
+        startService();
+
         service.onError(failedResult1);
 
-        verify(notificationController).onConnectionError(failedResult1);
+        verify(notificationController).onConnectionError(failedResult1, true);
     }
 
     @Test
@@ -230,6 +243,27 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         service.onError(failedResult1);
 
         verify(offlineContentScheduler).scheduleRetry();
+        verify(downloadHandler).quit();
+    }
+
+    @Test
+    public void showsNotificationWhenNotEnoughMinimumSpace() {
+        setUpsDownloads(downloadRequest1);
+
+        startServiceWithResultRequested();
+        service.onError(notEnoughMinimumSpace);
+
+        verify(notificationController).onDownloadsFinished(notEnoughMinimumSpace, true);
+    }
+
+    @Test
+    public void stopsWithoutRetryingWhenNotEnoughMinimumSpace() {
+        setUpsDownloads(downloadRequest1);
+
+        startService();
+        service.onError(notEnoughMinimumSpace);
+
+        verify(offlineContentScheduler, never()).scheduleRetry();
         verify(downloadHandler).quit();
     }
 
@@ -265,6 +299,15 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     @Test
+    public void mutesNotificationWhenNoContentIsRequestedForDownload() {
+        setUpsDownloads();
+
+        startService();
+
+        verify(notificationController).reset();
+    }
+
+    @Test
     public void cancelRequestWhenDownloadingATrackNotRequestedAnyMore() {
         when(downloadHandler.isDownloading()).thenReturn(true);
         when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
@@ -274,7 +317,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         verify(downloadHandler).cancel();
     }
-    
+
     @Test
     public void publishRemovedWhenDownloadingATrackNotRequestedAnyMore() {
         when(downloadHandler.isDownloading()).thenReturn(true);
@@ -289,7 +332,6 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Test
     public void republishDownloadingWhenRestartingService() {
         when(downloadHandler.isDownloading()).thenReturn(true);
-        when(downloadHandler.getCurrentTrack()).thenReturn(downloadRequest1.getTrack());
         when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
         setUpsDownloads(downloadRequest1, downloadRequest2);
 
@@ -309,7 +351,34 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     public void showsNotificationWhenAllTrackDownloaded() {
         service.onSuccess(downloadState1);
 
-        verify(notificationController).onDownloadsFinished(downloadState1);
+        verify(notificationController).onDownloadsFinished(downloadState1, false);
+    }
+
+    @Test
+    public void showsNotificationWhenAllTrackDownloadedWithResultRequested() {
+        startServiceWithResultRequested();
+
+        service.onSuccess(downloadState1);
+
+        verify(notificationController).onDownloadsFinished(downloadState1, true);
+    }
+
+    @Test
+    public void showsNotificationAfterMultipleStartsWhenAllTrackDownloadedWithResultRequested() {
+        startService();
+        startServiceWithResultRequested();
+        startService();
+
+        service.onSuccess(downloadState1);
+
+        verify(notificationController).onDownloadsFinished(downloadState1, true);
+    }
+
+    @Test
+    public void updatesNotificationWithDownloadProgress() {
+        service.onProgress(downloadState1);
+
+        verify(notificationController).onDownloadProgress(downloadState1);
     }
 
     @Test
@@ -344,9 +413,47 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         verify(offlineContentScheduler).cancelPendingRetries();
     }
 
+    @Test
+    public void stopIntentCancelsCurrentDownload() {
+        when(downloadHandler.isDownloading()).thenReturn(true);
+
+        stopService();
+
+        verify(downloadHandler).cancel();
+    }
+
+    @Test
+    public void stopIntentResetsNotification() {
+        when(downloadHandler.isDownloading()).thenReturn(true);
+
+        stopService();
+        service.onCancel(downloadState1);
+
+        verify(notificationController).reset();
+        verify(notificationController).onDownloadsFinished(downloadState1, false);
+    }
+
+    @Test
+    public void destroyServiceUnsubscribesObservables() {
+        PublishSubject<OfflineContentUpdates> loadUpdates = PublishSubject.create();
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(loadUpdates);
+
+        startService();
+        service.onDestroy();
+
+        assertThat(loadUpdates.hasObservers()).isFalse();
+    }
+
     private int startService() {
         Intent intent = new Intent(context(), OfflineContentService.class);
         intent.setAction(OfflineContentService.ACTION_START);
+        return service.onStartCommand(intent, 0, 0);
+    }
+
+    private int startServiceWithResultRequested() {
+        Intent intent = new Intent(context(), OfflineContentService.class);
+        intent.setAction(OfflineContentService.ACTION_START);
+        intent.putExtra(OfflineContentService.EXTRA_SHOW_RESULT, true);
         return service.onStartCommand(intent, 0, 0);
     }
 
@@ -361,7 +468,12 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     private void setUpsDownloads(DownloadRequest... requests) {
-        setUpOfflineContentUpdates(builder().tracksToDownload(Arrays.asList(requests)).build());
+        ExpectedOfflineContent expectedOfflineContent = mock(ExpectedOfflineContent.class);
+        when(expectedOfflineContent.isEmpty()).thenReturn(requests.length == 0);
+
+        setUpOfflineContentUpdates(builder()
+                .tracksToDownload(Arrays.asList(requests))
+                .userExpectedOfflineContent(expectedOfflineContent).build());
     }
 
     private void setUpOfflineContentUpdates(OfflineContentUpdates updates) {

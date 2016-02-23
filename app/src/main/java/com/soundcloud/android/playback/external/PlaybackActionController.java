@@ -58,7 +58,8 @@ public class PlaybackActionController {
         if (source.equals(PlayControlEvent.SOURCE_NOTIFICATION)
                 || source.equals(PlayControlEvent.SOURCE_WIDGET)
                 || source.equals(PlayControlEvent.SOURCE_REMOTE)) {
-           adsController.reconfigureAdForNextTrack();
+            adsController.reconfigureAdForNextTrack();
+            adsController.publishAdDeliveryEventIfUpcoming();
         }
     }
 }

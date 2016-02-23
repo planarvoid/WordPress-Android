@@ -200,10 +200,7 @@ public class SoundCloudApplication extends MultiDexApplication {
             playPublisher.subscribe();
         }
 
-        if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
-            stationsController.subscribe();
-        }
-
+        stationsController.subscribe();
         if (featureFlags.isEnabled(Flag.DAILY_POLICY_UPDATES)) {
             dailyUpdateScheduler.schedule();
         }

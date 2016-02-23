@@ -2,20 +2,16 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.PlayerController;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
-import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class ShowAllStationsActivity extends ScActivity {
+public class ShowAllStationsActivity extends PlayerActivity {
     public static final String COLLECTION_TYPE = "type";
-
-    @Inject @LightCycle PlayerController playerController;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 
@@ -65,13 +61,6 @@ public class ShowAllStationsActivity extends ScActivity {
     private void attachFragment() {
         ShowAllStationsFragment fragment = ShowAllStationsFragment.create(getIntent().getIntExtra(COLLECTION_TYPE, Consts.NOT_SET));
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!playerController.handleBackPressed()) {
-            super.onBackPressed();
-        }
     }
 
 }

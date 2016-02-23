@@ -27,6 +27,7 @@ public enum Screen {
     LIKES("collection:likes"),
     PLAYLISTS("collection:playlists"),
     OFFLINE_ONBOARDING("collection:offline_onboarding"),
+    OFFLINE_OFFBOARDING("collection:offline_offboarding"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),
@@ -116,7 +117,8 @@ public enum Screen {
     STATIONS_RECENT("stations:recent_stations"),
 
     // PAYMENT
-    UPGRADE("consumer-premium:main");
+    CONVERSION("consumer-premium:main"),
+    CHECKOUT("consumer-premium:checkout");
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
 

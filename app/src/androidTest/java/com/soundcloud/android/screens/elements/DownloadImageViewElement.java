@@ -4,6 +4,7 @@ import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.java.objects.MoreObjects;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
@@ -83,7 +84,22 @@ public class DownloadImageViewElement {
         public static Matcher<DownloadImageViewElement> downloadingOrDownloaded() {
             return new IsDownloadingOrDownloaded();
         }
+    }
 
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(DownloadImageViewElement.class)
+                .add("isVisible", isVisible())
+                .add("state", getStateString())
+                .toString();
+    }
+
+    private String getStateString() {
+        if (isUnavailable()) return "unavailable";
+        else if (isRequested()) return "requested";
+        else if (isDownloading()) return "downloading";
+        else if (isDownloaded()) return "downloaded";
+        else return "unknown?";
     }
 }
 

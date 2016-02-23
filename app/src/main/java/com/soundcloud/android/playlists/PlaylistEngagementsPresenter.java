@@ -13,14 +13,15 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -41,6 +42,7 @@ import rx.functions.Action0;
 import rx.functions.Func1;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -49,7 +51,8 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle implements PlaylistEngagementsView.OnEngagementListener {
+public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle<Fragment>
+        implements PlaylistEngagementsView.OnEngagementListener {
 
     private Context context;
     private FragmentManager fragmentManager;
@@ -99,6 +102,16 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.shareOperations = shareOperations;
     }
 
+    @Override
+    public void onCreate(Fragment fragment, Bundle bundle) {
+        super.onCreate(fragment, bundle);
+        if (featureOperations.upsellOfflineContent()) {
+            Urn playlistUrn = fragment.getArguments().getParcelable(PlaylistDetailFragment.EXTRA_URN);
+            eventBus.publish(EventQueue.TRACKING,
+                    UpgradeTrackingEvent.forPlaylistPageImpression(playlistUrn));
+        }
+    }
+
     @VisibleForTesting
     void bindView(View rootView) {
         bindView(rootView, new OriginProvider() {
@@ -125,7 +138,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onResume(Fragment fragment) {
         fragmentManager = fragment.getFragmentManager();
-        foregroundSubscription =  eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber());
+        foregroundSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber());
     }
 
     @Override
@@ -207,11 +220,11 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     private void updateOfflineAvailability(boolean isPlaylistOfflineAvailable) {
         if (featureOperations.isOfflineContentEnabled() && isEligibleForOfflineContent()) {
-            playlistEngagementsView.setOfflineOptionsMenu(isPlaylistOfflineAvailable);
+            playlistEngagementsView.showMakeAvailableOfflineButton(isPlaylistOfflineAvailable);
         } else if (featureOperations.upsellOfflineContent()) {
             playlistEngagementsView.showUpsell();
         } else {
-            playlistEngagementsView.hideOfflineContentOptions();
+            playlistEngagementsView.hideMakeAvailableOfflineButton();
         }
     }
 
@@ -234,25 +247,21 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     private TrackingEvent getOfflinePlaylistTrackingEvent(boolean isMarkedForOffline) {
         return isMarkedForOffline ?
-                UIEvent.fromAddOfflinePlaylist(
+                OfflineInteractionEvent.fromAddOfflinePlaylist(
                         Screen.PLAYLIST_DETAILS.get(),
                         playlistWithTracks.getUrn(),
                         playSessionSourceInfo.getPromotedSourceInfo()) :
-                UIEvent.fromRemoveOfflinePlaylist(
+                OfflineInteractionEvent.fromRemoveOfflinePlaylist(
                         Screen.PLAYLIST_DETAILS.get(),
                         playlistWithTracks.getUrn(),
                         playSessionSourceInfo.getPromotedSourceInfo());
     }
 
     @Override
-    public void onUpsellImpression() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistPageImpression());
-    }
-
-    @Override
     public void onUpsell(Context context) {
         navigator.openUpgrade(context);
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistPageClick());
+        eventBus.publish(EventQueue.TRACKING,
+                UpgradeTrackingEvent.forPlaylistPageClick(playlistWithTracks.getUrn()));
     }
 
     @Override
@@ -344,6 +353,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                     playlistEngagementsView.updateLikeItem(
                             changeSet.get(PlayableProperty.LIKES_COUNT),
                             changeSet.get(PlayableProperty.IS_USER_LIKE));
+                    updateOfflineAvailability();
                 }
                 if (changeSet.contains(PlaylistProperty.IS_USER_REPOST)) {
                     playlistEngagementsView.showPublicOptions(

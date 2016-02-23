@@ -7,6 +7,7 @@ import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
+import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.EntityProperty;
@@ -20,7 +21,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.sync.timeline.TimelineStorage;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -112,7 +112,6 @@ public class SoundStreamStorage implements TimelineStorage {
                 .select(STREAM_SELECTION)
                 .whereLt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
                 .whereNull(SoundStreamView.PROMOTED_ID)
-                .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
         return propellerRx.query(query).map(new StreamItemMapper());
@@ -124,10 +123,18 @@ public class SoundStreamStorage implements TimelineStorage {
                 .select(STREAM_SELECTION)
                 .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
                 .whereNull(SoundStreamView.PROMOTED_ID)
-                .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
         return database.query(query).toList(new StreamItemMapper());
+    }
+
+    public Observable<Integer> timelineItemCountSince(final long timestamp) {
+        Query query = Query.count(Table.SoundStreamView.name())
+                .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
+                .whereNull(SoundStreamView.PROMOTED_ID)
+                .whereNotNull(SoundView.TITLE);
+
+        return propellerRx.query(query).map(scalar(Integer.class));
     }
 
     public Observable<PropertySet> playbackItems() {

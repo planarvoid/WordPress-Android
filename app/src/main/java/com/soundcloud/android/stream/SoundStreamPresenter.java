@@ -5,13 +5,18 @@ import static com.soundcloud.android.events.FacebookInvitesEvent.forCreatorDismi
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerClick;
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerDismiss;
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerShown;
+import static com.soundcloud.android.rx.RxUtils.IS_VALID_TIMESTAMP;
+import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.PullToRefreshEvent;
+import com.soundcloud.android.events.StreamEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookCreatorInvitesItemRenderer;
 import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
@@ -26,31 +31,49 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.util.Date;
 
 public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> implements
         FacebookListenerInvitesItemRenderer.Listener,
         StationsOnboardingStreamItemRenderer.Listener,
         FacebookCreatorInvitesItemRenderer.Listener,
-        UpsellNotificationItemRenderer.Listener {
+        UpsellNotificationItemRenderer.Listener,
+        NewItemsIndicator.Listener {
+
+    private static final Func1<StreamEvent, Boolean> FILTER_STREAM_REFRESH_EVENTS = new Func1<StreamEvent, Boolean>() {
+        @Override
+        public Boolean call(StreamEvent streamEvent) {
+            return streamEvent.isStreamRefreshed();
+        }
+    };
 
     private final SoundStreamOperations streamOperations;
     private final SoundStreamAdapter adapter;
@@ -60,6 +83,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     private final MixedItemClickListener itemClickListener;
     private final StationsOperations stationsOperations;
     private final Navigator navigator;
+    private final FeatureFlags featureFlags;
+    private final NewItemsIndicator newItemsIndicator;
 
     private CompositeSubscription viewLifeCycle;
     private Fragment fragment;
@@ -73,7 +98,9 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
                          EventBus eventBus,
                          MixedItemClickListener.Factory itemClickListenerFactory,
                          FacebookInvitesDialogPresenter invitesDialogPresenter,
-                         Navigator navigator) {
+                         Navigator navigator,
+                         FeatureFlags featureFlags,
+                         NewItemsIndicator newItemsIndicator) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build());
         this.streamOperations = streamOperations;
         this.adapter = adapter;
@@ -82,8 +109,13 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
         this.navigator = navigator;
-        
+        this.featureFlags = featureFlags;
+        this.newItemsIndicator = newItemsIndicator;
+
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
+
+        newItemsIndicator.setTextResourceId(R.plurals.stream_new_posts);
+        newItemsIndicator.setClickListener(this);
 
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnFacebookCreatorInvitesClickListener(this);
@@ -96,6 +128,10 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         super.onCreate(fragment, bundle);
         this.fragment = fragment;
         getBinding().connect();
+
+        if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
+            refreshAndUpdateIndicator();
+        }
     }
 
     @Override
@@ -108,7 +144,10 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
     @Override
     protected CollectionBinding<StreamItem> onRefreshBinding() {
-        return CollectionBinding.from(streamOperations.updatedStreamItems())
+        newItemsIndicator.hideAndReset();
+        return CollectionBinding.from(
+                streamOperations.updatedStreamItems()
+                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.STREAM))))
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
@@ -119,10 +158,15 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         super.onViewCreated(fragment, view, savedInstanceState);
         configureEmptyView();
         addScrollListeners();
+
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
+
+        if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
+            initializeNewItemsIndicator(view);
+        }
     }
 
     private void addScrollListeners() {
@@ -133,6 +177,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     @Override
     public void onDestroyView(Fragment fragment) {
         viewLifeCycle.unsubscribe();
+        newItemsIndicator.destroy();
         super.onDestroyView(fragment);
     }
 
@@ -264,4 +309,68 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         eventBus.publish(EventQueue.TRACKING, event);
     }
 
+    private void softReload() {
+        adapter.clear();
+        rebuildBinding(null).connect();
+    }
+
+    @Override
+    public void onNewItemsIndicatorClicked() {
+        scrollToTop();
+        softReload();
+    }
+
+    private Observable<Long> mostRecentTimestamp() {
+        return Observable.create(new Observable.OnSubscribe<Long>() {
+            @Override
+            public void call(Subscriber<? super Long> subscriber) {
+                Date date = streamOperations.getFirstItemTimestamp(adapter.getItems());
+                subscriber.onNext(date == null ? Consts.NOT_SET : date.getTime());
+                subscriber.onCompleted();
+            }
+        });
+    }
+
+    private void initializeNewItemsIndicator(View view) {
+        newItemsIndicator.setTextView((TextView) view.findViewById(R.id.new_items_indicator));
+        getRecyclerView().addOnScrollListener(newItemsIndicator.getScrollListener());
+
+        viewLifeCycle.add(
+                eventBus.queue(EventQueue.STREAM)
+                        .filter(FILTER_STREAM_REFRESH_EVENTS)
+                        .flatMap(continueWith(updateIndicatorFromMostRecent()))
+                        .subscribe());
+    }
+
+    private void refreshAndUpdateIndicator() {
+        streamOperations.updatedStreamItemsForStart()
+                .flatMap(continueWith(updateIndicatorFromMostRecent()))
+                .subscribe();
+    }
+
+    private Observable<Integer> updateIndicatorFromMostRecent() {
+        return mostRecentTimestamp()
+                .filter(IS_VALID_TIMESTAMP)
+                .flatMap(newItemsCount())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(updateNewItemsIndicator());
+    }
+
+    private Func1<Long, Observable<Integer>> newItemsCount() {
+        return new Func1<Long, Observable<Integer>>() {
+            @Override
+            public Observable<Integer> call(Long time) {
+                return streamOperations.newItemsSince(time);
+            }
+        };
+    }
+
+    private Action1<Integer> updateNewItemsIndicator() {
+        return new Action1<Integer>() {
+            @Override
+            public void call(Integer newItems) {
+                newItemsIndicator.update(newItems);
+            }
+        };
+    }
 }

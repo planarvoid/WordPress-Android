@@ -9,14 +9,11 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.StationsSoftLaunchTest;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
-@StationsSoftLaunchTest
 public class StartStationTest extends ActivityTest<LauncherActivity> {
 
     private PlaylistDetailsScreen playlistDetailsScreen;
@@ -33,7 +30,6 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setRequiredEnabledFeatures(Flag.STATIONS_SOFT_LAUNCH);
 
         playlistDetailsScreen = mainNavHelper.goToCollections()
                 .scrollToAndClickPlaylistWithTitle("track-stations");

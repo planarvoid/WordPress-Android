@@ -22,12 +22,12 @@ public class FeatureOperations {
         featureStorage.update(features);
     }
 
-    public void updatePlan(String plan, List<String> upsells) {
-        planStorage.updatePlan(plan);
-        planStorage.updateUpsells(upsells);
+    public void updatePlan(UserPlan userPlan) {
+        planStorage.updatePlan(userPlan.currentPlan);
+        planStorage.updateUpsells(userPlan.upsells);
     }
 
-    public String getPlan() {
+    public Plan getCurrentPlan() {
         return planStorage.getPlan();
     }
 
@@ -54,7 +54,7 @@ public class FeatureOperations {
                 && upsellHighTier();
     }
 
-    private boolean isFeatureAvailableInPlan(String featureName, String plan) {
+    private boolean isFeatureAvailableInPlan(String featureName, Plan plan) {
         return featureStorage.getPlans(featureName).contains(plan);
     }
 

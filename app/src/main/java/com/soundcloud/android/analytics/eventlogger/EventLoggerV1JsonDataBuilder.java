@@ -7,13 +7,16 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
-import com.soundcloud.android.events.OfflineSyncTrackingEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -24,6 +27,8 @@ import com.soundcloud.java.optional.Optional;
 import android.content.res.Resources;
 
 import javax.inject.Inject;
+
+import java.util.HashMap;
 import java.util.Map;
 
 public class EventLoggerV1JsonDataBuilder {
@@ -32,7 +37,7 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String CLICK_EVENT = "click";
     private static final String OFFLINE_SYNC_EVENT = "offline_sync";
     private static final String IMPRESSION_EVENT = "impression";
-    private static final String BOOGALOO_VERSION = "v1.7.0";
+    private static final String BOOGALOO_VERSION = "v1.14.0";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
@@ -60,6 +65,44 @@ public class EventLoggerV1JsonDataBuilder {
         return transform(buildAudioEvent(event));
     }
 
+    public String buildForAdDelivery(AdDeliveryEvent event) {
+        switch (event.getKind()) {
+            case AdDeliveryEvent.AD_DELIVERED_KIND:
+                return buildAdDeliveredEvent(event);
+            case AdDeliveryEvent.AD_FAILED_KIND:
+                return buildAdRequestFailedEvent(event);
+            default:
+                throw new IllegalStateException("Unexpected ad delivery type: " + event);
+        }
+    }
+
+    private EventLoggerEventData buildBaseAdDeliveryEvent(AdDeliveryEvent eventData) {
+        return buildBaseEvent("ad_delivery", eventData)
+                .monetizedObject(eventData.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .playerVisible(eventData.playerVisible)
+                .inForeground(eventData.inForeground)
+                .adsRequested(eventData.adsRequested)
+                .adsEndpoint(eventData.get(AdTrackingKeys.KEY_ADS_ENDPOINT));
+    }
+
+    private String buildAdDeliveredEvent(AdDeliveryEvent eventData) {
+        final EventLoggerEventData data = buildBaseAdDeliveryEvent(eventData)
+                .adsRequestSuccess(true)
+                .adOptimized(eventData.adOptimized)
+                .adsReceived(mapToJson(eventData.adsReceived.ads));
+
+        if (eventData.adUrn.isAd()) {
+            data.adUrn(eventData.adUrn.toString());
+        }
+
+        return transform(data);
+    }
+
+    private String buildAdRequestFailedEvent(AdDeliveryEvent eventData) {
+        return transform(buildBaseAdDeliveryEvent(eventData)
+                .adsRequestSuccess(false));
+    }
+
     public String buildForFacebookInvites(FacebookInvitesEvent event) {
         switch (event.getKind()) {
             case FacebookInvitesEvent.KIND_CLICK:
@@ -71,20 +114,47 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
+    public String buildForUpsell(UpgradeTrackingEvent event) {
+        switch (event.getKind()) {
+            case UpgradeTrackingEvent.KIND_UPSELL_CLICK:
+                return transform(buildBaseEvent(CLICK_EVENT, event)
+                        .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
+                        .clickName("clickthrough::consumer_sub_ad")
+                        .clickObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
+                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME))
+                        .pageUrn(event.get(UpgradeTrackingEvent.KEY_PAGE_URN)));
+
+            case UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION:
+                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                        .impressionName("consumer_sub_ad")
+                        .impressionObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
+                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME))
+                        .pageUrn(event.get(UpgradeTrackingEvent.KEY_PAGE_URN)));
+
+            case UpgradeTrackingEvent.KIND_UPGRADE_SUCCESS:
+                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                        .impressionName("consumer_sub_upgrade_success"));
+
+            case UpgradeTrackingEvent.KIND_RESUBSCRIBE_CLICK:
+                return transform(buildBaseEvent(CLICK_EVENT, event)
+                        .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
+                        .clickName("clickthrough::consumer_sub_resubscribe")
+                        .clickObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
+                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)));
+
+            case UpgradeTrackingEvent.KIND_RESUBSCRIBE_IMPRESSION:
+                return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                        .impressionName("consumer_sub_resubscribe")
+                        .impressionObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
+                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)));
+
+            default:
+                throw new IllegalArgumentException("Unexpected upsell tracking event type " + event);
+        }
+    }
+
     public String buildForUIEvent(UIEvent event) {
         switch (event.getKind()) {
-            case UIEvent.KIND_OFFLINE_PLAYLIST_ADD:
-                return transform(buildClickEvent("playlist_to_offline::add", event));
-            case UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
-                return transform(buildClickEvent("playlist_to_offline::remove", event));
-            case UIEvent.KIND_OFFLINE_LIKES_ADD:
-                return transform(buildClickEvent("likes_to_offline::add", event));
-            case UIEvent.KIND_OFFLINE_LIKES_REMOVE:
-                return transform(buildClickEvent("likes_to_offline::remove", event));
-            case UIEvent.KIND_OFFLINE_COLLECTION_ADD:
-                return transform(buildClickEvent("collection_to_offline::add", event));
-            case UIEvent.KIND_OFFLINE_COLLECTION_REMOVE:
-                return transform(buildClickEvent("collection_to_offline::remove", event));
             case UIEvent.KIND_SHARE:
                 return transform(buildEngagementEvent("share", event));
             case UIEvent.KIND_REPOST:
@@ -100,7 +170,25 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    public String buildForOfflineSyncEvent(OfflineSyncTrackingEvent event) {
+    public String buildForOfflineInteractionEvent(OfflineInteractionEvent event) {
+        if (OfflineInteractionEvent.KIND_LIMIT_BELOW_USAGE.equals(event.getKind())) {
+            return transform(buildBaseEvent(IMPRESSION_EVENT, event)
+                    .impressionCategory("consumer_subs")
+                    .impressionName(event.getKind())
+                    .pageName(event.getPageName()));
+        } else {
+            return transform(buildBaseEvent(CLICK_EVENT, event)
+                    .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
+                    .clickName(event.getKind())
+                    .pageName(event.getPageName())
+                    .clickObject(event.getClickObject())
+                    .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
+                    .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
+                    .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN)));
+        }
+    }
+
+    public String buildForOfflinePerformanceEvent(OfflinePerformanceEvent event) {
         final EventLoggerEventData eventLoggerEventData = buildBaseEvent(OFFLINE_SYNC_EVENT, event)
                 .eventStage(event.getKind())
                 .track(event.getTrackUrn())
@@ -177,7 +265,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .trackOwner(event.getCreatorUrn())
                 .uuid(event.getUUID())
                 .localStoragePlayback(event.isOfflineTrack())
-                .consumerSubsPlan(featureOperations.getPlan())
+                .consumerSubsPlan(featureOperations.getCurrentPlan())
                 .trigger(getTrigger(event.getTrackSourceInfo()))
                 .protocol(event.get(PlaybackSessionEvent.KEY_PROTOCOL))
                 .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))
@@ -243,6 +331,14 @@ public class EventLoggerV1JsonDataBuilder {
     }
 
     private String transform(EventLoggerEventData data) {
+        try {
+            return jsonTransformer.toJson(data);
+        } catch (ApiMapperException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private String mapToJson(HashMap<String, Object> data) {
         try {
             return jsonTransformer.toJson(data);
         } catch (ApiMapperException e) {

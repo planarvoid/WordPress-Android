@@ -52,7 +52,7 @@ public class PlayQueueManager implements OriginProvider {
 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
-    private Pair<Urn, Long> lastPlayedTrackAndPosition = Pair.of(Urn.NOT_SET, (long) Consts.NOT_SET);
+    private Pair<Urn, Long> lastPlayedItemAndPosition = Pair.of(Urn.NOT_SET, (long) Consts.NOT_SET);
 
     @Inject
     public PlayQueueManager(PlayQueueOperations playQueueOperations,
@@ -179,12 +179,12 @@ public class PlayQueueManager implements OriginProvider {
                 getPlayQueueItemAtPosition(currentPosition1).getUrn().equals(trackUrn);
     }
 
-    public boolean wasLastSavedTrack(Urn urn) {
-        return lastPlayedTrackAndPosition.first().equals(urn);
+    public boolean wasLastSavedItem(Urn urn) {
+        return lastPlayedItemAndPosition.first().equals(urn);
     }
 
     public long getLastSavedProgressPosition() {
-        return lastPlayedTrackAndPosition.second();
+        return lastPlayedItemAndPosition.second();
     }
 
     public boolean isQueueEmpty() {
@@ -313,13 +313,13 @@ public class PlayQueueManager implements OriginProvider {
         broadcastNewPlayQueue();
     }
 
-    public void saveCurrentProgress(long currentTrackProgress) {
-        if (playQueue.hasItems() && getCurrentPlayQueueItem().isTrack()) {
+    public void saveCurrentProgress(long currentProgress) {
+        if (playQueue.hasItems()) {
             final int savePosition = getPositionToBeSaved();
-            final long progress = getProgressToBeSaved(currentTrackProgress);
-            final Urn trackUrn = getCurrentPlayQueueItem().getUrn();
-            playQueueOperations.savePositionInfo(savePosition, trackUrn, playSessionSource, progress);
-            setLastPlayedTrackAndPosition(trackUrn, progress);
+            final long progress = getProgressToBeSaved(currentProgress);
+            final Urn itemUrn = getCurrentPlayQueueItem().getUrn();
+            playQueueOperations.savePositionInfo(savePosition, itemUrn, playSessionSource, progress);
+            setLastPlayedItemAndPosition(itemUrn, progress);
         }
     }
 
@@ -346,7 +346,7 @@ public class PlayQueueManager implements OriginProvider {
                 .doOnNext(new Action1<PlayQueue>() {
                     @Override
                     public void call(PlayQueue savedQueue) {
-                        setLastPlayedTrackAndPosition(
+                        setLastPlayedItemAndPosition(
                                 Urn.forTrack(playQueueOperations.getLastStoredPlayingTrackId()),
                                 playQueueOperations.getLastStoredSeekPosition());
 
@@ -356,8 +356,8 @@ public class PlayQueueManager implements OriginProvider {
                 });
     }
 
-    private void setLastPlayedTrackAndPosition(Urn urn, long lastStoredSeekPosition) {
-        lastPlayedTrackAndPosition = Pair.of(urn, lastStoredSeekPosition);
+    private void setLastPlayedItemAndPosition(Urn urn, long lastStoredSeekPosition) {
+        lastPlayedItemAndPosition = Pair.of(urn, lastStoredSeekPosition);
     }
 
     private void publishPositionUpdate() {

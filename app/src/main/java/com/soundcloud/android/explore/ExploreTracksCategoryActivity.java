@@ -1,19 +1,16 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.PlayerController;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
-import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class ExploreTracksCategoryActivity extends ScActivity {
+public class ExploreTracksCategoryActivity extends PlayerActivity {
 
-    @Inject @LightCycle PlayerController playerController;
     @Inject BaseLayoutHelper baseLayoutHelper;
 
     @Override
@@ -45,10 +42,4 @@ public class ExploreTracksCategoryActivity extends ScActivity {
         baseLayoutHelper.setBaseLayout(this);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (!playerController.handleBackPressed()) {
-            super.onBackPressed();
-        }
-    }
 }

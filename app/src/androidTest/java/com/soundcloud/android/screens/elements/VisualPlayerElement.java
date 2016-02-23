@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
+import com.soundcloud.android.screens.WhyAdsUpsellScreen;
 
 import android.graphics.Rect;
 import android.support.v4.view.PagerAdapter;
@@ -237,9 +238,15 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
+    @SuppressWarnings("unused")
     public WhyAdsScreen clickWhyAds() {
         whyAds().click();
         return new WhyAdsScreen(testDriver);
+    }
+
+    public WhyAdsUpsellScreen clickWhyAdsForUpsell() {
+        whyAds().click();
+        return new WhyAdsUpsellScreen(testDriver);
     }
 
     public UpgradeScreen clickUpgrade() {
@@ -336,9 +343,13 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
-    public VisualPlayerElement waitForInterstitialToLoad() {
-        waiter.waitForElement(R.id.interstitial);
-        return this;
+    public boolean waitForInterstitialToLoad() {
+        return waiter.waitForNetworkCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return testDriver.findOnScreenElement(With.id(R.id.interstitial)).hasVisibility();
+            }
+        });
     }
 
     public VisualPlayerElement waitForLeaveBehindToLoad() {

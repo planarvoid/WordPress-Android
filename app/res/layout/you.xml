@@ -96,6 +96,14 @@
         <View style="@style/Divider.Item" />
 
         <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/you_new_notification_settings_link"
+            style="@style/You.NavItem"
+            android:text="@string/new_notification_settings"
+            android:visibility="gone" />
+
+        <View style="@style/Divider.Item" />
+
+        <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/you_basic_settings_link"
             style="@style/You.NavItem"
             android:text="@string/you_basic_settings" />

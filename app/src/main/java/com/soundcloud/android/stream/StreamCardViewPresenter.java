@@ -12,7 +12,6 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -76,9 +75,7 @@ class StreamCardViewPresenter {
     }
 
     private boolean showPreviewLabel(PlayableItem playableItem) {
-        return featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)
-                && playableItem instanceof TieredTrack
-                && isTrackPreview((TieredTrack) playableItem);
+        return playableItem instanceof TieredTrack && isTrackPreview((TieredTrack) playableItem);
     }
 
     private void loadArtwork(StreamItemViewHolder itemView, PlayableItem playableItem) {

@@ -1,9 +1,11 @@
 package com.soundcloud.android.tests.offline;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
+import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloading.downloading;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
@@ -43,9 +45,12 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
     public void testPlayOfflineTracksOnlyWhenContentDownloaded() throws Exception {
         likesScreen
-                .clickOverflowButton()
-                .clickMakeAvailableOffline()
+                .toggleOfflineEnabled()
                 .clickKeepLikesSyncedAndWaitToFinish();
+
+        assertThat(likesScreen.headerDownloadElement(), is(not(downloading())));
+        assertThat("Likes should be downloaded", likesScreen.headerDownloadElement().isDownloaded());
+
         networkManagerClient.switchWifiOff();
 
         String nextOfflineTrack = likesScreen.getTrackTitle(2);

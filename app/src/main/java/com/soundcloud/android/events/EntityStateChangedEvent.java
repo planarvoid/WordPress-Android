@@ -188,6 +188,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return isSingularChange() && getKind() == LIKE;
     }
 
+    public boolean isEntitySync() {
+        return getKind() == ENTITY_SYNCED;
+    }
+
     private boolean isTrackAddedEvent() {
         return getKind() == TRACK_ADDED_TO_PLAYLIST;
     }

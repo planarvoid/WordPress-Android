@@ -3,7 +3,6 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.configuration.ConfigurationUpdateLightCycle;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
@@ -17,7 +16,7 @@ import android.view.Menu;
 
 import javax.inject.Inject;
 
-public class MainActivity extends ScActivity {
+public class MainActivity extends PlayerActivity {
 
     public static final String EXTRA_REFRESH_STREAM = "refresh_stream";
     public static final String EXTRA_FROM_SIGNIN = "from_sign_in";
@@ -27,11 +26,9 @@ public class MainActivity extends ScActivity {
     @Inject Navigator navigator;
 
     @Inject @LightCycle MainTabsPresenter mainPresenter;
-    @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
     @Inject @LightCycle GcmManager gcmManager;
     @Inject @LightCycle FacebookInvitesController facebookInvitesController;
-    @Inject @LightCycle ConfigurationUpdateLightCycle configurationUpdateLightCycle;
 
     protected void onCreate(Bundle savedInstanceState) {
         redirectToResolverIfNecessary(getIntent());
@@ -43,14 +40,6 @@ public class MainActivity extends ScActivity {
         }
         castConnectionHelper.reconnectSessionIfPossible();
 
-        handlePendingActivity();
-    }
-
-    private void handlePendingActivity() {
-        final Bundle extras = getIntent().getExtras();
-        if (extras != null && extras.containsKey(Navigator.EXTRA_PENDING_ACTIVITY)) {
-            navigator.openPendingActivity(this, extras);
-        }
     }
 
     @Override
@@ -61,13 +50,6 @@ public class MainActivity extends ScActivity {
     private void setupEmailOptIn() {
         if (getIntent().getBooleanExtra(EXTRA_FROM_SIGNIN, false)) {
             EmailOptInDialogFragment.show(this);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (accountOperations.isCrawler() || !(playerController.handleBackPressed())) {
-            super.onBackPressed();
         }
     }
 
@@ -93,11 +75,15 @@ public class MainActivity extends ScActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (!accountOperations.isUserLoggedIn()) {
-            accountOperations.triggerLoginFlow(this);
-            finish();
+    protected void onStart() {
+        super.onStart();
+        setupUpgradeUpsell();
+    }
+
+    private void setupUpgradeUpsell() {
+        if (getIntent().getBooleanExtra(Navigator.EXTRA_UPGRADE_INTENT, false)) {
+            getIntent().removeExtra(Navigator.EXTRA_UPGRADE_INTENT);
+            navigator.openUpgrade(this);
         }
     }
 

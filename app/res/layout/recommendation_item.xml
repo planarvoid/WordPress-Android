@@ -80,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="?android:attr/selectableItemBackground">
+                android:background="?attr/selectableItemBackground">
 
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/view_all"

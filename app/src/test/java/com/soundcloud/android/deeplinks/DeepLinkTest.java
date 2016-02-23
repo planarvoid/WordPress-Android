@@ -83,7 +83,21 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.RECORD, "soundcloud://record");
         assertDeeplink(DeepLink.RECORD, "soundcloud://upload");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://go");
         assertDeeplink(DeepLink.ENTITY, "soundcloud://anythingelse");
+    }
+
+    @Test
+    public void shouldHandleWebSoundcloudGoTypes() {
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "http://soundcloud.com/go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://soundcloud.com/go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "http://m.soundcloud.com/go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://m.soundcloud.com/go");
+
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "http://soundcloud.com/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://soundcloud.com/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "http://m.soundcloud.com/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://m.soundcloud.com/soundcloudgo");
     }
 
     private void assertDeeplink(DeepLink deepLink, String url) {

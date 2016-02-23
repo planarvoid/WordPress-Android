@@ -14,12 +14,15 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
+import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.OfflineSyncTrackingEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -324,7 +327,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackUpsellEvent() {
         UpgradeTrackingEvent event = UpgradeTrackingEvent.forSettingsClick();
-        when(dataBuilderv0.build(event)).thenReturn("ForUpsellEvent");
+        when(dataBuilderv1.buildForUpsell(event)).thenReturn("ForUpsellEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
@@ -343,6 +346,31 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForCollectionEvent");
+    }
+
+    @Test
+    public void shouldTrackAdDeliveryEvents() {
+        AdsReceived adsReceived = new AdsReceived(Urn.NOT_SET, Urn.NOT_SET, Urn.NOT_SET);
+        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Urn.forTrack(123), Urn.NOT_SET, "endpoint", adsReceived, false, false, false);
+        when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdDeliveredEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("AdDeliveredEvent");
+    }
+
+    @Test
+    public void shouldTrackAdFetchFailedEvents() {
+        AdDeliveryEvent event = AdDeliveryEvent.adsRequestFailed(Urn.forTrack(123), "endpoint", false, false);
+        when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdFetchFailedEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("AdFetchFailedEvent");
     }
 
     @Test
@@ -371,44 +399,44 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackLikesToOfflineEvent() {
-        UIEvent event = UIEvent.fromAddOfflineLikes("page_name");
-        assertThat(v1UIEventCaptor("ForOfflineLikesEvent", event)).isEqualTo("ForOfflineLikesEvent");
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromEnableOfflineLikes("page_name");
+        assertThat(v1OfflineInteractionEventCaptor("ForOfflineLikesEvent", event)).isEqualTo("ForOfflineLikesEvent");
     }
 
     @Test
     public void shouldTrackCollectionToOfflineEvent() {
-        UIEvent event = UIEvent.fromToggleOfflineCollection(true);
-        assertThat(v1UIEventCaptor("ForOfflineCollection", event)).isEqualTo("ForOfflineCollection");
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromEnableCollectionSync("page_name");
+        assertThat(v1OfflineInteractionEventCaptor("ForOfflineCollection", event)).isEqualTo("ForOfflineCollection");
     }
 
     @Test
     public void shouldTrackPlaylistToOfflineEvent() {
-        UIEvent event = UIEvent.fromAddOfflinePlaylist("page_name", Urn.forPlaylist(123L), null);
-        assertThat(v1UIEventCaptor("ForOfflinePlaylistEvent", event)).isEqualTo("ForOfflinePlaylistEvent");
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromAddOfflinePlaylist("page_name", Urn.forPlaylist(123L), null);
+        assertThat(v1OfflineInteractionEventCaptor("ForOfflinePlaylistEvent", event)).isEqualTo("ForOfflinePlaylistEvent");
     }
 
     @Test
     public void shouldTrackOfflineSyncStartEvent() {
-        OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromStarted(trackUrn, mock(TrackingMetadata.class));
-        assertThat(v1OfflineSyncEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
+        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStarted(trackUrn, mock(TrackingMetadata.class));
+        assertThat(v1OfflinePerformanceEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
     }
 
     @Test
     public void shouldTrackOfflineSyncCompleteEvent() {
-        OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromCompleted(trackUrn, mock(TrackingMetadata.class));
-        assertThat(v1OfflineSyncEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
+        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCompleted(trackUrn, mock(TrackingMetadata.class));
+        assertThat(v1OfflinePerformanceEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
     }
 
     @Test
     public void shouldTrackOfflineSyncFailEvent() {
-        OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromFailed(trackUrn, mock(TrackingMetadata.class));
-        assertThat(v1OfflineSyncEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
+        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromFailed(trackUrn, mock(TrackingMetadata.class));
+        assertThat(v1OfflinePerformanceEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
     }
 
     @Test
     public void shouldTrackOfflineSyncCancelEvent() {
-        OfflineSyncTrackingEvent event = OfflineSyncTrackingEvent.fromCancelled(trackUrn, mock(TrackingMetadata.class));
-        assertThat(v1OfflineSyncEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
+        OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCancelled(trackUrn, mock(TrackingMetadata.class));
+        assertThat(v1OfflinePerformanceEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
     }
 
     @Test
@@ -417,8 +445,18 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         verify(eventTracker).flush(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
     }
 
-    private String v1OfflineSyncEventCaptor(String name, OfflineSyncTrackingEvent event) {
-        when(dataBuilderv1.buildForOfflineSyncEvent(event)).thenReturn(name);
+    private String v1OfflinePerformanceEventCaptor(String name, OfflinePerformanceEvent event) {
+        when(dataBuilderv1.buildForOfflinePerformanceEvent(event)).thenReturn(name);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        return captor.getValue().getData();
+    }
+
+    private String v1OfflineInteractionEventCaptor(String name, OfflineInteractionEvent event) {
+        when(dataBuilderv1.buildForOfflineInteractionEvent(event)).thenReturn(name);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 

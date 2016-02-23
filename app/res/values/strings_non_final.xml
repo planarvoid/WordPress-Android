@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- __UPGRADE -->
+    <!-- __SUBS -->
     <string name="pref_subscriptions_header">Subscriptions</string>
     <string name="pref_subscription_buy_title">Upgrade</string>
     <string name="pref_subscription_buy_summary">Upgrade your account</string>
-    <string name="upgrade_page_title">Upgrade</string>
-    <string name="upgrade_title">SoundCloud CS</string>
-    <string name="upgrade_description">No ads. Offline listening. Support creators.</string>
-    <string name="upgrade_buy_price">Subscribe for %s/month</string>
-    <string name="upgrade_features_title">SoundCloud CS features:</string>
-    <string name="upgrade_feature_1_title">No more ads</string>
-    <string name="upgrade_feature_1_description">Remove all audio ads and interstitials from all platforms</string>
-    <string name="upgrade_feature_2_title">Offline listening</string>
-    <string name="upgrade_feature_2_description">Download tracks to your phone, so you can listen to them offline</string>
-    <string name="upgrade_feature_3_title">Support creators</string>
-    <string name="upgrade_feature_3_description">Directly support creators and SoundCloud</string>
-    <string name="upgrade_success_title">Welcome to SoundCloud CS!</string>
-    <string name="upgrade_success_description">You are now able to enjoy SoundCloud offline and ad-free</string>
-    <string name="upgrade_success_ok">Ok, got it</string>
-    <string name="upgrade_success_more">More about offline listening</string>
+    <string name="pref_subscription_restore_title">Restore</string>
+    <string name="pref_subscription_restore_summary">Restore an existing subscription</string>
+
+    <!-- __CONVERSION -->
+    <string name="conversion_page_title">Subscribe</string>
+    <string name="conversion_title">Get SoundCloud Go</string>
+    <string name="conversion_price">%s / month</string>
+    <string name="conversion_feature_1">Play all tracks</string>
+    <string name="conversion_feature_2">Listen offline, anywhere</string>
+    <string name="conversion_feature_3">Go ad-free</string>
+    <string name="conversion_buy_loading">Loading</string>
+    <string name="conversion_buy_trial">Try it free for %d days</string>
+    <string name="conversion_buy_no_trial">Upgrade now</string>
+    <string name="conversion_buy_retry">Loading failed. Retry?</string>
+    <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad-free with SoundCloud Go.</string>
 
     <!-- __PAYMENTS -->
     <string name="payments_error_title_unavailable">Product unavailable</string>
@@ -34,7 +34,7 @@
     <string name="payments_error_unavailable">There was a problem trying to connect to the app store. Please try again.</string>
     <string name="payments_error_no_billing">There seems to be no valid app store on this device.</string>
     <string name="payments_error_already_subscribed">It seems that there is already an active subscription linked to your account.</string>
-    <string name="payments_error_unconfirmed_email">Confirm your email address to purchase SoundCloud CS. Please check your inbox for confirmation instructions. Can’t find it? Try checking your spam folder.</string>
+    <string name="payments_error_unconfirmed_email">Confirm your email address to purchase SoundCloud Go. Please check your inbox for confirmation instructions. Can’t find it? Try checking your spam folder.</string>
     <string name="payments_error_cancelled">We were unable to complete the purchase. Please try again.</string>
     <string name="payments_error_stale">Too much time has passed to validate your payment. If the problem persists, please contact our support team.</string>
     <string name="payments_error_wrong_user">Your subscription is associated with a different SoundCloud account. Please make sure your SoundCloud account matches the subscription in your Google Play account.</string>
@@ -44,58 +44,65 @@
 
     <!-- __OFFLINE SYNC -->
     <string name="offline_track_not_available">Track is not available offline</string>
-    <string name="offline_update_completed_title">All tracks synced!</string>
-    <string name="offline_update_completed_message">Ready for offline listening!</string>
+    <string name="offline_update_completed_title">All tracks saved offline</string>
+    <string name="offline_update_completed_message">Ready for offline listening</string>
     <string name="offline_update_storage_limit_reached_title">Storage limit reached</string>
     <string name="offline_update_storage_limit_reached_message">Tap here to view storage settings</string>
-    <string name="offline_update_in_progress">Syncing your tracks</string>
-    <string name="offline_likes_dialog_title">Make your Likes available offline</string>
-    <string name="offline_likes_dialog_message">This will keep your current and future Likes available offline so you can listen without an Internet or data connection.</string>
+    <string name="offline_update_in_progress">Saving offline</string>
+    <string name="offline_likes_dialog_title">Save your likes offline</string>
+    <string name="offline_likes_dialog_message">This will save your current and future likes offline so you can listen without Wi-Fi or data connection.</string>
+
     <string name="make_offline_available">Save offline</string>
-    <string name="make_offline_unavailable">Remove from offline</string>
     <string name="offline_dialog_go_online_continue">Continue</string>
-    <string name="offline_dialog_go_online_error_title">Your subscription can not be verified</string>
-    <string name="offline_dialog_go_online_error_content">Because this device has been offline for more than 30 days, we have not been able to verify your subscription. Please go online to reconnect this device to your subscription and reenable your offline content. </string>
-    <string name="offline_update_paused">Offline syncing paused</string>
+    <string name="offline_dialog_go_online_error_title">Your subscription could not be verified</string>
+    <string name="offline_dialog_go_online_error_content">Because this device has been offline for more than 30 days, we could not verify your subscription. To regain access to your offline content, connect to the Internet with this device.</string>
+    <string name="offline_update_paused">Saving offline paused</string>
     <string name="no_network_connection">No network connection</string>
     <string name="no_wifi_connection">No Wi-Fi connection</string>
     <string name="offline_not_available_offline">Not available offline</string>
 
-    <!-- __OFFLINE ONBOARDING -->
-    <string name="offline_onboarding">Decide how you\'d like to save offline</string>
-    <string name="selective_sync_title">Selective sync</string>
-    <string name="selective_sync_body">Make your likes or playlists available offline on a case-by-case basis. Just tap the three dots and save offline.</string>
-    <string name="auto_sync_title">Automatic sync</string>
-    <string name="auto_sync_body">Make all your current and future likes and playlists available offline automatically.</string>
-    <string name="selective_sync_button">Ok, got it</string>
-    <string name="auto_sync_button">Save everything now</string>
+    <!-- __GO ONBOARDING -->
+    <string name="go_onboarding_header">Welcome to SoundCloud Go</string>
+    <string name="go_onboarding_title">Save your music offline</string>
+    <string name="go_onboarding_subtext">Use the arrow to save all your likes or any of your playlists offline.</string>
+    <string name="go_onboarding_start">Get started</string>
+    <string name="go_onboarding_retry">Loading failed. Retry?</string>
+    <string name="go_onboarding_error_dialog_title">Something went wrong</string>
+    <string name="go_onboarding_error_dialog_msg">There was a problem enabling your new features and content. Please restart the application.</string>
+    <string name="go_onboarding_error_dialog_button">Try again later</string>
+
+    <!-- __GO OFFBOARDING -->
+    <string name="go_offboarding_title">Your SoundCloud Go subscription has ended</string>
+    <!-- Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving." -->
+    <string name="go_offboarding_description">Please give us a moment to update your subscription settings.\n\nWe’re sad to see you go (no pun intended). If you miss having ad-free, offline access to our expanded catalog, don’t worry. You can come back anytime.</string>
+    <string name="go_offboarding_primary_button_text">Resubscribe</string>
+    <string name="go_offboarding_secondary_button_text">Continue</string>
 
     <!-- __OFFLINE SETTINGS -->
-    <string name="pref_offline_settings">Offline Sync Settings</string>
-    <string name="pref_offline_offline_collection">Save Likes and Playlists offline</string>
-    <string name="pref_offline_offline_collection_description">Enable to save all your Likes and Playlists offline</string>
-    <string name="pref_offline_wifi_only_sync">Only offline sync over Wi-Fi</string>
-    <string name="pref_offline_wifi_only_description">Sync your likes and playlists only using Wi-Fi connection</string>
-    <string name="pref_offline_settings_summary">Manage your Offline Sync settings</string>
+    <string name="pref_offline_offline_collection">Save automatically</string>
+    <string name="pref_offline_offline_collection_description">Turn on to save all your current and future likes and playlists offline.</string>
+    <string name="pref_offline_wifi_only_sync">Only sync via Wi-Fi</string>
+    <string name="pref_offline_wifi_only_description">When this is turned on, we will only save tracks offline over a Wi-Fi connection.</string>
     <string name="pref_offline_storage_limit">Storage Limit</string>
-    <string name="pref_offline_storage_limit_description">How much of your storage we can\nuse to sync your tracks</string>
+    <string name="pref_offline_storage_limit_description">This will define how much of your available space is allocated to the SoundCloud app.</string>
     <string name="pref_offline_storage_free_gb">%1$.1f GB free of %2$.1f GB</string>
     <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
     <string name="pref_offline_storage_usage">Storage Usage</string>
     <string name="pref_offline_used_by_other_apps">Used by other apps</string>
     <string name="pref_offline_used">Used</string>
     <string name="pref_offline_limit">Limit</string>
-    <string name="pref_offline_remove_all_offline_content">Remove all offline content</string>
-    <string name="pref_offline_remove_all_offline_content_description">This will remove all the content you have made available offline from your device.</string>
+    <string name="pref_offline_remove_all_offline_content">Remove content saved offline</string>
+    <string name="pref_offline_remove_all_offline_content_description">This will remove any content that is saved offline by the SoundCloud app.</string>
     <string name="offline_cannot_set_limit_below_usage">Limit cannot be set below current storage usage.</string>
-    <string name="sign_out_description_offline">You will have to re-connect your SoundCloud account. All tracks selected for offline listening will be removed from this device.</string>
-    <string name="disable_offline_collection_title">Stop automatically saving offline?</string>
-    <string name="disable_offline_collection_body">New playlists you like or create won’t automatically be saved offline anymore.</string>
+    <string name="sign_out_title_offline">Signing out removes all offline tracks</string>
+    <string name="sign_out_description_offline">The next time you sign in, you’ll be able to decide which tracks and playlists should be saved again.</string>
+    <string name="disable_offline_collection_title">Stop automatically saving playlists &amp; likes?</string>
+    <string name="disable_offline_collection_body">Your new likes and playlists won’t save automatically anymore and existing saved sounds will be removed from offline listening.</string>
     <!-- offline playlist creation -->
     <string name="add_playlist_offline">Available offline</string>
     <!-- offline settings -->
-    <string name="title_offline_settings">Offline sync settings</string>
-    <string name="you_offline_sync_settings">Offline sync settings</string>
+    <string name="title_offline_settings">Offline listening settings</string>
+    <string name="you_offline_sync_settings">Offline listening settings</string>
     <string name="unlimited">unlimited</string>
 
     <plurals name="downloading_track_of_tracks">
@@ -104,24 +111,24 @@
     </plurals>
 
     <plurals name="offline_dialog_go_online_warning_title">
-        <item quantity="one">You have %d day to go back online</item>
-        <item quantity="other">You have %d days to go back online</item>
+        <item quantity="one">Verify your subscription within %d day</item>
+        <item quantity="other">Verify your subscription within %d days</item>
     </plurals>
 
     <plurals name="offline_dialog_go_online_warning_content">
-        <item quantity="one">Your device needs to be online at least once every 30 days to verify your subscription. You currently have %d day to keep this device connected to your subscription or your offline content will become inaccessible.</item>
-        <item quantity="other">Your device needs to be online at least once every 30 days to verify your subscription. You currently have %d days to keep this device connected to your subscription or your offline content will become inaccessible.</item>
+        <item quantity="one">Your device needs to be online at least once every 30 days to verify your subscription. Get back online in  %d day to keep the content you’ve saved offline accessible.</item>
+        <item quantity="other">Your device needs to be online at least once every 30 days to verify your subscription. Get back online in  %d days to keep the content you’ve saved offline accessible.</item>
     </plurals>
 
     <!-- __DEVICE MANAGEMENT -->
     <string name="device_management_limit_title">You’ve reached your device limit</string>
-    <string name="device_management_limit_active">You already have SoundCloud CS on three devices. If you register this device, we’ll automatically unregister the one you haven’t used the longest.</string>
-    <string name="device_management_limit_registered">You already have SoundCloud CS on 10 devices. You need to sign out of one device before you can sign in on this one.</string>
+    <string name="device_management_limit_active">You already have SoundCloud Go on three devices. If you register this device, we’ll automatically unregister the one you haven’t used the longest.</string>
+    <string name="device_management_limit_registered">You already have SoundCloud Go on 10 devices. You need to sign out of one device before you can sign in on this one.</string>
     <string name="device_management_conflict_message">Since you’ve reached your SoundCloud Go device limit, we’ve signed out this device and de-registered it. Anything you saved offline was removed. You need to sign in before you can re-register this device.</string>
     <string name="device_management_register">Register</string>
 
     <!-- __PROFILE -->
-    <string name="user_profile_spotlight_heading">Top Sounds</string>
+    <string name="user_profile_spotlight_heading">Top sounds</string>
     <string name="user_profile_tracks_heading">Tracks</string>
     <string name="user_profile_releases_heading">Releases</string>
     <string name="user_profile_playlists_heading">Playlists</string>
@@ -134,35 +141,67 @@
     <string name="user_profile_likes_view_all">View all likes</string>
 
     <!-- __UPSELL -->
-    <string name="upsell_remove_ads">Remove ads</string>
-    <string name="upsell_stream_start_trial_button">Upgrade now</string>
-    <string name="upsell_stream_upgrade_title">Get SoundCloud CS</string>
-    <string name="upsell_stream_upgrade_description">Offline. Ad-free. Full catalog.</string>
+    <string name="upsell_remove_ads">Go ad-free</string>
+    <string name="upsell_stream_start_trial_button">Try it free for 30 days</string>
+    <string name="upsell_stream_upgrade_title">Upgrade to SoundCloud Go</string>
+    <string name="upsell_stream_upgrade_description">Get our expanded catalog, with offline listening and zero ads.</string>
     <string name="upsell_track_preview">Preview</string>
-    <string name="upsell_track_geo_blocked">Not yet available in your region</string>
+    <string name="upsell_track_geo_blocked">Not yet available in your country</string>
 
     <!-- __STATIONS -->
     <string name="station_type_track">Track station</string>
     <string name="station_type_genre">Genre station</string>
     <string name="station_type_curator">Curator station</string>
     <string name="stations_collection_title_saved_stations">Your stations</string>
-    <string name="stations_collection_title_track_recommendations">Track Recommendations</string>
-    <string name="stations_collection_title_curator_recommendations">Curator Recommendations</string>
-    <string name="stations_collection_title_genre_recommendations">Genre Recommendations</string>
+    <string name="stations_collection_title_track_recommendations">Track recommendations</string>
+    <string name="stations_collection_title_curator_recommendations">Curator recommendations</string>
+    <string name="stations_collection_title_genre_recommendations">Genre recommendations</string>
     <string name="station_bucket_action_text">View all</string>
 
     <!-- __STREAMING -->
     <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
 
     <!-- __PLAYER -->
-    <string name="playback_error_blocked">Not available yet in\nyour country</string>
+    <string name="playback_error_blocked">Not yet available in\nyour country</string>
     <string name="playback_preview_indicator">preview</string>
     <string name="playback_upsell_button">Hear full track</string>
 
     <!-- __SEARCH -->
-    <string name="search_premium_content_results_count">Found %1$d SoundCloud CS results</string>
-    <string name="search_premium_content_view_all">See all SoundCloud CS results</string>
+    <string name="search_premium_content_results_count">Found %1$d SoundCloud Go results</string>
+    <string name="search_premium_content_view_all">See all SoundCloud Go results</string>
     <string name="search_premium_content_upsell">Upgrade to hear full tracks</string>
-    <string name="search_premium_content_results">\"%1$s\" Results</string>
+
+    <!-- __NOTIFICATION SETTINGS -->
+    <string name="new_notification_settings">(New) Notification settings</string>
+
+    <string name="push_notifications_all_title">Push notifications</string>
+    <string name="push_notifications_all_summary">Turn on all mobile notifications\nor select which to receive</string>
+    <string name="push_notifications_follower">New follower</string>
+    <string name="push_notifications_repost">Repost of your post</string>
+    <string name="push_notifications_new_post">New post by followed user</string>
+    <string name="push_notifications_like">Like on your post</string>
+    <string name="push_notifications_product_updates">Product updates</string>
+    <string name="push_notifications_survey">Invite to survey</string>
+    <string name="push_notifications_tips">Tips and best practices</string>
+
+    <string name="email_notifications_all_title">Email notifications</string>
+    <string name="email_notifications_all_summary">Turn on all email notifications\nor select which to receive</string>
+    <string name="email_notifications_follower">New follower</string>
+    <string name="email_notifications_repost">Repost of your post</string>
+    <string name="email_notifications_new_post">New post by followed user</string>
+    <string name="email_notifications_like">Like on your post</string>
+    <string name="email_notifications_message">New message</string>
+    <string name="email_notifications_comment">Comment on your post</string>
+    <string name="email_notifications_group">New group post</string>
+    <string name="email_notifications_product_updates">Product updates</string>
+    <string name="email_notifications_survey">Invite to survey</string>
+    <string name="email_notifications_tips">Tips and best practices</string>
+    <string name="email_notifications_newsletter">SoundCloud newsletter</string>
+
+    <!-- __STREAM -->
+    <plurals name="stream_new_posts">
+        <item quantity="one">1 new post</item>
+        <item quantity="other">%s new posts</item> <!-- 9+ new posts -->
+    </plurals>
 
 </resources>

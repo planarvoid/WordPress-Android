@@ -2,9 +2,11 @@ package com.soundcloud.android.ads;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -13,6 +15,7 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -27,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 public class AdPlayerControllerTest extends AndroidUnitTest {
 
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private PlaySessionController playSessionController;
     @Mock private AdsOperations adsOperations;
     @Mock private AppCompatActivity activity;
 
@@ -35,7 +39,67 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new AdPlayerController(eventBus, adsOperations);
+        controller = new AdPlayerController(eventBus, adsOperations, playSessionController);
+    }
+
+    @Test
+    public void forcePlayerLandscapeShouldChangeOrientationForLetterboxVideoAd() {
+        setVideoAdIsPlaying(false);
+
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.forcePlayerLandscape());
+
+        verify(activity).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    }
+
+    @Test
+    public void forcePlayerPortraitShouldChangeOrientationForLetterboxVideoAd() {
+        setVideoAdIsPlaying(false);
+
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.forcePlayerPortrait());
+
+        verify(activity).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
+    @Test
+    public void forcePlayerLandscapeShouldntChangeOrientationForTracks() {
+        setAudioAdIsPlaying(false);
+
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.forcePlayerLandscape());
+
+        verify(activity, never()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    }
+
+    @Test
+    public void forcePlayerLandscapeShouldntChangeOrientationForAudioAds() {
+        setAudioAdIsPlaying(true);
+
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.forcePlayerLandscape());
+
+        verify(activity, never()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    }
+
+    @Test
+    public void forcePlayerPortraitShouldntChangeOrientationForTracks() {
+        setAudioAdIsPlaying(false);
+
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.forcePlayerPortrait());
+
+        verify(activity, never()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
+    @Test
+    public void forcePlayerPortraitShouldntChangeOrientationForAudioAds() {
+        setAudioAdIsPlaying(true);
+
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.forcePlayerPortrait());
+
+        verify(activity, never()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     @Test
@@ -135,6 +199,26 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAYER_UI)).isSameAs(playerCollapsed);
+    }
+
+    @Test
+    public void videoAdsPausedWhenAppInBackground() {
+        when(activity.isChangingConfigurations()).thenReturn(false);
+        setVideoAdIsPlaying(true);
+
+        controller.onPause(activity);
+
+        verify(playSessionController).pause();
+    }
+
+    @Test
+    public void videoAdsNotPausedWhenAppChangingOrientations() {
+        when(activity.isChangingConfigurations()).thenReturn(true);
+        setVideoAdIsPlaying(true);
+
+        controller.onPause(activity);
+
+        verify(playSessionController, never()).pause();
     }
 
     private void setAudioAdIsPlaying(boolean isPlaying) {

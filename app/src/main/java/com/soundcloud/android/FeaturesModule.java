@@ -7,6 +7,7 @@ import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.RecordModule;
 import com.soundcloud.android.creators.upload.UploadModule;
 import com.soundcloud.android.discovery.DiscoveryModule;
+import com.soundcloud.android.downgrade.DowngradeModule;
 import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.likes.LikesModule;
 import com.soundcloud.android.main.MainModule;
@@ -39,6 +40,7 @@ import dagger.Module;
         OfflineModule.class,
         PoliciesModule.class,
         UpgradeModule.class,
+        DowngradeModule.class,
         RecordModule.class,
         UploadModule.class,
         LikesModule.class,

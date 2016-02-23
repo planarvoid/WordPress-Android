@@ -173,7 +173,7 @@ public class OfflineStateOperations {
         } else if (tracksOfflineState.contains(OfflineState.UNAVAILABLE)) {
             return OfflineState.UNAVAILABLE;
         } else {
-            return OfflineState.DOWNLOADED;
+            return OfflineState.REQUESTED;
         }
     }
 

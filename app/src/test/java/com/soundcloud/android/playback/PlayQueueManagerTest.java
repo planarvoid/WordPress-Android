@@ -469,7 +469,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void getPlayProgressIsfoReturnsLastSavedProgressInfo() {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(123L)), playlistSessionSource);
         playQueueManager.saveCurrentProgress(456L);
-        assertThat(playQueueManager.wasLastSavedTrack(Urn.forTrack(123L))).isTrue();
+        assertThat(playQueueManager.wasLastSavedItem(Urn.forTrack(123L))).isTrue();
         assertThat(playQueueManager.getLastSavedProgressPosition()).isEqualTo(456);
     }
 
@@ -793,7 +793,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
 
         playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
-        assertThat(playQueueManager.wasLastSavedTrack(Urn.forTrack(456))).isTrue();
+        assertThat(playQueueManager.wasLastSavedItem(Urn.forTrack(456))).isTrue();
         assertThat(playQueueManager.getLastSavedProgressPosition()).isEqualTo(400L);
     }
 

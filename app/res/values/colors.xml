@@ -4,16 +4,21 @@
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
 
+    <color name="translucent_status_bar">#0cffffff</color>
+    <color name="translucent_white">#ccffffff</color>
+
     <color name="primary">#ffffff</color>
     <color name="primary_dark">#bbbbbb</color>
     <color name="primary_darker">#1d1d1d</color>
 
-    <color name="orange_toggle_on">@color/ak_sc_orange</color>
-    <color name="orange_toggle_on_ripple">#e24b03</color>
-    <color name="orange_toggle_on_text">#ffffff</color>
-    <color name="orange_toggle_off">#e5e5e5</color>
-    <color name="orange_toggle_off_ripple">#c9c9c9</color>
-    <color name="orange_toggle_off_text">#888888</color>
+    <color name="toggle_on">@color/ak_sc_orange</color>
+    <color name="toggle_on_disabled">#7fff5500</color>
+    <color name="toggle_on_ripple">#e24b03</color>
+    <color name="toggle_on_text">#ffffff</color>
+    <color name="toggle_off">#e5e5e5</color>
+    <color name="toggle_off_disabled">#7fe5e5e5</color>
+    <color name="toggle_off_ripple">#c9c9c9</color>
+    <color name="toggle_off_text">#888888</color>
 
     <color name="orange_radio_on_text">@color/ak_sc_orange</color>
     <color name="orange_radio_off_text">#777777</color>
@@ -31,7 +36,6 @@
     <color name="list_primary">#333333</color>
     <color name="list_secondary">#999999</color>
     <color name="list_disabled">#cccccc</color>
-    <color name="card_full_image_border">#f2f2f2</color>
 
     <!-- Player -->
     <color name="dark_gradient_start">#4c000000</color>
@@ -52,6 +56,7 @@
     <!-- Player Ads -->
     <color name="preview_artwork_overlay">#4c000000</color>
     <color name="ad_default_background">#333333</color>
+    <color name="ad_landscape_video_background">#000000</color>
 
     <!-- Creators -->
     <color name="record_upload_border">#525252</color>
@@ -103,7 +108,7 @@
     <color name="usage_bar_used">#fe3c06</color>
     <color name="usage_bar_limit">#ffae87</color>
     <color name="usage_bar_free">#ffffff</color>
-
+    <color name="translucent_background">#80000000</color>
     <color name="user_image_border_color">#1a000000</color>
 
     <!-- Notifications -->
@@ -135,7 +140,6 @@
     <color name="recommended_for_you_text">#666666</color>
     <color name="search_query_text">#333333</color>
     <color name="search_hint_text">#CCCCCC</color>
-    <color name="search_screen_background">#80000000</color>
     <color name="discovery_tags_title">#666666</color>
     <color name="discovery_search_premium_view_all">#666666</color>
 

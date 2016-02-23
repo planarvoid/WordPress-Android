@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx;
 
+import com.soundcloud.android.Consts;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -28,6 +29,13 @@ public final class RxUtils {
         @Override
         public Void call(Object ignore) {
             return null;
+        }
+    };
+
+    public static final Func1<Long, Boolean> IS_VALID_TIMESTAMP = new Func1<Long, Boolean>() {
+        @Override
+        public Boolean call(Long ts) {
+            return ts != Consts.NOT_SET;
         }
     };
 

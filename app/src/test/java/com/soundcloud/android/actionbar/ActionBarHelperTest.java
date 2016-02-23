@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.BugReporter;
@@ -23,7 +23,7 @@ import android.view.MenuItem;
 
 public class ActionBarHelperTest extends AndroidUnitTest {
 
-    @Mock private ScActivity activity;
+    @Mock private LoggedInActivity activity;
     @Mock private ActionBar actionBar;
     @Mock private BugReporter bugReporter;
     @Mock private Navigator navigator;

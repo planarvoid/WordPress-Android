@@ -12,7 +12,7 @@ import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UploadEvent;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -32,7 +32,7 @@ import android.view.Window;
 
 import javax.inject.Inject;
 
-public class RecordActivity extends ScActivity {
+public class RecordActivity extends LoggedInActivity {
 
     private static final String RECORD_FRAGMENT_TAG = "recording_fragment";
     private static final String METADATA_FRAGMENT_TAG = "metadata_fragment";

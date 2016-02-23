@@ -72,7 +72,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     public void bindItemView(int position, View itemView, List<SearchPremiumItem> premiumItems) {
         final SearchPremiumItem premiumItem = premiumItems.get(0);
         final PropertySet premiumItemSource = premiumItem.getSourceSet().get(0);
-        final SearchItem item = SearchItem.fromUrn(premiumItemSource.get(EntityProperty.URN));
+        final SearchResultItem item = SearchResultItem.fromUrn(premiumItemSource.get(EntityProperty.URN));
 
         if (item.isTrack()) {
             trackItemView.setVisibility(View.VISIBLE);
@@ -92,14 +92,29 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
         }
 
         getView(itemView, R.id.premium_item_container).setOnClickListener(null);
-        getView(itemView, R.id.view_all_container).setOnClickListener(new ViewAllClickListener(premiumContentListener, premiumItems));
 
         final TextView resultsCountTextView = getTextView(itemView, R.id.results_count);
         resultsCountTextView.setText(getResultsCountText(premiumItem));
         resultsCountTextView.setOnClickListener(null);
         getTextView(itemView, R.id.view_all).setText(getViewAllText());
 
+        setupViewAllButton(itemView, premiumItems);
         setupHighTierHelpItem(itemView);
+    }
+
+    private void setupViewAllButton(View itemView, List<SearchPremiumItem> premiumItems) {
+        final View viewAllResultsView = getView(itemView, R.id.view_all_container);
+        final View viewAllResultsDividerView  = getView(itemView, R.id.view_all_container_divider);
+
+        final SearchPremiumItem premiumItem = premiumItems.get(0);
+        if (premiumItem.getResultsCount() > 1) {
+            viewAllResultsDividerView.setVisibility(View.VISIBLE);
+            viewAllResultsView.setVisibility(View.VISIBLE);
+            viewAllResultsView.setOnClickListener(new ViewAllClickListener(premiumContentListener, premiumItems));
+        } else {
+            viewAllResultsDividerView.setVisibility(View.GONE);
+            viewAllResultsView.setVisibility(View.GONE);
+        }
     }
 
     private void addItemView(View premiumItemView) {
@@ -135,7 +150,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
 
     private void setListItemBackground(View containerView, View listItemView) {
         TypedValue outValue = new TypedValue();
-        containerView.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+        containerView.getContext().getTheme().resolveAttribute(R.attr.selectableItemBackground, outValue, true);
         listItemView.setBackgroundResource(outValue.resourceId);
     }
 
@@ -175,7 +190,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
                 final List<PropertySet> propertySets = premiumItems.get(0).getSourceSet();
                 final List<ListItem> premiumItemList = new ArrayList<>(propertySets.size());
                 for (PropertySet source : propertySets) {
-                    premiumItemList.add(SearchItem.fromPropertySet(source).build());
+                    premiumItemList.add(SearchResultItem.fromPropertySet(source).build());
                 }
                 listener.onPremiumItemClicked(view, premiumItemList);
             }

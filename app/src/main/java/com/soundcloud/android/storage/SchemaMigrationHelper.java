@@ -22,11 +22,15 @@ public final class SchemaMigrationHelper {
             Log.d(Table.TAG, "dropping " + table.name());
         }
         if (table.view) {
-            db.execSQL("DROP VIEW IF EXISTS " + table.name());
+            dropView(table.name(), db);
         } else {
             dropTable(table.name(), db);
         }
 
+    }
+
+    public static void dropView(String name, SQLiteDatabase db) {
+        db.execSQL("DROP VIEW IF EXISTS " + name);
     }
 
     public static void dropTable(String tableName, SQLiteDatabase db) {

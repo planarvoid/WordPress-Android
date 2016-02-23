@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.model.Urn;
-
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -19,16 +17,12 @@ class DownloadHandler extends Handler {
     private final DownloadOperations downloadOperations;
     private final SecureFileStorage secureFileStorage;
     private final TrackDownloadsStorage trackDownloadsStorage;
-    private final OfflineSyncTracker performanceTracker;
+    private final OfflinePerformanceTracker performanceTracker;
 
     private DownloadRequest current;
 
     boolean isDownloading() {
         return current != null;
-    }
-
-    Urn getCurrentTrack() {
-        return isDownloading() ? current.getTrack() : Urn.NOT_SET;
     }
 
     DownloadRequest getCurrentRequest() {
@@ -49,7 +43,7 @@ class DownloadHandler extends Handler {
                     DownloadOperations downloadOperations,
                     SecureFileStorage secureFileStorage,
                     TrackDownloadsStorage trackDownloadsStorage,
-                    OfflineSyncTracker performanceTracker) {
+                    OfflinePerformanceTracker performanceTracker) {
         super(looper);
         this.performanceTracker = performanceTracker;
         this.listenerRef = new WeakReference<>(listener);
@@ -62,7 +56,7 @@ class DownloadHandler extends Handler {
     DownloadHandler(Listener listener, DownloadOperations downloadOperations,
                     SecureFileStorage secureFileStorage,
                     TrackDownloadsStorage trackDownloadsStorage,
-                    OfflineSyncTracker performanceTracker) {
+                    OfflinePerformanceTracker performanceTracker) {
         this.performanceTracker = performanceTracker;
         this.listenerRef = new WeakReference<>(listener);
         this.downloadOperations = downloadOperations;
@@ -121,15 +115,15 @@ class DownloadHandler extends Handler {
 
             } else if (result.isSuccess()) {
                 listener.onSuccess(result);
-                performanceTracker.downloadComplete(result.request);
+                performanceTracker.downloadComplete(result);
 
             } else if (result.isCancelled()) {
                 listener.onCancel(result);
-                performanceTracker.downloadCancelled(result.request);
+                performanceTracker.downloadCancelled(result);
 
             } else {
                 listener.onError(result);
-                performanceTracker.downloadFailed(result.request);
+                performanceTracker.downloadFailed(result);
             }
         }
     }
@@ -147,11 +141,11 @@ class DownloadHandler extends Handler {
         private final DownloadOperations downloadOperations;
         private final TrackDownloadsStorage tracksStorage;
         private final SecureFileStorage secureFileStorage;
-        private final OfflineSyncTracker performanceTracker;
+        private final OfflinePerformanceTracker performanceTracker;
 
         @Inject
         Builder(DownloadOperations operations, TrackDownloadsStorage tracksStorage,
-                SecureFileStorage secureFiles, OfflineSyncTracker performanceTracker) {
+                SecureFileStorage secureFiles, OfflinePerformanceTracker performanceTracker) {
             this.downloadOperations = operations;
             this.tracksStorage = tracksStorage;
             this.secureFileStorage = secureFiles;

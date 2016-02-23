@@ -12,6 +12,7 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
@@ -20,6 +21,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.TryWithBackOff;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.net.HttpHeaders;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Single;
@@ -37,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ConfigurationOperations {
 
-    static final long CONFIGURATION_STALE_TIME_MILLIS = TimeUnit.HOURS.toMillis(1);
+    static final long CONFIGURATION_STALE_TIME_MILLIS = TimeUnit.MINUTES.toMillis(10);
 
     private static final String TAG = "Configuration";
     private static final String PARAM_EXPERIMENT_LAYERS = "experiment_layers";
@@ -54,6 +56,7 @@ public class ConfigurationOperations {
     private final ConfigurationSettingsStorage configurationSettingsStorage;
     private final TryWithBackOff<Configuration> tryWithBackOff;
     private final Scheduler scheduler;
+    private final EventBus eventBus;
 
     private static final Func2<Object, Configuration, Configuration> TO_UPDATED_CONFIGURATION = new Func2<Object, Configuration, Configuration>() {
         @Override
@@ -76,11 +79,11 @@ public class ConfigurationOperations {
         }
     };
 
-    private static Func1<Configuration, Boolean> isExpectedPlan(final String planId) {
+    private static Func1<Configuration, Boolean> isExpectedPlan(final Plan plan) {
         return new Func1<Configuration, Boolean>() {
             @Override
             public Boolean call(Configuration configuration) {
-                return configuration.plan.id.equals(planId);
+                return configuration.userPlan.currentPlan.equals(plan);
             }
         };
     }
@@ -92,9 +95,10 @@ public class ConfigurationOperations {
                                    FeatureFlags featureFlags,
                                    ConfigurationSettingsStorage configurationSettingsStorage,
                                    TryWithBackOff.Factory tryWithBackOffFactory,
-                                   @Named(HIGH_PRIORITY) Scheduler scheduler) {
+                                   @Named(HIGH_PRIORITY) Scheduler scheduler,
+                                   EventBus eventBus) {
         this(apiClientRx, experimentOperations, featureOperations, featureFlags, configurationSettingsStorage,
-                tryWithBackOffFactory.<Configuration>withDefaults(), scheduler);
+                tryWithBackOffFactory.<Configuration>withDefaults(), scheduler, eventBus);
     }
 
     @VisibleForTesting
@@ -104,7 +108,8 @@ public class ConfigurationOperations {
                             FeatureFlags featureFlags,
                             ConfigurationSettingsStorage configurationSettingsStorage,
                             TryWithBackOff<Configuration> tryWithBackOff,
-                            @Named(HIGH_PRIORITY) Scheduler scheduler) {
+                            @Named(HIGH_PRIORITY) Scheduler scheduler,
+                            EventBus eventBus) {
         this.apiClientRx = apiClientRx;
         this.apiClient = apiClientRx.getApiClient();
         this.experimentOperations = experimentOperations;
@@ -113,23 +118,17 @@ public class ConfigurationOperations {
         this.configurationSettingsStorage = configurationSettingsStorage;
         this.tryWithBackOff = tryWithBackOff;
         this.scheduler = scheduler;
+        this.eventBus = eventBus;
     }
 
     Observable<Configuration> update() {
         return Observable.zip(
                 experimentOperations.loadAssignment(),
-                updatedConfiguration(configurationRequestBuilderForGet().build()).toObservable(),
+                fetchConfigurationWithRetry(configurationRequestBuilderForGet().build())
+                        .subscribeOn(scheduler)
+                        .toObservable(),
                 TO_UPDATED_CONFIGURATION
         );
-    }
-
-    private Single<Configuration> updatedConfiguration(final ApiRequest request) {
-        return fetchConfigurationWithRetry(request).doOnSuccess(new Action1<Configuration>() {
-            @Override
-            public void call(Configuration configuration) {
-                configurationSettingsStorage.setLastConfigurationCheckTime(System.currentTimeMillis());
-            }
-        }).subscribeOn(scheduler);
     }
 
     @NonNull
@@ -161,11 +160,12 @@ public class ConfigurationOperations {
         }
     }
 
-    public Observable<Configuration> awaitConfigurationWithPlan(final String expectedPlan) {
+    public Observable<Configuration> awaitConfigurationWithPlan(final Plan expectedPlan) {
         return Observable.interval(POLLING_INITIAL_DELAY, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS, scheduler)
                 .take(POLLING_MAX_ATTEMPTS)
                 .flatMap(toFetchConfiguration)
-                .first(isExpectedPlan(expectedPlan)).doOnNext(saveConfiguration);
+                .takeFirst(isExpectedPlan(expectedPlan))
+                .doOnNext(saveConfiguration);
     }
 
     public DeviceManagement registerDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {
@@ -215,11 +215,43 @@ public class ConfigurationOperations {
     }
 
     void saveConfiguration(Configuration configuration) {
+        Log.d(TAG, "Saving new configuration...");
+        configurationSettingsStorage.setLastConfigurationUpdateTime(System.currentTimeMillis());
         experimentOperations.update(configuration.assignment);
         if (featureFlags.isEnabled(Flag.OFFLINE_SYNC)) {
             featureOperations.updateFeatures(configuration.features);
-            featureOperations.updatePlan(configuration.plan.id, configuration.plan.upsells);
+            handlePlanChange(configuration);
+            featureOperations.updatePlan(configuration.userPlan);
         }
     }
 
+    private void handlePlanChange(Configuration configuration) {
+        final Plan newPlan = configuration.userPlan.currentPlan;
+        final Plan currentPlan = featureOperations.getCurrentPlan();
+        if (newPlan.isUpgradeFrom(currentPlan)) {
+            Log.d(TAG, "Plan upgrade detected from " + currentPlan + " to " + newPlan);
+            configurationSettingsStorage.storePendingPlanUpgrade(newPlan);
+            eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forUpgrade(currentPlan, newPlan));
+        } else if (newPlan.isDowngradeFrom(currentPlan)) {
+            Log.d(TAG, "Plan downgrade detected from " + currentPlan + " to " + newPlan);
+            configurationSettingsStorage.storePendingPlanDowngrade(newPlan);
+            eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forDowngrade(currentPlan, newPlan));
+        }
+    }
+
+    public boolean isPendingHighTierUpgrade() {
+        return configurationSettingsStorage.getPendingPlanUpgrade() == Plan.HIGH_TIER;
+    }
+
+    public boolean isPendingDowngrade() {
+        return configurationSettingsStorage.getPendingPlanDowngrade() != Plan.UNDEFINED;
+    }
+
+    public void clearPendingPlanChanges() {
+        configurationSettingsStorage.clearPendingPlanChanges();
+    }
+
+    public void clearConfigurationSettings() {
+        configurationSettingsStorage.clear();
+    }
 }

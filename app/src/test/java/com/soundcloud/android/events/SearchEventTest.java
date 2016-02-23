@@ -129,7 +129,7 @@ public class SearchEventTest {
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("everything");
         assertThat(searchEvent.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(searchEvent.getClickPosition()).isEqualTo(1);
-        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("play");
+        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(searchEvent.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:456");
     }
 
@@ -141,7 +141,7 @@ public class SearchEventTest {
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("everything");
         assertThat(searchEvent.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(searchEvent.getClickPosition()).isEqualTo(1);
-        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("open_playlist");
+        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(searchEvent.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:456");
     }
 
@@ -153,7 +153,7 @@ public class SearchEventTest {
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("everything");
         assertThat(searchEvent.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(searchEvent.getClickPosition()).isEqualTo(1);
-        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("open_profile");
+        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(searchEvent.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:456");
     }
 
@@ -165,7 +165,7 @@ public class SearchEventTest {
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("tracks");
         assertThat(searchEvent.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(searchEvent.getClickPosition()).isEqualTo(1);
-        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("play");
+        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(searchEvent.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:456");
     }
 
@@ -177,7 +177,7 @@ public class SearchEventTest {
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("playlists");
         assertThat(searchEvent.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(searchEvent.getClickPosition()).isEqualTo(1);
-        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("open_playlist");
+        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(searchEvent.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:456");
     }
 
@@ -189,7 +189,7 @@ public class SearchEventTest {
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("people");
         assertThat(searchEvent.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(searchEvent.getClickPosition()).isEqualTo(1);
-        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("open_profile");
+        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(searchEvent.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:456");
     }
 
@@ -201,7 +201,7 @@ public class SearchEventTest {
         assertThat(searchEvent.getAttributes().get("context")).isEqualTo("tags");
         assertThat(searchEvent.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
         assertThat(searchEvent.getClickPosition()).isEqualTo(1);
-        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("open_playlist");
+        assertThat(searchEvent.getAttributes().get("click_name")).isEqualTo("item_navigation");
         assertThat(searchEvent.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:456");
     }
 

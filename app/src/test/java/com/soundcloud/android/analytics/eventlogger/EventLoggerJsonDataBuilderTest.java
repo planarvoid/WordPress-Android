@@ -26,7 +26,6 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
@@ -91,6 +90,17 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(screenEvent);
 
         verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp()).pageName(Screen.ACTIVITIES.get())));
+    }
+
+    @Test
+    public void createsScreenEventJsonWithQueryUrn() throws ApiMapperException {
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(),
+                new SearchQuerySourceInfo(new Urn("soundcloud:search:123")));
+
+        jsonDataBuilder.build(screenEvent);
+
+        verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp())
+                .pageName(Screen.SEARCH_EVERYTHING.get()).queryUrn("soundcloud:search:123")));
     }
 
     @Test
@@ -666,7 +676,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
                 .pageName("search:everything")
-                .clickName("open_profile")
+                .clickName("item_navigation")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
@@ -679,7 +689,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
                 .pageName("search:everything")
-                .clickName("play")
+                .clickName("item_navigation")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
@@ -692,7 +702,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
                 .pageName("search:everything")
-                .clickName("open_playlist")
+                .clickName("item_navigation")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
@@ -871,62 +881,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .promotedBy(item.getPromoterUrn().get().toString())
                 .impressionName("promoted_playlist")
                 .impressionObject(item.getEntityUrn().toString()));
-    }
-
-    @Test
-    public void createsPlayerUpsellImpressionJson() throws Exception {
-        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forPlayerImpression(Urn.forTrack(1));
-
-        jsonDataBuilder.build(impression);
-
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", impression.getTimestamp())
-                .pageUrn(Urn.forTrack(1).toString())
-                .impressionName("consumer_sub_ad")
-                .impressionObject("soundcloud:tcode:1017"));
-    }
-
-    @Test
-    public void createsPlayerUpsellClickJson() throws Exception {
-        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlayerClick(Urn.forTrack(1));
-
-        jsonDataBuilder.build(click);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", click.getTimestamp())
-                .pageUrn(Urn.forTrack(1).toString())
-                .clickName("clickthrough::consumer_sub_ad")
-                .clickObject("soundcloud:tcode:1017"));
-    }
-
-    @Test
-    public void createsUpsellImpressionJson() throws Exception {
-        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forLikesImpression();
-
-        jsonDataBuilder.build(impression);
-
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", impression.getTimestamp())
-                .impressionName("consumer_sub_ad")
-                .impressionObject("soundcloud:tcode:1009"));
-    }
-
-    @Test
-    public void createsUpsellClickJson() throws Exception {
-        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlaylistItemClick();
-
-        jsonDataBuilder.build(click);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", click.getTimestamp())
-                .clickName("clickthrough::consumer_sub_ad")
-                .clickObject("soundcloud:tcode:1011"));
-    }
-
-    @Test
-    public void createsUpgradeSuccessImpressionJson() throws Exception {
-        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forUpgradeSuccess();
-
-        jsonDataBuilder.build(impression);
-
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", impression.getTimestamp())
-                .impressionName("consumer_sub_upgrade_success"));
     }
 
     @Test

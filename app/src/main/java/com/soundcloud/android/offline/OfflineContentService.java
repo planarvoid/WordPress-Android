@@ -27,7 +27,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,6 +35,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     public static final String TAG = "OfflineContent";
     @VisibleForTesting static final String ACTION_START = "action_start_download";
     @VisibleForTesting static final String ACTION_STOP = "action_stop_download";
+    @VisibleForTesting static final String EXTRA_SHOW_RESULT = "extra_show_result";
 
     @Inject DownloadOperations downloadOperations;
     @Inject OfflineContentOperations offlineContentOperations;
@@ -49,6 +49,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private DownloadHandler downloadHandler;
     private Subscription subscription = RxUtils.invalidSubscription();
     private boolean isStopping;
+    private boolean showResult;
 
     private final Func1<List<Urn>, Observable<Collection<Urn>>> removeTracks = new Func1<List<Urn>, Observable<Collection<Urn>>>() {
         @Override
@@ -59,6 +60,12 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     public static void start(Context context) {
         context.startService(createIntent(context, ACTION_START));
+    }
+
+    public static void startFromUserAction(Context context) {
+        final Intent intent = createIntent(context, ACTION_START);
+        intent.putExtra(EXTRA_SHOW_RESULT, true);
+        context.startService(intent);
     }
 
     public static void stop(Context context) {
@@ -104,6 +111,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     public int onStartCommand(Intent intent, int flags, int startId) {
         final String action = intent.getAction();
         isStopping = ACTION_STOP.equals(intent.getAction());
+        showResult = intent.getBooleanExtra(EXTRA_SHOW_RESULT, showResult);
 
         Log.d(TAG, " Starting offlineContentService for action: " + action);
         offlineContentScheduler.cancelPendingRetries();
@@ -123,8 +131,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             subscription.unsubscribe();
             if (downloadHandler.isDownloading()) {
                 downloadHandler.cancel();
+            } else {
+                stopAndFinish(null);
             }
-            stop();
         }
         return START_NOT_STICKY;
     }
@@ -153,8 +162,10 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         if (state.isConnectionError()) {
             Log.d(TAG, "onError> Connection error.");
-            notificationController.onConnectionError(state);
-            stopAndRetryLater();
+            stopAndRetryLater(state);
+        } else if (state.isNotEnoughMinimumSpace()) {
+            Log.d(TAG, "onError> Not enough minimum space");
+            stopAndFinish(state);
         } else {
             Log.d(TAG, "onError> Download next.");
             downloadNextOrFinish(state);
@@ -172,9 +183,11 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         if (isStopping) {
             Log.d(TAG, "onCancel> Service is stopping.");
-            stop();
+            notificationController.reset();
+            stopAndFinish(state);
         } else {
             Log.d(TAG, "onCancel> Download next.");
+            notificationController.onDownloadCancel(state);
             downloadNextOrFinish(state);
         }
     }
@@ -190,16 +203,17 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private void stopAndFinish(DownloadState result) {
+    private void stopAndFinish(@Nullable DownloadState result) {
         Log.d(TAG, "stopAndFinish> last result = [" + result + "]");
         stop();
-        notificationController.onDownloadsFinished(result);
+        notificationController.onDownloadsFinished(result, showResult);
     }
 
-    private void stopAndRetryLater() {
+    private void stopAndRetryLater(DownloadState state) {
         Log.d(TAG, "stopAndRetryLater>");
         offlineContentScheduler.scheduleRetry();
         stop();
+        notificationController.onConnectionError(state, showResult);
     }
 
     private void download(DownloadRequest request) {
@@ -241,38 +255,40 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             publisher.publishDownloaded(updates.tracksToRestore());
             publisher.publishUnavailable(updates.unavailableTracks());
 
-            final ArrayList<DownloadRequest> requests = newArrayList(updates.tracksToDownload());
+            final List<DownloadRequest> requests = newArrayList(updates.tracksToDownload());
+            final boolean noContentRequested = updates.userExpectedOfflineContent().isEmpty();
+
             if (downloadHandler.isDownloading()) {
                 final DownloadRequest currentRequest = downloadHandler.getCurrentRequest();
                 if (requests.contains(currentRequest)) {
                     Log.d(OfflineContentService.TAG, "Keep downloading." + currentRequest);
                     requests.remove(currentRequest);
-                    setNewRequests(requests);
+                    setNewRequests(requests, noContentRequested);
                     publisher.publishDownloading(currentRequest.getTrack());
                 } else {
                     Log.d(OfflineContentService.TAG, "Cancelling " + currentRequest);
-                    setNewRequests(requests);
+                    setNewRequests(requests, noContentRequested);
                     // download cancelled event is sent in the callback.
                     downloadHandler.cancel();
                     publisher.publishRemoved(currentRequest.getTrack());
                 }
             } else {
-                setNewRequests(requests);
+                setNewRequests(requests, noContentRequested);
                 downloadNextOrFinish(null);
             }
         }
     }
 
-    private void setNewRequests(ArrayList<DownloadRequest> requests) {
+    private void setNewRequests(List<DownloadRequest> requests, boolean muteNotification) {
         Log.d(OfflineContentService.TAG, "setNewRequests requests = [" + requests + "]");
         queue.set(requests);
-        updateNotification();
         publisher.publishRequested(newArrayList(transform(requests, TO_TRACK_URN)));
-    }
 
-    private void updateNotification() {
-        if (!queue.isEmpty()) {
+        if (muteNotification || queue.isEmpty()) {
+            notificationController.reset();
+        } else {
             startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(queue));
         }
     }
+
 }

@@ -5,7 +5,8 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                UpgradeProgressActivity.class,
+                GoOnboardingActivity.class,
+                UnrecoverableErrorDialog.class
         })
 public class UpgradeModule {
 }

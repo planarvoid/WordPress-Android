@@ -20,7 +20,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -206,8 +205,6 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindsPreviewIndicatorForSnippedForMidTierUpsell() {
-        when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
-
         TrackItem trackItem = upsellableTrack();
         presenter.bind(itemView, trackItem);
 
@@ -216,8 +213,6 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindPreviewIndicatorWhenShouldNotUpsellMidTier() {
-        when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
-
         PlayableItem trackItem = repostedTrack();
         presenter.bind(itemView, trackItem);
 

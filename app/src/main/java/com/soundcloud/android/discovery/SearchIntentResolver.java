@@ -5,6 +5,7 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.deeplinks.DeepLink;
+import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.strings.Strings;
@@ -46,7 +47,7 @@ class SearchIntentResolver {
         } else if (isInterceptedUri(intent)) {
             handleUri(context, intent);
         } else {
-            tracker.trackScreenEvent();
+            tracker.trackMainScreenEvent();
         }
     }
 

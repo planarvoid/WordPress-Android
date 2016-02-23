@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -74,6 +75,6 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
     public void shouldTrackScreen() {
         intentResolver.handle(context(), intent);
 
-        verify(tracker).trackScreenEvent();
+        verify(tracker).trackMainScreenEvent();
     }
 }

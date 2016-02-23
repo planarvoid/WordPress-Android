@@ -10,9 +10,9 @@ import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
-import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.BasicSettingsScreen;
+import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -49,8 +49,9 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
 
         mainNavHelper.goToCollections()
                 .scrollToFirstPlaylist()
-                .clickOverflow()
-                .clickMakeAvailableOffline();
+                .click()
+                .clickDownloadToggle()
+                .goBackToCollections();
 
         final BasicSettingsScreen basicSettingsScreen = mainNavHelper.goToBasicSettings();
 
@@ -62,12 +63,11 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
         assertThat("Go back online dialog should be visible", goBackOnlineDialog, is(visible()));
         goBackOnlineDialog.clickContinue();
 
-        ViewElement makeAvailableOfflineItem = mainNavHelper.goToCollections()
+        DownloadImageViewElement downloadElement = mainNavHelper.goToCollections()
                 .scrollToFirstPlaylist()
-                .clickOverflow()
-                .getMakeAvailableOfflineItem();
+                .downloadElement();
 
-        assertThat("Save offline menu element should be visible", makeAvailableOfflineItem.isOnScreen());
+        assertThat("Save offline menu element should be visible", !downloadElement.isVisible());
     }
 
     public void testDisplaysGoBackOnline() {

@@ -18,7 +18,7 @@
 
     <ImageButton
         android:id="@+id/btn_collections_playlist_options"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?attr/selectableItemBackground"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

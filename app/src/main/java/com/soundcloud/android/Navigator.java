@@ -6,13 +6,13 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.collection.OfflineOnboardingActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -21,22 +21,27 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.payments.UpgradeActivity;
+import com.soundcloud.android.payments.NativeConversionActivity;
+import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.settings.LegalActivity;
+import com.soundcloud.android.settings.NewNotificationSettingsActivity;
 import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
-import com.soundcloud.android.upgrade.UpgradeProgressActivity;
+import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -44,6 +49,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,21 +58,62 @@ public class Navigator {
     private static final int NO_FLAGS = 0;
     private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
-    public final static String EXTRA_SEARCH_INTENT = "search_intent";
+    public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_PENDING_ACTIVITY = "restart.pending_activity";
-    public static final String EXTRA_PENDING_ACTIVITY_EXTRAS = "restart.pending_activity_extras";
-    public static final String EXTRA_SHOW_OFFLINE_ONBOARDING = "restart.show_offline_onboarding";
+    public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
+
+    private final FeatureFlags featureFlags;
+
+    @Inject
+    public Navigator(FeatureFlags featureFlags) {
+        this.featureFlags = featureFlags;
+    }
 
     public void openHome(Context context) {
         context.startActivity(createHomeIntent(context));
     }
 
-    public void openUpgrade(Context context) {
-        context.startActivity(new Intent(context, UpgradeActivity.class));
+    public void openHomeAsRootScreen(Context context) {
+        context.startActivity(rootScreen(createHomeIntent(context)));
+    }
+
+    public void launchHome(Context context, @Nullable Bundle extras) {
+        final Intent homeIntent = createHomeIntent(context);
+        if (extras != null) {
+            homeIntent.putExtras(extras);
+        }
+
+        if (!Referrer.hasReferrer(homeIntent)) {
+            Referrer.HOME_BUTTON.addToIntent(homeIntent);
+        }
+
+        if (!Screen.hasScreen(homeIntent)) {
+            Screen.UNKNOWN.addToIntent(homeIntent);
+        }
+
+        context.startActivity(homeIntent);
+    }
+
+    public void openUpgrade(Context activityContext) {
+        activityContext.startActivity(new Intent(activityContext, getUpgradeClass()));
+    }
+
+    protected Class getUpgradeClass() {
+        return featureFlags.isEnabled(Flag.FEATURE_WEB_UPGRADE_FLOW)
+                ? WebConversionActivity.class
+                : NativeConversionActivity.class;
+    }
+
+    public void openUpgradeFromDeeplink(Context context) {
+        context.startActivity(createHomeIntent(context).putExtra(EXTRA_UPGRADE_INTENT, true));
     }
 
     public void openPlaylist(Context context, Urn playlist, Screen screen) {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false));
+    }
+
+    public void openPlaylistWithAutoPlay(Context context, Urn playlist, Screen screen) {
+        context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, true));
     }
 
     public void openPlaylist(Context context, Urn playlist, Screen screen, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
@@ -107,6 +154,14 @@ public class Navigator {
         context.startActivity(intent);
     }
 
+    public void performSearch(Context context, String query) {
+        final Intent intent = new Intent(Actions.PERFORM_SEARCH)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .putExtra(SearchManager.QUERY, query);
+
+        context.startActivity(intent);
+    }
+
     public void openUri(Context context, Uri uri) {
         context.startActivity(new Intent(Intent.ACTION_VIEW).setData(uri));
     }
@@ -141,10 +196,6 @@ public class Navigator {
 
     public void openSettings(Context context) {
         context.startActivity(new Intent(context, SettingsActivity.class));
-    }
-
-    public void openOfflineOnboarding(Context context) {
-        context.startActivity(new Intent(context, OfflineOnboardingActivity.class));
     }
 
     @Deprecated // use method that passes Screen, remove this after tabs
@@ -185,8 +236,8 @@ public class Navigator {
         context.startActivity(createStreamIntent(screen));
     }
 
-    public void openCollection(Context context) {
-        context.startActivity(new Intent(Actions.COLLECTION).setFlags(FLAGS_TOP));
+    public void openCollectionAsRootScreen(Context context) {
+        context.startActivity(rootScreen(new Intent(Actions.COLLECTION).setFlags(FLAGS_TOP)));
     }
 
     public void openLauncher(Context context) {
@@ -232,8 +283,18 @@ public class Navigator {
                 .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
     }
 
+    public void openNewNotificationSettings(Context context) {
+        context.startActivity(new Intent(context, NewNotificationSettingsActivity.class));
+    }
+
     private Intent createHomeIntent(Context context) {
         return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
+
+    private Intent rootScreen(Intent intent) {
+        return intent
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 
     private Intent createResolveIntent(Context context, Urn urn) {
@@ -327,28 +388,28 @@ public class Navigator {
         activityContext.startActivity(new Intent(activityContext, target));
     }
 
-    public void restartForAccountUpgrade(Activity context, boolean showOfflineOnboarding) {
-        Bundle options = new Bundle();
-        options.putBoolean(EXTRA_SHOW_OFFLINE_ONBOARDING, showOfflineOnboarding);
-        restartAppAndNavigateTo(context, UpgradeProgressActivity.class, options);
+    public void restartForAccountUpgrade(Activity context) {
+        restartAppAndNavigateTo(context, GoOnboardingActivity.class);
+    }
+
+    public void restartForAccountDowngrade(Activity context) {
+        restartAppAndNavigateTo(context, GoOffboardingActivity.class);
     }
 
     public void restartApp(Activity context) {
-        restartAppAndNavigateTo(context, null, null);
+        restartAppAndNavigateTo(context, null);
     }
 
     private void restartAppAndNavigateTo(Activity context,
-                                         @Nullable Class<? extends Activity> nextActivity,
-                                         @Nullable Bundle nextActivityBundle) {
-        Intent launchActivity = new Intent(context, LauncherActivity.class);
-        launchActivity.addCategory(Intent.CATEGORY_DEFAULT);
-        launchActivity.addCategory(Intent.CATEGORY_LAUNCHER);
-        launchActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                         @Nullable Class<? extends Activity> nextActivity) {
+        Intent launcherIntent = new Intent(context, LauncherActivity.class);
+        launcherIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        launcherIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (nextActivity != null) {
-            launchActivity.putExtra(EXTRA_PENDING_ACTIVITY, nextActivity.getCanonicalName());
-            launchActivity.putExtra(EXTRA_PENDING_ACTIVITY_EXTRAS, nextActivityBundle);
+            launcherIntent.putExtra(EXTRA_PENDING_ACTIVITY, nextActivity.getCanonicalName());
         }
-        context.startActivity(launchActivity);
+        context.startActivity(launcherIntent);
         System.exit(0);
     }
 
@@ -356,11 +417,7 @@ public class Navigator {
         final String activityName = extras.getString(Navigator.EXTRA_PENDING_ACTIVITY);
         try {
             final Class<?> activityClass = Class.forName(activityName);
-            final Intent intent = new Intent(context, activityClass);
-            if (extras.containsKey(Navigator.EXTRA_PENDING_ACTIVITY_EXTRAS)) {
-                intent.putExtras(extras.getBundle(Navigator.EXTRA_PENDING_ACTIVITY_EXTRAS));
-            }
-            context.startActivity(intent);
+            context.startActivity(new Intent(context, activityClass));
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(e);
         }

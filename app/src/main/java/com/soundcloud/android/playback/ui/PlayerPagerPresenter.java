@@ -145,7 +145,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         this.adOperations = adOperations;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
-
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
     }
@@ -501,7 +500,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     }
 
     private void updateProgress(PlayerPagePresenter presenter, View trackView, Urn urn) {
-        presenter.setProgress(trackView, playSessionStateProvider.getLastProgressForTrack(urn));
+        presenter.setProgress(trackView, playSessionStateProvider.getLastProgressForItem(urn));
     }
 
     private static class PlayerItemSubscriber extends DefaultSubscriber<PlayerItem> {

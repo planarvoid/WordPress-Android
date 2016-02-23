@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQ
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -25,6 +26,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,15 +52,17 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private FeatureFlags featureFlags;
+    @Mock private EventBus eventBus;
     @Captor private ArgumentCaptor<List> listArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), featureFlags);
+        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), eventBus, featureFlags);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
 
         when(featureFlags.isEnabled(Flag.VIDEO_ADS)).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.SERVE_DEMO_VIDEO_AD)).thenReturn(false);
     }
 
     @Test
@@ -67,7 +71,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        assertThat(adsOperations.ads(TRACK_URN).toBlocking().first()).isEqualTo(fullAdsForTrack);
+        assertThat(adsOperations.ads(TRACK_URN, true, true).toBlocking().first()).isEqualTo(fullAdsForTrack);
     }
 
     @Test
@@ -75,7 +79,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        adsOperations.ads(TRACK_URN).subscribe();
+        adsOperations.ads(TRACK_URN, true, true).subscribe();
 
         verify(storeTracksCommand).call(Arrays.asList(fullAdsForTrack.audioAd().get().getApiTrack()));
     }
@@ -322,6 +326,22 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(playQueueManager).replace(same(trackQueueItem), listCaptor.capture());
         final List value = listCaptor.getValue();
         assertPlayQueueItemsEqual(value, Arrays.asList(new VideoQueueItem(VideoAd.create(videoAd, TRACK_URN)), TestPlayQueueItem.createTrack(TRACK_URN)));
+    }
+
+    @Test
+    public void insertRandomDemoVideoAdIfBothVideoFeatureFlagsEnabled() throws Exception {
+        when(featureFlags.isEnabled(Flag.VIDEO_ADS)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.SERVE_DEMO_VIDEO_AD)).thenReturn(true);
+
+        final ApiAdsForTrack ads = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
+
+        adsOperations.applyAdToUpcomingTrack(ads);
+
+        final ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
+        verify(playQueueManager).replace(same(trackQueueItem), listCaptor.capture());
+        final PlayQueueItem adItem = (PlayQueueItem) listCaptor.getValue().get(0);
+        assertThat(adItem.isVideo()).isTrue();
+        assertThat(adItem.getAdData().get().getAdUrn().isAd()).isTrue();
     }
 
     private void verifyAudioAdInserted(ApiAdsForTrack adsForTrack, Optional<LeaveBehindAd> leaveBehindAdOptional) {

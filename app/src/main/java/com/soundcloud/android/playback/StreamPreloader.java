@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
@@ -18,6 +19,8 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func3;
+
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -84,17 +87,31 @@ public class StreamPreloader {
         }
     };
 
-    private final Func1<PropertySet, Observable<PlaybackNetworkState>> waitForValidPreloadConditions = new Func1<PropertySet, Observable<PlaybackNetworkState>>() {
+    private final Func1<PropertySet, Observable<PreloadItem>> waitForValidPreloadConditions = new Func1<PropertySet, Observable<PreloadItem>>() {
         @Override
-        public Observable<PlaybackNetworkState> call(PropertySet propertyBindings) {
+        public Observable<PreloadItem> call(final PropertySet nextItem) {
             return Observable.combineLatest(
                     eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED),
                     eventBus.queue(EventQueue.NETWORK_CONNECTION_CHANGED),
                     eventBus.queue(EventQueue.PLAYBACK_PROGRESS),
                     toPlaybackNetworkState)
-                    .filter(checkNetworkAndProgressConditions);
+                    .filter(checkNetworkAndProgressConditions)
+                    .take(1)
+                    .filter(cacheSpaceAvailable)
+                    .map(toPreloadItem(nextItem));
         }
     };
+
+    @NonNull
+    private final Func1<Object, PreloadItem> toPreloadItem(final PropertySet propertyBindings) {
+        return new Func1<Object, PreloadItem>() {
+            @Override
+            public PreloadItem call(Object ignored) {
+                final PlaybackType playbackType = propertyBindings.get(TrackProperty.SNIPPED) ? PlaybackType.AUDIO_SNIPPET : PlaybackType.AUDIO_DEFAULT;
+                return new AutoParcel_PreloadItem(propertyBindings.get(TrackProperty.URN), playbackType);
+            }
+        };
+    }
 
     private final Func1<PlaybackNetworkState, Boolean> cacheSpaceAvailable = new Func1<PlaybackNetworkState, Boolean>() {
         @Override
@@ -135,22 +152,14 @@ public class StreamPreloader {
             preloadSubscription = trackRepository.track(urn)
                     .filter(isNotOfflineTrack)
                     .flatMap(waitForValidPreloadConditions)
-                    .take(1)
-                    .filter(cacheSpaceAvailable)
-                    .subscribe(new PreloadSubscriber(urn));
+                    .subscribe(new PreloadSubscriber());
         }
     }
 
-    private class PreloadSubscriber extends DefaultSubscriber<PlaybackNetworkState> {
-        private final Urn urn;
-
-        public PreloadSubscriber(Urn urn) {
-            this.urn = urn;
-        }
-
+    private class PreloadSubscriber extends DefaultSubscriber<PreloadItem> {
         @Override
-        public void onNext(PlaybackNetworkState ignored) {
-            serviceInitiator.preload(urn);
+        public void onNext(PreloadItem preloadItem) {
+            serviceInitiator.preload(preloadItem);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropTable;
+import static com.soundcloud.android.storage.SchemaMigrationHelper.dropView;
 
 import com.soundcloud.android.utils.ErrorUtils;
 
@@ -19,7 +20,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 67;
+    public static final int DATABASE_VERSION = 68;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -60,6 +61,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
             // views
             db.execSQL(Tables.Shortcuts.SQL);
+            db.execSQL(Tables.OfflinePlaylistTracks.SQL);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -78,11 +80,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.TrackDownloads.TABLE.name(), db);
         dropTable(Tables.OfflineContent.TABLE.name(), db);
         dropTable(LegacyTables.RecentStations.TABLE.name(), db);
+        dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
 
         // legacy tables
         for (Table t : Table.values()) {
             SchemaMigrationHelper.drop(t, db);
         }
+        dropView(Tables.Shortcuts.TABLE.name(), db);
 
         onCreate(db);
     }
@@ -192,6 +196,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 67:
                             success = upgradeTo67(db, oldVersion);
+                            break;
+                        case 68:
+                            success = upgradeTo68(db, oldVersion);
                             break;
                         default:
                             break;
@@ -673,6 +680,22 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /*
+     * Fix SoundAssociationView dropping
+     * Creates view OfflinePlaylistTracks
+     */
+    private static boolean upgradeTo68(SQLiteDatabase db, int oldVersion) {
+        try {
+            // this view isn't used anymore
+            dropView("SoundAssociationView", db);
+            db.execSQL(Tables.OfflinePlaylistTracks.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 68);
+        }
+        return false;
+    }
+
     private static void migratePolicies(SQLiteDatabase db) {
         final List<String> oldSoundColumns = Arrays.asList(
                 "_id", "monetizable", "policy");
@@ -696,5 +719,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         SchemaMigrationHelper.recreate(Table.PlaylistTracksView, db);
         SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
         SchemaMigrationHelper.recreate(Table.ActivityView, db);
+
+        SchemaMigrationHelper.dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
+        db.execSQL(Tables.OfflinePlaylistTracks.SQL);
     }
 }
