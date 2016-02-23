@@ -60,35 +60,52 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
         presenter = new VideoAdPresenter(mediaPlayerAdapter, imageOperations, pageListener, playerOverlayControllerFactory, deviceHelper, resources());
         adView = presenter.createItemView(new FrameLayout(context()), null);
-        bindVerticalVideo();
+        bindVerticalVideo(true);
     }
 
     @Test
     public void videoViewNotVisibleOnVerticalVideoBind() {
-        bindVerticalVideo();
+        bindVerticalVideo(true);
 
         assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
     }
 
     @Test
     public void letterboxVideoBindShowsLoadingIndicatorAndLetterboxBackgroundButNotVideoView() {
-        bindLetterboxVideo();
+        bindLetterboxVideo(true);
 
         assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
         assertThat(adView.findViewById(R.id.letterbox_background)).isVisible();
         assertThat(adView.findViewById(R.id.video_progress)).isVisible();
     }
 
+
+    @Test
+    public void letterboxVideoBindDoesntShowLoadingIndicatorAndLetterboxBackgroundButNotVideoViewWithInactivePlaySession() {
+        bindLetterboxVideo(false);
+
+        assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
+        assertThat(adView.findViewById(R.id.letterbox_background)).isVisible();
+        assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
+    }
+
     @Test
     public void loadingIndicatorVisibleOnVerticalVideoBind() {
-        bindVerticalVideo();
+        bindVerticalVideo(true);
 
         assertThat(adView.findViewById(R.id.video_progress)).isVisible();
     }
 
     @Test
+    public void loadingIndicatorNotVisibleOnVerticalVideoBindWithInactivePlaySession() {
+        bindVerticalVideo(false);
+
+        assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
+    }
+
+    @Test
     public void videoViewShouldBeVisibleAndLoadingIndicatorGoneAfterPlaybackStarts() {
-        bindLetterboxVideo();
+        bindLetterboxVideo(true);
 
         presenter.setPlayState(adView, createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
         assertThat(adView.findViewById(R.id.video_view)).isVisible();
@@ -97,7 +114,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void loadingIndicatorAndVideoViewAreVisibleOnPlaybackBuffering() {
-        bindLetterboxVideo();
+        bindLetterboxVideo(true);
 
         presenter.setPlayState(adView, createStateTransition(PlayerState.PLAYING, Player.Reason.NONE), true, true);
         presenter.setPlayState(adView, createStateTransition(PlayerState.BUFFERING, Player.Reason.NONE), true, true);
@@ -108,7 +125,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void loadingIndicatorIsntVisibleWhenPlaybackPaused() {
-        bindLetterboxVideo();
+        bindLetterboxVideo(true);
 
         presenter.setPlayState(adView, createStateTransition(PlayerState.IDLE, Player.Reason.NONE), true, true);
 
@@ -117,7 +134,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void videoViewAspectRatioMaintainedForLetterbox() {
-        bindLetterboxVideo();
+        bindLetterboxVideo(true);
         final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
         final int viewWidth = layoutParams.width;
         final int viewHeight = layoutParams.height;
@@ -131,7 +148,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     @Test
     public void videoViewAspectRatioMaintainedForLandscape() {
         when(deviceHelper.getCurrentOrientation()).thenReturn(ORIENTATION_LANDSCAPE);
-        bindLetterboxVideo();
+        bindLetterboxVideo(true);
 
         final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
         final int viewWidth = layoutParams.width;
@@ -371,13 +388,15 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         return ad;
     }
 
-    private void bindVerticalVideo() {
+    private void bindVerticalVideo(boolean playSessionActive) {
         adView.findViewById(R.id.video_container).layout(0, 0, VERTICAL_VIDEO_WIDTH, VERTICAL_VIDEO_HEIGHT);
+        adView.findViewById(R.id.play_controls).setVisibility(playSessionActive ? View.GONE : View.VISIBLE);
         presenter.bindItemView(adView, new VideoPlayerAd(buildAd(true), PropertySet.create()));
     }
 
-    private void bindLetterboxVideo() {
+    private void bindLetterboxVideo(boolean playSessionActive) {
         adView.findViewById(R.id.video_container).layout(0, 0, LETTERBOX_VIDEO_WIDTH, LETTERBOX_VIDEO_HEIGHT);
+        adView.findViewById(R.id.play_controls).setVisibility(playSessionActive ? View.GONE : View.VISIBLE);
         presenter.bindItemView(adView, new VideoPlayerAd(buildAd(false), PropertySet.create()));
     }
 }

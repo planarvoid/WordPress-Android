@@ -218,12 +218,12 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
     private void setLoadingState(Holder holder, Player.StateTransition stateTransition, boolean isCurrentItem) {
         if (isCurrentItem) {
-            holder.videoProgress.setVisibility(stateTransition.isBuffering() ? View.VISIBLE : View.GONE);
+            holder.videoProgress.setVisibility(stateTransition.isBuffering() && stateTransition.playSessionIsActive() ? View.VISIBLE : View.GONE);
             if (stateTransition.isPlayerPlaying() && !isVideoSurfaceVisible(holder)) {
                 holder.videoSurfaceView.setVisibility(View.VISIBLE);
             }
-        } else if (!stateTransition.playSessionIsActive()) {
-            holder.videoProgress.setVisibility(View.GONE);
+        } else {
+            holder.videoProgress.setVisibility(stateTransition.playSessionIsActive() ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -232,7 +232,8 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     }
 
     private void setupLoadingStateViews(Holder holder, boolean isLetterboxVideo, boolean videoAlreadyStarted) {
-        holder.videoProgress.setVisibility(videoAlreadyStarted ? View.GONE : View.VISIBLE);
+        final boolean playControlsVisible = holder.playControlsHolder.getVisibility() == View.VISIBLE;
+        holder.videoProgress.setVisibility(playControlsVisible || videoAlreadyStarted ? View.GONE : View.VISIBLE);
         holder.videoSurfaceView.setVisibility(videoAlreadyStarted ? View.VISIBLE : View.GONE);
         if (isLetterboxVideo) {
             holder.letterboxBackground.setVisibility(videoAlreadyStarted ? View.GONE : View.VISIBLE);
