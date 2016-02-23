@@ -81,8 +81,6 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     @Override
     protected void tearDown() throws Exception {
         toastObserver.stopObserving();
-        networkManagerClient.switchWifiOn();
-        networkManagerClient.unbind();
 
         AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
@@ -90,6 +88,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         if (solo != null) {
             solo.finishOpenedActivities();
         }
+        networkManagerClient.switchWifiOn();
+        networkManagerClient.unbind();
         solo = null;
         Log.d("TESTEND:", String.format("%s", testCaseName));
         LogCollector.stopCollecting();
