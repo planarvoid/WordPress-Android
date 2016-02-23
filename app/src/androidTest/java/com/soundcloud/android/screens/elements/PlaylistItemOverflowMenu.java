@@ -5,12 +5,30 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.ConfirmDeletePlaylistScreen;
+import com.soundcloud.android.screens.ConfirmDisableSyncCollectionScreen;
+import com.soundcloud.android.screens.UpgradeScreen;
 
 public class PlaylistItemOverflowMenu extends PopupMenuElement {
 
     public PlaylistItemOverflowMenu(Han testDriver) {
         super(testDriver);
+    }
+
+    public CollectionScreen clickMakeAvailableOffline() {
+        getMakeAvailableOfflineItem().click();
+        return new CollectionScreen(testDriver);
+    }
+
+    public ConfirmDisableSyncCollectionScreen clickMakeUnavailableOfflineToDisableSyncCollection() {
+        getMakeUnavailableOfflineItem().click();
+        return new ConfirmDisableSyncCollectionScreen(testDriver, MainActivity.class);
+    }
+
+    public UpgradeScreen clickUpsell() {
+        getMakeAvailableOfflineItem().click();
+        return new UpgradeScreen(testDriver);
     }
 
     public ConfirmDeletePlaylistScreen clickDelete() {
@@ -40,6 +58,14 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
 
     public boolean isLiked() {
         return getElementText(likeItem()).equals(testDriver.getString(R.string.btn_unlike));
+    }
+
+    public ViewElement getMakeAvailableOfflineItem() {
+        return findOnScreenElement(With.text(testDriver.getString(R.string.make_offline_available)));
+    }
+
+    public ViewElement getMakeUnavailableOfflineItem() {
+        return findOnScreenElement(With.text(testDriver.getString(R.string.make_offline_unavailable)));
     }
 
     public ViewElement getDeletePlaylistItem() {

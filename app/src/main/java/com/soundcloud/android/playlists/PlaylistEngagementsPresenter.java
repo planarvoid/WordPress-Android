@@ -238,6 +238,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             fireAndForget(offlineOperations.makePlaylistAvailableOffline(playlistWithTracks.getUrn()));
             eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(true));
         } else if (offlineOperations.isOfflineCollectionEnabled()) {
+            playlistEngagementsView.setOfflineAvailability(true);
             ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlistWithTracks.getUrn(), playSessionSourceInfo.getPromotedSourceInfo());
         } else {
             fireAndForget(offlineOperations.makePlaylistUnavailableOffline(playlistWithTracks.getUrn()));

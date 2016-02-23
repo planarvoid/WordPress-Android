@@ -36,7 +36,24 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
         solo.goBack();
     }
 
-    public void testDisablingSyncEntireCollectionViaPlaylist() {
+    public void testDisablingSyncEntireCollectionViaPlaylistItem() {
+        enableSyncEntireCollection();
+
+        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
+        assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
+
+        final PlaylistElement playlist = collectionScreen
+                .scrollToFirstPlaylist();
+
+        playlist.clickOverflow()
+                .clickMakeUnavailableOfflineToDisableSyncCollection()
+                .clickOk();
+
+        assertThat(playlist.downloadElement().isVisible(), is(false));
+        assertThat(checkSyncEntireCollectionStatus(), is(false));
+    }
+
+    public void testDisablingSyncEntireCollectionViaPlaylistDetails() {
         enableSyncEntireCollection();
 
         final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
