@@ -184,6 +184,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return isSingularChange() && getFirstUrn().isPlaylist() && getKind() == LIKE;
     }
 
+    public boolean isPlaylistCreated() {
+        return isSingularChange() && getFirstUrn().isPlaylist() && getKind() == PLAYLIST_CREATED;
+    }
+
     public boolean isLike() {
         return isSingularChange() && getKind() == LIKE;
     }

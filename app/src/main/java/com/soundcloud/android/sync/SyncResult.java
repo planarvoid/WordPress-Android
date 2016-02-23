@@ -5,6 +5,7 @@ import static java.util.Collections.singletonList;
 import com.soundcloud.android.events.UrnEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
+import rx.functions.Func1;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -15,6 +16,12 @@ import java.util.List;
 
 public final class SyncResult implements Parcelable, UrnEvent {
 
+    public static final Func1<SyncResult, Urn> TO_URN = new Func1<SyncResult, Urn>() {
+        @Override
+        public Urn call(SyncResult syncResult) {
+            return syncResult.getFirstUrn();
+        }
+    };
     private final String action;
     private final boolean wasChanged;
     private final Exception exception;
