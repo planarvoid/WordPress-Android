@@ -124,7 +124,7 @@ public class TrackLikesScreen extends Screen {
     }
 
     public UpgradeScreen toggleOfflineUpsell() {
-        testDriver.findOnScreenElement(With.id(R.id.toggle_download));
+        testDriver.findOnScreenElement(With.id(R.id.toggle_download)).click();
         return new UpgradeScreen(testDriver);
     }
 
