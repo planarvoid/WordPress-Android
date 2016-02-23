@@ -207,7 +207,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     }
 
     private void upgradeSuccess() {
-        navigator.restartForAccountUpgrade(activity);
+        navigator.resetForAccountUpgrade(activity);
         eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeSuccess());
     }
 

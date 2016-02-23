@@ -30,21 +30,21 @@ public class ConfigurationUpdateLightCycleTest {
     }
 
     @Test
-    public void shouldRestartAppForHighTierUpgradeIfPlanUpgradedFromFreeTier() {
+    public void shouldResetAppForHighTierUpgradeIfPlanUpgradedFromFreeTier() {
         lightCycle.onStart(activity);
 
         eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forUpgrade(Plan.FREE_TIER, Plan.HIGH_TIER));
 
-        verify(navigator).restartForAccountUpgrade(activity);
+        verify(navigator).resetForAccountUpgrade(activity);
     }
 
     @Test
-    public void shouldRestartAppForHighTierUpgradeIfPlanUpgradedFromMidTier() {
+    public void shouldResetAppForHighTierUpgradeIfPlanUpgradedFromMidTier() {
         lightCycle.onStart(activity);
 
         eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forUpgrade(Plan.MID_TIER, Plan.HIGH_TIER));
 
-        verify(navigator).restartForAccountUpgrade(activity);
+        verify(navigator).resetForAccountUpgrade(activity);
     }
 
     @Test // because we don't know how to handle this yet. Remove this test once we launch mid tier
@@ -53,15 +53,15 @@ public class ConfigurationUpdateLightCycleTest {
 
         eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forUpgrade(Plan.FREE_TIER, Plan.MID_TIER));
 
-        verify(navigator, never()).restartForAccountUpgrade(activity);
+        verify(navigator, never()).resetForAccountUpgrade(activity);
     }
 
     @Test
-    public void shouldRestartAppForDowngrade() {
+    public void shouldResetAppForDowngrade() {
         lightCycle.onStart(activity);
 
         eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forDowngrade(Plan.HIGH_TIER, Plan.FREE_TIER));
 
-        verify(navigator).restartForAccountDowngrade(activity);
+        verify(navigator).resetForAccountDowngrade(activity);
     }
 }

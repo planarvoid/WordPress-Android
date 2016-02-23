@@ -99,7 +99,7 @@ public class DevDrawerFragment extends PreferenceFragment {
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        navigator.restartForAccountUpgrade(getActivity());
+                        navigator.resetForAccountUpgrade(getActivity());
                         return true;
                     }
                 });
@@ -108,7 +108,7 @@ public class DevDrawerFragment extends PreferenceFragment {
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        navigator.restartForAccountUpgrade(getActivity());
+                        navigator.resetForAccountUpgrade(getActivity());
                         return true;
                     }
                 });
@@ -117,7 +117,7 @@ public class DevDrawerFragment extends PreferenceFragment {
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        navigator.restartForAccountDowngrade(getActivity());
+                        navigator.resetForAccountDowngrade(getActivity());
                         return true;
                     }
                 });
