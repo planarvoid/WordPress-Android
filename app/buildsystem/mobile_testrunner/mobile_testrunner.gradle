@@ -43,7 +43,13 @@ task runListOfTests << {
           new Test("com.soundcloud.android.tests.stream.StreamTest", "testStreamContainsItems"),
   ] as Test[]
 
-  runTests("Lollipop", null, systemProperties, tests)
+  runTests("Lollipop", null, systemProperties, null, tests)
+}
+
+task runTestClass << {
+  def classFilter = "com.soundcloud.android.tests.stream.StreamTest"
+
+  runTests("Lollipop", null, systemProperties, classFilter, null)
 }
 
 task runLollipopTests << {
@@ -55,7 +61,7 @@ task runLollipopTests << {
           "com.soundcloud.android.framework.annotation.GoogleAccountTest"
   ] as String[]
 
-  runTests("Lollipop", excludeAnnotations, systemProperties, null)
+  runTests("Lollipop", excludeAnnotations, systemProperties, null, null)
 }
 
 task runLollipopTestsRelease << {
@@ -72,15 +78,15 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.OfflineSyncTest"
   ] as String[]
 
-  runTests("Lollipop", excludeAnnotations, systemProperties, null)
+  runTests("Lollipop", excludeAnnotations, systemProperties, null, null)
 }
 
-def runTests(label, excludeAnnotations, systemProperties, Test[] tests) {
+def runTests(label, excludeAnnotations, systemProperties, classFilter, Test[] tests) {
   def factory = new TestRunnerFactory()
   def listener = new TestResultListener(new LogHandler(project, executeGet), new TestResultPrinter(), new HTMLReportBuilder(project))
 
   def testRunner = factory.create(project.ext.mobileTestRunnerUrl, project.ext.mobileTestRunnerUser, project.ext.mobileTestRunnerHost, listener)
-  testRunner.run(createExecution(label, excludeAnnotations, systemProperties, tests))
+  testRunner.run(createExecution(label, excludeAnnotations, systemProperties, classFilter, tests))
 }
 
 def createSession(systemProperties) {
@@ -90,13 +96,13 @@ def createSession(systemProperties) {
   return new Session(applicationPackage, testPackage, toolsPackages, systemProperties)
 }
 
-def createRunConfiguration(label, excludeAnnotations, Test[] tests) {
-  return new RunConfiguration(label, project.ext.testInstrumentationRunner, null, excludeAnnotations, null, null, tests)
+def createRunConfiguration(label, excludeAnnotations, classFilter, Test[] tests) {
+  return new RunConfiguration(label, project.ext.testInstrumentationRunner, null, excludeAnnotations, classFilter, null, tests)
 }
 
-def createExecution(label, excludeAnnotations, systemProperties, Test[] tests) {
+def createExecution(label, excludeAnnotations, systemProperties, classFilter, Test[] tests) {
   def session = createSession(systemProperties)
-  def runConfiguration = createRunConfiguration(label, excludeAnnotations, tests)
+  def runConfiguration = createRunConfiguration(label, excludeAnnotations, classFilter, tests)
 
   return new Execution(session, runConfiguration)
 }
