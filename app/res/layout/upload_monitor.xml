@@ -46,7 +46,7 @@
                         style="@style/UploadButton" />
                 </FrameLayout>
 
-                <com.soundcloud.android.creators.upload.CircularProgressBar
+                <com.soundcloud.android.view.CircularProgressBar
                     android:id="@+id/upload_progress"
                     style="@style/RecordUploadProgressBar"
                     android:layout_centerInParent="true" />

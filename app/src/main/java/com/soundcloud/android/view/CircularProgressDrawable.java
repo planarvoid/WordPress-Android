@@ -1,4 +1,4 @@
-package com.soundcloud.android.creators.upload;
+package com.soundcloud.android.view;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
