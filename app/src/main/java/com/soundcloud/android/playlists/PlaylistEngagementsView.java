@@ -84,7 +84,9 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     void showMakeAvailableOfflineButton(final boolean isAvailable) {
         downloadToggle.setVisibility(View.VISIBLE);
-        downloadToggle.setChecked(isAvailable);
+        setOfflineAvailability(isAvailable);
+
+        // do not use setOnCheckedChangeListener or all hell will break loose
         downloadToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,14 +95,18 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         });
     }
 
+    void setOfflineAvailability(boolean isAvailable) {
+        downloadToggle.setChecked(isAvailable);
+    }
+
     void showUpsell() {
         downloadToggle.setVisibility(View.VISIBLE);
-        downloadToggle.setChecked(false);
+        setOfflineAvailability(false);
         downloadToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onUpsell(v.getContext());
-                downloadToggle.setChecked(false);
+                setOfflineAvailability(false);
             }
         });
     }
