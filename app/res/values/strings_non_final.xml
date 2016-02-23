@@ -81,13 +81,13 @@
     <!-- __OFFLINE SETTINGS -->
     <string name="pref_offline_offline_collection">Save automatically</string>
     <string name="pref_offline_offline_collection_description">Turn on to save all your current and future likes and playlists offline.</string>
-    <string name="pref_offline_wifi_only_sync">Only sync via Wi-Fi</string>
+    <string name="pref_offline_wifi_only_sync">Only save via Wi-Fi</string>
     <string name="pref_offline_wifi_only_description">When this is turned on, we will only save tracks offline over a Wi-Fi connection.</string>
-    <string name="pref_offline_storage_limit">Storage Limit</string>
+    <string name="pref_offline_storage_limit">Storage limit</string>
     <string name="pref_offline_storage_limit_description">This will define how much of your available space is allocated to the SoundCloud app.</string>
     <string name="pref_offline_storage_free_gb">%1$.1f GB free of %2$.1f GB</string>
     <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
-    <string name="pref_offline_storage_usage">Storage Usage</string>
+    <string name="pref_offline_storage_usage">Storage usage</string>
     <string name="pref_offline_used_by_other_apps">Used by other apps</string>
     <string name="pref_offline_used">Used</string>
     <string name="pref_offline_limit">Limit</string>
