@@ -61,8 +61,6 @@
   <string name="authentication_recover_password_failure_reason">Pemulihan kata sandi gagal: %s</string>
   <string name="authentication_recover_progress_message">Meminta reset kata sandi</string>
   <string name="authentication_sign_up">Buat akun</string>
-  <!--@Todo from l10n: can we get rid of this instance? We already have "terms_of_use"-->
-  <string name="authentication_terms_of_use">Syarat penggunaan</string>
   <string name="authentication_your_email_address">Surel kamu</string>
   <string name="authentication_your_password">Kata sandi Anda</string>
   <string name="authentication_clear_image">Tahan untuk menghapus gambar</string>

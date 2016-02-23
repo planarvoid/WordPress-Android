@@ -56,7 +56,6 @@
   <string name="authentication_add_info_add_image_msg">¡Sonríe! Esta imagen aparecerá en tu perfil.</string>
   <string name="authentication_add_info_msg">Casi hecho. Ahora elige un nombre visible y añade una foto para personalizar tu perfil.</string>
   <string name="authentication_add_info_username_hint">Tu nombre visible</string>
-  <string name="onboarding_agreement_statement">Al suscribirme acepto las condiciones de uso y la política de privacidad de SoundCloud.</string>
   <string name="authentication_choose_a_password">Al menos 6 caracteres</string>
   <string name="authentication_error_incomplete_fields">Es obligatorio rellenar todos los campos.</string>
   <string name="authentication_error_invalid_email">Introduce una dirección de email válida.</string>
@@ -76,8 +75,6 @@
   <string name="authentication_sign_up">Crear una cuenta</string>
   <string name="authentication_signup_error_message">Parece que algo no funciona bien. Intenta registrarte en SoundCloud.com.</string>
   <string name="authentication_signup_facebook_email_required">Para crear una cuenta, necesitamos tu permiso en Facebook para compartir tu dirección de email con nosotros.</string>
-  <!--@Todo from l10n: can we get rid of this instance? We already have "terms_of_use"-->
-  <string name="authentication_terms_of_use">Condiciones de uso</string>
   <string name="authentication_your_email_address">Tu dirección de email</string>
   <string name="authentication_your_password">Tu contraseña</string>
   <string name="authentication_clear_image">Mantén pulsado para borrar la imagen</string>
