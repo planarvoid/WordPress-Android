@@ -42,6 +42,20 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         enableOfflineContent(context);
     }
 
+    public void testDownloadsPlaylistWhenMadeAvailableOfflineFromItem() {
+        final CollectionScreen collectionScreen = mainNavHelper
+                .goToCollections();
+        collectionScreen
+                .scrollToPlaylistWithTitle("Offline playlist")
+                .clickOverflow()
+                .clickMakeAvailableOffline();
+
+        PlaylistDetailsScreen playlistDetailsScreen =
+                collectionScreen.scrollToPlaylistWithTitle("Offline playlist").click();
+
+        assertThat(playlistDetailsScreen.headerDownloadElement(), is(downloadingOrDownloaded()));
+    }
+
     public void testDownloadsPlaylistWhenMadeAvailableOfflineFromDetails() {
         final CollectionScreen collectionScreen = mainNavHelper
                 .goToCollections();
@@ -54,8 +68,6 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
 
         final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen.goBackToCollections().getPlaylistWithTitle(OFFLINE_PLAYLIST).downloadElement();
         assertThat(collectionsDownloadElement,  is(downloadingOrDownloaded()));
-
-
     }
 
     public void testDownloadPlaylistWhenMadeAvailableOfflineFromPlaylistDetails() {
