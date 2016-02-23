@@ -47,6 +47,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
@@ -291,12 +292,6 @@ public class Navigator {
         return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
-    private Intent rootScreen(Intent intent) {
-        return intent
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-    }
-
     private Intent createResolveIntent(Context context, Urn urn) {
         Intent intent = new Intent(context, ResolveActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
@@ -388,29 +383,37 @@ public class Navigator {
         activityContext.startActivity(new Intent(activityContext, target));
     }
 
-    public void restartForAccountUpgrade(Activity context) {
-        restartAppAndNavigateTo(context, GoOnboardingActivity.class);
+    public void resetForAccountUpgrade(Activity context) {
+        resetAppAndNavigateTo(context, GoOnboardingActivity.class);
     }
 
-    public void restartForAccountDowngrade(Activity context) {
-        restartAppAndNavigateTo(context, GoOffboardingActivity.class);
+    public void resetForAccountDowngrade(Activity context) {
+        resetAppAndNavigateTo(context, GoOffboardingActivity.class);
+    }
+
+    private void resetAppAndNavigateTo(Activity context, Class<? extends Activity> nextActivity) {
+        Intent launcherIntent = createLaunchIntent(context);
+        launcherIntent.putExtra(EXTRA_PENDING_ACTIVITY, nextActivity.getCanonicalName());
+        context.startActivity(launcherIntent);
     }
 
     public void restartApp(Activity context) {
-        restartAppAndNavigateTo(context, null);
+        context.startActivity(createLaunchIntent(context));
+        System.exit(0);
     }
 
-    private void restartAppAndNavigateTo(Activity context,
-                                         @Nullable Class<? extends Activity> nextActivity) {
-        Intent launcherIntent = new Intent(context, LauncherActivity.class);
+    @NonNull
+    private Intent createLaunchIntent(Activity context) {
+        Intent launcherIntent = rootScreen(new Intent(context, LauncherActivity.class));
         launcherIntent.addCategory(Intent.CATEGORY_DEFAULT);
         launcherIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        launcherIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (nextActivity != null) {
-            launcherIntent.putExtra(EXTRA_PENDING_ACTIVITY, nextActivity.getCanonicalName());
-        }
-        context.startActivity(launcherIntent);
-        System.exit(0);
+        return launcherIntent;
+    }
+
+    private Intent rootScreen(Intent intent) {
+        return intent
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 
     public void openPendingActivity(Activity context, Bundle extras) {

@@ -119,7 +119,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(navigator).restartForAccountUpgrade(activity);
+        verify(navigator).resetForAccountUpgrade(activity);
     }
 
     @Test
@@ -343,7 +343,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.success());
 
-        verify(navigator).restartForAccountUpgrade(activity);
+        verify(navigator).resetForAccountUpgrade(activity);
     }
 
     @Test

@@ -97,7 +97,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
     @Override
     public void onPaymentSuccess() {
         eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeSuccess());
-        navigator.restartForAccountUpgrade(activity);
+        navigator.resetForAccountUpgrade(activity);
         activity.finish();
     }
 

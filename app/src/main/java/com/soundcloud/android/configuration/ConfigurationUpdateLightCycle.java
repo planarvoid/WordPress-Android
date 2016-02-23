@@ -32,9 +32,9 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
     public void onStart(AppCompatActivity activity) {
         subscription = eventBus.subscribe(EventQueue.USER_PLAN_CHANGE, new PlanChangeSubscriber(activity));
         if (configurationManager.isPendingHighTierUpgrade()) {
-            navigator.restartForAccountUpgrade(activity);
+            navigator.resetForAccountUpgrade(activity);
         } else if (configurationManager.isPendingDowngrade()) {
-            navigator.restartForAccountDowngrade(activity);
+            navigator.resetForAccountDowngrade(activity);
         } else {
             configurationManager.requestUpdate();
         }
@@ -56,9 +56,9 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
         @Override
         public void onNext(UserPlanChangedEvent event) {
             if (isHighTierUpgradeEvent(event)) {
-                navigator.restartForAccountUpgrade(activity);
+                navigator.resetForAccountUpgrade(activity);
             } else if (isDowngradeEvent(event)) {
-                navigator.restartForAccountDowngrade(activity);
+                navigator.resetForAccountDowngrade(activity);
             }
         }
     }

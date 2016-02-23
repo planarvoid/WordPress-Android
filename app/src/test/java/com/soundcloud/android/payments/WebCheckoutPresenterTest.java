@@ -72,7 +72,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         presenter.onPaymentSuccess();
 
-        verify(navigator).restartForAccountUpgrade(eq(activity));
+        verify(navigator).resetForAccountUpgrade(eq(activity));
     }
 
     @Test
