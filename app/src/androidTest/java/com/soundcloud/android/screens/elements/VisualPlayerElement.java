@@ -192,9 +192,10 @@ public class VisualPlayerElement extends Element {
     }
 
 
-    public void tapFooter() {
+    public VisualPlayerElement tapFooter() {
         footerPlayer().click();
         waitForExpandedPlayer();
+        return this;
     }
 
     public VisualPlayerElement pressBackToCollapse() {
@@ -382,8 +383,9 @@ public class VisualPlayerElement extends Element {
         return testDriver.findOnScreenElement(With.id(R.id.player_track_pager)).toViewPager();
     }
 
-    public void toggleFooterPlay() {
+    public VisualPlayerElement toggleFooterPlay() {
         footerPlayToggle().click();
+        return this;
     }
 
     public void clickArtwork() {
