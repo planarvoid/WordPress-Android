@@ -8,6 +8,7 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.CircularProgressBar;
 import com.soundcloud.java.collections.Iterables;
 
 import android.content.Context;
@@ -371,7 +372,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         private final View shrinkButton;
         private final View advertisementLabel;
 
-        private final ProgressBar videoProgress;
+        private final View videoProgress;
         private final View letterboxBackground;
 
         private final PlayerOverlayController playerOverlayController;
@@ -395,7 +396,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
             shrinkButton = adView.findViewById(R.id.video_shrink_control);
             advertisementLabel = adView.findViewById(R.id.advertisement);
 
-            videoProgress = (ProgressBar) adView.findViewById(R.id.video_progress);
+            videoProgress = adView.findViewById(R.id.video_progress);
             letterboxBackground = adView.findViewById(R.id.letterbox_background);
 
             playerOverlayController = playerOverlayControllerFactory.create(videoOverlay);
