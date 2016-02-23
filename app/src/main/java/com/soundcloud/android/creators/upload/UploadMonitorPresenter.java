@@ -15,6 +15,7 @@ import com.soundcloud.android.image.PlaceholderGenerator;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewHelper;
 import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.android.view.CircularProgressBar;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;

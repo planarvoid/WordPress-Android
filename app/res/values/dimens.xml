@@ -176,4 +176,9 @@
     <dimen name="go_onboarding_header_width">200dp</dimen>
     <dimen name="go_onboarding_text_width">360dp</dimen>
 
+    <!-- Custom Indeterminite Spinner -->
+    <dimen name="default_indeterminite_spinner_stroke_width">4dp</dimen>
+    <dimen name="medium_indeterminite_spinner_width">48dp</dimen>
+    <dimen name="medium_indeterminite_spinner_height">48dp</dimen>
+
 </resources>

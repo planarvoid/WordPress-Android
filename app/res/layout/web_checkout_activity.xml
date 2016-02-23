@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <include layout="@layout/toolbar" />
-    <View style="@style/ToolbarShadow" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -14,10 +13,10 @@
         android:layout_below="@id/toolbar_id"
         android:animateLayoutChanges="true">
 
-        <ProgressBar
+        <com.soundcloud.android.view.CircularProgressBar
             android:id="@+id/loading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/medium_indeterminite_spinner_width"
+            android:layout_height="@dimen/medium_indeterminite_spinner_height"
             android:layout_gravity="center" />
 
         <com.soundcloud.android.view.CustomFontButton
@@ -32,5 +31,7 @@
             android:layout_height="match_parent"
             android:visibility="invisible" />
     </FrameLayout>
+
+    <View style="@style/ToolbarShadow" />
 
 </RelativeLayout>

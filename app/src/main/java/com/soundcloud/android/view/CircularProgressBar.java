@@ -1,4 +1,4 @@
-package com.soundcloud.android.creators.upload;
+package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
 
@@ -27,7 +27,8 @@ public class CircularProgressBar extends View {
     public CircularProgressBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mDrawable = new CircularProgressDrawable(12,
+        mDrawable = new CircularProgressDrawable(
+                getResources().getDimension(R.dimen.default_indeterminite_spinner_stroke_width),
                 getResources().getColor(R.color.ak_sc_orange));
         mDrawable.setCallback(this);
         if (getVisibility() == VISIBLE) {
