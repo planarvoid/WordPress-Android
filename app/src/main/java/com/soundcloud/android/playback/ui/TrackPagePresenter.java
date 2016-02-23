@@ -169,7 +169,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         final boolean blocked = trackState.isBlocked();
         holder.artworkView.setEnabled(!blocked);
-        updatePlayButton(holder, blocked);
+        configurePlayButtons(holder, blocked);
 
         holder.upsellButton.setTag(trackState.getUrn());
 
@@ -199,9 +199,12 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private void updatePlayButton(TrackPageHolder holder, boolean blocked) {
+    private void configurePlayButtons(TrackPageHolder holder, boolean blocked) {
         if (holder.playButton != null) {
             holder.playButton.setEnabled(!blocked);
+        }
+        if (holder.footerPlayToggle != null) {
+            holder.footerPlayToggle.setEnabled(!blocked);
         }
     }
 

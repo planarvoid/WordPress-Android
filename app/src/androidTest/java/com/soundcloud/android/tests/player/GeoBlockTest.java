@@ -71,24 +71,28 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
         assertThat(visualPlayerElement.getTrackPageContext(), containsString(originalTitle));
     }
 
-
-    public void testPlayGeoBlockedTrackShowsError() {
-        // this should eventually be clickFirstBlockedTrack() when the UI is there
-        final String errorReason = playlistScreen.scrollToPosition(1)
-                .clickTrack(1)
-                .waitForExpandedPlayer()
-                .errorReason();
-
-        assertThat(errorReason, is("Not available yet in your country"));
-    }
-
     public void testPlayGeoBlockedTrackCanStillLike() {
         // this should eventually be clickFirstBlockedTrack() when the UI is there
-        final VisualPlayerElement visualPlayerElement = playlistScreen.scrollToPosition(1)
-                .clickTrack(1)
-                .waitForExpandedPlayer();
+        final VisualPlayerElement visualPlayerElement = playlistScreen.clickFirstTrack()
+                .waitForExpandedPlayer()
+                .swipeNext();
 
         assertThat(visualPlayerElement.likeButton().hasVisibility(), is(true));
         assertThat(visualPlayerElement.shareButton().hasVisibility(), is(true));
+    }
+
+    public void testPlayGeoBlockedTrackCannotBeToggledToPlay() {
+        // this should eventually be clickFirstBlockedTrack() when the UI is there
+        final VisualPlayerElement visualPlayerElement = playlistScreen.clickFirstTrack()
+                .waitForExpandedPlayer()
+                .swipeNext().pressBackToCollapse()
+                .toggleFooterPlay()
+                .tapFooter();
+
+        assertThat(visualPlayerElement.isExpandedPlayerPlaying(), is(false));
+
+        visualPlayerElement.clickArtwork();
+
+        assertThat(visualPlayerElement.isExpandedPlayerPlaying(), is(false));
     }
 }
