@@ -150,14 +150,14 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playTrackCallsPlayIfTrackAlreadyPlayingWithSameOriginAndSameCollectionUrn() {
+    public void playTrackCallsPlayCurrentIfTrackAlreadyPlayingWithSameOriginAndSameCollectionUrn() {
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
         final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN);
         when(playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn())).thenReturn(true);
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, playSessionSource).subscribe(observer);
 
-        verify(playSessionController).play();
+        verify(playSessionController).playCurrent();
     }
 
     @Test
