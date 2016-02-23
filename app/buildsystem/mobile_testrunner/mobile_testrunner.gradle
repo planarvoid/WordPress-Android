@@ -22,6 +22,30 @@ buildscript {
 apply from: "${project.('buildSrcDir')}/apk_finder.gradle"
 apply from: "${project.('buildSrcDir')}/curl.gradle"
 
+def systemProperties = [
+        "log.tag.Propeller": "DEBUG",
+        "log.tag.ApiClient": "DEBUG",
+        "log.tag.PublicApi": "DEBUG",
+        "log.tag.ApiSyncer": "DEBUG",
+        "log.tag.Timeline": "DEBUG",
+        "log.tag.BUG_4503": "DEBUG",
+        "log.tag.EventTracker": "DEBUG",
+        "log.tag.MrLoggaVerifier": "DEBUG",
+        "log.tag.Configuration": "DEBUG",
+        "log.tag.TestRunner": "DEBUG",
+        "log.tag.PlaybackService": "DEBUG",
+        "log.tag.ScAds": "DEBUG",
+        "log.tag.SoundCloudApplication": "DEBUG"
+]
+
+task runListOfTests << {
+  def tests = [
+          new Test("com.soundcloud.android.tests.stream.StreamTest", "testStreamContainsItems"),
+  ] as Test[]
+
+  runTests("Lollipop", null, systemProperties, tests)
+}
+
 task runLollipopTests << {
   def excludeAnnotations = [
           "com.soundcloud.android.framework.annotation.Ignore",
@@ -31,23 +55,7 @@ task runLollipopTests << {
           "com.soundcloud.android.framework.annotation.GoogleAccountTest"
   ] as String[]
 
-  def systemProperties = [
-          "log.tag.Propeller": "DEBUG",
-          "log.tag.ApiClient": "DEBUG",
-          "log.tag.PublicApi": "DEBUG",
-          "log.tag.ApiSyncer": "DEBUG",
-          "log.tag.Timeline": "DEBUG",
-          "log.tag.BUG_4503": "DEBUG",
-          "log.tag.EventTracker": "DEBUG",
-          "log.tag.MrLoggaVerifier": "DEBUG",
-          "log.tag.Configuration": "DEBUG",
-          "log.tag.TestRunner": "DEBUG",
-          "log.tag.PlaybackService": "DEBUG",
-          "log.tag.ScAds": "DEBUG",
-          "log.tag.SoundCloudApplication": "DEBUG"
-          ]
-
-  runTests("Lollipop", excludeAnnotations, systemProperties)
+  runTests("Lollipop", excludeAnnotations, systemProperties, null)
 }
 
 task runLollipopTestsRelease << {
@@ -64,24 +72,15 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.OfflineSyncTest"
   ] as String[]
 
-  def systemProperties = [
-          "log.tag.Propeller": "DEBUG",
-          "log.tag.ApiClient": "DEBUG",
-          "log.tag.PublicApi": "DEBUG",
-          "log.tag.ApiSyncer": "DEBUG",
-          "log.tag.Timeline": "DEBUG",
-          "log.tag.SoundCloudApplication": "DEBUG"
-  ]
-
-  runTests("Lollipop", excludeAnnotations, systemProperties)
+  runTests("Lollipop", excludeAnnotations, systemProperties, null)
 }
 
-def runTests(label, excludeAnnotations, systemProperties) {
+def runTests(label, excludeAnnotations, systemProperties, Test[] tests) {
   def factory = new TestRunnerFactory()
   def listener = new TestResultListener(new LogHandler(project, executeGet), new TestResultPrinter(), new HTMLReportBuilder(project))
 
   def testRunner = factory.create(project.ext.mobileTestRunnerUrl, project.ext.mobileTestRunnerUser, project.ext.mobileTestRunnerHost, listener)
-  testRunner.run(createExecution(label, excludeAnnotations, systemProperties))
+  testRunner.run(createExecution(label, excludeAnnotations, systemProperties, tests))
 }
 
 def createSession(systemProperties) {
@@ -91,13 +90,13 @@ def createSession(systemProperties) {
   return new Session(applicationPackage, testPackage, toolsPackages, systemProperties)
 }
 
-def createRunConfiguration(label, excludeAnnotations) {
-  return new RunConfiguration(label, project.ext.testInstrumentationRunner, null, excludeAnnotations, null, null, null)
+def createRunConfiguration(label, excludeAnnotations, Test[] tests) {
+  return new RunConfiguration(label, project.ext.testInstrumentationRunner, null, excludeAnnotations, null, null, tests)
 }
 
-def createExecution(label, excludeAnnotations, systemProperties) {
+def createExecution(label, excludeAnnotations, systemProperties, Test[] tests) {
   def session = createSession(systemProperties)
-  def runConfiguration = createRunConfiguration(label, excludeAnnotations)
+  def runConfiguration = createRunConfiguration(label, excludeAnnotations, tests)
 
   return new Execution(session, runConfiguration)
 }
