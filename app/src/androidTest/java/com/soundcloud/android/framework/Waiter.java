@@ -218,6 +218,23 @@ public class Waiter {
         return solo.waitForCondition(new ElementTextChangeCondition(textElement, text), TWO_SECONDS);
     }
 
+    public boolean waitForAnimationToFinish(ViewElement viewElement) {
+        return solo.waitForCondition(new AnimationFinishedCondition(viewElement), TWO_SECONDS);
+    }
+
+    private class AnimationFinishedCondition implements Condition {
+        private ViewElement viewElement;
+
+        AnimationFinishedCondition(ViewElement viewElement) {
+            this.viewElement = viewElement;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return !(viewElement.isAnimating());
+        }
+    }
+
     private class VisibleElementCondition implements Condition {
         private With matcher;
 

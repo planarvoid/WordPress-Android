@@ -35,7 +35,9 @@ public class UpgradeScreen extends Screen {
     }
 
     private UpgradeScreen clickBuy() {
-        upgradeButton().click();
+        ViewElement button = upgradeButton();
+        waiter.waitForAnimationToFinish(button);
+        button.click();
         return this;
     }
 
