@@ -46,7 +46,7 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
         final TrackLikesScreen trackLikesScreen = mainNavHelper.goToTrackLikes();
 
         assertFalse(trackLikesScreen.headerDownloadElement().isVisible());
-        assertThat(trackLikesScreen.overflowButton(), is(visible()));
+        assertThat(trackLikesScreen.offlineToggle(), is(visible()));
     }
 
     @EventTrackingTest
@@ -57,8 +57,7 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
 
         final TrackLikesScreen likesScreen = mainNavHelper
                 .goToTrackLikes()
-                .clickOverflowButton()
-                .clickMakeAvailableOffline()
+                .toggleOfflineEnabled()
                 .clickKeepLikesSyncedAndWaitToFinish();
 
         // there is one creator opt out track liked

@@ -11,10 +11,8 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
-import com.soundcloud.android.screens.elements.LikesOverflowMenu;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
-import com.soundcloud.android.screens.elements.TrackLikesToolbarElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
@@ -26,12 +24,10 @@ public class TrackLikesScreen extends Screen {
 
     protected static final Class ACTIVITY = MainActivity.class;
 
-    private final TrackLikesToolbarElement toolbarElement;
     private final With updateInProgress = With.text(testDriver.getString(R.string.offline_update_in_progress));
 
     public TrackLikesScreen(Han solo) {
         super(solo);
-        toolbarElement = new TrackLikesToolbarElement(solo);
     }
 
     public VisualPlayerElement clickTrack(int index) {
@@ -117,12 +113,23 @@ public class TrackLikesScreen extends Screen {
         return new TrackItemMenuElement(testDriver);
     }
 
-    public LikesOverflowMenu clickOverflowButton() {
-        return toolbarElement.clickOverflowButton();
+    public SyncYourLikesScreen toggleOfflineEnabled() {
+        testDriver.findOnScreenElement(With.id(R.id.toggle_download)).click();
+        return new SyncYourLikesScreen(testDriver);
     }
 
-    public ViewElement overflowButton() {
-        return toolbarElement.overflowButton();
+    public TrackLikesScreen toggleOfflineDisabled() {
+        testDriver.findOnScreenElement(With.id(R.id.toggle_download)).click();
+        return this;
+    }
+
+    public UpgradeScreen toggleOfflineUpsell() {
+        testDriver.findOnScreenElement(With.id(R.id.toggle_download));
+        return new UpgradeScreen(testDriver);
+    }
+
+    public ViewElement offlineToggle() {
+        return testDriver.findOnScreenElement(With.id(R.id.toggle_download));
     }
 
     public DownloadImageViewElement headerDownloadElement() {

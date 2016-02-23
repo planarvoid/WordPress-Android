@@ -3,7 +3,7 @@ package com.soundcloud.android.likes;
 import static org.assertj.android.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.offline.DownloadableHeaderView;
+import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -23,11 +23,12 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
     @Mock private FragmentManager fragmentManager;
     @Mock private PlaybackInitiator playbackInitiator;
+    @Mock private TrackLikesHeaderView.Listener listener;
 
     @Before
     public void setUp() throws Exception {
-        trackLikesHeaderView = new TrackLikesHeaderView(resources(), new DownloadableHeaderView(resources()));
-        trackLikesHeaderView.onViewCreated(View.inflate(context(), R.layout.track_likes_header, null));
+        View view = View.inflate(context(), R.layout.track_likes_header, null);
+        trackLikesHeaderView = new TrackLikesHeaderView(resources(), new DownloadStateView(resources()), view, listener);
     }
 
     @Test

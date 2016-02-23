@@ -35,10 +35,10 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadIsUnavailableWhenTheyAccessLikes() throws Exception {
-        final ViewElement overflowButton = mainNavHelper.goToTrackLikes()
-                .overflowButton();
+        final ViewElement offlineToggle = mainNavHelper.goToTrackLikes()
+                .offlineToggle();
 
-        assertThat(overflowButton, is(not(visible())));
+        assertThat(offlineToggle, is(not(visible())));
     }
 
     public void testDownloadIsUnavailableWhenTheyAccessPlaylists() throws Exception {

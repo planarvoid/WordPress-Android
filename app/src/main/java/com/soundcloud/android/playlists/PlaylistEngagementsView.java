@@ -4,7 +4,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
-import com.soundcloud.android.offline.DownloadableHeaderView;
+import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -32,7 +32,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     private final Resources resources;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    private final DownloadableHeaderView downloadableHeaderView;
+    private final DownloadStateView downloadStateView;
 
     private PopupMenuWrapper popupMenuWrapper;
     private OnEngagementListener listener;
@@ -43,13 +43,13 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     @Inject
     public PlaylistEngagementsView(Context context, CondensedNumberFormatter numberFormatter, PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                                   DownloadableHeaderView downloadableHeaderView, FeatureFlags featureFlags) {
+                                   DownloadStateView downloadStateView, FeatureFlags featureFlags) {
         this.context = context;
         this.numberFormatter = numberFormatter;
         this.featureFlags = featureFlags;
         this.resources = context.getResources();
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
-        this.downloadableHeaderView = downloadableHeaderView;
+        this.downloadStateView = downloadStateView;
     }
 
     public void onViewCreated(View view) {
@@ -61,11 +61,11 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.inflate(R.menu.playlist_details_actions);
         popupMenuWrapper.setOnMenuItemClickListener(this);
 
-        downloadableHeaderView.onViewCreated(engagementsView);
+        downloadStateView.onViewCreated(engagementsView);
     }
 
     void showOfflineState(OfflineState state) {
-        downloadableHeaderView.show(state);
+        downloadStateView.show(state);
     }
 
     @OnClick(R.id.toggle_like)
@@ -153,7 +153,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     void setInfoText(String message) {
-        downloadableHeaderView.setHeaderText(message);
+        downloadStateView.setHeaderText(message);
     }
 
     @Override
