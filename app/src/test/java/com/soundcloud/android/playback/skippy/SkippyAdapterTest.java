@@ -44,6 +44,7 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -79,7 +80,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     private static final long DURATION = 1000L;
 
     @Mock private Skippy skippy;
-    @Mock private Skippy skippyPreloader;
+    @Mock private SkippyPreloader skippyPreloader;
     @Mock private SkippyFactory skippyFactory;
     @Mock private Player.PlayerListener listener;
     @Mock private AccountOperations accountOperations;
@@ -113,7 +114,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     public void setUp() {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
-        when(skippyFactory.create()).thenReturn(skippyPreloader);
+        when(skippyFactory.createPreloader()).thenReturn(skippyPreloader);
         dateProvider = new TestDateProvider();
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, apiUrlBuilder,
                 stateChangeHandler, eventBus, connectionHelper, lockUtil, bufferUnderrunListener, sharedPreferences,
@@ -153,13 +154,13 @@ public class SkippyAdapterTest extends AndroidUnitTest {
      public void initInitializesPreloaderWithContextAndFactoryConfiguration() {
         when(skippy.init(configuration)).thenReturn(true);
         skippyAdapter.init();
-        verify(skippyPreloader).init(preloadConfiguration);
+        verify(skippyPreloader).init();
     }
 
     @Test
     public void preloadCallsCueOnSkippyPreloader() {
         skippyAdapter.preload(getPreloadItem());
-        verify(skippyPreloader).cue(SNIPPET_STREAM_URL, 0);
+        verify(skippyPreloader).fetch(SNIPPET_STREAM_URL, SkippyAdapter.PRELOAD_START_POSITION, SkippyAdapter.PRELOAD_DURATION);
     }
 
     @Test
@@ -567,7 +568,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void initilizationSuccessWhenSkippyAndPreloadInitialize() {
         when(skippy.init(configuration)).thenReturn(true);
-        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
 
         assertThat(skippyAdapter.init()).isTrue();
     }
@@ -575,15 +575,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void initilizationErrorWhenSkippyFailsToinit() {
         when(skippy.init(configuration)).thenReturn(false);
-        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
-
-        assertThat(skippyAdapter.init()).isFalse();
-    }
-
-    @Test
-    public void initilizationErrorWhenSkippyPreloaderFailsToinit() {
-        when(skippy.init(configuration)).thenReturn(true);
-        when(skippyPreloader.init(preloadConfiguration)).thenReturn(false);
 
         assertThat(skippyAdapter.init()).isFalse();
     }
@@ -591,7 +582,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void initilizationSuccessPublishesSkippyInitSuccessEvent() {
         when(skippy.init(configuration)).thenReturn(true);
-        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
         skippyAdapter.init();
 
         final SkippyInitilizationSucceededEvent event = (SkippyInitilizationSucceededEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -604,7 +594,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     public void initilizationSuccessIncrementsSuccessCount() {
         when(skippyFactory.createConfiguration()).thenReturn(configuration);
         when(skippy.init(configuration)).thenReturn(true);
-        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
         skippyAdapter.init();
         verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_SUCCESS_COUNT_KEY, 1);
         verify(sharedPreferencesEditor).apply();

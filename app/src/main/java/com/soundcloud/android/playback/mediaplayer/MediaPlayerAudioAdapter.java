@@ -93,6 +93,7 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
     public void play(PlaybackItem playbackItem) {
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
+            case AUDIO_SNIPPET:
                 play(playbackItem.getUrn(), playbackItem.getStartPosition());
                 break;
             case AUDIO_UNINTERRUPTED:

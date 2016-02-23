@@ -31,6 +31,7 @@ import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -49,6 +50,7 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.concurrent.TimeUnit;
 
 public class SkippyAdapter implements Player, Skippy.PlayListener {
 
@@ -56,6 +58,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @VisibleForTesting
     static final String SKIPPY_INIT_ERROR_COUNT_KEY = "SkippyAdapter.initErrorCount";
     static final String SKIPPY_INIT_SUCCESS_COUNT_KEY = "SkippyAdapter.initSuccessCount";
+    static final long PRELOAD_DURATION = TimeUnit.SECONDS.toMillis(10);
+    static final int PRELOAD_START_POSITION = 0;
 
     private static final long POSITION_START = 0L;
     private static final int INIT_ERROR_CUSTOM_LOG_LINE_COUNT = 5000;
@@ -64,7 +68,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     private final EventBus eventBus;
     private final Skippy skippy;
-    private final Skippy skippyPreloader;
+    private final SkippyPreloader skippyPreloader;
     private final AccountOperations accountOperations;
     private final StateChangeHandler stateHandler;
     private final ApiUrlBuilder urlBuilder;
@@ -101,13 +105,13 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         this.dateProvider = dateProvider;
 
         skippy = skippyFactory.create(this);
-        skippyPreloader = skippyFactory.create();
+        skippyPreloader = skippyFactory.createPreloader();
     }
 
     public boolean init() {
         boolean initSuccess = skippy.init(skippyFactory.createConfiguration());
         if (initSuccess) {
-            initSuccess = skippyPreloader.init(skippyFactory.createPreloaderConfiguration());
+            skippyPreloader.init();
         }
         if (initSuccess) {
             eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationSucceededEvent(
@@ -118,7 +122,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     public void preload(PreloadItem preloadItem) {
         try {
-            skippyPreloader.cue(buildRemoteUrl(preloadItem.getUrn(), preloadItem.getPlaybackType()), 0);
+            skippyPreloader.fetch(buildRemoteUrl(preloadItem.getUrn(), preloadItem.getPlaybackType()),
+                    PRELOAD_START_POSITION, PRELOAD_DURATION);
         } catch (UnsatisfiedLinkError e) {
             // #4454. Remove in upcoming release as instances drop
             ErrorUtils.handleSilentException(e);
