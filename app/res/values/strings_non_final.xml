@@ -48,9 +48,10 @@
     <string name="offline_update_completed_message">Ready for offline listening</string>
     <string name="offline_update_storage_limit_reached_title">Storage limit reached</string>
     <string name="offline_update_storage_limit_reached_message">Tap here to view storage settings</string>
-    <string name="offline_update_in_progress">Saving your tracks offline</string>
+    <string name="offline_update_in_progress">Saving offline</string>
     <string name="offline_likes_dialog_title">Save your likes offline</string>
     <string name="offline_likes_dialog_message">This will save your current and future likes offline so you can listen without Wi-Fi or data connection.</string>
+
     <string name="make_offline_available">Save offline</string>
     <string name="offline_dialog_go_online_continue">Continue</string>
     <string name="offline_dialog_go_online_error_title">Your subscription could not be verified</string>

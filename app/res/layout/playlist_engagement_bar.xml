@@ -6,7 +6,8 @@
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingBottom="@dimen/playlist_action_bar_padding"
-    android:paddingTop="@dimen/playlist_action_bar_padding">
+    android:paddingTop="@dimen/playlist_action_bar_padding"
+    android:animateLayoutChanges="true">
 
     <include layout="@layout/downloadable_header" />
 
