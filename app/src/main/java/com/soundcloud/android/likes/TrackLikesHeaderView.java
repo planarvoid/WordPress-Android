@@ -12,6 +12,7 @@ import com.soundcloud.java.optional.Optional;
 import android.content.res.Resources;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
+import android.widget.Checkable;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
@@ -78,8 +79,9 @@ class TrackLikesHeaderView {
         downloadToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boolean changedState = ((Checkable) v).isChecked();
+                downloadToggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
                 listener.onMakeAvailableOffline(!isOffline);
-                downloadToggle.setChecked(false);
             }
         });
     }
