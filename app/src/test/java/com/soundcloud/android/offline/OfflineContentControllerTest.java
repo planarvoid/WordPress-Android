@@ -5,12 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
@@ -26,7 +24,6 @@ import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
 import java.util.Collections;
-import java.util.List;
 
 public class OfflineContentControllerTest extends AndroidUnitTest {
 
@@ -37,7 +34,6 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private PlaylistWithTracks playlistWithTracks;
     @Mock private OfflineContentOperations offlineContentOperations;
-    @Mock private CollectionOperations collectionOperations;
     @Mock private OfflineServiceInitiator serviceInitiator;
     @Mock private Action0 startServiceAction;
     @Mock private Action0 stopServiceAction;
@@ -64,12 +60,10 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         when(serviceInitiator.startSubscriber()).thenReturn(startServiceSubscriber);
         when(settingsStorage.getWifiOnlyOfflineSyncStateChange()).thenReturn(wifiOnlyToggleSetting);
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(offlineLikeToggle);
-        when(collectionOperations.onCollectionChanged()).thenReturn(onCollectionChanged);
-        when(collectionOperations.myPlaylists()).thenReturn(Observable.<List<PlaylistItem>>empty());
         when(offlineContentOperations.getOfflineCollectionStateChanges()).thenReturn(offlineCollectionStateChanges);
         when(offlineContentOperations.enableOfflineCollection()).thenReturn(Observable.<Void>just(null));
         when(offlineContentOperations.enableOfflineLikedTracks()).thenReturn(Observable.<Void>just(null));
-        controller = new OfflineContentController(eventBus, settingsStorage, serviceInitiator, offlineContentOperations, collectionOperations);
+        controller = new OfflineContentController(eventBus, settingsStorage, serviceInitiator, offlineContentOperations);
     }
 
     @Test
@@ -234,16 +228,38 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void markMyPlaylistsOfflineOnSyncWhenOfflineCollectionEnabled() {
-        when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        final PublishSubject<TxnResult> markMyPlaylistsOffline = PublishSubject.create();
-        when(offlineContentOperations.setMyPlaylistsAsOfflinePlaylists()).thenReturn(markMyPlaylistsOffline);
+    public void addOfflinePlaylistOnCreationWhenOfflineCollectionEnabled() {
+        final PublishSubject<TxnResult> addPlaylistToStorage = setUpOfflineCollection();
+
+        controller.subscribe();
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(Urn.forPlaylist(123L)));
+
+        assertThat(addPlaylistToStorage.hasObservers()).isTrue();
+        addPlaylistToStorage.onNext(new TxnResult());
+        startServiceSubscriber.assertValueCount(1);
+    }
+
+    @Test
+    public void addOfflinePlaylistOnLikeWhenOfflineCollectionEnabled() {
+        final PublishSubject<TxnResult> addPlaylistToStorage = setUpOfflineCollection();
+
+        controller.subscribe();
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forPlaylist(123L), true, 1));
+
+        assertThat(addPlaylistToStorage.hasObservers()).isTrue();
+        addPlaylistToStorage.onNext(new TxnResult());
+        startServiceSubscriber.assertValueCount(1);
+    }
+    
+    @Test
+    public void addOfflinePlaylistOnSyncWhenOfflineCollectionEnabled() {
+        final PublishSubject<TxnResult> addPlaylistToStorage = setUpOfflineCollection();
 
         controller.subscribe();
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, true, PLAYLIST));
 
-        assertThat(markMyPlaylistsOffline.hasObservers()).isTrue();
-        markMyPlaylistsOffline.onNext(new TxnResult());
+        assertThat(addPlaylistToStorage.hasObservers()).isTrue();
+        addPlaylistToStorage.onNext(new TxnResult());
         startServiceSubscriber.assertValueCount(1);
     }
 
@@ -255,5 +271,12 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         onCollectionChanged.onNext(SIGNAL);
 
         startServiceSubscriber.assertNoValues();
+    }
+
+    private PublishSubject<TxnResult> setUpOfflineCollection() {
+        when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
+        final PublishSubject<TxnResult> markMyPlaylistsOffline = PublishSubject.create();
+        when(offlineContentOperations.setMyPlaylistsAsOfflinePlaylists()).thenReturn(markMyPlaylistsOffline);
+        return markMyPlaylistsOffline;
     }
 }
