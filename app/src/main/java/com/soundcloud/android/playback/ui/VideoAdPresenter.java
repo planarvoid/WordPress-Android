@@ -5,7 +5,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
+import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.collections.Iterables;
@@ -43,7 +43,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     private static final long FADE_OUT_DURATION_MS = 1000L;
     private static final long FADE_OUT_OFFSET_MS = 2000L;
 
-    private final MediaPlayerVideoAdapter mediaPlayerVideoAdapter;
+    private final MediaPlayerAdapter mediaPlayerAdapter;
     private final ImageOperations imageOperations;
     private final AdPageListener listener;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
@@ -51,10 +51,10 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     private final Resources resources;
 
     @Inject
-    public VideoAdPresenter(MediaPlayerVideoAdapter mediaPlayerVideoAdapter, ImageOperations imageOperations,
+    public VideoAdPresenter(MediaPlayerAdapter mediaPlayerAdapter, ImageOperations imageOperations,
                             AdPageListener listener, PlayerOverlayController.Factory playerOverlayControllerFactory,
                             DeviceHelper deviceHelper, Resources resources) {
-        this.mediaPlayerVideoAdapter = mediaPlayerVideoAdapter;
+        this.mediaPlayerAdapter = mediaPlayerAdapter;
         this.imageOperations = imageOperations;
         this.listener = listener;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
@@ -191,7 +191,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
     public void setVideoViewHolder(Holder holder) {
         final SurfaceHolder surfaceHolder = holder.videoSurfaceView.getHolder();
-        surfaceHolder.addCallback(mediaPlayerVideoAdapter);
+        surfaceHolder.addCallback(mediaPlayerAdapter);
     }
 
     @Override
@@ -268,9 +268,9 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
     @Override
     public void onBackground(View adPage) {
-        final Holder holder = getViewHolder(adPage);
-        holder.videoSurfaceView.getHolder().removeCallback(mediaPlayerVideoAdapter);
-        mediaPlayerVideoAdapter.surfaceDestroyed(null);
+        final SurfaceHolder surfaceHolder = getViewHolder(adPage).videoSurfaceView.getHolder();
+        surfaceHolder.removeCallback(mediaPlayerAdapter);
+        mediaPlayerAdapter.surfaceDestroyed(null);
     }
 
     private Holder getViewHolder(View videoPage) {

@@ -15,7 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.Player.PlayerState;
-import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
+import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.collections.PropertySet;
@@ -46,7 +46,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     private static final int LETTERBOX_VIDEO_WIDTH = 250;
     private static final int LETTERBOX_VIDEO_HEIGHT = 100;
 
-    @Mock private MediaPlayerVideoAdapter mediaPlayerVideoAdapter;
+    @Mock private MediaPlayerAdapter mediaPlayerAdapter;
     @Mock private ImageOperations imageOperations;
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdPageListener pageListener;
@@ -58,7 +58,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         when(deviceHelper.getCurrentOrientation()).thenReturn(ORIENTATION_PORTRAIT);
 
-        presenter = new VideoAdPresenter(mediaPlayerVideoAdapter, imageOperations, pageListener, playerOverlayControllerFactory, deviceHelper, resources());
+        presenter = new VideoAdPresenter(mediaPlayerAdapter, imageOperations, pageListener, playerOverlayControllerFactory, deviceHelper, resources());
         adView = presenter.createItemView(new FrameLayout(context()), null);
         bindVerticalVideo();
     }
@@ -329,7 +329,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     public void onBackgroundShouldDetachSurfaceViewWithMediaPlayer() {
         presenter.onBackground(adView);
 
-        verify(mediaPlayerVideoAdapter).surfaceDestroyed(null);
+        verify(mediaPlayerAdapter).surfaceDestroyed(null);
     }
 
     private Iterable<View> fadingViews() {

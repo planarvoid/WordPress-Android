@@ -5,15 +5,17 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
+import com.soundcloud.android.playback.VideoPlaybackItem;
+import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -27,15 +29,21 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
+import android.view.SurfaceHolder;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener {
+import static com.soundcloud.android.playback.PlaybackType.*;
 
-    private static final String TAG = "MediaPlayerAudioAdapter";
+@Singleton
+public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
+        MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener, SurfaceHolder.Callback {
+
+    private static final String TAG = "MediaPlayerAdapter";
     private static final int POS_NOT_SET = Consts.NOT_SET;
 
     public static final int MAX_CONNECT_RETRIES = 2;
@@ -48,20 +56,21 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
     private final NetworkConnectionHelper networkConnectionHelper;
     private final AccountOperations accountOperations;
     private final BufferUnderrunListener bufferUnderrunListener;
+    private final VideoSourceProvider videoSourceProvider;
     private final StreamUrlBuilder urlBuilder;
     private final CurrentDateProvider dateProvider;
 
     private PlaybackState internalState = PlaybackState.STOPPED;
 
-    private Urn track = Urn.NOT_SET;
+    private PlaybackItem currentItem;
     private int connectionRetries = 0;
 
     private boolean waitingForSeek;
     private long seekPos = POS_NOT_SET;
     private long resumePos = POS_NOT_SET;
 
-    @Nullable
     private volatile MediaPlayer mediaPlayer;
+    private Optional<SurfaceHolder> surfaceHolder = Optional.absent();
     private double loadPercent;
     @Nullable
     private PlayerListener playerListener;
@@ -70,13 +79,14 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
     private String currentStreamUrl = Strings.EMPTY;
 
     @Inject
-    public MediaPlayerAudioAdapter(Context context, MediaPlayerManager mediaPlayerManager,
-                                   PlayerHandler playerHandler, EventBus eventBus,
-                                   NetworkConnectionHelper networkConnectionHelper,
-                                   AccountOperations accountOperations,
-                                   BufferUnderrunListener bufferUnderrunListener,
-                                   StreamUrlBuilder urlBuilder,
-                                   CurrentDateProvider dateProvider) {
+    public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager,
+                              PlayerHandler playerHandler, EventBus eventBus,
+                              NetworkConnectionHelper networkConnectionHelper,
+                              AccountOperations accountOperations,
+                              BufferUnderrunListener bufferUnderrunListener,
+                              VideoSourceProvider videoSourceProvider,
+                              StreamUrlBuilder urlBuilder,
+                              CurrentDateProvider dateProvider) {
         this.bufferUnderrunListener = bufferUnderrunListener;
         this.urlBuilder = urlBuilder;
         this.dateProvider = dateProvider;
@@ -87,6 +97,7 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
         this.playerHandler.setMediaPlayerAdapter(this);
         this.networkConnectionHelper = networkConnectionHelper;
         this.accountOperations = accountOperations;
+        this.videoSourceProvider = videoSourceProvider;
     }
 
     @Override
@@ -94,17 +105,18 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
             case AUDIO_SNIPPET:
-                play(playbackItem.getUrn(), playbackItem.getStartPosition());
+                play(playbackItem, playbackItem.getStartPosition());
                 break;
             case AUDIO_UNINTERRUPTED:
-                play(playbackItem.getUrn(), 0);
+            case VIDEO_DEFAULT:
+                play(playbackItem, 0);
                 break;
             default:
                 throw new IllegalStateException("MediaPlayer cannot play this item: " + playbackItem);
         }
     }
 
-    private void play(Urn track, long fromPos) {
+    private void play(PlaybackItem playbackItem, long fromPos) {
         if (mediaPlayer == null || releaseUnresettableMediaPlayer()) {
             createMediaPlayer();
         } else {
@@ -112,7 +124,7 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
             mediaPlayer.reset();
         }
 
-        this.track = track;
+        this.currentItem = playbackItem;
         waitingForSeek = false;
         resumePos = fromPos;
         seekPos = POS_NOT_SET;
@@ -121,7 +133,13 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
         prepareStartTimeMs = dateProvider.getCurrentDate().getTime();
 
         try {
-            currentStreamUrl = urlBuilder.buildHttpsStreamUrl(track);
+            if (playbackItem.getPlaybackType() == VIDEO_DEFAULT) {
+                final VideoPlaybackItem videoItem = (VideoPlaybackItem) playbackItem;
+                currentStreamUrl = videoSourceProvider.selectOptimalSource(videoItem).getUrl();
+                updateVideoView(surfaceHolder.orNull());
+            } else {
+                currentStreamUrl = urlBuilder.buildHttpsStreamUrl(playbackItem.getUrn());
+            }
             mediaPlayer.setDataSource(currentStreamUrl);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
@@ -189,7 +207,7 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
             if (connectionRetries++ < MAX_CONNECT_RETRIES) {
                 Log.d(TAG, "stream disconnected, retrying (try=" + connectionRetries + ")");
                 setInternalState(PlaybackState.ERROR_RETRYING);
-                play(track, resumePosition);
+                play(currentItem, resumePosition);
             } else {
                 Log.d(TAG, "stream disconnected, giving up");
                 setInternalState(PlaybackState.ERROR);
@@ -286,7 +304,7 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
         }
     }
 
-    void onTrackEnded() {
+    void onPlaybackEnded() {
         resetConnectionRetries();
         setInternalState(PlaybackState.COMPLETED);
     }
@@ -301,7 +319,7 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
         return seekPos != POS_NOT_SET;
     }
 
-    public boolean isTryingToResumeTrack() {
+    public boolean isTryingToResumePlayback() {
         return resumePos != POS_NOT_SET;
     }
 
@@ -332,7 +350,7 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnSeekCompleteListener(this);
         mediaPlayer.setOnInfoListener(this);
-        mediaPlayer.setOnCompletionListener(new TrackCompletionListener(this));
+        mediaPlayer.setOnCompletionListener(new PlaybackCompletionListener(this));
     }
 
     private void setInternalState(PlaybackState playbackState) {
@@ -351,8 +369,8 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
             playerHandler.sendEmptyMessage(PlayerHandler.SEND_PROGRESS);
         }
 
-        if (playerListener != null) {
-            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), track, progress, duration, dateProvider);
+        if (playerListener != null && currentItem != null) {
+            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), currentItem.getUrn(), progress, duration, dateProvider);
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
             stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
@@ -379,7 +397,7 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
         if (mediaPlayer != null && internalState.isStartable()) {
             play();
         } else {
-            play(track, resumePos);
+            play(currentItem, resumePos);
         }
     }
 
@@ -396,6 +414,7 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
     @Override
     public void destroy() {
         stop();
+        clearVideoView();
         // make sure there aren't any other messages coming
         playerHandler.removeCallbacksAndMessages(null);
     }
@@ -547,36 +566,60 @@ public class MediaPlayerAudioAdapter implements Player, MediaPlayer.OnPreparedLi
         stop();
     }
 
+    private void clearVideoView() {
+        updateVideoView(null);
+    }
+
+    private void updateVideoView(SurfaceHolder holder) {
+        surfaceHolder = Optional.fromNullable(holder);
+        if (mediaPlayer != null) {
+            mediaPlayer.setDisplay(surfaceHolder.orNull());
+        }
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        updateVideoView(holder);
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        clearVideoView();
+    }
+
     @VisibleForTesting
     static class PlayerHandler extends Handler {
 
         static final int CLEAR_LAST_SEEK = 0;
         static final int SEND_PROGRESS = 1;
 
-        private WeakReference<MediaPlayerAudioAdapter> mediaPlayerAdapterWeakReference;
+        private WeakReference<MediaPlayerAdapter> mediaPlayerAdapterWeakReference;
 
         @Inject
         PlayerHandler() {
         }
 
         @VisibleForTesting
-        void setMediaPlayerAdapter(MediaPlayerAudioAdapter adapter) {
+        void setMediaPlayerAdapter(MediaPlayerAdapter adapter) {
             mediaPlayerAdapterWeakReference = new WeakReference<>(adapter);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            final MediaPlayerAudioAdapter mediaPlayerAudioAdapter = mediaPlayerAdapterWeakReference.get();
-            if (mediaPlayerAudioAdapter == null) {
+            final MediaPlayerAdapter mediaPlayerAdapter = mediaPlayerAdapterWeakReference.get();
+            if (mediaPlayerAdapter == null) {
                 return;
             }
 
             switch (msg.what) {
                 case CLEAR_LAST_SEEK:
-                    mediaPlayerAudioAdapter.seekPos = POS_NOT_SET;
+                    mediaPlayerAdapter.seekPos = POS_NOT_SET;
                     break;
                 case SEND_PROGRESS:
-                    mediaPlayerAudioAdapter.sendProgress();
+                    mediaPlayerAdapter.sendProgress();
                     sendEmptyMessageDelayed(SEND_PROGRESS, PlaybackConstants.PROGRESS_DELAY_MS);
                     break;
 

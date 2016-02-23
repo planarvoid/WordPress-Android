@@ -13,18 +13,18 @@ import org.mockito.Mock;
 
 import android.media.MediaPlayer;
 
-public class TrackCompletionListenerTest extends AndroidUnitTest {
+public class PlaybackCompletionListenerTest extends AndroidUnitTest {
 
     private static int DURATION = 10000;
 
-    private TrackCompletionListener trackCompletionListener;
+    private PlaybackCompletionListener playbackCompletionListener;
 
-    @Mock private MediaPlayerAudioAdapter mediaPlayerAdapter;
+    @Mock private MediaPlayerAdapter mediaPlayerAdapter;
     @Mock private MediaPlayer mediaPlayer;
 
     @Before
     public void setUp() throws Exception {
-        trackCompletionListener = new TrackCompletionListener(mediaPlayerAdapter);
+        playbackCompletionListener = new PlaybackCompletionListener(mediaPlayerAdapter);
         when(mediaPlayer.getDuration()).thenReturn(DURATION);
         when(mediaPlayerAdapter.isSeekable()).thenReturn(true);
     }
@@ -32,8 +32,8 @@ public class TrackCompletionListenerTest extends AndroidUnitTest {
     @Test
     public void shouldInvokeOnTrackEndInResetPositionInPlayingStateWithNoSeekPosition() {
         when(mediaPlayerAdapter.isPlayerPlaying()).thenReturn(true);
-        trackCompletionListener.onCompletion(mediaPlayer);
-        verify(mediaPlayerAdapter).onTrackEnded();
+        playbackCompletionListener.onCompletion(mediaPlayer);
+        verify(mediaPlayerAdapter).onPlaybackEnded();
     }
 
     @Test
@@ -41,30 +41,30 @@ public class TrackCompletionListenerTest extends AndroidUnitTest {
         when(mediaPlayerAdapter.isPlayerPlaying()).thenReturn(true);
         when(mediaPlayer.getCurrentPosition()).thenReturn(DURATION);
 
-        trackCompletionListener.onCompletion(mediaPlayer);
+        playbackCompletionListener.onCompletion(mediaPlayer);
 
-        verify(mediaPlayerAdapter).onTrackEnded();
+        verify(mediaPlayerAdapter).onPlaybackEnded();
     }
 
     @Test
     public void shouldInvokeOnTrackEndAtEndOfTrackWithToleranceInPlayingStateWithNoSeekPosition() {
         when(mediaPlayerAdapter.isPlayerPlaying()).thenReturn(true);
-        when(mediaPlayer.getCurrentPosition()).thenReturn(DURATION - TrackCompletionListener.COMPLETION_TOLERANCE_MS);
+        when(mediaPlayer.getCurrentPosition()).thenReturn(DURATION - PlaybackCompletionListener.COMPLETION_TOLERANCE_MS);
 
-        trackCompletionListener.onCompletion(mediaPlayer);
+        playbackCompletionListener.onCompletion(mediaPlayer);
 
-        verify(mediaPlayerAdapter).onTrackEnded();
+        verify(mediaPlayerAdapter).onPlaybackEnded();
     }
 
     @Test
     public void shouldInvokeRetryIfCurrentPositionOutsideTolerance() {
-        final int resumeTime = DURATION - TrackCompletionListener.COMPLETION_TOLERANCE_MS - 1;
+        final int resumeTime = DURATION - PlaybackCompletionListener.COMPLETION_TOLERANCE_MS - 1;
         when(mediaPlayerAdapter.isPlayerPlaying()).thenReturn(true);
         when(mediaPlayer.getCurrentPosition()).thenReturn(resumeTime);
-        trackCompletionListener.onCompletion(mediaPlayer);
+        playbackCompletionListener.onCompletion(mediaPlayer);
 
         verify(mediaPlayerAdapter).setResumeTimeAndInvokeErrorListener(same(mediaPlayer), Matchers.eq((long) resumeTime));
-        verify(mediaPlayerAdapter, never()).onTrackEnded();
+        verify(mediaPlayerAdapter, never()).onPlaybackEnded();
     }
 
     @Test
@@ -73,7 +73,7 @@ public class TrackCompletionListenerTest extends AndroidUnitTest {
         when(mediaPlayerAdapter.isInErrorState()).thenReturn(true);
         when(mediaPlayer.getCurrentPosition()).thenReturn(DURATION);
 
-        trackCompletionListener.onCompletion(mediaPlayer);
+        playbackCompletionListener.onCompletion(mediaPlayer);
         verify(mediaPlayerAdapter).stop(mediaPlayer);
     }
 }
