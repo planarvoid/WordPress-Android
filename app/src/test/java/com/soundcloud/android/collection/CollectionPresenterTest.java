@@ -51,7 +51,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(collectionOperations.collections(any(PlaylistsOptions.class))).thenReturn(Observable.<MyCollection>empty());
-        when(collectionOperations.onCollectionChanged()).thenReturn(Observable.<Void>empty());
+        when(collectionOperations.onCollectionChanged()).thenReturn(Observable.empty());
         options = PlaylistsOptions.builder().build();
         when(collectionOptionsStorage.getLastOrDefault()).thenReturn(options);
         presenter = new CollectionPresenter(swipeRefreshAttacher, collectionOperations, collectionOptionsStorage, adapter, optionsPresenter, resources(), eventBus);
@@ -211,7 +211,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onCollectionChangedShouldNotRefreshUntilAfterFirstLoad() {
-        final PublishSubject<Void> collectionSyncedBus = PublishSubject.create();
+        final PublishSubject<Object> collectionSyncedBus = PublishSubject.create();
         when(collectionOperations.onCollectionChanged()).thenReturn(collectionSyncedBus);
         when(collectionOperations.collections(any(PlaylistsOptions.class))).thenReturn(PublishSubject.<MyCollection>create());
         presenter.onCreate(fragment, null);
@@ -225,7 +225,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Test
     public void onCollectionChangedShouldRefresh() {
         setupDefaultCollection();
-        final PublishSubject<Void> collectionSyncedBus = PublishSubject.create();
+        final PublishSubject<Object> collectionSyncedBus = PublishSubject.create();
         when(collectionOperations.onCollectionChanged()).thenReturn(collectionSyncedBus);
 
         presenter.onCreate(fragment, null);
@@ -238,7 +238,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onCollectionChangedShouldNotRefreshWhenAlreadyRefreshing() {
-        final PublishSubject<Void> collectionSyncedBus = PublishSubject.create();
+        final PublishSubject<Object> collectionSyncedBus = PublishSubject.create();
         when(collectionOperations.onCollectionChanged()).thenReturn(collectionSyncedBus);
         when(collectionOperations.collections(any(PlaylistsOptions.class))).thenReturn(PublishSubject.<MyCollection>create());
         when(swipeRefreshAttacher.isRefreshing()).thenReturn(true);

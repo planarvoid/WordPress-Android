@@ -11,6 +11,7 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -67,10 +68,17 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
                 }
             };
 
-    private final Func1<Void, Boolean> isNotRefreshing = new Func1<Void, Boolean>() {
+    private final Func1<Object, Boolean> isNotRefreshing = new Func1<Object, Boolean>() {
         @Override
-        public Boolean call(Void event) {
+        public Boolean call(Object event) {
             return !swipeRefreshAttacher.isRefreshing();
+        }
+    };
+
+    private final Action1<Object> logCollectionChanged = new Action1<Object>() {
+        @Override
+        public void call(Object o) {
+            Log.d(this, "OnCollectionChanged [event=" + o + ", isNotRefreshing=" + isNotRefreshing + "]");
         }
     };
 
@@ -218,9 +226,9 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
         adapter.notifyItemRemoved(position);
     }
 
-    private class RefreshCollectionsSubscriber extends DefaultSubscriber<Void> {
+    private class RefreshCollectionsSubscriber extends DefaultSubscriber<Object> {
         @Override
-        public void onNext(Void ignored) {
+        public void onNext(Object ignored) {
             refreshCollections();
         }
     }
@@ -248,6 +256,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdateCollectionDownloadSubscriber(adapter)),
                 collectionOperations.onCollectionChanged()
+                        .doOnNext(logCollectionChanged)
                         .filter(isNotRefreshing)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RefreshCollectionsSubscriber())
