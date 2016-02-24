@@ -18,6 +18,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -362,6 +363,14 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(TrackCommentsActivity.class)
                 .containsExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn);
+    }
+
+    @Test
+    public void opensOfflineSettingsOnboarding() {
+        navigator.openOfflineSettingsOnboarding(activityContext);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(OfflineSettingsOnboardingActivity.class);
     }
 
     @Test

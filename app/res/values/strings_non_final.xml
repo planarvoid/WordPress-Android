@@ -72,6 +72,10 @@
     <string name="go_onboarding_error_dialog_msg">There was a problem enabling your new features and content. Please restart the application.</string>
     <string name="go_onboarding_error_dialog_button">Try again later</string>
 
+    <string name="go_onboarding_offline_settings_title">Save everything automatically</string>
+    <string name="go_onboarding_offline_settings_subtext">Selecting this will save all your current and future likes and playlists offline automatically.</string>
+    <string name="go_onboarding_offline_settings_continue">OK, got it</string>
+
     <!-- __GO OFFBOARDING -->
     <string name="go_offboarding_title">Your SoundCloud Go subscription has ended</string>
     <!-- Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving." -->

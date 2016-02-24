@@ -10,6 +10,7 @@ import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.facebookinvites.FacebookInvitesStorage;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Log;
@@ -27,6 +28,7 @@ public class ConfigurationHelper {
 
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
+    private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
     private static final String PREFS_FACEBOOK_INVITES_SETTINGS = "facebook_invites";
     private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
     private static final String TAG = "TestRunner";
@@ -118,6 +120,10 @@ public class ConfigurationHelper {
         return context.getSharedPreferences(PREFS_FEATURES_SETTINGS, Context.MODE_PRIVATE);
     }
 
+    private static SharedPreferences getOfflineSettingsPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
+    }
+
     private static PlanStorage getPlanStorage(Context context) {
         final SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_FEATURES_SETTINGS, Context.MODE_PRIVATE);
         return new PlanStorage(new ObfuscatedPreferences(sharedPreferences, new Obfuscator()));
@@ -158,6 +164,21 @@ public class ConfigurationHelper {
         getAnalyticsSettingsPreferences(context)
                 .edit()
                 .putStringSet(AnalyticsProviderFactory.DISABLED_PROVIDERS, Sets.newHashSet(PromotedAnalyticsProvider.class.getName()))
+                .apply();
+    }
+
+    public static void disableOfflineSettingsOnboarding(Context context) {
+        setOfflineSettingsOnboarding(context, true);
+    }
+
+    public static void enableOfflineSettingsOnboarding(Context context) {
+        setOfflineSettingsOnboarding(context, false);
+    }
+
+    private static void setOfflineSettingsOnboarding(Context context, boolean value) {
+        getOfflineSettingsPreferences(context)
+                .edit()
+                .putBoolean(OfflineSettingsStorage.OFFLINE_SETTINGS_ONBOARDING, value)
                 .apply();
     }
 }

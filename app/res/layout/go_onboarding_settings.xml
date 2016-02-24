@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ImageView
+        android:id="@+id/background_image"
+        style="@style/GoOnboarding.SettingsBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:background="#bbbbbb" />
+
+    <RelativeLayout
+        style="@style/GoOnboarding.SettingsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                style="@style/GoOnboarding.SettingsTooltip"
+                android:layout_width="@dimen/go_onboarding_settings_tooltip_size"
+                android:layout_height="@dimen/go_onboarding_settings_tooltip_size" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/GoOnboarding.SettingsTitle"
+                android:layout_width="@dimen/go_onboarding_settings_text_width"
+                android:layout_height="wrap_content"
+                android:text="@string/go_onboarding_offline_settings_title" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/GoOnboarding.SettingsSubText"
+                android:layout_width="@dimen/go_onboarding_settings_text_width"
+                android:layout_height="wrap_content"
+                android:text="@string/go_onboarding_offline_settings_subtext" />
+        </LinearLayout>
+
+        <com.soundcloud.android.view.CustomFontButton
+            android:id="@+id/btn_continue"
+            style="@style/GoOnboarding.SettingsContinueButton"
+            android:layout_width="@dimen/go_onboarding_settings_text_width"
+            android:layout_height="@dimen/go_onboarding_settings_button_height"
+            android:text="@string/go_onboarding_offline_settings_continue" />
+
+    </RelativeLayout>
+
+</merge>

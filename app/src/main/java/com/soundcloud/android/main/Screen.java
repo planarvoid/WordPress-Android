@@ -104,6 +104,7 @@ public enum Screen {
     SETTINGS_OFFLINE("settings:offline_sync_settings"),
     SETTINGS_LEGAL("settings:legal"),
     SETTINGS_LICENSES("settings:licenses"),
+    SETTINGS_AUTOMATIC_SYNC_ONBOARDING("settings:automatic_sync_onboarding"),
 
     WIDGET("widget"),
     SUGGESTED_USERS("suggested_users"),

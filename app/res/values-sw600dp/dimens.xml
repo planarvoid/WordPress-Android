@@ -37,4 +37,8 @@
     <dimen name="go_onboarding_title_text_size">24sp</dimen>
     <dimen name="go_onboarding_sub_title_text_size">20sp</dimen>
 
+    <!-- Go Onboarding Settings -->
+    <dimen name="go_onboarding_settings_tooltip_margin_top">240dp</dimen>
+    <dimen name="go_onboarding_settings_tooltip_margin_bottom">60dp</dimen>
+
 </resources>

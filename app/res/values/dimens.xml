@@ -176,6 +176,18 @@
     <dimen name="go_onboarding_header_width">200dp</dimen>
     <dimen name="go_onboarding_text_width">360dp</dimen>
 
+    <!-- Go Onboarding Settings -->
+    <dimen name="go_onboarding_settings_tooltip_margin_top">92dp</dimen>
+    <dimen name="go_onboarding_settings_tooltip_margin_bottom">60dp</dimen>
+    <dimen name="go_onboarding_settings_tooltip_size">84dp</dimen>
+    <dimen name="go_onboarding_settings_text_width">320dp</dimen>
+    <dimen name="go_onboarding_settings_title_text_size">18sp</dimen>
+    <dimen name="go_onboarding_settings_sub_title_text_size">14sp</dimen>
+    <dimen name="go_onboarding_settings_sub_title_margin_top">10dp</dimen>
+    <dimen name="go_onboarding_settings_sub_title_line_spacing">8sp</dimen>
+    <dimen name="go_onboarding_settings_button_text_size">16sp</dimen>
+    <dimen name="go_onboarding_settings_button_height">52dp</dimen>
+
     <!-- Custom Indeterminite Spinner -->
     <dimen name="default_indeterminite_spinner_stroke_width">4dp</dimen>
     <dimen name="medium_indeterminite_spinner_width">48dp</dimen>
