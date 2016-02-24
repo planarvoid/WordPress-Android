@@ -35,7 +35,7 @@ public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserS
 
     @Override
     public Iterable<UserSoundsItem> call(UserProfileRecord userProfile) {
-        final List<UserSoundsItem> items = new ArrayList<>();
+        final List<UserSoundsItem> items = new ArrayList<>(estimateItemCount(userProfile));
 
         items.addAll(entityHolderMapper.map(UserSoundsTypes.SPOTLIGHT,
                 convertToApiEntityHolderCollection(userProfile.getSpotlight())));
@@ -48,6 +48,16 @@ public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserS
                 convertToApiEntityHolderCollection(userProfile.getLikes())));
 
         return items;
+    }
+
+    private int estimateItemCount(UserProfileRecord userProfile) {
+        //We can guess this pretty accurately. So why now.
+        return 3 + userProfile.getSpotlight().getCollection().size()
+                + 3 + userProfile.getTracks().getCollection().size()
+                + 3 + userProfile.getReleases().getCollection().size()
+                + 3 + userProfile.getPlaylists().getCollection().size()
+                + 3 + userProfile.getReposts().getCollection().size()
+                + 3 + userProfile.getLikes().getCollection().size();
     }
 
     @VisibleForTesting
@@ -80,7 +90,7 @@ public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserS
         public List<UserSoundsItem> map(
                 int collectionType,
                 ModelCollection<? extends ApiEntityHolder> itemsToMap) {
-            final List<UserSoundsItem> items = new ArrayList<>();
+            final List<UserSoundsItem> items = new ArrayList<>(3 + itemsToMap.getCollection().size());
 
             if (!itemsToMap.getCollection().isEmpty()) {
                 items.add(UserSoundsItem.fromHeader(collectionType));
