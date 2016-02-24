@@ -9,7 +9,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class HeaderRenderer implements CellRenderer<UserSoundsItem> {
+class HeaderRenderer implements CellRenderer<UserSoundsItem> {
     @Inject
     public HeaderRenderer() {
     }

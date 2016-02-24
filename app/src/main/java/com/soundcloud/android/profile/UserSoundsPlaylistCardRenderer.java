@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-public class UserSoundsPlaylistCardRenderer implements CellRenderer<UserSoundsItem> {
+class UserSoundsPlaylistCardRenderer implements CellRenderer<UserSoundsItem> {
     private final PlaylistCardRenderer playlistCardRenderer;
 
     @Inject

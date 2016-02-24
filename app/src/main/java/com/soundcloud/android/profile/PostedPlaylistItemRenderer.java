@@ -18,7 +18,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PostedPlaylistItemRenderer extends PlaylistItemRenderer {
+class PostedPlaylistItemRenderer extends PlaylistItemRenderer {
 
     @Inject
     public PostedPlaylistItemRenderer(Resources resources,

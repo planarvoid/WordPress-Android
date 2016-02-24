@@ -9,7 +9,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class DividerRenderer implements CellRenderer<UserSoundsItem> {
+class DividerRenderer implements CellRenderer<UserSoundsItem> {
     @Inject
     DividerRenderer() {}
 

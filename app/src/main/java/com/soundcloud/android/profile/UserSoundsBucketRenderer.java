@@ -24,7 +24,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class UserSoundsBucketRenderer implements CellRenderer<UserSoundsBucket> {
+class UserSoundsBucketRenderer implements CellRenderer<UserSoundsBucket> {
     private final TrackItemRenderer trackItemRenderer;
     private final PlaylistItemRenderer playlistItemRenderer;
     private final TrackCardRenderer trackCardRenderer;

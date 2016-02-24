@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-public class UserSoundsTrackItemRenderer implements CellRenderer<UserSoundsItem> {
+class UserSoundsTrackItemRenderer implements CellRenderer<UserSoundsItem> {
     private final TrackItemRenderer trackItemRenderer;
 
     @Inject
