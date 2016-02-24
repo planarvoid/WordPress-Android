@@ -9,6 +9,7 @@
     <style name="Theme.SoundCloud.Conversion" parent="Theme.SoundCloud.Translucent">
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowEnterTransition">@transition/conversion_enter</item>
+        <item name="android:statusBarColor">@color/primary_darker</item>
     </style>
 
 </resources>
