@@ -50,7 +50,7 @@
             android:layout_gravity="center_vertical"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:background="?attr/selectableItemBackground"
+            android:background="?android:attr/selectableItemBackground"
             android:src="@drawable/notifications_pause"/>
     <ImageButton
             android:id="@+id/next"
@@ -58,7 +58,7 @@
             android:layout_gravity="center_vertical"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:background="?attr/selectableItemBackground"
+            android:background="?android:attr/selectableItemBackground"
             android:src="@drawable/notifications_next"/>
     <ImageButton
             android:id="@+id/close"
@@ -66,6 +66,6 @@
             android:layout_height="match_parent"
             android:layout_weight="1.5"
             android:layout_gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
+            android:background="?android:attr/selectableItemBackground"
             android:src="@drawable/notification_close"/>
 </LinearLayout>

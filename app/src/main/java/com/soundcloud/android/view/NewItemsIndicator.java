@@ -70,8 +70,10 @@ public class NewItemsIndicator implements NewItemsIndicatorScrollListener.Listen
     }
 
     public void hideAndReset() {
-        if (indicatorTextView.isShown() || isAnimating()) {
-            hide();
+        if (indicatorTextView != null) {
+            if (indicatorTextView.isShown() || isAnimating()) {
+                hide();
+            }
         }
         newItems = 0;
     }
