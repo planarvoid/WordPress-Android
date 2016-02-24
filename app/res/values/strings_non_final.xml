@@ -131,6 +131,13 @@
     <string name="user_profile_playlists_view_all">View all playlists</string>
     <string name="user_profile_reposts_view_all">View all reposts</string>
     <string name="user_profile_likes_view_all">View all likes</string>
+    <string name="user_profile_sounds_header_spotlight">Spotlight</string>
+    <string name="user_profile_sounds_header_tracks">Tracks</string>
+    <string name="user_profile_sounds_header_releases">Releases</string>
+    <string name="user_profile_sounds_header_playlists">Playlists</string>
+    <string name="user_profile_sounds_header_reposts">Reposts</string>
+    <string name="user_profile_sounds_header_likes">Likes</string>
+
 
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Remove ads</string>

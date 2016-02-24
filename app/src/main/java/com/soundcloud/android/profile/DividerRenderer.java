@@ -20,6 +20,7 @@ class DividerRenderer implements CellRenderer<UserSoundsItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
+        //TODO: Replace with actual divider
         ((TextView) itemView).setText("DIVIDER");
     }
 }
