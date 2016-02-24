@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.activity.resolve;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.TestConsts;
@@ -20,9 +19,7 @@ public class ResolveTrackMobileUrlTest extends ResolveBaseTest {
         assertThat(playerElement.getTrackTitle(), is(equalToIgnoringCase(expectedTitle)));
 
         playerElement.waitForMoreContent(); // wait for similar sounds to be loaded
-
-        playerElement.swipeNext();
-        assertThat(playerElement.getTrackTitle(), is(not(equalToIgnoringCase(expectedTitle))));
+        assertThat(playerElement.hasMoreTracks(), is(true));
     }
 
     @Override

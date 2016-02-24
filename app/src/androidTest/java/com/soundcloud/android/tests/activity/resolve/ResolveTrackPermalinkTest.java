@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.activity.resolve;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.TestConsts;
@@ -19,9 +18,7 @@ public class ResolveTrackPermalinkTest extends ResolveBaseTest {
         assertThat(playerElement.getTrackTitle(), is(equalToIgnoringCase(TRACK_NAME)));
         // make sure recommendations load
         playerElement.waitForMoreContent();
-
-        playerElement.swipeNext();
-        assertThat(playerElement.getTrackTitle(), is(not(equalToIgnoringCase(TRACK_NAME))));
+        assertThat(playerElement.hasMoreTracks(), is(true));
     }
 
     @Override

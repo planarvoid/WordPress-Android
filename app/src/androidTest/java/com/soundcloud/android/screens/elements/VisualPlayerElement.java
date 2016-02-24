@@ -3,6 +3,7 @@ package com.soundcloud.android.screens.elements;
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.helpers.PlayerHelper;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
@@ -12,7 +13,6 @@ import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.screens.WhyAdsUpsellScreen;
 
 import android.graphics.Rect;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
@@ -129,7 +129,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private TextElement trackTitle() {
-        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.track_page_title)));
+        return new TextElement(getTrackTitleViewElement());
     }
 
     private ViewElement footerPlayer() {
@@ -288,15 +288,16 @@ public class VisualPlayerElement extends Element {
     }
 
     public void waitForMoreContent() {
-        final int currentItem = getViewPager().getCurrentItem();
-        final PagerAdapter adapter = getViewPager().getAdapter();
-
         waiter.waitForNetworkCondition(new Condition() {
             @Override
             public boolean isSatisfied() {
-                return adapter.getCount() > currentItem + 1;
+                return hasMoreTracks();
             }
         });
+    }
+
+    public boolean hasMoreTracks() {
+        return getViewPager().getAdapter().getCount() > getViewPager().getCurrentItem();
     }
 
     public VisualPlayerElement waitForExpandedPlayer() {
@@ -467,6 +468,10 @@ public class VisualPlayerElement extends Element {
         testDriver.sleep(5000);
     }
 
+    public ViewElement getTrackTitleViewElement() {
+        return testDriver.findOnScreenElement(With.id(R.id.track_page_title));
+    }
+
     private static class TextChangedCondition implements Condition {
 
         private final String original;
@@ -493,7 +498,7 @@ public class VisualPlayerElement extends Element {
 
         @Override
         public boolean isSatisfied() {
-            return !trackTitle().getText().equals(original);
+            return PlayerHelper.isNotCurrentTrack(VisualPlayerElement.this, original);
         }
     }
 }
