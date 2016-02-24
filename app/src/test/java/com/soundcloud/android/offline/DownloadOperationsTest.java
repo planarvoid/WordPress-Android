@@ -20,7 +20,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,11 +38,10 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Mock private DeleteOfflineTrackCommand deleteOfflineContent;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private InputStream downloadStream;
-    @Mock private NetworkConnectionHelper connectionHelper;
-    @Mock private OfflineSettingsStorage offlineSettings;
     @Mock private StreamUrlBuilder streamUrlBuilder;
     @Mock private DownloadOperations.DownloadProgressListener listener;
     @Mock private OfflineTrackAssetDownloader assetDownloader;
+    @Mock private DownloadConnexionHelper downloadConnexionHelper;
 
     private DownloadOperations operations;
 
@@ -54,7 +52,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager,
-                connectionHelper, offlineSettings, streamUrlBuilder, Schedulers.immediate(), assetDownloader);
+                streamUrlBuilder, Schedulers.immediate(), assetDownloader, downloadConnexionHelper);
         when(streamUrlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(streamUrl);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
@@ -63,8 +61,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         when(response.getInputStream()).thenReturn(downloadStream);
         when(fileStorage.isEnoughSpace(anyLong())).thenReturn(true);
         when(fileStorage.isEnoughMinimumSpace()).thenReturn(true);
-        when(connectionHelper.isWifiConnected()).thenReturn(true);
-        when(connectionHelper.isNetworkConnected()).thenReturn(true);
+        when(downloadConnexionHelper.isNetworkDownloadFriendly()).thenReturn(true);
     }
 
     @Test
@@ -228,36 +225,4 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         verify(fileStorage, never()).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
     }
 
-    @Test
-    public void invalidNetworkWhenDisconnected() {
-        when(connectionHelper.isNetworkConnected()).thenReturn(false);
-
-        assertThat(operations.isValidNetwork()).isFalse();
-    }
-
-    @Test
-    public void validNetworkWhenConnectedAndAllNetworkAllowed() {
-        when(offlineSettings.isWifiOnlyEnabled()).thenReturn(false);
-        when(connectionHelper.isNetworkConnected()).thenReturn(true);
-
-        assertThat(operations.isValidNetwork()).isTrue();
-    }
-
-    @Test
-    public void invalidNetworkWhenNotConnectedOnWifiAndOnlyWifiAllowed() {
-        when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
-        when(connectionHelper.isNetworkConnected()).thenReturn(true);
-        when(connectionHelper.isWifiConnected()).thenReturn(false);
-
-        assertThat(operations.isValidNetwork()).isFalse();
-    }
-
-    @Test
-    public void validNetworkWhenConnectedOnWifiAndOnlyWifiAllowed() {
-        when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
-        when(connectionHelper.isNetworkConnected()).thenReturn(true);
-        when(connectionHelper.isWifiConnected()).thenReturn(true);
-
-        assertThat(operations.isValidNetwork()).isTrue();
-    }
 }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -228,7 +227,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     public void onConnectionErrorWithDisconnectedShowsNoNetworkNotification() {
         reset(notificationBuilder);
 
-        DownloadState result = DownloadState.connectionError(downloadRequest, ConnectionState.DISCONNECTED);
+        DownloadState result = DownloadState.disconnectedNetworkError(downloadRequest);
         notificationController.onConnectionError(result, true);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_PAUSED);
@@ -242,7 +241,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     public void onConnectionErrorWithWifiOnlyRestrictionShowsWifiOnlyNotification() {
         reset(notificationBuilder);
 
-        DownloadState result = DownloadState.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
+        DownloadState result = DownloadState.invalidNetworkError(downloadRequest);
         notificationController.onConnectionError(result, true);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_PAUSED);
@@ -256,7 +255,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     public void onConnectionErrorCancelsNotification() {
         reset(notificationBuilder);
 
-        DownloadState result = DownloadState.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
+        DownloadState result = DownloadState.invalidNetworkError(downloadRequest);
         notificationController.onConnectionError(result, false);
 
         verify(notificationManager).cancel(NotificationConstants.OFFLINE_NOTIFY_ID);

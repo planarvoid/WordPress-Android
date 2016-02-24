@@ -11,7 +11,8 @@
     <item name="list_item_right_info" type="id" />
 
     <!-- unique numbers we use -->
-    <item name="offline_syncing_request_id" type="id" />
+    <item name="offline_cleanup_request_id" type="id" />
+    <item name="offline_retry_request_id" type="id" />
     <item name="policy_update_request_id" type="id" />
     <item name="player_widget_request_id" type="id" />
 </resources>

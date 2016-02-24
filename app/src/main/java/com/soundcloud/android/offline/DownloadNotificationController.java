@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
-
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
@@ -159,8 +157,7 @@ class DownloadNotificationController {
             notification.setContentIntent(getPendingIntent(lastDownload.request));
             notification.setContentTitle(resources.getString(R.string.offline_update_paused));
             notification.setContentText(
-                    resources.getString(lastDownload.connectionState == ConnectionState.DISCONNECTED ?
-                            R.string.no_network_connection : R.string.no_wifi_connection));
+                    resources.getString(lastDownload.isNetworkError ? R.string.no_network_connection : R.string.no_wifi_connection));
 
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, notification.build());
         } else {

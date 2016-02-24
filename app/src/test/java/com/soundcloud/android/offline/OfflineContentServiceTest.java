@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import static com.soundcloud.android.offline.OfflineContentUpdates.builder;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,8 +48,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     private final DownloadRequest downloadRequest2 = ModelFixtures.downloadRequestFromLikes(TRACK_2);
     private final DownloadState downloadState1 = DownloadState.success(downloadRequest1);
     private final DownloadState unavailableTrackResult1 = DownloadState.unavailable(downloadRequest1);
-    private final DownloadState failedResult1 =
-            DownloadState.connectionError(downloadRequest1, ConnectionState.NOT_ALLOWED);
+    private final DownloadState failedResult1 = DownloadState.invalidNetworkError(downloadRequest1);
     private final DownloadState notEnoughMinimumSpace = DownloadState.notEnoughMinimumSpace(downloadRequest1);
 
     private Observable<List<Urn>> deletePendingRemoval;

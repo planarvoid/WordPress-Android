@@ -58,7 +58,7 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
 
     @Test
     public void storeLikedTrackCollectionAsOffline() {
-        contentStorage.storeLikedTrackCollection().subscribe();
+        contentStorage.addLikedTrackCollection().subscribe();
 
         databaseAssertions().assertLikedTracksIsOffline();
     }
@@ -67,14 +67,14 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
     public void removeLikedTracksFromOffline() {
         testFixtures().insertLikesMarkedForOfflineSync();
 
-        contentStorage.deleteLikedTrackCollection().subscribe();
+        contentStorage.removeLikedTrackCollection().subscribe();
 
         databaseAssertions().assertLikedTracksIsNotOffline();
     }
 
     @Test
     public void deleteLikedTrackCollectionFromTable() {
-        contentStorage.deleteLikedTrackCollection().subscribe();
+        contentStorage.removeLikedTrackCollection().subscribe();
 
         databaseAssertions().assertLikedTracksIsNotOffline();
     }

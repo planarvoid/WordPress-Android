@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import static com.soundcloud.android.offline.MP3Helper.calculateFileSizeInBytes;
 
 import com.soundcloud.android.Consts;
@@ -15,7 +14,7 @@ public final class DownloadState {
     final Status status;
     final DownloadRequest request;
     final long timestamp;
-    final ConnectionState connectionState;
+    final boolean isNetworkError;
     long progress = Consts.NOT_SET;
 
     private DownloadState(Status status, DownloadRequest request) {
@@ -23,19 +22,19 @@ public final class DownloadState {
     }
 
     public DownloadState(Status status, DownloadRequest request, long progress) {
-        this(status, request, progress, null);
+        this(status, request, progress, false);
     }
 
-    private DownloadState(Status status, DownloadRequest request, ConnectionState connectionState) {
-        this(status, request, Consts.NOT_SET, connectionState);
+    private DownloadState(Status status, DownloadRequest request, boolean isNetworkError) {
+        this(status, request, Consts.NOT_SET, isNetworkError);
     }
 
-    private DownloadState(Status status, DownloadRequest request, long progress, ConnectionState connectionState) {
+    private DownloadState(Status status, DownloadRequest request, long progress, boolean isNetworkError) {
         this.status = status;
         this.request = request;
         this.timestamp = System.currentTimeMillis();
         this.progress = progress;
-        this.connectionState = connectionState;
+        this.isNetworkError = isNetworkError;
     }
 
     public static DownloadState success(DownloadRequest request) {
@@ -48,9 +47,14 @@ public final class DownloadState {
         return new DownloadState(Status.UNAVAILABLE, request);
     }
 
-    public static DownloadState connectionError(DownloadRequest request, ConnectionState connectionState) {
+    public static DownloadState disconnectedNetworkError(DownloadRequest request) {
         Log.d(OfflineContentService.TAG, "Connection error download result: " + request.getTrack());
-        return new DownloadState(Status.CONNECTION_ERROR, request, connectionState);
+        return new DownloadState(Status.CONNECTION_ERROR, request, true);
+    }
+
+    public static DownloadState invalidNetworkError(DownloadRequest request) {
+        Log.d(OfflineContentService.TAG, "Invalid network error download result: " + request.getTrack());
+        return new DownloadState(Status.CONNECTION_ERROR, request, false);
     }
 
     public static DownloadState inProgress(DownloadRequest request, long progress) {

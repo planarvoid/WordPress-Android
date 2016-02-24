@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -58,7 +59,9 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
     @Mock private SyncInitiator syncInitiator;
     @Mock private Action1<Object> startServiceAction;
+    @Mock private Action1<Object> scheduleCleanupAction;
     @Mock private LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
+    @Mock private OfflineContentScheduler serviceScheduler;
 
     private OfflineContentOperations operations;
     private TestEventBus eventBus;
@@ -70,11 +73,11 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         subscriber = new TestSubscriber<>();
 
         when(serviceInitiator.startFromUserAction()).thenReturn(startServiceAction);
+        when(serviceScheduler.scheduleCleanupAction()).thenReturn(scheduleCleanupAction);
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(LIKED_TRACKS));
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
                 Observable.<Collection<ApiPolicyInfo>>just(Collections.<ApiPolicyInfo>emptyList()));
         when(changeResult.success()).thenReturn(true);
-        when(offlineContentStorage.deleteLikedTrackCollection()).thenReturn(Observable.<ChangeResult>empty());
 
         final Urn offlinePlaylist = Urn.forPlaylist(112233L);
         final List<Urn> offlinePlaylists = singletonList(offlinePlaylist);
@@ -90,6 +93,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
                 loadExpectedContentCommand,
                 loadOfflineContentUpdatesCommand,
                 serviceInitiator,
+                serviceScheduler,
                 syncInitiator,
                 featureOperations,
                 trackDownloadsStorage,
@@ -152,7 +156,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final Urn playlist1 = Urn.forPlaylist(123L);
         final Urn playlist2 = Urn.forPlaylist(456L);
         final List<Urn> expectedOfflinePlaylists = newArrayList(playlist1, playlist2);
-        when(offlineContentStorage.storeLikedTrackCollection()).thenReturn(Observable.just(new ChangeResult(1)));
+        when(offlineContentStorage.addLikedTrackCollection()).thenReturn(Observable.just(new ChangeResult(1)));
         when(collectionOperations.myPlaylists()).thenReturn(Observable.just(Arrays.asList(createPlaylistItem(playlist1), createPlaylistItem(playlist2))));
         when(offlineContentStorage.setOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(new TxnResult()));
         final PublishSubject<Boolean> refreshSubject = PublishSubject.create();
@@ -208,6 +212,17 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void makePlaylistUnavailableOfflineScheduleFilesCleaUp() {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        when(offlineContentStorage.removePlaylistFromOffline(playlistUrn)).thenReturn(Observable.just(changeResult));
+
+        operations.makePlaylistUnavailableOffline(playlistUrn).subscribe();
+
+        verify(scheduleCleanupAction).call(anyObject());
+    }
+
+
+    @Test
     public void clearOfflineContentStartsService() {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
         when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(removed));
@@ -228,6 +243,33 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
+    }
+
+    @Test
+    public void disableOfflineLikedTracksSendAnEvent() {
+        when(offlineContentStorage.removeLikedTrackCollection()).thenReturn(Observable.just(changeResult));
+
+        operations.disableOfflineLikedTracks().subscribe();
+
+        final OfflineContentChangedEvent event = eventBus.lastEventOn(EventQueue.OFFLINE_CONTENT_CHANGED);
+        assertThat(event.state).isEqualTo(OfflineState.NOT_OFFLINE);
+        assertThat(event.isLikedTrackCollection).isEqualTo(true);
+    }
+
+    @Test
+    public void disableOfflineLikedTracksStartsService() {
+        when(offlineContentStorage.removeLikedTrackCollection()).thenReturn(Observable.just(changeResult));
+        operations.disableOfflineLikedTracks().subscribe();
+
+        verify(startServiceAction).call(anyObject());
+    }
+
+    @Test
+    public void disableOfflineLikedTracksScheduleFilesCleanUp() {
+        when(offlineContentStorage.removeLikedTrackCollection()).thenReturn(Observable.just(changeResult));
+        operations.disableOfflineLikedTracks().subscribe();
+
+        verify(scheduleCleanupAction).call(anyObject());
     }
 
     private ExpectedOfflineContent getExpectedOfflineContent() {
