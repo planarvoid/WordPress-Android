@@ -21,6 +21,7 @@ public class ViewAllRenderer implements CellRenderer<UserSoundsItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
+        //TODO: Need to display separate text for collection type (fix in styling story)
         ((TextView) itemView).setText("View all");
     }
 }
