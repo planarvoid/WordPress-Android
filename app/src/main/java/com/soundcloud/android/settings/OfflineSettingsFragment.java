@@ -220,8 +220,10 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private void showRemoveAllOfflineContentDialog() {
         new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.pref_offline_remove_all_offline_content)
-                .setMessage(R.string.pref_offline_remove_all_offline_content_description)
+                .setTitle(R.string.remove_offline_content_title)
+                .setMessage(offlineContentOperations.isOfflineCollectionEnabled()
+                        ? R.string.remove_offline_content_body_sync_collection
+                        : R.string.remove_offline_content_body_default)
                 .setPositiveButton(R.string.btn_continue, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

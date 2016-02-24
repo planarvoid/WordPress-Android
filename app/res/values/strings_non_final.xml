@@ -89,7 +89,7 @@
     <string name="pref_offline_wifi_only_sync">Only save via Wi-Fi</string>
     <string name="pref_offline_wifi_only_description">When this is turned on, we will only save tracks offline over a Wi-Fi connection.</string>
     <string name="pref_offline_storage_limit">Storage limit</string>
-    <string name="pref_offline_storage_limit_description">This will define how much of your available space is allocated to the SoundCloud app.</string>
+    <string name="pref_offline_storage_limit_description">This will define how much of your available storage can be used for offline listening.</string>
     <string name="pref_offline_storage_free_gb">%1$.1f GB free of %2$.1f GB</string>
     <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
     <string name="pref_offline_storage_usage">Storage usage</string>
@@ -97,7 +97,10 @@
     <string name="pref_offline_used">Used</string>
     <string name="pref_offline_limit">Limit</string>
     <string name="pref_offline_remove_all_offline_content">Remove content saved offline</string>
-    <string name="pref_offline_remove_all_offline_content_description">This will remove any content that is saved offline by the SoundCloud app.</string>
+    <string name="pref_offline_remove_all_offline_content_description">This will remove any content that is stored on the device.</string>
+    <string name="remove_offline_content_title">Remove everything from offline listening?</string>
+    <string name="remove_offline_content_body_default">You’re about remove everything from offline listening.</string>
+    <string name="remove_offline_content_body_sync_collection">You’re about remove everything from offline listening. Additionally, your new likes and playlists won’t save automatically anymore.</string>
     <string name="offline_cannot_set_limit_below_usage">Limit cannot be set below current storage usage.</string>
     <string name="sign_out_title_offline">Signing out removes all offline tracks</string>
     <string name="sign_out_description_offline">The next time you sign in, you’ll be able to decide which tracks and playlists should be saved again.</string>
