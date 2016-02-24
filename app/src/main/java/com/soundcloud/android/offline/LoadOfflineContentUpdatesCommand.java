@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, OfflineContentUpdates> {
 
-    private static final long PENDING_REMOVAL_DELAY = TimeUnit.MINUTES.toMillis(3);
+    private static final long PENDING_REMOVAL_DELAY = TimeUnit.SECONDS.toMillis(15);
 
     private final PropellerDatabase propellerDatabase;
     private final DateProvider dateProvider;
