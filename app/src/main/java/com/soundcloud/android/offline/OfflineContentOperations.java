@@ -134,7 +134,7 @@ public class OfflineContentOperations {
                 .subscribeOn(scheduler);
     }
 
-    Observable<TxnResult> setMyPlaylistsAsOfflinePlaylists() {
+    private Observable<TxnResult> setMyPlaylistsAsOfflinePlaylists() {
         return collectionOperations.myPlaylists().map(TO_URN)
                 .flatMap(setOfflinePlaylists);
     }

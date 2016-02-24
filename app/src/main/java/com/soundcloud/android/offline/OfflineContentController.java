@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_CONTENT_CHANGED_FILTER;
 import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER;
+import static com.soundcloud.android.rx.RxUtils.returning;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -11,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -67,23 +67,23 @@ public class OfflineContentController {
         }
     };
 
-    private final Func1<TxnResult, Boolean> TO_SUCCESS = new Func1<TxnResult, Boolean>() {
-        @Override
-        public Boolean call(TxnResult txnResult) {
-            return txnResult.success();
-        }
-    };
-
     private final Func1<Urn, Observable<Boolean>> toOfflinePlaylist = new Func1<Urn, Observable<Boolean>>() {
         @Override
-        public Observable<Boolean> call(Urn newPlaylist) {
-            if (offlineContentOperations.isOfflineCollectionEnabled()) {
-                return offlineContentOperations
-                        .setMyPlaylistsAsOfflinePlaylists()
-                        .map(TO_SUCCESS);
-            } else {
-                return offlineContentOperations.isOfflinePlaylist(newPlaylist);
-            }
+        public Observable<Boolean> call(final Urn newPlaylist) {
+            return offlineContentOperations
+                    .isOfflinePlaylist(newPlaylist)
+                    .flatMap(new Func1<Boolean, Observable<Boolean>>() {
+                        @Override
+                        public Observable<Boolean> call(Boolean isOfflinePlaylist) {
+                            if (!isOfflinePlaylist && offlineContentOperations.isOfflineCollectionEnabled()) {
+                                return offlineContentOperations
+                                        .makePlaylistAvailableOffline(newPlaylist)
+                                        .map(returning(true));
+                            } else {
+                                return Observable.just(isOfflinePlaylist);
+                            }
+                        }
+                    });
         }
     };
 
@@ -117,7 +117,8 @@ public class OfflineContentController {
 
     private Observable<Void> offlineContentEvents() {
         return Observable
-                .merge(offlinePlaylistChanged(),
+                .merge(autoAddPlaylistToOfflineCollection(),
+                        offlinePlaylistChanged(),
                         offlineTrackLikedChanged(),
                         syncOverWifiOnlySettingChanged(),
                         policyUpdates()
@@ -128,8 +129,7 @@ public class OfflineContentController {
     private Observable<Object> offlinePlaylistChanged() {
         return Observable.merge(
                 offlinePlaylistSynced(),
-                offlinePlaylistContentChanged(),
-                playlistAddedToOfflineCollection()
+                offlinePlaylistContentChanged()
         );
     }
 
@@ -158,7 +158,7 @@ public class OfflineContentController {
                 .cast(Object.class);
     }
 
-    private Observable<Object> playlistAddedToOfflineCollection() {
+    private Observable<Object> autoAddPlaylistToOfflineCollection() {
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(IS_PLAYLIST_LIKED_OR_CREATED)
                 .map(EntityStateChangedEvent.TO_URN)
