@@ -25,7 +25,6 @@ public class NewItemsIndicatorTest extends AndroidUnitTest {
     private static final String NEW_POSTS_3 = "3 new posts";
     private static final String NEW_POSTS_9_PLUS = "9+ new posts";
 
-
     @Mock NewItemsIndicatorScrollListener scrollListener;
     @Mock NewItemsIndicator.Listener listener;
     @Mock TextView view;
