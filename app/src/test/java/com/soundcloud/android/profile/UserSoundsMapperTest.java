@@ -1,7 +1,5 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.profile.UserSoundsMapper.convertToApiEntityHolderCollection;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.Mockito.when;
@@ -32,64 +30,19 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldMapItemsToUserSoundsItems() throws Exception {
-        final ApiPlayableSource track = ModelFixtures.apiTrackHolder();
-        final ModelCollection<ApiPlayableSource> spotlight = new ModelCollection<>(singletonList(track));
+        final ApiUserProfile profile = new UserProfileFixtures.Builder().populateAllCollections().build();
 
-        final ApiTrackPost trackPost = new ApiTrackPost(ModelFixtures.create(ApiTrack.class));
-        final ModelCollection<ApiTrackPost> tracks = new ModelCollection<>(Collections.singletonList(trackPost));
+        mockEntityHolderMapper(UserSoundsTypes.SPOTLIGHT, toApiEntityHolderCollection(profile.getSpotlight()));
+        mockEntityHolderMapper(UserSoundsTypes.TRACKS, profile.getTracks());
+        mockEntityHolderMapper(UserSoundsTypes.RELEASES, profile.getReleases());
+        mockEntityHolderMapper(UserSoundsTypes.PLAYLISTS, profile.getPlaylists());
+        mockEntityHolderMapper(UserSoundsTypes.REPOSTS, toApiEntityHolderCollection(profile.getReposts()));
+        mockEntityHolderMapper(UserSoundsTypes.LIKES, toApiEntityHolderCollection(profile.getLikes()));
 
-        final ApiPlaylistPost release = new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class));
-        final ModelCollection<ApiPlaylistPost> releases = new ModelCollection<>(Collections.singletonList(release));
-
-        final ApiPlaylistPost playlist = new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class));
-        final ModelCollection<ApiPlaylistPost> playlists = new ModelCollection<>(Collections.singletonList(playlist));
-
-        final ApiPlayableSource trackRepost = ModelFixtures.apiTrackHolder();
-        final ModelCollection<ApiPlayableSource> reposts = new ModelCollection<>(Collections.singletonList(trackRepost));
-
-        final ApiPlayableSource trackLike = ModelFixtures.apiTrackHolder();
-        final ModelCollection<ApiPlayableSource> likes = new ModelCollection<>(Collections.singletonList(trackLike));
-
-        final ApiUserProfile profile = new UserProfileFixtures.Builder()
-                .spotlight(spotlight)
-                .tracks(tracks)
-                .releases(releases)
-                .playlists(playlists)
-                .reposts(reposts)
-                .likes(likes)
-                .build();
-
-        when(entityHolderMapper.map(UserSoundsTypes.SPOTLIGHT, convertToApiEntityHolderCollection(spotlight)))
-                .thenReturn(newArrayList(mockUserSoundsItem));
-        when(entityHolderMapper.map(UserSoundsTypes.TRACKS, tracks)).thenReturn(newArrayList(mockUserSoundsItem));
-        when(entityHolderMapper.map(UserSoundsTypes.RELEASES, releases)).thenReturn(newArrayList(mockUserSoundsItem));
-        when(entityHolderMapper.map(UserSoundsTypes.PLAYLISTS, playlists)).thenReturn(newArrayList(mockUserSoundsItem));
-        when(entityHolderMapper.map(UserSoundsTypes.REPOSTS, convertToApiEntityHolderCollection(reposts)))
-                .thenReturn(newArrayList(mockUserSoundsItem));
-        when(entityHolderMapper.map(UserSoundsTypes.LIKES, convertToApiEntityHolderCollection(likes)))
-                .thenReturn(newArrayList(mockUserSoundsItem));
-
-        ArrayList<UserSoundsItem> result = newArrayList(
-                new UserSoundsMapper(entityHolderMapper).call(profile));
+        ArrayList<UserSoundsItem> result = newArrayList(new UserSoundsMapper(entityHolderMapper).call(profile));
 
         assertThat(result.size()).isEqualTo(6);
-        assertThat(result.get(0)).isEqualTo(mockUserSoundsItem);
-    }
-
-    @Test
-    public void shouldConvertEntityHolderSourceToEntityHolder() throws Exception {
-        final ApiPlayableSource track = ModelFixtures.apiTrackHolder();
-        final ApiPlayableSource none = new ApiPlayableSource(null, null);
-        final Map<String, Link> links = new HashMap<>();
-        links.put(ModelCollection.NEXT_LINK_REL, new Link("some://link"));
-        final ModelCollection<ApiPlayableSource> collection = new ModelCollection<>(
-                newArrayList(track, none), links);
-
-        ModelCollection<ApiEntityHolder> result = convertToApiEntityHolderCollection(collection);
-
-        assertThat(result.getCollection().size()).isEqualTo(1);
-        assertThat(result.getCollection().get(0)).isEqualTo(track.getEntityHolder().get());
-        assertThat(result.getLinks()).isEqualTo(links);
+        for (UserSoundsItem item : result) assertThat(item).isEqualTo(mockUserSoundsItem);
     }
 
     @Test
@@ -126,5 +79,16 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
         List<UserSoundsItem> result = new UserSoundsMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 
         assertThat(result.get(2).getItemType()).isEqualTo(UserSoundsItem.TYPE_VIEW_ALL);
+    }
+
+    private ModelCollection<ApiEntityHolder> toApiEntityHolderCollection(
+            ModelCollection<? extends ApiEntityHolderSource> spotlight) {
+        ApiEntityHolder apiEntityHolder = spotlight.getCollection().get(0).getEntityHolder().get();
+        ArrayList<ApiEntityHolder> apiEntityHolders = newArrayList(apiEntityHolder);
+        return new ModelCollection<>(apiEntityHolders, spotlight.getLinks());
+    }
+
+    private void mockEntityHolderMapper(int collectionType, ModelCollection<? extends ApiEntityHolder> collection) {
+        when(entityHolderMapper.map(collectionType, collection)).thenReturn(newArrayList(mockUserSoundsItem));
     }
 }

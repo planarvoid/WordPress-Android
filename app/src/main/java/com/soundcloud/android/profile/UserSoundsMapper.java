@@ -60,8 +60,7 @@ public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserS
                 + 3 + userProfile.getLikes().getCollection().size();
     }
 
-    @VisibleForTesting
-    static ModelCollection<ApiEntityHolder> convertToApiEntityHolderCollection(
+    private ModelCollection<ApiEntityHolder> convertToApiEntityHolderCollection(
             ModelCollection<? extends ApiEntityHolderSource> sources) {
         Collection<? extends ApiEntityHolderSource> apiEntityHolderSources = filter(sources.getCollection(),
                 new Predicate<ApiEntityHolderSource>() {
