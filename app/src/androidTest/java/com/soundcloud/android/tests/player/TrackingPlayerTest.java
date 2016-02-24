@@ -10,7 +10,6 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
@@ -20,12 +19,6 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
 
     public TrackingPlayerTest() {
         super(MainActivity.class);
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        setRequiredDisabledFeatures(Flag.EVENTLOGGER_AUDIO_V1);
-        super.setUp();
     }
 
     @Override

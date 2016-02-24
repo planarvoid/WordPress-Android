@@ -23,8 +23,6 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
 import dagger.Lazy;
 
@@ -42,18 +40,16 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     private final Lazy<EventLoggerJsonDataBuilder> dataBuilderV0;
     private final Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1;
     private final SharedPreferences sharedPreferences;
-    private final FeatureFlags featureFlags;
 
     @Inject
     public EventLoggerAnalyticsProvider(EventTracker eventTracker,
                                         Lazy<EventLoggerJsonDataBuilder> dataBuilderV0,
                                         Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1,
-                                        SharedPreferences sharedPreferences, FeatureFlags featureFlags) {
+                                        SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
         this.dataBuilderV0 = dataBuilderV0;
         this.dataBuilderV1 = dataBuilderV1;
         this.eventTracker = eventTracker;
-        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -218,11 +214,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void trackAudioSessionEvent(PlaybackSessionEvent eventData) {
-        if (featureFlags.isEnabled(Flag.EVENTLOGGER_AUDIO_V1)) {
-            trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAudioEvent(eventData));
-        } else {
-            trackEvent(eventData.getTimestamp(), dataBuilderV0.get().buildForAudioEvent(eventData));
-        }
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAudioEvent(eventData));
     }
 
     private void trackEvent(long timeStamp, String data) {

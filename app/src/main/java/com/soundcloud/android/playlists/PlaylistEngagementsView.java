@@ -7,7 +7,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -28,7 +27,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     private final Context context;
     private final CondensedNumberFormatter numberFormatter;
-    private final FeatureFlags featureFlags;
     private final Resources resources;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
@@ -42,11 +40,11 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     @Bind(R.id.playlist_details_overflow_button) View overflowButton;
 
     @Inject
-    public PlaylistEngagementsView(Context context, CondensedNumberFormatter numberFormatter, PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                                   DownloadStateView downloadStateView, FeatureFlags featureFlags) {
+    public PlaylistEngagementsView(Context context, CondensedNumberFormatter numberFormatter,
+                                   PopupMenuWrapper.Factory popupMenuWrapperFactory,
+                                   DownloadStateView downloadStateView) {
         this.context = context;
         this.numberFormatter = numberFormatter;
-        this.featureFlags = featureFlags;
         this.resources = context.getResources();
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.downloadStateView = downloadStateView;
@@ -136,9 +134,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     private void showDeletePlaylist() {
-        if (featureFlags.isEnabled(Flag.DELETE_PLAYLIST)) {
-            popupMenuWrapper.setItemVisible(R.id.delete_playlist, true);
-        }
+        popupMenuWrapper.setItemVisible(R.id.delete_playlist, true);
     }
 
     public void updateLikeItem(int likesCount, boolean likedByUser) {

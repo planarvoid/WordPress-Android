@@ -11,8 +11,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.StopReasonProvider;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +26,6 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
     private GcmMessageHandler handler;
 
     @Mock private GcmDecryptor decryptor;
-    @Mock private FeatureFlags featureFlags;
     @Mock private PlaySessionController playSessionController;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private AccountOperations accountOperations;
@@ -36,8 +33,7 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        handler = new GcmMessageHandler(resources(), featureFlags, decryptor, playSessionController, playSessionStateProvider, accountOperations, stopReasonProvider);
-        when(featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING)).thenReturn(true);
+        handler = new GcmMessageHandler(resources(), decryptor, playSessionController, playSessionStateProvider, accountOperations, stopReasonProvider);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(123L));
     }
 

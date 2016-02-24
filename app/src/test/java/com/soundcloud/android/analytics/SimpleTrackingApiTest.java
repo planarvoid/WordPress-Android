@@ -75,4 +75,5 @@ public class SimpleTrackingApiTest extends AndroidUnitTest {
 
         assertThat(requestCaptor.getValue().method()).isEqualTo("GET");
     }
+
 }
