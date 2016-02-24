@@ -1,53 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/track_page_error"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+<RelativeLayout android:id="@+id/track_page_error"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:background="@color/black">
 
     <ImageView
-            android:id="@+id/playback_error_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/player_error"
-            android:clickable="false"
-            android:layout_centerInParent="true" />
-
-    <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/playback_error"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/playback_error"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            style="@style/TextAppearance.SoundCloudLightFont"
-            android:clickable="false"
-            android:layout_below="@id/playback_error_image"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/player_error_text_margin" />
-
-    <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/playback_error_reason"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/gray_text"
-            style="@style/TextAppearance.SoundCloudLightFont"
-            android:clickable="false"
-            android:gravity="center_horizontal"
-            android:layout_below="@id/playback_error"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="12dp" />
-
-    <Button
-        android:id="@+id/playback_error_station_button"
+        android:id="@+id/playback_error_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/playback_error_reason"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="12dp"
-        style="?attr/borderlessButtonStyle"
-        android:visibility="gone"
-        android:textColor="@color/white"
-        android:text="@string/stations_start_track_station"/>
+        android:layout_centerInParent="true"
+        android:clickable="false"
+        android:src="@drawable/player_error" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/playback_error_image"
+        android:orientation="vertical"
+        android:layout_centerHorizontal="true">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/playback_error_blocked"
+            style="@style/TextAppearance.SoundCloudLightFont"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:clickable="false"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/playback_error_blocked"
+            android:textColor="@color/gray_text"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/playback_error"
+            style="@style/TextAppearance.SoundCloudLightFont"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/player_error_text_margin"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:clickable="false"
+            android:text="@string/playback_error"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/playback_error_reason"
+            style="@style/TextAppearance.SoundCloudLightFont"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:clickable="false"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@color/gray_text" />
+
+        <Button
+            android:id="@+id/playback_error_station_button"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/stations_start_track_station"
+            android:textColor="@color/white"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

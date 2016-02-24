@@ -82,11 +82,21 @@ public class ErrorViewControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showErrorSetsMessageForBlockedError() {
+    public void showErrorSetupsVisibilityForBlockedError() {
         errorViewController.showError(ErrorViewController.ErrorState.BLOCKED);
 
-        String expected = resources().getString(R.string.playback_error_blocked);
-        assertThat((TextView) errorLayout.findViewById(R.id.playback_error_reason)).hasText(expected);
+        assertThat(errorLayout.findViewById(R.id.playback_error_blocked)).isVisible();
+        assertThat(errorLayout.findViewById(R.id.playback_error_reason)).isNotVisible();
+        assertThat(errorLayout.findViewById(R.id.playback_error)).isNotVisible();
+    }
+
+    @Test
+    public void showErrorSetupsVisibilityForNonBlockedError() {
+        errorViewController.showError(ErrorViewController.ErrorState.FAILED);
+
+        assertThat(errorLayout.findViewById(R.id.playback_error_blocked)).isNotVisible();
+        assertThat(errorLayout.findViewById(R.id.playback_error_reason)).isVisible();
+        assertThat(errorLayout.findViewById(R.id.playback_error)).isVisible();
     }
 
     @Test
