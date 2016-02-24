@@ -19,7 +19,6 @@ import javax.inject.Inject;
 public class MainActivity extends PlayerActivity {
 
     public static final String EXTRA_REFRESH_STREAM = "refresh_stream";
-    public static final String EXTRA_FROM_SIGNIN = "from_sign_in";
 
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
@@ -36,21 +35,13 @@ public class MainActivity extends PlayerActivity {
 
         if (savedInstanceState == null) {
             playSessionController.reloadQueueAndShowPlayerIfEmpty();
-            setupEmailOptIn();
         }
         castConnectionHelper.reconnectSessionIfPossible();
-
     }
 
     @Override
     protected void setActivityContentView() {
         mainPresenter.setBaseLayout(this);
-    }
-
-    private void setupEmailOptIn() {
-        if (getIntent().getBooleanExtra(EXTRA_FROM_SIGNIN, false)) {
-            EmailOptInDialogFragment.show(this);
-        }
     }
 
     @Override

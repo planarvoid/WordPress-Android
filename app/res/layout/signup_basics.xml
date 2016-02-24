@@ -163,6 +163,6 @@
             android:id="@+id/txt_msg"
             style="@style/SignUp.Info"
             android:layout_marginBottom="20dp"
-            android:text="@string/onboarding_agreement_statement" />
+            android:text="@string/onboarding_email_use_notice" />
     </LinearLayout>
 </com.soundcloud.android.onboarding.auth.SignupBasicsLayout>

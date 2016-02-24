@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth;
 
 import static android.util.Log.INFO;
-import static com.soundcloud.android.onboarding.OnboardingOperations.ONBOARDING_TAG;
+import static com.soundcloud.android.onboarding.OnboardActivity.ONBOARDING_TAG;
 import static com.soundcloud.android.utils.ErrorUtils.log;
 
 import com.soundcloud.android.R;
@@ -144,7 +144,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
         final Throwable rootException = ErrorUtils.removeTokenRetrievalException(result.getException());
         final boolean isNetworkUnavailable = !networkConnectionHelper.isNetworkConnected();
-        
+
         if (result.wasServerError()) {
             return activity.getString(R.string.error_server_problems_message);
         } else if (result.wasNetworkError() && isNetworkUnavailable) {
@@ -155,7 +155,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
             return activity.getString(R.string.authentication_error_generic);
         }
     }
-    
+
     private void deliverResultAndDismiss() {
         final OnAuthResultListener listener = listenerRef.get();
         if (listener != null) {

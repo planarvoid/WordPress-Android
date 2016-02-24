@@ -61,8 +61,6 @@
   <string name="authentication_recover_password_failure_reason">Pemulihan kata sandi gagal: %s</string>
   <string name="authentication_recover_progress_message">Meminta reset kata sandi</string>
   <string name="authentication_sign_up">Buat akun</string>
-  <!--@Todo from l10n: can we get rid of this instance? We already have "terms_of_use"-->
-  <string name="authentication_terms_of_use">Syarat penggunaan</string>
   <string name="authentication_your_email_address">Surel kamu</string>
   <string name="authentication_your_password">Kata sandi Anda</string>
   <string name="authentication_clear_image">Tahan untuk menghapus gambar</string>
@@ -74,12 +72,6 @@
   <!--@Todo from l10n: we don't have sign-in on mobi anymore. Also unclear if this is still used?-->
   <string name="authentication_email_invalid_message">Domain yang Anda masukkan tampaknya tidak bisa menerima surel. Anda yakin sudah mengejanya dengan benar?</string>
   <!--__DEEPLINKS-->
-  <!--__EMAIL OPT-IN-->
-  <string name="optin_title">Nawala SoundCloud</string>
-  <string name="optin_question">Apakah Anda ingin menerima email pembaruan tentang SoundCloud?</string>
-  <string name="optin_info">Ini termasuk Nawala, Pembaruan produk, Penawaran spesial, dan Survei. Anda bisa menarik persetujuanmu kapan saja. Untuk melakukannya, buka SoundCloud.com dan masuk ke pengaturan.</string>
-  <string name="optin_yes">Ya, tolong</string>
-  <string name="optin_no">Tidak, terima kasih</string>
   <!--__EMPTY STATES-->
   <string name="info_empty_other_message">Orang ini belum menambahkan deskripsi profil.</string>
   <string name="list_empty_you_followers_message">Anda belum punya pengikut.</string>

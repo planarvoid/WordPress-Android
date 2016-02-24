@@ -61,7 +61,6 @@
     <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
     <string name="authentication_add_info_msg">Almost done. Now choose a display name and add a photo to personalize your profile.</string>
     <string name="authentication_add_info_username_hint">Your display name</string>
-    <string name="onboarding_agreement_statement">By signing up I agree to the Terms of use and Privacy policy of SoundCloud.</string>
     <string name="authentication_choose_a_password">At least 6 characters</string>
     <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
     <string name="authentication_error_invalid_email">Please enter a valid email address.</string>
@@ -82,8 +81,6 @@
     <string name="authentication_signup_error_message">Something doesn’t sound right. Try signing up at SoundCloud.com.</string>
     <string name="authentication_signup_facebook_email_required">To create an account, we need your permission for Facebook to share your email with us.</string>
 
-    <!-- @Todo from l10n: can we get rid of this instance? We already have "terms_of_use" -->
-    <string name="authentication_terms_of_use">Terms of use</string>
     <string name="authentication_your_email_address">Your email address</string>
     <string name="authentication_your_password">Your password</string>
     <string name="authentication_clear_image">Hold to clear image</string>
@@ -108,13 +105,6 @@
 
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Please sign in to open this link.</string>
-
-    <!-- __EMAIL OPT-IN -->
-    <string name="optin_title">SoundCloud Newsletter</string>
-    <string name="optin_question">Do you want to receive email updates about SoundCloud?</string>
-    <string name="optin_info">This includes newsletters, product updates, special offers and surveys. You can withdraw your consent at any time. To do so, open Soundcloud.com and go to settings.</string>
-    <string name="optin_yes">Yes, please</string>
-    <string name="optin_no">No, thank you</string>
 
     <!-- __EMPTY STATES -->
     <string name="info_empty_other_message">This person hasn’t added a profile description yet.</string>
@@ -205,6 +195,10 @@
     <string name="onboarding_gender_option_custom">Custom</string>
     <string name="onboarding_gender_option_nopref">Prefer not to say</string>
     <string name="ok_got_it">OK, got it</string>
+
+    <string name="onboarding_email_use_notice">We may use your email for updates and tips on SoundCloud\'s products and services. You can unsubscribe for free at any time in your notification preferences.</string>
+    <string name="onboarding_tou_reminder">By signing in, you agree to our Terms of Use.</string>
+    <string name="onboarding_tou_reminder_link_highlight">Terms of Use</string>
 
     <!-- __LANDING -->
     <string name="landing_title">Find music you love.</string>

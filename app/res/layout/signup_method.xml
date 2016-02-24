@@ -15,5 +15,10 @@
                 android:minWidth="250dp"
                 android:maxWidth="500dp"/>
 
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/txt_msg"
+            style="@style/SignUp.Info"
+            android:layout_marginBottom="20dp"
+            android:text="@string/onboarding_email_use_notice" />
     </LinearLayout>
 </com.soundcloud.android.onboarding.auth.SignupMethodLayout>

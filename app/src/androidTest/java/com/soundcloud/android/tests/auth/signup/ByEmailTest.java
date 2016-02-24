@@ -5,7 +5,6 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.screens.EmailOptInScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
 
@@ -31,11 +30,8 @@ public class ByEmailTest extends SignUpTest {
         assertTrue(signUpBasicsScreen.acceptTermsButton().isOnScreen());
         signUpBasicsScreen.acceptTerms();
         assertTrue(signUpBasicsScreen.saveButton().isOnScreen());
-        EmailOptInScreen optInScreen = signUpBasicsScreen.saveSignUpDetails();
+        StreamScreen streamScreen = signUpBasicsScreen.saveSignUpDetails();
 
-        assertThat(optInScreen, is(visible()));
-
-        final StreamScreen streamScreen = optInScreen.clickNo();
         assertThat(streamScreen, is(visible()));
     }
 

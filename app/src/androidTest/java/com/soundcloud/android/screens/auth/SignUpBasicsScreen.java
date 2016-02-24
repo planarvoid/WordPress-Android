@@ -6,8 +6,8 @@ import com.soundcloud.android.framework.viewelements.EditTextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.screens.EmailOptInScreen;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.SignUpSpamDialogElement;
 
 public class SignUpBasicsScreen extends Screen {
@@ -115,9 +115,9 @@ public class SignUpBasicsScreen extends Screen {
         return new SignUpSpamDialogElement(testDriver);
     }
 
-    public EmailOptInScreen saveSignUpDetails() {
+    public StreamScreen saveSignUpDetails() {
         saveButton().click();
-        return new EmailOptInScreen(testDriver);
+        return new StreamScreen(testDriver);
     }
 
     @Override
