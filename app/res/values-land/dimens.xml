@@ -32,6 +32,6 @@
 
     <!-- Go Onboarding Settings -->
     <dimen name="go_onboarding_settings_tooltip_margin_top">28dp</dimen>
-    <dimen name="go_onboarding_settings_tooltip_margin_bottom">15dp</dimen>
+    <dimen name="go_onboarding_settings_tooltip_margin_bottom">16dp</dimen>
 
 </resources>
