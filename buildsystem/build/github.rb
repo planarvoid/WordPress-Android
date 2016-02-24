@@ -9,7 +9,7 @@ module Build
     end
 
     def create_release_checklist
-      issues = parse_issue_template('.release-tasks.md')
+      issues = parse_issue_template('.release-checklist.md')
       issues.each do |issue|
         issue.title << " #{Time.now.strftime("%Y-%m-%d")}"
         puts "Creating issue for: #{issue.title}"
