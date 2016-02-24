@@ -93,8 +93,10 @@ public final class OfflineStoragePreference extends Preference {
     }
 
     private void updateView() {
-        updateUsageBarView();
-        updateLabels();
+        if (usageBarView != null){
+            updateUsageBarView();
+            updateLabels();
+        }
     }
 
     private void updateLabels() {
