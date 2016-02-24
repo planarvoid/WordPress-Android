@@ -4,7 +4,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
@@ -75,17 +74,5 @@ public class SimpleTrackingApiTest extends AndroidUnitTest {
         simpleTrackingApi.pushToRemote(singletonList(event));
 
         assertThat(requestCaptor.getValue().method()).isEqualTo("GET");
-    }
-
-    @Test
-    public void shouldBuildPOSTRequestForPublicApiPlayCounts() throws Exception {
-        when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
-        TrackingRecord event = new TrackingRecord(1L, PlayCountAnalyticsProvider.BACKEND_NAME, fakeUrl);
-
-        simpleTrackingApi.pushToRemote(singletonList(event));
-
-        assertThat(requestCaptor.getValue().method()).isEqualTo("POST");
-        assertThat(requestCaptor.getValue().body().contentLength()).isEqualTo(0L);
-        assertThat(requestCaptor.getValue().header("Content-Length")).isEqualTo("0");
     }
 }
