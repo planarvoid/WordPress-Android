@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.offline;
 
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloading.downloading;
@@ -68,6 +69,7 @@ public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainAct
 
     public void testStorageLimitErrorTracking() throws IOException {
         enableOfflineContent(context);
+        disableOfflineSettingsOnboarding(context);
         offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 530);
 
         // set minimum storage limit

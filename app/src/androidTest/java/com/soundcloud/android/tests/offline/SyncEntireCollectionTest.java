@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.offline;
 
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -10,6 +11,8 @@ import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
+
+import android.content.Context;
 
 @OfflineSyncTest
 public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
@@ -26,7 +29,9 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        enableOfflineContent(getInstrumentation().getTargetContext());
+        Context context = getInstrumentation().getTargetContext();
+        enableOfflineContent(context);
+        disableOfflineSettingsOnboarding(context);
     }
 
     private void enableSyncEntireCollection() {
