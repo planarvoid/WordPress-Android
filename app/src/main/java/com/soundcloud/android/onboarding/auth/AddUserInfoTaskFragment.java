@@ -23,7 +23,7 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
     public static AddUserInfoTaskFragment create(String username, File avatarFile) {
         final Bundle param = new Bundle();
         param.putString(USERNAME_EXTRA, username);
-        if (avatarFile != null && avatarFile.exists()) {
+        if (avatarFile != null && avatarFile.exists() && avatarFile.length() > 0) {
             param.putSerializable(AVATAR_EXTRA, avatarFile.getAbsolutePath());
         }
 

@@ -101,10 +101,10 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     private void lockExpanded() {
+        slidingPanel.setTouchEnabled(false);
         if (!isExpanded()) {
             expand();
         }
-        slidingPanel.setTouchEnabled(false);
         isLocked = true;
     }
 

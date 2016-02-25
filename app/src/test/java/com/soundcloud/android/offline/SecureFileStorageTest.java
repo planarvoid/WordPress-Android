@@ -35,6 +35,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     private SecureFileStorage storage;
     private final Urn TRACK_URN = Urn.forTrack(123L);
+    private final long MINIMUM_SPACE = 5L * 1024 * 1024;
 
     @Before
     public void setUp() throws Exception {
@@ -190,6 +191,24 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
         assertThat(storage.getStorageUsed()).isEqualTo(8192l);
         storage.deleteTrack(TRACK_URN);
+    }
+
+    @Test
+    public void shouldBeEnoughMinimumSpaceWhenOnLimit() throws Exception {
+        storage.OFFLINE_DIR.mkdirs();
+        when(settingsStorage.hasStorageLimit()).thenReturn(true);
+        when(settingsStorage.getStorageLimit()).thenReturn(MINIMUM_SPACE);
+
+        assertThat(storage.isEnoughMinimumSpace()).isTrue();
+    }
+
+    @Test
+    public void shouldBeNotEnoughMinimumSpaceWhenBelowLimit() throws Exception {
+        storage.OFFLINE_DIR.mkdirs();
+        when(settingsStorage.hasStorageLimit()).thenReturn(true);
+        when(settingsStorage.getStorageLimit()).thenReturn(MINIMUM_SPACE-1);
+
+        assertThat(storage.isEnoughMinimumSpace()).isFalse();
     }
 
     private File createOfflineFile() throws IOException {

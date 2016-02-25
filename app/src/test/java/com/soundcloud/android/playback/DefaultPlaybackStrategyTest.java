@@ -40,10 +40,8 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);
-    private static final Urn TRACK3 = Urn.forTrack(789L);
 
     private DefaultPlaybackStrategy defaultPlaybackStrategy;
-
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private ServiceInitiator serviceInitiator;
@@ -95,7 +93,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(playSessionStateProvider.getLastProgressForTrack(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
 
@@ -109,7 +107,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(playSessionStateProvider.getLastProgressForTrack(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
 
@@ -121,7 +119,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     @Test
     public void playCurrentPlaysNormalTrackSuccessfully() {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(playSessionStateProvider.getLastProgressForTrack(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
         final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
 
@@ -135,13 +133,27 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playCurrentPlaysOfflineTrackSuccessfully() {
         final PropertySet offlineTrack = offlineTrack();
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(playSessionStateProvider.getLastProgressForTrack(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(true);
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
         verify(serviceInitiator).play(AudioPlaybackItem.forOffline(offlineTrack, 123L));
+        playCurrentSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void playCurrentPlaysSnippetTrackSuccessfully() {
+        final PropertySet offlineTrack = onlineSnippedTrack();
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L));
+        when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(false);
+        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
+
+        defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
+
+        verify(serviceInitiator).play(AudioPlaybackItem.forSnippet(offlineTrack, 123L));
         playCurrentSubscriber.assertCompleted();
     }
 
@@ -187,8 +199,13 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         return PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.PLAY_DURATION.bind(123L),
+                TrackProperty.SNIPPED.bind(false),
                 OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE)
         );
+    }
+
+    private PropertySet onlineSnippedTrack() {
+        return onlineTrack().put(TrackProperty.SNIPPED, true);
     }
 
     private PropertySet offlineTrack() {

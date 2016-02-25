@@ -2,7 +2,8 @@ import java.util.regex.Pattern
 
 task versionizeDebug {
   doLast {
-    versionize('debug', project.('debugVersionCode'))
+    // for testing HT, we need to versionize with the alphaVersionCode (1000) so all features are enabled
+    versionize('debug', project.('alphaVersionCode'))
   }
 }
 versionizeDebug.mustRunAfter('clean')
@@ -38,8 +39,8 @@ versionizeRelease.mustRunAfter('clean')
 
 task versionizeReleaseNoProguard {
   doLast {
-    updateVersionName()
-    renameApk('releaseNoProguard', project.('debugVersionCode'))
+    // for testing HT, we need to versionize with the alphaVersionCode (1000) so all features are enabled
+    versionize('releaseNoProguard', project.('alphaVersionCode'))
   }
 }
 versionizeReleaseNoProguard.mustRunAfter('clean')

@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
-
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
@@ -56,17 +54,18 @@ class DownloadNotificationController {
     }
 
     public Notification onPendingRequests(DownloadQueue pendingQueue) {
+
         final int pendingAndCompleted = pendingQueue.size() + previousDownloads.size();
         totalDownloads = currentDownload == null ? pendingAndCompleted : pendingAndCompleted + 1;
         totalBytesToDownload = currentDownload == null ? completedBytes : completedBytes + currentDownload.getTotalBytes();
 
-        for (DownloadRequest request : pendingQueue.getRequests()){
+        for (DownloadRequest request : pendingQueue.getRequests()) {
             totalBytesToDownload += MP3Helper.calculateFileSizeInBytes(request.getDuration());
         }
 
         progressNotification = notificationBuilderProvider.get();
 
-        if (currentDownload == null){
+        if (currentDownload == null) {
             return updateProgressNotification(pendingQueue.getFirst(), new ProgressNotificationData(
                     calculateCurrentDownload(previousDownloads.size(), totalDownloads), totalDownloads,
                     calculateAdjustedProgress((int) completedBytes, totalBytesToDownload)));
@@ -104,7 +103,16 @@ class DownloadNotificationController {
         }
     }
 
-    public void onDownloadsFinished(@Nullable DownloadState lastDownload) {
+    public void onDownloadsFinished(@Nullable DownloadState lastDownload, boolean showResult) {
+        if (showResult) {
+            showNotificationForDownloads(lastDownload);
+        } else {
+            notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
+        }
+        reset();
+    }
+
+    private void showNotificationForDownloads(@Nullable DownloadState lastDownload) {
         if (hasStorageErrors()) {
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
                     completedWithStorageErrorsNotification());
@@ -114,7 +122,9 @@ class DownloadNotificationController {
         } else {
             notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
         }
+    }
 
+    public void reset() {
         totalDownloads = 0;
         completedBytes = 0;
         previousDownloads = new ArrayList<>();
@@ -135,21 +145,24 @@ class DownloadNotificationController {
         return Iterables.tryFind(previousDownloads, new Predicate<DownloadState>() {
             @Override
             public boolean apply(DownloadState downloadState) {
-                return downloadState.isNotEnoughSpace();
+                return downloadState.isNotEnoughSpace() || downloadState.isNotEnoughMinimumSpace();
             }
         }).isPresent();
     }
 
-    public void onConnectionError(DownloadState lastDownload) {
-        final NotificationCompat.Builder notification = buildBaseCompletedNotification();
+    public void onConnectionError(DownloadState lastDownload, boolean showResult) {
+        if (showResult) {
+            final NotificationCompat.Builder notification = buildBaseCompletedNotification();
 
-        notification.setContentIntent(getPendingIntent(lastDownload.request));
-        notification.setContentTitle(resources.getString(R.string.offline_update_paused));
-        notification.setContentText(
-                resources.getString(lastDownload.connectionState == ConnectionState.DISCONNECTED ?
-                        R.string.no_network_connection : R.string.no_wifi_connection));
+            notification.setContentIntent(getPendingIntent(lastDownload.request));
+            notification.setContentTitle(resources.getString(R.string.offline_update_paused));
+            notification.setContentText(
+                    resources.getString(lastDownload.isNetworkError ? R.string.no_network_connection : R.string.no_wifi_connection));
 
-        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, notification.build());
+            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, notification.build());
+        } else {
+            notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
+        }
     }
 
     private Notification completedWithStorageErrorsNotification() {

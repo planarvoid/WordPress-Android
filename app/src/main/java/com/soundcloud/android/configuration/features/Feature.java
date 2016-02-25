@@ -2,6 +2,7 @@ package com.soundcloud.android.configuration.features;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.java.objects.MoreObjects;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ public class Feature {
 
     public final String name;
     public final boolean enabled;
-    public final List<String> plans;
+    public final List<Plan> plans;
 
     @JsonCreator
     public Feature(@JsonProperty("name") String name,
@@ -20,7 +21,7 @@ public class Feature {
                    @JsonProperty("plans") List<String> plans) {
         this.name = name;
         this.enabled = enabled;
-        this.plans = Collections.unmodifiableList(plans != null ? plans : new ArrayList<String>(0));
+        this.plans = Collections.unmodifiableList(plans != null ? Plan.fromIds(plans) : new ArrayList<Plan>(0));
     }
 
     @Override
@@ -41,4 +42,8 @@ public class Feature {
         return MoreObjects.hashCode(name, enabled);
     }
 
+    @Override
+    public String toString() {
+        return name + ":" + enabled;
+    }
 }

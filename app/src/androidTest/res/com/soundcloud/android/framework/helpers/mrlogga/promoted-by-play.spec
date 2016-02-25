@@ -42,4 +42,7 @@ expected_events:
     playhead_position: '[0-9]+'
     local_storage_playback: 'false'
     policy: 'ALLOW'
+    app_version: '[0-9]+'
+    client_event_id: (\w|-)+
+    monetization_model: (\w|-)+
   version: '0'

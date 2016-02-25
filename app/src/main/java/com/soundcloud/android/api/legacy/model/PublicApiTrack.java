@@ -106,7 +106,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         genre = suggestion.getGenre();
         commentable = suggestion.isCommentable();
         stream_url = suggestion.getStreamUrl();
-        tag_list = suggestion.getUserTags() == null ? ScTextUtils.EMPTY_STRING : TextUtils.join(" ", suggestion.getUserTags());
+        tag_list = suggestion.getUserTags() == null ? Strings.EMPTY : TextUtils.join(" ", suggestion.getUserTags());
         created_at = suggestion.getCreatedAt();
         sharing = suggestion.getSharing();
         permalink_url = suggestion.getPermalinkUrl();
@@ -360,7 +360,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
                 .put(TrackProperty.URN, Urn.forTrack(getId()))
                 .put(TrackProperty.PLAY_COUNT, playback_count)
                 .put(TrackProperty.COMMENTS_COUNT, comment_count)
-                .put(TrackProperty.DESCRIPTION, description == null ? ScTextUtils.EMPTY_STRING : description);
+                .put(TrackProperty.DESCRIPTION, description == null ? Strings.EMPTY : description);
 
         // we may not have policy in the db yet, as it was not always part of the public API
         if (policy != null){

@@ -9,7 +9,7 @@
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ],
-              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew buildReleaseNoProguard",
+              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 buildReleaseNoProguard",
               "plugins": {
                 "androidLint": {
                   "failedTotalHigh": 0,
@@ -36,7 +36,7 @@
           },
           {
             "build_test_apk": {
-              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
+              "cmd": "http_proxy=proxy-development.int.s-cloud.net:3128 BUILD_TYPE=releaseNoProguard ./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 clean assembleAcceptanceTest downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
@@ -55,7 +55,7 @@
         [
           {
             "unit_tests": {
-              "cmd": "./gradlew runUnitTests",
+              "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 runUnitTests",
               "test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml",
               "no-clean": true,
               "plugins": {
@@ -128,7 +128,7 @@
       "jobs": [
         {
           "build_beta_apk": {
-            "cmd": "BUILD_TYPE=beta ./gradlew buildBeta",
+            "cmd": "BUILD_TYPE=beta ./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 buildBeta",
             "artifacts": [
               "app/build/outputs/apk/soundcloud*.apk"
             ]
@@ -153,7 +153,7 @@
         },
         {
           "deploy_beta": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployBeta versionizeFollowUpBeta commitVersionBump",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 deployBeta versionizeFollowUpBeta commitVersionBump",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -172,7 +172,7 @@
         [
           {
             "build_release_apk": {
-              "cmd": "BUILD_TYPE=release ./gradlew buildRelease",
+              "cmd": "BUILD_TYPE=release ./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 buildRelease",
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ]
@@ -180,7 +180,7 @@
           },
           {
             "build_follow_up_beta_apk": {
-              "cmd": "BUILD_TYPE=beta ./gradlew buildFollowUpBeta",
+              "cmd": "BUILD_TYPE=beta ./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 buildFollowUpBeta",
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ]
@@ -189,7 +189,7 @@
         ],
         {
           "rollout_release_1_percent_and_followup_beta": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseOnePercent deployFollowUpBeta",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 deployReleaseOnePercent deployFollowUpBeta",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -199,7 +199,7 @@
         },
         {
           "rollout_release_5_percent": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseFivePercent",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 deployReleaseFivePercent",
             "manual": true,
             "localBranch": true,
             "artifacts": [
@@ -209,7 +209,7 @@
         },
         {
           "rollout_release_100_percent": {
-            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew deployReleaseRolloutFull",
+            "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nbundle install \n./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 deployReleaseRolloutFull",
             "manual": true,
             "localBranch": true,
             "artifacts": [

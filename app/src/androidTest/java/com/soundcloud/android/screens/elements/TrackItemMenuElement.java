@@ -32,11 +32,6 @@ public class TrackItemMenuElement extends PopupMenuElement {
         return new AddToPlaylistScreen(testDriver);
     }
 
-    public VisualPlayerElement clickPlayRelatedTracks() {
-        clickItemWithText(testDriver.getString(R.string.play_related_tracks));
-        return new VisualPlayerElement(testDriver);
-    }
-
     public void clickRemoveFromPlaylist() {
         clickItemWithText(testDriver.getString(R.string.remove_from_playlist));
     }

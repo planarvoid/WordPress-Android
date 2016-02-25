@@ -36,7 +36,7 @@ public class MainNavigationHelper {
     }
 
     public TrackLikesScreen goToTrackLikes() {
-        return mainTabs().clickCollections().clickTrackLikes();
+        return mainTabs().clickCollections().clickLikedTracksPreview();
     }
 
     public ProfileScreen goToMyProfile() {

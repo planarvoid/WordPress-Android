@@ -26,6 +26,8 @@ import java.util.Date;
 
 public abstract class TestPropertySets {
 
+    public static final String MONETIZATION_MODEL = "monetization-model";
+
     public static PropertySet user() {
         return ModelFixtures.create(ApiUser.class).toPropertySet();
     }
@@ -54,6 +56,7 @@ public abstract class TestPropertySets {
                 TrackProperty.IS_COMMENTABLE.bind(true),
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind("squirlex"),
+                TrackProperty.MONETIZATION_MODEL.bind(MONETIZATION_MODEL),
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(456L)),
                 PlayableProperty.PLAY_DURATION.bind(20000L),
                 TrackProperty.FULL_DURATION.bind(30000L),
@@ -204,6 +207,7 @@ public abstract class TestPropertySets {
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.CREATOR_URN.bind(creatorUrn),
                 TrackProperty.POLICY.bind(policy),
+                TrackProperty.MONETIZATION_MODEL.bind(MONETIZATION_MODEL),
                 PlayableProperty.PLAY_DURATION.bind(duration)
         );
     }
@@ -239,6 +243,7 @@ public abstract class TestPropertySets {
                 TrackProperty.BLOCKED.bind(apiTrack.isBlocked()),
                 TrackProperty.SNIPPED.bind(apiTrack.isSnipped()),
                 TrackProperty.SUB_HIGH_TIER.bind(apiTrack.isSubHighTier().get()),
+                TrackProperty.MONETIZATION_MODEL.bind(apiTrack.getMonetizationModel().get()),
                 PlayableProperty.IS_USER_LIKE.bind(isLiked),
                 PlayableProperty.PERMALINK_URL.bind(apiTrack.getPermalinkUrl()),
                 PlayableProperty.IS_PRIVATE.bind(isPrivate),

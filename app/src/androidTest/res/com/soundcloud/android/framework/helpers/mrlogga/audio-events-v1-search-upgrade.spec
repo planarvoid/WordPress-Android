@@ -20,6 +20,9 @@ expected_events:
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
+    app_version: '[0-9]+'
+    client_event_id: (\w|-)+
+    monetization_model: (\w|-)+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -42,5 +45,8 @@ expected_events:
     trigger: manual
     local_storage_playback: false
     pause_reason: pause
+    app_version: '[0-9]+'
+    client_event_id: (\w|-)+
+    monetization_model: (\w|-)+
   version: '1'
 whitelisted_events: audio

@@ -5,7 +5,7 @@ import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.support.annotation.VisibleForTesting;
@@ -49,7 +49,7 @@ public final class AdOverlayTrackingEvent extends TrackingEvent {
         if (trackSourceInfo != null) {
             return trackSourceInfo.getOriginScreen();
         }
-        return ScTextUtils.EMPTY_STRING;
+        return Strings.EMPTY;
     }
 
     public static AdOverlayTrackingEvent forClick(OverlayAdData adData, Urn track, Urn user, @Nullable TrackSourceInfo sourceInfo) {

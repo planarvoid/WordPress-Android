@@ -63,7 +63,7 @@ public final class ErrorUtils {
         if (Fabric.isInitialized()) {
             Crashlytics.setString(ERROR_CONTEXT_TAG, context);
         }
-        if (t instanceof RuntimeException) {
+        if (isFatalException(t)) {
             throw (RuntimeException) t;
         } else if (includeInReports(t)) {
             // don't rethrow checked exceptions
@@ -71,6 +71,10 @@ public final class ErrorUtils {
         } else {
             t.printStackTrace();
         }
+    }
+
+    private static boolean isFatalException(Throwable t) {
+        return t instanceof RuntimeException && !(t instanceof NonFatalRuntimeException);
     }
 
     // This is aimed to be a temporary fix.
@@ -84,6 +88,14 @@ public final class ErrorUtils {
             return exception.getCause();
         }
         return exception;
+    }
+
+    public static boolean isNetworkError(Throwable e) {
+        if (e instanceof ApiRequestException) {
+            return ((ApiRequestException) e).isNetworkError();
+        } else {
+            return e instanceof IOException;
+        }
     }
 
     @VisibleForTesting

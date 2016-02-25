@@ -79,8 +79,8 @@ public class StreamCardElement {
         return wrapped.findOnScreenElement(With.id(R.id.promoter)).isOnScreen();
     }
 
-    public VisualPlayerElement click() {
-        wrapped.click();
+    public VisualPlayerElement clickToPlay() {
+        wrapped.findOnScreenElement(With.id(R.id.title)).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;

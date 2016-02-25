@@ -11,43 +11,13 @@ import android.os.Parcel;
 public class UrnTest extends AndroidUnitTest {
 
     @Test
-    public void shouldValidateTrackUrnAsSoundCloudUrn() {
-        assertThat(Urn.isSoundCloudUrn("soundcloud:tracks:1")).isTrue();
-    }
-
-    @Test
-    public void shouldValidateLegacyTrackUrnAsSoundCloudUrn() {
-        assertThat(Urn.isSoundCloudUrn("soundcloud:sounds:1")).isTrue();
-    }
-
-    @Test
-    public void shouldValidatePlaylistUrnAsSoundCloudUrn() {
-        assertThat(Urn.isSoundCloudUrn("soundcloud:playlists:1")).isTrue();
-    }
-
-    @Test
-    public void shouldValidateUserUrnAsSoundCloudUrn() {
-        assertThat(Urn.isSoundCloudUrn("soundcloud:users:1")).isTrue();
-    }
-
-    @Test
-    public void shouldValidateCommentUrnAsSoundCloudUrn() {
-        assertThat(Urn.isSoundCloudUrn("soundcloud:comments:1")).isTrue();
-    }
-
-    @Test
-    public void shouldNotValidateUnknownUrnAsSoundCloudUrn() {
-        assertThat(Urn.isSoundCloudUrn("adswizz:ads:1234")).isFalse();
-    }
-
-    @Test
     public void shouldValidateLocalPlaylistUrnAsLocalUrn() {
-        assertThat(Urn.isLocalUrn("local:playlists:1")).isTrue();
+        assertThat(new Urn("local:playlists:1").isLocal()).isTrue();
     }
 
     @Test
     public void shouldNotValidateUnknownUrnAsLocalUrn() {
-        assertThat(Urn.isLocalUrn("unknown:playlists:1")).isFalse();
+        assertThat(new Urn("unknown:playlists:1").isLocal()).isFalse();
     }
 
     @Test
@@ -136,11 +106,6 @@ public class UrnTest extends AndroidUnitTest {
 
         assertThat(urn.getNumericId()).isEqualTo(-1L);
         assertThat(urn.toString()).isEqualTo("soundcloud:search-suggest:57322698561340628722353c71e20d86");
-    }
-
-    @Test
-    public void shouldImplementEqualsAndHashCode() throws Exception {
-        EqualsVerifier.forClass(Urn.class).allFieldsShouldBeUsedExcept("numericId").verify();
     }
 
     @Test
@@ -235,5 +200,10 @@ public class UrnTest extends AndroidUnitTest {
         assertThat(a.compareTo(a)).isEqualTo(0);
         assertThat(a.compareTo(b)).isLessThan(0);
         assertThat(b.compareTo(a)).isGreaterThan(0);
+    }
+
+    @Test
+    public void shouldImplementEqualsAndHashCode() throws Exception {
+        EqualsVerifier.forClass(Urn.class).verify();
     }
 }

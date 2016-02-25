@@ -16,7 +16,7 @@ public class TrackItemElement {
     }
 
     public DownloadImageViewElement downloadElement() {
-        return new DownloadImageViewElement(wrapped.findOnScreenElement(With.id(R.id.item_download_state)));
+        return new DownloadImageViewElement(testDriver, wrapped.findOnScreenElement(With.id(R.id.item_download_state)));
     }
 
     public String getTitle() {

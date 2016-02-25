@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -37,6 +36,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     private final DownloadState successfulDownloadState = DownloadState.success(downloadRequest);
     private final DownloadState failedDownloadState = DownloadState.error(downloadRequest);
     private final DownloadState storageLimitResult = DownloadState.notEnoughSpace(downloadRequest);
+    private final DownloadState minimumStorageLimitResult = DownloadState.notEnoughMinimumSpace(downloadRequest);
 
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationCompat.Builder notificationBuilder;
@@ -63,7 +63,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
         notificationController.onPendingRequests(createQueue(20));
 
         reset(notificationBuilder);
-        notificationController.onDownloadsFinished(successfulDownloadState);
+        notificationController.onDownloadsFinished(successfulDownloadState, true);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
         verify(notificationBuilder).setOngoing(false);
@@ -72,33 +72,41 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     }
 
     @Test
+    public void onDownloadsFinishedCancelsNotification() {
+        notificationController.onPendingRequests(createQueue(20));
+
+        reset(notificationBuilder);
+        notificationController.onDownloadsFinished(successfulDownloadState, false);
+
+        verify(notificationManager).cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
+    }
+
+    @Test
     public void onDownloadsFinishedDoesNotShowNotificationIfNoTrackDownloaded() {
         notificationController.onPendingRequests(createQueue(1));
         notificationController.onDownloadError(failedDownloadState);
 
         reset(notificationBuilder, notificationManager);
-        notificationController.onDownloadsFinished(null);
+        notificationController.onDownloadsFinished(null, true);
 
         verify(notificationManager).cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
     }
 
     @Test
     public void onDownloadsFinishedDoesNotShowNotificationWhenNoPendingRequests() {
-        notificationController.onDownloadsFinished(successfulDownloadState);
+        notificationController.onDownloadsFinished(successfulDownloadState, true);
 
         verify(notificationManager, never()).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
     }
 
     @Test
     public void onDownloadsFinishedShowsStorageLimitReachedNotification() {
-        notificationController.onPendingRequests(createQueue(1));
-        notificationController.onDownloadError(storageLimitResult);
+        verifyShowsStorageLimitReachedForResult(storageLimitResult);
+    }
 
-        reset(notificationBuilder, notificationManager);
-        notificationController.onDownloadsFinished(storageLimitResult);
-
-        verify(notificationBuilder).setContentTitle(getString(R.string.offline_update_storage_limit_reached_title));
-        verify(notificationBuilder).setContentText(getString(R.string.offline_update_storage_limit_reached_message));
+    @Test
+    public void onDownloadsFinishedWithNotEnoughMinimumSpaceShowsStorageLimitReachedNotification() {
+        verifyShowsStorageLimitReachedForResult(minimumStorageLimitResult);
     }
 
     @Test
@@ -219,8 +227,8 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     public void onConnectionErrorWithDisconnectedShowsNoNetworkNotification() {
         reset(notificationBuilder);
 
-        DownloadState result = DownloadState.connectionError(downloadRequest, ConnectionState.DISCONNECTED);
-        notificationController.onConnectionError(result);
+        DownloadState result = DownloadState.disconnectedNetworkError(downloadRequest);
+        notificationController.onConnectionError(result, true);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_PAUSED);
         verify(notificationBuilder).setOngoing(false);
@@ -230,17 +238,38 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     }
 
     @Test
-    public void onConnectionNetworkWithWifiOnlyRestrictionShowsWifiOnlyNotification() {
+    public void onConnectionErrorWithWifiOnlyRestrictionShowsWifiOnlyNotification() {
         reset(notificationBuilder);
 
-        DownloadState result = DownloadState.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
-        notificationController.onConnectionError(result);
+        DownloadState result = DownloadState.invalidNetworkError(downloadRequest);
+        notificationController.onConnectionError(result, true);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_PAUSED);
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         verify(notificationBuilder).setContentText(getString(R.string.no_wifi_connection));
         verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+    }
+
+    @Test
+    public void onConnectionErrorCancelsNotification() {
+        reset(notificationBuilder);
+
+        DownloadState result = DownloadState.invalidNetworkError(downloadRequest);
+        notificationController.onConnectionError(result, false);
+
+        verify(notificationManager).cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
+    }
+
+    private void verifyShowsStorageLimitReachedForResult(DownloadState result) {
+        notificationController.onPendingRequests(createQueue(1));
+        notificationController.onDownloadError(result);
+
+        reset(notificationBuilder, notificationManager);
+        notificationController.onDownloadsFinished(result, true);
+
+        verify(notificationBuilder).setContentTitle(getString(R.string.offline_update_storage_limit_reached_title));
+        verify(notificationBuilder).setContentText(getString(R.string.offline_update_storage_limit_reached_message));
     }
 
     private String getQuantifiedDownloadString(int completed, int queueSize) {

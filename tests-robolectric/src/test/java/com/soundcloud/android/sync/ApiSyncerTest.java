@@ -64,16 +64,6 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldDoTrackLookup() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
-        ApiSyncResult result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
-        expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(startTime);
-        expect(result.change).toEqual(ApiSyncResult.CHANGED);
-        expect(Content.TRACKS).toHaveCount(3);
-    }
-
-    @Test
     public void shouldDoUserLookup() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "users.json");
         ApiSyncResult result = sync(Content.USER_LOOKUP.forQuery("308291,792584,1255758"));

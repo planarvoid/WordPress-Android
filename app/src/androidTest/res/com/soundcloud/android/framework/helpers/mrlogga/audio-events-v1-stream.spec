@@ -25,6 +25,9 @@ expected_events:
     consumer_subs_plan: none
     local_storage_playback: false
     policy: ALLOW
+    app_version: '[0-9]+'
+    client_event_id: (\w|-)+
+    monetization_model: (\w|-)+
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -49,4 +52,7 @@ expected_events:
     consumer_subs_plan: none
     local_storage_playback: false
     policy: ALLOW
+    app_version: '[0-9]+'
+    client_event_id: (\w|-)+
+    monetization_model: (\w|-)+
   version: '0'

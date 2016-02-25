@@ -37,7 +37,7 @@ public class CollectionNavigationTest extends ActivityTest<MainActivity> {
 
     public void testGoesToTrackLikesPage() {
         navigateToCollections();
-        TrackLikesScreen trackLikesScreen = collectionScreen.clickTrackLikes();
+        TrackLikesScreen trackLikesScreen = collectionScreen.clickLikedTracksPreview();
         assertThat(trackLikesScreen.isVisible(), is(true));
     }
 }

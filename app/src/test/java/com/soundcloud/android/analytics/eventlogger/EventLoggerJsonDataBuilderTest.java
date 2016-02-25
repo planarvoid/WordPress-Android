@@ -26,7 +26,6 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
@@ -35,7 +34,6 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationsSourceInfo;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -65,6 +63,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     private static final String SCREEN_TAG = "screen_tag";
     private static final String CONTEXT_TAG = "context_tag";
     private static final String PAGE_NAME = "page_name";
+    private static final String UUID = "uuid";
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ExperimentOperations experimentOperations;
@@ -91,6 +90,17 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(screenEvent);
 
         verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp()).pageName(Screen.ACTIVITIES.get())));
+    }
+
+    @Test
+    public void createsScreenEventJsonWithQueryUrn() throws ApiMapperException {
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(),
+                new SearchQuerySourceInfo(new Urn("soundcloud:search:123")));
+
+        jsonDataBuilder.build(screenEvent);
+
+        verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp())
+                .pageName(Screen.SEARCH_EVERYTHING.get()).queryUrn("soundcloud:search:123")));
     }
 
     @Test
@@ -240,7 +250,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsImpressionJsonForAudioAdPlaybackEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
 
         jsonDataBuilder.buildForAudioAdImpression(event.withAudioAd(audioAd));
 
@@ -438,7 +448,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsAudioEventJsonForAudioPlaybackEvent() throws ApiMapperException {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
@@ -467,9 +477,9 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
 
         final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(track, LOGGED_IN_USER, trackSourceInfo,
-                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING, false);
+                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING, false, UUID);
 
         jsonDataBuilder.buildForAudioEvent(event);
 
@@ -493,7 +503,8 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsAudioEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 0L,
+                321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
@@ -522,8 +533,10 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsStopAudioEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
-        final PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, playbackSessionEvent, 0L, 456L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING, false);
+        final PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER,
+                trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(audioAdTrack, LOGGED_IN_USER, trackSourceInfo,
+                playbackSessionEvent, 0L, 456L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
@@ -555,8 +568,10 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createAudioEventJsonWithAdMetadataForPromotedTrackPlay() throws Exception {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        final PromotedSourceInfo promotedSource = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.of(Urn.forUser(123L)), Arrays.asList("promoted1", "promoted2"));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+        final PromotedSourceInfo promotedSource = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L),
+                Optional.of(Urn.forUser(123L)), Arrays.asList("promoted1", "promoted2"));
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo, 0L, 321L,
+                PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
@@ -661,7 +676,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
                 .pageName("search:everything")
-                .clickName("open_profile")
+                .clickName("item_navigation")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
@@ -674,7 +689,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
                 .pageName("search:everything")
-                .clickName("play")
+                .clickName("item_navigation")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
@@ -687,7 +702,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
                 .pageName("search:everything")
-                .clickName("open_playlist")
+                .clickName("item_navigation")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
@@ -695,7 +710,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsClickSearchEventJsonForTapOnSuggestion() throws Exception {
-        SearchEvent searchEvent = SearchEvent.searchSuggestion(Content.SEARCH, false, searchQuerySourceInfo);
+        SearchEvent searchEvent = SearchEvent.searchSuggestion(Urn.forTrack(1), false, searchQuerySourceInfo);
         jsonDataBuilder.build(searchEvent);
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", searchEvent.getTimestamp())
@@ -711,7 +726,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setStationSourceInfo(stationUrn, StationsSourceInfo.create(new Urn("soundcloud:radio:123-456")));
@@ -738,7 +753,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setStationSourceInfo(stationUrn, StationsSourceInfo.create(Urn.NOT_SET));
@@ -764,9 +779,9 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(track, LOGGED_IN_USER, trackSourceInfo,
-                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR, false);
+                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setStationSourceInfo(stationUrn, StationsSourceInfo.create(new Urn("soundcloud:radio:123-456")));
@@ -794,9 +809,9 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         final Urn stationUrn = Urn.forTrackStation(123L);
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(track, LOGGED_IN_USER, trackSourceInfo,
-                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR, false);
+                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setStationSourceInfo(stationUrn, StationsSourceInfo.create(Urn.NOT_SET));
@@ -866,38 +881,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .promotedBy(item.getPromoterUrn().get().toString())
                 .impressionName("promoted_playlist")
                 .impressionObject(item.getEntityUrn().toString()));
-    }
-
-    @Test
-    public void createsUpsellImpressionJson() throws Exception {
-        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forLikesImpression();
-
-        jsonDataBuilder.build(impression);
-
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", impression.getTimestamp())
-                .impressionName("consumer_sub_ad")
-                .impressionObject("soundcloud:tcode:1009"));
-    }
-
-    @Test
-    public void createsUpsellClickJson() throws Exception {
-        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlaylistItemClick();
-
-        jsonDataBuilder.build(click);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", click.getTimestamp())
-                .clickName("clickthrough::consumer_sub_ad")
-                .clickObject("soundcloud:tcode:1011"));
-    }
-
-    @Test
-    public void createsUpgradeSuccessImpressionJson() throws Exception {
-        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forUpgradeSuccess();
-
-        jsonDataBuilder.build(impression);
-
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", impression.getTimestamp())
-                .impressionName("consumer_sub_upgrade_success"));
     }
 
     @Test

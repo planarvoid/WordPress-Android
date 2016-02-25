@@ -25,10 +25,10 @@ public final class OfflineContentChangedEvent {
         }
     };
 
-    static final Func1<OfflineContentChangedEvent, Boolean> TO_LIKED_TRACKS_OFFLINE_STATUS_CHANGE = new Func1<OfflineContentChangedEvent, Boolean>() {
+    static final Func1<OfflineContentChangedEvent, Boolean> TO_LIKES_COLLECTION_MARKED_OFFLINE = new Func1<OfflineContentChangedEvent, Boolean>() {
         @Override
         public Boolean call(OfflineContentChangedEvent event) {
-            return event.isLikedTrackCollection && (event.state == OfflineState.REQUESTED || event.state == OfflineState.NOT_OFFLINE);
+            return event.state != OfflineState.NOT_OFFLINE;
         }
     };
 

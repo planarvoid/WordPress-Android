@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.ads.VideoSource;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
@@ -43,7 +45,7 @@ public class PlayerAd extends PlayerItem {
 
     String getCallToActionButtonText(Resources resources) {
         return adData.getVisualAd().getCallToActionButtonText().or(
-            resources.getString(R.string.ads_call_to_action)
+                resources.getString(R.string.ads_call_to_action)
         );
     }
 
@@ -70,4 +72,5 @@ public class PlayerAd extends PlayerItem {
     int getFocusedBackgroundColor() {
         return Color.parseColor(adData.getVisualAd().getFocusedBackgroundColor());
     }
+
 }

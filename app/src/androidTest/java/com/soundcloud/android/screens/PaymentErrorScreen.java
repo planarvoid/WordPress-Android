@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.payments.UpgradeActivity;
+import com.soundcloud.android.payments.NativeConversionActivity;
 
 public class PaymentErrorScreen extends Screen {
 
@@ -14,7 +14,7 @@ public class PaymentErrorScreen extends Screen {
 
     @Override
     protected Class getActivity() {
-        return UpgradeActivity.class;
+        return NativeConversionActivity.class;
     }
 
     public boolean waitForDialog() {

@@ -8,6 +8,8 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -18,6 +20,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -43,7 +46,7 @@ public class AdsOperations {
             final Optional<ApiAudioAd> audioAd = apiAdsForTrack.audioAd();
             if (audioAd.isPresent()) {
                 final ApiTrack track = audioAd.get().getApiTrack();
-                storeTracksCommand.toAction().call(Arrays.asList(track));
+                storeTracksCommand.toAction().call(Collections.singletonList(track));
             }
         }
     };
@@ -51,22 +54,22 @@ public class AdsOperations {
     @Inject
     AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager,
                   ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                  FeatureFlags featureFlags, EventBus eventBus) {
+                  EventBus eventBus, FeatureFlags featureFlags) {
         this.storeTracksCommand = storeTracksCommand;
         this.playQueueManager = playQueueManager;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
-        this.featureFlags = featureFlags;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
     }
 
-    public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {
+    public Observable<ApiAdsForTrack> ads(Urn sourceUrn, boolean playerVisible, boolean inForeground) {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
         final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi(1);
 
         return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
                 .subscribeOn(scheduler)
-                .doOnError(logFailedAds(sourceUrn))
+                .doOnError(logFailedAds(sourceUrn, endpoint, playerVisible, inForeground))
                 .doOnNext(logAds(sourceUrn))
                 .doOnNext(cacheAudioAdTrack);
     }
@@ -80,11 +83,13 @@ public class AdsOperations {
         };
     }
 
-    private Action1<Throwable> logFailedAds(final Urn sourceUrn) {
+    private Action1<Throwable> logFailedAds(final Urn sourceUrn, final String endpoint,
+                                            final boolean playerVisible, final boolean inForeground) {
         return new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
                 Log.i(ADS_TAG, "Failed to retrieve ads for " + sourceUrn.toString(), throwable);
+                eventBus.publish(EventQueue.TRACKING, AdDeliveryEvent.adsRequestFailed(sourceUrn, endpoint, playerVisible, inForeground));
             }
         };
     }
@@ -94,7 +99,9 @@ public class AdsOperations {
 
         if (monetizableItem instanceof TrackQueueItem) {
             TrackQueueItem trackQueueItem = (TrackQueueItem) monetizableItem;
-            if (featureFlags.isEnabled(Flag.VIDEO_ADS) && ads.videoAd().isPresent()) {
+            if (featureFlags.isEnabled(Flag.VIDEO_ADS) && featureFlags.isEnabled(Flag.SERVE_DEMO_VIDEO_AD)) {
+                insertVideoAd(trackQueueItem, DemoVideoAdProvider.getRandomVideo());
+            } else if (featureFlags.isEnabled(Flag.VIDEO_ADS) && ads.videoAd().isPresent()) {
                 insertVideoAd(trackQueueItem, ads.videoAd().get());
             } else if (ads.interstitialAd().isPresent()) {
                 applyInterstitialAd(ads.interstitialAd().get(), trackQueueItem);
@@ -102,7 +109,6 @@ public class AdsOperations {
                 insertAudioAd(trackQueueItem, ads.audioAd().get());
             }
         }
-
     }
 
     public void applyInterstitialToTrack(PlayQueueItem playQueueItem, ApiAdsForTrack ads) {
@@ -208,4 +214,5 @@ public class AdsOperations {
     public Optional<AdData> getNextTrackAdData() {
         return playQueueManager.getNextPlayQueueItem().getAdData();
     }
+
 }

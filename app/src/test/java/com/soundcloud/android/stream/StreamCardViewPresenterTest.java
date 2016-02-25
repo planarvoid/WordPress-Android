@@ -2,7 +2,6 @@ package com.soundcloud.android.stream;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,7 +20,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -52,7 +50,6 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private StreamItemViewHolder itemView;
     @Mock private View view;
-    @Mock private FeatureFlags featureFlags;
     @Mock private FeatureOperations featureOperations;
 
     private Date createdAtStream = new Date();
@@ -61,7 +58,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new StreamCardViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
-                navigator, resources(), imageOperations, featureFlags, featureOperations);
+                navigator, resources(), imageOperations);
     }
 
     @Test
@@ -207,24 +204,18 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindsPreviewIndicatorForSnippedForMidTierUpsell() {
-        when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-
         TrackItem trackItem = upsellableTrack();
         presenter.bind(itemView, trackItem);
 
-        verify(itemView).togglePreviewIndicator(trackItem.isSnipped());
+        verify(itemView).togglePreviewIndicator(true);
     }
 
     @Test
     public void doesNotBindPreviewIndicatorWhenShouldNotUpsellMidTier() {
-        when(featureFlags.isEnabled(Flag.UPSELL_IN_STREAM)).thenReturn(true);
-        when(featureOperations.upsellHighTier()).thenReturn(false);
-
-        TrackItem trackItem = upsellableTrack();
+        PlayableItem trackItem = repostedTrack();
         presenter.bind(itemView, trackItem);
 
-        verify(itemView, never()).togglePreviewIndicator(trackItem.isSnipped());
+        verify(itemView).togglePreviewIndicator(false);
     }
 
     private PlaylistItem postedPlaylist() {

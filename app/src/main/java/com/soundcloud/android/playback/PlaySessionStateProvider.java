@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -18,7 +17,7 @@ import java.util.Map;
 
 /**
  * Stores the current play session state. Can be queried for recent state, recent progress, and info about the current
- * track being played back.
+ * item being played back.
  */
 
 @Singleton
@@ -35,7 +34,7 @@ public class PlaySessionStateProvider {
     private final PlayQueueManager playQueueManager;
 
     private StateTransition lastStateTransition = StateTransition.DEFAULT;
-    private Urn currentPlayingUrn; // the track that is currently loaded in the playback service
+    private Urn currentPlayingUrn; // the urn of the item that is currently loaded in the playback service
 
     @Inject
     public PlaySessionStateProvider(EventBus eventBus, PlayQueueManager playQueueManager) {
@@ -45,65 +44,59 @@ public class PlaySessionStateProvider {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressSubscriber());
-        eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,  new PlayQueueTrackSubscriber());
+        eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,  new PlayQueueItemSubscriber());
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .filter(PlayerFunctions.IS_NOT_VIDEO_AD)
                 .filter(ignoreDefaultStateFilter)
                 .subscribe(new PlayStateSubscriber());
     }
 
-    public boolean isPlayingCurrentPlayQueueTrack(){
-        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
-        return currentPlayQueueItem.isTrack() &&
-                isPlayingTrack(currentPlayQueueItem.getUrn());
+    public boolean isPlayingCurrentPlayQueueItem(){
+        final PlayQueueItem playQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        return !playQueueItem.isEmpty() && isPlayingItem(playQueueItem.getUrn());
     }
 
-    @Deprecated
-    public boolean isPlayingTrack(PublicApiTrack track) {
-        return isPlayingTrack(track.getUrn());
-    }
-
-    public boolean isPlayingTrack(Urn trackUrn) {
-        return currentPlayingUrn != null && currentPlayingUrn.equals(trackUrn);
+    private boolean isPlayingItem(Urn itemUrn) {
+        return currentPlayingUrn != null && currentPlayingUrn.equals(itemUrn);
     }
 
     public boolean isPlaying() {
         return lastStateTransition.playSessionIsActive();
     }
 
+    public boolean isInErrorState() {
+        return lastStateTransition.wasError();
+    }
+
     public PlaybackProgress getLastProgressEvent() {
-        return getLastProgressForTrack(currentPlayingUrn);
+        return getLastProgressForItem(currentPlayingUrn);
     }
 
-    public PlaybackProgress getLastProgressEventForCurrentPlayQueueTrack() {
+    public PlaybackProgress getLastProgressEventForCurrentPlayQueueItem() {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
-        return currentPlayQueueItem.isTrack() ?
-                getLastProgressForTrack(currentPlayQueueItem.getUrn()) : PlaybackProgress.empty();
+        return getLastProgressForItem(currentPlayQueueItem.getUrn());
     }
 
-    public PlaybackProgress getLastProgressForTrack(Urn urn) {
+    public PlaybackProgress getLastProgressForItem(Urn urn) {
         if (hasLastKnownProgress(urn)){
             return progressMap.get(urn);
-
-        } else if (playQueueManager.wasLastSavedTrack(urn)) {
+        } else if (playQueueManager.wasLastSavedItem(urn)) {
             return new PlaybackProgress(playQueueManager.getLastSavedProgressPosition(), Consts.NOT_SET);
-
         } else {
             return PlaybackProgress.empty();
         }
     }
 
-    public boolean hasLastKnownProgress(Urn trackUrn) {
-        return progressMap.containsKey(trackUrn);
+    public boolean hasLastKnownProgress(Urn itemUrn) {
+        return progressMap.containsKey(itemUrn);
     }
 
     private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
         public void onNext(StateTransition stateTransition) {
-            final boolean isTrackChange = currentPlayingUrn != null &&
+            final boolean isItemChange = currentPlayingUrn != null &&
                     !stateTransition.isForUrn(currentPlayingUrn);
 
-            if (isTrackChange && stateTransition.playSessionIsActive()) {
+            if (isItemChange && stateTransition.playSessionIsActive()) {
                 progressMap.clear();
             }
 
@@ -114,9 +107,9 @@ public class PlaySessionStateProvider {
                 progressMap.put(currentPlayingUrn, stateTransition.getProgress());
             }
 
-            if (playingNewTrackFromBeginning(stateTransition, isTrackChange) || playbackStoppedMidSession(stateTransition)) {
-                final long lastValidProgress = getLastProgressForTrack(currentPlayingUrn).getPosition();
-                playQueueManager.saveCurrentProgress(stateTransition.trackEnded() ? 0 : lastValidProgress);
+            if (playingNewItemFromBeginning(stateTransition, isItemChange) || playbackStoppedMidSession(stateTransition)) {
+                final long lastValidProgress = getLastProgressForItem(currentPlayingUrn).getPosition();
+                playQueueManager.saveCurrentProgress(stateTransition.playbackEnded() ? 0 : lastValidProgress);
             }
         }
     }
@@ -125,20 +118,18 @@ public class PlaySessionStateProvider {
         return (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete());
     }
 
-    private boolean playingNewTrackFromBeginning(StateTransition stateTransition, boolean isTrackChange) {
-        return isTrackChange && !playQueueManager.wasLastSavedTrack(stateTransition.getUrn());
+    private boolean playingNewItemFromBeginning(StateTransition stateTransition, boolean isItemChange) {
+        return isItemChange && !playQueueManager.wasLastSavedItem(stateTransition.getUrn());
     }
 
     private final class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
         @Override
         public void onNext(PlaybackProgressEvent progress) {
-            if (!progress.getUrn().isAd()) {
-                progressMap.put(progress.getUrn(), progress.getPlaybackProgress());
-            }
+            progressMap.put(progress.getUrn(), progress.getPlaybackProgress());
         }
     }
 
-    private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+    private class PlayQueueItemSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
             if (lastStateTransition.playSessionIsActive()) {

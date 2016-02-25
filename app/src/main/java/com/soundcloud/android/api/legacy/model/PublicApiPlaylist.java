@@ -15,8 +15,8 @@ import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentValues;
@@ -59,7 +59,7 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
         setUser(new PublicApiUser(playlist.getUser()));
         setTitle(playlist.getTitle());
         artwork_url = playlist.getArtworkUrl();
-        tag_list = playlist.getTags() == null ? ScTextUtils.EMPTY_STRING : TextUtils.join(" ", playlist.getTags());
+        tag_list = playlist.getTags() == null ? Strings.EMPTY : TextUtils.join(" ", playlist.getTags());
         created_at = playlist.getCreatedAt();
         duration = playlist.getDuration();
         track_count = playlist.getTrackCount();

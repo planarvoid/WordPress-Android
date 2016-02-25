@@ -65,39 +65,6 @@
         <item name="android:background">?android:attr/listDivider</item>
     </style>
 
-    <style name="BlackOverlayText" parent="TextAppearance.SoundCloudLightFont">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-
-        <item name="android:paddingLeft">5dp</item>
-        <item name="android:paddingRight">9dp</item>
-        <item name="android:paddingTop">0dp</item>
-        <item name="android:paddingBottom">3dp</item>
-
-        <item name="android:textColor">@color/overlay_text</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:antialias">true</item>
-
-        <item name="jagged_background">@color/overlay_text_background</item>
-        <item name="android:background">@color/overlay_text_background</item>
-    </style>
-
-    <style name="BlackOverlayText.Regular">
-        <item name="android:textSize">18sp</item>
-        <item name="android:maxLines">2</item>
-        <item name="android:ellipsize">end</item>
-    </style>
-
-    <style name="BlackOverlayText.RegularSubtext">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/overlay_subtext</item>
-    </style>
-
-    <style name="BlackOverlayText.RegularSubtext.Clickable">
-        <item name="android:textColor">@color/clickable_overlay_text</item>
-        <item name="jagged_background">@color/clickable_overlay_background</item>
-    </style>
-
     <style name="btn_default" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">@drawable/txt_btn_light_states</item>
@@ -180,7 +147,7 @@
     <style name="TrackLikesHeader">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:minHeight">40dp</item>
+        <item name="android:minHeight">48dp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingBottom">@dimen/likes_header_padding_bottom</item>
         <item name="android:paddingLeft">@dimen/default_list_item_padding</item>
@@ -329,6 +296,27 @@
 
     <style name="EmptyViewContent" parent="Ak.EmptyViewContent">
         <item name="custom_font">@string/interstate_light</item>
+    </style>
+
+    <style name="NewItemsIndicator" />
+
+    <style name="NewItemsIndicator.Base">
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:text">@plurals/stream_new_posts</item>
+        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:background">@drawable/indicator_pill</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="NewItemsIndicator.Text" parent="NewItemsIndicator.Base">
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">6dp</item>
     </style>
 
 </resources>

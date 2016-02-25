@@ -52,4 +52,14 @@ public abstract class VideoAd extends PlayerAdData {
     public abstract List<String> getFullScreenUrls();
 
     public abstract List<String> getExitFullScreenUrls();
+
+    public VideoSource getFirstSource() {
+        return getVideoSources().get(0);
+    }
+
+    public boolean isVerticalVideo() {
+        final VideoSource source = getFirstSource();
+        return source.getHeight() > source.getWidth();
+    }
+
 }

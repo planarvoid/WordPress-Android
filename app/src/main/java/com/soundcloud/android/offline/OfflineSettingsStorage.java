@@ -13,6 +13,7 @@ import javax.inject.Named;
 public class OfflineSettingsStorage {
 
     public static final long UNLIMITED = Long.MAX_VALUE;
+    public static final String OFFLINE_SETTINGS_ONBOARDING = "offline_settings_onboarding";
 
     private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
     private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
@@ -69,6 +70,14 @@ public class OfflineSettingsStorage {
 
     public void setEncryptionTestRun() {
         sharedPreferences.edit().putBoolean(ENCRYPTION_TEST_DONE, true).apply();
+    }
+
+    public boolean hasSeenOfflineSettingsOnboarding() {
+        return sharedPreferences.getBoolean(OFFLINE_SETTINGS_ONBOARDING, false);
+    }
+
+    public void setOfflineSettingsOnboardingSeen() {
+        sharedPreferences.edit().putBoolean(OFFLINE_SETTINGS_ONBOARDING, true).apply();
     }
 
     Observable<Boolean> getWifiOnlyOfflineSyncStateChange() {

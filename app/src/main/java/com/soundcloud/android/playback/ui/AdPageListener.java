@@ -9,6 +9,7 @@ import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -61,6 +62,14 @@ class AdPageListener extends PageListener {
     public void onSkipAd() {
         playSessionController.nextTrack();
         eventBus.publish(EventQueue.TRACKING, PlayControlEvent.skipAd());
+    }
+
+    public void onFullscreen() {
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.forcePlayerLandscape());
+    }
+
+    public void onShrink() {
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.forcePlayerPortrait());
     }
 
     public void onClickThrough() {

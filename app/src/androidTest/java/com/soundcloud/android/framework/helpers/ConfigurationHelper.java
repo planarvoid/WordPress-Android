@@ -10,8 +10,10 @@ import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.facebookinvites.FacebookInvitesStorage;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.java.collections.Sets;
 import rx.functions.Action1;
@@ -26,9 +28,10 @@ public class ConfigurationHelper {
 
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
+    private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
     private static final String PREFS_FACEBOOK_INVITES_SETTINGS = "facebook_invites";
-    private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
     private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
+    private static final String TAG = "TestRunner";
 
     public static void enableOfflineContent(Context context) {
         enableFeature(context, FeatureName.OFFLINE_SYNC);
@@ -41,9 +44,9 @@ public class ConfigurationHelper {
         disableFeature(context, FeatureName.REMOVE_AUDIO_ADS);
 
         planStorage.getUpsellUpdates()
-                .doOnNext(new Action1<List<String>>() {
+                .doOnNext(new Action1<List<Plan>>() {
                     @Override
-                    public void call(List<String> strings) {
+                    public void call(List<Plan> plans) {
                         if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
                             planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
                         }
@@ -76,6 +79,7 @@ public class ConfigurationHelper {
         final Feature feature = new Feature(name, true, Collections.<String>emptyList());
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
+        Log.d(TAG, "updating feature manually: " + feature.name);
         featureStorage.update(feature);
 
         featureStorage.getUpdates(name)
@@ -83,6 +87,7 @@ public class ConfigurationHelper {
                 .doOnNext(new Action1<Boolean>() {
                     @Override
                     public void call(Boolean enabled) {
+                        Log.d(TAG, "updating feature after change: " + feature.name);
                         featureStorage.update(feature);
                     }
                 })
@@ -90,7 +95,7 @@ public class ConfigurationHelper {
     }
 
     private static void disableFeature(Context context, final String name) {
-        final Feature feature = new Feature(name, false, Collections.singletonList(Plan.HIGH_TIER));
+        final Feature feature = new Feature(name, false, Collections.singletonList(Plan.HIGH_TIER.planId));
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
         featureStorage.update(feature);
@@ -113,6 +118,10 @@ public class ConfigurationHelper {
 
     private static SharedPreferences getFeaturesPreferences(Context context) {
         return context.getSharedPreferences(PREFS_FEATURES_SETTINGS, Context.MODE_PRIVATE);
+    }
+
+    private static SharedPreferences getOfflineSettingsPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
     }
 
     private static PlanStorage getPlanStorage(Context context) {
@@ -155,6 +164,21 @@ public class ConfigurationHelper {
         getAnalyticsSettingsPreferences(context)
                 .edit()
                 .putStringSet(AnalyticsProviderFactory.DISABLED_PROVIDERS, Sets.newHashSet(PromotedAnalyticsProvider.class.getName()))
+                .apply();
+    }
+
+    public static void disableOfflineSettingsOnboarding(Context context) {
+        setOfflineSettingsOnboarding(context, true);
+    }
+
+    public static void enableOfflineSettingsOnboarding(Context context) {
+        setOfflineSettingsOnboarding(context, false);
+    }
+
+    private static void setOfflineSettingsOnboarding(Context context, boolean value) {
+        getOfflineSettingsPreferences(context)
+                .edit()
+                .putBoolean(OfflineSettingsStorage.OFFLINE_SETTINGS_ONBOARDING, value)
                 .apply();
     }
 }

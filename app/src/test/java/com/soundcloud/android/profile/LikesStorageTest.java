@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -9,6 +10,7 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -135,6 +137,17 @@ public class LikesStorageTest extends StorageIntegrationTest {
         playbackSubscriber.assertValues(asList(
                 playlistLike.get(EntityProperty.URN),
                 trackLike1.get(TrackProperty.URN)));
+    }
+
+    @Test
+    public void shouldFilterLikedTracksWithoutPolicy() {
+        createTrackLikeAt(LIKED_AT_1);
+        PropertySet playlistLike = createPlaylistLikeAt(LIKED_AT_2);
+        propeller().delete(Table.TrackPolicies);
+
+        storage.loadLikes(Integer.MAX_VALUE, Long.MAX_VALUE).subscribe(subscriber);
+
+        subscriber.assertValue(singletonList(playlistLike));
     }
 
     private PropertySet createTrackLikeAt(Date likedAt) {

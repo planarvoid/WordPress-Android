@@ -2,16 +2,14 @@ package com.soundcloud.android.playlists;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
-public class InlinePlaylistTracksAdapterTest {
+public class InlinePlaylistTracksAdapterTest extends AndroidUnitTest {
 
     @InjectMocks
     private InlinePlaylistTracksAdapter adapter;

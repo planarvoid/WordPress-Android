@@ -12,7 +12,7 @@ public class PolicyUpdateEvent {
         this.updatedTracks = updated;
     }
 
-    public static PolicyUpdateEvent success(List<Urn> updatedTracks) {
+    public static PolicyUpdateEvent create(List<Urn> updatedTracks) {
         return new PolicyUpdateEvent(updatedTracks);
     }
 

@@ -105,7 +105,7 @@ public class PlaybackInitiator {
         return new Func1<List<Urn>, Observable<PlayQueue>>() {
             @Override
             public Observable<PlayQueue> call(final List<Urn> urns) {
-                return policyOperations.blockedStati(urns).flatMap(new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
+                return policyOperations.blockedStatuses(urns).flatMap(new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
                     @Override
                     public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracksMap) {
                         return Observable.just(PlayQueue.shuffled(urns, playSessionSource, blockedTracksMap));
@@ -120,7 +120,7 @@ public class PlaybackInitiator {
                                                       int startPosition,
                                                       final PlaySessionSource playSessionSource) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
-            playSessionController.play();
+            playSessionController.playCurrent();
             return Observable.just(PlaybackResult.success());
         } else {
             return playQueue
@@ -136,7 +136,7 @@ public class PlaybackInitiator {
                 if (propertySets.isEmpty()) {
                     return Observable.just(PlayQueue.empty());
                 } else {
-                    return policyOperations.blockedStati(PropertySets.extractUrns(propertySets))
+                    return policyOperations.blockedStatuses(PropertySets.extractUrns(propertySets))
                             .flatMap(new Func1<Map<Urn, Boolean>, Observable<PlayQueue>>() {
                         @Override
                         public Observable<PlayQueue> call(Map<Urn, Boolean> blockedTracksMap) {
@@ -193,7 +193,7 @@ public class PlaybackInitiator {
                 if (urns.isEmpty()) {
                     return Observable.just(PlayQueue.empty());
                 } else {
-                    return policyOperations.blockedStati(urns)
+                    return policyOperations.blockedStatuses(urns)
                             .flatMap(urnsToPlayQueueWithBlockedStati(urns, playSessionSource));
                 }
             }

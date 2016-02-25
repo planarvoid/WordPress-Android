@@ -92,6 +92,15 @@ public class LoginLayout extends AuthLayout {
                         getLoginHandler().onRecoverPassword(emailField.getText().toString());
                     }
                 }, true, false);
+
+        ScTextUtils.clickify(((TextView) findViewById(R.id.tou_reminder)),
+                getResources().getString(R.string.onboarding_tou_reminder_link_highlight),
+                new ScTextUtils.ClickSpan.OnClickListener() {
+                    @Override
+                    public void onClick() {
+                        getLoginHandler().onShowTermsOfUse();
+                    }
+                }, true, false);
     }
 
     @OnEditorAction(R.id.txt_password) @SuppressWarnings({"SimplifiableIfStatement"})
@@ -140,5 +149,8 @@ public class LoginLayout extends AuthLayout {
         void onCancelLogin();
 
         void onRecoverPassword(String email);
+
+        void onShowTermsOfUse();
+
     }
 }

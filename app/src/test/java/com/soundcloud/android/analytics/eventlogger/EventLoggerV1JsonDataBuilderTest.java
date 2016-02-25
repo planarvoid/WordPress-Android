@@ -11,18 +11,23 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
-import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineTrackContext;
+import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PromotedListItem;
@@ -40,14 +45,16 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 
 public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
     private static final String UDID = "udid";
-    private static final String APP_VERSION = "15.09.11-release";
+    private static final String UUID = "uuid";
+    private static final int APP_VERSION_CODE = 386;
+    private static final int CLIENT_ID = 3152;
+    private static final String BOOGALOO_VERSION = "v1.14.0";
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String CONNECTION_TYPE = "3g";
@@ -55,8 +62,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final Urn CREATOR_URN = Urn.forUser(123L);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
     private static final Urn STATION_URN = Urn.forTrackStation(123L);
-    private static final String CONSUMER_SUBS_PLAN = "THE HIGHEST TIER IMAGINABLE";
+    private static final Plan CONSUMER_SUBS_PLAN = Plan.HIGH_TIER;
     public static final Urn QUERY_URN = new Urn("soundcloud:radio:6d2547a");
+    public static final Urn AD_URN = Urn.forAd("dfp", "123");
     private static final String PAGE_NAME = "page_name";
     public static final String SOURCE = "stations";
 
@@ -81,15 +89,15 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
         when(deviceHelper.getUdid()).thenReturn(UDID);
-        when(deviceHelper.getAppVersion()).thenReturn(APP_VERSION);
-        when(featureOperations.getPlan()).thenReturn(CONSUMER_SUBS_PLAN);
+        when(deviceHelper.getAppVersionCode()).thenReturn(APP_VERSION_CODE);
+        when(featureOperations.getCurrentPlan()).thenReturn(CONSUMER_SUBS_PLAN);
     }
 
     @Test
     public void createsAudioEventJsonForAudioPlaybackEvent() throws ApiMapperException {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, true, false);
+                12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, true, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
@@ -97,7 +105,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -110,17 +118,19 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playheadPosition(12L)
                 .source("source")
                 .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
+                .inOfflinePlaylist(PLAYLIST_URN)
                 .playlistPosition(2)
                 .protocol("hls")
-                .playerType("PLAYA"));
+                .playerType("PLAYA")
+                .uuid(UUID)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
     }
 
     @Test
     public void createsAudioEventJsonForAudioPlaybackEventForStationsSeedTrack() throws ApiMapperException {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, true, false);
+                12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, true, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
@@ -129,7 +139,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -144,14 +154,16 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .sourceUrn(STATION_URN.toString())
                 .sourceVersion("source-version")
                 .protocol("hls")
-                .playerType("PLAYA"));
+                .playerType("PLAYA")
+                .uuid(UUID)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
     }
 
     @Test
     public void createsAudioEventJsonForAudioPlaybackEventForStations() throws ApiMapperException {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, true, false);
+                12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, true, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
@@ -160,7 +172,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -176,7 +188,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .queryUrn("soundcloud:radio:123-456")
                 .sourceVersion("source-version")
                 .protocol("hls")
-                .playerType("PLAYA"));
+                .playerType("PLAYA")
+                .uuid(UUID)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
     }
 
     @Test
@@ -186,13 +200,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
 
         final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(track, LOGGED_IN_USER, trackSourceInfo,
-                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING, false);
+                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING, false, UUID);
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -204,10 +218,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playheadPosition(123L)
                 .source("source")
                 .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
+                .inOfflinePlaylist(PLAYLIST_URN)
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
+                .uuid(UUID)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
                 .reason("concurrent_streaming"));
     }
 
@@ -219,13 +235,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         trackSourceInfo.setStationSourceInfo(STATION_URN, StationsSourceInfo.create(Urn.NOT_SET));
 
         final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(track, LOGGED_IN_USER, trackSourceInfo,
-                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR, false);
+                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR, false, UUID);
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -240,6 +256,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .sourceVersion("source-version")
                 .protocol("hls")
                 .playerType("PLAYA")
+                .uuid(UUID)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
                 .reason("playback_error"));
     }
 
@@ -251,13 +269,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         trackSourceInfo.setStationSourceInfo(STATION_URN, StationsSourceInfo.create(new Urn("soundcloud:radio:123-456")));
 
         final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo,
-                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+                0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
         final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(track, LOGGED_IN_USER, trackSourceInfo,
-                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR, false);
+                playEvent, 123L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_ERROR, false, UUID);
 
         jsonDataBuilder.buildForAudioEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -273,6 +291,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .sourceVersion("source-version")
                 .protocol("hls")
                 .playerType("PLAYA")
+                .uuid(UUID)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
                 .reason("playback_error"));
     }
 
@@ -280,14 +300,15 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     public void createsAudioEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo,
+                12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
@@ -300,10 +321,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playheadPosition(12L)
                 .source("source")
                 .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
+                .inOfflinePlaylist(PLAYLIST_URN)
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
+                .uuid(UUID)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
                 .adUrn(audioAd.getAdUrn().toString())
                 .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                 .monetizationType("audio_ad"));
@@ -313,8 +336,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     public void createsAudioPauseEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
-        final PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, true, false);
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, playbackSessionEvent, 12L, 456L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING, true);
+        final PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, true, false, UUID);
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, playbackSessionEvent, 12L, 456L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING, true, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
@@ -322,7 +345,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
@@ -335,30 +358,32 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .trigger("manual")
                 .source("source")
                 .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
+                .inOfflinePlaylist(PLAYLIST_URN)
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
+                .uuid(UUID)
                 .adUrn(audioAd.getAdUrn().toString())
                 .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                 .monetizationType("audio_ad")
                 .policy("ALLOW")
                 .queryUrn("some:search:urn")
-                .queryPosition(5));
+                .queryPosition(5)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
     }
 
     @Test
     public void createAudioEventJsonWithAdMetadataForPromotedTrackPlay() throws Exception {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PromotedSourceInfo promotedSource = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.of(Urn.forUser(123L)), Arrays.asList("promoted1", "promoted2"));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo, 12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false);
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(track, LOGGED_IN_USER, trackSourceInfo, 12L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
 
         jsonDataBuilder.buildForAudioEvent(event.withPromotedTrack(promotedSource));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .trackLength(track.get(PlayableProperty.PLAY_DURATION))
                 .track(track.get(TrackProperty.URN))
@@ -370,92 +395,158 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .playheadPosition(12L)
                 .source("source")
                 .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
+                .inOfflinePlaylist(PLAYLIST_URN)
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("PLAYA")
+                .uuid(UUID)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
                 .adUrn("ad:urn:123")
                 .monetizationType("promoted")
                 .promotedBy("soundcloud:users:123"));
     }
 
     @Test
-    public void createsJsonForLikesToOfflineAddEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromAddOfflineLikes(PAGE_NAME);
+    public void createsJsonForGoOnboardingStartEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromOnboardingStart();
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                .clickName("likes_to_offline::add")
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("offline_sync_onboarding::start")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForGoOnboardingDismissEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromOnboardingDismiss();
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("offline_sync_onboarding::dismiss")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForGoOnboardingAutomaticSyncEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromOnboardingWithAutomaticSync();
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("offline_sync_onboarding::automatic_collection_sync")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForGoOnboardingManualSyncEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromOnboardingWithManualSync();
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("offline_sync_onboarding::manual_sync")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForWifiOnlyOfflineSyncEnabledEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.forOnlyWifiOverWifiToggle(true);
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("only_sync_over_wifi::enable")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForWifiOnlyOfflineSyncDisabledEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.forOnlyWifiOverWifiToggle(false);
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("only_sync_over_wifi::disable")
+                .clickCategory("consumer_subs"));
+    }
+
+    @Test
+    public void createsJsonForEnableOfflineCollectionSyncEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromEnableCollectionSync(PAGE_NAME);
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("automatic_collection_sync::enable")
+                .clickCategory("consumer_subs")
                 .pageName(PAGE_NAME));
     }
 
     @Test
-    public void createsJsonForLikesToOfflineRemoveEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromRemoveOfflineLikes(PAGE_NAME);
+    public void createsJsonForDisableOfflineCollectionEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromDisableCollectionSync(PAGE_NAME);
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                .clickName("likes_to_offline::remove")
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("automatic_collection_sync::disable")
+                .clickCategory("consumer_subs")
                 .pageName(PAGE_NAME));
     }
 
     @Test
-    public void createsJsonForCollectionToOfflineAddEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleOfflineCollection(true);
+    public void createsJsonForDisableOfflineCollectionFromPlaylistEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromDisableCollectionSync(PAGE_NAME, Optional.of(PLAYLIST_URN));
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                .clickName("collection_to_offline::add"));
-    }
-
-    @Test
-    public void createsJsonForCollectionToOfflineRemoveEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromToggleOfflineCollection(false);
-
-        jsonDataBuilder.buildForUIEvent(event);
-
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                .clickName("collection_to_offline::remove"));
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("automatic_collection_sync::disable")
+                .clickCategory("consumer_subs")
+                .clickObject(PLAYLIST_URN.toString())
+                .pageName(PAGE_NAME));
     }
 
     @Test
     public void createsJsonForPlaylistToOfflineAddEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromAddOfflinePlaylist(PAGE_NAME, Urn.forPlaylist(123L), null);
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromAddOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, null);
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickCategory("consumer_subs")
                 .clickName("playlist_to_offline::add")
-                .clickObject(String.valueOf(Urn.forPlaylist(123L)))
+                .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME));
     }
 
     @Test
     public void createsJsonForPlaylistToOfflineRemoveEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromRemoveOfflinePlaylist(PAGE_NAME, Urn.forPlaylist(123L), null);
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, null);
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickCategory("consumer_subs")
                 .clickName("playlist_to_offline::remove")
-                .clickObject(String.valueOf(Urn.forPlaylist(123L)))
+                .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME));
     }
 
     @Test
     public void createsJsonForPlaylistToOfflineRemoveEventForPromotedItem() throws ApiMapperException {
-        PromotedListItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        final PromotedListItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
-        final UIEvent event = UIEvent.fromRemoveOfflinePlaylist(PAGE_NAME, Urn.forPlaylist(123L), promotedSourceInfo);
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflinePlaylist(PAGE_NAME, PLAYLIST_URN, promotedSourceInfo);
 
-        jsonDataBuilder.buildForUIEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickCategory("consumer_subs")
                 .clickName("playlist_to_offline::remove")
-                .clickObject(String.valueOf(Urn.forPlaylist(123L)))
+                .clickObject(String.valueOf(PLAYLIST_URN))
                 .pageName(PAGE_NAME)
                 .adUrn(item.getAdUrn())
                 .monetizationType("promoted")
@@ -463,22 +554,159 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createJsonFromOfflineSyncEvent() throws ApiMapperException {
-        final OfflineTrackContext trackContext = OfflineTrackContext.create(TRACK_URN, CREATOR_URN, Collections.EMPTY_LIST, false);
-        final OfflineSyncEvent event = OfflineSyncEvent.fromDesync(trackContext);
+    public void createsJsonForEnableOfflineLikesEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromEnableOfflineLikes(PAGE_NAME);
 
-        jsonDataBuilder.buildForOfflineSyncEvent(event);
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("offline_sync", "v1.4.0", event.getTimestamp())
-                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
-                .track(TRACK_URN)
-                .trackOwner(CREATOR_URN)
-                .inPlaylist(false)
-                .inLikes(false)
-                .appVersion(APP_VERSION)
-                .eventType("desync")
-                .eventStage("complete")
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("automatic_likes_sync::enable")
+                .clickCategory("consumer_subs")
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForLikesToOfflineRemoveEvent() throws ApiMapperException {
+        final OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflineLikes(PAGE_NAME);
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("automatic_likes_sync::disable")
+                .clickCategory("consumer_subs")
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void createsJsonForOfflineStorageLimitBelowUsage() throws Exception {
+        OfflineInteractionEvent impression = OfflineInteractionEvent.forStorageBelowLimitImpression();
+
+        jsonDataBuilder.buildForOfflineInteractionEvent(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
+                .pageName("settings:offline_sync_settings")
+                .impressionCategory("consumer_subs")
+                .impressionName("offline_storage::limit_below_usage"));
+    }
+
+    @Test
+    public void createJsonFromOfflineSyncStartEventWithPlaylistTrackContext() throws ApiMapperException {
+        final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
+        final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStarted(TRACK_URN, trackContext);
+
+        jsonDataBuilder.buildForOfflinePerformanceEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
+                        .track(TRACK_URN)
+                        .trackOwner(CREATOR_URN)
+                        .inOfflinePlaylist(false)
+                        .inOfflineLikes(true)
+                        .eventStage("start")
         );
+    }
+
+    @Test
+    public void createJsonFromOfflineSyncFailEventWithLikeTrackContext() throws ApiMapperException {
+        final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
+        final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromFailed(TRACK_URN, trackContext);
+
+        jsonDataBuilder.buildForOfflinePerformanceEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
+                        .track(TRACK_URN)
+                        .trackOwner(CREATOR_URN)
+                        .inOfflinePlaylist(false)
+                        .inOfflineLikes(true)
+                        .eventStage("fail")
+        );
+    }
+
+    @Test
+    public void createJsonFromOfflineSyncCancelEventWithLikeTrackContext() throws ApiMapperException {
+        final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
+        final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCancelled(TRACK_URN, trackContext);
+
+        jsonDataBuilder.buildForOfflinePerformanceEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
+                        .track(TRACK_URN)
+                        .trackOwner(CREATOR_URN)
+                        .inOfflinePlaylist(false)
+                        .inOfflineLikes(true)
+                        .eventStage("user_cancelled")
+        );
+    }
+
+    @Test
+    public void createJsonFromOfflineSyncCompleteEventWithLikeTrackContext() throws ApiMapperException {
+        final TrackingMetadata trackContext = new TrackingMetadata(CREATOR_URN, true, false);
+        final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCompleted(TRACK_URN, trackContext);
+
+        jsonDataBuilder.buildForOfflinePerformanceEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
+                        .track(TRACK_URN)
+                        .trackOwner(CREATOR_URN)
+                        .inOfflinePlaylist(false)
+                        .inOfflineLikes(true)
+                        .eventStage("complete")
+        );
+    }
+
+    @Test
+    public void createsJsonFromAdDeliveryEvent() throws ApiMapperException {
+        final AdsReceived adsReceived = new AdsReceived(AD_URN, Urn.NOT_SET, Urn.NOT_SET);
+        final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(TRACK_URN, AD_URN, "endpoint", adsReceived, false, true, true);
+        when(jsonTransformer.toJson(adsReceived.ads)).thenReturn("{ads-received}");
+
+        jsonDataBuilder.buildForAdDelivery(event);
+
+        verify(jsonTransformer).toJson(adsReceived.ads);
+        verify(jsonTransformer).toJson(getEventData("ad_delivery", "v1.14.0", event.getTimestamp())
+                .adsRequested(true)
+                .adsReceived("{ads-received}")
+                .adsRequestSuccess(true)
+                .adUrn(AD_URN.toString())
+                .adOptimized(false)
+                .monetizedObject(TRACK_URN.toString())
+                .inForeground(true)
+                .playerVisible(true)
+                .adsEndpoint("endpoint"));
+    }
+
+    @Test
+    public void createsJsonFromAdDeliveryEventWithNoSelectedAdUrn() throws ApiMapperException {
+        final AdsReceived adsReceived = new AdsReceived(AD_URN, Urn.NOT_SET, Urn.NOT_SET);
+        final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(TRACK_URN, Urn.NOT_SET, "endpoint", adsReceived, true, true, false);
+        when(jsonTransformer.toJson(adsReceived.ads)).thenReturn("{ads-received}");
+
+        jsonDataBuilder.buildForAdDelivery(event);
+
+        verify(jsonTransformer).toJson(adsReceived.ads);
+        verify(jsonTransformer).toJson(getEventData("ad_delivery", "v1.14.0", event.getTimestamp())
+                .adsRequested(true)
+                .adsReceived("{ads-received}")
+                .adsRequestSuccess(true)
+                .adOptimized(true)
+                .monetizedObject(TRACK_URN.toString())
+                .inForeground(false)
+                .playerVisible(true)
+                .adsEndpoint("endpoint"));
+    }
+
+    @Test
+    public void createsJsonFromFailedAdDeliveryEvent() throws ApiMapperException {
+        final AdDeliveryEvent event = AdDeliveryEvent.adsRequestFailed(TRACK_URN, "endpoint", true, false);
+
+        jsonDataBuilder.buildForAdDelivery(event);
+
+        verify(jsonTransformer).toJson(getEventData("ad_delivery", "v1.14.0", event.getTimestamp())
+                .adsRequested(true)
+                .adsRequestSuccess(false)
+                .monetizedObject(TRACK_URN.toString())
+                .inForeground(false)
+                .playerVisible(true)
+                .adsEndpoint("endpoint"));
     }
 
     @Test
@@ -496,17 +724,17 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                .clickName("share")
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickObject(TRACK_URN.toString())
-                .clickSource(SOURCE)
-                .clickSourceUrn(STATION_URN.toString())
-                .queryUrn(QUERY_URN.toString())
-                .pageName(PAGE_NAME)
-                .experiment("exp_android_listening", 2345)
-                .experiment("exp_android_ui", 3456)
-                .pageUrn(TRACK_URN.toString())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                        .clickName("share")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .clickSource(SOURCE)
+                        .clickSourceUrn(STATION_URN.toString())
+                        .queryUrn(QUERY_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .experiment("exp_android_listening", 2345)
+                        .experiment("exp_android_ui", 3456)
+                        .pageUrn(TRACK_URN.toString())
         );
     }
 
@@ -555,13 +783,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                .clickName("repost::add")
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickObject(TRACK_URN.toString())
-                .pageName(PAGE_NAME)
-                .pageUrn(TRACK_URN.toString())
-                .fromOverflowMenu(true)
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                        .clickName("repost::add")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
+                        .fromOverflowMenu(true)
         );
     }
 
@@ -582,14 +810,14 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
-                .clickName("repost::add")
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickObject(TRACK_URN.toString())
-                .pageName(PAGE_NAME)
-                .pageUrn(TRACK_URN.toString())
-                .clickSource("stream")
-                .fromOverflowMenu(true)
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                        .clickName("repost::add")
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
+                        .clickSource("stream")
+                        .fromOverflowMenu(true)
         );
     }
 
@@ -599,22 +827,124 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForCollectionEvent(event);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName("collection:overview")
                 .clickName("filter_sort::clear")
                 .clickCategory(EventLoggerClickCategories.COLLECTION));
     }
 
-    private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
-        verify(jsonTransformer).toJson(getEventData("click", "v1.4.0", timestamp)
-                .clickName(engagementName)
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickObject(TRACK_URN.toString())
-                .clickSource(SOURCE)
-                .clickSourceUrn(STATION_URN.toString())
-                .queryUrn(QUERY_URN.toString())
-                .pageName(PAGE_NAME)
+    @Test
+    public void createsPlayerUpsellImpressionJson() throws Exception {
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forPlayerImpression(TRACK_URN);
+
+        jsonDataBuilder.buildForUpsell(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
+                .pageName("tracks:main")
                 .pageUrn(TRACK_URN.toString())
+                .impressionName("consumer_sub_ad")
+                .impressionObject("soundcloud:tcode:1017"));
+    }
+
+    @Test
+    public void createsPlayerUpsellClickJson() throws ApiMapperException {
+        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlayerClick(TRACK_URN);
+
+        jsonDataBuilder.buildForUpsell(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, click.getTimestamp())
+                .pageName("tracks:main")
+                .pageUrn(TRACK_URN.toString())
+                .clickCategory("consumer_subs")
+                .clickName("clickthrough::consumer_sub_ad")
+                .clickObject("soundcloud:tcode:1017"));
+    }
+
+    @Test
+    public void createsStreamUpsellClickJson() throws Exception {
+        UpgradeTrackingEvent click = UpgradeTrackingEvent.forStreamClick();
+
+        jsonDataBuilder.buildForUpsell(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, click.getTimestamp())
+                        .clickCategory("consumer_subs")
+                        .clickName("clickthrough::consumer_sub_ad")
+                        .clickObject("soundcloud:tcode:1027")
+                        .pageName("stream:main")
+        );
+    }
+
+    @Test
+    public void createsLikesUpsellImpressionJson() throws Exception {
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forLikesImpression();
+
+        jsonDataBuilder.buildForUpsell(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
+                .pageName("collection:likes")
+                .impressionName("consumer_sub_ad")
+                .impressionObject("soundcloud:tcode:1009"));
+    }
+
+    @Test
+    public void createsPlaylistItemUpsellClickJson() throws Exception {
+        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlaylistItemClick(PAGE_NAME, PLAYLIST_URN);
+
+        jsonDataBuilder.buildForUpsell(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, click.getTimestamp())
+                .pageName(PAGE_NAME)
+                .pageUrn(PLAYLIST_URN.toString())
+                .clickCategory("consumer_subs")
+                .clickName("clickthrough::consumer_sub_ad")
+                .clickObject("soundcloud:tcode:1011"));
+    }
+
+    @Test
+    public void createsResubscribeClickJson() throws Exception {
+        UpgradeTrackingEvent click = UpgradeTrackingEvent.forResubscribeClick();
+
+        jsonDataBuilder.buildForUpsell(click);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, click.getTimestamp())
+                .pageName("collection:offline_offboarding")
+                .clickCategory("consumer_subs")
+                .clickName("clickthrough::consumer_sub_resubscribe")
+                .clickObject("soundcloud:tcode:4002"));
+    }
+
+    @Test
+    public void createsResubscribeImpressionJson() throws Exception {
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forResubscribeImpression();
+
+        jsonDataBuilder.buildForUpsell(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
+                .pageName("collection:offline_offboarding")
+                .impressionName("consumer_sub_resubscribe")
+                .impressionObject("soundcloud:tcode:4002"));
+    }
+
+    @Test
+    public void createsUpgradeSuccessImpressionJson() throws Exception {
+        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forUpgradeSuccess();
+
+        jsonDataBuilder.buildForUpsell(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
+                .impressionName("consumer_sub_upgrade_success"));
+    }
+
+    private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, timestamp)
+                        .clickName(engagementName)
+                        .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                        .clickObject(TRACK_URN.toString())
+                        .clickSource(SOURCE)
+                        .clickSourceUrn(STATION_URN.toString())
+                        .queryUrn(QUERY_URN.toString())
+                        .pageName(PAGE_NAME)
+                        .pageUrn(TRACK_URN.toString())
         );
     }
 
@@ -626,7 +956,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
-        return new EventLoggerEventDataV1(eventName, boogalooVersion, 3152, UDID, LOGGED_IN_USER.toString(), timestamp, ConnectionType.WIFI.getValue());
+        return new EventLoggerEventDataV1(eventName, boogalooVersion, CLIENT_ID, UDID, LOGGED_IN_USER.toString(), timestamp, ConnectionType.WIFI.getValue(), String.valueOf(APP_VERSION_CODE));
     }
 
     private EventContextMetadata createEventContextMetadata() {

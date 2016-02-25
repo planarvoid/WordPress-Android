@@ -40,6 +40,7 @@ public class JaggedTextView extends CustomFontTextView {
         array.recycle();
 
         backgroundPaint = new Paint();
+        setIncludeFontPadding(false);
     }
 
     @Override
@@ -91,17 +92,15 @@ public class JaggedTextView extends CustomFontTextView {
             float left   = layout.getLineLeft(line);
             float top    = layout.getLineTop(line);
             float right  = layout.getLineRight(line) + getDrawablePaddingLeft() + getDrawablePaddingRight();
-            float bottom = layout.getLineBottom(line) + compoundPaddingTop + compoundPaddingBottom;
+            float bottom = layout.getLineBottom(line);
 
             // Apply padding to background rectangles
             if (line == 0) {
-                top -= getPaddingTop();
-            } else {
-                top += compoundPaddingTop + compoundPaddingBottom;
+                top -= compoundPaddingTop;
             }
 
             if (line == layout.getLineCount() - 1) {
-                bottom += getPaddingBottom();
+                bottom += compoundPaddingBottom;
             }
 
             left  -= getPaddingLeft();

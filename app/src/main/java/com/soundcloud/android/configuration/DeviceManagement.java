@@ -6,20 +6,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class DeviceManagement {
 
     private final boolean authorized;
-    private final String conflictingDeviceId;
+    private final boolean recoverable;
 
     @JsonCreator
     public DeviceManagement(@JsonProperty("authorized") boolean authorized,
-                            @JsonProperty("device_id") String conflictingDeviceId) {
+                            @JsonProperty("recoverable") boolean recoverable) {
         this.authorized = authorized;
-        this.conflictingDeviceId = conflictingDeviceId;
+        this.recoverable = recoverable;
     }
 
-    public boolean isNotAuthorized(){
+    public boolean isUnauthorized() {
         return !authorized;
     }
 
-    public String getConflictingDeviceId() {
-        return conflictingDeviceId;
+    public boolean isRecoverableBlock() {
+        return !authorized && recoverable;
     }
+
+    public boolean isUnrecoverableBlock() {
+        return !authorized && !recoverable;
+    }
+
 }

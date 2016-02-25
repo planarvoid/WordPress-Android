@@ -10,12 +10,14 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
-import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.java.strings.Strings;
 
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Parcel;
+import android.preference.PreferenceManager;
 
 /**
  * Play control in the widget.
@@ -46,7 +48,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
     /* package */  void setEmptyState(Context context) {
         setPlaybackStatus(false);
         setCurrentTrackTitle(context.getString(R.string.widget_touch_to_open));
-        setCurrentCreator(ScTextUtils.EMPTY_STRING);
+        setCurrentCreator(Strings.EMPTY);
         linkButtonsWidget(context, Urn.NOT_SET, Urn.NOT_SET, false);
     }
 
@@ -61,7 +63,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
                 PENDING_INTENT_REQUEST_CODE, createLaunchIntent(context, trackUrn), PendingIntent.FLAG_CANCEL_CURRENT));
         if (!trackUrn.equals(Urn.NOT_SET)) {
 
-            Navigator navigator = new Navigator(); // Can't inject here :(
+            Navigator navigator = new Navigator(new FeatureFlags(PreferenceManager.getDefaultSharedPreferences(context))); // Can't inject here :(
             setOnClickPendingIntent(R.id.user_txt, navigator.openProfileFromWidget(context, userUrn, PENDING_INTENT_REQUEST_CODE));
 
             final Intent toggleLike = new Intent(PlayerWidgetController.ACTION_LIKE_CHANGED);

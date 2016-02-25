@@ -17,7 +17,9 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -58,6 +60,8 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Mock private BugReporter bugReporter;
     @Mock private ApplicationProperties appProperties;
     @Mock private SyncConfig syncConfig;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private OfflineSettingsStorage storage;
 
     @Captor private ArgumentCaptor<YouView.Listener> listenerArgumentCaptor;
 
@@ -66,7 +70,8 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new YouPresenter(youViewFactory, userRepository, accountOperations, imageOperations, resources(),
-                eventBus, featureOperations, offlineContentOperations, navigator, bugReporter, appProperties, syncConfig);
+                eventBus, featureOperations, offlineContentOperations, navigator, bugReporter, appProperties, syncConfig,
+                featureFlags, storage);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(youViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(youView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
@@ -221,11 +226,41 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onOfflineSettingsClickedShowsOnboardingWhenHasNotBeenSeenBefore() {
+        setupForegroundFragment();
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(storage.hasSeenOfflineSettingsOnboarding()).thenReturn(false);
+
+        listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
+
+        verify(navigator).openOfflineSettingsOnboarding(context());
+    }
+
+    @Test
+    public void onOfflineSettingsClickedDoesNotShowOnboardingWhenHasBeenSeenBefore() {
+        setupForegroundFragment();
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(storage.hasSeenOfflineSettingsOnboarding()).thenReturn(true);
+
+        listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
+
+        verify(navigator).openOfflineSettings(context());
+    }
+
+    @Test
     public void onNotificationSettingsClickedShowsNotificationSettings() {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onNotificationSettingsClicked(new View(context()));
 
         verify(navigator).openNotificationSettings(context());
+    }
+
+    @Test
+    public void onNewNotificationSettingsClickedShowsNewNotificationSettings() {
+        setupForegroundFragment();
+        listenerArgumentCaptor.getValue().onNewNotificationSettingsClicked(new View(context()));
+
+        verify(navigator).openNewNotificationSettings(context());
     }
 
     @Test

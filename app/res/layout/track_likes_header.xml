@@ -25,17 +25,14 @@
 
         <ImageButton
             android:id="@+id/shuffle_btn"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/btn_min_height"
-            android:layout_marginLeft="@dimen/likes_shuffle_button_margin_left"
-            android:contentDescription="@string/btn_shuffle"
-            android:enabled="false"
-            android:minWidth="0dp"
-            android:paddingLeft="@dimen/likes_shuffle_button_padding"
-            android:paddingRight="@dimen/likes_shuffle_button_padding"
-            android:src="@drawable/ic_shuffle" />
+            android:layout_height="match_parent"
+            style="@style/EngagementAction.Shuffle" />
 
+        <com.soundcloud.android.view.IconToggleButton
+            android:id="@+id/toggle_download"
+            style="@style/EngagementAction.ToggleButton.DownloadBase.Download"
+            android:layout_width="wrap_content" />
     </LinearLayout>
 
     <View style="@style/Divider.Section" />

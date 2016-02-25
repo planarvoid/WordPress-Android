@@ -3,7 +3,6 @@ package com.soundcloud.android.collection;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -31,11 +30,7 @@ class OnboardingItemCellRenderer implements CellRenderer<CollectionItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.collections_onboarding_item, parent, false);
-
-        if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
-            ((TextView) view.findViewById(R.id.title)).setText(R.string.collections_with_stations_onboarding_title);
-        }
-
+        ((TextView) view.findViewById(R.id.title)).setText(R.string.collections_with_stations_onboarding_title);
         return view;
     }
 

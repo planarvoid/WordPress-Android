@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -112,37 +113,12 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
         setupPasswordField();
         setupEmailField();
 
-        clickifyTermsOfUse();
-        clickifyPrivacy();
-
         validateForm();
 
         final String[] accounts = AndroidUtils.getAccountsByType(getContext(), GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
         if (accounts.length >= 1) {
             emailField.setText(accounts[0]);
         }
-    }
-
-    private void clickifyPrivacy() {
-        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
-                getResources().getString(R.string.privacy),
-                new ScTextUtils.ClickSpan.OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        signUpHandler.onShowPrivacyPolicy();
-                    }
-                }, false, false);
-    }
-
-    private void clickifyTermsOfUse() {
-        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
-                getResources().getString(R.string.authentication_terms_of_use),
-                new ScTextUtils.ClickSpan.OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        signUpHandler.onShowTermsOfUse();
-                    }
-                }, false, false);
     }
 
     private void setupPasswordField() {
@@ -263,7 +239,7 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
         if (selectedGenderOption != null) {
             String label = getResources().getString(selectedGenderOption.getResId());
             genderOptionTextView.setText(label);
-            genderOptionTextView.setHint(ScTextUtils.EMPTY_STRING); // clears the hint, for sizing purposes
+            genderOptionTextView.setHint(Strings.EMPTY); // clears the hint, for sizing purposes
         } else {
             genderOptionTextView.setText(null);
             genderOptionTextView.setHint(R.string.onboarding_indicate_gender);
@@ -292,10 +268,6 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
         void onSignUp(String email, String password, BirthdayInfo birthday, @Nullable String gender);
 
         void onCancelSignUp();
-
-        void onShowTermsOfUse();
-
-        void onShowPrivacyPolicy();
 
         FragmentActivity getFragmentActivity();
     }

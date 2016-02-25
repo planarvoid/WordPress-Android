@@ -21,11 +21,6 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
         return new CollectionScreen(testDriver);
     }
 
-    public CollectionScreen clickMakeUnavailableOffline() {
-        getMakeUnavailableOfflineItem().click();
-        return new CollectionScreen(testDriver);
-    }
-
     public ConfirmDisableSyncCollectionScreen clickMakeUnavailableOfflineToDisableSyncCollection() {
         getMakeUnavailableOfflineItem().click();
         return new ConfirmDisableSyncCollectionScreen(testDriver, MainActivity.class);

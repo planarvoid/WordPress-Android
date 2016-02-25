@@ -7,6 +7,4 @@ public interface StreamItem extends ListItem, Timestamped {
     enum Kind {PLAYABLE, PROMOTED, NOTIFICATION, UPSELL}
 
     Kind getKind();
-
-    boolean isUpsellable();
 }

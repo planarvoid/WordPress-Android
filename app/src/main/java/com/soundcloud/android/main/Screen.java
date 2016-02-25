@@ -27,6 +27,7 @@ public enum Screen {
     LIKES("collection:likes"),
     PLAYLISTS("collection:playlists"),
     OFFLINE_ONBOARDING("collection:offline_onboarding"),
+    OFFLINE_OFFBOARDING("collection:offline_offboarding"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),
@@ -103,10 +104,9 @@ public enum Screen {
     SETTINGS_OFFLINE("settings:offline_sync_settings"),
     SETTINGS_LEGAL("settings:legal"),
     SETTINGS_LICENSES("settings:licenses"),
+    SETTINGS_AUTOMATIC_SYNC_ONBOARDING("settings:automatic_sync_onboarding"),
 
     WIDGET("widget"),
-    SUBSCRIBE("subscribe"),
-    SUBSCRIBE_SUCCESS("subscribe_success"),
     SUGGESTED_USERS("suggested_users"),
     VOICE_COMMAND("voice:command"), // context when we play from voice search
     DEEPLINK("deeplink"), // context provided when we intercept a track
@@ -118,7 +118,8 @@ public enum Screen {
     STATIONS_RECENT("stations:recent_stations"),
 
     // PAYMENT
-    UPGRADE("upgrade");
+    CONVERSION("consumer-premium:main"),
+    CHECKOUT("consumer-premium:checkout");
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
 

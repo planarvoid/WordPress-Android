@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -79,7 +80,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void shouldBindTitleToView() {
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
-        verify(trackItemView).setTitle("title");
+        verify(trackItemView).setTitle("title", R.color.list_primary);
     }
 
     @Test
@@ -92,9 +93,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldShowPreviewLabelAndHideOtherLabelsIfTrackIsSnippedAndUserUpsellable() {
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-        trackItem = TrackItem.from(propertySet.put(TrackProperty.SNIPPED, true));
+    public void shouldShowPreviewLabelAndHideOtherLabelsIfTrackIsHighTier() {
+        trackItem = TrackItem.from(TestPropertySets.upsellableTrack());
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         verify(trackItemView).hideInfoViewsRight();
@@ -189,5 +189,13 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
         verify(navigator).openProfile(any(Context.class), eq(Urn.forUser(193L)));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
+    }
+
+    @Test
+    public void shouldDisableClicksForBlockedTracks() {
+        propertySet.put(TrackProperty.BLOCKED, true);
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
+
+        verify(itemView).setClickable(false);
     }
 }

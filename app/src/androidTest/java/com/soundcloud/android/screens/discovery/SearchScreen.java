@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens.discovery;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
@@ -12,12 +11,6 @@ public class SearchScreen extends Screen {
 
     public SearchScreen(Han solo) {
         super(solo);
-    }
-
-    public SearchResultsScreen clickOnCurrentSearchQuery() {
-        final String currentSearchQuery = getSearchQuery();
-        testDriver.clickOnText(testDriver.getString(R.string.search_for_query, currentSearchQuery));
-        return new SearchResultsScreen(testDriver);
     }
 
     @Override

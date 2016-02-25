@@ -2,22 +2,18 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.PlayerController;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
-import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import javax.inject.Inject;
 
-public class RecommendedTracksActivity extends ScActivity {
+public class RecommendedTracksActivity extends PlayerActivity {
 
     public static final String EXTRA_LOCAL_SEED_ID = "localSeedId";
-
-    @Inject @LightCycle PlayerController playerController;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 
@@ -50,13 +46,6 @@ public class RecommendedTracksActivity extends ScActivity {
     @Override
     protected void setActivityContentView() {
         baseLayoutHelper.setBaseLayout(this);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!playerController.handleBackPressed()) {
-            super.onBackPressed();
-        }
     }
 
 }

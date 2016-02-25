@@ -12,6 +12,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.main.Screen;
@@ -43,6 +44,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Mock private ReferrerResolver referrerResolver;
     @Mock private EventBus eventBus;
     @Mock private Navigator navigator;
+    @Mock private FeatureOperations featureOperations;
 
     @InjectMocks private IntentResolver resolver;
 
@@ -368,6 +370,28 @@ public class IntentResolverTest extends AndroidUnitTest {
         verify(navigator).openRecord(context, Screen.DEEPLINK);
     }
 
+    @Test
+    public void shouldLaunchUpgradeForSoundCloudScheme() throws Exception {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        setupIntentForUrl("soundcloud://soundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER, Screen.CONVERSION);
+        verify(navigator).openUpgradeFromDeeplink(context);
+    }
+
+    @Test
+    public void shouldNotLaunchUpgradeWhenUpsellFeatureIsDisabled() throws Exception {
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+        setupIntentForUrl("soundcloud://soundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+    }
+
     public void setupIntentForUrl(String url) {
         if (url != null) {
             uri = Uri.parse(url);
@@ -395,11 +419,15 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     private void verifyTrackingEvent(Referrer referrer) {
+        verifyTrackingEvent(referrer, Screen.DEEPLINK);
+    }
+
+    private void verifyTrackingEvent(Referrer referrer, Screen screen) {
         ForegroundEvent event = captureForegroundEvent();
 
         assertThat(event.getKind()).isEqualTo(ForegroundEvent.KIND_OPEN);
         assertThat(event.get(ForegroundEvent.KEY_REFERRER)).isEqualTo(referrer.value());
-        assertThat(event.get(ForegroundEvent.KEY_PAGE_NAME)).isEqualTo(Screen.DEEPLINK.get());
+        assertThat(event.get(ForegroundEvent.KEY_PAGE_NAME)).isEqualTo(screen.get());
     }
 
 }

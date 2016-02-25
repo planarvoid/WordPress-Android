@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
-class SinglePlaylistSyncer implements Callable<Boolean> {
+public class SinglePlaylistSyncer implements Callable<Boolean> {
 
     private final LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
     private final PushPlaylistAdditionsCommand pushPlaylistAdditions;

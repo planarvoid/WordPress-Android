@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.model.Urn;
-
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -11,7 +9,7 @@ import android.support.annotation.VisibleForTesting;
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
-public class DownloadHandler extends Handler {
+class DownloadHandler extends Handler {
 
     public static final int ACTION_DOWNLOAD = 0;
 
@@ -19,22 +17,15 @@ public class DownloadHandler extends Handler {
     private final DownloadOperations downloadOperations;
     private final SecureFileStorage secureFileStorage;
     private final TrackDownloadsStorage trackDownloadsStorage;
+    private final OfflinePerformanceTracker performanceTracker;
 
     private DownloadRequest current;
 
-    public boolean isDownloading() {
+    boolean isDownloading() {
         return current != null;
     }
 
-    public boolean isCurrentRequest(DownloadRequest request) {
-        return current != null && current.equals(request);
-    }
-
-    public Urn getCurrentTrack() {
-        return isDownloading() ? current.getTrack() : Urn.NOT_SET;
-    }
-
-    public DownloadRequest getCurrentRequest() {
+    DownloadRequest getCurrentRequest() {
         return current;
     }
 
@@ -48,12 +39,13 @@ public class DownloadHandler extends Handler {
         void onProgress(DownloadState state);
     }
 
-    public DownloadHandler(Looper looper,
-                           Listener listener,
-                           DownloadOperations downloadOperations,
-                           SecureFileStorage secureFileStorage,
-                           TrackDownloadsStorage trackDownloadsStorage) {
+    DownloadHandler(Looper looper, Listener listener,
+                    DownloadOperations downloadOperations,
+                    SecureFileStorage secureFileStorage,
+                    TrackDownloadsStorage trackDownloadsStorage,
+                    OfflinePerformanceTracker performanceTracker) {
         super(looper);
+        this.performanceTracker = performanceTracker;
         this.listenerRef = new WeakReference<>(listener);
         this.downloadOperations = downloadOperations;
         this.secureFileStorage = secureFileStorage;
@@ -61,9 +53,11 @@ public class DownloadHandler extends Handler {
     }
 
     @VisibleForTesting
-    DownloadHandler(Listener listener,
-                    DownloadOperations downloadOperations,
-                    SecureFileStorage secureFileStorage, TrackDownloadsStorage trackDownloadsStorage) {
+    DownloadHandler(Listener listener, DownloadOperations downloadOperations,
+                    SecureFileStorage secureFileStorage,
+                    TrackDownloadsStorage trackDownloadsStorage,
+                    OfflinePerformanceTracker performanceTracker) {
+        this.performanceTracker = performanceTracker;
         this.listenerRef = new WeakReference<>(listener);
         this.downloadOperations = downloadOperations;
         this.secureFileStorage = secureFileStorage;
@@ -80,10 +74,16 @@ public class DownloadHandler extends Handler {
     }
 
     private DownloadState downloadTrack(DownloadRequest request) {
-        final DownloadState result = downloadOperations.download(request, createDownloadProgressListener(request));
+        performanceTracker.downloadStarted(request);
+
+        final DownloadState result =
+                downloadOperations.download(request, createDownloadProgressListener(request));
+
         if (result.isSuccess()) {
-            tryToStoreDownloadSuccess(result);
-        } else if (result.isUnavailable()) {
+            return tryToStoreDownloadSuccess(result);
+        }
+
+        if (result.isUnavailable()) {
             trackDownloadsStorage.markTrackAsUnavailable(result.getTrack());
         }
         return result;
@@ -98,23 +98,32 @@ public class DownloadHandler extends Handler {
         };
     }
 
-    private void tryToStoreDownloadSuccess(DownloadState result) {
+    private DownloadState tryToStoreDownloadSuccess(DownloadState result) {
         if (!trackDownloadsStorage.storeCompletedDownload(result).success()) {
             secureFileStorage.deleteTrack(result.getTrack());
+            return DownloadState.error(result.request);
         }
+        return result;
     }
 
     private void sendDownloadState(DownloadState result) {
-        final Listener listener =  listenerRef.get();
+        final Listener listener = listenerRef.get();
         if (listener != null) {
+
             if (result.isInProgress()) {
                 listener.onProgress(result);
+
             } else if (result.isSuccess()) {
                 listener.onSuccess(result);
+                performanceTracker.downloadComplete(result);
+
             } else if (result.isCancelled()) {
                 listener.onCancel(result);
+                performanceTracker.downloadCancelled(result);
+
             } else {
                 listener.onError(result);
+                performanceTracker.downloadFailed(result);
             }
         }
     }
@@ -132,17 +141,20 @@ public class DownloadHandler extends Handler {
         private final DownloadOperations downloadOperations;
         private final TrackDownloadsStorage tracksStorage;
         private final SecureFileStorage secureFileStorage;
+        private final OfflinePerformanceTracker performanceTracker;
 
         @Inject
-        Builder(DownloadOperations operations, TrackDownloadsStorage tracksStorage, SecureFileStorage secureFiles) {
+        Builder(DownloadOperations operations, TrackDownloadsStorage tracksStorage,
+                SecureFileStorage secureFiles, OfflinePerformanceTracker performanceTracker) {
             this.downloadOperations = operations;
             this.tracksStorage = tracksStorage;
             this.secureFileStorage = secureFiles;
+            this.performanceTracker = performanceTracker;
         }
 
         DownloadHandler create(Listener listener) {
-            return new DownloadHandler(
-                    createLooper(), listener, downloadOperations, secureFileStorage, tracksStorage);
+            return new DownloadHandler(createLooper(), listener, downloadOperations,
+                    secureFileStorage, tracksStorage, performanceTracker);
         }
 
         private Looper createLooper() {
@@ -151,6 +163,5 @@ public class DownloadHandler extends Handler {
             return thread.getLooper();
         }
     }
-
 }
 

@@ -16,7 +16,7 @@ public final class OnboardingEvent {
     public static final int ONBOARDING_COMPLETE = 5;
     public static final int EMAIL_MARKETING = 6;
     public static final int SIGNUP_ERROR = 7;
-    public static final int DEVICE_CONFLICT = 8;
+    public static final int DEVICE_MANAGEMENT = 8;
 
     private static final String OPT_IN = "opt_in";
     private static final String ERROR_TYPE = "error_type";
@@ -29,7 +29,8 @@ public final class OnboardingEvent {
     private static final String INVALID_EMAIL = "invalid_email";
     private static final String FACEBOOK_EMAIL_DENIED = "facebook_email_denied";
     private static final String GENERAL_ERROR = "general_error";
-    private static final String DEVICE_LIMIT = "device_limit";
+    private static final String DEVICE_CONFLICT = "device_conflict";
+    private static final String DEVICE_BLOCK = "device_block";
     private static final String LOGGED_OUT = "logged_out";
     private static final String TYPE = "type";
     private static final String ACTION = "action";
@@ -137,11 +138,15 @@ public final class OnboardingEvent {
     }
 
     public static OnboardingEvent deviceConflictOnLogin() {
-        return new OnboardingEvent(DEVICE_CONFLICT).put(ERROR_TYPE, DEVICE_LIMIT);
+        return new OnboardingEvent(DEVICE_MANAGEMENT).put(ERROR_TYPE, DEVICE_CONFLICT);
+    }
+
+    public static OnboardingEvent deviceBlockOnLogin() {
+        return new OnboardingEvent(DEVICE_MANAGEMENT).put(ERROR_TYPE, DEVICE_BLOCK);
     }
 
     public static OnboardingEvent deviceConflictLoggedOut() {
-        return new OnboardingEvent(DEVICE_CONFLICT).put(ERROR_TYPE, LOGGED_OUT);
+        return new OnboardingEvent(DEVICE_MANAGEMENT).put(ERROR_TYPE, LOGGED_OUT);
     }
 
     public int getKind() {
@@ -180,8 +185,8 @@ public final class OnboardingEvent {
                 return "email marketing";
             case SIGNUP_ERROR:
                 return "signup error";
-            case DEVICE_CONFLICT:
-                return "device conflict";
+            case DEVICE_MANAGEMENT:
+                return "device management";
             default:
                 return "unknown " + kind;
         }

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,10 +27,11 @@ public class GcmManagerTest {
     @Mock private GooglePlayServicesWrapper googlePlayServices;
     @Mock private ServiceInitiator serviceInitiator;
     @Mock private AppCompatActivity activity;
+    @Mock private ApplicationProperties applicationProperties;
 
     @Before
     public void setUp() throws Exception {
-        gcmManager = new GcmManager(gcmStorage, googlePlayServices, serviceInitiator);
+        gcmManager = new GcmManager(applicationProperties, gcmStorage, googlePlayServices, serviceInitiator);
         activity = new AppCompatActivity();
     }
 
@@ -44,12 +46,24 @@ public class GcmManagerTest {
 
     @Test
     public void showsErrorDialogWhenPlayServicesAvailableReturnsRecoverableErrorWhenBundleIsNull() {
+        when(applicationProperties.isGooglePlusEnabled()).thenReturn(true);
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(123);
         when(googlePlayServices.isUserRecoverableError(123)).thenReturn(true);
 
         gcmManager.onCreate(activity, null);
 
         verify(googlePlayServices).showUnrecoverableErrorDialog(activity, 123);
+    }
+
+    @Test
+    public void doesNotShowErrorDialogForNonPlayStoreReleases() {
+        when(applicationProperties.isGooglePlusEnabled()).thenReturn(false);
+        when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(123);
+        when(googlePlayServices.isUserRecoverableError(123)).thenReturn(true);
+
+        gcmManager.onCreate(activity, null);
+
+        verify(googlePlayServices, never()).showUnrecoverableErrorDialog(activity, 123);
     }
 
     @Test

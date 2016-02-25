@@ -6,19 +6,25 @@
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingBottom="@dimen/playlist_action_bar_padding"
-    android:paddingTop="@dimen/playlist_action_bar_padding">
+    android:paddingTop="@dimen/playlist_action_bar_padding"
+    android:animateLayoutChanges="true">
 
     <include layout="@layout/downloadable_header" />
 
     <com.soundcloud.android.view.CustomFontToggleButton
         android:id="@+id/toggle_like"
-        style="@style/PlaylistAction.ToggleButton.Like"
+        style="@style/EngagementAction.ToggleButton.Like"
         android:layout_width="wrap_content"
         tools:text="1234" />
 
+    <com.soundcloud.android.view.IconToggleButton
+        android:id="@+id/toggle_download"
+        style="@style/EngagementAction.ToggleButton.DownloadBase.Download"
+        android:layout_width="wrap_content" />
+
     <ImageView
         android:id="@+id/playlist_details_overflow_button"
-        style="@style/PlaylistAction.Overflow"
+        style="@style/EngagementAction.Overflow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center|end"

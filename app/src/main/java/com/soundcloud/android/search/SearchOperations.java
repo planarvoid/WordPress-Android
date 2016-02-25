@@ -53,6 +53,17 @@ class SearchOperations {
             new Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult>() {
                 @Override
                 public SearchResult call(SearchModelCollection<? extends PropertySetSource> searchCollection) {
+                    return SearchResult.fromPropertySetSource(
+                            searchCollection.getCollection(),
+                            searchCollection.getNextLink(),
+                            searchCollection.getQueryUrn());
+                }
+            };
+
+    private static final Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT =
+            new Func1<SearchModelCollection<? extends PropertySetSource>, SearchResult>() {
+                @Override
+                public SearchResult call(SearchModelCollection<? extends PropertySetSource> searchCollection) {
                     final List<? extends PropertySetSource> collection = searchCollection.getCollection();
                     final Optional<Link> nextLink = searchCollection.getNextLink();
                     final Optional<Urn> queryUrn = searchCollection.getQueryUrn();
@@ -348,7 +359,7 @@ class SearchOperations {
                     .subscribeOn(scheduler)
                     .doOnNext(cacheUniversalSearchCommand.toAction())
                     .doOnNext(cachePremiumContent)
-                    .map(TO_SEARCH_RESULT)
+                    .map(TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT)
                     .map(mergePlaylistLikeStatus)
                     .map(mergeFollowings);
         }

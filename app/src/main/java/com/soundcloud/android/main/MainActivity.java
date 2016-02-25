@@ -16,17 +16,15 @@ import android.view.Menu;
 
 import javax.inject.Inject;
 
-public class MainActivity extends ScActivity {
+public class MainActivity extends PlayerActivity {
 
     public static final String EXTRA_REFRESH_STREAM = "refresh_stream";
-    public static final String EXTRA_FROM_SIGNIN = "from_sign_in";
 
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
     @Inject Navigator navigator;
 
     @Inject @LightCycle MainTabsPresenter mainPresenter;
-    @Inject @LightCycle PlayerController playerController;
     @Inject @LightCycle ActionBarHelper actionBarHelper;
     @Inject @LightCycle GcmManager gcmManager;
     @Inject @LightCycle FacebookInvitesController facebookInvitesController;
@@ -37,36 +35,13 @@ public class MainActivity extends ScActivity {
 
         if (savedInstanceState == null) {
             playSessionController.reloadQueueAndShowPlayerIfEmpty();
-            setupEmailOptIn();
         }
         castConnectionHelper.reconnectSessionIfPossible();
-
-        handlePendingActivity();
-    }
-
-    private void handlePendingActivity() {
-        final Bundle extras = getIntent().getExtras();
-        if (extras != null && extras.containsKey(Navigator.EXTRA_PENDING_ACTIVITY)) {
-            navigator.openPendingActivity(this, extras);
-        }
     }
 
     @Override
     protected void setActivityContentView() {
         mainPresenter.setBaseLayout(this);
-    }
-
-    private void setupEmailOptIn() {
-        if (getIntent().getBooleanExtra(EXTRA_FROM_SIGNIN, false)) {
-            EmailOptInDialogFragment.show(this);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (accountOperations.isCrawler() || !(playerController.handleBackPressed())) {
-            super.onBackPressed();
-        }
     }
 
     @Override
@@ -91,11 +66,15 @@ public class MainActivity extends ScActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (!accountOperations.isUserLoggedIn()) {
-            accountOperations.triggerLoginFlow(this);
-            finish();
+    protected void onStart() {
+        super.onStart();
+        setupUpgradeUpsell();
+    }
+
+    private void setupUpgradeUpsell() {
+        if (getIntent().getBooleanExtra(Navigator.EXTRA_UPGRADE_INTENT, false)) {
+            getIntent().removeExtra(Navigator.EXTRA_UPGRADE_INTENT);
+            navigator.openUpgrade(this);
         }
     }
 

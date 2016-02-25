@@ -12,18 +12,17 @@
 
     <include layout="@layout/player_gradient" />
 
-    <com.soundcloud.android.view.CustomFontTextView
+    <com.soundcloud.android.view.JaggedTextView
         android:id="@+id/username"
-        style="@style/BlackOverlayText.RegularSubtext.Clickable"
+        style="@style/ShrinkWrap.Secondary.Medium"
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginTop="32dp"
         android:enabled="false"
-        android:singleLine="true"
         android:visibility="invisible" />
 
     <com.soundcloud.android.view.JaggedTextView
         android:id="@+id/title"
-        style="@style/BlackOverlayText.Regular"
+        style="@style/ShrinkWrap.Primary.Medium"
         android:layout_below="@id/username"
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginRight="@dimen/playlist_header_padding"
@@ -32,7 +31,7 @@
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/title_private"
-        style="@style/BlackOverlayText.Regular"
+        style="@style/ShrinkWrap.Primary.Medium"
         android:drawableLeft="@drawable/ic_private_playlist_lock"
         android:drawablePadding="4dp"
         android:layout_below="@id/username"

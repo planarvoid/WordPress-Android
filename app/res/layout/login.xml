@@ -55,6 +55,18 @@
         <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Info"
                   android:id="@+id/txt_i_forgot_my_password"
                   android:text="@string/authentication_I_forgot_my_password"/>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/email_use_notice"
+            style="@style/SignUp.Info"
+            android:text="@string/onboarding_email_use_notice" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/tou_reminder"
+            style="@style/SignUp.Info"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/onboarding_tou_reminder" />
     </LinearLayout>
 
 </com.soundcloud.android.onboarding.auth.LoginLayout>

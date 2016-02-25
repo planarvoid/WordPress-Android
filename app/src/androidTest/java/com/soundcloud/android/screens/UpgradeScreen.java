@@ -4,11 +4,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.payments.UpgradeActivity;
+import com.soundcloud.android.payments.WebConversionActivity;
 
 public class UpgradeScreen extends Screen {
 
-    private static final Class ACTIVITY = UpgradeActivity.class;
+    private static final Class ACTIVITY = WebConversionActivity.class;
 
     public UpgradeScreen(Han solo) {
         super(solo);
@@ -29,17 +29,20 @@ public class UpgradeScreen extends Screen {
         return new PaymentErrorScreen(testDriver);
     }
 
+    public WebCheckoutScreen clickBuyForWebCheckout() {
+        clickBuy();
+        return new WebCheckoutScreen(testDriver);
+    }
+
     private UpgradeScreen clickBuy() {
-        upgradeButton().click();
+        ViewElement button = upgradeButton();
+        waiter.waitForAnimationToFinish(button);
+        button.click();
         return this;
     }
 
     public ViewElement upgradeButton() {
-        return testDriver.findOnScreenElement(With.id(R.id.upgrade_buy));
-    }
-
-    public boolean isDisplayingSuccess() {
-        return testDriver.findOnScreenElement(With.id(R.id.success_header)).isOnScreen();
+        return testDriver.findOnScreenElement(With.id(R.id.conversion_buy));
     }
 
 }

@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.Player.StateTransition;
+import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
+import static com.soundcloud.android.tracks.TieredTracks.isTrackPreview;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
@@ -22,7 +24,6 @@ import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.util.AnimUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.JaggedTextView;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.Iterables;
@@ -30,6 +31,7 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.animation.ObjectAnimator;
@@ -110,7 +112,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             case R.id.footer_controls:
                 listener.onFooterTap();
                 break;
-            case R.id.player_close:
+            case R.id.player_close_indicator:
             case R.id.player_bottom_close:
                 listener.onPlayerClose();
                 break;
@@ -167,19 +169,27 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         final boolean blocked = trackState.isBlocked();
         holder.artworkView.setEnabled(!blocked);
-        updatePlayButton(holder, blocked);
+        configurePlayButtons(holder, blocked);
 
         holder.upsellButton.setTag(trackState.getUrn());
 
-        if (featureOperations.upsellHighTier()) {
-            holder.previewIndicator.setVisibility(trackState.isSnipped() ? View.VISIBLE : View.GONE);
-            holder.upsellButton.setVisibility(trackState.shouldUpsell() ? View.VISIBLE : View.GONE);
-        } else {
-            holder.previewIndicator.setVisibility(View.GONE);
-            holder.upsellButton.setVisibility(View.GONE);
-        }
+        holder.previewIndicator.setVisibility(isTrackPreview(trackState) ? View.VISIBLE : View.GONE);
+
+        final boolean showHighTierUpsell = featureOperations.upsellHighTier() && isHighTierPreview(trackState);
+        holder.upsellButton.setVisibility(showHighTierUpsell ? View.VISIBLE : View.GONE);
 
         holder.errorViewController.setUrn(trackState.getUrn());
+
+        configureBlockedState(holder, blocked);
+
+        setClickListener(this, holder.onClickViews);
+    }
+
+    private void configureBlockedState(TrackPageHolder holder, boolean blocked) {
+        for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
+            playerOverlayController.setBlocked(blocked);
+        }
+
         if (blocked) {
             holder.errorViewController.showError(ErrorViewController.ErrorState.BLOCKED);
         } else {
@@ -187,13 +197,14 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 holder.timestamp.setVisibility(View.VISIBLE);
             }
         }
-
-        setClickListener(this, holder.onClickViews);
     }
 
-    private void updatePlayButton(TrackPageHolder holder, boolean blocked) {
+    private void configurePlayButtons(TrackPageHolder holder, boolean blocked) {
         if (holder.playButton != null) {
             holder.playButton.setEnabled(!blocked);
+        }
+        if (holder.footerPlayToggle != null) {
+            holder.footerPlayToggle.setEnabled(!blocked);
         }
     }
 
@@ -234,8 +245,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     public View clearItemView(View view) {
         final TrackPageHolder holder = getViewHolder(view);
-        holder.user.setText(ScTextUtils.EMPTY_STRING);
-        holder.title.setText(ScTextUtils.EMPTY_STRING);
+        holder.user.setText(Strings.EMPTY);
+        holder.title.setText(Strings.EMPTY);
 
         holder.trackContext.setVisibility(View.GONE);
 
@@ -245,8 +256,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.artworkController.reset();
         holder.waveformController.reset();
 
-        holder.footerUser.setText(ScTextUtils.EMPTY_STRING);
-        holder.footerTitle.setText(ScTextUtils.EMPTY_STRING);
+        holder.footerUser.setText(Strings.EMPTY);
+        holder.footerTitle.setText(Strings.EMPTY);
 
         holder.timestamp.setVisibility(View.GONE);
         holder.errorViewController.hideError();
@@ -701,9 +712,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         };
 
         public void populateViewSets() {
-            List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose);
-            List<View> hideOnError = Arrays.asList(playButton, more, likeToggle, timestamp, shareButton);
-            List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, profileLink, previewIndicator, upsellButton);
+            List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose, previewIndicator, upsellButton);
+            List<View> hideOnError = Arrays.asList(playButton, timestamp);
+            List<View> clickViews = Arrays.asList(artworkView, closeIndicator, bottomClose, playButton, footer, footerPlayToggle, profileLink, upsellButton);
 
             fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder);
             fullScreenAdViews = Arrays.asList(interstitialHolder);

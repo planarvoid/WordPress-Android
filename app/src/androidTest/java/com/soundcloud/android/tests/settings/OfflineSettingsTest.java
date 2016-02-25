@@ -1,14 +1,18 @@
 package com.soundcloud.android.tests.settings;
 
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineSettingsOnboarding;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.OfflineSyncTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.screens.OfflineSettingsOnboardingScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.YouScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
@@ -40,20 +44,23 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         super.setUp();
         context = getInstrumentation().getTargetContext();
         enableOfflineContent(context);
+        disableOfflineSettingsOnboarding(context);
 
         youScreen = mainNavHelper.goToYou();
     }
 
+    @OfflineSyncTest
     public void testDisableSyncCollectionIsCancellable() {
         offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
 
         OfflineSettingsScreen screen = offlineSettingsScreen.toggleSyncCollectionOn();
-        screen.toggleSyncCollectionOff().clickCancel();
+        screen.toggleSyncCollectionOff().clickCancelForPlaylistDetails();
 
         assertThat(screen.isOfflineCollectionChecked(), is(true));
     }
 
+    @OfflineSyncTest
     public void testEnableSyncCollectionTriggersSync() {
         offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
@@ -66,6 +73,18 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
                 .downloadElement();
 
         assertThat(downloadElement.isVisible(), is(true));
+    }
+
+    @OfflineSyncTest
+    public void testRemoveOfflineContentDisablesOfflineCollection() {
+        offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
+        assertTrue(offlineSettingsScreen.isVisible());
+
+        offlineSettingsScreen.toggleSyncCollectionOn()
+                .clickRemoveOfflineContent()
+                .clickConfirm();
+
+        assertThat(offlineSettingsScreen.isOfflineCollectionChecked(), is(false));
     }
 
     public void testOfflineLimitSlider() {
@@ -99,6 +118,17 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertTrue(waiter.expectToastWithText(toastObserver, solo.getString(R.string.offline_cannot_set_limit_below_usage)));
         assertEquals("0.8 GB", offlineSettingsScreen.getSliderLimitText());
         assertEquals("0.8 GB", offlineSettingsScreen.getLegendLimitText());
+    }
+
+    public void testOfflineSettingsOnboarding() {
+        enableOfflineSettingsOnboarding(context);
+        youScreen.clickOfflineSettingsLink();
+
+        OfflineSettingsOnboardingScreen offlineSettingsOnboardingScreen = new OfflineSettingsOnboardingScreen(solo);
+        assertTrue(offlineSettingsOnboardingScreen.isVisible());
+
+        offlineSettingsScreen = offlineSettingsOnboardingScreen.clickContinue();
+        assertTrue(offlineSettingsScreen.isVisible());
     }
 
     @Override

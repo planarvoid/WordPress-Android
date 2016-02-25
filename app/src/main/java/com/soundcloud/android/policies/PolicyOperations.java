@@ -1,14 +1,18 @@
 package com.soundcloud.android.policies;
 
-import static com.soundcloud.android.rx.RxUtils.returning;
-
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.commands.ClearTableCommand;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PolicyUpdateFailureEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.utils.Log;
-import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.propeller.PropellerWriteException;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -22,54 +26,63 @@ import java.util.concurrent.TimeUnit;
 public class PolicyOperations {
     public static final long POLICY_STALE_AGE_MILLISECONDS = TimeUnit.HOURS.toMillis(24);
 
-    public static final Func1<ApiPolicyInfo, Urn> TO_TRACK_URN = new Func1<ApiPolicyInfo, Urn>() {
+    private static final Func1<ApiPolicyInfo, Urn> TO_TRACK_URN = new Func1<ApiPolicyInfo, Urn>() {
         @Override
         public Urn call(ApiPolicyInfo policy) {
             return policy.getUrn();
         }
     };
 
-    public static final Func1<ApiPolicyInfo, Boolean> FILTER_MONETIZABLE = new Func1<ApiPolicyInfo, Boolean>() {
+    private static final Func1<ApiPolicyInfo, Boolean> FILTER_MONETIZABLE = new Func1<ApiPolicyInfo, Boolean>() {
         @Override
         public Boolean call(ApiPolicyInfo policy) {
             return !policy.isMonetizable();
         }
     };
 
-    private final FetchPoliciesCommand fetchPoliciesCommand;
-    private final StorePoliciesCommand storePoliciesCommand;
+    private final ClearTableCommand clearTableCommand;
+    private final UpdatePoliciesCommand updatePoliciesCommand;
     private final LoadPolicyUpdateTimeCommand loadPolicyUpdateTimeCommand;
-    private final LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand;
     private final Scheduler scheduler;
     private final PolicyStorage policyStorage;
+    private final EventBus eventBus;
+    private final Action1<List<Urn>> clearTrackPolicies = new Action1<List<Urn>>() {
+        @Override
+        public void call(List<Urn> urns) {
+            clearTableCommand.call(Table.TrackPolicies);
+        }
+    };
+    private final Action1<Throwable> handleErrorAction = new Action1<Throwable>() {
+        @Override
+        public void call(Throwable throwable) {
+            handlePolicyUpdateFailure(throwable, false);
+        }
+    };
 
     @Inject
-    PolicyOperations(FetchPoliciesCommand fetchPoliciesCommand,
-                     StorePoliciesCommand storePoliciesCommand,
-                     LoadTracksForPolicyUpdateCommand loadTracksForPolicyUpdateCommand,
+    PolicyOperations(ClearTableCommand clearTableCommand, UpdatePoliciesCommand updatePoliciesCommand,
                      LoadPolicyUpdateTimeCommand loadPolicyUpdateTimeCommand,
                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                     PolicyStorage policyStorage) {
+                     PolicyStorage policyStorage, EventBus eventBus) {
+        this.clearTableCommand = clearTableCommand;
         this.scheduler = scheduler;
-        this.fetchPoliciesCommand = fetchPoliciesCommand;
-        this.storePoliciesCommand = storePoliciesCommand;
+        this.updatePoliciesCommand = updatePoliciesCommand;
         this.loadPolicyUpdateTimeCommand = loadPolicyUpdateTimeCommand;
-        this.loadTracksForPolicyUpdateCommand = loadTracksForPolicyUpdateCommand;
         this.policyStorage = policyStorage;
+        this.eventBus = eventBus;
     }
 
-    public Observable<Map<Urn, Boolean>> blockedStati(List urns) {
-        return policyStorage.loadBlockedStati(urns).subscribeOn(scheduler);
+    public Observable<Map<Urn, Boolean>> blockedStatuses(List<Urn> urns) {
+        return policyStorage.loadBlockedStatuses(urns).subscribeOn(scheduler);
     }
 
-    public Observable<Void> updatePolicies(Collection<Urn> urns) {
-        return fetchAndStorePolicies(urns)
-                .map(RxUtils.TO_VOID);
+    public Observable<Collection<ApiPolicyInfo>> updatePolicies(Collection<Urn> urns) {
+        return fetchAndStorePolicies(urns);
     }
 
     public Observable<List<Urn>> filterMonetizableTracks(Collection<Urn> urns) {
         return fetchAndStorePolicies(urns)
-                .flatMap(RxUtils.<ApiPolicyInfo>emitCollectionItems())
+                .flatMap(RxUtils.<ApiPolicyInfo>iterableToObservable())
                 .filter(FILTER_MONETIZABLE)
                 .map(TO_TRACK_URN)
                 .toList();
@@ -77,24 +90,23 @@ public class PolicyOperations {
 
     public List<Urn> updateTrackPolicies() {
         try {
-            final List<Urn> urns = loadTracksForPolicyUpdateCommand.call(null);
-            final Collection<ApiPolicyInfo> policyInfos = fetchPoliciesCommand.with(urns).call();
-            final WriteResult result = storePoliciesCommand.call(policyInfos);
-            return result.success() ? urns : Collections.<Urn>emptyList();
+            final List<Urn> urns = policyStorage.loadTracksForPolicyUpdate();
+            updatePoliciesCommand.call(urns);
+            return urns;
         } catch (Exception ex) {
-            Log.e(DailyUpdateService.TAG, "Failed to update policies", ex);
+            handlePolicyUpdateFailure(ex, true);
             return Collections.emptyList();
         }
     }
 
-    public Observable<List<Urn>> updatedTrackPolicies() {
-        return loadTracksForPolicyUpdateCommand.toObservable(null)
-                .flatMap(new Func1<List<Urn>, Observable<List<Urn>>>() {
-                    @Override
-                    public Observable<List<Urn>> call(List<Urn> urns) {
-                        return fetchAndStorePolicies(urns).map(returning(urns));
-                    }
-                })
+    public Observable<List<Urn>> refreshedTrackPolicies() {
+        return policyStorage.tracksForPolicyUpdate()
+                .doOnNext(clearTrackPolicies)
+                .flatMap(updatePoliciesCommand.toContinuation())
+                .flatMap(RxUtils.<ApiPolicyInfo>iterableToObservable())
+                .map(TO_TRACK_URN)
+                .toList()
+                .doOnError(handleErrorAction)
                 .subscribeOn(scheduler);
     }
 
@@ -104,9 +116,17 @@ public class PolicyOperations {
     }
 
     private Observable<Collection<ApiPolicyInfo>> fetchAndStorePolicies(Collection<Urn> urns) {
-        return fetchPoliciesCommand.with(urns).toObservable()
-                .subscribeOn(scheduler)
-                .doOnNext(storePoliciesCommand.toAction());
+        return updatePoliciesCommand.toObservable(urns)
+                .subscribeOn(scheduler);
     }
 
+    private void handlePolicyUpdateFailure(Throwable error, boolean isBackgroundUpdate) {
+        ErrorUtils.handleSilentException("Policy update failed", error);
+        Throwable cause = error instanceof PolicyUpdateFailure ? error.getCause() : error;
+        final PolicyUpdateFailureEvent failureEvent =
+                cause instanceof PropellerWriteException
+                        ? PolicyUpdateFailureEvent.insertFailed(isBackgroundUpdate)
+                        : PolicyUpdateFailureEvent.fetchFailed(isBackgroundUpdate);
+        eventBus.publish(EventQueue.TRACKING, failureEvent);
+    }
 }

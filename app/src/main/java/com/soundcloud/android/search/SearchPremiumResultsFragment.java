@@ -25,6 +25,8 @@ import java.util.ArrayList;
 
 public class SearchPremiumResultsFragment extends LightCycleSupportFragment implements RefreshableScreen {
 
+    public static final String TAG = "search_premium_results";
+
     @Inject @LightCycle SearchPremiumResultsPresenter presenter;
 
     public SearchPremiumResultsFragment() {

@@ -14,6 +14,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -116,7 +117,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                 return true;
             case R.id.upsell_offline_content:
                 navigator.openUpgrade(context);
-                eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistItemClick());
+                eventBus.publish(EventQueue.TRACKING,
+                        UpgradeTrackingEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(), playlist.getEntityUrn()));
                 return true;
             case R.id.make_offline_available:
                 saveOffline();
@@ -138,9 +140,10 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
 
     private void saveOffline() {
         fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlist.getEntityUrn()));
-        eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromAddOfflinePlaylist(
-                        screenProvider.getLastScreenTag(), playlist.getEntityUrn(), getPromotedSourceIfExists()));
+        eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromAddOfflinePlaylist(
+                screenProvider.getLastScreenTag(),
+                playlist.getEntityUrn(),
+                getPromotedSourceIfExists()));
     }
 
     private void removeFromOffline(FragmentManager fragmentManager) {
@@ -148,9 +151,10 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlist.getEntityUrn(), getPromotedSourceIfExists());
         } else {
             fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn()));
-            eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromRemoveOfflinePlaylist(
-                            screenProvider.getLastScreenTag(), playlist.getEntityUrn(), getPromotedSourceIfExists()));
+            eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromRemoveOfflinePlaylist(
+                    screenProvider.getLastScreenTag(),
+                    playlist.getEntityUrn(),
+                    getPromotedSourceIfExists()));
         }
     }
 
@@ -272,7 +276,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             hideAllOfflineContentOptions(menu);
         }
         if (menu.findItem(R.id.upsell_offline_content).isVisible()) {
-            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistItemImpression());
+            eventBus.publish(EventQueue.TRACKING,
+                    UpgradeTrackingEvent.forPlaylistItemImpression(screenProvider.getLastScreenTag(), playlist.getEntityUrn()));
         }
     }
 

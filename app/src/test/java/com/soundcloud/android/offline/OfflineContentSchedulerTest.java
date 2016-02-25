@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -21,20 +22,19 @@ import android.content.Context;
 
 public class OfflineContentSchedulerTest extends AndroidUnitTest {
 
-    private final static long RETRY_TIME = 1000;
-
     private OfflineContentScheduler scheduler;
 
     @Mock private AlarmManager alarmManager;
     @Mock private ResumeDownloadOnConnectedReceiver resumeReceiver;
-    @Mock private DownloadOperations downloadOperations;
+    @Mock private DownloadConnexionHelper downloadConnexionHelper;
     @Mock private Context context;
     @Captor private ArgumentCaptor<PendingIntent> intentArgumentCaptor;
+    private TestDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
-        scheduler = new OfflineContentScheduler(context, alarmManager,
-                resumeReceiver, downloadOperations);
+        dateProvider = new TestDateProvider();
+        scheduler = new OfflineContentScheduler(context, alarmManager, resumeReceiver, downloadConnexionHelper, dateProvider);
     }
 
     @Test
@@ -45,15 +45,22 @@ public class OfflineContentSchedulerTest extends AndroidUnitTest {
 
     @Test
     public void schedulerRetryDoesNotRegistersConnectionListenerToRetryIfAlreadyConnected() throws Exception {
-        when(downloadOperations.isValidNetwork()).thenReturn(true);
+        when(downloadConnexionHelper.isNetworkDownloadFriendly()).thenReturn(true);
         scheduler.scheduleRetry();
         verify(resumeReceiver, never()).register();
     }
 
     @Test
-    public void schedulerRetrySchedulesARetryAtDelay() throws Exception {
-        scheduler.scheduleDelayedRetry(RETRY_TIME);
-        verify(alarmManager).set(eq(OfflineContentScheduler.ALARM_TYPE), eq(RETRY_TIME), intentArgumentCaptor.capture());
+    public void scheduleCleanupAction() {
+        scheduler.scheduleCleanupAction().call(null);
+
+        verify(alarmManager).set(eq(OfflineContentScheduler.ALARM_TYPE), eq(dateProvider.getCurrentTime() + OfflineConstants.PENDING_REMOVAL_DELAY), intentArgumentCaptor.capture());
+    }
+
+    @Test
+    public void scheduleRetry() throws Exception {
+        scheduler.scheduleRetry();
+        verify(alarmManager).set(eq(OfflineContentScheduler.ALARM_TYPE), eq(dateProvider.getCurrentTime() + OfflineConstants.RETRY_DELAY), intentArgumentCaptor.capture());
         verifyPendingIntent();
     }
 
@@ -72,7 +79,7 @@ public class OfflineContentSchedulerTest extends AndroidUnitTest {
 
     private void verifyPendingIntent() {
         ShadowPendingIntent intent = Shadows.shadowOf(intentArgumentCaptor.getValue());
-        assertThat(intent.getRequestCode()).isEqualTo(OfflineContentScheduler.REQUEST_ID);
+        assertThat(intent.getRequestCode()).isEqualTo(OfflineContentScheduler.RETRY_REQUEST_ID);
         assertThat(intent.getSavedIntent().getComponent().getClassName())
                 .isEqualTo(AlarmManagerReceiver.class.getCanonicalName());
         assertThat(intent.getSavedIntent().getAction())

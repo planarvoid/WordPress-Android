@@ -5,14 +5,10 @@ import static com.soundcloud.android.offline.OfflineState.DOWNLOADING;
 import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
 import static com.soundcloud.android.offline.OfflineState.REQUESTED;
 import static com.soundcloud.android.offline.OfflineState.UNAVAILABLE;
-import static com.soundcloud.java.collections.MoreCollections.filter;
-import static com.soundcloud.java.collections.MoreCollections.transform;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistWithTracks;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -25,12 +21,6 @@ import java.util.Map;
 
 class OfflineStatePublisher {
 
-    private static final Predicate<PlaylistWithTracks> FILTER_EMPTY_PLAYLISTS = new Predicate<PlaylistWithTracks>() {
-        @Override
-        public boolean apply(PlaylistWithTracks input) {
-            return input.getTrackCount() == 0;
-        }
-    };
     private final EventBus eventBus;
     private final OfflineStateOperations collectionStateOperations;
 
@@ -41,15 +31,16 @@ class OfflineStatePublisher {
     }
 
     void publishEmptyCollections(ExpectedOfflineContent expectedOfflineContent) {
-        final Collection<PlaylistWithTracks> emptyPlaylists = filter(expectedOfflineContent.offlinePlaylists, FILTER_EMPTY_PLAYLISTS);
         final boolean isLikedTracksEmpty = expectedOfflineContent.isLikedTracksExpected && expectedOfflineContent.likedTracks.isEmpty();
 
         eventBus.publish(
                 EventQueue.OFFLINE_CONTENT_CHANGED,
-                new OfflineContentChangedEvent(DOWNLOADED,
-                        transform(emptyPlaylists, PlaylistWithTracks.TO_URN),
-                        isLikedTracksEmpty)
+                new OfflineContentChangedEvent(REQUESTED, expectedOfflineContent.emptyPlaylists, isLikedTracksEmpty)
         );
+    }
+
+    void publishRequested(Urn track) {
+        publishUpdatesForTrack(REQUESTED, track);
     }
 
     void publishRequested(Collection<Urn> tracks) {
@@ -68,20 +59,20 @@ class OfflineStatePublisher {
         publishUpdatesForTrack(DOWNLOADED, track);
     }
 
+    void publishRemoved(Urn track) {
+        publishUpdatesForTrack(NOT_OFFLINE, track);
+    }
+
     void publishRemoved(Collection<Urn> tracks) {
         publishUpdatesForTrack(NOT_OFFLINE, tracks);
     }
 
+    void publishUnavailable(Urn track) {
+        publishUpdatesForTrack(UNAVAILABLE, track);
+    }
+
     void publishUnavailable(Collection<Urn> tracks) {
         publishUpdatesForTrack(UNAVAILABLE, tracks);
-    }
-
-    void publishCancel(Urn track) {
-        publishUpdatesForTrack(REQUESTED, track);
-    }
-
-    void publishError(Urn track) {
-        publishUpdatesForTrack(REQUESTED, track);
     }
 
     private void publishUpdatesForTrack(final OfflineState newTrackState, Urn track) {

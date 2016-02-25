@@ -2,7 +2,6 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 
@@ -20,7 +19,7 @@ public abstract class OfflinePlaylistMapper extends PlaylistMapper {
 
         propertySet.put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, isMarkedForOffline);
         if (isMarkedForOffline) {
-            propertySet.put(OfflineProperty.OFFLINE_STATE, getDownloadState(
+            propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.getOfflineState(
                     cursorReader.getBoolean(HAS_PENDING_DOWNLOAD_REQUEST),
                     cursorReader.getBoolean(HAS_DOWNLOADED_TRACKS),
                     cursorReader.getBoolean(HAS_UNAVAILABLE_TRACKS)));
@@ -28,18 +27,4 @@ public abstract class OfflinePlaylistMapper extends PlaylistMapper {
         return propertySet;
     }
 
-    @VisibleForTesting
-    OfflineState getDownloadState(boolean hasRequestedTracks,
-                                  boolean hasDownloadedTracks,
-                                  boolean hasUnavailableTracks) {
-        if (hasRequestedTracks) {
-            return OfflineState.REQUESTED;
-        } else if (hasDownloadedTracks) {
-            return OfflineState.DOWNLOADED;
-        } else if (hasUnavailableTracks) {
-            return OfflineState.UNAVAILABLE;
-        } else {
-            return OfflineState.DOWNLOADED;
-        }
-    }
 }

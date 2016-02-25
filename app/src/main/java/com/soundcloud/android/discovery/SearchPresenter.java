@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.utils.KeyboardHelper;
@@ -17,8 +18,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.DataSetObserver;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
@@ -265,7 +264,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     }
 
     private void setupBackground(final AppCompatActivity activity) {
-        activity.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         activity.findViewById(R.id.search_screen_bg).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -356,7 +354,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
             hideCloseButton();
             activateSearchView();
             displaySearchView(SUGGESTIONS_VIEW_INDEX);
-            tracker.trackScreenEvent();
+            tracker.trackMainScreenEvent();
         }
     }
 

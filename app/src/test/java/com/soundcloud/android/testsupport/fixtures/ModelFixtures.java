@@ -29,7 +29,7 @@ import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
 import com.soundcloud.android.offline.DownloadRequest;
-import com.soundcloud.android.offline.OfflineTrackContext;
+import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.profile.ApiPlayableSource;
@@ -52,7 +52,6 @@ import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -171,24 +170,30 @@ public class ModelFixtures {
         return ApiPolicyInfo.create(trackUrn.toString(), monetizable, policy, syncable, "model", true, true, true, true);
     }
 
-    public static DownloadRequest downloadRequestFromLikes(Urn track) {
-        OfflineTrackContext trackContext = OfflineTrackContext.create(track, Urn.forUser(123L), Collections.<Urn>emptyList(), true);
-        return DownloadRequest.create(trackContext, 1234, "http://waveform.url", true);
+    public static DownloadRequest downloadRequestFromLikes(ApiTrack track) {
+        TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), true, false);
+        return DownloadRequest.create(track.getUrn(), track.getDuration(), track.getWaveformUrl(), true, trackContext);
     }
 
-    public static DownloadRequest downloadRequestFromPlaylists(ApiTrack track, boolean inLikes, List<Urn> inPlaylists) {
-        OfflineTrackContext trackContext = OfflineTrackContext.create(track.getUrn(), track.getUser().getUrn(), inPlaylists, inLikes);
-        return DownloadRequest.create(trackContext, track.getDuration(), track.getWaveformUrl(), true);
+    public static DownloadRequest downloadRequestFromLikes(Urn track) {
+        TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), true, false);
+        return DownloadRequest.create(track, 1234, "http://waveform.url", true, trackContext);
     }
+
+    public static DownloadRequest downloadRequestFromPlaylists(ApiTrack track) {
+        TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), false, true);
+        return DownloadRequest.create(track.getUrn(), track.getDuration(), track.getWaveformUrl(), true, trackContext);
+    }
+
+    public static DownloadRequest downloadRequestFromLikesAndPlaylists(ApiTrack track) {
+        TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), true, true);
+        return DownloadRequest.create(track.getUrn(), track.getDuration(), track.getWaveformUrl(), true, trackContext);
+    }
+
 
     public static DownloadRequest creatorOptOutRequest(Urn track) {
-        OfflineTrackContext trackContext = OfflineTrackContext.create(track, Urn.forUser(123L), Collections.<Urn>emptyList(), true);
-        return DownloadRequest.create(trackContext, 1234, "http://waveform.url", false);
-    }
-
-    public static DownloadRequest creatorOptOutRequest(ApiTrack track, boolean inLikes, List<Urn> inPlaylist) {
-        OfflineTrackContext trackContext = OfflineTrackContext.create(track.getUrn(), track.getUser().getUrn(), inPlaylist, inLikes);
-        return DownloadRequest.create(trackContext, track.getDuration(), track.getWaveformUrl(), false);
+        TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), false, true);
+        return DownloadRequest.create(track, 1234, "http://waveform.url", false, trackContext);
     }
 
     public static ApiActivityItem apiActivityWithLikedTrack(ApiTrack track) {
@@ -215,7 +220,7 @@ public class ModelFixtures {
         return new ApiUserFollowActivity(user, createdAt);
     }
 
-    public static ApiPlaylistRepostActivity apiPlaylistRepostActivity(ApiPlaylist playlist){
+    public static ApiPlaylistRepostActivity apiPlaylistRepostActivity(ApiPlaylist playlist) {
         final ApiUser user = create(ApiUser.class);
         return new ApiPlaylistRepostActivity(playlist, user, new Date());
     }
@@ -254,12 +259,12 @@ public class ModelFixtures {
 
     public static ApiComment apiComment(Urn commentUrn, Urn trackUrn, ApiUser byUser) {
         return ApiComment.builder()
-                    .urn(commentUrn)
-                    .trackUrn(trackUrn)
-                    .body("Great stuff!")
-                    .createdAt(new Date())
-                    .trackTime(1234)
-                    .user(byUser)
-                    .build();
+                .urn(commentUrn)
+                .trackUrn(trackUrn)
+                .body("Great stuff!")
+                .createdAt(new Date())
+                .trackTime(1234)
+                .user(byUser)
+                .build();
     }
 }

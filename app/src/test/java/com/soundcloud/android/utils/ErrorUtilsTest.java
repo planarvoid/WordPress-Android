@@ -34,6 +34,16 @@ public class ErrorUtilsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void handleThrowableShouldNotRethrowNonFatalUncheckedExceptions() {
+        try {
+            ErrorUtils.handleThrowable(new NonFatalRuntimeException("Test"), ErrorUtilsTest.class);
+        } catch (Throwable t) {
+            fail("Non Fatal exception was raised, but shouldn't be");
+        }
+        // Pass
+    }
+
+    @Test
     public void handleThrowableShouldLogTheStackTrace() {
         Throwable mockError = mock(Throwable.class);
         ErrorUtils.handleThrowable(mockError, ErrorUtilsTest.class);

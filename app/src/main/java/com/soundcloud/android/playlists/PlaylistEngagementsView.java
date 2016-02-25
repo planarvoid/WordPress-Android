@@ -4,7 +4,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
-import com.soundcloud.android.offline.DownloadableHeaderView;
+import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -32,23 +32,24 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     private final Resources resources;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    private final DownloadableHeaderView downloadableHeaderView;
+    private final DownloadStateView downloadStateView;
 
     private PopupMenuWrapper popupMenuWrapper;
     private OnEngagementListener listener;
 
     @Bind(R.id.toggle_like) ToggleButton likeToggle;
+    @Bind(R.id.toggle_download) ToggleButton downloadToggle;
     @Bind(R.id.playlist_details_overflow_button) View overflowButton;
 
     @Inject
     public PlaylistEngagementsView(Context context, CondensedNumberFormatter numberFormatter, PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                                   DownloadableHeaderView downloadableHeaderView, FeatureFlags featureFlags) {
+                                   DownloadStateView downloadStateView, FeatureFlags featureFlags) {
         this.context = context;
         this.numberFormatter = numberFormatter;
         this.featureFlags = featureFlags;
         this.resources = context.getResources();
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
-        this.downloadableHeaderView = downloadableHeaderView;
+        this.downloadStateView = downloadStateView;
     }
 
     public void onViewCreated(View view) {
@@ -60,11 +61,11 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.inflate(R.menu.playlist_details_actions);
         popupMenuWrapper.setOnMenuItemClickListener(this);
 
-        downloadableHeaderView.onViewCreated(engagementsView);
+        downloadStateView.onViewCreated(engagementsView);
     }
 
     void showOfflineState(OfflineState state) {
-        downloadableHeaderView.show(state);
+        downloadStateView.show(state);
     }
 
     @OnClick(R.id.toggle_like)
@@ -75,31 +76,43 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     @OnClick(R.id.playlist_details_overflow_button)
     void onOverflowButtonClicked() {
         popupMenuWrapper.show();
-        if (popupMenuWrapper.findItem(R.id.upsell_offline_content).isVisible()) {
-            listener.onUpsellImpression();
-        }
     }
 
     public void onDestroyView() {
         ButterKnife.unbind(this);
     }
 
-    void setOfflineOptionsMenu(boolean isAvailable) {
-        popupMenuWrapper.setItemVisible(R.id.make_offline_available, !isAvailable);
-        popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, isAvailable);
-        popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
+    void showMakeAvailableOfflineButton(final boolean isAvailable) {
+        downloadToggle.setVisibility(View.VISIBLE);
+        setOfflineAvailability(isAvailable);
+
+        // do not use setOnCheckedChangeListener or all hell will break loose
+        downloadToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onMakeOfflineAvailable(!isAvailable);
+            }
+        });
+    }
+
+    void setOfflineAvailability(boolean isAvailable) {
+        downloadToggle.setChecked(isAvailable);
     }
 
     void showUpsell() {
-        popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, true);
-        popupMenuWrapper.setItemVisible(R.id.make_offline_available, false);
-        popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, false);
+        downloadToggle.setVisibility(View.VISIBLE);
+        setOfflineAvailability(false);
+        downloadToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onUpsell(v.getContext());
+                setOfflineAvailability(false);
+            }
+        });
     }
 
-    void hideOfflineContentOptions() {
-        popupMenuWrapper.setItemVisible(R.id.make_offline_available, false);
-        popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, false);
-        popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
+    void hideMakeAvailableOfflineButton() {
+        downloadToggle.setVisibility(View.GONE);
     }
 
     void showPublicOptionsForYourTrack() {
@@ -146,7 +159,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     void setInfoText(String message) {
-        downloadableHeaderView.setHeaderText(message);
+        downloadStateView.setHeaderText(message);
     }
 
     @Override
@@ -166,15 +179,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
             case R.id.share:
                 getListener().onShare();
                 return true;
-            case R.id.make_offline_available:
-                getListener().onMakeOfflineAvailable(true);
-                return true;
-            case R.id.make_offline_unavailable:
-                getListener().onMakeOfflineAvailable(false);
-                return true;
-            case R.id.upsell_offline_content:
-                getListener().onUpsell(context);
-                return true;
             case R.id.shuffle:
                 getListener().onPlayShuffled();
                 return true;
@@ -186,7 +190,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         }
     }
 
-    void setOnEngagement(OnEngagementListener listener){
+    void setOnEngagement(OnEngagementListener listener) {
         this.listener = listener;
     }
 
@@ -195,7 +199,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
-                                      int checkedStringId) {
+                                    int checkedStringId) {
         final String buttonLabel = count < 0 ? Strings.EMPTY : numberFormatter.format(count);
         button.setTextOn(buttonLabel);
         button.setTextOff(buttonLabel);
@@ -223,12 +227,17 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     public interface OnEngagementListener {
         void onToggleLike(boolean isLiked);
+
         void onToggleRepost(boolean isReposted, boolean showResultToast);
+
         void onShare();
+
         void onMakeOfflineAvailable(boolean isMarkedForOffline);
-        void onUpsellImpression();
+
         void onUpsell(Context context);
+
         void onPlayShuffled();
+
         void onDeletePlaylist();
     }
 }

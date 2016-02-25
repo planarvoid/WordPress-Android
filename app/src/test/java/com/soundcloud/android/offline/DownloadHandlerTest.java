@@ -1,9 +1,10 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.downloadRequestFromLikes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,12 +13,12 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadHandler.Listener;
 import com.soundcloud.android.offline.DownloadOperations.DownloadProgressListener;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -29,12 +30,12 @@ public class DownloadHandlerTest extends AndroidUnitTest {
     @Mock DownloadOperations downloadOperations;
     @Mock TrackDownloadsStorage tracksStorage;
     @Mock SecureFileStorage secureFileStorage;
+    @Mock OfflinePerformanceTracker performanceTracker;
     @Mock WriteResult writeResult;
 
     private DownloadHandler handler;
     private Message successMessage;
     private Message failureMessage;
-    private Message progressMessage;
     private Message notEnoughSpaceMessage;
     private Message cancelMessage;
     private DownloadRequest downloadRequest;
@@ -47,20 +48,19 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        downloadRequest = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(123L));
+        downloadRequest = downloadRequestFromLikes(Urn.forTrack(123L));
         successResult = DownloadState.success(downloadRequest);
-        failedResult = DownloadState.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
+        failedResult = DownloadState.invalidNetworkError(downloadRequest);
         unavailableResult = DownloadState.unavailable(downloadRequest);
         notEnoughSpaceResult = DownloadState.notEnoughSpace(downloadRequest);
         cancelledResult = DownloadState.canceled(downloadRequest);
 
         successMessage = createMessage(downloadRequest);
-        progressMessage = createMessage(downloadRequest);
         failureMessage = createMessage(downloadRequest);
         notEnoughSpaceMessage = createMessage(downloadRequest);
         cancelMessage = createMessage(downloadRequest);
 
-        handler = new DownloadHandler(listener, downloadOperations, secureFileStorage, tracksStorage);
+        handler = new DownloadHandler(listener, downloadOperations, secureFileStorage, tracksStorage, performanceTracker);
 
         when(writeResult.success()).thenReturn(true);
         when(tracksStorage.storeCompletedDownload(any(DownloadState.class))).thenReturn(writeResult);
@@ -149,7 +149,9 @@ public class DownloadHandlerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deletesFileWhenFailToStoreSuccessStatus() throws PropellerWriteException {
+    public void deletesFileAndReportsDownloadFailedWhenFailToStoreSuccessStatus() throws PropellerWriteException {
+        ArgumentCaptor<DownloadState> downloadStateCaptor = ArgumentCaptor.forClass(DownloadState.class);
+
         when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
         when(writeResult.success()).thenReturn(false);
         when(tracksStorage.storeCompletedDownload(successResult)).thenReturn(writeResult);
@@ -157,6 +159,11 @@ public class DownloadHandlerTest extends AndroidUnitTest {
         handler.handleMessage(successMessage);
 
         verify(secureFileStorage).deleteTrack(downloadRequest.getTrack());
+        verify(listener).onError(downloadStateCaptor.capture());
+
+        DownloadState errorState = downloadStateCaptor.getValue();
+        assertThat(errorState.isDownloadFailed()).isTrue();
+        assertThat(errorState.request).isEqualTo(downloadRequest);
     }
 
     @Test
@@ -166,6 +173,39 @@ public class DownloadHandlerTest extends AndroidUnitTest {
         handler.handleMessage(successMessage);
 
         verify(tracksStorage).markTrackAsUnavailable(unavailableResult.getTrack());
+    }
+
+    @Test
+    public void tracksDownloadStartedAndCompleted() {
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
+
+        handler.handleMessage(successMessage);
+
+        InOrder inOrder = inOrder(performanceTracker);
+        inOrder.verify(performanceTracker).downloadStarted(downloadRequest);
+        inOrder.verify(performanceTracker).downloadComplete(successResult);
+    }
+
+    @Test
+    public void tracksDownloadStartedAndCancelled() {
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(cancelledResult);
+
+        handler.handleMessage(cancelMessage);
+
+        InOrder inOrder = inOrder(performanceTracker);
+        inOrder.verify(performanceTracker).downloadStarted(downloadRequest);
+        inOrder.verify(performanceTracker).downloadCancelled(cancelledResult);
+    }
+
+    @Test
+    public void tracksDownloadStartedAndFailed() {
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(failedResult);
+
+        handler.handleMessage(failureMessage);
+
+        InOrder inOrder = inOrder(performanceTracker);
+        inOrder.verify(performanceTracker).downloadStarted(downloadRequest);
+        inOrder.verify(performanceTracker).downloadFailed(failedResult);
     }
 
     private Message createMessage(DownloadRequest downloadRequest) {

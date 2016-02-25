@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.playlists.PlaylistWithTracksTests.createPlaylistWithTracks;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,12 +12,14 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.playlists.PlaylistWithTracks;
+import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
@@ -52,34 +53,35 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Mock private LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand;
     @Mock private OfflineServiceInitiator serviceInitiator;
     @Mock private TrackDownloadsStorage trackDownloadsStorage;
-    @Mock private PlaylistOperations playlistOperations;
     @Mock private CollectionOperations collectionOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private ChangeResult changeResult;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
+    @Mock private SyncInitiator syncInitiator;
     @Mock private Action1<Object> startServiceAction;
+    @Mock private Action1<Object> scheduleCleanupAction;
+    @Mock private LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
+    @Mock private OfflineContentScheduler serviceScheduler;
 
     private OfflineContentOperations operations;
     private TestEventBus eventBus;
-    private TestSubscriber<ChangeResult> subscriber;
-    private List<PlaylistWithTracks> playlistsWithTracks;
+    private TestSubscriber<Void> subscriber;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
         subscriber = new TestSubscriber<>();
 
-        when(serviceInitiator.action1Start()).thenReturn(startServiceAction);
+        when(serviceInitiator.startFromUserAction()).thenReturn(startServiceAction);
+        when(serviceScheduler.scheduleCleanupAction()).thenReturn(scheduleCleanupAction);
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(LIKED_TRACKS));
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
+                Observable.<Collection<ApiPolicyInfo>>just(Collections.<ApiPolicyInfo>emptyList()));
         when(changeResult.success()).thenReturn(true);
-        when(offlineContentStorage.deleteLikedTrackCollection()).thenReturn(Observable.<ChangeResult>empty());
 
         final Urn offlinePlaylist = Urn.forPlaylist(112233L);
         final List<Urn> offlinePlaylists = singletonList(offlinePlaylist);
-        playlistsWithTracks = singletonList(createPlaylistWithTracks(offlinePlaylist));
-        when(offlineContentStorage.loadOfflinePlaylists()).thenReturn(Observable.just(offlinePlaylists));
-        when(playlistOperations.playlists(offlinePlaylists)).thenReturn(Observable.just(playlistsWithTracks));
+        when(loadOfflinePlaylistsCommand.toObservable(null)).thenReturn(Observable.just(offlinePlaylists));
 
         operations = new OfflineContentOperations(
                 storeDownloadUpdatesCommand,
@@ -91,10 +93,12 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
                 loadExpectedContentCommand,
                 loadOfflineContentUpdatesCommand,
                 serviceInitiator,
+                serviceScheduler,
+                syncInitiator,
                 featureOperations,
                 trackDownloadsStorage,
-                playlistOperations,
                 collectionOperations,
+                loadOfflinePlaylistsCommand,
                 Schedulers.immediate());
     }
 
@@ -117,26 +121,13 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void loadOfflineContentUpdatesSyncThePlaylistsTracks() {
-        final PublishSubject<List<PlaylistWithTracks>> subject = PublishSubject.create();
-        final List<Urn> offlineCollections = singletonList(Urn.forPlaylist(123L));
-
-        when(offlineContentStorage.loadOfflinePlaylists()).thenReturn(Observable.just(offlineCollections));
-        when(playlistOperations.playlists(offlineCollections)).thenReturn(subject);
-
-        operations.loadOfflineContentUpdates().subscribe();
-
-        assertThat(subject.hasObservers()).isTrue();
-    }
-
-    @Test
     public void loadOfflineContentStoresContentUpdates() throws Exception {
         final ExpectedOfflineContent downloadRequests = getExpectedOfflineContent();
         final OfflineContentUpdates offlineContentUpdates = mock(OfflineContentUpdates.class);
 
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
-        when(loadExpectedContentCommand.toObservable(playlistsWithTracks)).thenReturn(Observable.just(downloadRequests));
+        when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
         when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
 
         operations.loadOfflineContentUpdates().subscribe();
@@ -152,7 +143,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
-        when(loadExpectedContentCommand.toObservable(playlistsWithTracks)).thenReturn(Observable.just(downloadRequests));
+        when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
         when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
 
         operations.loadOfflineContentUpdates().subscribe(subscriber);
@@ -161,26 +152,31 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setPlaylistAvailableOfflineStartsService() {
+    public void enableOfflineCollectionStartsService() {
         final Urn playlist1 = Urn.forPlaylist(123L);
         final Urn playlist2 = Urn.forPlaylist(456L);
         final List<Urn> expectedOfflinePlaylists = newArrayList(playlist1, playlist2);
-        when(offlineContentStorage.storeLikedTrackCollection()).thenReturn(Observable.just(new ChangeResult(1)));
+        when(offlineContentStorage.addLikedTrackCollection()).thenReturn(Observable.just(new ChangeResult(1)));
         when(collectionOperations.myPlaylists()).thenReturn(Observable.just(Arrays.asList(createPlaylistItem(playlist1), createPlaylistItem(playlist2))));
-        when(offlineContentStorage.addOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(new TxnResult()));
+        when(offlineContentStorage.setOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(new TxnResult()));
+        final PublishSubject<Boolean> refreshSubject = PublishSubject.create();
+        when(syncInitiator.refreshMyPlaylists()).thenReturn(refreshSubject);
 
         operations.enableOfflineCollection().subscribe();
 
         verify(startServiceAction).call(anyObject());
+        assertThat(refreshSubject.hasObservers()).isTrue();
     }
 
     @Test
     public void makePlaylistAvailableOfflineStoresAsOfflineContent() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         when(offlineContentStorage.storeAsOfflinePlaylist(playlistUrn)).thenReturn(Observable.just(changeResult));
+        when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(Observable.just(SyncResult.success("blah", true)));
 
         operations.makePlaylistAvailableOffline(playlistUrn).subscribe(subscriber);
 
+        subscriber.assertValueCount(1);
         subscriber.assertCompleted();
     }
 
@@ -191,6 +187,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         operations.makePlaylistUnavailableOffline(playlistUrn).subscribe(subscriber);
 
+        subscriber.assertValueCount(1);
         subscriber.assertCompleted();
     }
 
@@ -215,6 +212,17 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void makePlaylistUnavailableOfflineScheduleFilesCleaUp() {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        when(offlineContentStorage.removePlaylistFromOffline(playlistUrn)).thenReturn(Observable.just(changeResult));
+
+        operations.makePlaylistUnavailableOffline(playlistUrn).subscribe();
+
+        verify(scheduleCleanupAction).call(anyObject());
+    }
+
+
+    @Test
     public void clearOfflineContentStartsService() {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
         when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(removed));
@@ -229,15 +237,43 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     public void loadOfflineContentUpdatesDoesNotFailWhenPoliciesFailedToUpdate() {
         final TestSubscriber<OfflineContentUpdates> subscriber = new TestSubscriber<>();
 
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>error(new RuntimeException("Test exception")));
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
+                Observable.<Collection<ApiPolicyInfo>>error(new RuntimeException("Test exception")));
         operations.loadOfflineContentUpdates().subscribe(subscriber);
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
     }
 
+    @Test
+    public void disableOfflineLikedTracksSendAnEvent() {
+        when(offlineContentStorage.removeLikedTrackCollection()).thenReturn(Observable.just(changeResult));
+
+        operations.disableOfflineLikedTracks().subscribe();
+
+        final OfflineContentChangedEvent event = eventBus.lastEventOn(EventQueue.OFFLINE_CONTENT_CHANGED);
+        assertThat(event.state).isEqualTo(OfflineState.NOT_OFFLINE);
+        assertThat(event.isLikedTrackCollection).isEqualTo(true);
+    }
+
+    @Test
+    public void disableOfflineLikedTracksStartsService() {
+        when(offlineContentStorage.removeLikedTrackCollection()).thenReturn(Observable.just(changeResult));
+        operations.disableOfflineLikedTracks().subscribe();
+
+        verify(startServiceAction).call(anyObject());
+    }
+
+    @Test
+    public void disableOfflineLikedTracksScheduleFilesCleanUp() {
+        when(offlineContentStorage.removeLikedTrackCollection()).thenReturn(Observable.just(changeResult));
+        operations.disableOfflineLikedTracks().subscribe();
+
+        verify(scheduleCleanupAction).call(anyObject());
+    }
+
     private ExpectedOfflineContent getExpectedOfflineContent() {
-        return new ExpectedOfflineContent(Collections.<DownloadRequest>emptyList(), Collections.<PlaylistWithTracks>emptyList(), false, Collections.<Urn>emptyList());
+        return mock(ExpectedOfflineContent.class);
     }
 
     public PlaylistItem createPlaylistItem(Urn urn) {

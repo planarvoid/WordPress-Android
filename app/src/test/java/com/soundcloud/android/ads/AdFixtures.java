@@ -2,12 +2,14 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class AdFixtures {
 
@@ -41,6 +43,14 @@ public class AdFixtures {
 
     public static VideoAd getVideoAd(Urn monetizableUrn) {
         return VideoAd.create(getApiVideoAd(), monetizableUrn);
+    }
+
+    public static VideoAd getVideoAd(Urn monetizableUrn, ApiVideoSource videoSource) {
+        return VideoAd.create(getApiVideoAd(videoSource), monetizableUrn);
+    }
+
+    public static VideoAd getVideoAd(Urn monetizableUrn, List<ApiVideoSource> videoSources) {
+        return VideoAd.create(getApiVideoAd(videoSources), monetizableUrn);
     }
 
     public static ApiDisplayProperties getApiDisplayProperties() {
@@ -119,13 +129,21 @@ public class AdFixtures {
         );
     }
 
-    public static ApiVideoSource getApiVideoSource() {
+    public static ApiVideoSource getApiVideoSource(int width, int height) {
+        return getApiVideoSource(width, height, "video/mp4", Consts.NOT_SET);
+    }
+
+    public static ApiVideoSource getApiVideoSource(int width, int height, int bitRate) {
+        return getApiVideoSource(width, height, "video/mp4", bitRate);
+    }
+
+    public static ApiVideoSource getApiVideoSource(int width, int height, String type, int bitRate) {
         return ApiVideoSource.create(
-                "video/mp4",
+                type,
                 "http://videourl.com/video.mp4",
-                2884,
-                608,
-                1080
+                bitRate,
+                width,
+                height
         );
     }
 
@@ -146,9 +164,17 @@ public class AdFixtures {
     }
 
     public static ApiVideoAd getApiVideoAd() {
+        return getApiVideoAd(getApiVideoSource(608, 1080, 2884));
+    }
+
+    public static ApiVideoAd getApiVideoAd(ApiVideoSource apiVideoSource) {
+        return getApiVideoAd(Collections.singletonList(apiVideoSource)) ;
+    }
+
+    public static ApiVideoAd getApiVideoAd(List<ApiVideoSource> apiVideoSources) {
         return ApiVideoAd.create(
                 Urn.forAd("dfp", "905"),
-                Collections.singletonList(getApiVideoSource()),
+                apiVideoSources,
                 getApiVideoAdTracking(),
                 getApiCompanionAd()
         );

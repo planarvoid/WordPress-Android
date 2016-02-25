@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ShrinkWrap" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:scrollHorizontally">false</item>
+        <item name="android:ellipsize">end</item>
+        <item name="jagged_background">@color/overlay_text_background</item>
+    </style>
+
+    <style name="ShrinkWrap.Primary">
+        <item name="android:maxLines">3</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="ShrinkWrap.Primary.Medium">
+        <item name="android:textSize">@dimen/shrinkwrap_medium_primary_text_size</item>
+        <item name="android:lineSpacingExtra">@dimen/shrinkwrap_medium_primary_line_spacing_extra</item>
+        <item name="android:paddingLeft">@dimen/shrinkwrap_medium_padding_left</item>
+        <item name="android:paddingRight">@dimen/shrinkwrap_medium_padding_right</item>
+        <item name="android:paddingTop">@dimen/shrinkwrap_medium_padding_top</item>
+        <item name="android:paddingBottom">@dimen/shrinkwrap_medium_padding_bottom</item>
+    </style>
+
+    <style name="ShrinkWrap.Primary.Small">
+        <item name="android:textSize">@dimen/shrinkwrap_small_primary_text_size</item>
+        <item name="android:lineSpacingExtra">@dimen/shrinkwrap_small_primary_line_spacing_extra</item>
+        <item name="android:paddingLeft">@dimen/shrinkwrap_small_padding_left</item>
+        <item name="android:paddingRight">@dimen/shrinkwrap_small_padding_right</item>
+        <item name="android:paddingTop">@dimen/shrinkwrap_small_padding_top</item>
+        <item name="android:paddingBottom">@dimen/shrinkwrap_small_padding_bottom</item>
+    </style>
+
+    <style name="ShrinkWrap.Secondary">
+        <item name="android:singleLine">true</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@color/clickable_overlay_text</item>
+    </style>
+
+    <style name="ShrinkWrap.Secondary.Medium">
+        <item name="android:textSize">@dimen/shrinkwrap_medium_secondary_text_size</item>
+        <item name="android:paddingLeft">@dimen/shrinkwrap_medium_padding_left</item>
+        <item name="android:paddingRight">@dimen/shrinkwrap_medium_padding_right</item>
+        <item name="android:paddingTop">@dimen/shrinkwrap_medium_padding_top</item>
+        <item name="android:paddingBottom">@dimen/shrinkwrap_medium_padding_bottom</item>
+    </style>
+    
+    <style name="ShrinkWrap.Secondary.Small">
+        <item name="android:textSize">@dimen/shrinkwrap_small_secondary_text_size</item>
+        <item name="android:paddingLeft">@dimen/shrinkwrap_small_padding_left</item>
+        <item name="android:paddingRight">@dimen/shrinkwrap_small_padding_right</item>
+        <item name="android:paddingTop">@dimen/shrinkwrap_small_padding_top</item>
+        <item name="android:paddingBottom">@dimen/shrinkwrap_small_padding_bottom</item>
+    </style>
+
+    <style name="ShrinkWrap.Secondary.Medium.Clickable">
+        <item name="android:textColor">@color/clickable_overlay_text</item>
+        <item name="jagged_background">@color/clickable_overlay_background</item>
+    </style>
+
+
+</resources>

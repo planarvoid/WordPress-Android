@@ -57,7 +57,7 @@
 
                 <com.soundcloud.android.view.JaggedTextView
                     android:id="@+id/username"
-                    style="@style/BlackOverlayText.RegularSubtext"
+                    style="@style/ShrinkWrap.Secondary.Small"
                     android:layout_above="@+id/track_title"
                     android:layout_marginLeft="@dimen/recommendations_cell_track_data_padding_left_right"
                     android:layout_marginRight="@dimen/recommendations_cell_track_data_padding_left_right"
@@ -65,7 +65,7 @@
 
                 <com.soundcloud.android.view.JaggedTextView
                     android:id="@+id/track_title"
-                    style="@style/BlackOverlayText.Regular"
+                    style="@style/ShrinkWrap.Primary.Small"
                     android:layout_alignBottom="@id/track_image"
                     android:layout_marginTop="@dimen/recommendations_cell_track_data_padding_top"
                     android:layout_marginBottom="@dimen/recommendations_cell_track_data_padding_bottom"
@@ -80,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="?android:attr/selectableItemBackground">
+                android:background="?attr/selectableItemBackground">
 
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/view_all"

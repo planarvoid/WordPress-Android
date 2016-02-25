@@ -82,13 +82,27 @@ public class AdPageListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onClickThroughShouldSetMenetizableTrackMetaAdClicked() {
+    public void onClickThroughShouldSetMonetizableTrackMetaAdClicked() {
         final LeaveBehindAd monetizableLeaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(321L));
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(monetizableLeaveBehindAd));
 
         listener.onClickThrough();
 
         assertThat(monetizableLeaveBehindAd.isMetaAdClicked()).isTrue();
+    }
+
+    @Test
+    public void onLandscapeEmitsForceLandscapeUICommandEvent() {
+        listener.onFullscreen();
+
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isForceLandscape()).isTrue();
+    }
+
+    @Test
+    public void onLandscapeEmitsForcePortraitUICommandEvent() {
+        listener.onShrink();
+
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isForcePortrait()).isTrue();
     }
 
     @Test

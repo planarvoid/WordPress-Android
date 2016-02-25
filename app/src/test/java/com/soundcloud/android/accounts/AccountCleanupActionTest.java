@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.commands.ClearTableCommand;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
@@ -55,13 +56,14 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private StationsOperations stationsOperations;
     @Mock private CollectionOperations collectionOperations;
     @Mock private SoundStreamOperations soundStreamOperations;
+    @Mock private ConfigurationOperations configurationOperations;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(legacyUserAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, syncCleanupAction, planStorage,
                 removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations,
-                collectionOperations, soundStreamOperations);
+                collectionOperations, soundStreamOperations, configurationOperations);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -157,6 +159,12 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldClearWaveforms() {
         action.call();
         verify(clearTableCommand).call(Table.Waveforms);
+    }
+
+    @Test
+    public void shouldClearPolicies() {
+        action.call();
+        verify(clearTableCommand).call(Table.TrackPolicies);
     }
 
     @Test

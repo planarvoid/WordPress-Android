@@ -157,14 +157,21 @@ public class OnboardingEventTest {
     @Test
     public void shouldCreateDeviceConflictEvent() {
         onboardingEvent = OnboardingEvent.deviceConflictOnLogin();
-        assertThat(onboardingEvent.getKind()).isEqualTo(OnboardingEvent.DEVICE_CONFLICT);
-        assertThat(onboardingEvent.getAttributes().get("error_type")).isEqualTo("device_limit");
+        assertThat(onboardingEvent.getKind()).isEqualTo(OnboardingEvent.DEVICE_MANAGEMENT);
+        assertThat(onboardingEvent.getAttributes().get("error_type")).isEqualTo("device_conflict");
+    }
+
+    @Test
+    public void shouldCreateDeviceBlockEvent() {
+        onboardingEvent = OnboardingEvent.deviceBlockOnLogin();
+        assertThat(onboardingEvent.getKind()).isEqualTo(OnboardingEvent.DEVICE_MANAGEMENT);
+        assertThat(onboardingEvent.getAttributes().get("error_type")).isEqualTo("device_block");
     }
 
     @Test
     public void shouldCreateDeviceConflictLoggedOutEvent() {
         onboardingEvent = OnboardingEvent.deviceConflictLoggedOut();
-        assertThat(onboardingEvent.getKind()).isEqualTo(OnboardingEvent.DEVICE_CONFLICT);
+        assertThat(onboardingEvent.getKind()).isEqualTo(OnboardingEvent.DEVICE_MANAGEMENT);
         assertThat(onboardingEvent.getAttributes().get("error_type")).isEqualTo("logged_out");
     }
 

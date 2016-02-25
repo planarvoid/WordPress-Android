@@ -1,15 +1,14 @@
 package com.soundcloud.android.configuration;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
-import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,8 +21,13 @@ import java.util.Collections;
 
 public class ConfigurationManagerTest extends AndroidUnitTest {
 
+    private static final Configuration AUTHORIZED_DEVICE_CONFIG = new Configuration(Collections.<Feature>emptyList(),
+            new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(true, false));
+
+    private static final Configuration UNAUTHORIZED_DEVICE_CONFIG = new Configuration(Collections.<Feature>emptyList(),
+            new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(false, true));
+
     @Mock private ConfigurationOperations configurationOperations;
-    @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private DeviceManagementStorage deviceManagementStorage;
 
@@ -31,37 +35,62 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        manager = new ConfigurationManager(configurationOperations, offlineContentOperations, accountOperations, deviceManagementStorage);
+        manager = new ConfigurationManager(configurationOperations, accountOperations, deviceManagementStorage);
     }
 
     @Test
-    public void updateWithAuthorizedDeviceResponseSavesConfiguration() {
-        Configuration configuration = new Configuration(Collections.<Feature>emptyList(),
-                new UserPlan("free", Arrays.asList("mid_tier")), Collections.<Layer>emptyList(), new DeviceManagement(true, null));
-        when(configurationOperations.update()).thenReturn(Observable.just(configuration));
+    public void forceUpdateWithAuthorizedDeviceResponseSavesConfiguration() {
+        when(configurationOperations.update()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
 
-        manager.update();
+        manager.forceUpdate();
 
-        verify(configurationOperations).saveConfiguration(configuration);
+        verify(configurationOperations).saveConfiguration(AUTHORIZED_DEVICE_CONFIG);
     }
 
     @Test
-    public void updateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
-        Configuration configurationWithDeviceConflict = new Configuration(Collections.<Feature>emptyList(),
-                new UserPlan("free", Arrays.asList("mid_tier")), Collections.<Layer>emptyList(), new DeviceManagement(false, null));
-
-        when(configurationOperations.update()).thenReturn(Observable.just(configurationWithDeviceConflict));
+    public void forceUpdateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
+        when(configurationOperations.update()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
 
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
-        final PublishSubject<Void> clearOfflineContentSubject = PublishSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
-        when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
 
-        manager.update();
+        manager.forceUpdate();
 
         logoutSubject.onNext(null);
-        assertThat(clearOfflineContentSubject.hasObservers()).isTrue();
         verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
+    }
+
+    @Test
+    public void requestedUpdateWithAuthorizedDeviceResponseSavesConfiguration() {
+        when(configurationOperations.updateIfNecessary()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
+
+        manager.requestUpdate();
+
+        verify(configurationOperations).saveConfiguration(AUTHORIZED_DEVICE_CONFIG);
+    }
+
+    @Test
+    public void requestedUpdateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
+        when(configurationOperations.updateIfNecessary()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
+
+        final PublishSubject<Void> logoutSubject = PublishSubject.create();
+        when(accountOperations.logout()).thenReturn(logoutSubject);
+
+        manager.requestUpdate();
+
+        logoutSubject.onNext(null);
+        verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
+    }
+
+    @Test
+    public void requestedUnnecessaryUpdateIsNoOp() {
+        when(configurationOperations.updateIfNecessary()).thenReturn(Observable.<Configuration>empty());
+
+        manager.requestUpdate();
+
+        verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
+        verifyZeroInteractions(accountOperations);
+        verifyZeroInteractions(deviceManagementStorage);
     }
 
 }

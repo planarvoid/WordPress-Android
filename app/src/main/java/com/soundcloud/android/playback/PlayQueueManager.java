@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
@@ -12,9 +11,12 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
@@ -42,20 +44,27 @@ public class PlayQueueManager implements OriginProvider {
     private final PlayQueueOperations playQueueOperations;
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
+    private final NetworkConnectionHelper networkConnectionHelper;
+    private final TrackOfflineStateProvider offlineStateProvider;
+
     private int currentPosition;
     private boolean currentItemIsUserTriggered;
 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
-    private Pair<Urn, Long> lastPlayedTrackAndPosition = Pair.of(Urn.NOT_SET, (long) Consts.NOT_SET);
+    private Pair<Urn, Long> lastPlayedItemAndPosition = Pair.of(Urn.NOT_SET, (long) Consts.NOT_SET);
 
     @Inject
     public PlayQueueManager(PlayQueueOperations playQueueOperations,
                             EventBus eventBus,
-                            PolicyOperations policyOperations) {
+                            PolicyOperations policyOperations,
+                            NetworkConnectionHelper networkConnectionHelper,
+                            TrackOfflineStateProvider offlineStateProvider) {
         this.playQueueOperations = playQueueOperations;
         this.eventBus = eventBus;
         this.policyOperations = policyOperations;
+        this.networkConnectionHelper = networkConnectionHelper;
+        this.offlineStateProvider = offlineStateProvider;
     }
 
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
@@ -75,8 +84,6 @@ public class PlayQueueManager implements OriginProvider {
         }
         saveQueue();
         saveCurrentProgress(0L);
-
-        fireAndForget(policyOperations.updatePolicies(playQueue.getTrackItemUrns()));
     }
 
     public boolean isCurrentItem(PlayQueueItem playQueueItem) {
@@ -88,7 +95,7 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {
-        setPosition(playQueue.indexOfPlayQueueItem(playQueueItem), true);
+        setPositionInternal(playQueue.indexOfPlayQueueItem(playQueueItem), true);
     }
 
     public List<PlayQueueItem> getPlayQueueItems(Predicate<PlayQueueItem> predicate) {
@@ -172,12 +179,12 @@ public class PlayQueueManager implements OriginProvider {
                 getPlayQueueItemAtPosition(currentPosition1).getUrn().equals(trackUrn);
     }
 
-    public boolean wasLastSavedTrack(Urn urn) {
-        return lastPlayedTrackAndPosition.first().equals(urn);
+    public boolean wasLastSavedItem(Urn urn) {
+        return lastPlayedItemAndPosition.first().equals(urn);
     }
 
     public long getLastSavedProgressPosition() {
-        return lastPlayedTrackAndPosition.second();
+        return lastPlayedItemAndPosition.second();
     }
 
     public boolean isQueueEmpty() {
@@ -188,12 +195,22 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.size();
     }
 
-    public int getQueueItemsRemaining() {
-        return getQueueSize() - playQueue.indexOfPlayQueueItem(getCurrentPlayQueueItem()) - 1;
+    public int getPlayableQueueItemsRemaining() {
+        int playableCount = 0;
+        for (int i = currentPosition + 1, size = getQueueSize(); i < size; i++) {
+            if (isPlayableAtPosition(i)) {
+                playableCount++;
+            }
+        }
+        return playableCount;
     }
 
     @Deprecated // this should not be used outside of casting, which uses it as an optimisation. Use setCurrentPlayQueueItem instead
     public void setPosition(int position, boolean isUserTriggered) {
+        setPositionInternal(position, isUserTriggered);
+    }
+
+    private void setPositionInternal(int position, boolean isUserTriggered) {
         if (position != currentPosition && position < playQueue.size()) {
             this.currentPosition = position;
             currentItemIsUserTriggered = isUserTriggered;
@@ -229,9 +246,9 @@ public class PlayQueueManager implements OriginProvider {
         if (hasNextItem()) {
             final int nextPlayableItem = getNextPlayableItem();
             final int newPosition = nextPlayableItem == Consts.NOT_SET
-                    ? getQueueSize() - 1 // last track
+                    ? currentPosition + 1 // next track
                     : nextPlayableItem; // next playable track
-            setPosition(newPosition, userTriggered);
+            setPositionInternal(newPosition, userTriggered);
             return true;
         } else {
             return false;
@@ -249,7 +266,16 @@ public class PlayQueueManager implements OriginProvider {
 
     private boolean isPlayableAtPosition(int i) {
         final PlayQueueItem playQueueItem = playQueue.getPlayQueueItem(i);
+        return isNotBlockedTrackOrVideo(playQueueItem) &&
+                (networkConnectionHelper.isNetworkConnected() || isOfflineAvailable(playQueueItem));
+    }
+
+    private boolean isNotBlockedTrackOrVideo(PlayQueueItem playQueueItem) {
         return playQueueItem.isVideo() || (playQueueItem.isTrack() && !((TrackQueueItem) playQueueItem).isBlocked());
+    }
+
+    private boolean isOfflineAvailable(PlayQueueItem playQueueItem) {
+        return offlineStateProvider.getOfflineState(playQueueItem.getUrn()) == OfflineState.DOWNLOADED;
     }
 
     public boolean moveToPreviousPlayableItem() {
@@ -258,7 +284,7 @@ public class PlayQueueManager implements OriginProvider {
             final int newPosition = previousPlayable == Consts.NOT_SET
                     ? 0 // first track
                     : previousPlayable; // next playable track
-            setPosition(newPosition, true);
+            setPositionInternal(newPosition, true);
             return true;
         } else {
             return false;
@@ -287,13 +313,13 @@ public class PlayQueueManager implements OriginProvider {
         broadcastNewPlayQueue();
     }
 
-    public void saveCurrentProgress(long currentTrackProgress) {
-        if (playQueue.hasItems() && getCurrentPlayQueueItem().isTrack()) {
+    public void saveCurrentProgress(long currentProgress) {
+        if (playQueue.hasItems()) {
             final int savePosition = getPositionToBeSaved();
-            final long progress = getProgressToBeSaved(currentTrackProgress);
-            final Urn trackUrn = getCurrentPlayQueueItem().getUrn();
-            playQueueOperations.savePositionInfo(savePosition, trackUrn, playSessionSource, progress);
-            setLastPlayedTrackAndPosition(trackUrn, progress);
+            final long progress = getProgressToBeSaved(currentProgress);
+            final Urn itemUrn = getCurrentPlayQueueItem().getUrn();
+            playQueueOperations.savePositionInfo(savePosition, itemUrn, playSessionSource, progress);
+            setLastPlayedItemAndPosition(itemUrn, progress);
         }
     }
 
@@ -320,7 +346,7 @@ public class PlayQueueManager implements OriginProvider {
                 .doOnNext(new Action1<PlayQueue>() {
                     @Override
                     public void call(PlayQueue savedQueue) {
-                        setLastPlayedTrackAndPosition(
+                        setLastPlayedItemAndPosition(
                                 Urn.forTrack(playQueueOperations.getLastStoredPlayingTrackId()),
                                 playQueueOperations.getLastStoredSeekPosition());
 
@@ -330,8 +356,8 @@ public class PlayQueueManager implements OriginProvider {
                 });
     }
 
-    private void setLastPlayedTrackAndPosition(Urn urn, long lastStoredSeekPosition) {
-        lastPlayedTrackAndPosition = Pair.of(urn, lastStoredSeekPosition);
+    private void setLastPlayedItemAndPosition(Urn urn, long lastStoredSeekPosition) {
+        lastPlayedItemAndPosition = Pair.of(urn, lastStoredSeekPosition);
     }
 
     private void publishPositionUpdate() {

@@ -8,6 +8,7 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -107,7 +108,11 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private static final Func2<AdData, PropertySet, PlayerItem> TO_PLAYER_AD = new Func2<AdData, PropertySet, PlayerItem>() {
         @Override
         public PlayerItem call(AdData adData, PropertySet trackProperties) {
-            return new PlayerAd((PlayerAdData) adData, trackProperties);
+            if (adData instanceof VideoAd) {
+                return new VideoPlayerAd((VideoAd) adData, trackProperties);
+            } else {
+                return new PlayerAd((PlayerAdData) adData, trackProperties);
+            }
         }
     };
 
@@ -140,7 +145,6 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         this.adOperations = adOperations;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
-
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
     }
@@ -496,7 +500,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     }
 
     private void updateProgress(PlayerPagePresenter presenter, View trackView, Urn urn) {
-        presenter.setProgress(trackView, playSessionStateProvider.getLastProgressForTrack(urn));
+        presenter.setProgress(trackView, playSessionStateProvider.getLastProgressForItem(urn));
     }
 
     private static class PlayerItemSubscriber extends DefaultSubscriber<PlayerItem> {

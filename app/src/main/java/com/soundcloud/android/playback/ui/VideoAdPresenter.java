@@ -5,16 +5,20 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.mediaplayer.MediaPlayerVideoAdapter;
+import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
+import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.collections.Iterables;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -22,10 +26,13 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 
 import javax.inject.Inject;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
+class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.OnClickListener {
 
     private enum UIState {
         INITIAL, ACTIVE, INACTIVE, PAUSED
@@ -35,20 +42,22 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
     private static final long FADE_OUT_DURATION_MS = 1000L;
     private static final long FADE_OUT_OFFSET_MS = 2000L;
 
-    private final MediaPlayerVideoAdapter mediaPlayerVideoAdapter;
+    private final MediaPlayerAdapter mediaPlayerAdapter;
     private final ImageOperations imageOperations;
     private final AdPageListener listener;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
+    private final DeviceHelper deviceHelper;
     private final Resources resources;
 
     @Inject
-    public VideoAdPresenter(MediaPlayerVideoAdapter mediaPlayerVideoAdapter, ImageOperations imageOperations,
+    public VideoAdPresenter(MediaPlayerAdapter mediaPlayerAdapter, ImageOperations imageOperations,
                             AdPageListener listener, PlayerOverlayController.Factory playerOverlayControllerFactory,
-                            Resources resources) {
-        this.mediaPlayerVideoAdapter = mediaPlayerVideoAdapter;
+                            DeviceHelper deviceHelper, Resources resources) {
+        this.mediaPlayerAdapter = mediaPlayerAdapter;
         this.imageOperations = imageOperations;
         this.listener = listener;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
+        this.deviceHelper = deviceHelper;
         this.resources = resources;
     }
 
@@ -69,6 +78,12 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
             case R.id.player_previous:
                 listener.onPrevious();
                 break;
+            case R.id.video_fullscreen_control:
+                listener.onFullscreen();
+                break;
+            case R.id.video_shrink_control:
+                listener.onShrink();
+                break;
             case R.id.cta_button:
                 listener.onClickThrough();
                 break;
@@ -85,7 +100,7 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
     @Override
     public View createItemView(ViewGroup container, SkipListener skipListener) {
-        final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_vertical_video_page, container, false);
+        final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_video_page, container, false);
         final Holder holder = new Holder(adView, playerOverlayControllerFactory);
         adView.setTag(holder);
         setVideoViewHolder(holder);
@@ -102,18 +117,80 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
     }
 
     @Override
-    public void bindItemView(View view, PlayerAd playerAd) {
-        final Holder holder = getViewHolder(view);
-        resetUI(holder);
+    public void bindItemView(View adView, VideoPlayerAd playerAd) {
+        final Holder holder = getViewHolder(adView);
+        setupLoadingStateViews(holder, playerAd.isLetterboxVideo(), false);
+        adjustLayoutForVideo(adView, playerAd, holder);
         resetSkipButton(holder, resources);
         displayPreview(playerAd, holder, imageOperations, resources);
         styleCallToActionButton(holder, playerAd, resources);
         setClickListener(this, holder.onClickViews);
     }
 
+    private void adjustLayoutForVideo(View adView, VideoPlayerAd playerAd, Holder holder) {
+        final LayoutParams layoutParams = adjustedVideoViewLayoutParams(playerAd, holder);
+        final int backgroundColor = resources.getColor(isOrientationLandscape() ? R.color.ad_landscape_video_background : R.color.ad_default_background);
+
+        adView.setBackgroundColor(backgroundColor);
+        holder.videoSurfaceView.setLayoutParams(layoutParams);
+        holder.videoOverlayContainer.setLayoutParams(layoutParams);
+        holder.letterboxBackground.setLayoutParams(layoutParams);
+        holder.fullscreenButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationPortrait() ? View.VISIBLE : View.GONE);
+        holder.shrinkButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationLandscape() ? View.VISIBLE : View.GONE);
+        holder.setupFadingInterface(playerAd.isVerticalVideo() || !isOrientationPortrait());
+
+        if (holder.getUIState() != UIState.INITIAL) {
+            setupLoadingStateViews(holder, playerAd.isLetterboxVideo(), true);
+            setInactiveUI(holder, adView.getContext(), true);
+        }
+    }
+
+    private LayoutParams adjustedVideoViewLayoutParams(VideoPlayerAd playerAd, Holder holder) {
+        final LayoutParams layoutParams = holder.videoSurfaceView.getLayoutParams();
+
+        if (playerAd.isVerticalVideo()) { // Vertical video view should scale like ImageView's CENTER_CROP
+            final int sourceWidth = playerAd.getFirstSource().getWidth();
+            final int sourceHeight = playerAd.getFirstSource().getHeight();
+            final float scaleFactor = centerCropScaleFactor(holder.videoContainer, sourceWidth, sourceHeight);
+            layoutParams.width = (int) ((float) sourceWidth * scaleFactor);
+            layoutParams.height = (int) ((float) sourceHeight * scaleFactor);
+        } else if (isOrientationPortrait()) {
+            final int horizontalPadding = 2 * ViewUtils.dpToPx(resources, 5);
+            layoutParams.width = holder.videoContainer.getWidth() - horizontalPadding;
+            layoutParams.height = (int) ((float) layoutParams.width / playerAd.getVideoProportion());
+        } else { // Landscape View
+            layoutParams.height = holder.videoContainer.getHeight();
+            layoutParams.width = (int) ((float) layoutParams.height * playerAd.getVideoProportion());
+        }
+
+        return layoutParams;
+    }
+
+    // Scale the video while maintaining aspect ratio so that both dimensions (width and height)
+    // of the view will be equal to or larger than the corresponding dimension of the player.
+    private float centerCropScaleFactor(View containerView, float sourceWidth, float sourceHeight) {
+        final int viewWidth = containerView.getWidth();
+        final int viewHeight = containerView.getHeight();
+        float scaleFactor;
+        if (sourceWidth * viewHeight > viewWidth * sourceHeight) {
+            scaleFactor = viewHeight / sourceHeight;
+        } else {
+            scaleFactor = viewWidth / sourceWidth;
+        }
+        return scaleFactor;
+    }
+
+    private boolean isOrientationPortrait() {
+        return deviceHelper.isOrientation(Configuration.ORIENTATION_PORTRAIT);
+    }
+
+    private boolean isOrientationLandscape() {
+        return deviceHelper.isOrientation(Configuration.ORIENTATION_LANDSCAPE);
+    }
+
     public void setVideoViewHolder(Holder holder) {
         final SurfaceHolder surfaceHolder = holder.videoSurfaceView.getHolder();
-        surfaceHolder.addCallback(mediaPlayerVideoAdapter);
+        surfaceHolder.addCallback(mediaPlayerAdapter);
     }
 
     @Override
@@ -126,6 +203,7 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
         final Holder holder = getViewHolder(adPage);
         holder.playControlsHolder.setVisibility(stateTransition.playSessionIsActive() ? View.GONE : View.VISIBLE);
         holder.playerOverlayController.setPlayState(stateTransition);
+        setLoadingState(holder, stateTransition, isCurrentItem);
 
         if (isCurrentItem) {
             if (holder.getUIState() == UIState.INITIAL && stateTransition.isPlayerPlaying()) {
@@ -135,6 +213,31 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
             } else if (holder.getUIState() == UIState.PAUSED && stateTransition.playSessionIsActive()) {
                 setInactiveUI(holder, adPage.getContext(), false);
             }
+        }
+    }
+
+    private void setLoadingState(Holder holder, Player.StateTransition stateTransition, boolean isCurrentItem) {
+        if (isCurrentItem) {
+            holder.videoProgress.setVisibility(stateTransition.isBuffering() && stateTransition.playSessionIsActive() ? View.VISIBLE : View.GONE);
+            if (stateTransition.isPlayerPlaying() && !isVideoSurfaceVisible(holder)) {
+                holder.videoSurfaceView.setVisibility(View.VISIBLE);
+            }
+        } else {
+            holder.videoProgress.setVisibility(stateTransition.playSessionIsActive() ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private boolean isVideoSurfaceVisible(Holder holder) {
+       return holder.videoSurfaceView.getVisibility() == View.VISIBLE;
+    }
+
+    private void setupLoadingStateViews(Holder holder, boolean isLetterboxVideo, boolean videoAlreadyStarted) {
+        final boolean playControlsVisible = holder.playControlsHolder.getVisibility() == View.VISIBLE;
+        holder.videoProgress.setVisibility(playControlsVisible || videoAlreadyStarted ? View.GONE : View.VISIBLE);
+        holder.videoSurfaceView.setVisibility(videoAlreadyStarted ? View.VISIBLE : View.GONE);
+        if (isLetterboxVideo) {
+            holder.letterboxBackground.setVisibility(videoAlreadyStarted ? View.GONE : View.VISIBLE);
+            holder.videoLayoutControls.setVisibility(videoAlreadyStarted ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -156,6 +259,18 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
     @Override
     public void onViewSelected(View view, PlayQueueItem value, boolean isExpanded) {
         // no-op
+    }
+
+    @Override
+    public void onForeground(View adPage) {
+        setVideoViewHolder(getViewHolder(adPage));
+    }
+
+    @Override
+    public void onBackground(View adPage) {
+        final SurfaceHolder surfaceHolder = getViewHolder(adPage).videoSurfaceView.getHolder();
+        surfaceHolder.removeCallback(mediaPlayerAdapter);
+        mediaPlayerAdapter.surfaceDestroyed(null);
     }
 
     private Holder getViewHolder(View videoPage) {
@@ -218,72 +333,99 @@ class VideoAdPresenter extends AdPagePresenter implements View.OnClickListener {
 
     private void setActiveUI(Holder holder, Context context) {
         if (holder.currentUIState == UIState.INACTIVE) {
-            setAnimation(holder.fadeableUIViewsWithPause, fadeInOutAnimation(holder, context));
+            setAnimation(holder.fadingViewsWithPause, fadeInOutAnimation(holder, context));
             holder.setUIState(UIState.ACTIVE);
         }
     }
 
     private void setInactiveUI(Holder holder, Context context, boolean withFade) {
         if (withFade) {
-            setAnimation(holder.fadeableUIViews, fadeOutAnimation(context));
+            setAnimation(holder.fadingViews, fadeOutAnimation(context));
         } else {
-            setVisibility(false, holder.fadeableUIViews);
+            setVisibility(false, holder.fadingViews);
         }
         holder.setUIState(UIState.INACTIVE);
     }
 
     private void setInitialUI(Holder holder) {
-        setVisibility(true, holder.fadeableUIViews);
+        setVisibility(true, holder.fadingViews);
         holder.setUIState(UIState.INITIAL);
     }
 
     private void setPausedUI(Holder holder) {
-        clearAnimation(holder.fadeableUIViewsWithPause);
-        setVisibility(true, holder.fadeableUIViews);
+        clearAnimation(holder.fadingViewsWithPause);
+        setVisibility(true, holder.fadingViews);
         holder.setUIState(UIState.PAUSED);
     }
 
     static class Holder extends AdHolder {
 
+        private final View videoContainer;
         private final SurfaceView videoSurfaceView;
+        private final View videoOverlayContainer;
+        private final View videoLayoutControls;
         private final View videoOverlay;
+
         private final View pauseButton;
+        private final View fullscreenButton;
+        private final View shrinkButton;
         private final View advertisementLabel;
+
+        private final View videoProgress;
+        private final View letterboxBackground;
 
         private final PlayerOverlayController playerOverlayController;
 
         private final Iterable<View> onClickViews;
-        final Iterable<View> fadeableUIViews;
-        final Iterable<View> fadeableUIViewsWithPause;
+        Iterable<View> fadingViews = Collections.emptyList();
+        Iterable<View> fadingViewsWithPause = Collections.emptyList();
 
         private UIState currentUIState = UIState.INITIAL;
 
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
             super(adView);
-
+            videoContainer = adView.findViewById(R.id.video_container);
             videoSurfaceView = (SurfaceView) adView.findViewById(R.id.video_view);
+            videoOverlayContainer = adView.findViewById(R.id.video_overlay_container);
+            videoLayoutControls = adView.findViewById(R.id.video_layout_control);
             videoOverlay = adView.findViewById(R.id.video_overlay);
+
             pauseButton = adView.findViewById(R.id.video_pause_control);
+            fullscreenButton = adView.findViewById(R.id.video_fullscreen_control);
+            shrinkButton = adView.findViewById(R.id.video_shrink_control);
             advertisementLabel = adView.findViewById(R.id.advertisement);
+
+            videoProgress = adView.findViewById(R.id.video_progress);
+            letterboxBackground = adView.findViewById(R.id.letterbox_background);
 
             playerOverlayController = playerOverlayControllerFactory.create(videoOverlay);
 
-            List<View> clickViews = Arrays.asList(playButton, nextButton, previousButton,
-                    pauseButton, videoOverlay, videoSurfaceView, ctaButton, whyAds, skipAd);
-            List<View> fadeViews = Arrays.asList(advertisementLabel, whyAds, ctaButton, previewContainer);
-            List<View> fadeViewsWithPause = Arrays.asList(advertisementLabel, whyAds, ctaButton, previewContainer, pauseButton);
+            List<View> clickViews = Arrays.asList(playButton, nextButton, previousButton, shrinkButton,
+                    fullscreenButton, pauseButton, videoOverlay, videoSurfaceView, ctaButton, whyAds, skipAd);
 
             onClickViews = Iterables.filter(clickViews, presentInConfig);
-            fadeableUIViews = Iterables.filter(fadeViews, presentInConfig);
-            fadeableUIViewsWithPause = Iterables.filter(fadeViewsWithPause, presentInConfig);
         }
 
         UIState getUIState() {
             return currentUIState;
         }
 
-        void setUIState(UIState state)  {
+        void setUIState(UIState state) {
             currentUIState = state;
         }
+
+        void setupFadingInterface(boolean enableAllFadeableElements) {
+            final List<View> fadeViews = enableAllFadeableElements ?
+                    getAllFadeableElementViews() : Collections.singletonList(videoLayoutControls);
+            final List<View> fadeViewsWithPause = new ArrayList<View>(fadeViews);
+            fadeViewsWithPause.add(pauseButton);
+            fadingViews = Iterables.filter(fadeViews, presentInConfig);
+            fadingViewsWithPause = Iterables.filter(fadeViewsWithPause, presentInConfig);
+        }
+
+        private List<View> getAllFadeableElementViews() {
+            return Arrays.asList(advertisementLabel, whyAds, ctaButton, previewContainer, videoLayoutControls);
+        }
+
     }
 }

@@ -7,8 +7,8 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
@@ -36,6 +36,7 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(TrackProperty.BLOCKED, cursorReader.getBoolean(SoundView.POLICIES_BLOCKED));
         propertySet.put(TrackProperty.SNIPPED, cursorReader.getBoolean(SoundView.POLICIES_SNIPPED));
         propertySet.put(TrackProperty.SUB_HIGH_TIER, cursorReader.getBoolean(SoundView.POLICIES_SUB_HIGH_TIER));
+        propertySet.put(TrackProperty.MONETIZATION_MODEL, cursorReader.getString(SoundView.POLICIES_MONETIZATION_MODEL));
         propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.getBoolean(SoundView.USER_LIKE));
         propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(SoundView.PERMALINK_URL));
         propertySet.put(PlayableProperty.IS_USER_REPOST, cursorReader.getBoolean(SoundView.USER_REPOST));
@@ -60,7 +61,7 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
 
         // synced tracks that might not have a user if they haven't been lazily updated yet
         final String creator = cursorReader.getString(SoundView.USERNAME);
-        propertySet.put(PlayableProperty.CREATOR_NAME, creator == null ? ScTextUtils.EMPTY_STRING : creator);
+        propertySet.put(PlayableProperty.CREATOR_NAME, creator == null ? Strings.EMPTY : creator);
         final long creatorId = cursorReader.getLong(SoundView.USER_ID);
         propertySet.put(PlayableProperty.CREATOR_URN, creatorId == Consts.NOT_SET ? Urn.NOT_SET : Urn.forUser(creatorId));
     }

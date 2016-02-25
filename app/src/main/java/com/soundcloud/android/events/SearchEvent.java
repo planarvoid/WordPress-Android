@@ -1,11 +1,9 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.storage.provider.Content;
-
-import java.util.Locale;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 
 public final class SearchEvent extends TrackingEvent {
 
@@ -25,9 +23,6 @@ public final class SearchEvent extends TrackingEvent {
     private static final String TYPE_PLAYLIST = "playlist";
     private static final String TYPE_USER = "user";
 
-    public static final String CLICK_NAME_PLAY = "play";
-    public static final String CLICK_NAME_OPEN_PLAYLIST = "open_playlist";
-    public static final String CLICK_NAME_OPEN_PROFILE = "open_profile";
     public static final String CLICK_NAME_ITEM_NAVIGATION = "item_navigation";
 
     private static final String CONTEXT_PERSONAL = "personal";
@@ -50,11 +45,11 @@ public final class SearchEvent extends TrackingEvent {
 
     private int clickPosition = Consts.NOT_SET;
 
-    public static SearchEvent searchSuggestion(Content itemKind, boolean localResult, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static SearchEvent searchSuggestion(Urn urn, boolean localResult, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_SUGGESTION)
                 .<SearchEvent>put(KEY_PAGE_NAME, Screen.SEARCH_SUGGESTIONS.get())
                 .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_ITEM_NAVIGATION)
-                .<SearchEvent>put(KEY_TYPE, itemKind.name().toLowerCase(Locale.US))
+                .<SearchEvent>put(KEY_TYPE, urn.isUser() ? TYPE_USER : TYPE_TRACK)
                 .<SearchEvent>put(KEY_CONTEXT, localResult ? CONTEXT_PERSONAL : CONTEXT_GLOBAL)
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
@@ -84,7 +79,7 @@ public final class SearchEvent extends TrackingEvent {
     public static SearchEvent tapTrackOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_RESULTS)
                 .<SearchEvent>put(KEY_PAGE_NAME, screen.get())
-                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_PLAY)
+                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_ITEM_NAVIGATION)
                 .<SearchEvent>put(KEY_TYPE, TYPE_TRACK)
                 .<SearchEvent>put(KEY_CONTEXT, eventAttributeFromScreen(screen))
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
@@ -97,7 +92,7 @@ public final class SearchEvent extends TrackingEvent {
     public static SearchEvent tapPlaylistOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_RESULTS)
                 .<SearchEvent>put(KEY_PAGE_NAME, screen.get())
-                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_OPEN_PLAYLIST)
+                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_ITEM_NAVIGATION)
                 .<SearchEvent>put(KEY_TYPE, TYPE_PLAYLIST)
                 .<SearchEvent>put(KEY_CONTEXT, eventAttributeFromScreen(screen))
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);
@@ -106,7 +101,7 @@ public final class SearchEvent extends TrackingEvent {
     public static SearchEvent tapUserOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_RESULTS)
                 .<SearchEvent>put(KEY_PAGE_NAME, screen.get())
-                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_OPEN_PROFILE)
+                .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_ITEM_NAVIGATION)
                 .<SearchEvent>put(KEY_TYPE, TYPE_USER)
                 .<SearchEvent>put(KEY_CONTEXT, eventAttributeFromScreen(screen))
                 .addSearchQuerySourceInfo(searchQuerySourceInfo);

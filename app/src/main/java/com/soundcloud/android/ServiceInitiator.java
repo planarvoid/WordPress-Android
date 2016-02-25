@@ -1,9 +1,9 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.gcm.GcmRegistrationService;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackService;
+import com.soundcloud.android.playback.PreloadItem;
 
 import android.content.Context;
 import android.content.Intent;
@@ -48,10 +48,10 @@ public class ServiceInitiator {
         startPlayback(playbackItem, PlaybackService.Action.PLAY);
     }
 
-    public void preload(Urn trackUrn) {
+    public void preload(PreloadItem preloadItem) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(PlaybackService.Action.PRELOAD);
-        intent.putExtra(PlaybackService.ActionExtras.URN, trackUrn);
+        intent.putExtra(PlaybackService.ActionExtras.PRELOAD_ITEM, (Parcelable) preloadItem);
         context.startService(intent);
     }
 

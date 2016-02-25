@@ -32,7 +32,7 @@
             android:layout_centerVertical="true"
             android:src="@drawable/help_icon"
             android:scaleType="center"
-            android:background="?android:attr/selectableItemBackground"/>
+            android:background="?attr/selectableItemBackground"/>
 
     </RelativeLayout>
 
@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="?android:attr/selectableItemBackground">
+        android:background="?attr/selectableItemBackground">
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/view_all"
@@ -57,7 +57,7 @@
             android:gravity="center"
             android:paddingBottom="@dimen/discovery_cell_text_view_all_padding"
             android:text="@string/search_premium_content_view_all"
-            tools:text="VIEW ALL SOUNDCLOUD GO RESULTS" />
+            tools:text="SEE ALL SOUNDCLOUD Go RESULTS" />
 
         <ImageView
             android:layout_width="@dimen/discovery_cell_image_view_all_size"
@@ -69,8 +69,14 @@
 
     </RelativeLayout>
 
-    <View style="@style/Divider.Section" />
-    <View style="@style/Divider.Background" />
-    <View style="@style/Divider.Section" />
+    <LinearLayout
+        android:id="@+id/view_all_container_divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <View style="@style/Divider.Section" />
+        <View style="@style/Divider.Background" />
+        <View style="@style/Divider.Section" />
+    </LinearLayout>
 
 </LinearLayout>

@@ -7,6 +7,7 @@ expected_events:
   params:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
     client_id: 3152
     connection_type: wifi
     click_attributes:
@@ -22,6 +23,7 @@ expected_events:
   params:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
+    app_version: '[0-9]+'
     client_id: 3152
     connection_type: wifi
     click_name: like::(add|remove)

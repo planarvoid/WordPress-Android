@@ -4,7 +4,6 @@ import static android.util.Log.INFO;
 import static com.soundcloud.android.Consts.RequestCodes;
 import static com.soundcloud.android.onboarding.FacebookSessionCallback.DEFAULT_FACEBOOK_READ_PERMISSIONS;
 import static com.soundcloud.android.onboarding.FacebookSessionCallback.EMAIL_ONLY_PERMISSION;
-import static com.soundcloud.android.onboarding.OnboardingOperations.ONBOARDING_TAG;
 import static com.soundcloud.android.util.AnimUtils.hideView;
 import static com.soundcloud.android.util.AnimUtils.showView;
 import static com.soundcloud.android.utils.ErrorUtils.log;
@@ -84,6 +83,7 @@ public class OnboardActivity extends FragmentActivity
         AcceptTermsLayout.AcceptTermsHandler, SignupBasicsLayout.SignUpBasicsHandler,
         GenderPickerDialogFragment.CallbackProvider, FacebookSessionCallback.FacebookLoginCallbacks {
 
+    public static final String ONBOARDING_TAG = "ScOnboarding";
 
     private static final int[] BACKGROUND_IMAGES = new int[]{R.drawable.onboard_background_ago, R.drawable.onboard_background_simz};
 
@@ -543,17 +543,10 @@ public class OnboardActivity extends FragmentActivity
                     .putExtra(PublicApiUser.EXTRA_ID, user.getId())
                     .putExtra(SignupVia.EXTRA, via.name));
 
-            if (wasSignup || wasAuthorizedViaSignupScreen()) {
-                Intent intent = new Intent(this, MainActivity.class)
-                        .putExtra(MainActivity.EXTRA_FROM_SIGNIN, true)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+            if (wasSignup || wasAuthorizedViaSignupScreen() || Urn.NOT_SET.equals(resourceUrn)) {
+                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             } else {
-                if (Urn.NOT_SET.equals(resourceUrn)) {
-                    startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                } else {
-                    navigator.openResolveForUrn(this, resourceUrn);
-                }
+                navigator.openResolveForUrn(this, resourceUrn);
             }
 
             finish();
@@ -922,9 +915,9 @@ public class OnboardActivity extends FragmentActivity
     public void onDeviceConflict(final Bundle loginBundle) {
         final AlertDialog.Builder builder = new ImageAlertDialog(this)
                 .setContent(R.drawable.dialog_device_management,
-                        R.string.device_management_limit,
-                        R.string.device_management_login_message)
-                .setPositiveButton(R.string.device_management_continue, new DialogInterface.OnClickListener() {
+                        R.string.device_management_limit_title,
+                        R.string.device_management_limit_active)
+                .setPositiveButton(R.string.device_management_register, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         login(loginBundle);
@@ -934,12 +927,22 @@ public class OnboardActivity extends FragmentActivity
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictOnLogin());
     }
 
+    @Override
+    public void onDeviceBlock() {
+        final AlertDialog.Builder builder = new ImageAlertDialog(this)
+                .setContent(R.drawable.dialog_device_management,
+                        R.string.device_management_limit_title,
+                        R.string.device_management_limit_registered)
+                .setPositiveButton(android.R.string.ok, null);
+        showDialogAndTrackEvent(builder, OnboardingEvent.deviceBlockOnLogin());
+    }
+
     private void showDeviceConflictLogoutDialog() {
         final AlertDialog.Builder builder = new ImageAlertDialog(this)
                 .setContent(R.drawable.dialog_device_management,
-                        R.string.device_management_limit,
+                        R.string.device_management_limit_title,
                         R.string.device_management_conflict_message)
-                .setPositiveButton(R.string.device_management_continue, null);
+                .setPositiveButton(android.R.string.ok, null);
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictLoggedOut());
     }
 

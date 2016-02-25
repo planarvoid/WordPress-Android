@@ -12,6 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.tracks.TieredTrack;
 
 import android.content.res.Resources;
 import android.support.annotation.Nullable;
@@ -20,6 +21,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import static com.soundcloud.android.tracks.TieredTracks.isTrackPreview;
 
 public class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHolder {
     @Bind(R.id.image) ImageView image;
@@ -138,10 +141,11 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
         setTitle(playableItem.getTitle());
         setArtist(playableItem.getCreatorName());
         setArtistClickable(new ProfileClickViewListener(playableItem.getCreatorUrn()));
+        togglePreviewIndicator(showPreviewLabel(playableItem));
+    }
 
-        if (featureFlags.isEnabled(Flag.UPSELL_IN_STREAM) && featureOperations.upsellHighTier()) {
-            togglePreviewIndicator(playableItem.isSnipped());
-        }
+    private boolean showPreviewLabel(PlayableItem playableItem) {
+        return playableItem instanceof TieredTrack && isTrackPreview((TieredTrack) playableItem);
     }
 
     public void togglePreviewIndicator(boolean isUpsellable) {

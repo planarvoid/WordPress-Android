@@ -19,7 +19,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
@@ -300,13 +299,7 @@ public class CollectionOperations {
     }
 
     private Observable<List<StationRecord>> recentStations() {
-        final Observable<StationRecord> stations;
-        if (featureFlags.isEnabled(Flag.STATIONS_SOFT_LAUNCH)) {
-            stations = stationsOperations.collection(StationsCollectionsTypes.RECENT);
-        } else {
-            stations = Observable.empty();
-        }
-        return stations.toList();
+        return stationsOperations.collection(StationsCollectionsTypes.RECENT).toList();
     }
 
     private Observable<List<PlaylistItem>> loadPlaylists(PlaylistsOptions options) {

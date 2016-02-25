@@ -19,6 +19,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -315,7 +316,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         } else if (!TextUtils.isEmpty(permalink)) {
             return permalink;
         } else {
-            return ScTextUtils.EMPTY_STRING;
+            return Strings.EMPTY;
         }
     }
 

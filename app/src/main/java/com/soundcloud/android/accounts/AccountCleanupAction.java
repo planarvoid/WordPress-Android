@@ -3,6 +3,7 @@ package com.soundcloud.android.accounts;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.commands.ClearTableCommand;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
@@ -40,6 +41,7 @@ class AccountCleanupAction implements Action0 {
     private final StationsOperations stationsOperations;
     private final CollectionOperations collectionOperations;
     private final SoundStreamOperations soundStreamOperations;
+    private final ConfigurationOperations configurationOperations;
 
     @Inject
     AccountCleanupAction(LegacyUserAssociationStorage legacyUserAssociationStorage,
@@ -52,7 +54,7 @@ class AccountCleanupAction implements Action0 {
                          ClearTableCommand clearTableCommand,
                          StationsOperations stationsOperations,
                          CollectionOperations collectionOperations,
-                         SoundStreamOperations soundStreamOperations) {
+                         SoundStreamOperations soundStreamOperations, ConfigurationOperations configurationOperations) {
         this.tagStorage = tagStorage;
         this.legacyUserAssociationStorage = legacyUserAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -67,6 +69,7 @@ class AccountCleanupAction implements Action0 {
         this.stationsOperations = stationsOperations;
         this.collectionOperations = collectionOperations;
         this.soundStreamOperations = soundStreamOperations;
+        this.configurationOperations = configurationOperations;
     }
 
     @Override
@@ -86,6 +89,7 @@ class AccountCleanupAction implements Action0 {
         discoveryOperations.clearData();
         collectionOperations.clearData();
         soundStreamOperations.clearData();
+        configurationOperations.clearConfigurationSettings();
     }
 
     private void clearCollections() {
@@ -97,6 +101,7 @@ class AccountCleanupAction implements Action0 {
             clearTableCommand.call(Table.Comments);
             clearTableCommand.call(Table.PromotedTracks);
             clearTableCommand.call(Table.Waveforms);
+            clearTableCommand.call(Table.TrackPolicies);
             removeLocalPlaylistsCommand.call(null);
         } catch (PropellerWriteException e) {
             Log.e(TAG, "Could not clear collections ", e);

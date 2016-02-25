@@ -77,7 +77,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1));
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-        when(policyOperations.blockedStati(anyList())).thenReturn(Observable.just(Collections.<Urn,Boolean>emptyMap()));
+        when(policyOperations.blockedStatuses(anyList())).thenReturn(Observable.just(Collections.<Urn,Boolean>emptyMap()));
 
         observer = new TestObserver<>();
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, new Urn("soundcloud:tracks:1"));
@@ -94,7 +94,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
      public void playTrackPlaysNewQueueFromInitialTrackWithBlockedStatus() {
-        when(policyOperations.blockedStati(Arrays.asList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
+        when(policyOperations.blockedStatuses(Arrays.asList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
 
         playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
@@ -129,7 +129,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void playPostsPlaysNewQueueFromInitialTrackWithBlockedStatus() {
-        when(policyOperations.blockedStati(Arrays.asList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
+        when(policyOperations.blockedStatuses(Arrays.asList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
         final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
@@ -150,14 +150,14 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playTrackCallsPlayIfTrackAlreadyPlayingWithSameOriginAndSameCollectionUrn() {
+    public void playTrackCallsPlayCurrentIfTrackAlreadyPlayingWithSameOriginAndSameCollectionUrn() {
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
         final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN);
         when(playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn())).thenReturn(true);
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, playSessionSource).subscribe(observer);
 
-        verify(playSessionController).play();
+        verify(playSessionController).playCurrent();
     }
 
     @Test

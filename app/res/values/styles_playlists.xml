@@ -118,56 +118,5 @@
     <style name="PlaylistInfo.Light">
         <item name="android:textColor">@color/white</item>
     </style>
-
-    <style name="PlaylistAction">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:textSize">@dimen/btn_text_size</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:gravity">center</item>
-        <item name="android:paddingLeft">@dimen/btn_padding</item>
-        <item name="android:paddingRight">@dimen/btn_padding</item>
-    </style>
-
-    <style name="PlaylistAction.ToggleButton" parent="ListItemText">
-        <item name="android:layout_gravity">left|center</item>
-        <item name="android:layout_centerVertical">true</item>
-        <item name="android:textColor">@color/toggle_button_text_states</item>
-        <item name="android:drawablePadding">4dp</item>
-        <item name="android:minWidth">0dp</item>
-        <item name="android:padding">8dp</item>
-        <item name="android:textOn">@null</item>
-        <item name="android:textOff">@null</item>
-        <item name="android:background">?android:attr/selectableItemBackground</item>
-    </style>
-
-    <style name="PlaylistAction.Button">
-        <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
-        <item name="android:layout_width">50dp</item>
-        <item name="android:minHeight">48dp</item>
-    </style>
-
-    <style name="PlaylistAction.Overflow">
-        <item name="android:padding">8dp</item>
-        <item name="android:minWidth">36dp</item>
-        <item name="android:layout_centerVertical">true</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:src">@drawable/ic_more</item>
-        <item name="android:background">?android:attr/selectableItemBackground</item>
-    </style>
-
-    <style name="PlaylistAction.ToggleButton.Like">
-        <item name="android:drawableLeft">@drawable/ic_toggle_player_like_states</item>
-        <item name="android:layout_marginLeft">10dp</item>
-    </style>
-
-    <style name="PlaylistAction.ToggleButton.Repost">
-        <item name="android:drawableLeft">@drawable/ic_toggle_player_repost_states</item>
-        <item name="android:layout_marginLeft">5dp</item>
-    </style>
-
-    <style name="PlaylistAction.Button.Share">
-        <item name="android:src">@drawable/ic_btn_share</item>
-    </style>
-
+    
 </resources>

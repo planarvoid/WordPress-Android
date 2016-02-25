@@ -1,12 +1,12 @@
 package com.soundcloud.android.rx;
 
+import com.soundcloud.android.Consts;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
-import java.util.Collection;
 import java.util.List;
 
 public final class RxUtils {
@@ -32,6 +32,15 @@ public final class RxUtils {
         }
     };
 
+    public static final Func1<Long, Boolean> IS_VALID_TIMESTAMP = new Func1<Long, Boolean>() {
+        @Override
+        public Boolean call(Long ts) {
+            return ts != Consts.NOT_SET;
+        }
+    };
+
+    public static final Object EMPTY_VALUE = new Object();
+
     public static <T> void emitIterable(Observer<? super T> observer, Iterable<T> iterable) {
         for (T item : iterable) {
             observer.onNext(item);
@@ -46,10 +55,10 @@ public final class RxUtils {
         return Subscriptions.unsubscribed();
     }
 
-    public static <T> Func1<Collection<T>, Observable<T>> emitCollectionItems() {
-        return new Func1<Collection<T>, Observable<T>>() {
+    public static <T> Func1<Iterable<T>, Observable<T>> iterableToObservable() {
+        return new Func1<Iterable<T>, Observable<T>>() {
             @Override
-            public Observable<T> call(Collection<T> items) {
+            public Observable<T> call(Iterable<T> items) {
                 return Observable.from(items);
             }
         };

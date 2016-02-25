@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="PlayerCloseBase.PlayerClose">
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
     <style name="PlayerLikeBase.PlayerLike">
-        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
 
@@ -17,7 +22,7 @@
         <item name="android:layout_width">@dimen/player_engagement</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
         <item name="android:src">@drawable/ic_share_white_24dp</item>
-        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
 

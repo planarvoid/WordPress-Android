@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.configuration.experiments.AppboySyncNotificationsExperiment;
@@ -22,13 +23,16 @@ public class AnalyticsConnector extends DefaultActivityLightCycle<AppCompatActiv
     private final AppboyWrapper appboy;
     private final AppboyPlaySessionState appboyPlaySessionState;
     private final AppboySyncNotificationsExperiment notificationsExperiment;
+    private final AccountOperations accountOperations;
 
     @Inject
     public AnalyticsConnector(AppboyWrapper appboy, AppboyPlaySessionState appboyPlaySessionState,
-                              AppboySyncNotificationsExperiment notificationsExperiment) {
+                              AppboySyncNotificationsExperiment notificationsExperiment,
+                              AccountOperations accountOperations) {
         this.appboy = appboy;
         this.appboyPlaySessionState = appboyPlaySessionState;
         this.notificationsExperiment = notificationsExperiment;
+        this.accountOperations = accountOperations;
     }
 
     @Override
@@ -42,7 +46,9 @@ public class AnalyticsConnector extends DefaultActivityLightCycle<AppCompatActiv
 
     @Override
     public void onResume(AppCompatActivity activity) {
-        appboy.registerInAppMessageManager(activity);
+        if (!accountOperations.isCrawler()) {
+            appboy.registerInAppMessageManager(activity);
+        }
     }
 
     @Override

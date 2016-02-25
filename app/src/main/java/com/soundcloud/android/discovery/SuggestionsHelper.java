@@ -11,11 +11,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
-import android.net.Uri;
 
 import javax.inject.Provider;
 
@@ -45,22 +43,21 @@ class SuggestionsHelper {
     }
 
     void launchSuggestion(Context context, int position) {
-        final Uri itemUri = adapter.getItemIntentData(position);
         final Urn urn = adapter.getUrn(position);
 
         final SearchQuerySourceInfo searchQuerySourceInfo = getQuerySourceInfo(position);
-        trackSuggestion(position, itemUri, searchQuerySourceInfo);
+        trackSuggestion(position, urn, searchQuerySourceInfo);
 
         if (urn.isTrack()) {
             playTrack(urn, searchQuerySourceInfo);
         } else {
-            navigator.launchSearchSuggestion(context, urn, searchQuerySourceInfo, itemUri);
+            navigator.openProfile(context, urn, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo);
         }
     }
 
-    private void trackSuggestion(int position, Uri itemUri, SearchQuerySourceInfo searchQuerySourceInfo) {
+    private void trackSuggestion(int position, Urn itemUrn, SearchQuerySourceInfo searchQuerySourceInfo) {
         final SearchEvent event = SearchEvent.searchSuggestion(
-                Content.match(itemUri), adapter.isLocalResult(position), searchQuerySourceInfo);
+                itemUrn, adapter.isLocalResult(position), searchQuerySourceInfo);
         eventBus.publish(EventQueue.TRACKING, event);
     }
 

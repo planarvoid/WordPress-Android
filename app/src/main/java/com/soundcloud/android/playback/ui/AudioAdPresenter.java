@@ -8,8 +8,8 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
 
@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-class AudioAdPresenter extends AdPagePresenter implements View.OnClickListener {
+class AudioAdPresenter extends AdPagePresenter<PlayerAd> implements View.OnClickListener {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -93,8 +93,8 @@ class AudioAdPresenter extends AdPagePresenter implements View.OnClickListener {
     @Override
     public View clearItemView(View convertView) {
         final Holder holder = getViewHolder(convertView);
-        holder.footerAdTitle.setText(ScTextUtils.EMPTY_STRING);
-        holder.previewTitle.setText(ScTextUtils.EMPTY_STRING);
+        holder.footerAdTitle.setText(Strings.EMPTY);
+        holder.previewTitle.setText(Strings.EMPTY);
         resetAdImageLayouts(holder);
         resetSkipButton(holder, resources);
         return convertView;

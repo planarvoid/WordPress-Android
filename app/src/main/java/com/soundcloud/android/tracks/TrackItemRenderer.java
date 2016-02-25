@@ -1,5 +1,7 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.tracks.TieredTracks.isTrackPreview;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -71,7 +73,12 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     public void bindTrackView(TrackItem track, View itemView, int position) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(track.getCreatorName());
-        trackItemView.setTitle(track.getTitle());
+        trackItemView.setTitle(track.getTitle(),
+                track.isBlocked() ? R.color.list_disabled : R.color.list_primary);
+
+        if (track.isBlocked()) {
+            itemView.setClickable(false);
+        }
 
         bindExtraInfoRight(track, trackItemView);
         bindExtraInfoBottom(trackItemView, track);
@@ -82,7 +89,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private void bindExtraInfoRight(TrackItem track, TrackItemView trackItemView) {
         trackItemView.hideInfoViewsRight();
-        if (track.isSnipped() && featureOperations.upsellHighTier()) {
+        if (isTrackPreview(track)) {
             trackItemView.showPreviewLabel();
         } else if (track.isPrivate()) {
             trackItemView.showPrivateIndicator();

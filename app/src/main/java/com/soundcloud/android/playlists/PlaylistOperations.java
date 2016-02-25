@@ -80,6 +80,13 @@ public class PlaylistOperations {
         }
     };
 
+    private final Func1<Urn, Observable<PlaylistWithTracks>> toPlaylistFromStorageWithTracks = new Func1<Urn, Observable<PlaylistWithTracks>>() {
+        @Override
+        public Observable<PlaylistWithTracks> call(Urn urn) {
+            return playlistWithTracks(urn);
+        }
+    };
+
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                        SyncInitiator syncInitiator,

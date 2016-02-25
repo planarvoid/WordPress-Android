@@ -79,7 +79,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
 
     private void playLocalPlayQueueOnRemote() {
         Log.d(CastOperations.TAG, "Sending current track and queue to cast receiver");
-        final PlaybackProgress lastProgressForTrack = playSessionStateProvider.getLastProgressEventForCurrentPlayQueueTrack();
+        final PlaybackProgress lastProgressForTrack = playSessionStateProvider.getLastProgressEventForCurrentPlayQueueItem();
         castPlayer.reloadCurrentQueue()
                 .doOnNext(playCurrent(lastProgressForTrack))
                 .subscribe(expandPlayerSubscriber.get());

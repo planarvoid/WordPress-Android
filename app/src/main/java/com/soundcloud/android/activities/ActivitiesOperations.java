@@ -4,6 +4,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
@@ -35,8 +36,9 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
     ActivitiesOperations(ActivitiesStorage activitiesStorage,
                          SyncInitiator syncInitiator,
                          ContentStats contentStats,
-                         @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
-        super(SyncContent.MyActivities, activitiesStorage, syncInitiator, contentStats, scheduler);
+                         @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                         SyncStateStorage syncStateStorage) {
+        super(SyncContent.MyActivities, activitiesStorage, syncInitiator, contentStats, scheduler, syncStateStorage);
         this.scheduler = scheduler;
     }
 

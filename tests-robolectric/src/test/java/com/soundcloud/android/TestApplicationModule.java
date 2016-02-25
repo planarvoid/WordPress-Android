@@ -3,7 +3,6 @@ package com.soundcloud.android;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.comscore.utils.Storage;
 import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.ads.AdIdHelper;
@@ -21,7 +20,6 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.playback.IRemoteAudioManager;
 import com.soundcloud.android.playback.PlaybackStrategy;
 import com.soundcloud.android.playback.notification.PlaybackNotificationController;
@@ -54,6 +52,7 @@ import rx.schedulers.Schedulers;
 
 import android.accounts.AccountManager;
 import android.annotation.TargetApi;
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -204,6 +203,12 @@ public class TestApplicationModule {
     @Provides
     @Named(StorageModule.OFFLINE_SETTINGS)
     public SharedPreferences provideOfflinePrefs() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
+    @Named(StorageModule.CONFIGURATION_SETTINGS)
+    public SharedPreferences provideConfigPrefs() {
         return provideSharedPreferences();
     }
 
@@ -401,5 +406,9 @@ public class TestApplicationModule {
         return mock(Navigator.class);
     }
 
+    @Provides
+    AlarmManager provideAlarmManager() {
+        return mock(AlarmManager.class);
+    }
 }
 

@@ -54,7 +54,7 @@ public class ApiResponse {
 
     protected ApiResponse(ApiRequestException failure) {
         this.statusCode = Consts.NOT_SET;
-        this.responseBody = ScTextUtils.EMPTY_STRING;
+        this.responseBody = Strings.EMPTY;
         this.failure = failure;
     }
 

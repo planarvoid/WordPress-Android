@@ -5,7 +5,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.activities.ActivitiesSyncer;
 import com.soundcloud.android.sync.affiliations.MyFollowingsSyncer;
@@ -39,7 +38,6 @@ public class ApiSyncerFactory {
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final JsonTransformer jsonTransformer;
     private final Navigator navigator;
-    private final FeatureFlags featureFlags;
 
     @Inject
     public ApiSyncerFactory(Provider<FollowingOperations> nextFollowingOperationsProvider,
@@ -52,7 +50,7 @@ public class ApiSyncerFactory {
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer,
                             Lazy<TrackSyncer> lazyTrackSyncer,
                             SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
-                            JsonTransformer jsonTransformer, Navigator navigator, FeatureFlags featureFlags) {
+                            JsonTransformer jsonTransformer, Navigator navigator) {
         this.nextFollowingOperationsProvider = nextFollowingOperationsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.notificationManagerProvider = notificationManagerProvider;
@@ -65,7 +63,6 @@ public class ApiSyncerFactory {
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.jsonTransformer = jsonTransformer;
         this.navigator = navigator;
-        this.featureFlags = featureFlags;
     }
 
     public static final String TAG = ApiSyncService.LOG_TAG;

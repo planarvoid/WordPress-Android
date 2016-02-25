@@ -41,8 +41,8 @@ public class DailyUpdateSchedulerTest extends AndroidUnitTest {
         scheduler.schedule();
 
         verify(pendingIntentFactory).getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT);
-        verify(alarmManager).setInexactRepeating(DailyUpdateScheduler.ALARM_TYPE, currentTime,
-                DailyUpdateScheduler.POLICY_UPDATE_DELAY, intent);
+        verify(alarmManager).setInexactRepeating(DailyUpdateScheduler.ALARM_TYPE,
+                currentTime + DailyUpdateScheduler.POLICY_UPDATE_DELAY, AlarmManager.INTERVAL_DAY, intent);
     }
 
     @Test

@@ -8,4 +8,8 @@
         <item name="android:visibility">gone</item>
     </style>
 
+    <style name="NewItemsIndicator.Text" parent="NewItemsIndicator.Base">
+        <item name="android:elevation">2dp</item>
+    </style>
+
 </resources>

@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class OfflineStatePublisherTest extends AndroidUnitTest {
@@ -43,6 +44,13 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     }
 
     @Test
+    public void publishEmptyCollections() {
+        publisher.publishEmptyCollections(new ExpectedOfflineContent(Collections.<DownloadRequest>emptyList(), singletonList(PLAYLIST), true, Collections.<Urn>emptyList()));
+
+        assertEvent(event(0), REQUESTED, true, PLAYLIST);
+    }
+
+    @Test
     public void publishDownloading() {
         setTracksCollections(DOWNLOADING);
 
@@ -62,16 +70,6 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     }
 
     @Test
-    public void publishCancel() {
-        setTracksCollections(REQUESTED);
-
-        publisher.publishCancel(TRACK);
-
-        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
-        assertEvent(event(0), REQUESTED, true, TRACK, PLAYLIST);
-    }
-
-    @Test
     public void publishDownloaded() {
         setTracksCollections(REQUESTED);
 
@@ -80,16 +78,6 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         verify(offlineStateOperations).loadTracksCollectionsState(TRACK, DOWNLOADED);
         assertEvent(event(0), REQUESTED, true, PLAYLIST);
         assertEvent(event(1), DOWNLOADED, false, TRACK);
-    }
-
-    @Test
-    public void publishError() {
-        setTracksCollections(REQUESTED);
-
-        publisher.publishError(TRACK);
-
-        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
-        assertEvent(event(0), REQUESTED, true, TRACK, PLAYLIST);
     }
 
     @Test

@@ -7,14 +7,14 @@ import java.util.List;
 
 class UserPlan {
 
-    public final String id;
-    public final List<String> upsells;
+    public final Plan currentPlan;
+    public final List<Plan> upsells;
 
     @JsonCreator
     public UserPlan(@JsonProperty("id") String id,
                     @JsonProperty("upsells") List<String> upsells) {
-        this.id = id;
-        this.upsells = upsells;
+        this.currentPlan = Plan.fromId(id);
+        this.upsells = Plan.fromIds(upsells);
     }
 
 }

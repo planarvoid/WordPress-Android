@@ -484,10 +484,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playerCloseOnPlayerCloseClick() {
+    public void playerCloseOnPlayerCloseIndicatorClick() {
         populateTrackPage();
 
-        getHolder(trackView).close.performClick();
+        getHolder(trackView).closeIndicator.performClick();
 
         verify(listener).onPlayerClose();
     }
@@ -641,11 +641,17 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindingSnippedTrackWithoutUpsellFeatureHidesPreviewIcon() {
-        when(featureOperations.upsellHighTier()).thenReturn(false);
-        bindSnippedTrack();
+    public void previewLabelIsNotVisibleForNormalTracks() {
+        populateTrackPage();
 
         assertThat(getHolder(trackView).previewIndicator).isGone();
+    }
+
+    @Test
+    public void bindingSnippedTrackInHighTierShowsPreviewIcon() {
+        bindSnippedTrack();
+
+        assertThat(getHolder(trackView).previewIndicator).isVisible();
     }
 
     @Test
@@ -653,15 +659,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(featureOperations.upsellHighTier()).thenReturn(false);
         bindUpsellableHighTierTrack();
 
-        assertThat(getHolder(trackView).previewIndicator).isGone();
-    }
-
-    @Test
-    public void bindingSnippedTrackWhileAllowingUpsellFeatureShowsPreviewIcon() {
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-        bindSnippedTrack();
-
-        assertThat(getHolder(trackView).previewIndicator).isVisible();
+        assertThat(getHolder(trackView).upsellButton).isGone();
     }
 
     @Test
@@ -744,7 +742,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     private void bindSnippedTrack() {
-        final PropertySet snippedTrack = TestPropertySets.expectedTrackForPlayer().put(TrackProperty.SNIPPED, true);
+        final PropertySet snippedTrack = TestPropertySets.upsellableTrack();
         presenter.bindItemView(trackView, new PlayerTrackState(snippedTrack, true, true, viewVisibilityProvider));
     }
 

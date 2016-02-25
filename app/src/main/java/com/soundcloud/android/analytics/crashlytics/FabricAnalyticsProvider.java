@@ -4,8 +4,8 @@ import com.crashlytics.android.core.CrashlyticsCore;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.MetricEvent;
 import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.events.PaymentFailureEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.ScreenEvent;
@@ -27,7 +27,6 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
 
     private static final String TAG = "FabricAnalytics";
     private static final String RECORD_COUNT_METRIC = "DB:RecordCount";
-    private static final String PAYMENT_FAIL_METRIC = "Payment failure";
 
     private final boolean debugBuild;
     private final AtomicBoolean pendingOnCreate = new AtomicBoolean();
@@ -94,8 +93,12 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
     public void handleTrackingEvent(TrackingEvent event) {
         // this can theoretically happen before Fabric is initialized, so keep this check
         if (fabricProvider.isInitialized()) {
-            logWithCrashlytics(event);
-            trackWithAnswers(event);
+            if (shouldIncludeInCrashlyticsLogs(event)) {
+                logWithCrashlytics(event);
+            }
+            if (event instanceof MetricEvent) {
+                fabricReporter.post(((MetricEvent) event).toMetric());
+            }
         }
     }
 
@@ -105,23 +108,10 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
 
     private void logWithCrashlytics(TrackingEvent event) {
         final CrashlyticsCore crashlytics = fabricProvider.getCrashlyticsCore();
-        if (shouldIncludeInCrashlyticsLogs(event)) {
-            if (debugBuild) {
-                crashlytics.log(Log.DEBUG, TAG, event.toString());
-            } else {
-                crashlytics.log(event.toString());
-            }
+        if (debugBuild) {
+            crashlytics.log(Log.DEBUG, TAG, event.toString());
+        } else {
+            crashlytics.log(event.toString());
         }
     }
-
-    private void trackWithAnswers(TrackingEvent event) {
-        if (event instanceof PaymentFailureEvent) {
-            trackPaymentFailure((PaymentFailureEvent) event);
-        }
-    }
-
-    private void trackPaymentFailure(PaymentFailureEvent event) {
-        fabricReporter.post(Metric.create(PAYMENT_FAIL_METRIC, DataPoint.string("Reason", event.getReason())));
-    }
-
 }

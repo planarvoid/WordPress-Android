@@ -12,7 +12,10 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.users.UserProperty;
@@ -24,6 +27,7 @@ import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -46,6 +50,8 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
     private final SyncConfig syncConfig;
+    private final FeatureFlags featureFlags;
+    private final OfflineSettingsStorage settingsStorage;
 
     private Optional<YouView> youViewOpt = Optional.absent();
     private Optional<PropertySet> youOpt = Optional.absent();
@@ -62,7 +68,9 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                         Navigator navigator,
                         BugReporter bugReporter,
                         ApplicationProperties appProperties,
-                        SyncConfig syncConfig) {
+                        SyncConfig syncConfig,
+                        FeatureFlags featureFlags,
+                        OfflineSettingsStorage settingsStorage) {
         this.youViewFactory = youViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
@@ -75,6 +83,8 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
         this.syncConfig = syncConfig;
+        this.featureFlags = featureFlags;
+        this.settingsStorage = settingsStorage;
     }
 
     @Override
@@ -94,12 +104,13 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         setupOfflineSync(youView);
         setupNotifications(youView);
         setupFeedback(youView);
+        setupNewNotifications(youView);
         bindUserIfPresent();
     }
 
     @Override
     public void resetScroll() {
-        if (youViewOpt.isPresent()){
+        if (youViewOpt.isPresent()) {
             youViewOpt.get().resetScroll();
         }
     }
@@ -127,6 +138,12 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         }
     }
 
+    private void setupNewNotifications(YouView youView) {
+        if (featureFlags.isEnabled(Flag.NEW_NOTIFICATION_SETTINGS)) {
+            youView.showNewNotificationSettings();
+        }
+    }
+
     @Override
     public void onDestroyView(YouFragment fragment) {
         if (youViewOpt.isPresent()) {
@@ -150,7 +167,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                 headerView.getProfileImageView());
     }
 
-    private class YouSubscriber extends DefaultSubscriber<PropertySet>{
+    private class YouSubscriber extends DefaultSubscriber<PropertySet> {
         @Override
         public void onNext(PropertySet user) {
             youOpt = Optional.of(user);
@@ -185,10 +202,19 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
 
     @Override
     public void onOfflineSettingsClicked(View view) {
-        navigator.openOfflineSettings(view.getContext());
+        if (showOfflineSettingsOnboarding()) {
+            navigator.openOfflineSettingsOnboarding(view.getContext());
+        } else {
+            navigator.openOfflineSettings(view.getContext());
+        }
         if (featureOperations.upsellHighTier()) {
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsClick());
         }
+    }
+
+    private boolean showOfflineSettingsOnboarding() {
+        return featureOperations.isOfflineContentEnabled()
+                && !settingsStorage.hasSeenOfflineSettingsOnboarding();
     }
 
     @Override
@@ -218,16 +244,46 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
 
     @Override
     public void onSignOutClicked(final View view) {
-        new AlertDialog.Builder(view.getContext())
+        showSignOutPrompt(view.getContext());
+    }
+
+    private void showSignOutPrompt(final Context activityContext) {
+        if (offlineContentOperations.hasOfflineContent()) {
+            showOfflineContentSignOutPrompt(activityContext);
+        } else {
+            showDefaultSignOutPrompt(activityContext);
+        }
+    }
+
+    private void showOfflineContentSignOutPrompt(final Context activityContext) {
+        new AlertDialog.Builder(activityContext)
+                .setTitle(R.string.sign_out_title_offline)
+                .setMessage(R.string.sign_out_description_offline)
+                .setPositiveButton(R.string.ok_got_it, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        LogoutActivity.start(activityContext);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showDefaultSignOutPrompt(final Context activityContext) {
+        new AlertDialog.Builder(activityContext)
                 .setTitle(R.string.sign_out_title)
-                .setMessage(offlineContentOperations.hasOfflineContent()
-                        ? R.string.sign_out_description_offline
-                        : R.string.sign_out_description)
+                .setMessage(R.string.sign_out_description)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        LogoutActivity.start(view.getContext());
+                        LogoutActivity.start(activityContext);
                     }
-                }).show();
+                })
+                .show();
+    }
+
+    @Override
+    public void onNewNotificationSettingsClicked(View view) {
+        navigator.openNewNotificationSettings(view.getContext());
     }
 }

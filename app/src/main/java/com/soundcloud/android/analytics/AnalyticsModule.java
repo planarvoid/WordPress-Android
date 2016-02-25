@@ -6,7 +6,6 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
-import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -44,11 +43,9 @@ public class AnalyticsModule {
     @Provides
     @Named(BASE_PROVIDERS)
     List<AnalyticsProvider> provideBaseProviders(EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider,
-                                                 PlayCountAnalyticsProvider playCountAnalyticsProvider,
                                                  PromotedAnalyticsProvider promotedAnalyticsProvider) {
         List<AnalyticsProvider> providers = new ArrayList<>(3);
         providers.add(eventLoggerAnalyticsProvider);
-        providers.add(playCountAnalyticsProvider);
         providers.add(promotedAnalyticsProvider);
         return providers;
     }

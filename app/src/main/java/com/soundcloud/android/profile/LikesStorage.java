@@ -43,15 +43,15 @@ public class LikesStorage {
         this.propellerRx = propellerRx;
     }
 
-    Observable<List<PropertySet>> loadLikes(int limit, long fromTimestamp){
-        return propellerRx.query(buildLikesQuery(limit, fromTimestamp)).map(new LikesMapper()).toList();
+    Observable<List<PropertySet>> loadLikes(int limit, long beforeTimestamp){
+        return propellerRx.query(buildLikesQuery(limit, beforeTimestamp)).map(new LikesMapper()).toList();
     }
 
     Observable<List<Urn>> loadLikesForPlayback() {
         return propellerRx.query(buildQueryForPlayback()).map(new LikesForPlaybackMapper()).toList();
     }
 
-    private Query buildLikesQuery(int limit, long fromTimestamp) {
+    private Query buildLikesQuery(int limit, long beforeTimestamp) {
         return Query.from(Likes)
                 .select(
                         field(SoundView.field(TableColumns.SoundView._TYPE)).as(TableColumns.SoundView._TYPE),
@@ -73,7 +73,7 @@ public class LikesStorage {
                         on(SoundView.field(TableColumns.SoundView._ID), Likes.field(TableColumns.Likes._ID))
                                 .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Likes.field(TableColumns.Likes._TYPE)))
                 .leftJoin(Table.PlaylistTracks.name(), playlistTracksFilter())
-                .whereLt(Likes.field(TableColumns.Likes.CREATED_AT), fromTimestamp)
+                .whereLt(Likes.field(TableColumns.Likes.CREATED_AT), beforeTimestamp)
                 .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
                 .groupBy(SoundView.field(TableColumns.SoundView._ID) + "," + SoundView.field(TableColumns.SoundView._TYPE))
                 .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), DESC)

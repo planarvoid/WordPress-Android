@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.java.strings.Charsets;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -40,7 +41,7 @@ public final class DebugUtils {
             }
             return logDump.toString();
         } catch (IOException e) {
-            return ScTextUtils.EMPTY_STRING;
+            return Strings.EMPTY;
         } finally {
             IOUtils.close(bufferedReader);
         }

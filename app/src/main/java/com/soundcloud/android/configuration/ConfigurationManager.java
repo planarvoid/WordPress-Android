@@ -1,12 +1,9 @@
 package com.soundcloud.android.configuration;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import rx.Observable;
 import rx.Subscription;
-import rx.functions.Func1;
 
 import android.util.Log;
 
@@ -14,36 +11,41 @@ import javax.inject.Inject;
 
 public class ConfigurationManager {
 
-    private static final String TAG = "Configuration";
+    public static final String TAG = "Configuration";
 
     private final ConfigurationOperations configurationOperations;
-    private final OfflineContentOperations offlineContentOperations;
     private final AccountOperations accountOperations;
     private final DeviceManagementStorage deviceManagementStorage;
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
-    private final Func1<Void, Observable<Void>> clearOfflineContent = new Func1<Void, Observable<Void>>() {
-        @Override
-        public Observable<Void> call(Void ignore) {
-            return offlineContentOperations.clearOfflineContent();
-        }
-    };
-
     @Inject
     public ConfigurationManager(ConfigurationOperations configurationOperations,
-                                OfflineContentOperations offlineContentOperations, AccountOperations accountOperations,
+                                AccountOperations accountOperations,
                                 DeviceManagementStorage deviceManagementStorage) {
         this.configurationOperations = configurationOperations;
-        this.offlineContentOperations = offlineContentOperations;
         this.accountOperations = accountOperations;
         this.deviceManagementStorage = deviceManagementStorage;
     }
 
-    public void update() {
-        Log.d(TAG, "Requesting configuration");
+    public void forceUpdate() {
+        Log.d(TAG, "Forcing configuration update");
         subscription.unsubscribe();
         subscription = configurationOperations.update().subscribe(new ConfigurationSubscriber());
+    }
+
+    void requestUpdate() {
+        Log.d(TAG, "Requesting configuration update");
+        subscription.unsubscribe();
+        subscription = configurationOperations.updateIfNecessary().subscribe(new ConfigurationSubscriber());
+    }
+
+    boolean isPendingDowngrade() {
+        return configurationOperations.isPendingDowngrade();
+    }
+
+    boolean isPendingHighTierUpgrade() {
+        return configurationOperations.isPendingHighTierUpgrade();
     }
 
     public boolean shouldDisplayDeviceConflict() {
@@ -58,10 +60,10 @@ public class ConfigurationManager {
         @Override
         public void onNext(Configuration configuration) {
             Log.d(TAG, "Received new configuration");
-            if (configuration.deviceManagement.isNotAuthorized()) {
+            if (configuration.deviceManagement.isUnauthorized()) {
                 Log.d(TAG, "Unauthorized device, logging out");
                 deviceManagementStorage.setDeviceConflict();
-                fireAndForget(accountOperations.logout().flatMap(clearOfflineContent));
+                fireAndForget(accountOperations.logout());
             } else {
                 configurationOperations.saveConfiguration(configuration);
             }

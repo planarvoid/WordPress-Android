@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +21,7 @@ class SplitScreenController extends PlaylistDetailsController {
 
     @Inject
     SplitScreenController(PlaylistTrackItemRenderer trackRenderer, EventBus eventBus) {
-        super(trackRenderer, new ListItemAdapter<>(trackRenderer), eventBus);
+        super(trackRenderer, new SplitScreenItemAdapter(trackRenderer), eventBus);
     }
 
     @Override
@@ -47,5 +48,16 @@ class SplitScreenController extends PlaylistDetailsController {
     @Override
     public void setEmptyViewStatus(EmptyView.Status status) {
         emptyView.setStatus(status);
+    }
+
+    private static class SplitScreenItemAdapter extends ListItemAdapter<TrackItem> {
+        public SplitScreenItemAdapter(PlaylistTrackItemRenderer trackRenderer) {
+            super(trackRenderer);
+        }
+
+        @Override
+        public boolean isEnabled(int position) {
+            return !getItem(position).isBlocked();
+        }
     }
 }

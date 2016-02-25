@@ -39,9 +39,12 @@ import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -61,6 +64,8 @@ import org.mockito.Mockito;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Message;
+import android.os.Parcel;
+import android.support.annotation.NonNull;
 
 import java.io.IOException;
 
@@ -70,17 +75,19 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     private SkippyAdapter skippyAdapter;
 
     private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls?oauth_token=access";
+    private static final String SNIPPET_STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls/snippet?oauth_token=access";
     private static final long PROGRESS = 500L;
     private static final long DURATION = 1000L;
 
     @Mock private Skippy skippy;
-    @Mock private Skippy skippyPreloader;
+    @Mock private SkippyPreloader skippyPreloader;
     @Mock private SkippyFactory skippyFactory;
     @Mock private Player.PlayerListener listener;
     @Mock private AccountOperations accountOperations;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private SkippyAdapter.StateChangeHandler stateChangeHandler;
     @Mock private ApiUrlBuilder apiUrlBuilder;
+    @Mock private ApiUrlBuilder snippetApiUrlBuilder;
     @Mock private Message message;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private Skippy.Configuration configuration;
@@ -100,14 +107,14 @@ public class SkippyAdapterTest extends AndroidUnitTest {
             TrackProperty.URN.bind(trackUrn),
             TrackProperty.PLAY_DURATION.bind(456L)
     );
-    private PlaybackItem playbackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET);
+    private PlaybackItem playbackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
     private TestDateProvider dateProvider;
 
     @Before
     public void setUp() {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
-        when(skippyFactory.create()).thenReturn(skippyPreloader);
+        when(skippyFactory.createPreloader()).thenReturn(skippyPreloader);
         dateProvider = new TestDateProvider();
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, apiUrlBuilder,
                 stateChangeHandler, eventBus, connectionHelper, lockUtil, bufferUnderrunListener, sharedPreferences,
@@ -126,7 +133,12 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
         when(apiUrlBuilder.from(ApiEndpoints.HLS_STREAM, trackUrn)).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, "access")).thenReturn(apiUrlBuilder);
+        when(apiUrlBuilder.withQueryParam("can_snip", false)).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.build()).thenReturn(STREAM_URL);
+
+        when(apiUrlBuilder.from(ApiEndpoints.HLS_SNIPPET_STREAM, trackUrn)).thenReturn(snippetApiUrlBuilder);
+        when(snippetApiUrlBuilder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, "access")).thenReturn(snippetApiUrlBuilder);
+        when(snippetApiUrlBuilder.build()).thenReturn(SNIPPET_STREAM_URL);
 
         when(skippyFactory.createConfiguration()).thenReturn(configuration);
         when(skippyFactory.createPreloaderConfiguration()).thenReturn(preloadConfiguration);
@@ -142,13 +154,13 @@ public class SkippyAdapterTest extends AndroidUnitTest {
      public void initInitializesPreloaderWithContextAndFactoryConfiguration() {
         when(skippy.init(configuration)).thenReturn(true);
         skippyAdapter.init();
-        verify(skippyPreloader).init(preloadConfiguration);
+        verify(skippyPreloader).init();
     }
 
     @Test
     public void preloadCallsCueOnSkippyPreloader() {
-        skippyAdapter.preload(trackUrn);
-        verify(skippyPreloader).cue(STREAM_URL, 0);
+        skippyAdapter.preload(getPreloadItem());
+        verify(skippyPreloader).fetch(SNIPPET_STREAM_URL, SkippyAdapter.PRELOAD_START_POSITION, SkippyAdapter.PRELOAD_DURATION);
     }
 
     @Test
@@ -179,9 +191,16 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playSnippetPlaysSnippetOnSkippy() {
+        skippyAdapter.play(AudioPlaybackItem.forSnippet(track, 123L));
+
+        verify(skippy).play(SNIPPET_STREAM_URL, 123);
+    }
+
+    @Test
     public void playUninterruptedUsesPlayAd() {
         skippyAdapter.play(AudioPlaybackItem.forAudioAd(track));
-        verify(skippy).playAd(STREAM_URL, 0);
+        verify(skippy).play(STREAM_URL, 0);
     }
 
     @Test
@@ -198,8 +217,8 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void playUrlWithTheCurrentUrlAndPositionCallsSeekAndResumeOnSkippy() {
-        skippyAdapter.play(AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET));
-        skippyAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET));
+        skippyAdapter.play(AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT));
+        skippyAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT));
         InOrder inOrder = Mockito.inOrder(skippy);
         inOrder.verify(skippy).seek(123L);
         inOrder.verify(skippy).resume();
@@ -325,7 +344,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         skippyAdapter.onProgressChange(567, 456L, STREAM_URL);
         verify(listener).onProgressEvent(456, 456L);
     }
-
 
     @Test
     public void doesNotPropogateStateChangesForIncorrectUrl() {
@@ -550,7 +568,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void initilizationSuccessWhenSkippyAndPreloadInitialize() {
         when(skippy.init(configuration)).thenReturn(true);
-        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
 
         assertThat(skippyAdapter.init()).isTrue();
     }
@@ -558,15 +575,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void initilizationErrorWhenSkippyFailsToinit() {
         when(skippy.init(configuration)).thenReturn(false);
-        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
-
-        assertThat(skippyAdapter.init()).isFalse();
-    }
-
-    @Test
-    public void initilizationErrorWhenSkippyPreloaderFailsToinit() {
-        when(skippy.init(configuration)).thenReturn(true);
-        when(skippyPreloader.init(preloadConfiguration)).thenReturn(false);
 
         assertThat(skippyAdapter.init()).isFalse();
     }
@@ -574,7 +582,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void initilizationSuccessPublishesSkippyInitSuccessEvent() {
         when(skippy.init(configuration)).thenReturn(true);
-        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
         skippyAdapter.init();
 
         final SkippyInitilizationSucceededEvent event = (SkippyInitilizationSucceededEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -587,7 +594,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     public void initilizationSuccessIncrementsSuccessCount() {
         when(skippyFactory.createConfiguration()).thenReturn(configuration);
         when(skippy.init(configuration)).thenReturn(true);
-        when(skippyPreloader.init(preloadConfiguration)).thenReturn(true);
         skippyAdapter.init();
         verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_SUCCESS_COUNT_KEY, 1);
         verify(sharedPreferencesEditor).apply();
@@ -618,5 +624,30 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE, 1000L, STREAM_URL, CDN_HOST);
         verify(accountOperations, never()).getLoggedInUserUrn();
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
+    }
+
+    @NonNull
+    private PreloadItem getPreloadItem() {
+        return new PreloadItem() {
+            @Override
+            public int describeContents() {
+                return 0;
+            }
+
+            @Override
+            public void writeToParcel(Parcel dest, int flags) {
+
+            }
+
+            @Override
+            public Urn getUrn() {
+                return trackUrn;
+            }
+
+            @Override
+            public PlaybackType getPlaybackType() {
+                return PlaybackType.AUDIO_SNIPPET;
+            }
+        };
     }
 }

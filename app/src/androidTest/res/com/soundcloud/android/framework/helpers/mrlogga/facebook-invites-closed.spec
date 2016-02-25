@@ -7,6 +7,7 @@ expected_events:
   params:
     click_name: (fb::no_image::dismiss|fb::with_images::dismiss)
     anonymous_id: '[0-9a-z-]+'
+    app_version: '[0-9]+'
     ts: '\d+'
     click_category: invite_friends
     client_id: 3152

@@ -19,6 +19,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -461,7 +462,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         return PropertySet.from(
                 PlayableProperty.PLAY_DURATION.bind(duration),
                 // titles are sometimes null from public api (unfortunately) playlist endpoint.
-                PlayableProperty.TITLE.bind(title == null ? ScTextUtils.EMPTY_STRING : title),
+                PlayableProperty.TITLE.bind(title == null ? Strings.EMPTY : title),
                 PlayableProperty.URN.bind(getUrn()),
                 PlayableProperty.CREATOR_URN.bind(getUserUrn()),
                 PlayableProperty.IS_PRIVATE.bind(sharing.isPrivate()),
@@ -472,7 +473,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
                 PlayableProperty.CREATED_AT.bind(created_at == null ? new Date() : created_at),
                 // we may have null usernames if it is my like/sound that hasn't been lazily updated
                 PlayableProperty.CREATOR_NAME.bind(user != null && user.getUsername() != null ? user.getUsername()
-                        : ScTextUtils.EMPTY_STRING)
+                        : Strings.EMPTY)
         );
     }
 }

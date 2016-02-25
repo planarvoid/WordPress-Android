@@ -1,19 +1,27 @@
 package com.soundcloud.android.sync;
 
+import static java.util.Collections.singletonList;
+
 import com.soundcloud.android.events.UrnEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
+import rx.functions.Func1;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public final class SyncResult implements Parcelable, UrnEvent {
 
+    public static final Func1<SyncResult, Urn> TO_URN = new Func1<SyncResult, Urn>() {
+        @Override
+        public Urn call(SyncResult syncResult) {
+            return syncResult.getFirstUrn();
+        }
+    };
     private final String action;
     private final boolean wasChanged;
     private final Exception exception;
@@ -50,7 +58,11 @@ public final class SyncResult implements Parcelable, UrnEvent {
     }
 
     public static SyncResult success(String action, boolean wasChanged, Urn entity) {
-        return new SyncResult(action, wasChanged, null, Arrays.asList(entity));
+        return success(action, wasChanged, singletonList(entity));
+    }
+
+    public static SyncResult success(String action, boolean wasChanged, List<Urn> entities) {
+        return new SyncResult(action, wasChanged, null, entities);
     }
 
     public static SyncResult failure(String action, Exception exception) {
@@ -76,6 +88,10 @@ public final class SyncResult implements Parcelable, UrnEvent {
     @Override
     public Urn getFirstUrn() {
         return entitiesSynced.iterator().next();
+    }
+
+    public List<Urn> getUrns() {
+        return entitiesSynced;
     }
 
     public Boolean hasChangedEntities() {

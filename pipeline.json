@@ -9,7 +9,7 @@
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ], 
-              "cmd": "./gradlew buildDebug",
+              "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 buildDebug",
               "plugins": {
                 "androidLint": {
                 "failedTotalHigh": 0, 
@@ -36,7 +36,7 @@
           },
           {
             "compile_test_apk": {
-              "cmd": "./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
+              "cmd": "http_proxy=proxy-development.int.s-cloud.net:3128 ./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 clean assembleAcceptanceTest downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
@@ -55,7 +55,7 @@
         [
           {
             "unit_tests": {
-              "cmd": "./gradlew clean runUnitTests",  
+              "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 clean runUnitTests",
               "no-clean": true, 
               "test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml",
               "plugins": {
@@ -99,7 +99,7 @@
           }, 
           {
             "dex_watchdog": {
-              "cmd": "./gradlew assembleDebug assembleRelease \nexport COUNTS_FILE=dex-method-counts.csv \necho \"debug,release\" > $COUNTS_FILE;\n./gradlew --rerun-tasks --quiet countProdDebugDexMethods | grep -oP \"(\\d+)\" | xargs echo -n >> $COUNTS_FILE \n./gradlew --rerun-tasks --quiet countProdReleaseDexMethods | grep -oP \"(\\d+)\" | sed 's/^/,/' >> $COUNTS_FILE ",
+              "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 assembleDebug assembleRelease \nexport COUNTS_FILE=dex-method-counts.csv \necho \"debug,release\" > $COUNTS_FILE;\n./gradlew --rerun-tasks --quiet countProdDebugDexMethods | grep -oP \"(\\d+)\" | xargs echo -n >> $COUNTS_FILE \n./gradlew --rerun-tasks --quiet countProdReleaseDexMethods | grep -oP \"(\\d+)\" | sed 's/^/,/' >> $COUNTS_FILE ",
               "plugins": {
                 "plot": {
                   "title": "last 100 builds",
@@ -120,7 +120,7 @@
       "jobs": [
         {
           "deploy_alpha": {
-            "cmd": "./gradlew buildAlpha deployAlpha",
+            "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 buildAlpha deployAlpha",
             "manual": true,
             "schedule": "H 3 * * 2-6",
             "artifacts": [

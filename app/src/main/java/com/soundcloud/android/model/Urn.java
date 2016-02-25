@@ -2,44 +2,20 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.strings.Charsets;
-import org.jetbrains.annotations.NotNull;
+import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.strings.Strings;
 
 import android.os.Parcel;
-import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Arrays;
 
-/**
- * Models a URN. For specs around SoundCloud URNs, see http://eng-doc.int.s-cloud.net/guidelines/urns/
- */
-public final class Urn implements Parcelable, Comparable<Urn> {
+public final class Urn extends ContentStringHelper<Urn> {
 
-    private static final String COLON = ":";
-    public static final String SOUNDCLOUD_SCHEME = "soundcloud";
-    public static final String LOCAL_SCHEME = "local";
-    public static final Urn NOT_SET = new Urn(SOUNDCLOUD_SCHEME + COLON + "unknown", Consts.NOT_SET);
+    public static final Urn NOT_SET = new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.UNKNOWN, Consts.NOT_SET);
 
-    private static final String SOUNDS_TYPE = "sounds";
-    private static final String TRACKS_TYPE = "tracks";
-    private static final String PLAYLISTS_TYPE = "playlists";
-    private static final String USERS_TYPE = "users";
-    private static final String COMMENTS_TYPE = "comments";
-    private static final String TRACK_STATION_TYPE = "track-stations";
-    private static final String ADS_TYPE = "ads";
-
-    private static final String NUMERIC_ID_PATTERN = ":(-?\\d+)";
-    private static final String TRACK_PATTERN = SOUNDCLOUD_SCHEME + COLON + TRACKS_TYPE + NUMERIC_ID_PATTERN;
-    private static final String LEGACY_TRACK_PATTERN = SOUNDCLOUD_SCHEME + COLON + SOUNDS_TYPE + NUMERIC_ID_PATTERN;
-    private static final String PLAYLIST_PATTERN = SOUNDCLOUD_SCHEME + COLON + PLAYLISTS_TYPE + NUMERIC_ID_PATTERN;
-    private static final String LOCAL_PLAYLIST_PATTERN = LOCAL_SCHEME + COLON + PLAYLISTS_TYPE + NUMERIC_ID_PATTERN;
-    private static final String USER_PATTERN = SOUNDCLOUD_SCHEME + COLON + USERS_TYPE + NUMERIC_ID_PATTERN;
-    private static final String COMMENT_PATTERN = SOUNDCLOUD_SCHEME + COLON + COMMENTS_TYPE + NUMERIC_ID_PATTERN;
-    private static final String STATION_PATTERN = SOUNDCLOUD_SCHEME + COLON + "[\\w-]+-stations:.*";
-    private static final String ADS_PATTERN = "[\\w]+" + COLON + ADS_TYPE + COLON + ".*";
+    private static final String SEPARATOR = ":";
 
     public static final Creator<Urn> CREATOR = new Creator<Urn>() {
         @Override
@@ -53,71 +29,58 @@ public final class Urn implements Parcelable, Comparable<Urn> {
         }
     };
 
-    @NotNull private final String content;
-    private final long numericId;
+    @NonNull private final String content;
 
-    public static boolean isSoundCloudUrn(String urnString) {
-        return urnString.matches(TRACK_PATTERN)
-                || urnString.matches(LEGACY_TRACK_PATTERN)
-                || urnString.matches(PLAYLIST_PATTERN)
-                || urnString.matches(USER_PATTERN)
-                || urnString.matches(COMMENT_PATTERN)
-                || urnString.matches(STATION_PATTERN);
+    private UrnNamespace namespace;
+    private UrnCollection collection;
+    private String namespaceValue;
+    private String collectionValue;
+    private String stringId;
+    private long longId;
+
+    public Urn(@Nullable String urnString) {
+        this.content = parseContent(urnString);
     }
 
-    public static boolean isLocalUrn(String urnString) {
-        return urnString.matches(LOCAL_PLAYLIST_PATTERN);
+    public Urn(UrnNamespace namespace, UrnCollection collection, long id) {
+        this.content = buildFrom(namespace, collection, id);
     }
 
-    @NotNull
+    @Override
+    @NonNull
+    String getContent() {
+        return content;
+    }
+
     public static Urn forTrack(long id) {
-        return new Urn(SOUNDCLOUD_SCHEME + COLON + TRACKS_TYPE, id);
+        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.TRACKS, id);
     }
 
-    @NotNull
+    public static Urn forPlaylist(long id) {
+        UrnNamespace namespace = id >= 0
+                ? UrnNamespace.SOUNDCLOUD
+                : UrnNamespace.LOCAL;
+        return new Urn(namespace, UrnCollection.PLAYLISTS, id);
+    }
+
     public static Urn newLocalPlaylist() {
         return forPlaylist(-System.currentTimeMillis());
     }
 
-    @NotNull
-    public static Urn forPlaylist(long id) {
-        if (id < 0) {
-            return new Urn(LOCAL_SCHEME + COLON + PLAYLISTS_TYPE, id);
-        } else {
-            return new Urn(SOUNDCLOUD_SCHEME + COLON + PLAYLISTS_TYPE, id);
-        }
-    }
-
-    @NotNull
     public static Urn forUser(long id) {
-        final long normalizedId = Math.max(0, id); // to account for anonymous users
-        return new Urn(SOUNDCLOUD_SCHEME + COLON + USERS_TYPE, normalizedId);
+        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.USERS, Math.max(0, id));
     }
 
-    @NotNull
     public static Urn forComment(long id) {
-        return new Urn(SOUNDCLOUD_SCHEME + COLON + COMMENTS_TYPE, id);
+        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.COMMENTS, id);
     }
 
-    @NotNull
     public static Urn forTrackStation(long trackID) {
-        return new Urn(SOUNDCLOUD_SCHEME + COLON + TRACK_STATION_TYPE, trackID);
+        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.TRACK_STATIONS, trackID);
     }
 
-    @NotNull
-    public static Urn forAd(String scheme, String id) {
-        return new Urn(scheme + COLON + ADS_TYPE + COLON + id);
-    }
-
-    public Urn(String content) {
-        this.content = content.replaceFirst("soundcloud:sounds:", "soundcloud:tracks:");
-        // since we access this part so frequently, we're pre-caching it for faster access later on
-        this.numericId = parseNumericId();
-    }
-
-    private Urn(String prefix, long numericId) {
-        this.content = prefix + COLON + numericId;
-        this.numericId = numericId;
+    public static Urn forAd(String namespace, String id) {
+        return new Urn(namespace + SEPARATOR + UrnCollection.ADS.value() + SEPARATOR + id);
     }
 
     public boolean isPlayable() {
@@ -125,69 +88,137 @@ public final class Urn implements Parcelable, Comparable<Urn> {
     }
 
     public boolean isTrack() {
-        return content.matches(TRACK_PATTERN) || content.matches(LEGACY_TRACK_PATTERN);
+        return isSoundCloud()
+                && (collection == UrnCollection.SOUNDS || collection == UrnCollection.TRACKS);
     }
 
     public boolean isPlaylist() {
-        return content.matches(PLAYLIST_PATTERN) || content.matches(LOCAL_PLAYLIST_PATTERN);
+        return (isSoundCloud() || isLocal())
+                && collection == UrnCollection.PLAYLISTS;
     }
 
     public boolean isLocal() {
-        return content.startsWith(LOCAL_SCHEME + COLON);
+        return namespace == UrnNamespace.LOCAL;
     }
 
     public boolean isUser() {
-        return content.matches(USER_PATTERN);
+        return isSoundCloud()
+                && collection == UrnCollection.USERS;
     }
 
     public boolean isStation() {
-        return content.matches(STATION_PATTERN);
+        return isSoundCloud()
+                && (collection == UrnCollection.STATIONS || collection == UrnCollection.TRACK_STATIONS);
     }
 
     public boolean isAd() {
-        return content.matches(ADS_PATTERN);
+        return collection == UrnCollection.ADS;
     }
 
     public long getNumericId() {
-        return numericId;
+        return longId;
     }
 
-    private long parseNumericId() {
-        final Matcher matcher = Pattern.compile(NUMERIC_ID_PATTERN).matcher(content);
-        if ((isSoundCloudUrn(content) || isLocalUrn(content)) && matcher.find()) {
-            return Long.parseLong(matcher.group(1));
+    public PropertySet toPropertySet() {
+        return PropertySet.from(EntityProperty.URN.bind(this));
+    }
+
+    private boolean isSoundCloud() {
+        return namespace == UrnNamespace.SOUNDCLOUD;
+    }
+
+    private void setNamespace(UrnNamespace namespace) {
+        this.namespace = namespace;
+        this.namespaceValue = namespace.value();
+    }
+
+    private void setCollection(UrnCollection collection) {
+        this.collection = collection;
+        this.collectionValue = collection.value();
+    }
+
+    private void setId(long id) {
+        this.longId = id;
+        this.stringId = String.valueOf(id);
+    }
+
+    private String buildFrom(UrnNamespace namespace, UrnCollection collection, long id) {
+        setNamespace(namespace);
+        setCollection(collection);
+        setId(id);
+        return buildContent();
+    }
+
+    private String buildContent() {
+        return Strings.joinOn(SEPARATOR).join(new String[]{namespaceValue, collectionValue, stringId});
+    }
+
+    private String parseContent(@Nullable String urnString) {
+        if (urnString == null) {
+            return buildFrom(UrnNamespace.OTHER, UrnCollection.UNKNOWN, Consts.NOT_SET);
         }
-        return Consts.NOT_SET;
-    }
 
-    @Override
-    public int compareTo(@NotNull Urn another) {
-        return this.content.compareTo(another.content);
-    }
+        String[] parts = urnString.split(SEPARATOR);
 
-    @Override
-    public String toString() {
-        return content;
-    }
+        parseNamespace(parts);
+        parseCollection(parts);
+        parseId(parts);
 
-    public String toEncodedString() {
-        try {
-            return URLEncoder.encode(toString(), Charsets.UTF_8.displayName());
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
+        if (isLegacySoundsCollection()) {
+            return fromLegacySoundsCollection();
+        } else {
+            return urnString;
         }
+    }
+
+    private void parseNamespace(String[] parts) {
+        if (parts.length > 0) {
+            namespace = UrnNamespace.from(parts[0]);
+            namespaceValue = parts[0];
+        } else {
+            setNamespace(UrnNamespace.OTHER);
+        }
+    }
+
+    private void parseCollection(String[] parts) {
+        if (parts.length > 1) {
+            collection = UrnCollection.from(parts[1]);
+            collectionValue = parts[1];
+        } else {
+            setCollection(UrnCollection.UNKNOWN);
+        }
+    }
+
+    private void parseId(String[] parts) {
+        if (parts.length > 2) {
+            String[] ids = Arrays.copyOfRange(parts, 2, parts.length);
+            stringId = Strings.joinOn(SEPARATOR).join(ids);
+            try {
+                longId = Long.valueOf(stringId);
+            } catch (NumberFormatException e) {
+                longId = Consts.NOT_SET;
+            }
+        } else {
+            stringId = Strings.EMPTY;
+            longId = Consts.NOT_SET;
+        }
+    }
+
+    private boolean isLegacySoundsCollection() {
+        return isSoundCloud() && collection == UrnCollection.SOUNDS;
+    }
+
+    private String fromLegacySoundsCollection() {
+        setCollection(UrnCollection.TRACKS);
+        return buildContent();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Urn urn = (Urn) o;
-        return urn.content.equals(this.content);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Urn that = (Urn) o;
+        return MoreObjects.equal(this.content, that.content);
     }
 
     @Override
@@ -195,17 +226,4 @@ public final class Urn implements Parcelable, Comparable<Urn> {
         return content.hashCode();
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(content);
-    }
-
-    public PropertySet toPropertySet() {
-        return PropertySet.from(EntityProperty.URN.bind(this));
-    }
 }

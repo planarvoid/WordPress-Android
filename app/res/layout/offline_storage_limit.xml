@@ -160,6 +160,8 @@
         style="@style/SettingsSummary"
         android:layout_alignLeft="@id/title"
         android:layout_below="@id/title"
+        android:layout_toLeftOf="@+id/offline_storage_limit"
+        android:maxLines="3"
         android:text="@string/pref_offline_storage_limit_description" />
 
     <TextView

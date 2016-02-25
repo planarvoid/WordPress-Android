@@ -1,0 +1,108 @@
+--- !ruby/object:MrLoggerLogger::ResultSpec
+whitelisted_events:
+  - click
+  - offline_sync
+expected_events:
+- !ruby/object:MrLoggerLogger::Event
+  name: click
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    app_version: .*
+    client_id: 3152
+    page_name: collection:likes
+    connection_type: wifi
+    user: soundcloud:users:136770909
+    click_name: automatic_likes_sync::enable
+    click_category: consumer_subs
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: offline_sync
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    app_version: .*
+    track_owner: soundcloud:users:200690360
+    event_stage: start
+    track: soundcloud:tracks:242885695
+    client_id: 3152
+    connection_type: wifi
+    in_likes: true
+    in_playlist: false
+    user: soundcloud:users:136770909
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: offline_sync
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    app_version: .*
+    track_owner: soundcloud:users:200690360
+    event_stage: complete
+    track: soundcloud:tracks:242885695
+    client_id: 3152
+    connection_type: wifi
+    in_likes: true
+    in_playlist: false
+    user: soundcloud:users:136770909
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: offline_sync
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    app_version: .*
+    track_owner: soundcloud:users:54298479
+    event_stage: start
+    track: soundcloud:tracks:163120177
+    client_id: 3152
+    connection_type: wifi
+    in_likes: true
+    in_playlist: false
+    user: soundcloud:users:136770909
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: offline_sync
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    app_version: .*
+    track_owner: soundcloud:users:54298479
+    event_stage: complete
+    track: soundcloud:tracks:163120177
+    client_id: 3152
+    connection_type: wifi
+    in_likes: true
+    in_playlist: false
+    user: soundcloud:users:136770909
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: offline_sync
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    app_version: .*
+    track_owner: soundcloud:users:138959
+    event_stage: start
+    track: soundcloud:tracks:594536
+    client_id: 3152
+    connection_type: wifi
+    in_likes: true
+    in_playlist: false
+    user: soundcloud:users:136770909
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: offline_sync
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    app_version: .*
+    track_owner: soundcloud:users:138959
+    event_stage: complete
+    track: soundcloud:tracks:594536
+    client_id: 3152
+    connection_type: wifi
+    in_likes: true
+    in_playlist: false
+    user: soundcloud:users:136770909
+  version: '1'

@@ -21,6 +21,7 @@ class EventLoggerParam {
     static final String PLAYLIST_POSITION = "playlist_position";
     static final String PLAYHEAD_POSITION = "playhead_position";
     static final String POLICY = "policy";
+    static final String UUID = "client_event_id";
 
     // subs
     static final String LOCAL_STORAGE_PLAYBACK = "local_storage_playback";
@@ -30,15 +31,23 @@ class EventLoggerParam {
     static final String APP_VERSION = "app_version";
     static final String IN_LIKES = "in_likes";
 
-    // ad specific params
+    // monetization params
     static final String AD_URN = "ad_urn";
     static final String EXTERNAL_MEDIA = "external_media";
     static final String MONETIZATION_TYPE = "monetization_type";
     static final String MONETIZED_OBJECT = "monetized_object";
+    static final String MONETIZATION_MODEL = "monetization_model";
     static final String IMPRESSION_NAME = "impression_name";
     static final String IMPRESSION_OBJECT = "impression_object";
     static final String IMPRESSION_CATEGORY = "impression_category";
     static final String PROMOTED_BY = "promoted_by";
+    static final String IN_FOREGROUND = "in_foreground";
+    static final String AD_REQUEST_MADE = "request_made";
+    static final String AD_REQUEST_SUCCESS = "request_success";
+    static final String AD_REQUEST_ENDPOINT = "request_endpoint";
+    static final String AD_SELECTION_OPTIMIZED = "selection_optimized";
+    static final String ADS_RECEIVED= "ads_received";
+    static final String PLAYER_VISIBLE = "is_player_visible";
 
     // performance & error event params
     static final String LATENCY = "latency";

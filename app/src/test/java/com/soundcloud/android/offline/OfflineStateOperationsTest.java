@@ -41,7 +41,7 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     private OfflineStateOperations operations;
 
     @Mock private IsOfflineLikedTracksEnabledCommand isOfflineLikedEnabledCommand;
-    @Mock private LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
+    @Mock private LoadOfflinePlaylistsContainingTrackCommand loadOfflinePlaylistsContainingTrackCommand;
     @Mock private LoadLikedTrackUrnsCommand loadLikedTracksUrnsCommand;
     @Mock private LoadPlaylistTracksCommand loadPlaylistsTracksCommand;
     @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
@@ -52,7 +52,7 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         operations = new OfflineStateOperations(
                 isOfflineLikedEnabledCommand,
-                loadOfflinePlaylistsCommand,
+                loadOfflinePlaylistsContainingTrackCommand,
                 loadLikedTracksUrnsCommand,
                 loadPlaylistsTracksCommand,
                 loadLikedTracksCommand,
@@ -66,7 +66,7 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     @Test
     public void returnsEmptyWhenTheTrackIsNotRelatedToAPlaylist() {
         when(isOfflineLikedEnabledCommand.call(null)).thenReturn(false);
-        when(loadOfflinePlaylistsCommand.call(TRACK1)).thenReturn(Collections.<Urn>emptyList());
+        when(loadOfflinePlaylistsContainingTrackCommand.call(TRACK1)).thenReturn(Collections.<Urn>emptyList());
 
 
         final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1, DOWNLOADING);
@@ -147,7 +147,7 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
 
     private void setPlaylist(Urn track, Urn playlist, PropertySet... tracks) {
         final List<PropertySet> tracksList = Arrays.asList(tracks);
-        when(loadOfflinePlaylistsCommand.call(track)).thenReturn(singletonList(playlist));
+        when(loadOfflinePlaylistsContainingTrackCommand.call(track)).thenReturn(singletonList(playlist));
         when(loadPlaylistsTracksCommand.call(playlist)).thenReturn(tracksList);
         when(loadLikedTracksUrnsCommand.call(null)).thenReturn(Lists.transform(tracksList, new Function<PropertySet, Urn>() {
             @Override

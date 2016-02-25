@@ -1,9 +1,13 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ADS_RECEIVED;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_ENDPOINT;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_MADE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_SUCCESS;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_SELECTION_OPTIMIZED;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ANONYMOUS_ID;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.APP_VERSION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.BITRATE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_CATEGORY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_NAME;
@@ -14,24 +18,27 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONN
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONSUMER_SUBS_PLAN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.DURATION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_CODE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EVENT_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EXTERNAL_MEDIA;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.FORMAT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.HOST;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_CATEGORY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_OBJECT;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_FOREGROUND;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_LIKES;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATENCY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LOCAL_STORAGE_PLAYBACK;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_MODEL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OFFLINE_EVENT_STAGE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OS;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_TYPE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_VISIBLE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYHEAD_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
@@ -41,7 +48,6 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROM
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPOSTER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOUND;
@@ -58,6 +64,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.URL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
@@ -126,6 +133,11 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData monetizationModel(String monetizationModel) {
+        addToPayload(MONETIZATION_MODEL, monetizationModel);
+        return this;
+    }
+
     public EventLoggerEventData monetizedObject(String monetizedObject) {
         addToPayload(MONETIZED_OBJECT, monetizedObject);
         return this;
@@ -151,6 +163,41 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData inForeground(boolean inForeground) {
+        addToPayload(IN_FOREGROUND, inForeground);
+        return this;
+    }
+
+    public EventLoggerEventData adsRequested(boolean adsRequested) {
+        addToPayload(AD_REQUEST_MADE, adsRequested);
+        return this;
+    }
+
+    public EventLoggerEventData adsEndpoint(String adsEndpoint) {
+        addToPayload(AD_REQUEST_ENDPOINT, adsEndpoint);
+        return this;
+    }
+
+    public EventLoggerEventData adsRequestSuccess(boolean requestSuccessful) {
+        addToPayload(AD_REQUEST_SUCCESS, requestSuccessful);
+        return this;
+    }
+
+    public EventLoggerEventData playerVisible(boolean playerVisible) {
+        addToPayload(PLAYER_VISIBLE, playerVisible);
+        return this;
+    }
+
+    public EventLoggerEventData adOptimized(boolean optimized) {
+        addToPayload(AD_SELECTION_OPTIMIZED, optimized);
+        return this;
+    }
+
+    public EventLoggerEventData adsReceived(String adsReceived) {
+        addToPayload(ADS_RECEIVED, adsReceived);
+        return this;
+    }
+
     public EventLoggerEventData trackLength(long length) {
         addToPayload(TRACK_LENGTH, length);
         return this;
@@ -171,6 +218,11 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData uuid(String uuid) {
+        addToPayload(EventLoggerParam.UUID, uuid);
+        return this;
+    }
+
     public EventLoggerEventData source(String source) {
         addToPayload(SOURCE, source);
         return this;
@@ -186,7 +238,7 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData inPlaylist(Urn playlistUrn) {
+    public EventLoggerEventData inOfflinePlaylist(Urn playlistUrn) {
         addToPayload(IN_PLAYLIST, String.valueOf(playlistUrn));
         return this;
     }
@@ -211,8 +263,8 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData consumerSubsPlan(String plan) {
-        addToPayload(CONSUMER_SUBS_PLAN, plan);
+    public EventLoggerEventData consumerSubsPlan(Plan plan) {
+        addToPayload(CONSUMER_SUBS_PLAN, plan.planId);
         return this;
     }
 
@@ -296,23 +348,13 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData inPlaylist(boolean inPlaylist) {
-        addToPayload(IN_PLAYLIST, inPlaylist);
+    public EventLoggerEventData inOfflinePlaylist(boolean isPartOfPlaylist) {
+        addToPayload(IN_PLAYLIST, isPartOfPlaylist);
         return this;
     }
 
-    public EventLoggerEventData inLikes(boolean inLikes) {
+    public EventLoggerEventData inOfflineLikes(boolean inLikes) {
         addToPayload(IN_LIKES, inLikes);
-        return this;
-    }
-
-    public EventLoggerEventData appVersion(String appVersion) {
-        addToPayload(APP_VERSION, appVersion);
-        return this;
-    }
-
-    public EventLoggerEventData eventType(String eventType) {
-        addToPayload(EVENT_TYPE, eventType);
         return this;
     }
 
@@ -414,5 +456,6 @@ class EventLoggerEventData {
                 .add("version", version)
                 .add("payload", payload).toString();
     }
+
 
 }

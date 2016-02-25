@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:id="@+id/push_all_switch"
+        android:defaultValue="true"
+        android:summary="@string/push_notifications_all_summary"
+        android:title="@string/push_notifications_all_title" />
+
+    <Preference android:layout="@layout/preferences_divider" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_follower"
+        android:title="@string/push_notifications_follower" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_repost"
+        android:title="@string/push_notifications_repost" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_new_post"
+        android:title="@string/push_notifications_new_post" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_like"
+        android:title="@string/push_notifications_like" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_product_updates"
+        android:title="@string/push_notifications_product_updates" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_survey"
+        android:title="@string/push_notifications_survey" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_tips"
+        android:title="@string/push_notifications_tips" />
+
+    <Preference android:layout="@layout/preferences_separator" />
+
+    <SwitchPreference
+        android:id="@+id/email_all_switch"
+        android:defaultValue="true"
+        android:summary="@string/email_notifications_all_summary"
+        android:title="@string/email_notifications_all_title" />
+
+    <Preference android:layout="@layout/preferences_divider" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_follower"
+        android:title="@string/email_notifications_follower" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_repost"
+        android:title="@string/email_notifications_repost" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_new_post"
+        android:title="@string/email_notifications_new_post" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_like"
+        android:title="@string/email_notifications_like" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_message"
+        android:title="@string/email_notifications_message" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_comment"
+        android:title="@string/email_notifications_comment" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_group"
+        android:title="@string/email_notifications_group" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_product_updates"
+        android:title="@string/email_notifications_product_updates" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_survey"
+        android:title="@string/email_notifications_survey" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_tips"
+        android:title="@string/email_notifications_tips" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_newsletter"
+        android:title="@string/email_notifications_newsletter" />
+
+    <Preference android:layout="@layout/preferences_separator" />
+
+</PreferenceScreen>

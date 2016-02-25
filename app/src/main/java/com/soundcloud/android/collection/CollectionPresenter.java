@@ -3,6 +3,8 @@ package com.soundcloud.android.collection;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PullToRefreshEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -23,7 +25,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
@@ -122,11 +123,10 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        RecyclerView recyclerView = getRecyclerView();
         final int spanCount = resources.getInteger(R.integer.collection_grid_span_count);
         final GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), spanCount);
         layoutManager.setSpanSizeLookup(createSpanSizeLookup(spanCount));
-        recyclerView.setLayoutManager(layoutManager);
+        getRecyclerView().setLayoutManager(layoutManager);
     }
 
     @Override
@@ -175,7 +175,11 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
         return new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                return adapter.getItem(position).isPlaylistItem() ? 1 : spanCount;
+                if (position < adapter.getItemCount() && adapter.getItem(position).isPlaylistItem()) {
+                    return 1;
+                } else {
+                    return spanCount;
+                }
             }
         };
     }
@@ -190,7 +194,10 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
 
     @Override
     protected CollectionBinding<CollectionItem> onRefreshBinding() {
-        final Observable<MyCollection> collections = collectionOperations.updatedCollections(currentOptions).observeOn(AndroidSchedulers.mainThread());
+        final Observable<MyCollection> collections =
+                collectionOperations.updatedCollections(currentOptions)
+                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.COLLECTIONS)))
+                        .observeOn(AndroidSchedulers.mainThread());
         return CollectionBinding.from(collections.doOnError(new OnErrorAction()).doOnNext(clearOnNext), toCollectionItems)
                 .withAdapter(adapter)
                 .build();

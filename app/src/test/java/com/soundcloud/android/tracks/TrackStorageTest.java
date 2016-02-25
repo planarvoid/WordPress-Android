@@ -116,10 +116,10 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
     @Test
     public void descriptionByUrnEmitsInsertedDescription() {
-        final Urn trackUrn = Urn.forTrack(123);
-        testFixtures().insertDescription(trackUrn, "description123");
+        ApiTrack track = testFixtures().insertTrack();
+        testFixtures().insertDescription(track.getUrn(), "description123");
 
-        PropertySet description = storage.loadTrackDescription(trackUrn).toBlocking().single();
+        PropertySet description = storage.loadTrackDescription(track.getUrn()).toBlocking().single();
 
         assertThat(description).isEqualTo(PropertySet.from(TrackProperty.DESCRIPTION.bind("description123")));
     }

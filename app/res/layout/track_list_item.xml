@@ -63,7 +63,6 @@
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/track_list_item_preview_text"
                 style="@style/ListItemText.Preview"
-                android:layout_marginTop="4dp"
                 android:layout_alignTop="@id/image"
                 android:layout_alignParentRight="true"
                 android:visibility="gone" />

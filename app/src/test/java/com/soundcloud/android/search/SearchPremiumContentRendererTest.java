@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -28,24 +29,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class SearchPremiumContentRendererTest extends AndroidUnitTest {
-
-    private static final int SEARCH_RESULTS_COUNT = 100;
 
     private SearchPremiumContentRenderer renderer;
 
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private PlaylistItemRenderer playlistRenderer;
     @Mock private UserItemRenderer userRenderer;
+    @Mock private FeatureOperations featureOperations;
 
     private View premiumItemView;
     private View trackItemView;
     private View playListItemView;
     private View userItemView;
-
+    private View viewAllResultsView;
+    private View viewAllResultsViewDivider;
 
     @Before
     public void setUp() {
@@ -54,12 +56,14 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         trackItemView = LayoutInflater.from(context()).inflate(R.layout.track_list_item, frameLayout, false);
         playListItemView = LayoutInflater.from(context()).inflate(R.layout.playlist_list_item, frameLayout, false);
         userItemView = LayoutInflater.from(context()).inflate(R.layout.user_list_item, frameLayout, false);
+        viewAllResultsView = premiumItemView.findViewById(R.id.view_all_container);
+        viewAllResultsViewDivider = premiumItemView.findViewById(R.id.view_all_container_divider);
 
         when(trackRenderer.createItemView(any(ViewGroup.class))).thenReturn(trackItemView);
         when(playlistRenderer.createItemView(any(ViewGroup.class))).thenReturn(playListItemView);
         when(userRenderer.createItemView(any(ViewGroup.class))).thenReturn(userItemView);
 
-        renderer = new SearchPremiumContentRenderer(trackRenderer, playlistRenderer, userRenderer, resources());
+        renderer = new SearchPremiumContentRenderer(trackRenderer, playlistRenderer, userRenderer, resources(), featureOperations);
     }
 
     @Test
@@ -111,8 +115,59 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         verify(userRenderer).bindItemView(eq(0), eq(userItemView), anyList());
     }
 
-    private List<SearchPremiumItem> buildSearchPremiumItem(Urn urn) {
-        final List<PropertySet> propertySets = Collections.singletonList(PropertySet.create().put(EntityProperty.URN, urn));
-        return Collections.singletonList(new SearchPremiumItem(propertySets, Optional.<Link>absent(), SEARCH_RESULTS_COUNT));
+    @Test
+    public void shouldShowUpsellIconWhenNotHighTierUser() {
+        final View helpItemView = premiumItemView.findViewById(R.id.help);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+
+        renderer.createItemView(new FrameLayout(context()));
+        renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forTrack(123L), Urn.forTrack(234L)));
+
+        assertThat(helpItemView.getVisibility()).isEqualTo(VISIBLE);
+        assertThat(helpItemView.hasOnClickListeners()).isTrue();
+    }
+
+    @Test
+    public void shouldShowViewAllButtonWhenHavingMoreThanOneHighTierResult() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+
+        renderer.createItemView(new FrameLayout(context()));
+        renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forTrack(123L), Urn.forTrack(234L)));
+
+        assertThat(viewAllResultsViewDivider.getVisibility()).isEqualTo(VISIBLE);
+        assertThat(viewAllResultsView.getVisibility()).isEqualTo(VISIBLE);
+        assertThat(viewAllResultsView.hasOnClickListeners()).isTrue();
+    }
+
+    @Test
+    public void shouldNotShowViewAllButtonWhenHavingOneHighTierResult() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+
+        renderer.createItemView(new FrameLayout(context()));
+        renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forTrack(123L)));
+
+        assertThat(viewAllResultsViewDivider.getVisibility()).isEqualTo(GONE);
+        assertThat(viewAllResultsView.getVisibility()).isEqualTo(GONE);
+        assertThat(viewAllResultsView.hasOnClickListeners()).isFalse();
+    }
+
+    @Test
+    public void shouldNotShowUpsellIconWhenHighTierUser() {
+        final View helpItemView = premiumItemView.findViewById(R.id.help);
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+
+        renderer.createItemView(new FrameLayout(context()));
+        renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forTrack(123L), Urn.forTrack(234L)));
+
+        assertThat(helpItemView.getVisibility()).isEqualTo(GONE);
+        assertThat(helpItemView.hasOnClickListeners()).isFalse();
+    }
+
+    private List<SearchPremiumItem> buildSearchPremiumItem(Urn... urns) {
+        final List<PropertySet> propertySets = new ArrayList<>(urns.length);
+        for (Urn urn : urns) {
+            propertySets.add(PropertySet.create().put(EntityProperty.URN, urn));
+        }
+        return Collections.singletonList(new SearchPremiumItem(propertySets, Optional.<Link>absent(), urns.length));
     }
 }

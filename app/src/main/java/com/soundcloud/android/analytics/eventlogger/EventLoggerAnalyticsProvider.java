@@ -4,11 +4,14 @@ import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -99,7 +102,21 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleFacebookInvitesEvent((FacebookInvitesEvent) event);
         } else if (event instanceof CollectionEvent) {
             handleCollectionEvent((CollectionEvent) event);
+        } else if (event instanceof OfflineInteractionEvent) {
+            handleOfflineInteractionEvent((OfflineInteractionEvent) event);
+        } else if (event instanceof OfflinePerformanceEvent) {
+            handleOfflinePerformanceEvent((OfflinePerformanceEvent) event);
+        } else if (event instanceof AdDeliveryEvent) {
+            handleAdDeliveryEvent((AdDeliveryEvent) event);
         }
+    }
+
+    private void handleOfflineInteractionEvent(OfflineInteractionEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForOfflineInteractionEvent(event));
+    }
+
+    private void handleOfflinePerformanceEvent(OfflinePerformanceEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForOfflinePerformanceEvent(event));
     }
 
     private void handleCollectionEvent(CollectionEvent event) {
@@ -132,7 +149,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleUpsellEvent(UpgradeTrackingEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUpsell(event));
     }
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {
@@ -156,14 +173,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             case UIEvent.KIND_UNLIKE:
             case UIEvent.KIND_REPOST:
             case UIEvent.KIND_UNREPOST:
-                trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
-                break;
-            case UIEvent.KIND_OFFLINE_LIKES_ADD:
-            case UIEvent.KIND_OFFLINE_LIKES_REMOVE:
-            case UIEvent.KIND_OFFLINE_COLLECTION_ADD:
-            case UIEvent.KIND_OFFLINE_COLLECTION_REMOVE:
-            case UIEvent.KIND_OFFLINE_PLAYLIST_ADD:
-            case UIEvent.KIND_OFFLINE_PLAYLIST_REMOVE:
             case UIEvent.KIND_SHARE:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
@@ -184,6 +193,10 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
                 // no-op, ignoring certain types
                 break;
         }
+    }
+
+    private void handleAdDeliveryEvent(AdDeliveryEvent eventData) {
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdDelivery(eventData));
     }
 
     @Override

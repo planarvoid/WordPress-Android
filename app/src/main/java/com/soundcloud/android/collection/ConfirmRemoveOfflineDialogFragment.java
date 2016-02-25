@@ -8,9 +8,10 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.dialog.ImageAlertDialog;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Dialog;
@@ -53,18 +54,25 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new ImageAlertDialog(getActivity())
-                .setContent(R.drawable.dialog_payment_error,
+                .setContent(R.drawable.dialog_download,
                         R.string.disable_offline_collection_title,
                         R.string.disable_offline_collection_body)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        offlineContentOperations.disableOfflineCollection();
+                        disableAutomaticCollectionSync();
                         proceedWithRemoval();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
+    }
+
+    private void disableAutomaticCollectionSync() {
+        offlineContentOperations.disableOfflineCollection();
+        Optional<Urn> playlist = isForPlaylist() ? Optional.of(playlistUrn()) : Optional.<Urn>absent();
+        eventBus.publish(EventQueue.TRACKING,
+                OfflineInteractionEvent.fromDisableCollectionSync(screenProvider.getLastScreenTag(), playlist));
     }
 
     private void proceedWithRemoval() {
@@ -77,15 +85,14 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
 
     private void removeOfflineLikes() {
         fireAndForget(offlineContentOperations.disableOfflineLikedTracks());
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
+        eventBus.publish(EventQueue.TRACKING,
+                OfflineInteractionEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
     }
 
     private void removeOfflinePlaylist(Urn urn) {
         fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(urn));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromRemoveOfflinePlaylist(
-                screenProvider.getLastScreenTag(),
-                urn,
-                promotedSourceInfo()));
+        eventBus.publish(EventQueue.TRACKING,
+                OfflineInteractionEvent.fromRemoveOfflinePlaylist(screenProvider.getLastScreenTag(), urn, promotedSourceInfo()));
     }
 
     private boolean isForPlaylist() {

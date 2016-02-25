@@ -59,7 +59,7 @@ public class LoadPlaylistTracksCommand extends Command<Urn, List<PropertySet>> {
                 .innerJoin(Table.Sounds.name(), Table.PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID), fullSoundIdColumn)
                 .innerJoin(Table.Users.name(), Table.Sounds.field(TableColumns.Sounds.USER_ID), Table.Users.field(TableColumns.Users._ID))
                 .leftJoin(Tables.TrackDownloads.TABLE.name(), fullSoundIdColumn, Tables.TrackDownloads._ID.qualifiedName())
-                .leftJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
+                .innerJoin(Table.TrackPolicies.name(), fullSoundIdColumn, Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .leftJoin(Tables.OfflineContent.TABLE, offlinePlaylistFilter())
 
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)

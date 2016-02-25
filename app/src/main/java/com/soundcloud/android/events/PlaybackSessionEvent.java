@@ -46,6 +46,8 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private final long progress;
     private final boolean isOfflineTrack;
     private final boolean marketablePlay;
+    private final String uuid;
+    private final String monetizationModel;
 
     private int stopReason;
     private long listenTime;
@@ -57,28 +59,28 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private List<String> promotedPlayUrls = Collections.emptyList();
 
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn, TrackSourceInfo trackSourceInfo, long progress,
-                                               String protocol, String playerType, String connectionType, boolean isOfflineTrack, boolean marketablePlay) {
-        return forPlay(trackData, userUrn, trackSourceInfo, progress, System.currentTimeMillis(), protocol, playerType, connectionType, isOfflineTrack, marketablePlay);
+                                               String protocol, String playerType, String connectionType, boolean isOfflineTrack, boolean marketablePlay, String uuid) {
+        return forPlay(trackData, userUrn, trackSourceInfo, progress, System.currentTimeMillis(), protocol, playerType, connectionType, isOfflineTrack, marketablePlay, uuid);
     }
 
     @VisibleForTesting
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn, TrackSourceInfo trackSourceInfo, long progress, long timestamp,
-                                               String protocol, String playerType, String connectionType, boolean isOfflineTrack, boolean marketablePlay) {
-        return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType, isOfflineTrack, marketablePlay);
+                                               String protocol, String playerType, String connectionType, boolean isOfflineTrack, boolean marketablePlay, String uuid) {
+        return new PlaybackSessionEvent(EVENT_KIND_PLAY, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType, isOfflineTrack, marketablePlay, uuid);
     }
 
     public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
                                                TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent, long progress,
-                                               String protocol, String playerType, String connectionType, int stopReason, boolean isOfflineTrack) {
-        return forStop(trackData, userUrn, trackSourceInfo, lastPlayEvent, progress, System.currentTimeMillis(), protocol, playerType, connectionType, stopReason, isOfflineTrack);
+                                               String protocol, String playerType, String connectionType, int stopReason, boolean isOfflineTrack, String uuid) {
+        return forStop(trackData, userUrn, trackSourceInfo, lastPlayEvent, progress, System.currentTimeMillis(), protocol, playerType, connectionType, stopReason, isOfflineTrack, uuid);
     }
 
     @VisibleForTesting
     public static PlaybackSessionEvent forStop(@NotNull PropertySet trackData, @NotNull Urn userUrn,
                                                TrackSourceInfo trackSourceInfo, PlaybackSessionEvent lastPlayEvent, long progress, long timestamp,
-                                               String protocol, String playerType, String connectionType, int stopReason, boolean isOfflineTrack) {
+                                               String protocol, String playerType, String connectionType, int stopReason, boolean isOfflineTrack, String uuid) {
         final PlaybackSessionEvent playbackSessionEvent =
-                new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType, isOfflineTrack, false);
+                new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType, isOfflineTrack, false,uuid);
         playbackSessionEvent.setListenTime(playbackSessionEvent.timestamp - lastPlayEvent.getTimestamp());
         playbackSessionEvent.setStopReason(stopReason);
         return playbackSessionEvent;
@@ -86,12 +88,15 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     // Regular track
     private PlaybackSessionEvent(String eventKind, PropertySet track, Urn userUrn, TrackSourceInfo trackSourceInfo, long progress, long timestamp,
-                                 String protocol, String playerType, String connectionType, boolean isOfflineTrack, boolean marketablePlay) {
+                                 String protocol, String playerType, String connectionType, boolean isOfflineTrack, boolean marketablePlay,
+                                 String uuid) {
         super(eventKind, timestamp);
         this.isOfflineTrack = isOfflineTrack;
         this.marketablePlay = marketablePlay;
+        this.uuid = uuid;
         this.trackUrn = track.get(TrackProperty.URN);
         this.creatorUrn = track.get(TrackProperty.CREATOR_URN);
+        this.monetizationModel = track.get(TrackProperty.MONETIZATION_MODEL);
         put(KEY_LOGGED_IN_USER_URN, userUrn.toString());
         put(KEY_PROTOCOL, protocol);
         put(KEY_POLICY, track.getOrElseNull(TrackProperty.POLICY));
@@ -176,6 +181,14 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     public Urn getCreatorUrn() {
         return creatorUrn;
+    }
+
+    public String getUUID() {
+        return uuid;
+    }
+
+    public String getMonetizationModel() {
+        return monetizationModel;
     }
 
     private void setListenTime(long listenTime) {

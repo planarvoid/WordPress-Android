@@ -21,6 +21,7 @@ public enum ApiEndpoints {
     SEARCH_USERS("/search/users"),
     SEARCH_PLAYLISTS("/search/playlists"),
     SEARCH_ALL("/search/universal"),
+    SEARCH_SUGGESTIONS("/search/suggest"),
 
     // search premium content
     SEARCH_PREMIUM_TRACKS("/search/tracks/premium_content"),
@@ -41,7 +42,8 @@ public enum ApiEndpoints {
     POLICIES("/policies/tracks"),
 
     // consumer subs
-    PRODUCTS("/products/google-play"),
+    WEB_PRODUCTS("/products/android-web"),
+    NATIVE_PRODUCTS("/products/google-play"),
     CHECKOUT("/checkout"),
     CHECKOUT_URN("/checkout/%s"),
 
@@ -88,6 +90,7 @@ public enum ApiEndpoints {
 
     // other
     HLS_STREAM("/tracks/%s/streams/hls"),
+    HLS_SNIPPET_STREAM("/tracks/%s/streams/hls/snippet"),
     HTTP_STREAM("/tracks/%s/streams/http"),
     HTTPS_STREAM("/tracks/%s/streams/https"),
     SUBSCRIPTIONS("/subscriptions"),

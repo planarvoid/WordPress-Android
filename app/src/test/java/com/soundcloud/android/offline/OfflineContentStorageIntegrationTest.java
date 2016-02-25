@@ -58,7 +58,7 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
 
     @Test
     public void storeLikedTrackCollectionAsOffline() {
-        contentStorage.storeLikedTrackCollection().subscribe();
+        contentStorage.addLikedTrackCollection().subscribe();
 
         databaseAssertions().assertLikedTracksIsOffline();
     }
@@ -67,23 +67,28 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
     public void removeLikedTracksFromOffline() {
         testFixtures().insertLikesMarkedForOfflineSync();
 
-        contentStorage.deleteLikedTrackCollection().subscribe();
+        contentStorage.removeLikedTrackCollection().subscribe();
 
         databaseAssertions().assertLikedTracksIsNotOffline();
     }
 
     @Test
     public void deleteLikedTrackCollectionFromTable() {
-        contentStorage.deleteLikedTrackCollection().subscribe();
+        contentStorage.removeLikedTrackCollection().subscribe();
 
         databaseAssertions().assertLikedTracksIsNotOffline();
     }
 
     @Test
-    public void addOfflinePlaylists() {
-        final Urn expectedPlaylist = Urn.forPlaylist(345L);
-        contentStorage.addOfflinePlaylists(singletonList(expectedPlaylist)).subscribe();
+    public void setOfflinePlaylists() {
+        testFixtures().insertLikesMarkedForOfflineSync();
+        final Urn previousPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
+        final Urn expectedPlaylist = Urn.forPlaylist(345678L);
 
+        contentStorage.setOfflinePlaylists(singletonList(expectedPlaylist)).subscribe();
+
+        databaseAssertions().assertIsNotOfflinePlaylist(previousPlaylist);
         databaseAssertions().assertIsOfflinePlaylist(expectedPlaylist);
+        databaseAssertions().assertLikedTracksIsOffline();
     }
 }
