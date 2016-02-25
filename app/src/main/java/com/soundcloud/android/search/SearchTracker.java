@@ -44,10 +44,10 @@ public class SearchTracker {
     }
 
     private void initializeScreenQueryUrnMap() {
-        this.screenDataMap.put(Screen.SEARCH_EVERYTHING, new ScreenData());
-        this.screenDataMap.put(Screen.SEARCH_TRACKS, new ScreenData());
-        this.screenDataMap.put(Screen.SEARCH_PLAYLISTS, new ScreenData());
-        this.screenDataMap.put(Screen.SEARCH_USERS, new ScreenData());
+        this.screenDataMap.put(Screen.SEARCH_EVERYTHING, ScreenData.EMPTY);
+        this.screenDataMap.put(Screen.SEARCH_TRACKS, ScreenData.EMPTY);
+        this.screenDataMap.put(Screen.SEARCH_PLAYLISTS, ScreenData.EMPTY);
+        this.screenDataMap.put(Screen.SEARCH_USERS, ScreenData.EMPTY);
     }
 
     public void trackMainScreenEvent() {
@@ -72,12 +72,13 @@ public class SearchTracker {
     void trackResultsScreenEvent(int searchType) {
         final Screen trackingScreen = getTrackingScreen(searchType);
         if (screenDataMap.containsKey(trackingScreen)) {
-            final Urn queryUrn = screenDataMap.get(trackingScreen).queryUrn;
+            final ScreenData screenData = screenDataMap.get(trackingScreen);
+            final Urn queryUrn = screenData.queryUrn;
             if (queryUrn != Urn.NOT_SET) {
                 eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(trackingScreen.get(),
                         new SearchQuerySourceInfo(queryUrn)));
             }
-            final boolean hasPremiumContent = screenDataMap.get(trackingScreen).hasPremiumContent;
+            final boolean hasPremiumContent = screenData.hasPremiumContent;
             if (hasPremiumContent && featureOperations.upsellHighTier()) {
                 eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSearchResultsImpression(trackingScreen));
             }
@@ -109,10 +110,7 @@ public class SearchTracker {
     void setTrackingData(int searchType, Urn queryUrn, boolean hasPremiumContent) {
         final Screen trackingScreen = getTrackingScreen(searchType);
         if (screenDataMap.containsKey(trackingScreen)) {
-            final ScreenData screenData = screenDataMap.get(trackingScreen);
-            screenData.queryUrn = queryUrn;
-            screenData.hasPremiumContent = hasPremiumContent;
-            screenDataMap.put(trackingScreen, screenData);
+            screenDataMap.put(trackingScreen, new ScreenData(queryUrn, hasPremiumContent));
         }
     }
 
@@ -160,12 +158,14 @@ public class SearchTracker {
 
     @VisibleForTesting
     static final class ScreenData {
-        Urn queryUrn;
-        boolean hasPremiumContent;
+        static final ScreenData EMPTY = new ScreenData(Urn.NOT_SET, false);
 
-        private ScreenData() {
-            this.queryUrn = Urn.NOT_SET;
-            this.hasPremiumContent = false;
+        final Urn queryUrn;
+        final boolean hasPremiumContent;
+
+        private ScreenData(Urn queryUrn, boolean hasPremiumContent) {
+            this.queryUrn = queryUrn;
+            this.hasPremiumContent = hasPremiumContent;
         }
     }
 }
