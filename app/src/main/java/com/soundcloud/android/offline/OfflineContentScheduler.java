@@ -23,19 +23,19 @@ public class OfflineContentScheduler {
     private final Context context;
     private final AlarmManager alarmManager;
     private final ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver;
-    private final DownloadConnexionHelper downloadConnexionHelper;
+    private final DownloadConnectionHelper downloadConnectionHelper;
     private final CurrentDateProvider dateProvider;
 
     @Inject
     public OfflineContentScheduler(Context context,
                                    AlarmManager alarmManager,
                                    ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver,
-                                   DownloadConnexionHelper downloadConnexionHelper,
+                                   DownloadConnectionHelper downloadConnectionHelper,
                                    CurrentDateProvider dateProvider) {
         this.context = context;
         this.alarmManager = alarmManager;
         this.resumeOnConnectedReceiver = resumeOnConnectedReceiver;
-        this.downloadConnexionHelper = downloadConnexionHelper;
+        this.downloadConnectionHelper = downloadConnectionHelper;
         this.dateProvider = dateProvider;
     }
 
@@ -44,11 +44,14 @@ public class OfflineContentScheduler {
         resumeOnConnectedReceiver.unregister();
     }
 
-    public void scheduleRetry() {
-        if (!downloadConnexionHelper.isNetworkDownloadFriendly()) {
+    public void scheduleRetryForConnectivityError() {
+        if (downloadConnectionHelper.isDownloadPermitted()) {
+            // Connectivity blip
+            // Note: this code is not on the server error path. IT is not subject to DDOS.
+            scheduleStartAt(dateProvider.getCurrentTime() + OfflineConstants.RETRY_DELAY, RETRY_REQUEST_ID);
+        } else {
             resumeOnConnectedReceiver.register();
         }
-        scheduleStartAt(dateProvider.getCurrentTime() + OfflineConstants.RETRY_DELAY, RETRY_REQUEST_ID);
     }
 
     public Action1<Object> scheduleCleanupAction() {

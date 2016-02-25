@@ -134,7 +134,7 @@ class DownloadNotificationController {
         return MoreCollections.filter(previousDownloads, new Predicate<DownloadState>() {
             @Override
             public boolean apply(DownloadState downloadState) {
-                return downloadState.isConnectionError()
+                return downloadState.isConnectivityError()
                         || downloadState.isDownloadFailed()
                         || downloadState.isUnavailable();
             }

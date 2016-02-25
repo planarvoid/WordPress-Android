@@ -13,13 +13,13 @@ import javax.inject.Singleton;
 public class ResumeDownloadOnConnectedReceiver extends BroadcastReceiver {
 
     private final Context context;
-    private final DownloadConnexionHelper downloadConnexionHelper;
+    private final DownloadConnectionHelper downloadConnectionHelper;
     private boolean isRegistered;
 
     @Inject
-    ResumeDownloadOnConnectedReceiver(Context context, DownloadConnexionHelper downloadConnexionHelper) {
+    ResumeDownloadOnConnectedReceiver(Context context, DownloadConnectionHelper downloadConnectionHelper) {
         this.context = context;
-        this.downloadConnexionHelper = downloadConnexionHelper;
+        this.downloadConnectionHelper = downloadConnectionHelper;
     }
 
     void register() {
@@ -40,7 +40,7 @@ public class ResumeDownloadOnConnectedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (downloadConnexionHelper.isNetworkDownloadFriendly()) {
+        if (downloadConnectionHelper.isDownloadPermitted()) {
             OfflineContentService.start(context);
         }
     }

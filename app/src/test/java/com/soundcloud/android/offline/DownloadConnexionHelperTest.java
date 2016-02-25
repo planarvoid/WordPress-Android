@@ -15,20 +15,20 @@ public class DownloadConnexionHelperTest {
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private OfflineSettingsStorage offlineSettings;
 
-    private DownloadConnexionHelper helper;
+    private DownloadConnectionHelper helper;
 
     @Before
     public void setUp() throws Exception {
         when(connectionHelper.isWifiConnected()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
-        helper = new DownloadConnexionHelper(connectionHelper, offlineSettings);
+        helper = new DownloadConnectionHelper(connectionHelper, offlineSettings);
     }
 
     @Test
     public void invalidNetworkWhenDisconnected() {
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
 
-        assertThat(helper.isNetworkDownloadFriendly()).isFalse();
+        assertThat(helper.isDownloadPermitted()).isFalse();
     }
 
     @Test
@@ -36,7 +36,7 @@ public class DownloadConnexionHelperTest {
         when(offlineSettings.isWifiOnlyEnabled()).thenReturn(false);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
 
-        assertThat(helper.isNetworkDownloadFriendly()).isTrue();
+        assertThat(helper.isDownloadPermitted()).isTrue();
     }
 
     @Test
@@ -45,7 +45,7 @@ public class DownloadConnexionHelperTest {
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(false);
 
-        assertThat(helper.isNetworkDownloadFriendly()).isFalse();
+        assertThat(helper.isDownloadPermitted()).isFalse();
     }
 
     @Test
@@ -54,6 +54,6 @@ public class DownloadConnexionHelperTest {
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(true);
 
-        assertThat(helper.isNetworkDownloadFriendly()).isTrue();
+        assertThat(helper.isDownloadPermitted()).isTrue();
     }
 }

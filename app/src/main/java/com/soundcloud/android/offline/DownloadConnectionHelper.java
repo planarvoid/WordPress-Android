@@ -4,13 +4,13 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 
 import javax.inject.Inject;
 
-class DownloadConnexionHelper {
+class DownloadConnectionHelper {
 
     private final NetworkConnectionHelper connectionHelper;
     private final OfflineSettingsStorage offlineSettings;
 
     @Inject
-    DownloadConnexionHelper(NetworkConnectionHelper connectionHelper, OfflineSettingsStorage offlineSettings) {
+    DownloadConnectionHelper(NetworkConnectionHelper connectionHelper, OfflineSettingsStorage offlineSettings) {
         this.connectionHelper = connectionHelper;
         this.offlineSettings = offlineSettings;
     }
@@ -19,7 +19,7 @@ class DownloadConnexionHelper {
         return !connectionHelper.isNetworkConnected();
     }
 
-    boolean isNetworkDownloadFriendly() {
+    boolean isDownloadPermitted() {
         if (offlineSettings.isWifiOnlyEnabled()) {
             return connectionHelper.isWifiConnected();
         } else {
