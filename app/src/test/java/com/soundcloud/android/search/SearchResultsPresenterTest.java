@@ -84,7 +84,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(searchOperations.searchResult(anyString(), anyInt())).thenReturn(Observable.<SearchResult>empty());
         when(searchOperations.pagingFunction(anyInt())).thenReturn(searchPagingFunction);
         when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class))).thenReturn(searchQuerySourceInfo);
-        when(featureFlags.isEnabled(Flag.SEARCH_RESULTS_HIGH_TIER)).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)).thenReturn(false);
     }
 
     @Test

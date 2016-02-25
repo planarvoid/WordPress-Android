@@ -55,7 +55,7 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        when(featureFlags.isEnabled(Flag.SEARCH_RESULTS_HIGH_TIER)).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)).thenReturn(false);
         adapter = new SearchResultsAdapter(trackRenderer, playlistRenderer, userRenderer, premiumContentRenderer, searchUpsellRenderer);
     }
 

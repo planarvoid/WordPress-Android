@@ -47,7 +47,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
             final List<PropertySet> sourceSetsItems = searchResult.getItems();
             final Optional<SearchResult> premiumContent = searchResult.getPremiumContent();
             final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
-            if (premiumContent.isPresent() && featureFlags.isEnabled(Flag.SEARCH_RESULTS_HIGH_TIER)) {
+            if (premiumContent.isPresent() && featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)) {
                 final SearchResult premiumSearchResult = premiumContent.get();
                 searchItems.add(SearchResultItem.buildPremiumItem(premiumSearchResult.getItems(),
                         premiumSearchResult.nextHref, premiumSearchResult.getResultsCount()));
