@@ -38,7 +38,9 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
-    <style name="Theme.SoundCloud.Conversion" parent="Theme.SoundCloud.Translucent" />
+    <style name="Theme.SoundCloud.Conversion" parent="Theme.SoundCloud.Translucent">
+        <item name="android:statusBarColor">@color/primary_darker</item>
+    </style>
 
     <style name="Theme.SoundCloud.TranslucentStatus">
         <item name="android:statusBarColor">@color/translucent_status_bar</item>
