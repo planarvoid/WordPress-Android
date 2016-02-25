@@ -1,96 +1,33 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
-import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.java.optional.Optional;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import org.jetbrains.annotations.Nullable;
-import rx.functions.Func1;
 
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
-class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsBucket> {
-    private static PagedRemoteCollection SOURCE_TO_PAGED_REMOTE_COLLECTION(ModelCollection<? extends ApiEntityHolderSource> modelCollection) {
-        return new PagedRemoteCollection(TO_PROPERTY_SET_SOURCES(modelCollection));
-    }
+class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
 
-    private static PagedRemoteCollection TO_PAGED_REMOTE_COLLECTION(ModelCollection<? extends PropertySetSource> modelCollection) {
-        return new PagedRemoteCollection(modelCollection);
-    }
-
-    private static ModelCollection<PropertySetSource> TO_PROPERTY_SET_SOURCES(ModelCollection<? extends ApiEntityHolderSource> entityHolderSources) {
-        List<PropertySetSource> entities = new ArrayList<>();
-
-        for (ApiEntityHolderSource entityHolderSource : entityHolderSources) {
-            final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
-
-            if (entityHolder.isPresent()) {
-                entities.add(entityHolder.get());
-            }
-        }
-
-        return new ModelCollection<>(entities, entityHolderSources.getLinks());
-    }
-
-    private final Func1<UserProfileRecord, Iterable<UserSoundsBucket>> TO_BUCKETS = new Func1<UserProfileRecord, Iterable<UserSoundsBucket>>() {
-        @Override
-        public Iterable<UserSoundsBucket> call(UserProfileRecord userProfile) {
-            final List<UserSoundsBucket> buckets = new ArrayList<>();
-            final ModelCollection<? extends ApiEntityHolderSource> spotlight = userProfile.getSpotlight();
-            final ModelCollection<? extends ApiEntityHolder> tracks = userProfile.getTracks();
-            final ModelCollection<? extends ApiEntityHolder> releases = userProfile.getReleases();
-            final ModelCollection<? extends ApiEntityHolder> playlists = userProfile.getPlaylists();
-            final ModelCollection<? extends ApiEntityHolderSource> reposts = userProfile.getReposts();
-            final ModelCollection<? extends ApiEntityHolderSource> likes = userProfile.getLikes();
-
-            if (!spotlight.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_spotlight_heading), UserSoundsTypes.SPOTLIGHT, SOURCE_TO_PAGED_REMOTE_COLLECTION(spotlight)));
-            }
-
-            if (!tracks.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_tracks_heading), UserSoundsTypes.TRACKS, TO_PAGED_REMOTE_COLLECTION(tracks)));
-            }
-
-            if (!releases.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_releases_heading), UserSoundsTypes.RELEASES, TO_PAGED_REMOTE_COLLECTION(releases)));
-            }
-
-            if (!playlists.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_playlists_heading), UserSoundsTypes.PLAYLISTS, TO_PAGED_REMOTE_COLLECTION(playlists)));
-            }
-
-            if (!reposts.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_reposts_heading), UserSoundsTypes.REPOSTS, SOURCE_TO_PAGED_REMOTE_COLLECTION(reposts)));
-            }
-
-            if (!likes.getCollection().isEmpty()) {
-                buckets.add(UserSoundsBucket.create(resources.getString(R.string.user_profile_likes_heading), UserSoundsTypes.LIKES, SOURCE_TO_PAGED_REMOTE_COLLECTION(likes)));
-            }
-
-            return buckets;
-        }
-    };
+    private final MixedItemClickListener itemClickListener;
 
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final UserSoundsAdapter adapter;
     private final UserProfileOperations operations;
-    private final Resources resources;
+    private UserSoundsMapper userSoundsMapper;
     private Urn userUrn;
 
     @Inject
@@ -98,28 +35,30 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsBucket> {
                         SwipeRefreshAttacher swipeRefreshAttacher,
                         UserSoundsAdapter adapter,
                         UserProfileOperations operations,
-                        Resources resources) {
-        super(swipeRefreshAttacher);
+                        MixedItemClickListener.Factory itemClickListenerFactory,
+                        UserSoundsMapper userSoundsMapper) {
+        super(swipeRefreshAttacher, Options.list().useDividers(Options.DividerMode.NONE).build());
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.operations = operations;
-        this.resources = resources;
+        this.userSoundsMapper = userSoundsMapper;
+        this.itemClickListener = itemClickListenerFactory.create(Screen.USER_SOUNDS, null);
     }
 
     @Override
-    protected CollectionBinding<UserSoundsBucket> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<UserSoundsItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
 
         return CollectionBinding
-                .from(operations.userProfile(userUrn).map(TO_BUCKETS))
+                .from(operations.userProfile(userUrn).map(userSoundsMapper))
                 .withAdapter(adapter)
                 .build();
     }
 
     @Override
-    protected CollectionBinding<UserSoundsBucket> onRefreshBinding() {
+    protected CollectionBinding<UserSoundsItem> onRefreshBinding() {
         return CollectionBinding
-                .from(operations.userProfile(userUrn).map(TO_BUCKETS))
+                .from(operations.userProfile(userUrn).map(userSoundsMapper))
                 .withAdapter(adapter)
                 .build();
     }
@@ -138,6 +77,27 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsBucket> {
         bindEmptyView(fragment.getArguments().getBoolean(UserSoundsFragment.IS_CURRENT_USER, false));
     }
 
+    @Override
+    public void onDestroyView(Fragment fragment) {
+        getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        super.onDestroyView(fragment);
+    }
+
+    @Override
+    protected EmptyView.Status handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
+    }
+
+    @Override
+    protected void onItemClicked(View view, int position) {
+        // In the future, this method should gather the playables from the list of items in the adapter
+        // and forward them to the mixedItemClickListener.
+        // Note: The mixed item click listener may need additional love to play through both tracks and playlists, as
+        // that is now supported by the playback functionality.
+
+        itemClickListener.onItemClick(Collections.<ListItem>emptyList(), view, position);
+    }
+
     private void bindEmptyView(boolean isCurrentUser) {
         getEmptyView().setImage(R.drawable.empty_stream);
 
@@ -146,19 +106,5 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsBucket> {
         } else {
             getEmptyView().setMessageText(R.string.empty_user_sounds_message);
         }
-    }
-
-    @Override
-    public void onDestroyView(Fragment fragment) {
-        getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
-        super.onDestroyView(fragment);
-    }
-
-    @Override
-    protected void onItemClicked(View view, int position) {}
-
-    @Override
-    protected EmptyView.Status handleError(Throwable error) {
-        return ErrorUtils.emptyViewStatusFromError(error);
     }
 }

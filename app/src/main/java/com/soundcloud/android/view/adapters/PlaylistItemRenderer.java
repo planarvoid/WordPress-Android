@@ -63,7 +63,10 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
-        final PlaylistItem playlist = playlists.get(position);
+        bindPlaylistView(playlists.get(position), itemView);
+    }
+
+    public void bindPlaylistView(PlaylistItem playlist, View itemView) {
         getTextView(itemView, R.id.list_item_header).setText(playlist.getCreatorName());
         getTextView(itemView, R.id.list_item_subheader).setText(playlist.getTitle());
 
