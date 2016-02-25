@@ -59,7 +59,6 @@ public enum Content {
     TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.Sounds),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
-    TRACK_LOOKUP("tracks/q/*", Endpoints.TRACKS, 250, PublicApiTrack.class, -1, Table.Sounds),
 
     USERS("users", Endpoints.USERS, 301, PublicApiUser.class, -1, Table.Users),
     USER("users/#", Endpoints.USER_DETAILS, 302, PublicApiUser.class, -1, Table.Users),
@@ -68,7 +67,6 @@ public enum Content {
     USER_COMMENTS("users/#/comments", null, 307, PublicApiComment.class, -1, null),
     USER_GROUPS("users/#/groups", null, 308, null, -1, null),
     USER_PLAYLISTS("users/#/playlists", TempEndpoints.USER_PLAYLISTS, 309, null, -1, null),
-    USER_LOOKUP("users/q/*", Endpoints.USERS, 350, PublicApiUser.class, -1, Table.Users),
 
     COMMENTS("comments", null, 400, PublicApiComment.class, -1, Table.Comments),
     COMMENT("comments/#", null, 401, PublicApiComment.class, -1, Table.Comments),

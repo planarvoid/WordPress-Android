@@ -14,7 +14,6 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.xtremelabs.robolectric.Robolectric;
@@ -61,16 +60,6 @@ public class ApiSyncerTest {
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(startTime);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
-    }
-
-    @Test
-    public void shouldDoUserLookup() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "users.json");
-        ApiSyncResult result = sync(Content.USER_LOOKUP.forQuery("308291,792584,1255758"));
-        expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(startTime);
-        expect(result.change).toEqual(ApiSyncResult.CHANGED);
-        expect(Content.USERS).toHaveCount(3);
     }
 
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {

@@ -8,16 +8,13 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +27,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.List;
 
 
 /**
@@ -85,12 +81,6 @@ public class ApiSyncer extends LegacySyncStrategy {
                             .apply();
 
                     break;
-
-                case TRACK_LOOKUP:
-                case USER_LOOKUP:
-                    // still reached from search auto suggest
-                    result = fetchAndInsertCollection(c, uri);
-                    break;
             }
         }
 
@@ -120,31 +110,4 @@ public class ApiSyncer extends LegacySyncStrategy {
         return result;
     }
 
-    /**
-     * Fetch Api Resources and create them into the content provider. Plain resource inserts, no extra
-     * content values will be inserted
-     *
-     * @throws IOException
-     */
-    private ApiSyncResult fetchAndInsertCollection(final Content content, Uri contentUri) throws IOException {
-        ApiSyncResult result = new ApiSyncResult(contentUri);
-        log("fetchAndInsertCollection(" + contentUri + ")");
-
-        Request request = Request.to(content.remoteUri).add("ids", contentUri.getLastPathSegment());
-
-        if (Content.PLAYLIST_LOOKUP.equals(content)) {
-            HttpUtils.addQueryParams(request, "representation", "compact");
-        }
-
-        List<PublicApiResource> resources = api.readFullCollection(request, PublicApiResource.ResourceHolder.class);
-
-        new BaseDAO<PublicApiResource>(resolver) {
-            @Override
-            public Content getContent() {
-                return content;
-            }
-        }.createCollection(resources);
-        result.setSyncData(true, System.currentTimeMillis(), resources.size(), ApiSyncResult.CHANGED);
-        return result;
-    }
 }
