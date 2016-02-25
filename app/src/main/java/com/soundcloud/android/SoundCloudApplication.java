@@ -201,13 +201,8 @@ public class SoundCloudApplication extends MultiDexApplication {
         }
 
         stationsController.subscribe();
-        if (featureFlags.isEnabled(Flag.DAILY_POLICY_UPDATES)) {
-            dailyUpdateScheduler.schedule();
-        }
-
-        if (featureFlags.isEnabled(Flag.PRELOAD_NEXT_TRACK)) {
-            streamPreloader.subscribe();
-        }
+        dailyUpdateScheduler.schedule();
+        streamPreloader.subscribe();
 
         configurationFeatureController.subscribe();
         FacebookSdk.sdkInitialize(getApplicationContext());

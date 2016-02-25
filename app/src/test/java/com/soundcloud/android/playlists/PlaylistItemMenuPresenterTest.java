@@ -23,8 +23,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
@@ -61,7 +59,6 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private Navigator navigator;
     @Mock private MenuItem menuItem;
-    @Mock private FeatureFlags featureFlags;
     private View button;
 
     private final TestEventBus eventBus = new TestEventBus();
@@ -72,7 +69,6 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(featureFlags.isEnabled(Flag.DELETE_PLAYLIST)).thenReturn(true);
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>empty());
@@ -87,7 +83,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("some tag");
         presenter = new PlaylistItemMenuPresenter(context, eventBus, popupMenuWrapperFactory, accountOperations,
                 playlistOperations, likeOperations, repostOperations, shareOperations, screenProvider, featureOperations,
-                featureFlags, offlineOperations, navigator);
+                offlineOperations, navigator);
 
         button = new View(new FragmentActivity());
     }

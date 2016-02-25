@@ -5,8 +5,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.StopReasonProvider;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.strings.Strings;
@@ -30,7 +28,6 @@ public class GcmMessageHandler {
     private static final String EXTRA_DATA = "data";
 
     private final Resources resources;
-    private final FeatureFlags featureFlags;
     private final GcmDecryptor gcmDecryptor;
     private final PlaySessionController playSessionController;
     private final PlaySessionStateProvider playSessionStateProvider;
@@ -38,14 +35,13 @@ public class GcmMessageHandler {
     private final StopReasonProvider stopReasonProvider;
 
     @Inject
-    public GcmMessageHandler(Resources resources, FeatureFlags featureFlags,
+    public GcmMessageHandler(Resources resources,
                              GcmDecryptor gcmDecryptor,
                              PlaySessionController playSessionController,
                              PlaySessionStateProvider playSessionStateProvider,
                              AccountOperations accountOperations,
                              StopReasonProvider stopReasonProvider) {
         this.resources = resources;
-        this.featureFlags = featureFlags;
         this.gcmDecryptor = gcmDecryptor;
         this.playSessionController = playSessionController;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -76,7 +72,7 @@ public class GcmMessageHandler {
             final JSONObject jsonPayload = new JSONObject(decryptedString);
             if (isStopAction(jsonPayload) && isLoggedInUser(jsonPayload) && playSessionStateProvider.isPlaying()) {
                 // TODO : tracking event here
-                if (featureFlags.isEnabled(Flag.KILL_CONCURRENT_STREAMING) && !jsonPayload.optBoolean("stealth")) {
+                if (!jsonPayload.optBoolean("stealth")) {
                     stopReasonProvider.setPendingConcurrentPause();
                     playSessionController.pause();
                     Toast.makeText(context, R.string.concurrent_streaming_stopped, Toast.LENGTH_LONG).show();

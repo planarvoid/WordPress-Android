@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -27,7 +26,6 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
 
     @Override
     protected void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.EVENTLOGGER_AUDIO_V1);
         super.setUp();
 
         profileScreen = mainNavHelper.goToMyProfile();

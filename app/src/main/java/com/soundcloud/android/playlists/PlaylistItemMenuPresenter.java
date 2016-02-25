@@ -21,8 +21,6 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
@@ -54,7 +52,6 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private final ShareOperations shareOperations;
     private final ScreenProvider screenProvider;
     private final FeatureOperations featureOperations;
-    private final FeatureFlags featureFlags;
     private final OfflineContentOperations offlineContentOperations;
     private final Navigator navigator;
 
@@ -67,8 +64,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                                      PopupMenuWrapper.Factory popupMenuWrapperFactory,
                                      AccountOperations accountOperations, PlaylistOperations playlistOperations, LikeOperations likeOperations,
                                      RepostOperations repostOperations, ShareOperations shareOperations, ScreenProvider screenProvider,
-                                     FeatureOperations featureOperations, FeatureFlags featureFlags,
-                                     OfflineContentOperations offlineContentOperations, Navigator navigator) {
+                                     FeatureOperations featureOperations, OfflineContentOperations offlineContentOperations, Navigator navigator) {
         this.appContext = appContext;
         this.eventBus = eventBus;
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
@@ -79,7 +75,6 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         this.shareOperations = shareOperations;
         this.screenProvider = screenProvider;
         this.featureOperations = featureOperations;
-        this.featureFlags = featureFlags;
         this.offlineContentOperations = offlineContentOperations;
         this.navigator = navigator;
     }
@@ -240,9 +235,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private void configureAdditionalEngagementsOptions(PopupMenuWrapper menu) {
         menu.setItemVisible(R.id.toggle_repost, canRepost(playlist));
         menu.setItemVisible(R.id.share, !playlist.isPrivate());
-        if (featureFlags.isEnabled(Flag.DELETE_PLAYLIST)) {
-            menu.setItemVisible(R.id.delete_playlist, isOwned(playlist));
-        }
+        menu.setItemVisible(R.id.delete_playlist, isOwned(playlist));
         updateRepostActionTitle(menu, playlist.isReposted());
     }
 
