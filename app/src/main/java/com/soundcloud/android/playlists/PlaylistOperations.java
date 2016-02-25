@@ -164,17 +164,6 @@ public class PlaylistOperations {
                 });
     }
 
-    public Observable<List<PlaylistWithTracks>> playlistsFromStorage(final Collection<Urn> playlists) {
-        if (playlists.isEmpty()) {
-            return Observable.just(Collections.<PlaylistWithTracks>emptyList());
-        } else {
-            return Observable
-                    .from(playlists)
-                    .flatMap(toPlaylistFromStorageWithTracks)
-                    .toList();
-        }
-    }
-
     public Observable<List<PlaylistWithTracks>> playlists(final Collection<Urn> playlists) {
         if (playlists.isEmpty()) {
             return Observable.just(Collections.<PlaylistWithTracks>emptyList());
