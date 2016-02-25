@@ -100,7 +100,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         likedTrackUrns = asList(TRACK1, TRACK2);
         when(fragment.getFragmentManager()).thenReturn(fragmentManager);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(just(true));
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.NOT_OFFLINE));
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(just(true));
