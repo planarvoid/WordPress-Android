@@ -23,6 +23,6 @@ class DividerRenderer implements CellRenderer<UserSoundsItem> {
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
         //TODO: Replace with actual divider
         ((TextView) itemView).setText(itemView.getContext()
-                .getString(R.string.user_profile_sounds_view_all));
+                .getString(R.string.user_profile_sounds_divider_temp_text));
     }
 }
