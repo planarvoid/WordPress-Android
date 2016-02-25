@@ -3,11 +3,11 @@ package com.soundcloud.android.settings;
 import static android.preference.Preference.OnPreferenceChangeListener;
 import static android.preference.Preference.OnPreferenceClickListener;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.settings.SettingKey.BUY_SUBSCRIPTION;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_COLLECTION;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_REMOVE_ALL_OFFLINE_CONTENT;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_STORAGE_LIMIT;
 import static com.soundcloud.android.settings.SettingKey.RESTORE_SUBSCRIPTION;
-import static com.soundcloud.android.settings.SettingKey.BUY_SUBSCRIPTION;
 import static com.soundcloud.android.settings.SettingKey.WIFI_ONLY;
 
 import com.soundcloud.android.Navigator;
@@ -26,7 +26,6 @@ import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
@@ -86,12 +85,8 @@ public class OfflineSettingsFragment extends PreferenceFragment
         offlineStorage.setOfflineUsage(offlineUsage);
 
         TwoStatePreference offlineCollection = (TwoStatePreference) findPreference(OFFLINE_COLLECTION);
-        if (featureFlags.isDisabled(Flag.OFFLINE_SYNC_COLLECTION)) {
-            getPreferenceScreen().removePreference(offlineCollection);
-        } else {
-            offlineCollection.setChecked(offlineContentOperations.isOfflineCollectionEnabled());
-            offlineCollection.setOnPreferenceChangeListener(this);
-        }
+        offlineCollection.setChecked(offlineContentOperations.isOfflineCollectionEnabled());
+        offlineCollection.setOnPreferenceChangeListener(this);
 
         TwoStatePreference wifi = (TwoStatePreference) findPreference(WIFI_ONLY);
         wifi.setChecked(offlineSettings.isWifiOnlyEnabled());
