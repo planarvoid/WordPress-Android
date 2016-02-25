@@ -50,7 +50,6 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private StreamItemViewHolder itemView;
     @Mock private View view;
-    @Mock private FeatureFlags featureFlags;
     @Mock private FeatureOperations featureOperations;
 
     private Date createdAtStream = new Date();
@@ -59,7 +58,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new StreamCardViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
-                navigator, resources(), imageOperations, featureFlags);
+                navigator, resources(), imageOperations);
     }
 
     @Test

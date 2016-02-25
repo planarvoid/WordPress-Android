@@ -11,7 +11,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -32,12 +31,11 @@ class StreamCardViewPresenter {
     private final Navigator navigator;
     private final Resources resources;
     private final ImageOperations imageOperations;
-    private final FeatureFlags featureFlags;
 
     @Inject
     StreamCardViewPresenter(HeaderSpannableBuilder headerSpannableBuilder, EventBus eventBus,
                             ScreenProvider screenProvider, Navigator navigator, Resources resources,
-                            ImageOperations imageOperations, FeatureFlags featureFlags) {
+                            ImageOperations imageOperations) {
 
         this.headerSpannableBuilder = headerSpannableBuilder;
         this.eventBus = eventBus;
@@ -45,7 +43,6 @@ class StreamCardViewPresenter {
         this.navigator = navigator;
         this.resources = resources;
         this.imageOperations = imageOperations;
-        this.featureFlags = featureFlags;
     }
 
     void bind(StreamItemViewHolder itemView, PlayableItem item) {
