@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,13 +40,13 @@ public class PlanStorage {
         this.sharedPreferences = sharedPreferences;
     }
 
-    public void updatePlan(Plan plan) {
+    void updatePlan(Plan plan) {
         Log.d(TAG, "updating plan: " + plan);
         sharedPreferences.edit().putString(KEY_PLAN, plan.planId).apply();
     }
 
     public void updateUpsells(List<Plan> plans) {
-        Log.d(TAG, "updating upsells: " + plans);
+        Log.d(TAG, "updating upsells: " + Arrays.toString(plans.toArray()));
         sharedPreferences.edit().putStringSet(KEY_UPSELLS, Plan.toIds(plans)).apply();
     }
 
