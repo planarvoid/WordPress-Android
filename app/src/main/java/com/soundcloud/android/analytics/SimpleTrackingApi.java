@@ -1,15 +1,14 @@
 package com.soundcloud.android.analytics;
 
-import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.net.HttpHeaders;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import org.apache.http.HttpStatus;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -76,17 +75,13 @@ class SimpleTrackingApi implements TrackingApi {
         final Request.Builder request = new Request.Builder();
         request.url(new URL(event.getData()));
         request.addHeader(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
-
-        if (PlayCountAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
-            request.post(null);
-            request.addHeader("Content-Length", "0");
-        } else if (PromotedAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
+        if (PromotedAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
             request.get();
         }
         return request.build();
     }
 
     private boolean isSuccessCodeOrIgnored(int status) {
-        return status >= HttpStatus.SC_OK && status < HttpStatus.SC_INTERNAL_SERVER_ERROR;
+        return status >= HttpStatus.OK && status < HttpStatus.INTERNAL_SERVER_ERROR;
     }
 }

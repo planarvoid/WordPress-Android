@@ -3,7 +3,7 @@ package com.soundcloud.android.analytics;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
-import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
+import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.squareup.okhttp.OkHttpClient;
 import org.junit.Before;
@@ -29,14 +29,14 @@ public class TrackingApiFactoryTest {
     }
 
     @Test
-    public void createsBatchApiForBoogaloo() {
+    public void createsBatchApiForEventGateway() {
         TrackingApi trackingApi = apiFactory.create(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
         assertThat(trackingApi).isInstanceOf(BatchTrackingApi.class);
     }
 
     @Test
     public void createsSimpleApiForOtherBackends() {
-        TrackingApi trackingApi = apiFactory.create(PlayCountAnalyticsProvider.BACKEND_NAME);
+        TrackingApi trackingApi = apiFactory.create(PromotedAnalyticsProvider.BACKEND_NAME);
         assertThat(trackingApi).isInstanceOf(SimpleTrackingApi.class);
     }
 
