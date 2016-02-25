@@ -33,7 +33,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.OFFLINE_SYNC);
+        setRequiredEnabledFeatures(Flag.SOUNDCLOUD_GO);
         super.setUp();
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }

@@ -24,7 +24,7 @@ public class WhyAdsUpsellTest extends AdBaseTest {
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.OFFLINE_SYNC);
+        setRequiredEnabledFeatures(Flag.SOUNDCLOUD_GO);
         super.setUp();
     }
 

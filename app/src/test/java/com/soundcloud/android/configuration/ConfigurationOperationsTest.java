@@ -76,7 +76,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(configuration);
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(configuration));
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        when(featureFlags.isEnabled(Flag.OFFLINE_SYNC)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)).thenReturn(true);
     }
 
     @Test

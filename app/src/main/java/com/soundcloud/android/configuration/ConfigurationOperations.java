@@ -218,7 +218,7 @@ public class ConfigurationOperations {
         Log.d(TAG, "Saving new configuration...");
         configurationSettingsStorage.setLastConfigurationUpdateTime(System.currentTimeMillis());
         experimentOperations.update(configuration.assignment);
-        if (featureFlags.isEnabled(Flag.OFFLINE_SYNC)) {
+        if (featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)) {
             featureOperations.updateFeatures(configuration.features);
             handlePlanChange(configuration);
             featureOperations.updatePlan(configuration.userPlan);
