@@ -120,17 +120,6 @@
     <string name="device_management_continue">Continue</string>
 
     <!-- __PROFILE -->
-    <string name="user_profile_spotlight_heading">Top Sounds</string>
-    <string name="user_profile_tracks_heading">Tracks</string>
-    <string name="user_profile_releases_heading">Releases</string>
-    <string name="user_profile_playlists_heading">Playlists</string>
-    <string name="user_profile_reposts_heading">Reposts</string>
-    <string name="user_profile_likes_heading">Likes</string>
-    <string name="user_profile_tracks_view_all">View all tracks</string>
-    <string name="user_profile_releases_view_all">View all releases</string>
-    <string name="user_profile_playlists_view_all">View all playlists</string>
-    <string name="user_profile_reposts_view_all">View all reposts</string>
-    <string name="user_profile_likes_view_all">View all likes</string>
     <string name="user_profile_sounds_header_spotlight">Spotlight</string>
     <string name="user_profile_sounds_header_tracks">Tracks</string>
     <string name="user_profile_sounds_header_releases">Releases</string>
