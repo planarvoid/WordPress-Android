@@ -249,7 +249,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     private PropertySet createPostedPlaylistPropertySet(ApiPlaylist apiPlaylist, OfflineState offlineState) {
         return createPostPropertySet(apiPlaylist)
-                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
+                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
                 .put(OfflineProperty.OFFLINE_STATE, offlineState);
     }
 
@@ -291,7 +291,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     private PropertySet createPlaylistRepostAt(Date postedAt, Date createdAt) {
         ApiPlaylist playlist = createPlaylistAt(createdAt);
         createPlaylistCollectionWithId(playlist.getUrn().getNumericId(), postedAt);
-        return createPostPropertySet(playlist).put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, false);
+        return createPostPropertySet(playlist).put(OfflineProperty.IS_MARKED_FOR_OFFLINE, false);
     }
 
     private PropertySet createPostPropertySet(ApiPlaylist playlist) {

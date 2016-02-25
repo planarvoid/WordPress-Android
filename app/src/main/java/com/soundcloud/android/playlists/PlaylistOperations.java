@@ -20,8 +20,6 @@ import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class PlaylistOperations {
@@ -164,18 +162,7 @@ public class PlaylistOperations {
                 });
     }
 
-    public Observable<List<PlaylistWithTracks>> playlists(final Collection<Urn> playlists) {
-        if (playlists.isEmpty()) {
-            return Observable.just(Collections.<PlaylistWithTracks>emptyList());
-        } else {
-            return Observable
-                    .from(playlists)
-                    .flatMap(toPlaylistWithTracks)
-                    .toList();
-        }
-    }
-
-    public Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
+    Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
         return playlistWithTracks(playlistUrn).flatMap(syncIfNecessary(playlistUrn));
     }
 

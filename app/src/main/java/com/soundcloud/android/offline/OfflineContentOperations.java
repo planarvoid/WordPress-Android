@@ -159,14 +159,14 @@ public class OfflineContentOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Observable<Void> enableOfflineLikedTracks() {
+    Observable<Void> enableOfflineLikedTracks() {
         return offlineContentStorage.addLikedTrackCollection()
                 .doOnNext(serviceInitiator.startFromUserAction())
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
 
-    public Observable<Boolean> isOfflineLikedTracksEnabled() {
+    Observable<Boolean> isOfflineLikedTracksEnabled() {
         return offlineContentStorage
                 .isOfflineLikesEnabled()
                 .subscribeOn(scheduler);
@@ -180,7 +180,7 @@ public class OfflineContentOperations {
         return isOfflineLikedTracksEnabled().concatWith(changedEventObservable);
     }
 
-    public Observable<Boolean> isOfflinePlaylist(Urn playlist) {
+    Observable<Boolean> isOfflinePlaylist(Urn playlist) {
         return offlineContentStorage.isOfflinePlaylist(playlist).subscribeOn(scheduler);
     }
 
@@ -270,7 +270,7 @@ public class OfflineContentOperations {
         return offlineContentStorage.hasOfflineContent();
     }
 
-    public void setHasOfflineContent(boolean hasOfflineContent) {
+    void setHasOfflineContent(boolean hasOfflineContent) {
         offlineContentStorage.setHasOfflineContent(hasOfflineContent);
     }
 

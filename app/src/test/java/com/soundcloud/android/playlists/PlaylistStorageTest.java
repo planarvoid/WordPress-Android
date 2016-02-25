@@ -140,7 +140,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                         PlayableProperty.IS_USER_LIKE,
                         PlayableProperty.IS_USER_REPOST,
                         PlaylistProperty.IS_POSTED,
-                        OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE,
+                        OfflineProperty.IS_MARKED_FOR_OFFLINE,
                         PlaylistProperty.TRACK_COUNT
                 )
         ).isEqualTo(

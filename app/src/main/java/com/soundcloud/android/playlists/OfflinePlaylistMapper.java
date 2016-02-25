@@ -17,7 +17,7 @@ public abstract class OfflinePlaylistMapper extends PlaylistMapper {
         final PropertySet propertySet = super.map(cursorReader);
         final boolean isMarkedForOffline = cursorReader.getBoolean(IS_MARKED_FOR_OFFLINE);
 
-        propertySet.put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, isMarkedForOffline);
+        propertySet.put(OfflineProperty.IS_MARKED_FOR_OFFLINE, isMarkedForOffline);
         if (isMarkedForOffline) {
             propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.getOfflineState(
                     cursorReader.getBoolean(HAS_PENDING_DOWNLOAD_REQUEST),

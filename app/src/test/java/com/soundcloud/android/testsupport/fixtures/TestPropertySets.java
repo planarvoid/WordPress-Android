@@ -282,7 +282,7 @@ public abstract class TestPropertySets {
                 PlayableProperty.IS_USER_LIKE.bind(isLiked),
                 PlayableProperty.IS_USER_REPOST.bind(isReposted),
                 PlaylistProperty.IS_POSTED.bind(isPosted),
-                OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(markedForOffline),
+                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(markedForOffline),
                 PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()));
     }
 

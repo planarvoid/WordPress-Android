@@ -347,7 +347,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
-                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
+                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
                 .put(PlaylistProperty.IS_POSTED, true);
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
@@ -370,7 +370,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         when(featureOperations.upsellOfflineContent()).thenReturn(true);
 
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
-                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
+                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
                 .put(PlaylistProperty.IS_POSTED, true);
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
@@ -380,7 +380,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Test
     public void hidesOfflineOptionsWhenOfflineContentIsNotEnabledAndNotAllowedToShowUpsell() {
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
-                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
+                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
                 .put(PlaylistProperty.IS_POSTED, true);
         controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
@@ -567,7 +567,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setSharing(sharing);
         return playlist.toPropertySet()
-                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, false)
+                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, false)
                 .put(PlaylistProperty.IS_USER_LIKE, false)
                 .put(PlaylistProperty.IS_USER_REPOST, false)
                 .put(PlaylistProperty.IS_POSTED, false);

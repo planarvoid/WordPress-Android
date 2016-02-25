@@ -45,7 +45,7 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public Optional<Boolean> isMarkedForOffline() {
-        return Optional.fromNullable(source.getOrElseNull(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE));
+        return Optional.fromNullable(source.getOrElseNull(OfflineProperty.IS_MARKED_FOR_OFFLINE));
     }
 
     public boolean isPosted() {

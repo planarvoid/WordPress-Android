@@ -175,12 +175,12 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
                 LikeProperty.CREATED_AT.bind((likedAt)),
                 PlaylistProperty.IS_PRIVATE.bind(playlist.get(PlaylistProperty.IS_PRIVATE)),
                 PlaylistProperty.IS_USER_LIKE.bind(true),
-                OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(false));
+                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(false));
     }
 
     private PropertySet expectedLikedPlaylistWithOfflineState(ApiPlaylist playlist, Date likedAt, OfflineState state) {
         return expectedLikedPlaylistFor(playlist.toPropertySet(), likedAt)
-                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
+                .put(OfflineProperty.IS_MARKED_FOR_OFFLINE, true)
                 .put(OfflineProperty.OFFLINE_STATE, state);
     }
 }

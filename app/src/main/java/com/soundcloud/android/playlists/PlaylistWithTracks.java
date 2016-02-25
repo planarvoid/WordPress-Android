@@ -131,7 +131,7 @@ public class PlaylistWithTracks {
     }
 
     public boolean isOfflineAvailable() {
-        return sourceSet.get(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE);
+        return sourceSet.get(OfflineProperty.IS_MARKED_FOR_OFFLINE);
     }
 
     public void update(PropertySet source) {
