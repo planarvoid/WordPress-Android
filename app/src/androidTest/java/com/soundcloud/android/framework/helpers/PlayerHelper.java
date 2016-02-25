@@ -2,10 +2,10 @@ package com.soundcloud.android.framework.helpers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.IsEqual.equalTo;
 
 import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.framework.viewelements.TextElement;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -22,10 +22,16 @@ public class PlayerHelper {
         return playerElement;
     }
 
-    public static void assertSwipeToNextTrack(VisualPlayerElement visualPlayerElement) {
-        final String startingTrack = visualPlayerElement.getTrackTitle();
-        visualPlayerElement.swipeNext();
-        assertThat("Failed to swipe to next track",
-                startingTrack, is(not(equalTo(visualPlayerElement.getTrackTitle()))));
+    public static void assertSwipeToNextTrack(VisualPlayerElement playerElement) {
+        final String startingTrack = playerElement.getTrackTitle();
+        playerElement.swipeNext();
+
+        assertThat("Failed to swipe to next track", isNotCurrentTrack(playerElement, startingTrack), is(true));
+    }
+
+    public static boolean isNotCurrentTrack(VisualPlayerElement playerElement, String title) {
+        final ViewElement titleElement = playerElement.getTrackTitleViewElement();
+        final boolean titleNotVisible = !titleElement.hasVisibility();
+        return titleNotVisible || !new TextElement(titleElement).getText().equals(title);
     }
 }

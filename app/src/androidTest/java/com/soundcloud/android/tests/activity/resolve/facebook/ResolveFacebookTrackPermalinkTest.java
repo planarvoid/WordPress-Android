@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.activity.resolve.facebook;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.TestConsts;
@@ -26,7 +25,6 @@ public class ResolveFacebookTrackPermalinkTest extends FacebookResolveBaseTest {
         assertThat(player.getTrackTitle(), is(TRACK_NAME));
         player.waitForPlayState();
         player.waitForMoreContent();
-        player.swipeNext();
-        assertThat(player.getTrackTitle(), is(not(TRACK_NAME)));
+        assertThat(player.hasMoreTracks(), is(true));
     }
 }
