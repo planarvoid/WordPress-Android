@@ -6,13 +6,17 @@ import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.discovery.SearchResultsScreen;
+import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.TestConsts;
+
+import android.content.Intent;
 
 @EventTrackingTest
 public class UpgradeAudioTest extends TrackingActivityTest<MainActivity> {
-    private static final String TEST_SCENARIO_UPGRADE_AUDIO = "audio-events-v1-search-upgrade";
+
+    private static final String TEST_SCENARIO_UPGRADE_AUDIO = "audio-events-v1-profile-upgrade";
+    private ProfileScreen profileScreen;
 
     public UpgradeAudioTest() {
         super(MainActivity.class);
@@ -25,22 +29,20 @@ public class UpgradeAudioTest extends TrackingActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.PAYMENTS_TEST);
+        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.HT_CREATOR_PROFILE_URI));
         super.setUp();
+
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
+
+        profileScreen = new ProfileScreen(solo);
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     @PaymentTest
     public void testUpgradeAudio() {
-
-        final SearchResultsScreen searchResultsScreen = mainNavHelper.goToDiscovery()
-                .clickSearch()
-                .doSearch("BooHT3");
-
         startEventTracking();
 
-        final VisualPlayerElement visualPlayerElement = searchResultsScreen
-                .findAndClickFirstTrackItem();
+        final VisualPlayerElement visualPlayerElement = profileScreen.playTrackWithTitle("HT 1");
 
         visualPlayerElement.waitForPlayState();
         visualPlayerElement.clickArtwork();

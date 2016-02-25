@@ -215,8 +215,9 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setFullQueue() {
-        presenter.setCurrentPlayQueue(playQueueManager.getPlayQueueItems(playableItemsPredicate));
-        trackPager.setCurrentItem(getIndexOfCurrentPlayQueueitem(), false);
+        final int indexOfCurrentPlayQueueitem = getIndexOfCurrentPlayQueueitem();
+        presenter.setCurrentPlayQueue(playQueueManager.getPlayQueueItems(playableItemsPredicate), indexOfCurrentPlayQueueitem);
+        trackPager.setCurrentItem(indexOfCurrentPlayQueueitem, false);
         setPlayQueueAfterScroll = false;
     }
 
@@ -226,7 +227,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setAdPlayQueue() {
-        presenter.setCurrentPlayQueue(newArrayList(playQueueManager.getCurrentPlayQueueItem()));
+        presenter.setCurrentPlayQueue(newArrayList(playQueueManager.getCurrentPlayQueueItem()), 0);
         trackPager.setCurrentItem(0, false);
     }
 
