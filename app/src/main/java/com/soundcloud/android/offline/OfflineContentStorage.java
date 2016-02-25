@@ -6,7 +6,6 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.java.collections.Lists;
@@ -18,7 +17,6 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
-import rx.functions.Func1;
 
 import android.content.ContentValues;
 import android.content.SharedPreferences;
@@ -31,20 +29,6 @@ class OfflineContentStorage {
     private static final String IS_OFFLINE_COLLECTION = "is_offline_collection";
     private static final String IS_OFFLINE_PLAYLIST = "is_offline_playlist";
     private static final String OFFLINE_CONTENT = "has_content_offline";
-
-    private static final Func1<String, Boolean> IS_OFFLINE_COLLECTION_KEY = new Func1<String, Boolean>() {
-        @Override
-        public Boolean call(String key) {
-            return key.equals(IS_OFFLINE_COLLECTION);
-        }
-    };
-
-    private final Func1<String, Boolean> toPreferenceValue = new Func1<String, Boolean>() {
-        @Override
-        public Boolean call(String key) {
-            return sharedPreferences.getBoolean(key, false);
-        }
-    };
 
     private final PropellerRx propellerRx;
     private final SharedPreferences sharedPreferences;
@@ -63,17 +47,11 @@ class OfflineContentStorage {
         return sharedPreferences.getBoolean(IS_OFFLINE_COLLECTION, false);
     }
 
-    Observable<Boolean> getOfflineCollectionStateChanges() {
-        return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
-                .filter(IS_OFFLINE_COLLECTION_KEY)
-                .map(toPreferenceValue);
-    }
-
-    public void storeOfflineCollectionDisabled() {
+    public void removeOfflineCollection() {
         sharedPreferences.edit().putBoolean(IS_OFFLINE_COLLECTION, false).apply();
     }
 
-    public void storeOfflineCollectionEnabled() {
+    public void addOfflineCollection() {
         sharedPreferences.edit().putBoolean(IS_OFFLINE_COLLECTION, true).apply();
     }
 
@@ -106,11 +84,11 @@ class OfflineContentStorage {
         });
     }
 
-    public Observable<ChangeResult> deleteLikedTrackCollection() {
+    public Observable<ChangeResult> removeLikedTrackCollection() {
         return propellerRx.delete(OfflineContent.TABLE, offlineLikesFilter());
     }
 
-    public Observable<ChangeResult> storeLikedTrackCollection() {
+    public Observable<ChangeResult> addLikedTrackCollection() {
         return propellerRx.upsert(OfflineContent.TABLE, buildContentValuesForOfflineLikes());
     }
 

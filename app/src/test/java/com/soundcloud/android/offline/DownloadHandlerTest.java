@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.downloadRequestFromLikes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -51,7 +50,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         downloadRequest = downloadRequestFromLikes(Urn.forTrack(123L));
         successResult = DownloadState.success(downloadRequest);
-        failedResult = DownloadState.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
+        failedResult = DownloadState.invalidNetworkError(downloadRequest);
         unavailableResult = DownloadState.unavailable(downloadRequest);
         notEnoughSpaceResult = DownloadState.notEnoughSpace(downloadRequest);
         cancelledResult = DownloadState.canceled(downloadRequest);

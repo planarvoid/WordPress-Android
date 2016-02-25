@@ -41,6 +41,7 @@ public class OfflineContentOperations {
     private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
 
     private final OfflineServiceInitiator serviceInitiator;
+    private final OfflineContentScheduler serviceScheduler;
     private final SyncInitiator syncInitiator;
     private final TrackDownloadsStorage tracksStorage;
     private final OfflineContentStorage offlineContentStorage;
@@ -79,7 +80,7 @@ public class OfflineContentOperations {
     private final Action1<Object> storeOfflineCollectionEnabled = new Action1<Object>() {
         @Override
         public void call(Object ignored) {
-            offlineContentStorage.storeOfflineCollectionEnabled();
+            offlineContentStorage.addOfflineCollection();
         }
     };
 
@@ -100,6 +101,7 @@ public class OfflineContentOperations {
                              LoadExpectedContentCommand loadExpectedContentCommand,
                              LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
                              OfflineServiceInitiator serviceInitiator,
+                             OfflineContentScheduler serviceScheduler,
                              SyncInitiator syncInitiator,
                              FeatureOperations featureOperations,
                              TrackDownloadsStorage tracksStorage,
@@ -115,6 +117,7 @@ public class OfflineContentOperations {
         this.loadExpectedContentCommand = loadExpectedContentCommand;
         this.loadOfflineContentUpdatesCommand = loadOfflineContentUpdatesCommand;
         this.serviceInitiator = serviceInitiator;
+        this.serviceScheduler = serviceScheduler;
         this.syncInitiator = syncInitiator;
         this.featureOperations = featureOperations;
         this.tracksStorage = tracksStorage;
@@ -125,7 +128,7 @@ public class OfflineContentOperations {
 
     public Observable<Void> enableOfflineCollection() {
         return offlineContentStorage
-                .storeLikedTrackCollection()
+                .addLikedTrackCollection()
                 .flatMap(continueWith(setMyPlaylistsAsOfflinePlaylists()))
                 .doOnNext(storeOfflineCollectionEnabled)
                 .doOnNext(serviceInitiator.startFromUserAction())
@@ -140,7 +143,7 @@ public class OfflineContentOperations {
     }
 
     public void disableOfflineCollection() {
-        offlineContentStorage.storeOfflineCollectionDisabled();
+        offlineContentStorage.removeOfflineCollection();
     }
 
     public boolean isOfflineCollectionEnabled() {
@@ -148,15 +151,16 @@ public class OfflineContentOperations {
     }
 
     public Observable<Void> disableOfflineLikedTracks() {
-        return offlineContentStorage.deleteLikedTrackCollection()
+        return offlineContentStorage.removeLikedTrackCollection()
                 .doOnNext(eventBus.publishAction1(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.removed(true)))
                 .doOnNext(serviceInitiator.startFromUserAction())
+                .doOnNext(serviceScheduler.scheduleCleanupAction())
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
 
     public Observable<Void> enableOfflineLikedTracks() {
-        return offlineContentStorage.storeLikedTrackCollection()
+        return offlineContentStorage.addLikedTrackCollection()
                 .doOnNext(serviceInitiator.startFromUserAction())
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
@@ -203,6 +207,7 @@ public class OfflineContentOperations {
                 .removePlaylistFromOffline(playlistUrn)
                 .doOnNext(eventBus.publishAction1(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.removed(playlistUrn)))
                 .doOnNext(serviceInitiator.startFromUserAction())
+                .doOnNext(serviceScheduler.scheduleCleanupAction())
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
@@ -235,10 +240,6 @@ public class OfflineContentOperations {
                         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, event);
                     }
                 });
-    }
-
-    Observable<Boolean> getOfflineCollectionStateChanges() {
-        return offlineContentStorage.getOfflineCollectionStateChanges();
     }
 
     Observable<OfflineContentUpdates> loadOfflineContentUpdates() {

@@ -23,11 +23,8 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, OfflineContentUpdates> {
-
-    private static final long PENDING_REMOVAL_DELAY = TimeUnit.SECONDS.toMillis(15);
 
     private final PropellerDatabase propellerDatabase;
     private final DateProvider dateProvider;
@@ -129,12 +126,12 @@ class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, O
     }
 
     private List<Urn> getTrackPendingRemovals() {
-        final long pendingRemovalThreshold = dateProvider.getCurrentDate().getTime() - PENDING_REMOVAL_DELAY;
+        final long pendingRemovalThreshold = dateProvider.getCurrentDate().getTime() - OfflineConstants.PENDING_REMOVAL_DELAY;
 
         final Query query = Query
                 .from(TrackDownloads.TABLE)
                 .whereNotNull(DOWNLOADED_AT)
-                .whereGt(REMOVED_AT, pendingRemovalThreshold);
+                .whereGe(REMOVED_AT, pendingRemovalThreshold);
 
         return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }

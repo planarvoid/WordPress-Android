@@ -12,7 +12,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicate;
 import rx.Observable;
@@ -25,19 +24,14 @@ import java.util.Collection;
 
 class DownloadOperations {
 
-    enum ConnectionState {
-        DISCONNECTED, CONNECTED, NOT_ALLOWED
-    }
-
     private final StrictSSLHttpClient strictSSLHttpClient;
     private final SecureFileStorage fileStorage;
     private final DeleteOfflineTrackCommand deleteOfflineContent;
     private final PlayQueueManager playQueueManager;
-    private final NetworkConnectionHelper connectionHelper;
-    private final OfflineSettingsStorage offlineSettings;
     private final StreamUrlBuilder urlBuilder;
     private final Scheduler scheduler;
     private final OfflineTrackAssetDownloader assetDownloader;
+    private final DownloadConnexionHelper downloadConnexionHelper;
 
     private final Predicate<Urn> isNotCurrentTrackFilter = new Predicate<Urn>() {
         @Override
@@ -51,20 +45,18 @@ class DownloadOperations {
                        SecureFileStorage fileStorage,
                        DeleteOfflineTrackCommand deleteOfflineContent,
                        PlayQueueManager playQueueManager,
-                       NetworkConnectionHelper connectionHelper,
-                       OfflineSettingsStorage offlineSettings,
                        StreamUrlBuilder urlBuilder,
                        @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                       OfflineTrackAssetDownloader assetDownloader) {
+                       OfflineTrackAssetDownloader assetDownloader,
+                       DownloadConnexionHelper downloadConnexionHelper) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;
         this.playQueueManager = playQueueManager;
-        this.connectionHelper = connectionHelper;
-        this.offlineSettings = offlineSettings;
         this.urlBuilder = urlBuilder;
         this.scheduler = scheduler;
         this.assetDownloader = assetDownloader;
+        this.downloadConnexionHelper = downloadConnexionHelper;
     }
 
     Observable<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
@@ -86,15 +78,15 @@ class DownloadOperations {
             return DownloadState.notEnoughSpace(request);
         }
 
-        if (!isValidNetwork()) {
-            return DownloadState.connectionError(request, getConnectionState());
+        if (!downloadConnexionHelper.isNetworkDownloadFriendly()) {
+            if (downloadConnexionHelper.isNetworkDisconnected()) {
+                return DownloadState.disconnectedNetworkError(request);
+            } else {
+                return DownloadState.invalidNetworkError(request);
+            }
         }
 
         return downloadAndStore(request, listener);
-    }
-
-    boolean isValidNetwork() {
-        return getConnectionState() == ConnectionState.CONNECTED;
     }
 
     private DownloadState downloadAndStore(DownloadRequest request, DownloadProgressListener listener) {
@@ -118,7 +110,11 @@ class DownloadOperations {
         } catch (EncryptionException encryptionException) {
             return DownloadState.error(request);
         } catch (IOException ioException) {
-            return DownloadState.connectionError(request, getConnectionState());
+            if (downloadConnexionHelper.isNetworkDisconnected()) {
+                return DownloadState.disconnectedNetworkError(request);
+            } else {
+                return DownloadState.invalidNetworkError(request);
+            }
         } finally {
             IOUtils.close(response);
         }
@@ -129,16 +125,6 @@ class DownloadOperations {
             return DownloadState.unavailable(request);
         }
         return DownloadState.error(request);
-    }
-
-    private ConnectionState getConnectionState() {
-        if (!connectionHelper.isNetworkConnected()) {
-            return ConnectionState.DISCONNECTED;
-        } else if (!connectionHelper.isWifiConnected() && offlineSettings.isWifiOnlyEnabled()) {
-            return ConnectionState.NOT_ALLOWED;
-        } else {
-            return ConnectionState.CONNECTED;
-        }
     }
 
     private void saveTrack(DownloadRequest request, TrackFileResponse response, final DownloadProgressListener listener)

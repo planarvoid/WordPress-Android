@@ -38,14 +38,14 @@ public class OfflineContentStorageTest extends AndroidUnitTest {
 
     @Test
     public void storeOfflineCollectionEnabled() {
-        storage.storeOfflineCollectionEnabled();
+        storage.addOfflineCollection();
 
         assertThat(storage.isOfflineCollectionEnabled()).isTrue();
     }
 
     @Test
     public void storeOfflineCollectionDisabled() {
-        storage.storeOfflineCollectionDisabled();
+        storage.removeOfflineCollection();
 
         assertThat(storage.isOfflineCollectionEnabled()).isFalse();
     }
