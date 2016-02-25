@@ -27,7 +27,7 @@ class UpdatePoliciesCommand extends Command<Collection<Urn>, Collection<ApiPolic
 
     static final int BATCH_SIZE = 300;
 
-    private static final String TAG = "PolicyUpdater";
+    static final String TAG = "PolicyUpdater";
     private static final TypeToken<ModelCollection<ApiPolicyInfo>> TYPE_TOKEN =
             new TypeToken<ModelCollection<ApiPolicyInfo>>() {
             };

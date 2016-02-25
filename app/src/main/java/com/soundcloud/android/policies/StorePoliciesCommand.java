@@ -5,6 +5,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 
@@ -33,6 +34,7 @@ class StorePoliciesCommand extends DefaultWriteStorageCommand<Iterable<ApiPolicy
         final List<ContentValues> cvs = new ArrayList<>();
         for (ApiPolicyInfo policyEntry : input) {
             final ContentValues cv = new ContentValues();
+            Log.d(UpdatePoliciesCommand.TAG, "Writing policy: " + policyEntry);
             cv.put(TableColumns.TrackPolicies.TRACK_ID, policyEntry.getUrn().getNumericId());
             cv.put(TableColumns.TrackPolicies.POLICY, policyEntry.getPolicy());
             cv.put(TableColumns.TrackPolicies.MONETIZABLE, policyEntry.isMonetizable());
