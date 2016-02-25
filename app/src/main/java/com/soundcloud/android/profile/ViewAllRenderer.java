@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.view.View;
@@ -22,6 +23,6 @@ public class ViewAllRenderer implements CellRenderer<UserSoundsItem> {
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
         //TODO: Need to display separate text for collection type (fix in styling story)
-        ((TextView) itemView).setText("View all");
+        ((TextView) itemView).setText(itemView.getContext().getString(R.string.user_profile_sounds_view_all));
     }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.view.View;
@@ -21,6 +22,7 @@ class DividerRenderer implements CellRenderer<UserSoundsItem> {
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
         //TODO: Replace with actual divider
-        ((TextView) itemView).setText("DIVIDER");
+        ((TextView) itemView).setText(itemView.getContext()
+                .getString(R.string.user_profile_sounds_view_all));
     }
 }
