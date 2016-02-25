@@ -6,19 +6,19 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.support.v7.app.AppCompatActivity;
 
-@RunWith(SoundCloudTestRunner.class)
-public class UserRemovedControllerTest {
+public class UserRemovedControllerTest extends AndroidUnitTest {
+
     @Mock private AppCompatActivity activity;
+
     private TestEventBus eventBus;
     private UserRemovedController lightCycle;
 

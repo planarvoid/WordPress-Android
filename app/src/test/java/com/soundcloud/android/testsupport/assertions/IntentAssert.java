@@ -78,6 +78,15 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
         return this;
     }
 
+    public IntentAssert startsService(Class expectedService) {
+        Preconditions.checkNotNull(expectedService);
+        isNotNull();
+        assertThat(actual.getComponent().getClassName())
+                .overridingErrorMessage(errorMessage("Expected started service was: " + expectedService.getSimpleName()))
+                .isEqualTo(expectedService.getCanonicalName());
+        return this;
+    }
+
     public IntentAssert containsScreen(Screen screen) {
         Preconditions.checkNotNull(screen);
         isNotNull();

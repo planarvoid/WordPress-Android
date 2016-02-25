@@ -11,6 +11,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -20,6 +21,7 @@ import rx.Subscription;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -31,6 +33,7 @@ import android.widget.ListView;
 import javax.inject.Inject;
 import java.util.Arrays;
 
+@SuppressLint("ValidFragment")
 public class ExploreGenresFragment extends LightCycleSupportFragment
         implements ReactiveListComponent<ConnectableObservable<GenreSection<ExploreGenre>>> {
 
@@ -44,16 +47,28 @@ public class ExploreGenresFragment extends LightCycleSupportFragment
                 }
             };
 
-    @Inject EventBus eventBus;
     @Inject ExploreTracksOperations exploreOperations;
     @Inject ExploreGenresAdapter adapter;
     @Inject @LightCycle ListViewController listViewController;
+    @Inject EventBus eventBus;
 
     private ConnectableObservable<GenreSection<ExploreGenre>> observable;
     private Subscription connectionSubscription = RxUtils.invalidSubscription();
 
     public ExploreGenresFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        listViewController.setAdapter(adapter);
+    }
+
+    @VisibleForTesting
+    ExploreGenresFragment(ExploreTracksOperations exploreOperations,
+                                 ExploreGenresAdapter adapter,
+                                 ListViewController listViewController,
+                                 EventBus eventBus) {
+        this.exploreOperations = exploreOperations;
+        this.adapter = adapter;
+        this.listViewController = listViewController;
+        this.eventBus = eventBus;
         listViewController.setAdapter(adapter);
     }
 
@@ -101,7 +116,6 @@ public class ExploreGenresFragment extends LightCycleSupportFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         listViewController.connect(this, observable);
     }
 

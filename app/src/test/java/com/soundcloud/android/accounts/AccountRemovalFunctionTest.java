@@ -5,10 +5,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.exception.OperationFailedException;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Subscriber;
 
@@ -20,25 +19,19 @@ import android.accounts.OperationCanceledException;
 
 import java.io.IOException;
 
-@RunWith(SoundCloudTestRunner.class)
-public class AccountRemovalFunctionTest {
+public class AccountRemovalFunctionTest extends AndroidUnitTest {
 
     private AccountRemovalFunction function;
 
-    @Mock
-    private Account soundCloudAccount;
-    @Mock
-    private AccountManager accountManager;
-    @Mock
-    private AccountManagerFuture<Boolean> future;
-    @Mock
-    private Subscriber<Void> observer;
+    @Mock private Account soundCloudAccount;
+    @Mock private AccountManager accountManager;
+    @Mock private AccountManagerFuture<Boolean> future;
+    @Mock private Subscriber<Void> observer;
 
     @Before
     public void setup(){
-        function = new AccountRemovalFunction(soundCloudAccount, accountManager);
-
         when(accountManager.removeAccount(soundCloudAccount,null,null)).thenReturn(future);
+        function = new AccountRemovalFunction(soundCloudAccount, accountManager);
     }
 
     @Test
