@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import org.junit.Test;
 
@@ -89,6 +90,42 @@ public class UpgradeTrackingEventTest {
 
         assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_CLICK);
         assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1009");
+    }
+
+    @Test
+    public void createsEventForSearchResultsImpression() {
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forSearchResultsImpression(Screen.SEARCH_EVERYTHING);
+
+        assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION);
+        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1025");
+        assertThat(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)).isEqualTo(Screen.SEARCH_EVERYTHING.get());
+    }
+
+    @Test
+    public void createsEventforSearchResultsClick() {
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forSearchResultsClick(Screen.SEARCH_EVERYTHING);
+
+        assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_CLICK);
+        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1025");
+        assertThat(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)).isEqualTo(Screen.SEARCH_EVERYTHING.get());
+    }
+
+    @Test
+    public void createsEventForSearchPremiumResultsImpression() {
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forSearchPremiumResultsImpression(Screen.SEARCH_PREMIUM_CONTENT);
+
+        assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION);
+        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1026");
+        assertThat(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)).isEqualTo(Screen.SEARCH_PREMIUM_CONTENT.get());
+    }
+
+    @Test
+    public void createsEventforSearchPremiumResultsClick() {
+        UpgradeTrackingEvent event = UpgradeTrackingEvent.forSearchPremiumResultsClick(Screen.SEARCH_EVERYTHING);
+
+        assertThat(event.getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_CLICK);
+        assertThat(event.get(UpgradeTrackingEvent.KEY_TCODE)).isEqualTo("soundcloud:tcode:1026");
+        assertThat(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)).isEqualTo(Screen.SEARCH_EVERYTHING.get());
     }
 
     @Test

@@ -32,6 +32,7 @@ public final class SearchEvent extends TrackingEvent {
     private static final String CONTEXT_PLAYLISTS = "playlists";
     private static final String CONTEXT_PEOPLE = "people";
     private static final String CONTEXT_TAGS = "tags";
+    private static final String CONTEXT_PREMIUM = "premium";
 
     private static final String LOCATION_RECENT_TAGS = "recent_tags";
     private static final String LOCATION_POPULAR_TAGS = "popular_tags";
@@ -155,6 +156,8 @@ public final class SearchEvent extends TrackingEvent {
                 return CONTEXT_PEOPLE;
             case SEARCH_PLAYLIST_DISCO:
                 return CONTEXT_TAGS;
+            case SEARCH_PREMIUM_CONTENT:
+                return CONTEXT_PREMIUM;
             default:
                 throw new IllegalStateException("Unexpected screen: " + screen);
         }

@@ -71,5 +71,4 @@ public class TabbedSearchFragmentTest extends AndroidUnitTest {
         listener.onPageSelected(3);
         verify(searchTracker).trackResultsScreenEvent(TAB_PEOPLE);
     }
-
 }

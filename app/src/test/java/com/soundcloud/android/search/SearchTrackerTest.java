@@ -5,18 +5,23 @@ import static com.soundcloud.android.search.SearchOperations.TYPE_PLAYLISTS;
 import static com.soundcloud.android.search.SearchOperations.TYPE_TRACKS;
 import static com.soundcloud.android.search.SearchOperations.TYPE_USERS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.optional.Optional;
+import com.soundcloud.android.search.SearchTracker.ScreenData;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Map;
@@ -33,9 +38,13 @@ public class SearchTrackerTest {
     private SearchTracker tracker;
     private TestEventBus eventBus = new TestEventBus();
 
+    @Mock FeatureOperations featureOperations;
+
+    @Rule public ExpectedException exception = ExpectedException.none();
+
     @Before
     public void setUp() {
-        tracker = new SearchTracker(eventBus);
+        tracker = new SearchTracker(eventBus, featureOperations);
     }
 
     @Test
@@ -49,7 +58,7 @@ public class SearchTrackerTest {
 
     @Test
     public void mustTrackSearchSubmissionWithQueryUrn() {
-        tracker.trackSearchSubmission(TYPE_ALL, Optional.of(QUERY_URN));
+        tracker.trackSearchSubmission(TYPE_ALL, QUERY_URN);
 
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
@@ -59,31 +68,46 @@ public class SearchTrackerTest {
 
     @Test
     public void mustNotTrackSearchSubmissionWithoutQueryUrn() {
-        tracker.trackSearchSubmission(TYPE_ALL, Optional.<Urn>absent());
+        tracker.trackSearchSubmission(TYPE_ALL, Urn.NOT_SET);
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(0);
     }
 
     @Test
     public void mustSetQueryUrnForScreen() {
-        tracker.setQueryUrnForSearchType(TYPE_ALL, Optional.of(QUERY_URN));
-        tracker.setQueryUrnForSearchType(TYPE_TRACKS, Optional.of(QUERY_URN));
+        tracker.setTrackingData(TYPE_ALL, QUERY_URN, false);
 
-        final Map<Screen, Urn> screenQueryUrnMap = tracker.getScreenQueryUrnMap();
-        final Urn searchEverythingUrn = screenQueryUrnMap.get(Screen.SEARCH_EVERYTHING);
-        final Urn searchTracksUrn = screenQueryUrnMap.get(Screen.SEARCH_TRACKS);
-        final Urn searchPlaylistsUrn = screenQueryUrnMap.get(Screen.SEARCH_PLAYLISTS);
-        final Urn searchUsersUrn = screenQueryUrnMap.get(Screen.SEARCH_USERS);
+        final Map<Screen, ScreenData> screenDataMap = tracker.getScreenDataMap();
+        final Urn searchEverythingUrn = screenDataMap.get(Screen.SEARCH_EVERYTHING).queryUrn;
+        final Urn searchTracksUrn = screenDataMap.get(Screen.SEARCH_TRACKS).queryUrn;
+        final Urn searchPlaylistsUrn = screenDataMap.get(Screen.SEARCH_PLAYLISTS).queryUrn;
+        final Urn searchUsersUrn = screenDataMap.get(Screen.SEARCH_USERS).queryUrn;
 
         assertThat(searchEverythingUrn).isEqualTo(QUERY_URN);
-        assertThat(searchTracksUrn).isEqualTo(QUERY_URN);
+        assertThat(searchTracksUrn).isEqualTo(Urn.NOT_SET);
         assertThat(searchPlaylistsUrn).isEqualTo(Urn.NOT_SET);
         assertThat(searchUsersUrn).isEqualTo(Urn.NOT_SET);
     }
 
     @Test
+    public void mustSetHasPremiumContentValueForScreen() {
+        tracker.setTrackingData(TYPE_ALL, QUERY_URN, true);
+
+        final Map<Screen, ScreenData> screenDataMap = tracker.getScreenDataMap();
+        final boolean searchEverythingHasPremiumContent = screenDataMap.get(Screen.SEARCH_EVERYTHING).hasPremiumContent;
+        final boolean searchTracksUrnHasPremiumContent = screenDataMap.get(Screen.SEARCH_TRACKS).hasPremiumContent;
+        final boolean searchPlaylistsUrnHasPremiumContent = screenDataMap.get(Screen.SEARCH_PLAYLISTS).hasPremiumContent;
+        final boolean searchUsersUrnHasPremiumContent = screenDataMap.get(Screen.SEARCH_USERS).hasPremiumContent;
+
+        assertThat(searchEverythingHasPremiumContent).isTrue();
+        assertThat(searchTracksUrnHasPremiumContent).isFalse();
+        assertThat(searchPlaylistsUrnHasPremiumContent).isFalse();
+        assertThat(searchUsersUrnHasPremiumContent).isFalse();
+    }
+
+    @Test
     public void mustTrackResultsScreenEventWithValidSearchScreen() {
-        tracker.setQueryUrnForSearchType(TYPE_ALL, Optional.of(QUERY_URN));
+        tracker.setTrackingData(TYPE_ALL, QUERY_URN, true);
         tracker.trackResultsScreenEvent(TYPE_ALL);
 
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
@@ -94,7 +118,7 @@ public class SearchTrackerTest {
 
     @Test
     public void mustNotTrackResultsScreenEventWithInvalidScreen() {
-        tracker.setQueryUrnForSearchType(TYPE_TRACKS, Optional.of(QUERY_URN));
+        tracker.setTrackingData(TYPE_TRACKS, QUERY_URN, true);
         tracker.trackResultsScreenEvent(TYPE_USERS);
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(0);
@@ -111,12 +135,10 @@ public class SearchTrackerTest {
     public void mustResetTrackingState() {
         assertTrackerInitialState();
 
-        tracker.setQueryUrnForSearchType(TYPE_ALL, Optional.of(QUERY_URN));
-        tracker.setQueryUrnForSearchType(TYPE_TRACKS, Optional.of(QUERY_URN));
+        tracker.setTrackingData(TYPE_ALL, QUERY_URN, false);
 
-        final Map<Screen, Urn> screenQueryUrnMap = tracker.getScreenQueryUrnMap();
-        assertThat(screenQueryUrnMap.get(Screen.SEARCH_EVERYTHING)).isEqualTo(QUERY_URN);
-        assertThat(screenQueryUrnMap.get(Screen.SEARCH_TRACKS)).isEqualTo(QUERY_URN);
+        final Map<Screen, ScreenData> screenDataMap = tracker.getScreenDataMap();
+        assertThat(screenDataMap.get(Screen.SEARCH_EVERYTHING).queryUrn).isEqualTo(QUERY_URN);
 
         tracker.reset();
 
@@ -183,17 +205,133 @@ public class SearchTrackerTest {
         assertThat(event.getClickPosition()).isEqualTo(0);
     }
 
-    private void assertTrackerInitialState() {
-        final Map<Screen, Urn> screenQueryUrnMap = tracker.getScreenQueryUrnMap();
-        final Urn searchEverythingUrn = screenQueryUrnMap.get(Screen.SEARCH_EVERYTHING);
-        final Urn searchTracksUrn = screenQueryUrnMap.get(Screen.SEARCH_TRACKS);
-        final Urn searchPlaylistsUrn = screenQueryUrnMap.get(Screen.SEARCH_PLAYLISTS);
-        final Urn searchUsersUrn = screenQueryUrnMap.get(Screen.SEARCH_USERS);
+    @Test
+    public void trackItemClickOnSearchPremiumResultsTracksPublishesEvent() {
+        tracker.trackSearchPremiumItemClick(TRACK_URN, new SearchQuerySourceInfo(QUERY_URN, 0, TRACK_URN));
 
-        assertThat(screenQueryUrnMap.size()).isEqualTo(SEARCH_RESULT_TYPES);
+        final SearchEvent event = (SearchEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(SearchEvent.KIND_RESULTS);
+        assertThat(event.getAttributes().get("type")).isEqualTo("track");
+        assertThat(event.getAttributes().get("context")).isEqualTo("premium");
+        assertThat(event.getAttributes().get("page_name")).isEqualTo("search:high_tier");
+        assertThat(event.getAttributes().get("click_name")).isEqualTo("item_navigation");
+        assertThat(event.getAttributes().get("click_object")).isEqualTo("soundcloud:tracks:1");
+        assertThat(event.getAttributes().get("query_urn")).isEqualTo("soundcloud:search:123");
+        assertThat(event.getClickPosition()).isEqualTo(0);
+    }
+
+    @Test
+    public void mustTrackPremiumResultsScreenEventWithValidQueryUrn() {
+        tracker.trackPremiumResultsScreenEvent(QUERY_URN);
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+        assertThat(event.getKind().equals(Screen.SEARCH_PREMIUM_CONTENT));
+        assertThat(event.get(SearchEvent.KEY_QUERY_URN).equals(QUERY_URN));
+    }
+
+    @Test
+    public void mustNotTrackPremiumResultsScreenEventWithQueryUrnNotSet() {
+        tracker.trackPremiumResultsScreenEvent(Urn.NOT_SET);
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(0);
+    }
+
+    @Test
+    public void mustThrowExceptionWhenTrackingWithInvalidSearchType() {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Search query type not valid.");
+
+        tracker.trackResultsScreenEvent(Integer.MAX_VALUE);
+    }
+
+    @Test
+    public void mustNotTrackUpsellImpressionIfNotUpsellUser() {
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+
+        tracker.setTrackingData(TYPE_ALL, Urn.NOT_SET, true);
+        tracker.trackResultsScreenEvent(TYPE_ALL);
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(0);
+    }
+
+    @Test
+    public void mustNotTrackUpsellImpressionIfThereIsNoPremiumContent() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+
+        tracker.trackResultsScreenEvent(TYPE_ALL);
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(0);
+    }
+
+    @Test
+    public void mustTrackUpsellImpression() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+
+        tracker.setTrackingData(TYPE_ALL, Urn.NOT_SET, true);
+        tracker.trackResultsScreenEvent(TYPE_ALL);
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+        assertThat(event.getKind().equals(Screen.SEARCH_EVERYTHING));
+    }
+
+    @Test
+    public void mustTrackResultsUpsellClick() {
+        tracker.trackResultsUpsellClick(TYPE_ALL);
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+        assertThat(event.getKind().equals(Screen.SEARCH_EVERYTHING));
+    }
+
+    @Test
+    public void trackPremiumResultsUpsellImpression() {
+        tracker.trackPremiumResultsUpsellClick();
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+        assertThat(event.getKind().equals(Screen.SEARCH_PREMIUM_CONTENT));
+    }
+
+    @Test
+    public void mustTrackPremiumResultsUpsellClick() {
+        tracker.trackPremiumResultsUpsellImpression();
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+        assertThat(event.getKind().equals(Screen.SEARCH_PREMIUM_CONTENT));
+    }
+
+    @Test
+    public void mustSetHasPremiumContentValueForSearchType() {
+        assertThat(tracker.getScreenDataMap().get(Screen.SEARCH_EVERYTHING).hasPremiumContent).isFalse();
+
+        tracker.setTrackingData(TYPE_ALL, QUERY_URN, true);
+
+        assertThat(tracker.getScreenDataMap().get(Screen.SEARCH_EVERYTHING).hasPremiumContent).isTrue();
+    }
+
+    private void assertTrackerInitialState() {
+        final Map<Screen, ScreenData> screenDataMap = tracker.getScreenDataMap();
+        assertThat(screenDataMap.size()).isEqualTo(SEARCH_RESULT_TYPES);
+
+        final Urn searchEverythingUrn = screenDataMap.get(Screen.SEARCH_EVERYTHING).queryUrn;
+        final Urn searchTracksUrn = screenDataMap.get(Screen.SEARCH_TRACKS).queryUrn;
+        final Urn searchPlaylistsUrn = screenDataMap.get(Screen.SEARCH_PLAYLISTS).queryUrn;
+        final Urn searchUsersUrn = screenDataMap.get(Screen.SEARCH_USERS).queryUrn;
         assertThat(searchEverythingUrn).isEqualTo(Urn.NOT_SET);
         assertThat(searchTracksUrn).isEqualTo(Urn.NOT_SET);
         assertThat(searchPlaylistsUrn).isEqualTo(Urn.NOT_SET);
         assertThat(searchUsersUrn).isEqualTo(Urn.NOT_SET);
+
+        final boolean searchEverythingHasPremiumContent = screenDataMap.get(Screen.SEARCH_EVERYTHING).hasPremiumContent;
+        final boolean searchTracksUrnHasPremiumContent = screenDataMap.get(Screen.SEARCH_TRACKS).hasPremiumContent;
+        final boolean searchPlaylistsUrnHasPremiumContent = screenDataMap.get(Screen.SEARCH_PLAYLISTS).hasPremiumContent;
+        final boolean searchUsersUrnHasPremiumContent = screenDataMap.get(Screen.SEARCH_USERS).hasPremiumContent;
+        assertThat(searchEverythingHasPremiumContent).isFalse();
+        assertThat(searchTracksUrnHasPremiumContent).isFalse();
+        assertThat(searchPlaylistsUrnHasPremiumContent).isFalse();
+        assertThat(searchUsersUrnHasPremiumContent).isFalse();
     }
 }

@@ -10,6 +10,8 @@ public class TrackingCode {
     public static final int UPSELL_PLAYLIST_PAGE = 1012;
     public static final int UPSELL_STREAM = 1027;
     public static final int UPSELL_PLAYER = 1017;
+    public static final int UPSELL_SEARCH_RESULTS = 1025;
+    public static final int UPSELL_SEARCH_PREMIUM_RESULTS = 1026;
 
     public static final int UPGRADE_BUTTON = 3002;
     public static final int RESUBSCRIBE_BUTTON = 4002;

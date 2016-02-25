@@ -70,10 +70,11 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     private final Action1<SearchResult> trackSearch = new Action1<SearchResult>() {
         @Override
         public void call(SearchResult searchResult) {
-            searchTracker.setQueryUrnForSearchType(searchType, searchResult.queryUrn);
+            queryUrn = (searchResult.queryUrn.isPresent()) ? searchResult.queryUrn.get() : Urn.NOT_SET;
+            searchTracker.setTrackingData(searchType, queryUrn, searchResult.getPremiumContent().isPresent());
             if (publishSearchSubmissionEvent) {
                 publishSearchSubmissionEvent = false;
-                searchTracker.trackSearchSubmission(searchType, searchResult.queryUrn);
+                searchTracker.trackSearchSubmission(searchType, queryUrn);
                 searchTracker.trackResultsScreenEvent(searchType);
             }
         }
@@ -81,6 +82,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
 
     private int searchType;
     private String searchQuery;
+    private Urn queryUrn = Urn.NOT_SET;
     private Boolean publishSearchSubmissionEvent;
     private SearchOperations.SearchPagingFunction pagingFunction;
     private CompositeSubscription fragmentLifeCycle;
@@ -174,17 +176,22 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
 
     @Override
     public void onPremiumItemClicked(View view, List<ListItem> premiumItems) {
-        clickListenerFactory.create(searchTracker.getTrackingScreen(searchType),
-                null).onItemClick(buildPlaylistWithPremiumContent(premiumItems), view, 0);
+        final Urn firstPremiumItemUrn = premiumItems.get(0).getEntityUrn();
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(queryUrn, 0, firstPremiumItemUrn);
+        searchTracker.trackSearchItemClick(searchType, firstPremiumItemUrn, searchQuerySourceInfo);
+        clickListenerFactory.create(searchTracker.getTrackingScreen(searchType), searchQuerySourceInfo)
+                .onItemClick(buildPlaylistWithPremiumContent(premiumItems), view, 0);
     }
 
     @Override
     public void onPremiumContentHelpClicked(Context context) {
+        searchTracker.trackResultsUpsellClick(searchType);
         navigator.openUpgrade(context);
     }
 
     @Override
     public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource, Optional<Link> nextHref) {
+        searchTracker.trackPremiumResultsScreenEvent(queryUrn);
         navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource, nextHref);
     }
 }
