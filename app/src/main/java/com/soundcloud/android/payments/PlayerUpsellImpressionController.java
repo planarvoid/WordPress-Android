@@ -5,7 +5,6 @@ import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
@@ -26,7 +25,7 @@ public class PlayerUpsellImpressionController {
     }
 
     public void recordUpsellViewed(PlayQueueItem playQueueItem) {
-        if (featureFlags.isEnabled(Flag.PLAYER_UPSELL_TRACKING) && !playQueueItem.equals(lastImpression)){
+        if (featureFlags.isEnabled(Flag.SOUNDCLOUD_GO) && !playQueueItem.equals(lastImpression)){
             lastImpression = playQueueItem;
             final UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlayerImpression(playQueueItem.getUrn());
             eventBus.publish(EventQueue.TRACKING, event);

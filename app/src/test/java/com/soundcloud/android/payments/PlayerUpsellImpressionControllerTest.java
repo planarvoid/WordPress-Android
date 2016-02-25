@@ -29,7 +29,7 @@ public class PlayerUpsellImpressionControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         controller = new PlayerUpsellImpressionController(eventBus, featureFlags);
-        when(featureFlags.isEnabled(Flag.PLAYER_UPSELL_TRACKING)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)).thenReturn(true);
     }
 
     @Test
