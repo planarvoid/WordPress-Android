@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.main.Screen;
@@ -30,7 +31,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
 
     @Mock private AppCompatActivity activity;
     @Mock private Navigator navigator;
-    @Mock private DowngradeProgressOperations operations;
+    @Mock private PlanChangeOperations operations;
 
     private TestEventBus eventBus = new TestEventBus();
     private GoOffboardingViewStub view;

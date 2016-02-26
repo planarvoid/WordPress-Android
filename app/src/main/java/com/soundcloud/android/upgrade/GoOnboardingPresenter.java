@@ -3,6 +3,7 @@ package com.soundcloud.android.upgrade;
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.rx.RxUtils;
@@ -23,7 +24,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private final Navigator navigator;
-    private final UpgradeProgressOperations upgradeProgressOperations;
+    private final PlanChangeOperations planChangeOperations;
     private final GoOnboardingView view;
     private final EventBus eventBus;
 
@@ -34,9 +35,9 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private StrategyContext context;
 
     @Inject
-    GoOnboardingPresenter(Navigator navigator, UpgradeProgressOperations upgradeProgressOperations, GoOnboardingView view, EventBus eventBus) {
+    GoOnboardingPresenter(Navigator navigator, PlanChangeOperations planChangeOperations, GoOnboardingView view, EventBus eventBus) {
         this.navigator = navigator;
-        this.upgradeProgressOperations = upgradeProgressOperations;
+        this.planChangeOperations = planChangeOperations;
         this.view = view;
         this.eventBus = eventBus;
     }
@@ -99,7 +100,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             strategy = new PendingStrategy();
-            subscription = upgradeProgressOperations.awaitAccountUpgrade()
+            subscription = planChangeOperations.awaitAccountUpgrade()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new UpgradeCompleteSubscriber());
             return strategy;
