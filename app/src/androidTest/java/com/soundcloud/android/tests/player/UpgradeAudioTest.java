@@ -39,7 +39,9 @@ public class UpgradeAudioTest extends TrackingActivityTest<MainActivity> {
     }
 
     @PaymentTest
-    public void testUpgradeAudio() {
+    public void ignoretestUpgradeAudio() {
+        // ignoring while we use progressive download, when we use HLS it should get rid of phantom HLS
+
         startEventTracking();
 
         final VisualPlayerElement visualPlayerElement = profileScreen.playTrackWithTitle("HT 1");
