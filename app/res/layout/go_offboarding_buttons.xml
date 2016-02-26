@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout android:id="@+id/offboarding_buttons"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:orientation="vertical"
+    tools:showIn="@layout/go_offboarding">
+
+    <com.soundcloud.android.view.LoadingButton
+        android:id="@+id/btn_offboarding_resubscribe"
+        style="@style/GoOffboarding.Button.Primary"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        app:actionText="@string/go_offboarding_primary_button_text"
+        app:retryText="@string/go_onboarding_retry" />
+
+    <com.soundcloud.android.view.LoadingButton
+        android:id="@+id/btn_offboarding_continue"
+        style="@style/GoOffboarding.Button.Secondary"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        app:actionText="@string/go_offboarding_secondary_button_text"
+        app:retryText="@string/go_onboarding_retry" />
+
+</LinearLayout>
