@@ -69,7 +69,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     private PropertySet likedPlaylist1;
     private PropertySet likedPlaylist2;
     private TestEventBus eventBus;
-    private TestSubscriber<Void> collectionChangedSubscriber = new TestSubscriber<>();
+    private TestSubscriber<Object> collectionChangedSubscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
@@ -337,7 +337,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void onCollectionChangedShouldSendAnEventWhenStations() {
-        final TestSubscriber<Void> subscriber = new TestSubscriber<>();
+        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         operations.onCollectionChanged().subscribe(subscriber);
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(StationsSyncRequestFactory.Actions.SYNC_STATIONS, true));
@@ -347,7 +347,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void onCollectionChangedShouldNotSendAnEventWhenNoChange() {
-        final TestSubscriber<Void> subscriber = new TestSubscriber<>();
+        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         operations.onCollectionChanged().subscribe(subscriber);
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLISTS, false));

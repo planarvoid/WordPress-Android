@@ -19,7 +19,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
@@ -209,11 +208,11 @@ public class CollectionOperations {
         this.offlineStateOperations = offlineStateOperations;
     }
 
-    public Observable<Void> onCollectionChanged() {
+    public Observable<Object> onCollectionChanged() {
         return Observable.merge(
-                eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER),
+                eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
                 eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_STATIONS_SYNC_EVENT)
-        ).map(RxUtils.TO_VOID);
+        );
     }
 
     Observable<MyCollection> collections(final PlaylistsOptions options) {
