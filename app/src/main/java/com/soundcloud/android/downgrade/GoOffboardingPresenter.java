@@ -3,6 +3,7 @@ package com.soundcloud.android.downgrade;
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.rx.RxUtils;
@@ -24,7 +25,7 @@ class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private final Navigator navigator;
-    private final DowngradeProgressOperations operations;
+    private final PlanChangeOperations operations;
     private final GoOffboardingView view;
     private final EventBus eventBus;
 
@@ -36,7 +37,7 @@ class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity
 
     @Inject
     GoOffboardingPresenter(Navigator navigator,
-                           DowngradeProgressOperations operations,
+                           PlanChangeOperations operations,
                            GoOffboardingView view,
                            EventBus eventBus) {
         this.navigator = navigator;
