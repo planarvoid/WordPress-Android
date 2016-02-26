@@ -138,7 +138,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     public void onPlayQueueChangedSetsNewCurrentDataInAdapter() {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
 
-        verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(anyListOf(PlayQueueItem.class)); //once in setPager
+        verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(anyListOf(PlayQueueItem.class), eq(1)); //once in setPager
     }
 
     @Test // Fixes issue #2045, should not happen after we implement invalidating event queues on logout
@@ -262,7 +262,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
 
-        verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(fullPlayQueue);
+        verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(fullPlayQueue, 1);
         verify(viewPager, times(2)).setCurrentItem(1, false);
     }
 
@@ -277,7 +277,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
 
-        verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(fullPlayQueue);
+        verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(fullPlayQueue, 1);
         verify(viewPager, times(2)).setCurrentItem(1, false);
     }
 
@@ -293,7 +293,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
 
-        verify(playerPagerPresenter).setCurrentPlayQueue(fullPlayQueue); // verify first fullQueue, but it should only happen once
+        verify(playerPagerPresenter).setCurrentPlayQueue(fullPlayQueue, 1); // verify first fullQueue, but it should only happen once
         verify(viewPager).setCurrentItem(2, true);
     }
 
@@ -301,7 +301,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     public void refreshesPlayQueueAfterNewPlayQueueEvent() {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
 
-        verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(fullPlayQueue);
+        verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(fullPlayQueue, 1);
         verify(viewPager, times(2)).setCurrentItem(1, false);
     }
 
@@ -314,7 +314,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 
-        verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(fullPlayQueue);
+        verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(fullPlayQueue, 1);
         verify(viewPager, times(2)).setCurrentItem(1, false);
     }
 
@@ -324,7 +324,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     }
 
     private void assertLastQueueWasAdQueue() {
-        verify(playerPagerPresenter, atLeastOnce()).setCurrentPlayQueue(playQueueItemsCaptor.capture());
+        verify(playerPagerPresenter, atLeastOnce()).setCurrentPlayQueue(playQueueItemsCaptor.capture(), anyInt());
         final List<List<PlayQueueItem>> allValues = playQueueItemsCaptor.getAllValues();
         assertPlayQueueItemsEqual(Arrays.asList(AUDIO_AD_PLAY_QUEUE_ITEM), allValues.get(allValues.size() - 1));
     }

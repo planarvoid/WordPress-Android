@@ -126,7 +126,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                 eventBus
         );
 
-        presenter.setCurrentPlayQueue(playQueue);
+        presenter.setCurrentPlayQueue(playQueue, 0);
 
         when(container.findViewById(R.id.player_track_pager)).thenReturn(playerTrackPager);
         when(container.getResources()).thenReturn(resources());
@@ -135,7 +135,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         verify(playerTrackPager).setAdapter(pagerAdapterCaptor.capture());
         adapter = pagerAdapterCaptor.getValue();
 
-        presenter.setCurrentPlayQueue(playQueue);
+        presenter.setCurrentPlayQueue(playQueue, 0);
 
         track = PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
                 PlayableProperty.TITLE.bind("title"),
@@ -723,6 +723,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     private void setupVideoAd() {
-        presenter.setCurrentPlayQueue(Arrays.<PlayQueueItem>asList(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN))));
+        presenter.setCurrentPlayQueue(Arrays.<PlayQueueItem>asList(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN))), 0);
     }
 }

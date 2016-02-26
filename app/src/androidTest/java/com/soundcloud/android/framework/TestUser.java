@@ -343,4 +343,11 @@ public class TestUser {
             "1-21686-204008734-7419586a6a5b2e",
             204008734,
             true);
+    public static final TestUser htCreator = new TestUser(
+            "ht-creator",
+            "sc.ht.android.creator@gmail.com",
+            "s0undcl0ud_HT2016",
+            "1-21686-190502894-422edfa8ddf43c",
+            190502894,
+            true);
 }

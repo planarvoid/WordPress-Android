@@ -149,8 +149,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         this.trackPageRecycler = new TrackPageRecycler();
     }
 
-    public void setCurrentPlayQueue(List<PlayQueueItem> playQueue) {
-        selectedPage = Consts.NOT_SET;
+    public void setCurrentPlayQueue(List<PlayQueueItem> playQueue, int currentItem) {
+        selectedPage = currentItem;
         currentPlayQueue = playQueue;
         trackPagerAdapter.notifyDataSetChanged();
     }

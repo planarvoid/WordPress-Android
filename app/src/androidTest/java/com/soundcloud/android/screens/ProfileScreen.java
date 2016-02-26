@@ -40,6 +40,15 @@ public class ProfileScreen extends Screen {
         return visualPlayerElement;
     }
 
+    public VisualPlayerElement playTrackWithTitle(final String title) {
+        ViewElement viewElement = scrollToItem(
+                With.id(R.id.track_list_item),
+                TrackItemElement.WithTitle(testDriver, title)
+        );
+        new TrackItemElement(testDriver, viewElement).click();
+        return new VisualPlayerElement(testDriver);
+    }
+
     public ProfileScreen clickUserAt(int index) {
         return getUsers().get(index).click();
     }
