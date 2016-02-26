@@ -259,7 +259,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     @Override
     public void stop() {
-        skippy.pause();
+        skippy.stop();
     }
 
     @Override

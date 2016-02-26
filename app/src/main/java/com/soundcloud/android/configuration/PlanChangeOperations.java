@@ -2,6 +2,7 @@ package com.soundcloud.android.configuration;
 
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.policies.PolicyOperations;
@@ -15,6 +16,7 @@ public class PlanChangeOperations {
 
     private final ConfigurationOperations configurationOperations;
     private final PolicyOperations policyOperations;
+    private final PlaybackServiceInitiator playbackServiceInitiator;
     private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
     private final Action0 clearPendingPlanChangeFlags = new Action0() {
         @Override
@@ -22,19 +24,27 @@ public class PlanChangeOperations {
             configurationOperations.clearPendingPlanChanges();
         }
     };
+    private final Action0 resetPlaybackService = new Action0() {
+        @Override
+        public void call() {
+            playbackServiceInitiator.resetPlaybackService();
+        }
+    };
 
     @Inject
     PlanChangeOperations(ConfigurationOperations configurationOperations,
                          PolicyOperations policyOperations,
-                         ClearTrackDownloadsCommand clearTrackDownloadsCommand) {
+                         PlaybackServiceInitiator playbackServiceInitiator, ClearTrackDownloadsCommand clearTrackDownloadsCommand) {
         this.configurationOperations = configurationOperations;
         this.policyOperations = policyOperations;
+        this.playbackServiceInitiator = playbackServiceInitiator;
         this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
     }
 
     public Observable<Object> awaitAccountDowngrade() {
         return policyOperations.refreshedTrackPolicies()
                 .flatMap(continueWith(clearTrackDownloadsCommand.toObservable(null)))
+                .doOnSubscribe(resetPlaybackService)
                 .doOnCompleted(clearPendingPlanChangeFlags)
                 .cast(Object.class);
     }
@@ -49,6 +59,8 @@ public class PlanChangeOperations {
                     .awaitConfigurationWithPlan(Plan.HIGH_TIER)
                     .flatMap(continueWith(policyOperations.refreshedTrackPolicies()));
         }
-        return updatedAccountData.doOnCompleted(clearPendingPlanChangeFlags);
+        return updatedAccountData
+                .doOnSubscribe(resetPlaybackService)
+                .doOnCompleted(clearPendingPlanChangeFlags);
     }
 }
