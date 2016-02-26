@@ -46,7 +46,6 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
     SoundStreamView(true, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM_VIEW),
     ActivityView(true, DatabaseSchema.DATABASE_CREATE_ACTIVITY_VIEW),
     UserAssociationView(PrimaryKey.of(
-            TableColumns.UserAssociations.OWNER_ID,
             TableColumns.UserAssociations.TARGET_ID,
             TableColumns.UserAssociations.ASSOCIATION_TYPE,
             TableColumns.UserAssociations.RESOURCE_TYPE),

@@ -164,8 +164,6 @@ public final class TableColumns {
      * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_USER_ASSOCIATIONS}
      */
     public static final class UserAssociations {
-        @Deprecated // this is unnecessary as we do not store other people's likes
-        public static final String OWNER_ID = "owner_id"; // the source user of the association
         public static final String TARGET_ID = "target_id";// the target user of the association
         public static final String ASSOCIATION_TYPE = "association_type"; // the type of association (e.g. Following, Follower)
         public static final String RESOURCE_TYPE = "resource_type";  // currently unused, but if we add groups...
@@ -414,13 +412,11 @@ public final class TableColumns {
     public final static class AssociationView {
         public static final String ASSOCIATION_TIMESTAMP = "association_timestamp";
         public static final String ASSOCIATION_TYPE = "association_type";
-        public static final String ASSOCIATION_OWNER_ID = "association_owner_id";
     }
 
     public final static class UserAssociationView extends Users {
         public static final String USER_ASSOCIATION_TIMESTAMP = AssociationView.ASSOCIATION_TIMESTAMP;
         public static final String USER_ASSOCIATION_TYPE = AssociationView.ASSOCIATION_TYPE;
-        public static final String USER_ASSOCIATION_OWNER_ID = AssociationView.ASSOCIATION_OWNER_ID;
         public static final String USER_ASSOCIATION_POSITION = "user_association_position";
         public static final String USER_ASSOCIATION_ADDED_AT = "user_association_added_at";
         public static final String USER_ASSOCIATION_REMOVED_AT = "user_association_removed_at";
@@ -430,7 +426,6 @@ public final class TableColumns {
     public final static class SoundAssociationView extends SoundView {
         public static final String SOUND_ASSOCIATION_TIMESTAMP = AssociationView.ASSOCIATION_TIMESTAMP;
         public static final String SOUND_ASSOCIATION_TYPE = AssociationView.ASSOCIATION_TYPE;
-        public static final String SOUND_ASSOCIATION_OWNER_ID = AssociationView.ASSOCIATION_OWNER_ID;
     }
 
     public final static class PlaylistTracksView extends SoundView {

@@ -183,9 +183,6 @@ public class TestHelper {
 
     private static int bulkInsertToUserAssociations(List<? extends PublicApiResource> resources, Uri collectionUri,
                                                     Date addedAt, Date removedAt, String token) {
-        SoundCloudApplication application = (SoundCloudApplication) Robolectric.application;
-        final long userId = application.getAccountOperations().getLoggedInUserId();
-
         BulkInsertMap map = new BulkInsertMap();
         for (int i = 0; i < resources.size(); i++) {
             PublicApiResource r = resources.get(i);
@@ -198,23 +195,21 @@ public class TestHelper {
 
             contentValues.put(TableColumns.UserAssociations.POSITION, i);
             contentValues.put(TableColumns.UserAssociations.TARGET_ID, r.getId());
-            contentValues.put(TableColumns.UserAssociations.OWNER_ID, userId);
             contentValues.put(TableColumns.UserAssociations.ADDED_AT, addedAt == null ? null : addedAt.getTime());
             contentValues.put(TableColumns.UserAssociations.REMOVED_AT, removedAt == null ? null : removedAt.getTime());
             contentValues.put(TableColumns.UserAssociations.TOKEN, token);
             map.add(collectionUri, contentValues);
         }
-        ContentResolver resolver = application.getContentResolver();
+        ContentResolver resolver = Robolectric.application.getContentResolver();
         return map.insert(resolver);
     }
 
-    public static int bulkInsertDummyIdsToUserAssociations(Uri collectionUri, int count, long userId) {
+    public static int bulkInsertDummyIdsToUserAssociations(Uri collectionUri, int count) {
         ContentValues[] cv = new ContentValues[count];
         for (int i = 0; i < count; i++) {
             cv[i] = new ContentValues();
             cv[i].put(TableColumns.UserAssociations.POSITION, i);
             cv[i].put(TableColumns.UserAssociations.TARGET_ID, i);
-            cv[i].put(TableColumns.UserAssociations.OWNER_ID, userId);
         }
         ContentResolver resolver = Robolectric.application.getContentResolver();
         return resolver.bulkInsert(collectionUri, cv);

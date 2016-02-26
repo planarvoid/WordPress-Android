@@ -278,7 +278,6 @@ final class DatabaseSchema {
      * {@link com.soundcloud.android.storage.TableColumns.UserAssociations}
      */
     static final String DATABASE_CREATE_USER_ASSOCIATIONS = "(" +
-            "owner_id INTEGER, " +
             "target_id INTEGER," +                  // the target user of the association
             "association_type INTEGER, " +          // the type of association (e.g. Following, Follower)
             "resource_type INTEGER DEFAULT 0, " +   // currently unused, but if we add groups...
@@ -287,7 +286,7 @@ final class DatabaseSchema {
             "added_at INTEGER, " +                  // when was this added locally (pre-api sync)
             "removed_at INTEGER, " +                // when was this removed locally (pre-api sync)
             "token VARCHAR(150), " +                // whitelist token to avoid spam flagging. comes from API
-            "PRIMARY KEY(owner_id, target_id, association_type, resource_type) ON CONFLICT REPLACE" +
+            "PRIMARY KEY(target_id, association_type, resource_type) ON CONFLICT REPLACE" +
             ");";
 
     static final String DATABASE_CREATE_SOUND_VIEW = "AS SELECT " +
@@ -359,7 +358,6 @@ final class DatabaseSchema {
      * A view which combines user associations with users.
      * This currently excludes :
      *
-     * @see com.soundcloud.android.storage.TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID   (currently is always the logged in user)
      * @see com.soundcloud.android.storage.TableColumns.UserAssociations.RESOURCE_TYPE (currently only 1 type in the user table, might change if we add groups)
      */
     static final String DATABASE_CREATE_USER_ASSOCIATION_VIEW = " AS SELECT " +
@@ -368,7 +366,6 @@ final class DatabaseSchema {
             ", UserAssociations." + TableColumns.CollectionItems.POSITION + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_POSITION +
             ", UserAssociations." + TableColumns.UserAssociations.ADDED_AT + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT +
             ", UserAssociations." + TableColumns.UserAssociations.REMOVED_AT + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT +
-            ", UserAssociations." + TableColumns.UserAssociations.OWNER_ID + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID +
             ", UserAssociations." + TableColumns.UserAssociations.TOKEN + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_TOKEN +
 
             // user data

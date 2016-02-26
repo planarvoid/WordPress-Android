@@ -30,7 +30,6 @@ import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class UserAssociationStorageTest {
-    final private static long USER_ID = 1L;
     final private static int BATCH_SIZE = 1;
     public static final String TOKEN = "12345";
 
@@ -39,7 +38,6 @@ public class UserAssociationStorageTest {
 
     @Before
     public void before() {
-        TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
         storage = new LegacyUserAssociationStorage(resolver);
     }
@@ -47,20 +45,20 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldBulkInsertAssociations() throws Exception {
         List<PublicApiUser> items = ModelFixtures.create(PublicApiUser.class, 2);
-        expect(storage.insertAssociations(items, Content.ME_FOLLOWINGS.uri, USER_ID)).toEqual(4); // 2 users, associations
+        expect(storage.insertAssociations(items, Content.ME_FOLLOWINGS.uri)).toEqual(4); // 2 users, associations
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
     }
 
     @Test
     public void shouldGetLocalIds() throws Exception {
-        TestHelper.bulkInsertDummyIdsToUserAssociations(Content.ME_FOLLOWINGS.uri, 107, USER_ID);
+        TestHelper.bulkInsertDummyIdsToUserAssociations(Content.ME_FOLLOWINGS.uri, 107);
         List<Long> localIds = storage.getStoredIds(Content.ME_FOLLOWINGS.uri);
         expect(localIds.size()).toEqual(107);
     }
 
     @Test
     public void shouldGetLocalFollowingIdsWithExemptedRemoval() throws Exception {
-        TestHelper.bulkInsertDummyIdsToUserAssociations(Content.ME_FOLLOWINGS.uri, 107, USER_ID);
+        TestHelper.bulkInsertDummyIdsToUserAssociations(Content.ME_FOLLOWINGS.uri, 107);
         UserAssociation associationForRemoval = new UserAssociation(Association.Type.FOLLOWING, new PublicApiUser(1000L));
         associationForRemoval.markForRemoval();
         TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, associationForRemoval);
@@ -86,7 +84,7 @@ public class UserAssociationStorageTest {
         List<Long> ids = Collections.singletonList(1L);
 
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(resolver).insertInBatches(USER_ID, ids, 0, BATCH_SIZE);
+        new LegacyUserAssociationStorage(resolver).insertInBatches(ids, 0, BATCH_SIZE);
         verify(resolver).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), any(ContentValues[].class));
         verifyNoMoreInteractions(resolver);
     }
@@ -96,7 +94,7 @@ public class UserAssociationStorageTest {
         List<Long> ids = asList(1L, 2L);
 
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(resolver).insertInBatches(USER_ID, ids, 0, BATCH_SIZE);
+        new LegacyUserAssociationStorage(resolver).insertInBatches(ids, 0, BATCH_SIZE);
         verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), any(ContentValues[].class));
         verifyNoMoreInteractions(resolver);
     }
@@ -107,7 +105,7 @@ public class UserAssociationStorageTest {
 
         int START_POSITION = 27;
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(resolver).insertInBatches(USER_ID, ids, START_POSITION, BATCH_SIZE);
+        new LegacyUserAssociationStorage(resolver).insertInBatches(ids, START_POSITION, BATCH_SIZE);
 
         ArgumentCaptor<ContentValues[]> argumentCaptor = ArgumentCaptor.forClass(ContentValues[].class);
         verify(resolver).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), argumentCaptor.capture());
@@ -125,7 +123,7 @@ public class UserAssociationStorageTest {
 
         int START_POSITION = 66;
         ContentResolver resolver = mock(ContentResolver.class);
-        new LegacyUserAssociationStorage(resolver).insertInBatches(USER_ID, ids, START_POSITION, BATCH_SIZE);
+        new LegacyUserAssociationStorage(resolver).insertInBatches(ids, START_POSITION, BATCH_SIZE);
 
         ArgumentCaptor<ContentValues[]> argumentCaptor = ArgumentCaptor.forClass(ContentValues[].class);
         verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWINGS.uri), argumentCaptor.capture());

@@ -1,17 +1,13 @@
 package com.soundcloud.android.api.legacy.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
-import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
@@ -21,7 +17,6 @@ import java.util.Date;
 @Deprecated // remove after migrating affiliations to api-mobile
 public abstract class Association extends PublicApiResource implements PlayableHolder, Refreshable, RelatesToUser {
 
-    @Nullable public PublicApiUser owner;
     public int associationType;
     public Date created_at;
     protected CharSequence elapsedTime;
@@ -31,7 +26,6 @@ public abstract class Association extends PublicApiResource implements PlayableH
     }
 
     public Association(Cursor cursor) {
-        owner = SoundCloudApplication.sModelManager.getUser(cursor.getLong(cursor.getColumnIndex(TableColumns.AssociationView.ASSOCIATION_OWNER_ID)));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(TableColumns.AssociationView.ASSOCIATION_TIMESTAMP)));
         associationType = cursor.getInt(cursor.getColumnIndex(TableColumns.AssociationView.ASSOCIATION_TYPE));
     }
@@ -48,32 +42,12 @@ public abstract class Association extends PublicApiResource implements PlayableH
     public Association(Parcel in) {
         associationType = in.readInt();
         created_at = new Date(in.readLong());
-        owner = in.readParcelable(ClassLoader.getSystemClassLoader());
-    }
-
-    @Override
-    public ContentValues buildContentValues() {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.CollectionItems.ITEM_ID, getItemId());
-        cv.put(TableColumns.CollectionItems.USER_ID, SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId());
-        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, associationType);
-        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, getResourceType());
-        cv.put(TableColumns.CollectionItems.CREATED_AT, created_at.getTime());
-        return cv;
-    }
-
-    @Override
-    public void putDependencyValues(BulkInsertMap destination) {
-        if (owner != null) {
-            owner.putFullContentValues(destination);
-        }
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(associationType);
         dest.writeLong(created_at.getTime());
-        dest.writeParcelable(owner, 0);
     }
 
     // Associations are different from the other models in that they don't have IDs

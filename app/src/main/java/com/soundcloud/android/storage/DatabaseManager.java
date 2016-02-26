@@ -1,5 +1,6 @@
 package com.soundcloud.android.storage;
 
+import static com.soundcloud.android.storage.SchemaMigrationHelper.alterColumns;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropTable;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropView;
 
@@ -20,7 +21,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 68;
+    public static final int DATABASE_VERSION = 69;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -199,6 +200,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 68:
                             success = upgradeTo68(db, oldVersion);
+                            break;
+                        case 69:
+                            success = upgradeTo69(db, oldVersion);
                             break;
                         default:
                             break;
@@ -692,6 +696,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 68);
+        }
+        return false;
+    }
+
+    /*
+     * Remove Owner from User associations
+     */
+    private static boolean upgradeTo69(SQLiteDatabase db, int oldVersion) {
+        try {
+            alterColumns(Table.UserAssociations, db);
+            SchemaMigrationHelper.recreate(Table.UserAssociationView, db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 69);
         }
         return false;
     }

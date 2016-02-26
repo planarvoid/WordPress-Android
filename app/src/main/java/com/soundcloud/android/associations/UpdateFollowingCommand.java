@@ -89,7 +89,6 @@ class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.
         final long now = new Date().getTime();
         final ContentValues cv = new ContentValues();
 
-        cv.put(TableColumns.UserAssociations.OWNER_ID, accountOperations.getLoggedInUserId());
         cv.put(TableColumns.UserAssociations.TARGET_ID, params.targetUrn.getNumericId());
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
         cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER);

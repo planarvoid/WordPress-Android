@@ -206,25 +206,17 @@ public class ScContentProvider extends ContentProvider {
         ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
     }
 
-    // XXX ghetto, use prepared statements
-    public static String[] formatWithUser(String[] columns, long userId) {
-        for (int i = 0; i < columns.length; i++) {
-            columns[i] = columns[i].replace("$$$", String.valueOf(userId));
-        }
-        return columns;
-    }
-
     public static String[] getUserViewColumns(Table table) {
         return new String[]{
                 table + ".*",
                 "EXISTS (SELECT 1 FROM " + Table.UserAssociations + ", " + Table.Users.name()
                         + " WHERE " + TableColumns.Users._ID + " = " + TableColumns.UserAssociations.TARGET_ID
                         + " AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + CollectionItemTypes.FOLLOWING
-                        + " AND " + TableColumns.UserAssociations.OWNER_ID + " = $$$) AS " + TableColumns.Users.USER_FOLLOWING,
+                        + ") AS " + TableColumns.Users.USER_FOLLOWING,
                 "EXISTS (SELECT 1 FROM " + Table.UserAssociations + ", " + Table.Users.name()
                         + " WHERE " + TableColumns.Users._ID + " = " + TableColumns.UserAssociations.TARGET_ID
                         + " AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + CollectionItemTypes.FOLLOWER
-                        + " AND " + TableColumns.UserAssociations.OWNER_ID + " = $$$) AS " + TableColumns.Users.USER_FOLLOWER
+                        + ") AS " + TableColumns.Users.USER_FOLLOWER
         };
     }
 
@@ -272,18 +264,16 @@ public class ScContentProvider extends ContentProvider {
                 but not 4 days before major release*/
                 if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
                     qb.setTables(Table.UserAssociations.name());
-                    qb.appendWhere(Table.UserAssociations.name() + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId);
-                    qb.appendWhere(" AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType);
+                    qb.appendWhere(TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType);
                     _columns = new String[]{TableColumns.UserAssociations.TARGET_ID};
                     _sortOrder = makeCollectionSort(uri, sortOrder);
 
                 } else {
                     qb.setTables(Table.UserAssociationView.name());
                     if (_columns == null) {
-                        _columns = formatWithUser(getUserViewColumns(Table.UserAssociationView), userId);
+                        _columns = getUserViewColumns(Table.UserAssociationView);
                     }
-                    qb.appendWhere(Table.UserAssociationView.name() + "." + TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID + " = " + userId);
-                    qb.appendWhere(" AND " + TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType);
+                    qb.appendWhere(TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType);
 
                     _sortOrder = makeCollectionSort(uri, sortOrder != null ?
                             sortOrder : TableColumns.UserAssociationView.USER_ASSOCIATION_POSITION);
@@ -340,7 +330,7 @@ public class ScContentProvider extends ContentProvider {
             case USERS:
                 qb.setTables(content.table.name());
                 if (_columns == null) {
-                    _columns = formatWithUser(getUserViewColumns(Table.Users), userId);
+                    _columns = getUserViewColumns(Table.Users);
                 }
                 break;
 
@@ -348,7 +338,7 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(content.table.name());
                 qb.appendWhere(Table.Users.id + " = " + uri.getLastPathSegment());
                 if (_columns == null) {
-                    _columns = formatWithUser(getUserViewColumns(Table.Users), userId);
+                    _columns = getUserViewColumns(Table.Users);
                 }
                 break;
 
@@ -367,8 +357,10 @@ public class ScContentProvider extends ContentProvider {
         }
         log("query: " + query);
         SQLiteDatabase db = databaseManager.getReadableDatabase();
-        Cursor c = db.rawQuery(query, _selectionArgs);
+        Cursor c = null;
+        c = db.rawQuery(query, _selectionArgs);
         c.setNotificationUri(getContext().getContentResolver(), uri);
+
         return c;
     }
 
@@ -481,10 +473,10 @@ public class ScContentProvider extends ContentProvider {
         int count;
         final Content content = Content.match(uri);
 
-        final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
         switch (content) {
             case COLLECTIONS:
             case PLAYLISTS:
+            case USER_ASSOCIATIONS:
                 break;
 
             case TRACK:
@@ -504,17 +496,10 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_FOLLOWINGS:
-                whereAppend = Table.UserAssociations.name() + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId
-                        + " AND " + TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType;
+                whereAppend = TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
                         : where + " AND " + whereAppend;
 
-                break;
-
-            case USER_ASSOCIATIONS:
-                whereAppend = Table.UserAssociations.name() + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId;
-                where = TextUtils.isEmpty(where) ? whereAppend
-                        : where + " AND " + whereAppend;
                 break;
 
             default:
