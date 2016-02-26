@@ -5,9 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-
 import javax.inject.Inject;
 
 public class LauncherActivity extends RootActivity {
@@ -42,16 +39,6 @@ public class LauncherActivity extends RootActivity {
     }
 
     private void handleLoggedInUser() {
-        final Bundle extras = getIntent().getExtras();
-        if (hasPendingActivity(extras)) {
-            navigator.openPendingActivity(this, extras);
-        } else {
-            navigator.launchHome(this, extras);
-        }
+        navigator.launchHome(this, getIntent().getExtras());
     }
-
-    private boolean hasPendingActivity(@Nullable Bundle extras) {
-        return extras != null && extras.containsKey(Navigator.EXTRA_PENDING_ACTIVITY);
-    }
-
 }

@@ -41,7 +41,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,7 +76,6 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openHomeAsRootScreen(activityContext);
         assertThat(activityContext).nextStartedIntent()
                 .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 .opensActivity(MainActivity.class);
     }
@@ -371,35 +369,5 @@ public class NavigatorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(OfflineSettingsOnboardingActivity.class);
-    }
-
-    @Test
-    public void shouldOpenPendingActivityFromIntentExtras() {
-        Bundle extras = new Bundle();
-        extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, MainActivity.class.getCanonicalName());
-
-        navigator.openPendingActivity(activityContext, extras);
-
-        assertThat(activityContext).nextStartedIntent()
-                .opensActivity(MainActivity.class);
-    }
-
-    @Test
-    public void shouldOpenPendingActivityFromIntentExtrasWithPending() {
-        Bundle extras = new Bundle();
-        extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, MainActivity.class.getCanonicalName());
-
-        navigator.openPendingActivity(activityContext, extras);
-
-        assertThat(activityContext).nextStartedIntent()
-                .opensActivity(MainActivity.class);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowIfOpenPendingActivityCannotBeResolved() {
-        Bundle extras = new Bundle();
-        extras.putString(Navigator.EXTRA_PENDING_ACTIVITY, "non existo");
-
-        navigator.openPendingActivity(activityContext, extras);
     }
 }

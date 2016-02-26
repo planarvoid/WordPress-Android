@@ -61,7 +61,6 @@ public class Navigator {
     private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
-    public static final String EXTRA_PENDING_ACTIVITY = "restart.pending_activity";
     public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
 
     private final FeatureFlags featureFlags;
@@ -397,9 +396,7 @@ public class Navigator {
     }
 
     private void resetAppAndNavigateTo(Activity context, Class<? extends Activity> nextActivity) {
-        Intent launcherIntent = createLaunchIntent(context);
-        launcherIntent.putExtra(EXTRA_PENDING_ACTIVITY, nextActivity.getCanonicalName());
-        context.startActivity(launcherIntent);
+        context.startActivity(rootScreen(new Intent(context, nextActivity)));
     }
 
     public void restartApp(Activity context) {
@@ -416,18 +413,6 @@ public class Navigator {
     }
 
     private Intent rootScreen(Intent intent) {
-        return intent
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-    }
-
-    public void openPendingActivity(Activity context, Bundle extras) {
-        final String activityName = extras.getString(Navigator.EXTRA_PENDING_ACTIVITY);
-        try {
-            final Class<?> activityClass = Class.forName(activityName);
-            context.startActivity(new Intent(context, activityClass));
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException(e);
-        }
+        return intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 }
