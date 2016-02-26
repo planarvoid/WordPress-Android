@@ -35,6 +35,7 @@ import android.os.Message;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
 class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment> {
 
@@ -215,15 +216,21 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setFullQueue() {
-        final int indexOfCurrentPlayQueueitem = getIndexOfCurrentPlayQueueitem();
-        presenter.setCurrentPlayQueue(playQueueManager.getPlayQueueItems(playableItemsPredicate), indexOfCurrentPlayQueueitem);
+        final List<PlayQueueItem> playQueueItems = playQueueManager.getPlayQueueItems(playableItemsPredicate);
+        final int indexOfCurrentPlayQueueitem = getIndexOfPlayQueueItem(playQueueItems);
+
+        presenter.setCurrentPlayQueue(playQueueItems, indexOfCurrentPlayQueueitem);
         trackPager.setCurrentItem(indexOfCurrentPlayQueueitem, false);
         setPlayQueueAfterScroll = false;
     }
 
     private int getIndexOfCurrentPlayQueueitem() {
+        return getIndexOfPlayQueueItem(presenter.getCurrentPlayQueue());
+    }
+
+    private int getIndexOfPlayQueueItem(List<PlayQueueItem> playQueue) {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
-        return Iterables.indexOf(presenter.getCurrentPlayQueue(), PlayQueue.isMatchingItem(currentPlayQueueItem));
+        return Iterables.indexOf(playQueue, PlayQueue.isMatchingItem(currentPlayQueueItem));
     }
 
     private void setAdPlayQueue() {
