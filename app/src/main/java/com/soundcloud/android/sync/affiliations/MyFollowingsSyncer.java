@@ -128,7 +128,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
             return new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
         }
 
-        added = legacyUserAssociationStorage.insertAssociations(resources, Content.ME_FOLLOWINGS.uri, userId);
+        added = legacyUserAssociationStorage.insertAssociations(resources, Content.ME_FOLLOWINGS.uri);
 
         // remove items from master remote list and adjust start index
         for (PublicApiResource u : resources) {
@@ -138,7 +138,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
 
         log("Added " + added + " new items for this endpoint");
         int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
-        legacyUserAssociationStorage.insertInBatches(userId, remote, startPosition, bulkInsertBatchSize);
+        legacyUserAssociationStorage.insertInBatches(remote, startPosition, bulkInsertBatchSize);
         result.success = true;
         return result;
     }

@@ -96,7 +96,7 @@ public class LegacyUserAssociationStorage {
     }
 
     @Deprecated//This should operate on List<UserAssociation>, not ScResource
-    public int insertAssociations(@NotNull List<? extends PublicApiResource> resources, @NotNull Uri collectionUri, long userId) {
+    public int insertAssociations(@NotNull List<? extends PublicApiResource> resources, @NotNull Uri collectionUri) {
         BulkInsertMap map = new BulkInsertMap();
         for (int i = 0; i < resources.size(); i++) {
             PublicApiResource r = resources.get(i);
@@ -108,14 +108,13 @@ public class LegacyUserAssociationStorage {
             ContentValues contentValues = new ContentValues();
             contentValues.put(TableColumns.UserAssociations.POSITION, i);
             contentValues.put(TableColumns.UserAssociations.TARGET_ID, r.getId());
-            contentValues.put(TableColumns.UserAssociations.OWNER_ID, userId);
             map.add(collectionUri, contentValues);
         }
         return map.insert(resolver);
     }
 
     @Deprecated//TODO: batching logic should be centralized somewhere, e.g. in BaseDAO
-    public void insertInBatches(final long ownerId, final List<Long> targetIds,
+    public void insertInBatches(final List<Long> targetIds,
                                 final int startPosition, int batchSize) {
         // insert in batches so as to not hold a write lock in a single transaction for too long
         int positionOffset = startPosition;
@@ -128,7 +127,6 @@ public class LegacyUserAssociationStorage {
                 cv[j] = new ContentValues();
                 cv[j].put(TableColumns.UserAssociations.POSITION, positionOffset + j);
                 cv[j].put(TableColumns.UserAssociations.TARGET_ID, id);
-                cv[j].put(TableColumns.UserAssociations.OWNER_ID, ownerId);
             }
             positionOffset += idBatch.size();
             resolver.bulkInsert(Content.ME_FOLLOWINGS.uri, cv);

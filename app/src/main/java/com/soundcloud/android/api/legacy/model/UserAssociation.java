@@ -107,7 +107,6 @@ public class UserAssociation extends Association implements UserHolder {
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.UserAssociations.TARGET_ID, getItemId());
-        cv.put(TableColumns.UserAssociations.OWNER_ID, SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId());
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, associationType);
         cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, getResourceType());
         cv.put(TableColumns.UserAssociations.CREATED_AT, created_at.getTime());

@@ -35,12 +35,10 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
     public void shouldInsertFollowing() {
         PublicApiUser user = new PublicApiUser(1);
         UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
-        ua.owner = new PublicApiUser(AbstractDAOTest.OWNER_ID);
         getDAO().create(ua);
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView._ID, user.getId());
-        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWING);
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, TableColumns.UserAssociationView._TYPE, PublicApiUser.TYPE);
     }
@@ -49,7 +47,6 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
     public void shouldInsertFollowingWithAdditionTimestamp() {
         PublicApiUser user = new PublicApiUser(1);
         UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
-        ua.owner = new PublicApiUser(AbstractDAOTest.OWNER_ID);
         ua.markForAddition(TOKEN);
         getDAO().create(ua);
 
@@ -65,7 +62,6 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
     public void shouldInsertFollowingWithRemovalTimestamp() {
         PublicApiUser user = new PublicApiUser(1);
         UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
-        ua.owner = new PublicApiUser(AbstractDAOTest.OWNER_ID);
         ua.markForRemoval();
         getDAO().create(ua);
 
