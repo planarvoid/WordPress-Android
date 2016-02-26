@@ -1,6 +1,6 @@
 GIT
   remote: git@github.com:soundcloud/test-user-generator.git
-  revision: 764a8494b96a068cc150c173f5d82035b3882868
+  revision: 41e927d43947ee514c747063bb50b305d2819711
   specs:
     test-user-generator (0.0.1)
 
