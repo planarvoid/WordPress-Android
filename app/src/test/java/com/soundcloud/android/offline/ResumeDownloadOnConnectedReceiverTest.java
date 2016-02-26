@@ -26,12 +26,12 @@ public class ResumeDownloadOnConnectedReceiverTest extends AndroidUnitTest {
     private ResumeDownloadOnConnectedReceiver receiver;
 
     @Mock private Context context;
-    @Mock private DownloadConnexionHelper downloadConnexionHelper;
+    @Mock private DownloadConnectionHelper downloadConnectionHelper;
     @Captor private ArgumentCaptor<IntentFilter> intentFilterCaptor;
 
     @Before
     public void setUp() throws Exception {
-        receiver = new ResumeDownloadOnConnectedReceiver(context, downloadConnexionHelper);
+        receiver = new ResumeDownloadOnConnectedReceiver(context, downloadConnectionHelper);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class ResumeDownloadOnConnectedReceiverTest extends AndroidUnitTest {
 
     @Test
     public void onReceiveStartsSyncServiceWhenValidNetwork() throws Exception {
-        when(downloadConnexionHelper.isNetworkDownloadFriendly()).thenReturn(true);
+        when(downloadConnectionHelper.isDownloadPermitted()).thenReturn(true);
 
         receiver.onReceive(context, null);
 
@@ -83,7 +83,7 @@ public class ResumeDownloadOnConnectedReceiverTest extends AndroidUnitTest {
 
     @Test
     public void onReceiveDoesNotStartOfflineServiceWhenNetworkNotValid() throws Exception {
-        when(downloadConnexionHelper.isNetworkDownloadFriendly()).thenReturn(false);
+        when(downloadConnectionHelper.isDownloadPermitted()).thenReturn(false);
 
         receiver.onReceive(context, null);
 

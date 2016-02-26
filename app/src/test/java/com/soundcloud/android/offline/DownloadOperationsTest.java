@@ -41,7 +41,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Mock private StreamUrlBuilder streamUrlBuilder;
     @Mock private DownloadOperations.DownloadProgressListener listener;
     @Mock private OfflineTrackAssetDownloader assetDownloader;
-    @Mock private DownloadConnexionHelper downloadConnexionHelper;
+    @Mock private DownloadConnectionHelper downloadConnectionHelper;
 
     private DownloadOperations operations;
 
@@ -52,7 +52,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager,
-                streamUrlBuilder, Schedulers.immediate(), assetDownloader, downloadConnexionHelper);
+                streamUrlBuilder, Schedulers.immediate(), assetDownloader, downloadConnectionHelper);
         when(streamUrlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(streamUrl);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
@@ -61,7 +61,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         when(response.getInputStream()).thenReturn(downloadStream);
         when(fileStorage.isEnoughSpace(anyLong())).thenReturn(true);
         when(fileStorage.isEnoughMinimumSpace()).thenReturn(true);
-        when(downloadConnexionHelper.isNetworkDownloadFriendly()).thenReturn(true);
+        when(downloadConnectionHelper.isDownloadPermitted()).thenReturn(true);
     }
 
     @Test
@@ -123,7 +123,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     public void returnConnectionErrorWhenIOExceptionThrown() throws IOException {
         when(httpClient.getFileStream(streamUrl)).thenThrow(new IOException());
 
-        assertThat(operations.download(downloadRequest, listener).isConnectionError()).isTrue();
+        assertThat(operations.download(downloadRequest, listener).isConnectivityError()).isTrue();
     }
 
     @Test

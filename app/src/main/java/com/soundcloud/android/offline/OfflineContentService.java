@@ -160,7 +160,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
         notificationController.onDownloadError(state);
 
-        if (state.isConnectionError()) {
+        if (state.isConnectivityError()) {
             Log.d(TAG, "onError> Connection error.");
             stopAndRetryLater(state);
         } else if (state.isNotEnoughMinimumSpace()) {
@@ -211,7 +211,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     private void stopAndRetryLater(DownloadState state) {
         Log.d(TAG, "stopAndRetryLater>");
-        offlineContentScheduler.scheduleRetry();
+        offlineContentScheduler.scheduleRetryForConnectivityError();
         stop();
         notificationController.onConnectionError(state, showResult);
     }

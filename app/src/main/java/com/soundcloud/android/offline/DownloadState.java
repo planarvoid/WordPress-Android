@@ -9,7 +9,7 @@ import com.soundcloud.java.objects.MoreObjects;
 
 public final class DownloadState {
 
-    private enum Status {PROGRESS, SUCCESS, CANCELLED, UNAVAILABLE, NOT_ENOUGH_SPACE, NOT_ENOUGH_MINIMUM_SPACE, CONNECTION_ERROR, ERROR}
+    private enum Status {PROGRESS, SUCCESS, CANCELLED, UNAVAILABLE, NOT_ENOUGH_SPACE, NOT_ENOUGH_MINIMUM_SPACE, CONNECTIVITY_ERROR, ERROR}
 
     final Status status;
     final DownloadRequest request;
@@ -49,12 +49,12 @@ public final class DownloadState {
 
     public static DownloadState disconnectedNetworkError(DownloadRequest request) {
         Log.d(OfflineContentService.TAG, "Connection error download result: " + request.getTrack());
-        return new DownloadState(Status.CONNECTION_ERROR, request, true);
+        return new DownloadState(Status.CONNECTIVITY_ERROR, request, true);
     }
 
     public static DownloadState invalidNetworkError(DownloadRequest request) {
         Log.d(OfflineContentService.TAG, "Invalid network error download result: " + request.getTrack());
-        return new DownloadState(Status.CONNECTION_ERROR, request, false);
+        return new DownloadState(Status.CONNECTIVITY_ERROR, request, false);
     }
 
     public static DownloadState inProgress(DownloadRequest request, long progress) {
@@ -92,8 +92,8 @@ public final class DownloadState {
         return status == Status.CANCELLED;
     }
 
-    public boolean isConnectionError() {
-        return status == Status.CONNECTION_ERROR;
+    public boolean isConnectivityError() {
+        return status == Status.CONNECTIVITY_ERROR;
     }
 
     public boolean isUnavailable() {

@@ -31,7 +31,7 @@ class DownloadOperations {
     private final StreamUrlBuilder urlBuilder;
     private final Scheduler scheduler;
     private final OfflineTrackAssetDownloader assetDownloader;
-    private final DownloadConnexionHelper downloadConnexionHelper;
+    private final DownloadConnectionHelper downloadConnectionHelper;
 
     private final Predicate<Urn> isNotCurrentTrackFilter = new Predicate<Urn>() {
         @Override
@@ -48,7 +48,7 @@ class DownloadOperations {
                        StreamUrlBuilder urlBuilder,
                        @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                        OfflineTrackAssetDownloader assetDownloader,
-                       DownloadConnexionHelper downloadConnexionHelper) {
+                       DownloadConnectionHelper downloadConnectionHelper) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;
@@ -56,7 +56,7 @@ class DownloadOperations {
         this.urlBuilder = urlBuilder;
         this.scheduler = scheduler;
         this.assetDownloader = assetDownloader;
-        this.downloadConnexionHelper = downloadConnexionHelper;
+        this.downloadConnectionHelper = downloadConnectionHelper;
     }
 
     Observable<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
@@ -78,15 +78,13 @@ class DownloadOperations {
             return DownloadState.notEnoughSpace(request);
         }
 
-        if (!downloadConnexionHelper.isNetworkDownloadFriendly()) {
-            if (downloadConnexionHelper.isNetworkDisconnected()) {
-                return DownloadState.disconnectedNetworkError(request);
-            } else {
-                return DownloadState.invalidNetworkError(request);
-            }
+        if (downloadConnectionHelper.isDownloadPermitted()) {
+            return downloadAndStore(request, listener);
+        } else if (downloadConnectionHelper.isNetworkDisconnected()) {
+            return DownloadState.disconnectedNetworkError(request);
+        } else {
+            return DownloadState.invalidNetworkError(request);
         }
-
-        return downloadAndStore(request, listener);
     }
 
     private DownloadState downloadAndStore(DownloadRequest request, DownloadProgressListener listener) {
@@ -110,7 +108,7 @@ class DownloadOperations {
         } catch (EncryptionException encryptionException) {
             return DownloadState.error(request);
         } catch (IOException ioException) {
-            if (downloadConnexionHelper.isNetworkDisconnected()) {
+            if (downloadConnectionHelper.isNetworkDisconnected()) {
                 return DownloadState.disconnectedNetworkError(request);
             } else {
                 return DownloadState.invalidNetworkError(request);

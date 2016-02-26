@@ -206,7 +206,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         service.onError(failedResult1);
 
         verify(publisher).publishRequested(downloadRequest1.getTrack());
-        verify(offlineContentScheduler).scheduleRetry();
+        verify(offlineContentScheduler).scheduleRetryForConnectivityError();
         verify(downloadHandler).quit();
     }
 
@@ -240,7 +240,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onError(failedResult1);
 
-        verify(offlineContentScheduler).scheduleRetry();
+        verify(offlineContentScheduler).scheduleRetryForConnectivityError();
         verify(downloadHandler).quit();
     }
 
@@ -261,7 +261,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onError(notEnoughMinimumSpace);
 
-        verify(offlineContentScheduler, never()).scheduleRetry();
+        verify(offlineContentScheduler, never()).scheduleRetryForConnectivityError();
         verify(downloadHandler).quit();
     }
 
