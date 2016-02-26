@@ -209,4 +209,7 @@
         <item quantity="other">%s new posts</item> <!-- 9+ new posts -->
     </plurals>
 
+    <!-- __COLLECTIONS -->
+    <string name="collections_options_toggle_offline">Offline</string>
+
 </resources>
