@@ -45,7 +45,7 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
                 .waitForExpandedPlayer()
                 .swipeNext();
 
-        assertThat(visualPlayerElement.errorReason(), is("Not available yet in your country"));
+        assertThat(visualPlayerElement.isErrorBlockedVisible(), is(true));
         assertThat(visualPlayerElement.swipePrevious().isExpandedPlayerPaused(), is(true));
     }
 
@@ -55,7 +55,7 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
                 .swipePrevious();
 
 
-        assertThat(visualPlayerElement.errorReason(), is("Not available yet in your country"));
+        assertThat(visualPlayerElement.isErrorBlockedVisible(), is(true));
         assertThat(visualPlayerElement.swipeNext().isExpandedPlayerPaused(), is(true));
     }
 

@@ -417,8 +417,8 @@ public class VisualPlayerElement extends Element {
         return errorElement().getText();
     }
 
-    public String errorReason() {
-        return errorReasonElement().getText();
+    public boolean isErrorBlockedVisible() {
+        return testDriver.findOnScreenElement(With.id(R.id.playback_error_blocked)).hasVisibility();
     }
 
     private TextElement errorElement() {

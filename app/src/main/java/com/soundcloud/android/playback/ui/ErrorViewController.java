@@ -50,6 +50,7 @@ class ErrorViewController {
         setGone(holder.hideOnErrorViews);
 
         setupErrorLayout();
+        setupPlaybackErrorVisibility(error);
 
         final TextView message = (TextView) errorLayout.findViewById(R.id.playback_error_reason);
         message.setText(getMessageFromError(error));
@@ -58,6 +59,13 @@ class ErrorViewController {
         errorImage.setImageResource(getImageFromError(error));
 
         setupStartStationButton(error);
+    }
+
+    private void setupPlaybackErrorVisibility(ErrorState error) {
+        boolean isBlocked = ErrorState.BLOCKED.equals(error);
+        errorLayout.findViewById(R.id.playback_error).setVisibility(isBlocked ? View.GONE : View.VISIBLE);
+        errorLayout.findViewById(R.id.playback_error_reason).setVisibility(isBlocked ? View.GONE : View.VISIBLE);
+        errorLayout.findViewById(R.id.playback_error_blocked).setVisibility(isBlocked ? View.VISIBLE : View.GONE);
     }
 
     public void setUrn(Urn urn) {
@@ -97,8 +105,6 @@ class ErrorViewController {
         switch (error) {
             case FAILED:
                 return R.string.playback_error_connection;
-            case BLOCKED:
-                return R.string.playback_error_blocked;
             default:
                 return R.string.playback_error_unable_to_play;
         }
