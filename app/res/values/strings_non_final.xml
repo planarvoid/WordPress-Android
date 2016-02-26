@@ -65,8 +65,8 @@
     <!-- __GO ONBOARDING -->
     <string name="go_onboarding_header">Welcome to SoundCloud Go</string>
     <string name="go_onboarding_title">Save your music offline</string>
-    <string name="go_onboarding_subtext">Use the arrow to save all your likes or any of your playlists offline.</string>
-    <string name="go_onboarding_start">Get started</string>
+    <string name="go_onboarding_subtext">Use the arrow to save all your likes or\nany of your playlists offline.</string>
+    <string name="go_onboarding_start">OK, got it</string>
     <string name="go_onboarding_retry">Loading failed. Retry?</string>
     <string name="go_onboarding_error_dialog_title">Something went wrong</string>
     <string name="go_onboarding_error_dialog_msg">There was a problem enabling your new features and content. Please restart the application.</string>
