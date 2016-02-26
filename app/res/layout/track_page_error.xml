@@ -12,7 +12,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:clickable="false"
         android:src="@drawable/player_error" />
 
     <LinearLayout
@@ -28,7 +27,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:clickable="false"
             android:gravity="center_horizontal"
             android:layout_gravity="center_horizontal"
             android:text="@string/playback_error_blocked"
@@ -44,7 +42,6 @@
             android:layout_marginTop="@dimen/player_error_text_margin"
             android:gravity="center_horizontal"
             android:layout_gravity="center_horizontal"
-            android:clickable="false"
             android:text="@string/playback_error"
             android:textColor="@color/white"
             android:textSize="18sp" />
@@ -55,7 +52,6 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:clickable="false"
             android:gravity="center_horizontal"
             android:layout_gravity="center_horizontal"
             android:textColor="@color/gray_text" />
