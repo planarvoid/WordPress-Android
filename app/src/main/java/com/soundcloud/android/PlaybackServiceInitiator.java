@@ -11,12 +11,12 @@ import android.os.Parcelable;
 
 import javax.inject.Inject;
 
-public class ServiceInitiator {
+public class PlaybackServiceInitiator {
 
     private final Context context;
 
     @Inject
-    public ServiceInitiator(Context context) {
+    public PlaybackServiceInitiator(Context context) {
         this.context = context;
     }
 

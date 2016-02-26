@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
@@ -23,7 +23,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     // https://github.com/soundcloud/SoundCloud-Android/issues/4503
     private static final String TAG_BUG_4503 = "BUG_4503";
     private final PlayQueueManager playQueueManager;
-    private final ServiceInitiator serviceInitiator;
+    private final PlaybackServiceInitiator serviceInitiator;
     private final TrackRepository trackRepository;
     private final AdsOperations adsOperations;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
@@ -75,7 +75,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         }
     };
 
-    public DefaultPlaybackStrategy(PlayQueueManager playQueueManager, ServiceInitiator serviceInitiator,
+    public DefaultPlaybackStrategy(PlayQueueManager playQueueManager, PlaybackServiceInitiator serviceInitiator,
                                    TrackRepository trackRepository, AdsOperations adsOperations,
                                    OfflinePlaybackOperations offlinePlaybackOperations,
                                    PlaySessionStateProvider playSessionStateProvider, EventBus eventBus) {

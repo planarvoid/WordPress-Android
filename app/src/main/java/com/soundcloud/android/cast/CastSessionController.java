@@ -5,7 +5,7 @@ import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
@@ -36,7 +36,7 @@ import java.util.List;
 public class CastSessionController extends VideoCastConsumerImpl implements VideoCastManager.MediaRouteDialogListener {
 
     private final CastOperations castOperations;
-    private final ServiceInitiator serviceInitiator;
+    private final PlaybackServiceInitiator serviceInitiator;
     private final CastPlayer castPlayer;
     private final PlayQueueManager playQueueManager;
     private final VideoCastManager videoCastManager;
@@ -46,7 +46,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
 
     @Inject
     public CastSessionController(CastOperations castOperations,
-                                 ServiceInitiator serviceInitiator,
+                                 PlaybackServiceInitiator serviceInitiator,
                                  CastPlayer castPlayer,
                                  PlayQueueManager playQueueManager,
                                  VideoCastManager videoCastManager,

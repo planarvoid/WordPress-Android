@@ -265,7 +265,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    public PlaybackStrategy providePlaybackStrategy(ServiceInitiator serviceInitiator,
+    public PlaybackStrategy providePlaybackStrategy(PlaybackServiceInitiator serviceInitiator,
                                                     CastConnectionHelper castConnectionHelper,
                                                     PlayQueueManager playQueueManager,
                                                     Lazy<CastPlayer> castPlayer,

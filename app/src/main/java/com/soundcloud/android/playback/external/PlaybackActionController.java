@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.external;
 
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -13,14 +13,14 @@ import javax.inject.Inject;
 public class PlaybackActionController {
 
     private final PlaySessionController playSessionController;
-    private final ServiceInitiator serviceInitiator;
+    private final PlaybackServiceInitiator serviceInitiator;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final AdsController adsController;
     private final EventBus eventBus;
 
     @Inject
     public PlaybackActionController(PlaySessionController playSessionController,
-                                    ServiceInitiator serviceInitiator,
+                                    PlaybackServiceInitiator serviceInitiator,
                                     PlaySessionStateProvider playSessionStateProvider,
                                     AdsController adsController,
                                     EventBus eventBus) {

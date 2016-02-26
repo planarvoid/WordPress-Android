@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -40,7 +40,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private ServiceInitiator serviceInitiator;
+    @Mock private PlaybackServiceInitiator serviceInitiator;
     @Mock private ReferrerResolver referrerResolver;
     @Mock private EventBus eventBus;
     @Mock private Navigator navigator;

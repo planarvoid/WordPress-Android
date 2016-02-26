@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import org.junit.Before;
@@ -25,7 +25,7 @@ public class GcmManagerTest {
 
     @Mock private GcmStorage gcmStorage;
     @Mock private GooglePlayServicesWrapper googlePlayServices;
-    @Mock private ServiceInitiator serviceInitiator;
+    @Mock private PlaybackServiceInitiator serviceInitiator;
     @Mock private AppCompatActivity activity;
     @Mock private ApplicationProperties applicationProperties;
 

@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 @RunWith(MockitoJUnitRunner.class)
 public class LoggedInControllerTest {
     @Mock private AccountOperations accountOperations;
-    @Mock private ServiceInitiator serviceInitiator;
+    @Mock private PlaybackServiceInitiator serviceInitiator;
     @Mock private AppCompatActivity activity;
 
     private LoggedInController lightCycle;

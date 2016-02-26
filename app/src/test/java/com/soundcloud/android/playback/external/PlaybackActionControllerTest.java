@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -24,7 +24,7 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private PlaySessionController playSessionController;
-    @Mock private ServiceInitiator serviceInitiator;
+    @Mock private PlaybackServiceInitiator serviceInitiator;
     @Mock private AdsController adsController;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
 

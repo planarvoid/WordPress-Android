@@ -12,7 +12,7 @@ import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumer;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
@@ -49,7 +49,7 @@ public class CastSessionControllerTest extends AndroidUnitTest  {
     private CastSessionController castSessionController;
 
     @Mock private CastOperations castOperations;
-    @Mock private ServiceInitiator serviceInitiator;
+    @Mock private PlaybackServiceInitiator serviceInitiator;
     @Mock private CastPlayer castPlayer;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private VideoCastManager videoCastManager;

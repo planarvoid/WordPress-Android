@@ -8,7 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.VideoAd;
@@ -44,7 +44,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     private DefaultPlaybackStrategy defaultPlaybackStrategy;
 
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private ServiceInitiator serviceInitiator;
+    @Mock private PlaybackServiceInitiator serviceInitiator;
     @Mock private TrackRepository trackRepository;
     @Mock private AdsOperations adsOperations;
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;

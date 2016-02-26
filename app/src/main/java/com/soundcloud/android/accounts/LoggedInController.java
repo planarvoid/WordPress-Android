@@ -1,6 +1,6 @@
 package com.soundcloud.android.accounts;
 
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.support.v7.app.AppCompatActivity;
@@ -10,10 +10,10 @@ import javax.inject.Inject;
 public class LoggedInController extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final AccountOperations accountOperations;
-    private final ServiceInitiator serviceInitiator;
+    private final PlaybackServiceInitiator serviceInitiator;
 
     @Inject
-    public LoggedInController(AccountOperations accountOperations, ServiceInitiator serviceInitiator) {
+    public LoggedInController(AccountOperations accountOperations, PlaybackServiceInitiator serviceInitiator) {
         this.accountOperations = accountOperations;
         this.serviceInitiator = serviceInitiator;
     }

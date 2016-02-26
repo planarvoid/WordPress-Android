@@ -1,8 +1,8 @@
 package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.ServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -29,7 +29,7 @@ import javax.inject.Inject;
 public class IntentResolver {
     private final ResolveOperations resolveOperations;
     private final AccountOperations accountOperations;
-    private final ServiceInitiator serviceInitiator;
+    private final PlaybackServiceInitiator serviceInitiator;
     private final PlaybackInitiator playbackInitiator;
     private final PlayQueueManager playQueueManager;
     private final ReferrerResolver referrerResolver;
@@ -40,7 +40,7 @@ public class IntentResolver {
     @Inject
     IntentResolver(ResolveOperations resolveOperations,
                    AccountOperations accountOperations,
-                   ServiceInitiator serviceInitiator,
+                   PlaybackServiceInitiator serviceInitiator,
                    PlaybackInitiator playbackInitiator,
                    PlayQueueManager playQueueManager,
                    ReferrerResolver referrerResolver,

@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -35,7 +35,7 @@ public class StreamPreloader {
     private final TrackRepository trackRepository;
     private final PlayQueueManager playQueueManager;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
-    private final ServiceInitiator serviceInitiator;
+    private final PlaybackServiceInitiator serviceInitiator;
     private final StreamCacheConfig streamCacheConfig;
 
     private Subscription preloadSubscription = RxUtils.invalidSubscription();
@@ -129,7 +129,7 @@ public class StreamPreloader {
                            TrackRepository trackRepository,
                            PlayQueueManager playQueueManager,
                            OfflinePlaybackOperations offlinePlaybackOperations,
-                           ServiceInitiator serviceInitiator, StreamCacheConfig streamCacheConfig) {
+                           PlaybackServiceInitiator serviceInitiator, StreamCacheConfig streamCacheConfig) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;

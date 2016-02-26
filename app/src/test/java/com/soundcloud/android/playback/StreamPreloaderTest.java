@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.ServiceInitiator;
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -31,7 +31,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     @Mock private TrackRepository trackRepository;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
-    @Mock private ServiceInitiator serviceInitiator;
+    @Mock private PlaybackServiceInitiator serviceInitiator;
     @Mock private StreamCacheConfig streamCacheConfig;
 
     private final TestEventBus eventBus = new TestEventBus();
