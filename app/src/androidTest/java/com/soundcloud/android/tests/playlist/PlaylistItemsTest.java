@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.playlist;
 
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -10,7 +11,6 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.StreamCardElement;
-import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistItemsTest extends ActivityTest<MainActivity> {
@@ -51,13 +51,13 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         final TrackLikesScreen trackLikesScreen = mainNavHelper
                 .goToCollections()
                 .clickLikedTracksPreview();
-        final TrackItemElement track = trackLikesScreen
-                .getTracks()
-                .get(0);
 
-        final String trackAddedTitle = track.getTitle();
+        assertThat(trackLikesScreen, is(visible()));
 
-        track.click().clickMenu()
+        final String trackAddedTitle = trackLikesScreen.getTrackTitle(0);
+
+        trackLikesScreen.clickTrack(0)
+                .clickMenu()
                 .clickAddToPlaylist()
                 .clickCreateNewPlaylist()
                 .enterTitle(playlist)

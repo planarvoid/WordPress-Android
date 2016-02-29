@@ -9,7 +9,7 @@ import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -22,7 +22,7 @@ import java.util.List;
 
 public class TrackLikesScreen extends Screen {
 
-    protected static final Class ACTIVITY = MainActivity.class;
+    protected static final Class ACTIVITY = TrackLikesActivity.class;
 
     private final With updateInProgress = With.text(testDriver.getString(R.string.offline_update_in_progress));
 
@@ -78,11 +78,6 @@ public class TrackLikesScreen extends Screen {
         waiter.waitForElement(headerText(), testDriver.getString(R.string.offline_update_in_progress));
     }
 
-    public boolean isDownloadInProgressTextVisible() {
-        final String downloadInProgress = testDriver.getString(R.string.offline_update_in_progress);
-        return testDriver.isElementDisplayed(text(downloadInProgress));
-    }
-
     public boolean isLikedTracksTextVisible() {
         int count = tracks().size();
         final String likedTracksCount =
@@ -116,11 +111,6 @@ public class TrackLikesScreen extends Screen {
     public SyncYourLikesScreen toggleOfflineEnabled() {
         testDriver.findOnScreenElement(With.id(R.id.toggle_download)).click();
         return new SyncYourLikesScreen(testDriver);
-    }
-
-    public TrackLikesScreen toggleOfflineDisabled() {
-        testDriver.findOnScreenElement(With.id(R.id.toggle_download)).click();
-        return this;
     }
 
     public UpgradeScreen toggleOfflineUpsell() {
