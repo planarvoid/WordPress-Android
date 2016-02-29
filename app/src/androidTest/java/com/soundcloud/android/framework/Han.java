@@ -107,8 +107,11 @@ public class Han {
         for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
             scrollDown();
             viewElement = findOnScreenElement(with);
+
         }
-        viewElement.dragFullyOnScreenVertical();
+        if (viewElement instanceof DefaultViewElement) {
+            ((DefaultViewElement) viewElement).dragFullyOnScreenVertical(with);
+        }
         return viewElement;
     }
 

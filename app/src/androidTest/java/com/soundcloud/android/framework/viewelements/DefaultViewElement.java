@@ -1,5 +1,8 @@
 package com.soundcloud.android.framework.viewelements;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.ViewFetcher;
 import com.soundcloud.android.framework.Waiter;
@@ -175,6 +178,19 @@ public class DefaultViewElement extends ViewElement {
         }
 
         return true;
+    }
+
+    // Tracking scrolling issue weirdness on the CI.
+    // Sometimes, Han is scrolling up instead of down after finding a view.
+    //
+    // THe suspicion is that the recycler view is recycling the view after finding it. Then,
+    // this code would scroll to the wrong view.
+    public boolean dragFullyOnScreenVertical(With... with) {
+        assertThat(testDriver.findOnScreenElement(with).getView() == getView(), is(true));
+        final boolean result = dragFullyOnScreenVertical();
+        assertThat(testDriver.findOnScreenElement(with).getView() == getView(), is(true));
+
+        return result;
     }
 
     private boolean viewCanFitVerticallyOnScreen() {
