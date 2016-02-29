@@ -5,6 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.policies.PolicyOperations;
@@ -26,13 +27,14 @@ public class PlanChangeOperationsTest {
 
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private PolicyOperations policyOperations;
+    @Mock private PlaybackServiceInitiator playbackServiceInitiator;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
     private TestSubscriber<Object> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
         operations = new PlanChangeOperations(configurationOperations,
-                policyOperations, clearTrackDownloadsCommand);
+                policyOperations, playbackServiceInitiator, clearTrackDownloadsCommand);
     }
 
     @Test
@@ -46,6 +48,16 @@ public class PlanChangeOperationsTest {
 
         subscriber.assertValueCount(1);
         subscriber.assertNoErrors();
+    }
+
+    @Test
+    public void downgradeShouldResetPlaybackServiceOnSubscription() {
+        when(policyOperations.refreshedTrackPolicies())
+                .thenReturn(Observable.<List<Urn>>never());
+
+        operations.awaitAccountDowngrade().subscribe(subscriber);
+
+        verify(playbackServiceInitiator).resetPlaybackService();
     }
 
     @Test
@@ -95,6 +107,29 @@ public class PlanChangeOperationsTest {
 
         subscriber.assertValue(singletonList(Urn.forTrack(123)));
         verify(configurationOperations, never()).awaitConfigurationWithPlan(Plan.HIGH_TIER);
+    }
+
+    @Test
+    public void upgradeShouldResetPlaybackServiceOnSubscriptionWhenNoPlanChangePending() {
+        when(configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER))
+                .thenReturn(Observable.<Configuration>never());
+        when(policyOperations.refreshedTrackPolicies())
+                .thenReturn(Observable.<List<Urn>>never());
+
+        operations.awaitAccountUpgrade().subscribe(subscriber);
+
+        verify(playbackServiceInitiator).resetPlaybackService();
+    }
+
+    @Test
+    public void upgradeShouldResetPlaybackServiceOnSubscriptionWhenPlanChangePending() {
+        when(configurationOperations.isPendingHighTierUpgrade()).thenReturn(true);
+        when(policyOperations.refreshedTrackPolicies())
+                .thenReturn(Observable.<List<Urn>>never());
+
+        operations.awaitAccountUpgrade().subscribe(subscriber);
+
+        verify(playbackServiceInitiator).resetPlaybackService();
     }
 
     @Test
