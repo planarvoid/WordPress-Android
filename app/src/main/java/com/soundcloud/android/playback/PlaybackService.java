@@ -200,8 +200,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void onProgressEvent(long position, long duration) {
         if (currentPlaybackItem.isPresent()) {
             final PlaybackItem playbackItem = currentPlaybackItem.get();
-            final PlaybackProgress playbackProgress = new PlaybackProgress(position, duration);
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(playbackProgress, playbackItem.getUrn()));
+            final PlaybackProgressEvent playbackProgress = PlaybackProgressEvent.create(new PlaybackProgress(position, duration), playbackItem.getUrn());
+            analyticsController.onProgressEvent(playbackProgress);
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgress);
         }
     }
 

@@ -3,9 +3,12 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
+import com.soundcloud.android.events.AdPlaybackProgressEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -57,6 +60,30 @@ class PlaybackSessionAnalyticsController {
         this.appboyPlaySessionState = appboyPlaySessionState;
         this.stopReasonProvider = stopReasonProvider;
         this.uuidProvider = uuidProvider;
+    }
+
+    public void onProgressEvent(PlaybackProgressEvent progressEvent) {
+        if (adsOperations.isCurrentItemAd()) {
+            final PlayerAdData adData = (PlayerAdData) adsOperations.getCurrentTrackAdData().get();
+            final PlaybackProgress progress = progressEvent.getPlaybackProgress();
+            final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+            if (!adData.hasReachedFirstQuartile() && progress.isPastFirstQuartile()) {
+                adData.setFirstQuartileReached();
+                publishAdQuartileEvent(AdPlaybackProgressEvent.forFirstQuartile(progressEvent.getUrn(), adData, trackSourceInfo));
+            }
+            if (!adData.hasReachedSecondQuartile() && progress.isPastSecondQuartile()) {
+                adData.setSecondQuartileReached();
+                publishAdQuartileEvent(AdPlaybackProgressEvent.forSecondQuartile(progressEvent.getUrn(), adData, trackSourceInfo));
+            }
+            if (!adData.hasReachedThirdQuartile() && progress.isPastThirdQuartile()) {
+                adData.setThirdQuartileReached();
+                publishAdQuartileEvent(AdPlaybackProgressEvent.forThirdQuartile(progressEvent.getUrn(), adData, trackSourceInfo));
+            }
+        }
+    }
+
+    private void publishAdQuartileEvent(AdPlaybackProgressEvent adPlaybackProgressEvent) {
+        eventBus.publish(EventQueue.TRACKING, adPlaybackProgressEvent);
     }
 
     public void onStateTransition(Player.StateTransition stateTransition) {

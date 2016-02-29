@@ -4,13 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
+import com.soundcloud.android.events.AdPlaybackProgressEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
@@ -64,6 +67,54 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
         analyticsController = new PlaybackSessionAnalyticsController(
                 eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, appboyPlaySessionState, stopReasonProvider, uuidProvider);
+    }
+
+    @Test
+    public void progressEventsForRegularTracksDoNotPublishAnyEvents() {
+        analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(0, 100), Urn.forTrack(123L)));
+        analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100), Urn.forTrack(123L)));
+        analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(50, 100), Urn.forTrack(123L)));
+        analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(75, 100), Urn.forTrack(123L)));
+        analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(100, 100), Urn.forTrack(123L)));
+
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+    }
+
+    @Test
+    public void quartileProgressEventsForPlayerAdsPublishesQuartileEvent() {
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(Urn.forTrack(123L))));
+
+        analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100), Urn.forAd("dfp", "809")));
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
+        AdPlaybackProgressEvent adEvent = (AdPlaybackProgressEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(adEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
+    }
+
+    @Test
+    public void multipleQuartileProgressEventsPublishedIfPreviousQuartileWereNotAlreadyPublished() {
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(Urn.forTrack(123L))));
+
+        analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(50, 100), Urn.forAd("dfp", "809")));
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
+        AdPlaybackProgressEvent adEvent = (AdPlaybackProgressEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        assertThat(adEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
+        AdPlaybackProgressEvent adEvent2 = (AdPlaybackProgressEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(adEvent2.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::second_quartile");
+    }
+
+    @Test
+    public void duplicateQuartileProgressEventsAreNotPublished() {
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(Urn.forTrack(123L))));
+
+        analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100), Urn.forAd("dfp", "809")));
+        analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100), Urn.forAd("dfp", "809")));
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
     }
 
     @Test

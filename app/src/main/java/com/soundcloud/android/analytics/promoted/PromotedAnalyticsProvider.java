@@ -5,6 +5,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
+import com.soundcloud.android.events.AdPlaybackProgressEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -21,7 +22,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 // This class is all about multiplexing out tracking events
-@SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.UncommentedEmptyMethod"})
+@SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops"})
 public class PromotedAnalyticsProvider implements AnalyticsProvider {
 
     public static final String BACKEND_NAME = "promoted";
@@ -39,7 +40,7 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
-
+        /* no op */
     }
 
     @Override
@@ -49,22 +50,22 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-
+        /* no op */
     }
 
     @Override
     public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
-
+        /* no op */
     }
 
     @Override
     public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-
+        /* no op */
     }
 
     @Override
     public void handleOnboardingEvent(OnboardingEvent event) {
-
+        /* no op */
     }
 
     @Override
@@ -79,6 +80,8 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
             handleLeaveBehindImpression((AdOverlayTrackingEvent) event);
         } else if (event instanceof PromotedTrackingEvent) {
             handlePromotedTrackEvent((PromotedTrackingEvent) event);
+        } else if (event instanceof AdPlaybackProgressEvent) {
+            handleAdPlaybackProgressEvent((AdPlaybackProgressEvent) event);
         }
     }
 
@@ -92,6 +95,10 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
 
     private void handlePromotedTrackEvent(PromotedTrackingEvent event) {
         trackAllUrls(event.getTimestamp(), event.getTrackingUrls());
+    }
+
+    private void handleAdPlaybackProgressEvent(AdPlaybackProgressEvent event) {
+        trackAllUrls(event.getTimestamp(), event.getQuartileTrackingUrls());
     }
 
     private void handlePlaybackSessionEvent(PlaybackSessionEvent event) {

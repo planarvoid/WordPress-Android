@@ -15,6 +15,7 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
+import com.soundcloud.android.events.AdPlaybackProgressEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
@@ -662,7 +663,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForAdDelivery(event);
 
         verify(jsonTransformer).toJson(adsReceived.ads);
-        verify(jsonTransformer).toJson(getEventData("ad_delivery", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("ad_delivery", BOOGALOO_VERSION, event.getTimestamp())
                 .adsRequested(true)
                 .adsReceived("{ads-received}")
                 .adsRequestSuccess(true)
@@ -683,7 +684,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForAdDelivery(event);
 
         verify(jsonTransformer).toJson(adsReceived.ads);
-        verify(jsonTransformer).toJson(getEventData("ad_delivery", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("ad_delivery", BOOGALOO_VERSION, event.getTimestamp())
                 .adsRequested(true)
                 .adsReceived("{ads-received}")
                 .adsRequestSuccess(true)
@@ -700,13 +701,58 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForAdDelivery(event);
 
-        verify(jsonTransformer).toJson(getEventData("ad_delivery", "v1.14.0", event.getTimestamp())
+        verify(jsonTransformer).toJson(getEventData("ad_delivery", BOOGALOO_VERSION, event.getTimestamp())
                 .adsRequested(true)
                 .adsRequestSuccess(false)
                 .monetizedObject(TRACK_URN.toString())
                 .inForeground(false)
                 .playerVisible(true)
                 .adsEndpoint("endpoint"));
+    }
+
+    @Test
+    public void createsJsonForFirstQuartileAdPlaybackProgressEvent() throws ApiMapperException {
+        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forFirstQuartile(Urn.forAd("dfp", "905"), AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+
+        jsonDataBuilder.buildForAdPlaybackProgressEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .monetizedObject(TRACK_URN.toString())
+                .adUrn("dfp:ads:905")
+                .pageName("collection:likes")
+                .monetizationType("video_ad")
+                .clickObject("dfp:ads:905")
+                .clickName("ad::first_quartile"));
+    }
+
+    @Test
+    public void createsJsonForSecondQuartileAdPlaybackProgressEvent() throws ApiMapperException {
+        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forSecondQuartile(Urn.forAd("dfp", "905"), AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+
+        jsonDataBuilder.buildForAdPlaybackProgressEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .monetizedObject(TRACK_URN.toString())
+                .adUrn("dfp:ads:905")
+                .pageName("collection:likes")
+                .monetizationType("video_ad")
+                .clickObject("dfp:ads:905")
+                .clickName("ad::second_quartile"));
+    }
+
+    @Test
+    public void createsJsonForThirdQuartileAdPlaybackProgressEvent() throws ApiMapperException {
+        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forThirdQuartile(Urn.forAd("dfp", "905"), AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+
+        jsonDataBuilder.buildForAdPlaybackProgressEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .monetizedObject(TRACK_URN.toString())
+                .adUrn("dfp:ads:905")
+                .pageName("collection:likes")
+                .monetizationType("video_ad")
+                .clickObject("dfp:ads:905")
+                .clickName("ad::third_quartile"));
     }
 
     @Test

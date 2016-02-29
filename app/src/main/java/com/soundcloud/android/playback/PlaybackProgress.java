@@ -47,6 +47,22 @@ public class PlaybackProgress {
         return position;
     }
 
+    public boolean isPastFirstQuartile() {
+        return isPastPercentile(0.25f);
+    }
+
+    public boolean isPastSecondQuartile() {
+        return isPastPercentile(0.50f);
+    }
+
+    public boolean isPastThirdQuartile() {
+        return isPastPercentile(0.75f);
+    }
+
+    private boolean isPastPercentile(float percentile) {
+        return isDurationValid() && ((float) position / (float) duration >= percentile);
+    }
+
     public long getTimeSinceCreation() {
         return dateProvider.getCurrentTime() - createdAt;
     }
