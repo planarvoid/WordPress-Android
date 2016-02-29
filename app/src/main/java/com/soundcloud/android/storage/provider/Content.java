@@ -23,8 +23,6 @@ import android.content.UriMatcher;
 import android.net.Uri;
 import android.util.SparseArray;
 
-import java.util.EnumSet;
-
 public enum Content {
     // these are still used but should be ported off of Content enum
     ME_LIKES("me/likes", null, 107, null, LIKE, Table.Likes),
@@ -76,9 +74,6 @@ public enum Content {
     PLAYLIST_ALL_TRACKS("playlists/tracks", null, 502, PublicApiTrack.class, -1, Table.PlaylistTracks), // used for sync service
     PLAYLIST("playlists/*", TempEndpoints.PLAYLIST_DETAILS, 503, PublicApiPlaylist.class,  ScContentProvider.CollectionItemTypes.PLAYLIST, Table.Sounds),
     PLAYLIST_TRACKS("playlists/*/tracks", TempEndpoints.PLAYLIST_TRACKS, 532, PublicApiTrack.class, -1, Table.PlaylistTracks),
-    PLAYLIST_LIKERS("playlists/*/likers", TempEndpoints.e1.PLAYLIST_LIKERS, 533, PublicApiUser.class, -1, Table.Users),
-    PLAYLIST_REPOSTERS("playlists/*/reposters", TempEndpoints.e1.PLAYLIST_REPOSTERS, 534, PublicApiUser.class, -1, Table.Users),
-    PLAYLIST_LOOKUP("playlists/q/*", Endpoints.PLAYLISTS, 535, PublicApiPlaylist.class, -1, Table.Sounds),
 
     // LOCAL URIS
     COLLECTIONS("collections", null, 1000, null, -1, Table.Collections),
@@ -86,9 +81,6 @@ public enum Content {
 
     USER_ASSOCIATIONS("user_associations", null, 1010, null, -1, Table.UserAssociations),
 
-    TRACK_METADATA("track_metadata", null, 1302, null, -1, Table.TrackMetadata),
-
-    SEARCH("search", null, 1500, PublicApiResource.class, -1, null),
     SEARCH_ITEM("search/*", null, 1501, PublicApiResource.class, -1, null),
 
     UNKNOWN(null, null, -1, null, -1, null);
@@ -123,11 +115,6 @@ public enum Content {
     static final private SparseArray<Content> sMap = new SparseArray<>();
 
     public static final int SYNCABLE_CEILING = 190;
-
-    public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
-            Content.ME_ACTIVITIES,
-            Content.ME_SOUND_STREAM
-    );
 
     static {
         for (Content c : Content.values()) {

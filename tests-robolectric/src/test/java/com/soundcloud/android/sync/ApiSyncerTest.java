@@ -10,9 +10,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -22,7 +20,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 
@@ -30,14 +27,11 @@ import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerTest {
-    ContentResolver resolver;
-    SyncStateManager syncStateManager;
     long startTime;
 
     @Mock private EventBus eventBus;
     @Mock private ApiClient apiClient;
     @Mock private AccountOperations accountOperations;
-    @Mock private StoreTracksCommand storeTracksCommand;
 
     @Before
     public void before() {
@@ -45,8 +39,6 @@ public class ApiSyncerTest {
         when(accountOperations.getLoggedInUserId()).thenReturn(value.getId());
         when(accountOperations.getLoggedInUser()).thenReturn(value);
 
-        resolver = DefaultTestRunner.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
         startTime = System.currentTimeMillis();
     }
 
@@ -66,7 +58,7 @@ public class ApiSyncerTest {
         addPendingHttpResponse(getClass(), fixtures);
         ApiSyncer syncer = new ApiSyncer(
                 Robolectric.application, Robolectric.application.getContentResolver(), eventBus,
-                apiClient, accountOperations, storeTracksCommand);
+                apiClient, accountOperations);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 }

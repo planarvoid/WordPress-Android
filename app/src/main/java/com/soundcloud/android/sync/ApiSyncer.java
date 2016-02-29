@@ -10,7 +10,6 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.storage.LegacyUserStorage;
@@ -40,7 +39,6 @@ public class ApiSyncer extends LegacySyncStrategy {
     @Inject LegacyUserStorage userStorage;
     @Inject EventBus eventBus;
     @Inject ApiClient apiClient;
-    @Inject StoreTracksCommand storeTracksCommand;
 
     public ApiSyncer(Context context, ContentResolver resolver) {
         super(context, resolver);
@@ -49,12 +47,11 @@ public class ApiSyncer extends LegacySyncStrategy {
 
     @VisibleForTesting
     ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus, ApiClient apiClient,
-              AccountOperations accountOperations, StoreTracksCommand storeTracksCommand) {
+              AccountOperations accountOperations) {
         super(context, resolver, accountOperations);
         userStorage = new LegacyUserStorage();
         this.eventBus = eventBus;
         this.apiClient = apiClient;
-        this.storeTracksCommand = storeTracksCommand;
     }
 
     @NotNull
