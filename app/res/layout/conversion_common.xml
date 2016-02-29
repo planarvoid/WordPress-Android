@@ -56,8 +56,14 @@
     <com.soundcloud.android.view.LoadingButton
         android:id="@+id/conversion_buy"
         style="@style/ConversionButton"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/conversion_restrictions"
         app:loadingText="@string/conversion_buy_loading"
         app:actionText="@string/conversion_buy_no_trial"
         app:retryText="@string/conversion_buy_retry" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/conversion_restrictions"
+        style="@style/ConversionText.Restrictions"
+        android:layout_alignParentBottom="true"
+        android:text="@string/conversion_restrictions" />
 </RelativeLayout>
