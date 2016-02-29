@@ -159,7 +159,8 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     }
 
     private String getResultsCountText(SearchPremiumItem premiumItem) {
-        return resources.getString(R.string.search_premium_content_results_count, premiumItem.getResultsCount());
+        final int resultsCount = premiumItem.getResultsCount();
+        return resources.getQuantityString(R.plurals.search_premium_content_results_count, resultsCount, resultsCount);
     }
 
     private String getViewAllText() {
