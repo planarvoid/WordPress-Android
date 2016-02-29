@@ -10,7 +10,7 @@ import android.widget.Checkable;
 import android.widget.ImageButton;
 
 public class IconToggleButton extends ImageButton implements Checkable {
-    private boolean mChecked;
+    private boolean checked;
 
     private static final int[] CHECKED_STATE_SET = {
             R.attr.checked
@@ -31,20 +31,20 @@ public class IconToggleButton extends ImageButton implements Checkable {
 
     @Override
     public void setChecked(boolean checked) {
-        if (mChecked != checked) {
-            this.mChecked = checked;
+        if (this.checked != checked) {
+            this.checked = checked;
             refreshDrawableState();
         }
     }
 
     @Override
     public boolean isChecked() {
-        return mChecked;
+        return checked;
     }
 
     @Override
     public void toggle() {
-        setChecked(!mChecked);
+        setChecked(!checked);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class IconToggleButton extends ImageButton implements Checkable {
     protected void drawableStateChanged() {
         super.drawableStateChanged();
         Drawable drawable = getDrawable();
-        if(drawable != null) {
+        if (drawable != null) {
             drawable.setState(getDrawableState());
             invalidate();
         }
