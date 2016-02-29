@@ -8,16 +8,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -28,15 +24,12 @@ import java.util.Arrays;
 
 public class PlaySessionSourceTest extends AndroidUnitTest {
     private static final String ORIGIN_PAGE = "origin:page";
-    public static final String EXPLORE_VERSION = "1.0";
-    private PublicApiPlaylist playlist;
+    private static final String EXPLORE_VERSION = "1.0";
+    private static final Urn PLAYLIST_URN = Urn.forPlaylist(123);
+    private static final Urn USER_URN = Urn.forUser(2);
+    private static final int TRACK_COUNT = 5;
 
     @Mock SharedPreferences sharedPreferences;
-
-    @Before
-    public void setUp() throws Exception {
-        playlist = ModelFixtures.create(PublicApiPlaylist.class);
-    }
 
     @Test
     public void shouldCreateEmptyPlaySessionSource() throws Exception {
@@ -63,12 +56,12 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreatePlaySessionSourceFromOriginPageAndSetId() throws Exception {
-        PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
+        PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, USER_URN, TRACK_COUNT);
 
         assertThat(playSessionSource.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
-        assertThat(playSessionSource.getCollectionUrn()).isEqualTo(playlist.getUrn());
-        assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(playlist.getUserUrn());
-        assertThat(playSessionSource.getCollectionSize()).isEqualTo(playlist.getTrackCount());
+        assertThat(playSessionSource.getCollectionUrn()).isEqualTo(PLAYLIST_URN);
+        assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(USER_URN);
+        assertThat(playSessionSource.getCollectionSize()).isEqualTo(TRACK_COUNT);
         assertThat(playSessionSource.getInitialSource()).isEqualTo(Strings.EMPTY);
         assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
     }
@@ -86,12 +79,12 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreatePlaySessionSourceFromOriginPageTrackSourceInfoAndSetId() throws Exception {
-        PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
+        PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, USER_URN, TRACK_COUNT);
 
         assertThat(playSessionSource.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
-        assertThat(playSessionSource.getCollectionUrn()).isEqualTo(playlist.getUrn());
-        assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(playlist.getUserUrn());
-        assertThat(playSessionSource.getCollectionSize()).isEqualTo(playlist.getTrackCount());
+        assertThat(playSessionSource.getCollectionUrn()).isEqualTo(PLAYLIST_URN);
+        assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(USER_URN);
+        assertThat(playSessionSource.getCollectionSize()).isEqualTo(TRACK_COUNT);
         assertThat(playSessionSource.getInitialSource()).isEmpty();
         assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
     }
@@ -120,7 +113,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
     public void playlistSessionSourceShouldBeParcelable() {
         SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"));
         PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));
-        PlaySessionSource original = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
+        PlaySessionSource original = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, USER_URN, TRACK_COUNT);
         original.setSearchQuerySourceInfo(searchQuerySourceInfo);
         original.setPromotedSourceInfo(promotedSourceInfo);
 
@@ -130,9 +123,9 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
         PlaySessionSource copy = new PlaySessionSource(parcel);
         assertThat(copy.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
-        assertThat(copy.getCollectionUrn()).isEqualTo(playlist.getUrn());
-        assertThat(copy.getCollectionOwnerUrn()).isEqualTo(playlist.getUserUrn());
-        assertThat(copy.getCollectionSize()).isEqualTo(playlist.getTrackCount());
+        assertThat(copy.getCollectionUrn()).isEqualTo(PLAYLIST_URN);
+        assertThat(copy.getCollectionOwnerUrn()).isEqualTo(USER_URN);
+        assertThat(copy.getCollectionSize()).isEqualTo(TRACK_COUNT);
         assertThat(copy.getInitialSource()).isEmpty();
         assertThat(copy.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
         assertThat(copy.getSearchQuerySourceInfo()).isEqualTo(searchQuerySourceInfo);
@@ -160,7 +153,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void shouldParcelAbsentMetadata() {
-        PlaySessionSource original = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
+        PlaySessionSource original = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, USER_URN, TRACK_COUNT);
 
         Parcel parcel = Parcel.obtain();
         original.writeToParcel(parcel, 0);
