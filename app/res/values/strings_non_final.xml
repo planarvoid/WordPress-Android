@@ -151,7 +151,7 @@
     <string name="upsell_stream_upgrade_title">Upgrade to SoundCloud Go</string>
     <string name="upsell_stream_upgrade_description">Get our expanded catalog, with offline listening and no ads.</string>
     <string name="upsell_track_preview">Preview</string>
-    <string name="upsell_track_geo_blocked">Not yet available in your country</string>
+    <string name="upsell_track_geo_blocked">Not available in your country</string>
 
     <!-- __STATIONS -->
     <string name="station_type_track">Track station</string>
@@ -167,7 +167,7 @@
     <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
 
     <!-- __PLAYER -->
-    <string name="playback_error_blocked">Not yet available in\nyour country</string>
+    <string name="playback_error_blocked">Not available in\nyour country</string>
     <string name="playback_preview_indicator">preview</string>
     <string name="playback_upsell_button">Hear full track</string>
 
