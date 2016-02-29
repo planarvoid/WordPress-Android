@@ -7,6 +7,7 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
@@ -14,7 +15,6 @@ import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.widget.Checkable;
 import android.widget.ImageButton;
-import android.widget.ToggleButton;
 
 @AutoFactory(allowSubclasses = true)
 class TrackLikesHeaderView {
@@ -23,7 +23,7 @@ class TrackLikesHeaderView {
     private DownloadStateView downloadStateView;
 
     @Bind(R.id.shuffle_btn) ImageButton shuffleButton;
-    @Bind(R.id.toggle_download) ToggleButton downloadToggle;
+    @Bind(R.id.toggle_download) IconToggleButton downloadToggle;
 
     private Optional<View> headerOpt;
 

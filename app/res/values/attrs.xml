@@ -82,6 +82,7 @@
     </declare-styleable>
 
     <declare-styleable name="IconToggleButton">
-        <attr name="itb_icon" format="reference" />
+        <attr name="checked" format="boolean" />
     </declare-styleable>
+
 </resources>

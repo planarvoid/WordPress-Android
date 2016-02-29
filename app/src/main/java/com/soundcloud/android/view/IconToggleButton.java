@@ -5,55 +5,70 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.widget.ToggleButton;
+import android.widget.Checkable;
+import android.widget.ImageButton;
 
+public class IconToggleButton extends ImageButton implements Checkable {
+    private boolean checked;
 
-public class IconToggleButton extends ToggleButton {
+    private static final int[] CHECKED_STATE_SET = {
+            R.attr.checked
+    };
 
-    private Drawable icon;
-
-    @SuppressWarnings("UnusedDeclaration")
     public IconToggleButton(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    @SuppressWarnings("UnusedDeclaration")
     public IconToggleButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.IconToggleButton, defStyle, 0);
-        icon = a.getDrawable(R.styleable.IconToggleButton_itb_icon);
+        final boolean checked = a.getBoolean(R.styleable.IconToggleButton_checked, false);
+        setChecked(checked);
         a.recycle();
-    }
-
-    private Drawable getSelectableItemBackgroundDrawable() {
-        int[] attrs = new int[]{R.attr.selectableItemBackground};
-        TypedArray a = getContext().getTheme().obtainStyledAttributes(attrs);
-        Drawable d = a.getDrawable(0);
-        a.recycle();
-        return d;
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        if (icon != null) {
-            setBackgroundDrawable(createSizeAjustedCustomBackground(w, h));
+    public void setChecked(boolean checked) {
+        if (this.checked != checked) {
+            this.checked = checked;
+            refreshDrawableState();
         }
-
     }
 
-    @NonNull
-    private LayerDrawable createSizeAjustedCustomBackground(int w, int h) {
-        // you cannot refer to selectableItemBackground in layer-list via xml, so here we go...
-        final LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{
-                icon,
-                getSelectableItemBackgroundDrawable()});
-        layerDrawable.setBounds(0,0,w,h);
-        return layerDrawable;
+    @Override
+    public boolean isChecked() {
+        return checked;
+    }
+
+    @Override
+    public void toggle() {
+        setChecked(!checked);
+    }
+
+    @Override
+    public boolean performClick() {
+        toggle();
+        return super.performClick();
+    }
+
+    @Override
+    public int[] onCreateDrawableState(int extraSpace) {
+        final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
+        if (isChecked()) {
+            mergeDrawableStates(drawableState, CHECKED_STATE_SET);
+        }
+        return drawableState;
+    }
+
+    @Override
+    protected void drawableStateChanged() {
+        super.drawableStateChanged();
+        Drawable drawable = getDrawable();
+        if (drawable != null) {
+            drawable.setState(getDrawableState());
+            invalidate();
+        }
     }
 }
