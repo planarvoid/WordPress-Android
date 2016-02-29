@@ -146,10 +146,16 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return create(TRACK_REMOVED_FROM_PLAYLIST, newPlaylistState);
     }
 
-    public static EntityStateChangedEvent fromPlaylistMarkedForDownload(Urn playlistUrn, boolean markedForDownload) {
+    public static EntityStateChangedEvent fromPlaylistMarkedForDownload(Urn playlistUrn) {
         return create(PLAYLIST_MARKED_FOR_DOWNLOAD, PropertySet.from(
                 PlayableProperty.URN.bind(playlistUrn),
-                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(markedForDownload)));
+                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(true)));
+    }
+
+    public static EntityStateChangedEvent fromPlaylistUnmarkedForDownload(Urn playlistUrn) {
+        return create(PLAYLIST_MARKED_FOR_DOWNLOAD, PropertySet.from(
+                PlayableProperty.URN.bind(playlistUrn),
+                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(false)));
     }
 
     static EntityStateChangedEvent create(int kind, Collection<PropertySet> changedEntities) {

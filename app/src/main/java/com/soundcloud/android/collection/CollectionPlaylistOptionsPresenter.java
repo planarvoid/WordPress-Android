@@ -38,7 +38,7 @@ public class CollectionPlaylistOptionsPresenter {
         showPosts.setChecked(initialOptions.showPosts());
         sortByTitle.setChecked(initialOptions.sortByTitle());
 
-        if(featureOperations.isOfflineContentEnabled()) {
+        if (featureOperations.isOfflineContentEnabled()) {
             showOffline.setVisibility(View.VISIBLE);
             showOffline.setChecked(initialOptions.showOfflineOnly());
         } else {

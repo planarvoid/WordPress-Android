@@ -308,7 +308,7 @@ public class CollectionOperations {
                 .subscribeOn(scheduler);
     }
 
-    private Func1<? super List<PropertySet>, List<PropertySet>> offlineOnly(final boolean offlineOnly) {
+    private Func1<List<PropertySet>, List<PropertySet>> offlineOnly(final boolean offlineOnly) {
         return new Func1<List<PropertySet>, List<PropertySet>>() {
             @Override
             public List<PropertySet> call(List<PropertySet> propertySets) {

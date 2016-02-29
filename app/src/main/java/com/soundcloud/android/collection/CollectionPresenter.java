@@ -217,7 +217,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
     }
 
     private boolean isCurrentlyFiltered() {
-        return  currentOptions.showOfflineOnly()
+        return currentOptions.showOfflineOnly()
                 || (currentOptions.showLikes() && !currentOptions.showPosts())
                 || (!currentOptions.showLikes() && currentOptions.showPosts());
     }

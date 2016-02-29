@@ -382,7 +382,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         operations.onCollectionChanged().subscribe(subscriber);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistMarkedForDownload(Urn.forPlaylist(123), true));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistMarkedForDownload(Urn.forPlaylist(123)));
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
     }

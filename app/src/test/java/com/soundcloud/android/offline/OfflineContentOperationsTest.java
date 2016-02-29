@@ -230,7 +230,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         operations.makePlaylistAvailableOffline(playlistUrn).subscribe();
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event).isEqualTo(EntityStateChangedEvent.fromPlaylistMarkedForDownload(playlistUrn, true));
+        assertThat(event).isEqualTo(EntityStateChangedEvent.fromPlaylistMarkedForDownload(playlistUrn));
     }
 
     @Test
@@ -241,7 +241,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         operations.makePlaylistUnavailableOffline(playlistUrn).subscribe();
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event).isEqualTo(EntityStateChangedEvent.fromPlaylistMarkedForDownload(playlistUrn, false));
+        assertThat(event).isEqualTo(EntityStateChangedEvent.fromPlaylistUnmarkedForDownload(playlistUrn));
     }
 
     @Test
