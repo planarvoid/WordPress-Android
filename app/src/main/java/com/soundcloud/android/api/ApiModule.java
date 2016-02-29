@@ -6,6 +6,7 @@ import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.configuration.PlanChangeDetector;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleHeaderFormatter;
 import com.squareup.okhttp.OkHttpClient;
@@ -36,7 +37,8 @@ public class ApiModule {
                                       OAuth oAuth,
                                       UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                                       AccountOperations accountOperations,
-                                      LocaleHeaderFormatter localeHeaderFormatter) {
+                                      LocaleHeaderFormatter localeHeaderFormatter,
+                                      PlanChangeDetector planChangeDetector) {
         ApiClient apiClient = new ApiClient(httpClient, urlBuilder, jsonTransformer, deviceHelper, adIdHelper,
                 oAuth, unauthorisedRequestRegistry, accountOperations, localeHeaderFormatter);
         apiClient.setAssertBackgroundThread(true);
@@ -68,11 +70,12 @@ public class ApiModule {
     @Provides
     @Singleton
     @Named(API_HTTP_CLIENT)
-    public OkHttpClient provideOkHttpClient() {
+    public OkHttpClient provideOkHttpClient(PlanChangeDetector planChangeDetector) {
         OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.setConnectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         okHttpClient.setReadTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         okHttpClient.setWriteTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        okHttpClient.interceptors().add(new ApiUserPlanInterceptor(planChangeDetector));
         return okHttpClient;
     }
 }

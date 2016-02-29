@@ -63,6 +63,13 @@ public class CommandTest {
     }
 
     @Test
+    public void toAction0() throws Exception {
+        command.toAction0().call();
+
+        assertThat(inputCapture.get()).isNull();
+    }
+
+    @Test
     public void toContinuation() throws Exception {
         Observable.just("item").flatMap(command.toContinuation()).subscribe(observer);
 

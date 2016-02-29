@@ -12,7 +12,6 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
@@ -21,7 +20,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.TryWithBackOff;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.net.HttpHeaders;
-import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Single;
@@ -40,8 +38,8 @@ import java.util.concurrent.TimeUnit;
 public class ConfigurationOperations {
 
     static final long CONFIGURATION_STALE_TIME_MILLIS = TimeUnit.MINUTES.toMillis(10);
+    static final String TAG = "Configuration";
 
-    private static final String TAG = "Configuration";
     private static final String PARAM_EXPERIMENT_LAYERS = "experiment_layers";
 
     private static final int POLLING_INITIAL_DELAY = 1;
@@ -52,11 +50,11 @@ public class ConfigurationOperations {
     private final ApiClient apiClient;
     private final ExperimentOperations experimentOperations;
     private final FeatureOperations featureOperations;
+    private final PlanChangeDetector planChangeDetector;
     private final FeatureFlags featureFlags;
     private final ConfigurationSettingsStorage configurationSettingsStorage;
     private final TryWithBackOff<Configuration> tryWithBackOff;
     private final Scheduler scheduler;
-    private final EventBus eventBus;
 
     private static final Func2<Object, Configuration, Configuration> TO_UPDATED_CONFIGURATION = new Func2<Object, Configuration, Configuration>() {
         @Override
@@ -96,21 +94,22 @@ public class ConfigurationOperations {
                                    ConfigurationSettingsStorage configurationSettingsStorage,
                                    TryWithBackOff.Factory tryWithBackOffFactory,
                                    @Named(HIGH_PRIORITY) Scheduler scheduler,
-                                   EventBus eventBus) {
-        this(apiClientRx, experimentOperations, featureOperations, featureFlags, configurationSettingsStorage,
-                tryWithBackOffFactory.<Configuration>withDefaults(), scheduler, eventBus);
+                                   PlanChangeDetector planChangeDetector) {
+        this(apiClientRx, experimentOperations, featureOperations, planChangeDetector, featureFlags,
+                configurationSettingsStorage, tryWithBackOffFactory.<Configuration>withDefaults(), scheduler);
     }
 
     @VisibleForTesting
     ConfigurationOperations(ApiClientRx apiClientRx,
                             ExperimentOperations experimentOperations,
                             FeatureOperations featureOperations,
+                            PlanChangeDetector planChangeDetector,
                             FeatureFlags featureFlags,
                             ConfigurationSettingsStorage configurationSettingsStorage,
                             TryWithBackOff<Configuration> tryWithBackOff,
-                            @Named(HIGH_PRIORITY) Scheduler scheduler,
-                            EventBus eventBus) {
+                            @Named(HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
+        this.planChangeDetector = planChangeDetector;
         this.apiClient = apiClientRx.getApiClient();
         this.experimentOperations = experimentOperations;
         this.featureOperations = featureOperations;
@@ -118,7 +117,6 @@ public class ConfigurationOperations {
         this.configurationSettingsStorage = configurationSettingsStorage;
         this.tryWithBackOff = tryWithBackOff;
         this.scheduler = scheduler;
-        this.eventBus = eventBus;
     }
 
     Observable<Configuration> update() {
@@ -166,6 +164,17 @@ public class ConfigurationOperations {
                 .flatMap(toFetchConfiguration)
                 .takeFirst(isExpectedPlan(expectedPlan))
                 .doOnNext(saveConfiguration);
+    }
+
+    public Observable<Configuration> awaitConfigurationFromPendingPlanChange() {
+        //TODO: account for mid-tier
+        if (isPendingHighTierUpgrade()) {
+            return awaitConfigurationWithPlan(configurationSettingsStorage.getPendingPlanUpgrade());
+        } else if (isPendingDowngrade()) {
+            return awaitConfigurationWithPlan(configurationSettingsStorage.getPendingPlanDowngrade());
+        } else {
+            return Observable.error(new IllegalStateException("Expected a pending plan change, but none found."));
+        }
     }
 
     public DeviceManagement registerDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {
@@ -220,22 +229,8 @@ public class ConfigurationOperations {
         experimentOperations.update(configuration.assignment);
         if (featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)) {
             featureOperations.updateFeatures(configuration.features);
-            handlePlanChange(configuration);
+            planChangeDetector.handleRemotePlan(configuration.userPlan.currentPlan);
             featureOperations.updatePlan(configuration.userPlan);
-        }
-    }
-
-    private void handlePlanChange(Configuration configuration) {
-        final Plan newPlan = configuration.userPlan.currentPlan;
-        final Plan currentPlan = featureOperations.getCurrentPlan();
-        if (newPlan.isUpgradeFrom(currentPlan)) {
-            Log.d(TAG, "Plan upgrade detected from " + currentPlan + " to " + newPlan);
-            configurationSettingsStorage.storePendingPlanUpgrade(newPlan);
-            eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forUpgrade(currentPlan, newPlan));
-        } else if (newPlan.isDowngradeFrom(currentPlan)) {
-            Log.d(TAG, "Plan downgrade detected from " + currentPlan + " to " + newPlan);
-            configurationSettingsStorage.storePendingPlanDowngrade(newPlan);
-            eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forDowngrade(currentPlan, newPlan));
         }
     }
 
