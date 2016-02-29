@@ -342,11 +342,6 @@ public class ScContentProvider extends ContentProvider {
                 }
                 break;
 
-            case TRACK_METADATA:
-                qb.setTables(content.table.name());
-                qb.appendWhere(TableColumns.TrackMetadata.USER_ID + " = " + userId);
-                break;
-
             case UNKNOWN:
             default:
                 throw new IllegalArgumentException("No query available for: " + uri);
@@ -453,14 +448,6 @@ public class ScContentProvider extends ContentProvider {
                     log("Error inserting to uri " + uri.toString());
                 }
                 return uri;
-
-            case TRACK_METADATA:
-                if (!values.containsKey(TableColumns.TrackMetadata.USER_ID)) {
-                    values.put(TableColumns.TrackMetadata.USER_ID, userId);
-                }
-                upsert(content.table, db, new ContentValues[]{values});
-                return uri.buildUpon().appendPath(
-                        values.getAsString(TableColumns.TrackMetadata._ID)).build();
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);

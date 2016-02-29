@@ -3,7 +3,6 @@ package com.soundcloud.android.storage.provider;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,10 +10,8 @@ import org.junit.runner.RunWith;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.PeriodicSync;
 import android.database.Cursor;
-import android.net.Uri;
 
 import java.util.List;
 
@@ -35,17 +32,6 @@ public class ScContentProviderTest {
         expect(c.getCount()).toEqual(1);
         expect(c.moveToFirst()).toBeTrue();
         expect(c.getLong(0)).toEqual(USER_ID);
-    }
-
-    @Test
-    public void shouldInsertTrackMetadata() throws Exception {
-        ContentValues values = new ContentValues();
-        values.put(TableColumns.TrackMetadata._ID, 20);
-        values.put(TableColumns.TrackMetadata.ETAG, "123456");
-        values.put(TableColumns.TrackMetadata.CACHED, 1);
-
-        Uri result = resolver.insert(Content.TRACK_METADATA.uri, values);
-        expect(result).toEqual("content://com.soundcloud.android.provider.ScContentProvider/track_metadata/20");
     }
 
     @Test
