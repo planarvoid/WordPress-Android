@@ -47,7 +47,6 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
     private View playListItemView;
     private View userItemView;
     private View viewAllResultsView;
-    private View viewAllResultsViewDivider;
 
     @Before
     public void setUp() {
@@ -57,7 +56,6 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         playListItemView = LayoutInflater.from(context()).inflate(R.layout.playlist_list_item, frameLayout, false);
         userItemView = LayoutInflater.from(context()).inflate(R.layout.user_list_item, frameLayout, false);
         viewAllResultsView = premiumItemView.findViewById(R.id.view_all_container);
-        viewAllResultsViewDivider = premiumItemView.findViewById(R.id.view_all_container_divider);
 
         when(trackRenderer.createItemView(any(ViewGroup.class))).thenReturn(trackItemView);
         when(playlistRenderer.createItemView(any(ViewGroup.class))).thenReturn(playListItemView);
@@ -134,7 +132,6 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         renderer.createItemView(new FrameLayout(context()));
         renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forTrack(123L), Urn.forTrack(234L)));
 
-        assertThat(viewAllResultsViewDivider.getVisibility()).isEqualTo(VISIBLE);
         assertThat(viewAllResultsView.getVisibility()).isEqualTo(VISIBLE);
         assertThat(viewAllResultsView.hasOnClickListeners()).isTrue();
     }
@@ -146,7 +143,6 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         renderer.createItemView(new FrameLayout(context()));
         renderer.bindItemView(0, premiumItemView, buildSearchPremiumItem(Urn.forTrack(123L)));
 
-        assertThat(viewAllResultsViewDivider.getVisibility()).isEqualTo(GONE);
         assertThat(viewAllResultsView.getVisibility()).isEqualTo(GONE);
         assertThat(viewAllResultsView.hasOnClickListeners()).isFalse();
     }
