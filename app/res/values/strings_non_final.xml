@@ -147,7 +147,7 @@
 
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Go ad-free</string>
-    <string name="upsell_stream_upgrade_button">Try it free for 30 days</string>
+    <string name="upsell_stream_upgrade_button">Get SoundCloud Go</string>
     <string name="upsell_stream_upgrade_title">Upgrade to SoundCloud Go</string>
     <string name="upsell_stream_upgrade_description">Get our expanded catalog, with offline listening and no ads.</string>
     <string name="upsell_track_preview">Preview</string>
