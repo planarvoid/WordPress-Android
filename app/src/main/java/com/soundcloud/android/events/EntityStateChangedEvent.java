@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.stations.StationProperty;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -30,6 +31,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int PLAYLIST_DELETED = 9;
     public static final int PLAYLIST_PUSHED_TO_SERVER = 10;
     public static final int RECENT_STATION_UPDATED = 11;
+    public static final int PLAYLIST_MARKED_FOR_DOWNLOAD = 12;
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -142,6 +144,18 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static EntityStateChangedEvent fromTrackRemovedFromPlaylist(PropertySet newPlaylistState) {
         return create(TRACK_REMOVED_FROM_PLAYLIST, newPlaylistState);
+    }
+
+    public static EntityStateChangedEvent fromPlaylistMarkedForDownload(Urn playlistUrn) {
+        return create(PLAYLIST_MARKED_FOR_DOWNLOAD, PropertySet.from(
+                PlayableProperty.URN.bind(playlistUrn),
+                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(true)));
+    }
+
+    public static EntityStateChangedEvent fromPlaylistUnmarkedForDownload(Urn playlistUrn) {
+        return create(PLAYLIST_MARKED_FOR_DOWNLOAD, PropertySet.from(
+                PlayableProperty.URN.bind(playlistUrn),
+                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(false)));
     }
 
     static EntityStateChangedEvent create(int kind, Collection<PropertySet> changedEntities) {
