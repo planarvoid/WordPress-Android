@@ -6,9 +6,9 @@ import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +36,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     private OnEngagementListener listener;
 
     @Bind(R.id.toggle_like) ToggleButton likeToggle;
-    @Bind(R.id.toggle_download) ToggleButton downloadToggle;
+    @Bind(R.id.toggle_download) IconToggleButton downloadToggle;
     @Bind(R.id.playlist_details_overflow_button) View overflowButton;
 
     @Inject
