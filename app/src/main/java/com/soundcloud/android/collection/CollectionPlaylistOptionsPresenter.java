@@ -2,7 +2,6 @@ package com.soundcloud.android.collection;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.FeatureOperations;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,12 +15,8 @@ import javax.inject.Inject;
 
 public class CollectionPlaylistOptionsPresenter {
 
-    private final FeatureOperations featureOperations;
-
     @Inject
-    public CollectionPlaylistOptionsPresenter(FeatureOperations featureOperations) {
-        this.featureOperations = featureOperations;
-    }
+    public CollectionPlaylistOptionsPresenter() {}
 
     public interface Listener {
         void onOptionsUpdated(PlaylistsOptions options);
@@ -31,40 +26,29 @@ public class CollectionPlaylistOptionsPresenter {
         final View dialoglayout = View.inflate(context, R.layout.dialog_collections_options, null);
         final ToggleButton showLikes = ButterKnife.findById(dialoglayout, R.id.show_likes);
         final ToggleButton showPosts = ButterKnife.findById(dialoglayout, R.id.show_posts);
-        final ToggleButton showOffline = ButterKnife.findById(dialoglayout, R.id.show_offline);
         final RadioButton sortByTitle = ButterKnife.findById(dialoglayout, R.id.sort_by_title);
 
         showLikes.setChecked(initialOptions.showLikes());
         showPosts.setChecked(initialOptions.showPosts());
         sortByTitle.setChecked(initialOptions.sortByTitle());
 
-        if (featureOperations.isOfflineContentEnabled()) {
-            showOffline.setVisibility(View.VISIBLE);
-            showOffline.setChecked(initialOptions.showOfflineOnly());
-        } else {
-            showOffline.setVisibility(View.GONE);
-            showOffline.setChecked(false);
-        }
-
         new AlertDialog.Builder(context)
                 .setView(dialoglayout)
-                .setPositiveButton(R.string.btn_done, buildFilterListener(listener, showLikes, showPosts, showOffline, sortByTitle))
+                .setPositiveButton(R.string.btn_done, buildFilterListener(listener, showLikes, showPosts, sortByTitle))
                 .setNegativeButton(android.R.string.cancel, buildCancelListener())
                 .show();
     }
 
     @NonNull
     private DialogInterface.OnClickListener buildFilterListener(final Listener listener, final ToggleButton showLikes,
-                                                                final ToggleButton showPosts, final ToggleButton showOffline,
-                                                                final RadioButton sortByTitle) {
+                                                                final ToggleButton showPosts, final RadioButton sortByTitle) {
         return new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final PlaylistsOptions playlistsOptions = AutoValue_PlaylistsOptions.builder()
                         .showLikes(showLikes.isChecked())
                         .showPosts(showPosts.isChecked())
-                        .sortByTitle(sortByTitle.isChecked())
-                        .showOfflineOnly(showOffline.isChecked()).build();
+                        .sortByTitle(sortByTitle.isChecked()).build();
                 listener.onOptionsUpdated(playlistsOptions);
             }
         };

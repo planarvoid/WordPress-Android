@@ -1,13 +1,14 @@
 package com.soundcloud.android.configuration;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
+import rx.subjects.PublishSubject;
 
 import java.util.List;
 
@@ -28,13 +30,14 @@ public class PlanChangeOperationsTest {
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private PolicyOperations policyOperations;
     @Mock private PlaybackServiceInitiator playbackServiceInitiator;
-    @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
+    @Mock private OfflineContentOperations offlineContentOperations;
     private TestSubscriber<Object> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
+        when(offlineContentOperations.resetOfflineFeature()).thenReturn(Observable.<Void>just(null));
         operations = new PlanChangeOperations(configurationOperations,
-                policyOperations, playbackServiceInitiator, clearTrackDownloadsCommand);
+                policyOperations, playbackServiceInitiator, offlineContentOperations);
     }
 
     @Test
@@ -58,8 +61,6 @@ public class PlanChangeOperationsTest {
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
-
-        verify(clearTrackDownloadsCommand).call(null);
     }
 
     @Test
@@ -172,4 +173,15 @@ public class PlanChangeOperationsTest {
         verify(configurationOperations, never()).clearPendingPlanChanges();
     }
 
+    @Test
+    public void downgradeResetsOfflineFeature() {
+        final PublishSubject<Void> clearObservable = PublishSubject.create();
+        when(configurationOperations.awaitConfigurationFromPendingPlanChange()).thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
+        when(offlineContentOperations.resetOfflineFeature()).thenReturn(clearObservable);
+        when(policyOperations.refreshedTrackPolicies()).thenReturn(Observable.just(singletonList(Urn.forTrack(123))));
+
+        operations.awaitAccountDowngrade().subscribe(subscriber);
+
+        assertThat(clearObservable.hasObservers()).isTrue();
+    }
 }
