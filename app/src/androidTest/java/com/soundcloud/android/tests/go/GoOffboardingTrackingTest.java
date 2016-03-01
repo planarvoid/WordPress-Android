@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.go;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.screens.go.GoOffboardingScreen;
 
@@ -23,8 +24,13 @@ public class GoOffboardingTrackingTest extends TrackingActivityTest<GoOffboardin
     }
 
     @Override
+    protected void beforeStartActivity() {
+        ConfigurationHelper.forcePendingPlanDowngrade(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     protected void logInHelper() {
-        TestUser.freeNonMonetizedUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.htCreator.logIn(getInstrumentation().getTargetContext());
     }
 
     @Override

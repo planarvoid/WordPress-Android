@@ -75,6 +75,12 @@ public class ConfigurationHelper {
         facebookInvitesStorage.setTimesAppOpened(0);
     }
 
+    public static void forcePendingPlanDowngrade(Context context) {
+        final SharedPreferences configSettings =
+                context.getSharedPreferences("device_config_settings", Context.MODE_PRIVATE);
+        configSettings.edit().putString("pending_plan_downgrade", Plan.FREE_TIER.planId).apply();
+    }
+
     private static void enableFeature(Context context, final String name) {
         final Feature feature = new Feature(name, true, Collections.<String>emptyList());
         final FeatureStorage featureStorage = getFeatureStorage(context);
