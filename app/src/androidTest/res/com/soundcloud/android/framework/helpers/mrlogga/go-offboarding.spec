@@ -14,7 +14,7 @@ expected_events:
     client_id: 3152
     connection_type: wifi
     page_name: collection:offline_offboarding
-    user: soundcloud:users:190276054
+    user: soundcloud:users:190502894
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: click
@@ -28,5 +28,5 @@ expected_events:
     click_object: soundcloud:tcode:4002
     page_name: collection:offline_offboarding
     click_category: consumer_subs
-    user: soundcloud:users:190276054
+    user: soundcloud:users:190502894
   version: '1'
