@@ -523,10 +523,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return followers_count > NOT_SET;
     }
 
-    public Plan getPlan() {
-        return Plan.fromApi(plan);
-    }
-
     @Override
     public Uri getBulkInsertUri() {
         return Content.USERS.uri;

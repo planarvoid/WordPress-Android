@@ -73,26 +73,6 @@ public class PublicApiUserTest {
     }
 
     @Test
-    public void shouldGetPlan() throws Exception {
-        PublicApiUser u = new PublicApiUser();
-        expect(u.getPlan()).toBe(Plan.UNKNOWN);
-        u.plan = "";
-        expect(u.getPlan()).toBe(Plan.UNKNOWN);
-
-        u.plan = "Pro plus";
-        expect(u.getPlan()).toBe(Plan.PRO_PLUS);
-
-        u.plan = "Pro";
-
-        expect(u.getPlan()).toBe(Plan.PRO);
-        u.plan = "Free";
-        expect(u.getPlan()).toBe(Plan.FREE);
-
-        u.plan = "lite";
-        expect(u.getPlan()).toBe(Plan.LITE);
-    }
-
-    @Test
     public void shouldGetWebsiteTitle() throws Exception {
         PublicApiUser u = new PublicApiUser();
         expect(u.getWebSiteTitle()).toBeNull();
