@@ -11,13 +11,13 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -126,7 +126,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
         when(adapter.getItems()).thenReturn(Arrays.<PlayableItem>asList(track1, track2));
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.fromSync(Arrays.asList(changeSet));
+        final EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(changeSet);
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
         verify(adapter, never()).notifyDataSetChanged();
@@ -139,6 +139,6 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
                 PlayableProperty.CREATOR_NAME.bind(UPDATED_CREATOR));
 
         when(adapter.getItems()).thenReturn(Arrays.<PlayableItem>asList(track1, track2));
-        return EntityStateChangedEvent.fromSync(Arrays.asList(changeSet));
+        return EntityStateChangedEvent.fromLike(changeSet);
     }
 }

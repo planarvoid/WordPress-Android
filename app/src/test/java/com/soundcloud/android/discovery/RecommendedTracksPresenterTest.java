@@ -17,8 +17,8 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.EmptyView;
@@ -134,7 +134,7 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         final PropertySet changeSet = PropertySet.from(TrackProperty.URN.bind(RECOMMENDED_ENTITY_1));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(changeSet));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(changeSet));
 
         InOrder inOrder = Mockito.inOrder(recommendedTrackItemOne, adapter);
         inOrder.verify(recommendedTrackItemOne).update(changeSet);
@@ -148,7 +148,7 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragment);
 
         final PropertySet changeSet = PropertySet.from(TrackProperty.URN.bind(RECOMMENDED_ENTITY_1));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(changeSet));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(changeSet));
 
         verify(recommendedTrackItemOne, never()).update(any(PropertySet.class));
         verify(adapter, never()).notifyDataSetChanged();

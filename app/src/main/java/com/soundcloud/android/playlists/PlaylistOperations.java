@@ -41,7 +41,7 @@ public class PlaylistOperations {
     private final Action1<Urn> publishPlaylistCreatedEvent = new Action1<Urn>() {
         @Override
         public void call(Urn urn) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(urn));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityCreated(urn));
         }
     };
 

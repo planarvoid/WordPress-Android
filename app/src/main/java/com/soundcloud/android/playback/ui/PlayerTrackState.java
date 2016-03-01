@@ -123,7 +123,7 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, Propert
     }
 
     public boolean isUserRepost() {
-        return source.get(PlayableProperty.IS_USER_REPOST);
+        return source.getOrElse(PlayableProperty.IS_USER_REPOST, false);
     }
 
     int getLikeCount() {

@@ -122,7 +122,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(updatedProfileUser));
 
         final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(USER_URN));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(userProperties));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(userProperties));
 
         verify(profileHeaderPresenter).setUserDetails(updatedProfileUser);
     }
@@ -133,7 +133,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         Mockito.reset(profileOperations);
 
         final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(Urn.forUser(444)));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(userProperties));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(userProperties));
 
         verifyZeroInteractions(profileOperations);
     }

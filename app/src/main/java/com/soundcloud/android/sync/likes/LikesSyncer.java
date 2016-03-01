@@ -9,7 +9,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.PropertySetComparator;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.collections.Sets;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -105,23 +104,26 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
     }
 
     private void publishStateChanged(Set<PropertySet> additions, Set<PropertySet> removals) {
-        final Set<PropertySet> changedEntities = Sets.newHashSetWithExpectedSize(additions.size() + removals.size());
-        changedEntities.addAll(createChangedEntities(additions, true));
-        changedEntities.addAll(createChangedEntities(removals, false));
-        if (!changedEntities.isEmpty()) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(changedEntities));
+        publishLiked(additions);
+        publishUnLiked(removals);
+    }
+
+    private void publishUnLiked(Set<PropertySet> removals) {
+        for (PropertySet like : removals) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(PropertySet.from(
+                    PlayableProperty.URN.bind(like.get(PlayableProperty.URN)),
+                    PlayableProperty.IS_USER_LIKE.bind(false)
+            )));
         }
     }
 
-    private Set<PropertySet> createChangedEntities(Set<PropertySet> likes, boolean isLiked) {
-        Set<PropertySet> changedEntities =  Sets.newHashSetWithExpectedSize(likes.size());
-        for (PropertySet like : likes) {
-            changedEntities.add(PropertySet.from(
+    private void publishLiked(Set<PropertySet> additions) {
+        for (PropertySet like : additions) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(PropertySet.from(
                     PlayableProperty.URN.bind(like.get(PlayableProperty.URN)),
-                    PlayableProperty.IS_USER_LIKE.bind(isLiked)
-            ));
+                    PlayableProperty.IS_USER_LIKE.bind(true)
+            )));
         }
-        return changedEntities;
     }
 
     private void fetchAndWriteNewLikedEntities(Set<PropertySet> pendingLocalAdditions) throws Exception {

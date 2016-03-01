@@ -191,7 +191,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.PLAYLIST_CREATED);
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.ENTITY_CREATED);
         assertThat(event.getFirstUrn()).isEqualTo(localPlaylist);
     }
 

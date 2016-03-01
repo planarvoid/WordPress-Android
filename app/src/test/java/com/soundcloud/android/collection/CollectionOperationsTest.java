@@ -18,7 +18,6 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
@@ -40,8 +39,6 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
-
-import android.content.Context;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,7 +80,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 loadLikedTrackUrnsCommand,
                 syncInitiator,
                 stationsOperations,
-                new FeatureFlags(sharedPreferences("test", Context.MODE_PRIVATE)),
                 collectionOptionsStorage,
                 offlineStateOperations);
 
@@ -146,7 +142,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
         final Urn localPlaylist = Urn.newLocalPlaylist();
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistCreated(localPlaylist));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityCreated(localPlaylist));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }

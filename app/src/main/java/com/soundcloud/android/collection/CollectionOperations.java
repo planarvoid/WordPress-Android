@@ -18,7 +18,6 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
@@ -61,7 +60,6 @@ public class CollectionOperations {
     private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
     private final SyncInitiator syncInitiator;
     private final StationsOperations stationsOperations;
-    private final FeatureFlags featureFlags;
     private final CollectionOptionsStorage collectionOptionsStorage;
     private final OfflineStateOperations offlineStateOperations;
 
@@ -171,9 +169,10 @@ public class CollectionOperations {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             switch (event.getKind()) {
+                case EntityStateChangedEvent.ENTITY_CREATED:
+                case EntityStateChangedEvent.ENTITY_DELETED:
+                    return event.getFirstUrn().isPlaylist();
                 case EntityStateChangedEvent.LIKE:
-                case EntityStateChangedEvent.PLAYLIST_CREATED:
-                case EntityStateChangedEvent.PLAYLIST_DELETED:
                 case EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER:
                 case EntityStateChangedEvent.RECENT_STATION_UPDATED:
                     return true;
@@ -192,7 +191,6 @@ public class CollectionOperations {
                          LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
                          SyncInitiator syncInitiator,
                          StationsOperations stationsOperations,
-                         FeatureFlags featureFlags,
                          CollectionOptionsStorage collectionOptionsStorage,
                          OfflineStateOperations offlineStateOperations) {
         this.eventBus = eventBus;
@@ -203,7 +201,6 @@ public class CollectionOperations {
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
         this.syncInitiator = syncInitiator;
         this.stationsOperations = stationsOperations;
-        this.featureFlags = featureFlags;
         this.collectionOptionsStorage = collectionOptionsStorage;
         this.offlineStateOperations = offlineStateOperations;
     }

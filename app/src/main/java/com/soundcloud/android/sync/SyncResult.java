@@ -22,6 +22,25 @@ public final class SyncResult implements Parcelable, UrnEvent {
             return syncResult.getFirstUrn();
         }
     };
+
+    public static final Func1<SyncResult, Boolean> IS_SINGLE_PLAYLIST_SYNCED_FILTER = new Func1<SyncResult, Boolean>() {
+        @Override
+        public Boolean call(SyncResult syncResult) {
+            return SyncActions.SYNC_PLAYLIST.equals(syncResult.getAction())
+                    && syncResult.wasChanged()
+                    && syncResult.hasChangedEntities();
+        }
+    };
+
+    public static final Func1<SyncResult, Boolean> ARE_PLAYLISTS_SYNCED_FILTER = new Func1<SyncResult, Boolean>() {
+        @Override
+        public Boolean call(SyncResult syncResult) {
+            return SyncActions.SYNC_PLAYLISTS.equals(syncResult.getAction())
+                    && syncResult.wasChanged()
+                    && syncResult.hasChangedEntities();
+        }
+    };
+
     private final String action;
     private final boolean wasChanged;
     private final Exception exception;
@@ -130,4 +149,15 @@ public final class SyncResult implements Parcelable, UrnEvent {
     public int hashCode() {
         return MoreObjects.hashCode(wasChanged, action, exception, entitiesSynced);
     }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("action", action)
+                .add("wasChanged", wasChanged)
+                .add("exception", exception)
+                .add("entitiesSynced", entitiesSynced)
+                .toString();
+    }
 }
+
