@@ -41,15 +41,20 @@ import java.util.List;
 class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
         implements SearchPremiumContentRenderer.OnPremiumContentClickListener {
 
+    private static final int PREMIUM_ITEMS_POSITION = 0;
+    private static final int PREMIUM_ITEMS_DISPLAYED = 1;
+
     private final Func1<SearchResult, List<ListItem>> toPresentationModels = new Func1<SearchResult, List<ListItem>>() {
         @Override
         public List<ListItem> call(SearchResult searchResult) {
             final List<PropertySet> sourceSetsItems = searchResult.getItems();
             final Optional<SearchResult> premiumContent = searchResult.getPremiumContent();
-            final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
+            final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + PREMIUM_ITEMS_DISPLAYED);
             if (premiumContent.isPresent() && featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)) {
                 final SearchResult premiumSearchResult = premiumContent.get();
-                searchItems.add(SearchResultItem.buildPremiumItem(premiumSearchResult.getItems(),
+                final List<PropertySet> premiumSearchResultItems = premiumSearchResult.getItems();
+                premiumItems = buildPremiumItemsList(premiumSearchResultItems);
+                searchItems.add(SearchResultItem.buildPremiumItem(premiumSearchResultItems,
                         premiumSearchResult.nextHref, premiumSearchResult.getResultsCount()));
             }
             for (PropertySet source : sourceSetsItems) {
@@ -85,6 +90,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     private Urn queryUrn = Urn.NOT_SET;
     private Boolean publishSearchSubmissionEvent;
     private SearchOperations.SearchPagingFunction pagingFunction;
+    private Optional<List<ListItem>> premiumItems = Optional.absent();
     private CompositeSubscription fragmentLifeCycle;
 
     @Inject
@@ -155,9 +161,19 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
         // the rest of the normal content sitting on the adapter.
         final int numberOfItemsInPlayQueue = adapter.getItems().size();
         final List<ListItem> playables = new ArrayList<>(numberOfItemsInPlayQueue);
-        playables.add(premiumItems.get(0));
+        if (!premiumItems.isEmpty()) {
+            playables.add(premiumItems.get(0));
+        }
         playables.addAll(adapter.getItems().subList(1, numberOfItemsInPlayQueue));
         return playables;
+    }
+
+    private Optional<List<ListItem>> buildPremiumItemsList(List<PropertySet> premiumSearchResultItems) {
+        List<ListItem> listItems = new ArrayList<>(premiumSearchResultItems.size());
+        for (PropertySet source : premiumSearchResultItems) {
+            listItems.add(SearchResultItem.fromPropertySet(source).build());
+        }
+        return Optional.of(listItems);
     }
 
     @Override
@@ -167,20 +183,23 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
 
     @Override
     protected void onItemClicked(View view, int position) {
+        final List<ListItem> playQueue = premiumItems.isPresent() ?
+                buildPlaylistWithPremiumContent(this.premiumItems.get()) : adapter.getItems();
         final Urn urn = adapter.getItem(position).getEntityUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn);
         searchTracker.trackSearchItemClick(searchType, urn, searchQuerySourceInfo);
         clickListenerFactory.create(searchTracker.getTrackingScreen(searchType),
-                searchQuerySourceInfo).onItemClick(adapter.getItems(), view, position);
+                searchQuerySourceInfo).onItemClick(playQueue, view, position);
     }
 
     @Override
-    public void onPremiumItemClicked(View view, List<ListItem> premiumItems) {
-        final Urn firstPremiumItemUrn = premiumItems.get(0).getEntityUrn();
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(queryUrn, 0, firstPremiumItemUrn);
+    public void onPremiumItemClicked(View view, List<ListItem> premiumItemsList) {
+        final Urn firstPremiumItemUrn = premiumItemsList.get(0).getEntityUrn();
+        final SearchQuerySourceInfo searchQuerySourceInfo =
+                new SearchQuerySourceInfo(queryUrn, PREMIUM_ITEMS_POSITION, firstPremiumItemUrn);
         searchTracker.trackSearchItemClick(searchType, firstPremiumItemUrn, searchQuerySourceInfo);
         clickListenerFactory.create(searchTracker.getTrackingScreen(searchType), searchQuerySourceInfo)
-                .onItemClick(buildPlaylistWithPremiumContent(premiumItems), view, 0);
+                .onItemClick(buildPlaylistWithPremiumContent(premiumItemsList), view, PREMIUM_ITEMS_POSITION);
     }
 
     @Override
