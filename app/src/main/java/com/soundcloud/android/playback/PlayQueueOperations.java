@@ -122,7 +122,7 @@ public class PlayQueueOperations {
                 .build();
 
         return apiClientRx.mappedResponse(request, RecommendedTracksCollection.class)
-                .doOnNext(storeTracksCommand.toAction())
+                .doOnNext(storeTracksCommand.toAction1())
                 .subscribeOn(scheduler);
     }
 

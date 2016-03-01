@@ -24,7 +24,7 @@ public abstract class Command<I, O> {
         });
     }
 
-    public final Action1<I> toAction() {
+    public final Action1<I> toAction1() {
         return new Action1<I>() {
             @Override
             public void call(I i) {

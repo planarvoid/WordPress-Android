@@ -158,7 +158,7 @@ public class PlaylistDiscoveryOperations {
     private Observable<SearchResult> getPlaylistResultsPage(String query, ApiRequest request) {
         return apiClientRx.mappedResponse(request, ApiPlaylistCollection.class)
                 .subscribeOn(scheduler)
-                .doOnNext(storePlaylistsCommand.toAction())
+                .doOnNext(storePlaylistsCommand.toAction1())
                 .map(withSearchTag(query))
                 .map(toBackFilledSearchResult);
     }

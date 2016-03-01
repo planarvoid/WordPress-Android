@@ -265,7 +265,7 @@ class SearchOperations {
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
-                    .doOnNext(storeTracksCommand.toAction())
+                    .doOnNext(storeTracksCommand.toAction1())
                     .doOnNext(cachePremiumTracks)
                     .map(TO_SEARCH_RESULT);
         }
@@ -295,7 +295,7 @@ class SearchOperations {
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
-                    .doOnNext(storePlaylistsCommand.toAction())
+                    .doOnNext(storePlaylistsCommand.toAction1())
                     .doOnNext(cachePremiumPlaylists)
                     .map(TO_SEARCH_RESULT)
                     .map(mergePlaylistLikeStatus);
@@ -326,7 +326,7 @@ class SearchOperations {
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
-                    .doOnNext(storeUsersCommand.toAction())
+                    .doOnNext(storeUsersCommand.toAction1())
                     .doOnNext(cachePremiumUsers)
                     .map(TO_SEARCH_RESULT)
                     .map(mergeFollowings);

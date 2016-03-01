@@ -250,7 +250,7 @@ public class OfflineContentOperations {
         return tryToUpdatePolicies()
                 .flatMap(loadExpectedContentCommand.toContinuation())
                 .flatMap(loadOfflineContentUpdatesCommand.toContinuation())
-                .doOnNext(storeDownloadUpdatesCommand.toAction())
+                .doOnNext(storeDownloadUpdatesCommand.toAction1())
                 .subscribeOn(scheduler);
     }
 

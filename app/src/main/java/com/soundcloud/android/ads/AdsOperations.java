@@ -46,7 +46,7 @@ public class AdsOperations {
             final Optional<ApiAudioAd> audioAd = apiAdsForTrack.audioAd();
             if (audioAd.isPresent()) {
                 final ApiTrack track = audioAd.get().getApiTrack();
-                storeTracksCommand.toAction().call(Collections.singletonList(track));
+                storeTracksCommand.toAction1().call(Collections.singletonList(track));
             }
         }
     };

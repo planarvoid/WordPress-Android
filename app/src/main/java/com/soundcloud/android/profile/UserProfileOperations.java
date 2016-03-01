@@ -120,7 +120,7 @@ class UserProfileOperations {
     public Observable<PagedRemoteCollection> pagedPostItems(Urn user) {
         return profileApi
                 .userPosts(user)
-                .doOnNext(writeMixedRecordsCommand.toAction())
+                .doOnNext(writeMixedRecordsCommand.toAction1())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .map(mergePlayableInfo)
                 .zipWith(userRepository.userInfo(user), MERGE_REPOSTER)
@@ -132,7 +132,7 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userPosts(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction())
+                        .doOnNext(writeMixedRecordsCommand.toAction1())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .map(mergePlayableInfo)
                         .zipWith(userRepository.userInfo(user), MERGE_REPOSTER)
@@ -168,7 +168,7 @@ class UserProfileOperations {
     public Observable<PagedRemoteCollection> pagedLikes(Urn user) {
         return profileApi
                 .userLikes(user)
-                .doOnNext(writeMixedRecordsCommand.toAction())
+                .doOnNext(writeMixedRecordsCommand.toAction1())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .map(mergePlayableInfo)
                 .subscribeOn(scheduler);
@@ -179,7 +179,7 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userLikes(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction())
+                        .doOnNext(writeMixedRecordsCommand.toAction1())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .map(mergePlayableInfo)
                         .subscribeOn(scheduler);
@@ -190,7 +190,7 @@ class UserProfileOperations {
     public Observable<PagedRemoteCollection> pagedPlaylists(Urn user) {
         return profileApi
                 .userPlaylists(user)
-                .doOnNext(writeMixedRecordsCommand.toAction())
+                .doOnNext(writeMixedRecordsCommand.toAction1())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .map(mergePlayableInfo)
                 .subscribeOn(scheduler);
@@ -201,7 +201,7 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userPlaylists(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction())
+                        .doOnNext(writeMixedRecordsCommand.toAction1())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .map(mergePlayableInfo)
                         .subscribeOn(scheduler);
@@ -212,7 +212,7 @@ class UserProfileOperations {
     public Observable<PagedRemoteCollection> pagedFollowings(Urn user) {
         return profileApi
                 .userFollowings(user)
-                .doOnNext(writeMixedRecordsCommand.toAction())
+                .doOnNext(writeMixedRecordsCommand.toAction1())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .subscribeOn(scheduler);
     }
@@ -222,7 +222,7 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userFollowings(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction())
+                        .doOnNext(writeMixedRecordsCommand.toAction1())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .subscribeOn(scheduler);
             }
@@ -231,14 +231,14 @@ class UserProfileOperations {
 
     public Observable<? extends UserProfileRecord> userProfile(Urn user) {
         return profileApi.userProfile(user)
-                .doOnNext(storeProfileCommand.toAction())
+                .doOnNext(storeProfileCommand.toAction1())
                 .subscribeOn(scheduler);
     }
 
     public Observable<PagedRemoteCollection> pagedFollowers(Urn user) {
         return profileApi
                 .userFollowers(user)
-                .doOnNext(writeMixedRecordsCommand.toAction())
+                .doOnNext(writeMixedRecordsCommand.toAction1())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .subscribeOn(scheduler);
     }
@@ -248,7 +248,7 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userFollowers(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction())
+                        .doOnNext(writeMixedRecordsCommand.toAction1())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .subscribeOn(scheduler);
             }

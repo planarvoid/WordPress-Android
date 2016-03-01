@@ -57,7 +57,7 @@ public class CommandTest {
 
     @Test
     public void toAction() throws Exception {
-        command.toAction().call("action input");
+        command.toAction1().call("action input");
 
         assertThat(inputCapture.get()).isEqualTo("action input");
     }

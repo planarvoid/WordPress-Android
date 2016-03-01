@@ -69,7 +69,7 @@ class ExploreTracksOperations {
                 .build();
 
         return apiClientRx.mappedResponse(request, SuggestedTracksCollection.class)
-                .doOnNext(storeTracksCommand.toAction())
+                .doOnNext(storeTracksCommand.toAction1())
                 .subscribeOn(scheduler);
     }
 }

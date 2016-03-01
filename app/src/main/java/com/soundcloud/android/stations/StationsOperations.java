@@ -77,7 +77,7 @@ public class StationsOperations {
                                 .fetchStation(station)
                                 .doOnNext(storeTracks)
                                 .map(toStation)
-                                .doOnNext(storeStationCommand.toAction())
+                                .doOnNext(storeStationCommand.toAction1())
                 )
                 .first()
                 .subscribeOn(scheduler);
@@ -131,7 +131,7 @@ public class StationsOperations {
         return stationsApi
                 .fetchStation(station)
                 .doOnNext(storeTracks)
-                .doOnNext(storeStationCommand.toAction())
+                .doOnNext(storeStationCommand.toAction1())
                 .flatMap(loadPlayQueue(station, currentSize))
                 .toList()
                 .map(toPlayQueue(station))
