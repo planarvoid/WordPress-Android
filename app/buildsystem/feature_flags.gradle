@@ -33,7 +33,7 @@ android {
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
       buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
+      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
@@ -70,10 +70,10 @@ android {
       buildConfigField BOOLEAN, FEATURE_NEW_NOTIFICATION_SETTINGS, TRUE
       buildConfigField BOOLEAN, FEATURE_AUTO_REFRESH_STREAM, TRUE
       buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, TRUE // Does nothing unless FEATURE_VIDEO_ADS is enabled
+      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
@@ -105,6 +105,7 @@ android {
     release {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_WEB_UPGRADE_FLOW, TRUE
+      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -115,7 +116,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, FALSE // Does nothing unless FEATURE_VIDEO_ADS is enabled
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE
@@ -126,6 +126,7 @@ android {
     releaseNoProguard {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_WEB_UPGRADE_FLOW, TRUE
+      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -135,7 +136,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, FALSE // Does nothing unless FEATURE_VIDEO_ADS is enabled
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE
@@ -146,6 +146,7 @@ android {
     release_non_play_store {
       //Feature flags enabled
       buildConfigField BOOLEAN, FEATURE_WEB_UPGRADE_FLOW, TRUE
+      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
 
       //Feature flags disabled
       buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
@@ -155,7 +156,6 @@ android {
       buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
       buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
       buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, FALSE // Does nothing unless FEATURE_VIDEO_ADS is enabled
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
       buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
       buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
       buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE

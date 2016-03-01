@@ -47,7 +47,7 @@
                   android:ellipsize="marquee"/>
         <ImageButton
                 android:layout_width="wrap_content"
-                android:background="?attr/selectableItemBackground"
+                android:background="@drawable/notification_background_clickable"
                 android:padding="9dp"
                 android:scaleType="centerInside"
                 android:id="@+id/close"
@@ -92,9 +92,9 @@
                 android:layout_gravity="center_vertical"
                 android:layout_width="0dp"
                 android:padding="5dp"
-                android:background="?android:attr/selectableItemBackground"
                 android:id="@+id/prev"
                 android:layout_height="wrap_content"
+                android:background="@drawable/notification_background_clickable"
                 android:src="@drawable/notifications_previous"/>
 
         <ImageButton
@@ -103,8 +103,8 @@
                 android:padding="5dp"
                 android:layout_gravity="center_vertical"
                 android:layout_width="0dp"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_height="wrap_content"
+                android:background="@drawable/notification_background_clickable"
                 android:src="@drawable/notifications_play"/>
 
         <ImageButton
@@ -112,9 +112,9 @@
                 android:layout_gravity="center_vertical"
                 android:padding="5dp"
                 android:layout_width="0dp"
-                android:background="?android:attr/selectableItemBackground"
                 android:id="@+id/next"
                 android:layout_height="wrap_content"
+                android:background="@drawable/notification_background_clickable"
                 android:src="@drawable/notifications_next"/>
     </LinearLayout>
 </RelativeLayout>
