@@ -387,16 +387,17 @@ public class Navigator {
         activityContext.startActivity(new Intent(activityContext, target));
     }
 
-    public void resetForAccountUpgrade(Activity context) {
-        resetAppAndNavigateTo(context, GoOnboardingActivity.class);
+    public void resetForAccountUpgrade(Activity activity) {
+        resetAppAndNavigateTo(activity, GoOnboardingActivity.class);
     }
 
-    public void resetForAccountDowngrade(Activity context) {
-        resetAppAndNavigateTo(context, GoOffboardingActivity.class);
+    public void resetForAccountDowngrade(Activity activity) {
+        resetAppAndNavigateTo(activity, GoOffboardingActivity.class);
     }
 
-    private void resetAppAndNavigateTo(Activity context, Class<? extends Activity> nextActivity) {
-        context.startActivity(rootScreen(new Intent(context, nextActivity)));
+    private void resetAppAndNavigateTo(Activity activity, Class<? extends Activity> nextActivity) {
+        activity.startActivity(rootScreen(new Intent(activity, nextActivity)));
+        activity.finish();
     }
 
     public void restartApp(Activity context) {

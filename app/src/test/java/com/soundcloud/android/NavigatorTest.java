@@ -11,6 +11,7 @@ import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.RecommendedTracksActivity;
+import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -29,8 +30,10 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -369,5 +372,27 @@ public class NavigatorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(OfflineSettingsOnboardingActivity.class);
+    }
+
+    @Test
+    public void resetsAccountForUpgrade() {
+        navigator.resetForAccountUpgrade(activityContext);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(GoOnboardingActivity.class)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        Assertions.assertThat(activityContext.isFinishing()).isTrue();
+    }
+
+    @Test
+    public void resetsAccountForDowngrade() {
+        navigator.resetForAccountDowngrade(activityContext);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(GoOffboardingActivity.class)
+                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        Assertions.assertThat(activityContext.isFinishing()).isTrue();
     }
 }
