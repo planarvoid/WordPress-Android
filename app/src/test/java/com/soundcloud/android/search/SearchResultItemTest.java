@@ -2,7 +2,6 @@ package com.soundcloud.android.search;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -14,10 +13,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
-
-import java.util.Collections;
 
 public class SearchResultItemTest extends AndroidUnitTest {
 
@@ -122,12 +118,5 @@ public class SearchResultItemTest extends AndroidUnitTest {
         final ListItem listItem = SearchResultItem.fromPropertySet(propertySet).build();
 
         assertThat(listItem).isInstanceOf(SearchUpsellItem.class);
-    }
-
-    @Test
-    public void shouldBuildPremiumItem() {
-        ListItem listItem = SearchResultItem.buildPremiumItem(Collections.<PropertySet>emptyList(), Optional.<Link>absent(), 100);
-
-        assertThat(listItem).isInstanceOf(SearchPremiumItem.class);
     }
 }

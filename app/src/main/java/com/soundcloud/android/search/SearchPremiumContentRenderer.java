@@ -78,17 +78,17 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
             trackItemView.setVisibility(View.VISIBLE);
             trackItemView.setOnClickListener(new ListItemClickListener(premiumContentListener, premiumItems));
             trackItemRenderer.bindItemView(position, trackItemView,
-                    Collections.singletonList(TrackItem.from(premiumItemSource)));
+                    Collections.singletonList((TrackItem)premiumItem.getFirstItem()));
         } else if (item.isPlaylist()) {
             playListItemView.setVisibility(View.VISIBLE);
             playListItemView.setOnClickListener(new ListItemClickListener(premiumContentListener, premiumItems));
             playlistItemRenderer.bindItemView(position, playListItemView,
-                    Collections.singletonList(PlaylistItem.from(premiumItemSource)));
+                    Collections.singletonList((PlaylistItem)premiumItem.getFirstItem()));
         } else if (item.isUser()) {
             userItemView.setVisibility(View.VISIBLE);
             userItemView.setOnClickListener(new ListItemClickListener(premiumContentListener, premiumItems));
             userItemRenderer.bindItemView(position, userItemView,
-                    Collections.singletonList(UserItem.from(premiumItemSource)));
+                    Collections.singletonList((UserItem)premiumItem.getFirstItem()));
         }
 
         getView(itemView, R.id.premium_item_container).setOnClickListener(null);
