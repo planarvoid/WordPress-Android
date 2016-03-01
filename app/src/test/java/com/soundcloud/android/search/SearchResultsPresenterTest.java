@@ -170,6 +170,21 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void itemClickBuildsPlayQueueWithPremiumTracks() {
+        setupAdapterWithPremiumContent();
+        when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
+
+        presenter.onBuildBinding(new Bundle());
+        presenter.onItemClicked(fragmentRule.getView(), 1);
+
+        verify(clickListener).onItemClick(listArgumentCaptor.capture(), eq(fragmentRule.getView()), eq(1));
+
+        final List<ListItem> playQueue = listArgumentCaptor.getValue();
+        assertThat(playQueue.get(0).getEntityUrn()).isEqualTo(SearchPremiumItem.PREMIUM_URN);
+        assertThat(playQueue.get(1).getEntityUrn()).isEqualTo(TRACK_URN);
+    }
+
+    @Test
     public void premiumItemClickBuildsPlayQueueWithPremiumTracks() {
         setupAdapterWithPremiumContent();
         when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
@@ -199,10 +214,10 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     private List<ListItem> setupAdapterWithPremiumContent() {
         PropertySet propertySet = PropertySet.create();
-        propertySet.put(EntityProperty.URN, SearchPremiumItem.PREMIUM_URN);
-        final ListItem premiumItem = SearchResultItem.buildPremiumItem(Collections.singletonList(propertySet), Optional.<Link>absent(), 10);
-        final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
+        propertySet.put(TrackProperty.URN, PREMIUM_TRACK_URN_ONE);
 
+        final ListItem premiumItem = SearchResultItem.buildPremiumItem(Collections.singletonList(propertySet), Optional.<Link>absent(), 1);
+        final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
         final List<ListItem> listItems = Arrays.asList(premiumItem, trackItem);
 
         when(adapter.getItem(0)).thenReturn(premiumItem);
