@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromPlaylistMarkedForDownload;
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromPlaylistUnmarkedForDownload;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
@@ -79,7 +77,7 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Action1<Object> storeOfflineCollectionEnabled = new Action1<Object>() {
+    private final Action1<Object> addOfflineCollection = new Action1<Object>() {
         @Override
         public void call(Object ignored) {
             offlineContentStorage.addOfflineCollection();
@@ -90,6 +88,13 @@ public class OfflineContentOperations {
         @Override
         public Observable<Boolean> call(Object object) {
             return syncInitiator.refreshMyPlaylists();
+        }
+    };
+
+    private final Action1<Void> disableOfflineCollection = new Action1<Void>() {
+        @Override
+        public void call(Void aVoid) {
+            disableOfflineCollection();
         }
     };
 
@@ -132,7 +137,7 @@ public class OfflineContentOperations {
         return offlineContentStorage
                 .addLikedTrackCollection()
                 .flatMap(continueWith(setMyPlaylistsAsOfflinePlaylists()))
-                .doOnNext(storeOfflineCollectionEnabled)
+                .doOnNext(addOfflineCollection)
                 .doOnNext(serviceInitiator.startFromUserAction())
                 .flatMap(refreshMyPlaylists)
                 .map(RxUtils.TO_VOID)
@@ -189,7 +194,6 @@ public class OfflineContentOperations {
     public Observable<Void> makePlaylistAvailableOffline(final Urn playlistUrn) {
         return offlineContentStorage
                 .storeAsOfflinePlaylist(playlistUrn)
-                .doOnNext(eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED, fromPlaylistMarkedForDownload(playlistUrn)))
                 .doOnNext(serviceInitiator.startFromUserAction())
                 .flatMap(syncPlaylist(playlistUrn))
                 .map(RxUtils.TO_VOID)
@@ -208,7 +212,6 @@ public class OfflineContentOperations {
     public Observable<Void> makePlaylistUnavailableOffline(final Urn playlistUrn) {
         return offlineContentStorage
                 .removePlaylistFromOffline(playlistUrn)
-                .doOnNext(eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED, fromPlaylistUnmarkedForDownload(playlistUrn)))
                 .doOnNext(eventBus.publishAction1(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.removed(playlistUrn)))
                 .doOnNext(serviceInitiator.startFromUserAction())
                 .doOnNext(serviceScheduler.scheduleCleanupAction())
@@ -218,6 +221,10 @@ public class OfflineContentOperations {
 
     public Observable<Boolean> getOfflineContentOrOfflineLikesStatusChanges() {
         return featureOperations.offlineContentEnabled().concatWith(getOfflineLikedTracksStatusChanges());
+    }
+
+    public Observable<Void> resetOfflineFeature() {
+        return clearOfflineContent().doOnNext(disableOfflineCollection);
     }
 
     public Observable<Void> clearOfflineContent() {

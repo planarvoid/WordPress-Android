@@ -148,8 +148,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        offlineContentOperations.disableOfflineCollection();
-                        removeAllOfflineContent();
+                        resetOfflineFeature();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -222,19 +221,19 @@ public class OfflineSettingsFragment extends PreferenceFragment
                 .setPositiveButton(R.string.btn_continue, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        removeAllOfflineContent();
+                        resetOfflineFeature();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 
-    private void removeAllOfflineContent() {
+    private void resetOfflineFeature() {
         eventBus.publish(EventQueue.TRACKING,
                 OfflineInteractionEvent.fromDisableCollectionSync(Screen.SETTINGS_OFFLINE.get()));
 
         subscription.add(offlineContentOperations
-                .clearOfflineContent()
+                .resetOfflineFeature()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new ClearOfflineContentSubscriber()));
     }
@@ -242,10 +241,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     private final class ClearOfflineContentSubscriber extends DefaultSubscriber<Void> {
         @Override
         public void onNext(Void ignored) {
-            if (offlineContentOperations.isOfflineCollectionEnabled()) {
-                offlineContentOperations.disableOfflineCollection();
-                setOfflineCollectionChecked(false);
-            }
+            setOfflineCollectionChecked(false);
             refreshStoragePreference();
         }
     }

@@ -3,7 +3,7 @@ package com.soundcloud.android.configuration;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.PlaybackServiceInitiator;
-import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.policies.PolicyOperations;
 import rx.Observable;
 import rx.functions.Action0;
@@ -13,9 +13,9 @@ import javax.inject.Inject;
 public class PlanChangeOperations {
 
     private final ConfigurationOperations configurationOperations;
+    private final OfflineContentOperations offlineContentOperations;
     private final PolicyOperations policyOperations;
     private final PlaybackServiceInitiator playbackServiceInitiator;
-    private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
     private final Action0 clearPendingPlanChangeFlags = new Action0() {
         @Override
         public void call() {
@@ -32,17 +32,18 @@ public class PlanChangeOperations {
     @Inject
     PlanChangeOperations(ConfigurationOperations configurationOperations,
                          PolicyOperations policyOperations,
-                         PlaybackServiceInitiator playbackServiceInitiator, ClearTrackDownloadsCommand clearTrackDownloadsCommand) {
+                         PlaybackServiceInitiator playbackServiceInitiator,
+                         OfflineContentOperations offlineContentOperations) {
         this.configurationOperations = configurationOperations;
         this.policyOperations = policyOperations;
         this.playbackServiceInitiator = playbackServiceInitiator;
-        this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
+        this.offlineContentOperations = offlineContentOperations;
     }
 
     public Observable<Object> awaitAccountDowngrade() {
         return configurationOperations.awaitConfigurationFromPendingPlanChange()
-                .compose(new PlanChangedSteps<Configuration>())
-                .doOnCompleted(clearTrackDownloadsCommand.toAction0());
+                .flatMap(continueWith(offlineContentOperations.resetOfflineFeature()))
+                .compose(new PlanChangedSteps());
     }
 
     public Observable<Object> awaitAccountUpgrade() {
@@ -55,13 +56,13 @@ public class PlanChangeOperations {
             // sub in the app
             updatedConfiguration = configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER);
         }
-        return updatedConfiguration.compose(new PlanChangedSteps<Configuration>());
+        return updatedConfiguration.compose(new PlanChangedSteps());
     }
 
-    private final class PlanChangedSteps<T> implements Observable.Transformer<T, Object> {
+    private final class PlanChangedSteps implements Observable.Transformer<Object, Object> {
 
         @Override
-        public Observable<Object> call(Observable<T> source) {
+        public Observable<Object> call(Observable<Object> source) {
             return source.flatMap(continueWith(policyOperations.refreshedTrackPolicies()))
                     .doOnSubscribe(resetPlaybackService)
                     .doOnCompleted(clearPendingPlanChangeFlags)
