@@ -37,8 +37,7 @@ public class ApiModule {
                                       OAuth oAuth,
                                       UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                                       AccountOperations accountOperations,
-                                      LocaleHeaderFormatter localeHeaderFormatter,
-                                      PlanChangeDetector planChangeDetector) {
+                                      LocaleHeaderFormatter localeHeaderFormatter) {
         ApiClient apiClient = new ApiClient(httpClient, urlBuilder, jsonTransformer, deviceHelper, adIdHelper,
                 oAuth, unauthorisedRequestRegistry, accountOperations, localeHeaderFormatter);
         apiClient.setAssertBackgroundThread(true);
