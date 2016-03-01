@@ -2,9 +2,8 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Test;
 
 public class CurrentUserChangedEventTest extends AndroidUnitTest {
@@ -14,15 +13,14 @@ public class CurrentUserChangedEventTest extends AndroidUnitTest {
         CurrentUserChangedEvent event = CurrentUserChangedEvent.forLogout();
 
         assertThat(event.getKind()).isEqualTo(CurrentUserChangedEvent.USER_REMOVED);
-        assertThat(event.getCurrentUser()).isNull();
+        assertThat(event.getCurrentUserUrn()).isEqualTo(Urn.NOT_SET);
     }
 
     @Test
     public void testForUserUpdated() throws Exception {
-        final PublicApiUser publicApiUser = ModelFixtures.create(PublicApiUser.class);
-        CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(publicApiUser);
+        CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(Urn.forUser(123));
 
         assertThat(event.getKind()).isEqualTo(CurrentUserChangedEvent.USER_UPDATED);
-        assertThat(event.getCurrentUser()).isEqualTo(publicApiUser.toPropertySet());
+        assertThat(event.getCurrentUserUrn()).isEqualTo(Urn.forUser(123));
     }
 }

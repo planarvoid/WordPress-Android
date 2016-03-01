@@ -6,11 +6,9 @@ import static org.mockito.Mockito.when;
 
 import com.appboy.AppboyUser;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -61,12 +59,11 @@ public class AppboyAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldHandleUserChangeEvents() {
-        PublicApiUser user = ModelFixtures.create(PublicApiUser.class);
-        CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(user);
+        CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(otherUserUrn);
 
         appboyAnalyticsProvider.handleCurrentUserChangedEvent(event);
 
-        verify(appboy).changeUser(user.getUrn().toString());
+        verify(appboy).changeUser(otherUserUrn.toString());
     }
 
 }

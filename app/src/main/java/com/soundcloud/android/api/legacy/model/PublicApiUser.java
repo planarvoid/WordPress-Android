@@ -35,7 +35,6 @@ import android.text.TextUtils;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PublicApiUser extends PublicApiResource implements UserHolder, PropertySetSource, UserRecord {
-    public static final int CRAWLER_USER_ID = -2;
     public static final int TYPE = 0;
     public static final String EXTRA = "user";
     public static final Parcelable.Creator<PublicApiUser> CREATOR = new Parcelable.Creator<PublicApiUser>() {
@@ -47,8 +46,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
             return new PublicApiUser[size];
         }
     };
-
-    public static final PublicApiUser CRAWLER_USER = new PublicApiUser(CRAWLER_USER_ID, "SoundCloud");
 
     @Nullable @JsonView(Views.Mini.class) public String username;
     @Nullable @JsonView(Views.Mini.class) public String uri;
@@ -239,7 +236,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
             cv.put(TableColumns.Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed ? 1 : 0);
         }
 
-        if (getId() != -1 && getId() == SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId()) {
+        if (getId() != -1 && getId() == SoundCloudApplication.instance.getAccountOperations().getLoggedInUserUrn().getNumericId()) {
             if (description != null) {
                 cv.put(TableColumns.Users.DESCRIPTION, description);
             }
@@ -450,10 +447,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     @Override
     public boolean isIncomplete() {
         return getId() <= 0;
-    }
-
-    public boolean isCrawler() {
-        return getId() == CRAWLER_USER_ID;
     }
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")

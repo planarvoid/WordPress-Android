@@ -3,11 +3,10 @@ package com.soundcloud.android.accounts;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +49,7 @@ public class UserRemovedControllerTest extends AndroidUnitTest {
         lightCycle.onCreate(activity, null);
         lightCycle.onDestroy(activity);
 
-        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(ModelFixtures.create(PublicApiUser.class)));
+        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(Urn.forUser(1)));
         verify(activity, never()).finish();
     }
 }

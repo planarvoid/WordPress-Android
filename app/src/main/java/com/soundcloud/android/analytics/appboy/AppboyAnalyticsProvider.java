@@ -15,8 +15,6 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
 
 import android.content.Context;
 
@@ -44,13 +42,8 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
         int eventKind = event.getKind();
-
         if (eventKind == CurrentUserChangedEvent.USER_UPDATED) {
-            PropertySet currentUser = event.getCurrentUser();
-
-            if (currentUser != null) {
-                changeUser(currentUser.get(UserProperty.URN));
-            }
+            changeUser(event.getCurrentUserUrn());
         }
     }
 
@@ -95,7 +88,7 @@ public class AppboyAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void changeUser(Urn userUrn) {
-        if (userUrn.getNumericId() > 0) {
+        if (userUrn.isUser() && !userUrn.equals(AccountOperations.ANONYMOUS_USER_URN)) {
             appboy.changeUser(userUrn.toString());
         }
     }

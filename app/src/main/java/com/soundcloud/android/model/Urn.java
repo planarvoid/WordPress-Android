@@ -68,7 +68,7 @@ public final class Urn extends ContentStringHelper<Urn> {
     }
 
     public static Urn forUser(long id) {
-        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.USERS, Math.max(0, id));
+        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.USERS, id);
     }
 
     public static Urn forComment(long id) {
