@@ -150,33 +150,45 @@ public class DefaultViewElement extends ViewElement {
 
     @Override
     public boolean dragFullyOnScreenVertical() {
+        System.out.println("DEBUG dragFullyOnScreenVertical->");
         if (!viewCanFitVerticallyOnScreen()) {
+            System.out.println("DEBUG <-viewCanFitVerticallyOnScreen:FALSE");
             return false;
         }
 
         Rect visibleRect = getVisibleRect();
         Rect viewRect = getRect();
+        System.out.println("DEBUG viewRect: " + viewRect);
+        System.out.println("DEBUG visibleRect: " + viewRect);
 
         if (isFullyOnScreen(visibleRect, viewRect)) {
+            System.out.println("DEBUG <-isFullyOnScreen:TRUE");
             return true;
         }
 
         // top is cut off
         if (viewRect.top < visibleRect.top) {
+            System.out.println("DEBUG Top is cut off: " + viewRect.top + "<" + visibleRect.top);
             int viewBottom = visibleRect.bottom - 1; // account for zero-index
             int heightOfNonVisibleSection = visibleRect.top - viewRect.top;
 
-            testDriver.scrollVertical(viewBottom, viewBottom + heightOfNonVisibleSection);
+            final int toY = viewBottom + heightOfNonVisibleSection;
+            System.out.println("DEBUG Top is cut off: " + viewBottom + "->" + toY);
+            testDriver.scrollVertical(viewBottom, toY);
         }
 
         // bottom is cut off
         if (visibleRect.bottom < viewRect.bottom) {
+            System.out.println("DEBUG Bottom is cut off: " + visibleRect.bottom + "<" + viewRect.bottom);
             int viewBottom = visibleRect.bottom - 1; // account for zero-index
             int heightOfNonVisibleSection = viewRect.bottom - visibleRect.bottom;
 
-            testDriver.scrollVertical(viewBottom, viewBottom - heightOfNonVisibleSection);
+            final int toY = viewBottom - heightOfNonVisibleSection;
+            System.out.println("DEBUG Bottom is cut off: " + viewBottom + "->" + toY);
+            testDriver.scrollVertical(viewBottom, toY);
         }
 
+        System.out.println("DEBUG <-dragFullyOnScreenVertical TRUE");
         return true;
     }
 
