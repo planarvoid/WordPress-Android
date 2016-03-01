@@ -4,13 +4,13 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.from;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Where;
 
@@ -21,13 +21,11 @@ import java.util.Date;
 
 class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.UpdateFollowingParams, WriteResult, Integer> {
 
-    private final AccountOperations accountOperations;
     private int updatedFollowersCount;
 
     @Inject
-    UpdateFollowingCommand(PropellerDatabase propeller, AccountOperations accountOperations) {
+    UpdateFollowingCommand(PropellerDatabase propeller) {
         super(propeller);
-        this.accountOperations = accountOperations;
     }
 
     @Override
@@ -64,12 +62,15 @@ class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.
     }
 
     private boolean isFollowing(PropellerDatabase propeller, Urn targetUrn) {
-        final int followingCount = propeller.query(from(Table.UserAssociations.name())
+        final QueryResult queryResult = propeller.query(from(Table.UserAssociations.name())
                 .select(TableColumns.UserAssociations.TARGET_ID)
                 .whereEq(TableColumns.UserAssociations.TARGET_ID, targetUrn.getNumericId())
                 .whereEq(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER)
                 .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING)
-                .whereNull(TableColumns.UserAssociations.REMOVED_AT)).getResultCount();
+                .whereNull(TableColumns.UserAssociations.REMOVED_AT));
+
+        final int followingCount = queryResult.getResultCount();
+        queryResult.release();
 
         return followingCount == 1;
     }

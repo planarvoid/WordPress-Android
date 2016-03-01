@@ -22,7 +22,7 @@ public class UpdateFollowingCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() {
-        command = new UpdateFollowingCommand(propeller(), accountOperations);
+        command = new UpdateFollowingCommand(propeller());
         apiUser = testFixtures().insertUser();
         targetUrn = apiUser.getUrn();
     }
