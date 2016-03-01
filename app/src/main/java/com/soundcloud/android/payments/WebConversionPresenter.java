@@ -92,7 +92,7 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void enablePurchase(WebProduct product) {
-        conversionView.showPrice(product.getPrice());
+        conversionView.showPrice(product.getDiscountPrice().or(product.getPrice()));
         conversionView.showTrialDays(product.getTrialDays());
         conversionView.setBuyButtonReady();
         eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeButtonImpression());

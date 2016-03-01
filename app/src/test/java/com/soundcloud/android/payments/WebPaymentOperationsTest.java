@@ -36,7 +36,7 @@ public class WebPaymentOperationsTest extends AndroidUnitTest {
 
     @Test
     public void productReturnsWebProductIfPlanExists() {
-        WebProduct expected = WebProduct.create("high_tier", "urn:123", "$1", 30, "now", "later");
+        WebProduct expected = WebProduct.create("high_tier", "urn:123", "$1", "$0", 30, "now", "later");
         setupExpectedProductsCall(expected);
 
         operations.product().subscribe(subscriber);
@@ -48,7 +48,7 @@ public class WebPaymentOperationsTest extends AndroidUnitTest {
 
     @Test
     public void productReturnsAbsentIfPlanDoesNotExist() {
-        setupExpectedProductsCall(WebProduct.create("high_tears", "urn:123", "$1", 2, "now", "later"));
+        setupExpectedProductsCall(WebProduct.create("high_tears", "urn:123", "$1", "$0", 2, "now", "later"));
 
         operations.product().subscribe(subscriber);
 

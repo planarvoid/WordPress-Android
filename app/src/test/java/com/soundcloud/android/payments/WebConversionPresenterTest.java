@@ -32,7 +32,7 @@ public class WebConversionPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new WebConversionPresenter(paymentOperations, conversionView, new TestEventBus());
-        product = WebProduct.create("high_tier", "some:product:123", "$2", 30, "start", "expiry");
+        product = WebProduct.create("high_tier", "some:product:123", "$2", null, 30, "start", "expiry");
     }
 
     @Test

@@ -8,7 +8,7 @@ class WebCheckoutInterface {
     private final Listener listener;
 
     interface Listener {
-        void onFormReady();
+        void onWebAppReady();
         void onPaymentSuccess();
     }
 
@@ -17,8 +17,8 @@ class WebCheckoutInterface {
     }
 
     @JavascriptInterface
-    public void onFormReady() {
-        listener.onFormReady();
+    public void onWebAppReady() {
+        listener.onWebAppReady();
     }
 
     @JavascriptInterface
