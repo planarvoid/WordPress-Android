@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.view.LoadingButton;
 
 import android.content.res.Resources;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
@@ -14,10 +15,12 @@ import javax.inject.Inject;
 
 class ConversionView {
 
+    private static final String RESTRICTIONS_DIALOG_TAG = "product_info";
     private final Resources resources;
 
     @Bind(R.id.conversion_buy) LoadingButton buyButton;
     @Bind(R.id.conversion_price) TextView priceView;
+    @Bind(R.id.conversion_restrictions) TextView restrictionsView;
     @Bind(R.id.conversion_close) View closeButton;
     @Bind(R.id.conversion_outside) View outside;
 
@@ -33,16 +36,19 @@ class ConversionView {
 
     void setupContentView(AppCompatActivity activity, Listener listener) {
         ButterKnife.bind(this, activity.findViewById(android.R.id.content));
-        setListener(listener);
+        setListener(listener, activity.getSupportFragmentManager());
     }
 
-    private void setListener(final Listener listener) {
+    private void setListener(final Listener listener, final FragmentManager fragmentManager) {
         View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.conversion_buy:
                         listener.startPurchase();
+                        break;
+                    case R.id.conversion_restrictions:
+                        new ConversionRestrictionsDialog().show(fragmentManager, RESTRICTIONS_DIALOG_TAG);
                         break;
                     case R.id.conversion_close:
                     case R.id.conversion_outside:
@@ -56,6 +62,7 @@ class ConversionView {
         buyButton.setOnClickListener(clickListener);
         closeButton.setOnClickListener(clickListener);
         outside.setOnClickListener(clickListener);
+        restrictionsView.setOnClickListener(clickListener);
     }
 
     public void showPrice(String price) {

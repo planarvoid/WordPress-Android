@@ -38,6 +38,7 @@
     </style>
 
     <style name="ConversionText.Feature">
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">16sp</item>
         <item name="android:drawableLeft">@drawable/conversion_check</item>
         <item name="android:drawablePadding">6dp</item>
@@ -45,11 +46,24 @@
         <item name="android:paddingRight">18dp</item> <!-- conversion_check width + drawablePadding -->
     </style>
 
+    <style name="ConversionText.Restrictions">
+        <item name="android:textSize">11sp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:textColor">@drawable/conversion_restriction_text_states</item>
+    </style>
+
     <style name="ConversionButton" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>
         <item name="android:background">@drawable/btn_primary</item>
-        <item name="android:layout_margin">16dp</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
         <item name="textColor">@color/white</item>
         <item name="loadingColor">@color/white</item>
     </style>
