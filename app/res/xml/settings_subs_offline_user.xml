@@ -3,7 +3,8 @@
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="@string/key_offline_collection"
-        android:summary="@string/pref_offline_offline_collection_description"
+        android:summaryOff="@string/pref_offline_offline_collection_description_off"
+        android:summaryOn="@string/pref_offline_offline_collection_description_on"
         android:title="@string/pref_offline_offline_collection" />
 
     <CheckBoxPreference
