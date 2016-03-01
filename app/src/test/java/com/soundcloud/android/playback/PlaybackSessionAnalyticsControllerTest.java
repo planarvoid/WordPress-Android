@@ -93,20 +93,6 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void multipleQuartileProgressEventsPublishedIfPreviousQuartileWereNotAlreadyPublished() {
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
-        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(Urn.forTrack(123L))));
-
-        analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(50, 100), Urn.forAd("dfp", "809")));
-
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
-        AdPlaybackProgressEvent adEvent = (AdPlaybackProgressEvent) eventBus.firstEventOn(EventQueue.TRACKING);
-        assertThat(adEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
-        AdPlaybackProgressEvent adEvent2 = (AdPlaybackProgressEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(adEvent2.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::second_quartile");
-    }
-
-    @Test
     public void duplicateQuartileProgressEventsAreNotPublished() {
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(Urn.forTrack(123L))));

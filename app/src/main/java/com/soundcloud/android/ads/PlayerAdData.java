@@ -3,32 +3,32 @@ package com.soundcloud.android.ads;
 import java.util.List;
 
 public abstract class PlayerAdData extends AdData {
-    private boolean firstQuartileReached;
-    private boolean secondQuartileReached;
-    private boolean thirdQuartileReached;
+    private boolean firstQuartileReported;
+    private boolean secondQuartileReported;
+    private boolean thirdQuartileReported;
 
-    public boolean hasReachedFirstQuartile() {
-        return firstQuartileReached;
+    public boolean hasReportedFirstQuartile() {
+        return firstQuartileReported;
     }
 
-    public boolean hasReachedSecondQuartile() {
-        return secondQuartileReached;
+    public boolean hasReportedSecondQuartile() {
+        return secondQuartileReported;
     }
 
-    public boolean hasReachedThirdQuartile() {
-        return thirdQuartileReached;
+    public boolean hasReportedThirdQuartile() {
+        return thirdQuartileReported;
     }
 
-    public void setFirstQuartileReached() {
-        firstQuartileReached = true;
+    public void setFirstQuartileReported() {
+        firstQuartileReported = true;
     }
 
-    public void setSecondQuartileReached() {
-        secondQuartileReached = true;
+    public void setSecondQuartileReported() {
+        secondQuartileReported = true;
     }
 
-    public void setThirdQuartileReached() {
-        thirdQuartileReached = true;
+    public void setThirdQuartileReported() {
+        thirdQuartileReported = true;
     }
 
     public abstract CompanionAd getVisualAd();

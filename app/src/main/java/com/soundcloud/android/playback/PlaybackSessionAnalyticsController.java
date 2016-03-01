@@ -67,16 +67,14 @@ class PlaybackSessionAnalyticsController {
             final PlayerAdData adData = (PlayerAdData) adsOperations.getCurrentTrackAdData().get();
             final PlaybackProgress progress = progressEvent.getPlaybackProgress();
             final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-            if (!adData.hasReachedFirstQuartile() && progress.isPastFirstQuartile()) {
-                adData.setFirstQuartileReached();
+            if (!adData.hasReportedFirstQuartile() && progress.isPastFirstQuartile()) {
+                adData.setFirstQuartileReported();
                 publishAdQuartileEvent(AdPlaybackProgressEvent.forFirstQuartile(progressEvent.getUrn(), adData, trackSourceInfo));
-            }
-            if (!adData.hasReachedSecondQuartile() && progress.isPastSecondQuartile()) {
-                adData.setSecondQuartileReached();
+            } else if (!adData.hasReportedSecondQuartile() && progress.isPastSecondQuartile()) {
+                adData.setSecondQuartileReported();
                 publishAdQuartileEvent(AdPlaybackProgressEvent.forSecondQuartile(progressEvent.getUrn(), adData, trackSourceInfo));
-            }
-            if (!adData.hasReachedThirdQuartile() && progress.isPastThirdQuartile()) {
-                adData.setThirdQuartileReached();
+            } else if (!adData.hasReportedThirdQuartile() && progress.isPastThirdQuartile()) {
+                adData.setThirdQuartileReported();
                 publishAdQuartileEvent(AdPlaybackProgressEvent.forThirdQuartile(progressEvent.getUrn(), adData, trackSourceInfo));
             }
         }
