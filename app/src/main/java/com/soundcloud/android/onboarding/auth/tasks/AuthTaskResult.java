@@ -1,7 +1,7 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +12,7 @@ import java.util.EnumSet;
 public final class AuthTaskResult {
 
     private final Kind kind;
-    private final PublicApiUser user;
+    private final ApiUser user;
     private final SignupVia signupVia;
     private final Exception exception;
 
@@ -22,7 +22,7 @@ public final class AuthTaskResult {
     // Can be dropped once we move away from public API for signups
     @Deprecated private String serverErrorMessage;
 
-    public static AuthTaskResult success(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
+    public static AuthTaskResult success(ApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
         return new AuthTaskResult(user, signupVia, showFacebookSuggestions);
     }
 
@@ -111,7 +111,7 @@ public final class AuthTaskResult {
         }
     }
 
-    private AuthTaskResult(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
+    private AuthTaskResult(ApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
         this(Kind.SUCCESS, user, signupVia, null, showFacebookSuggestions, null, null);
     }
 
@@ -131,7 +131,7 @@ public final class AuthTaskResult {
         this(kind, null, null, null, false, null, null);
     }
 
-    private AuthTaskResult(@NotNull Kind kind, PublicApiUser user, SignupVia signupVia,
+    private AuthTaskResult(@NotNull Kind kind, ApiUser user, SignupVia signupVia,
                            Exception exception, boolean showFacebookSuggestions, Bundle loginBundle,
                            String serverErrorMessage) {
         this.kind = kind;
@@ -195,7 +195,7 @@ public final class AuthTaskResult {
         return kind == Kind.VALIDATION_ERROR;
     }
 
-    public PublicApiUser getUser() {
+    public ApiUser getUser() {
         return user;
     }
 

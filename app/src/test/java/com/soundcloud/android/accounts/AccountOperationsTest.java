@@ -8,8 +8,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -65,7 +65,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Mock private AccountCleanupAction accountCleanupAction;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
 
-    private PublicApiUser user;
+    private ApiUser user;
 
     @Before
     public void setUp() throws CreateModelException {
@@ -75,7 +75,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
                 InjectionSupport.lazyOf(accountCleanupAction),
                 InjectionSupport.lazyOf(clearTrackDownloadsCommand), Schedulers.immediate());
 
-        user = ModelFixtures.create(PublicApiUser.class);
+        user = ModelFixtures.create(ApiUser.class);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotReplaceExistingAccountWithSameName() {
-        Account old = new Account(user.getUsername(), SC_ACCOUNT_TYPE);
+        Account old = new Account(user.getPermalink(), SC_ACCOUNT_TYPE);
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{old});
 
         final Account actual = accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
@@ -163,7 +163,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetUserDataIfAccountAdditionSucceeds() {
-        Account account = new Account(user.getUsername(), SC_ACCOUNT_TYPE);
+        Account account = new Account(user.getPermalink(), SC_ACCOUNT_TYPE);
 
         when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
@@ -176,7 +176,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetAuthTokenInformationIfAccountAdditionSucceeds() {
-        Account account = new Account(user.getUsername(), SC_ACCOUNT_TYPE);
+        Account account = new Account(user.getPermalink(), SC_ACCOUNT_TYPE);
         when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
         accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
@@ -186,7 +186,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishUserChangedEventIfAccountAdditionSucceeds() {
-        Account account = new Account(user.getUsername(), SC_ACCOUNT_TYPE);
+        Account account = new Account(user.getPermalink(), SC_ACCOUNT_TYPE);
         when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
         accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
@@ -197,7 +197,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnAddedAccountIfAccountAdditionSucceeds() {
-        Account account = new Account(user.getUsername(), SC_ACCOUNT_TYPE);
+        Account account = new Account(user.getPermalink(), SC_ACCOUNT_TYPE);
         when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
         assertThat(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).isEqualTo(account);

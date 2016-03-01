@@ -11,8 +11,9 @@ import com.soundcloud.android.api.FilePart;
 import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.Params;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.java.strings.Strings;
 
 import android.os.Bundle;
@@ -28,9 +29,9 @@ public class AddUserInfoTask extends AuthTask {
     private final File avatarFile;
     private final AccountOperations accountOperations;
 
-    public AddUserInfoTask(SoundCloudApplication app, String permalink, String username, File avatarFile, LegacyUserStorage userStorage,
+    public AddUserInfoTask(SoundCloudApplication app, String permalink, String username, File avatarFile, StoreUsersCommand storeUsersCommand,
                            ApiClient apiClient, AccountOperations accountOperations) {
-        super(app, userStorage);
+        super(app, storeUsersCommand);
         this.apiClient = apiClient;
         this.username = username;
         this.permalink = permalink;
@@ -53,7 +54,7 @@ public class AddUserInfoTask extends AuthTask {
             if (avatarFile != null && avatarFile.canWrite()) {
                 request.withFormPart(FilePart.from(Params.User.AVATAR, avatarFile, FilePart.BLOB_MEDIA_TYPE));
             }
-            PublicApiUser updatedUser = apiClient.fetchMappedResponse(request.build(), PublicApiUser.class);
+            ApiUser updatedUser = apiClient.fetchMappedResponse(request.build(), PublicApiUser.class).toApiMobileUser();
             addAccount(updatedUser, accountOperations.getSoundCloudToken(), SignupVia.API);
             return AuthTaskResult.success(updatedUser, SignupVia.API, false);
         } catch (ApiRequestException e) {

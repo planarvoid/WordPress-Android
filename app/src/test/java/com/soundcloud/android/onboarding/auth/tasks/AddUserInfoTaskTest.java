@@ -12,7 +12,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.storage.LegacyUserStorage;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
@@ -24,7 +24,7 @@ import java.io.File;
 public class AddUserInfoTaskTest extends AndroidUnitTest {
 
     @Mock private ApiClient apiClient;
-    @Mock private LegacyUserStorage userStorage;
+    @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private SoundCloudApplication application;
     @Mock private AccountOperations accountOperations;
 
@@ -42,11 +42,12 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                 eq(PublicApiUser.class))).thenReturn(user);
 
         AddUserInfoTask task = new AddUserInfoTask(
-                application, "permalink", "name", null, userStorage, apiClient, accountOperations);
+                application, "permalink", "name", null, storeUsersCommand, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
-        assertThat(result.getUser().username).isEqualTo(user.getUsername());
-        assertThat(result.getUser().permalink).isEqualTo(user.getPermalink());
+        assertThat(result.getUser().getUrn()).isEqualTo(user.getUrn());
+        assertThat(result.getUser().getUsername()).isEqualTo(user.getUsername());
+        assertThat(result.getUser().getPermalink()).isEqualTo(user.getPermalink());
     }
 
     @Test
@@ -56,11 +57,12 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                 eq(PublicApiUser.class))).thenReturn(user);
 
         AddUserInfoTask task = new AddUserInfoTask(
-                application, "permalink", "name", new File("doesntexist"), userStorage, apiClient, accountOperations);
+                application, "permalink", "name", new File("doesntexist"), storeUsersCommand, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
-        assertThat(result.getUser().username).isEqualTo(user.getUsername());
-        assertThat(result.getUser().permalink).isEqualTo(user.getPermalink());
+        assertThat(result.getUser().getUrn()).isEqualTo(user.getUrn());
+        assertThat(result.getUser().getUsername()).isEqualTo(user.getUsername());
+        assertThat(result.getUser().getPermalink()).isEqualTo(user.getPermalink());
     }
 
     @Test
@@ -70,11 +72,11 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                 eq(PublicApiUser.class))).thenReturn(user);
 
         File tmp = File.createTempFile("test", "tmp");
-        AddUserInfoTask task = new AddUserInfoTask(application, "permalink", "name", tmp, userStorage, apiClient, accountOperations);
+        AddUserInfoTask task = new AddUserInfoTask(application, "permalink", "name", tmp, storeUsersCommand, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
-        assertThat(result.getUser().username).isEqualTo(user.getUsername());
-        assertThat(result.getUser().permalink).isEqualTo(user.getPermalink());
+        assertThat(result.getUser().getUsername()).isEqualTo(user.getUsername());
+        assertThat(result.getUser().getPermalink()).isEqualTo(user.getPermalink());
     }
 
     @Test
@@ -83,7 +85,7 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                 argThat(isPublicApiRequestTo("PUT", ApiEndpoints.CURRENT_USER)),
                 eq(PublicApiUser.class))).thenThrow(TestApiResponses.validationError().getFailure());
 
-        AddUserInfoTask task = new AddUserInfoTask(application, "permalink", "name", null, userStorage, apiClient, accountOperations);
+        AddUserInfoTask task = new AddUserInfoTask(application, "permalink", "name", null, storeUsersCommand, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isFalse();
         assertThat(result.wasValidationError()).isTrue();

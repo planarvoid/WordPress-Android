@@ -570,6 +570,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     public ApiUser toApiMobileUser() {
         final ApiUser apiUser = new ApiUser();
         apiUser.setUrn(getUrn());
+        apiUser.setPermalink(getPermalink());
         apiUser.setAvatarUrl(avatar_url);
         apiUser.setCountry(country);
         apiUser.setFollowersCount(followers_count);

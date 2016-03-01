@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -22,7 +22,7 @@ public class AuthTaskResultTest {
 
     @Test
     public void shouldCreateSuccessResult() throws CreateModelException {
-        PublicApiUser user = ModelFixtures.create(PublicApiUser.class);
+        ApiUser user = ModelFixtures.create(ApiUser.class);
         SignupVia signupVia = SignupVia.NONE;
 
         AuthTaskResult result = AuthTaskResult.success(user, signupVia, false);

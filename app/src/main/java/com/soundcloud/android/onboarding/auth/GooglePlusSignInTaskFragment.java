@@ -44,7 +44,8 @@ public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
         return new GooglePlusSignInTask(
                 (SoundCloudApplication) getActivity().getApplication(),
                 getArguments().getString(ARG_ACCT_NAME),
-                GOOGLE_PLUS_SCOPE, configurationOperations, eventBus, accountOperations, tokenUtils, apiClient);
+                GOOGLE_PLUS_SCOPE, tokenUtils, fetchMeCommand, storeUsersCommand,
+                accountOperations, configurationOperations, eventBus);
     }
 
     @Override

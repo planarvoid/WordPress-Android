@@ -17,6 +17,7 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
     private Urn urn;
     @Nullable private String country;
     private int followersCount;
+    private String permalink;
     private String username;
     private String avatarUrl;
     private String description;
@@ -42,6 +43,14 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
 
     public long getId() {
         return urn.getNumericId();
+    }
+
+    public String getPermalink() {
+        return permalink;
+    }
+
+    public void setPermalink(String permalink) {
+        this.permalink = permalink;
     }
 
     public String getUsername() {

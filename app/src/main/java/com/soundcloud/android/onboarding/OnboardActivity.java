@@ -18,6 +18,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crop.Crop;
@@ -109,7 +110,7 @@ public class OnboardActivity extends FragmentActivity
     private OnboardingState state = OnboardingState.PHOTOS;
     private String lastGoogleAccountSelected;
     private ActivityResult activityResult = ActivityResult.empty();
-    @Nullable private PublicApiUser user;
+    @Nullable private Urn userUrn = Urn.NOT_SET;
 
     private View photoBottomBar, photoLogo;
 
@@ -330,7 +331,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onSubmitUserDetails(String username, File avatarFile) {
-        if (user == null) {
+        if (userUrn == Urn.NOT_SET) {
             return;
         }
 
@@ -523,18 +524,18 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @Override
-    public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean wasApiSignupTask) {
+    public void onAuthTaskComplete(ApiUser user, SignupVia via, boolean wasApiSignupTask) {
         log(INFO, ONBOARDING_TAG, "auth task complete, via: " + via + ", was api signup task: " + wasApiSignupTask);
 
         if (wasApiSignupTask) {
             SignupLog.writeNewSignupAsync();
-            this.user = user;
+            this.userUrn = user.getUrn();
             setState(OnboardingState.SIGN_UP_DETAILS);
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_USER_DETAILS));
             eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
         } else {
             final Bundle result = new Bundle();
-            result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
+            result.putString(AccountManager.KEY_ACCOUNT_NAME, user.getUsername());
             result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
             boolean wasSignup = via != SignupVia.NONE;
             resultBundle = result;
@@ -559,7 +560,7 @@ public class OnboardActivity extends FragmentActivity
 
         outState.putString(LAST_GOOGLE_ACCT_USED, lastGoogleAccountSelected);
         outState.putSerializable(BUNDLE_STATE, state);
-        outState.putParcelable(BUNDLE_USER, user);
+        outState.putParcelable(BUNDLE_USER, userUrn);
         outState.putInt(BACKGROUND_IMAGE_IDX, backgroundImageIdx);
 
         if (!Urn.NOT_SET.equals(resourceUrn)) {
@@ -584,7 +585,7 @@ public class OnboardActivity extends FragmentActivity
     protected void onRestoreInstanceState(@NotNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        user = savedInstanceState.getParcelable(BUNDLE_USER);
+        userUrn = savedInstanceState.getParcelable(BUNDLE_USER);
         lastGoogleAccountSelected = savedInstanceState.getString(LAST_GOOGLE_ACCT_USED);
         loginBundle = savedInstanceState.getBundle(BUNDLE_LOGIN);
         signUpBasicsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_BASICS);

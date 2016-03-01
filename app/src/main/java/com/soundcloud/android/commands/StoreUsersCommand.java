@@ -46,6 +46,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
     private static ContentValuesBuilder getBaseBuilder(UserRecord user) {
         return ContentValuesBuilder.values()
                 .put(TableColumns.Users._ID, user.getUrn().getNumericId())
+                .put(TableColumns.Users.PERMALINK, user.getPermalink())
                 .put(TableColumns.Users.USERNAME, user.getUsername())
                 .put(TableColumns.Users.COUNTRY, user.getCountry())
                 .put(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount());
