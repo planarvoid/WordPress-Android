@@ -225,7 +225,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     public void shouldPlayShuffledThroughContentOperationsOnPlayShuffled() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
         final PublishSubject<PlaybackResult> subject = PublishSubject.create();
-        when(playbackInitiator.playTracksShuffled(playlistTrackurns, getPlaySessionSource()))
+        when(playbackInitiator.playTracksShuffled(playlistTrackurns, getPlaySessionSource(), featureOperations.isOfflineContentEnabled()))
                 .thenReturn(subject);
 
         onEngagementListener.onPlayShuffled();

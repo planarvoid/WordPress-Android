@@ -269,7 +269,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     public void onPlayShuffled() {
         if (playlistWithTracks != null) {
             final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn());
-            playbackInitiator.playTracksShuffled(tracks, playSessionSourceInfo)
+            playbackInitiator.playTracksShuffled(tracks, playSessionSourceInfo, featureOperations.isOfflineContentEnabled())
                     .doOnCompleted(publishAnalyticsEventForShuffle())
                     .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         }

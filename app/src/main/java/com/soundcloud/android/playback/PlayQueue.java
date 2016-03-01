@@ -137,11 +137,11 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     boolean hasSameTracks(PlayQueue playQueue) {
-        if (playQueue.size() != size()){
+        if (playQueue.size() != size()) {
             return false;
         } else {
-            for (int i = 0; i < size(); i++){
-                if (!playQueue.getPlayQueueItem(i).getUrn().equals(getPlayQueueItem(i).getUrn())){
+            for (int i = 0; i < size(); i++) {
+                if (!playQueue.getPlayQueueItem(i).getUrn().equals(getPlayQueueItem(i).getUrn())) {
                     return false;
                 }
             }
@@ -189,7 +189,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     public List<Urn> getItemUrns(int from, int count) {
         final int to = Math.min(size(), from + count);
         final List<Urn> itemUrns = new ArrayList<>(to - from);
-        for (int i = from; i < to; i++){
+        for (int i = from; i < to; i++) {
             itemUrns.add(getUrn(i));
         }
         return itemUrns;
@@ -202,6 +202,21 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     public Optional<AdData> getAdData(int position) {
         checkElementIndex(position, size());
         return playQueueItems.get(position).getAdData();
+    }
+
+    public static PlayQueue shuffled(List<Urn> offlineAvailable, List<Urn> tracks, PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracks) {
+        List<Urn> shuffled = newArrayList(tracks);
+        Collections.shuffle(shuffled);
+
+        if (!offlineAvailable.isEmpty()){
+            Collections.shuffle(offlineAvailable);
+            Urn randomOfflineTrack = offlineAvailable.get(0);
+
+            shuffled.remove(randomOfflineTrack);
+            shuffled.add(0, randomOfflineTrack);
+        }
+
+        return fromTrackUrnList(shuffled, playSessionSource, blockedTracks);
     }
 
     public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracks) {
@@ -272,7 +287,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return newArrayList(transform(urns, new Function<Urn, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Urn playable) {
-                if (playable.isTrack()){
+                if (playable.isTrack()) {
                     return new TrackQueueItem.Builder(playable)
                             .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
                             .blocked(Boolean.TRUE.equals(blockedTracks.get(playable)))
@@ -296,7 +311,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
             @Override
             public PlayQueueItem apply(PropertySet playable) {
 
-                if (playable.get(EntityProperty.URN).isTrack()){
+                if (playable.get(EntityProperty.URN).isTrack()) {
                     return new TrackQueueItem.Builder(playable)
                             .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
                             .blocked(Boolean.TRUE.equals(blockedTracks.get(playable.get(TrackProperty.URN))))
