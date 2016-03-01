@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -206,7 +208,24 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
         expectedStates.put(Urn.forTrack(3), OfflineState.NOT_OFFLINE);
         expectedStates.put(Urn.forTrack(4), OfflineState.DOWNLOADED);
 
-        subscriber.assertReceivedOnNext(Arrays.<Map<Urn, OfflineState>>asList(expectedStates));
+        subscriber.assertReceivedOnNext(Collections.<Map<Urn, OfflineState>>singletonList(expectedStates));
+    }
+
+    @Test
+    public void returnsFirstTrackUrnAvailableOffline() {
+        List<Urn> tracks = Arrays.asList(TRACK_1, TRACK_2);
+        testFixtures().insertCompletedTrackDownload(TRACK_2, 100, 200);
+
+        List<Urn> offlineTracks = storage.onlyOfflineTracks(tracks);
+        assertThat(offlineTracks).containsExactly(TRACK_2);
+    }
+
+    @Test
+    public void returnsUrnNotSetWhenNoTracksAreAvailableOffline() {
+        List<Urn> tracks = Arrays.asList(TRACK_1, TRACK_2);
+
+        List<Urn> offlineTracks = storage.onlyOfflineTracks(tracks);
+        assertThat(offlineTracks).isEmpty();
     }
 
     private Urn insertOfflinePlaylistTrack(Urn playlist, int position) {

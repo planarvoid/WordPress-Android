@@ -17,6 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -101,6 +102,15 @@ class TrackDownloadsStorage {
                         TrackDownloads.DOWNLOADED_AT,
                         TrackDownloads.UNAVAILABLE_AT);
         return propellerRx.query(query).toMap(CURSOR_TO_URN, CURSOR_TO_OFFLINE_STATE);
+    }
+
+    public List<Urn> onlyOfflineTracks(List<Urn> tracks) {
+        final Query query = Query.from(TrackDownloads.TABLE)
+                .select(TrackDownloads._ID.as(_ID))
+                .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
+                .whereIn(TrackDownloads._ID, Urns.toIds(tracks));
+
+        return propeller.query(query).toList(new TrackUrnMapper());
     }
 
     public Observable<OfflineState> getLikesOfflineState() {

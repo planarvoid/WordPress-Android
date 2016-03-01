@@ -19,6 +19,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
@@ -59,6 +60,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Mock private PlayQueueOperations playQueueOperations;
     @Mock private PlaySessionController playSessionController;
     @Mock private PolicyOperations policyOperations;
+    @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
 
     @Captor private ArgumentCaptor<PlayQueue> playQueueTracksCaptor;
 
@@ -72,19 +74,19 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 playQueueManager,
                 playQueueOperations,
                 playSessionController,
-                policyOperations);
+                policyOperations, offlinePlaybackOperations);
 
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1));
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-        when(policyOperations.blockedStatuses(anyList())).thenReturn(Observable.just(Collections.<Urn,Boolean>emptyMap()));
+        when(policyOperations.blockedStatuses(anyList())).thenReturn(Observable.just(Collections.<Urn, Boolean>emptyMap()));
 
         observer = new TestObserver<>();
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, new Urn("soundcloud:tracks:1"));
     }
 
     @Test
-     public void playTrackPlaysNewQueueFromInitialTrack() {
+    public void playTrackPlaysNewQueueFromInitialTrack() {
         playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
@@ -93,7 +95,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-     public void playTrackPlaysNewQueueFromInitialTrackWithBlockedStatus() {
+    public void playTrackPlaysNewQueueFromInitialTrackWithBlockedStatus() {
         when(policyOperations.blockedStatuses(Arrays.asList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
 
         playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
@@ -210,7 +212,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator.playTrackWithRecommendations(TRACK1, playSessionSource, 0).subscribe(observer);
 
         final PlayQueue expectedQueue = PlayQueue.fromRecommendationsWithPrependedSeed(TRACK1, relatedTracks);
-        assertPlayNewQueue(playSessionController, expectedQueue,TRACK1, 0, playSessionSource);
+        assertPlayNewQueue(playSessionController, expectedQueue, TRACK1, 0, playSessionSource);
     }
 
     @Test
@@ -226,7 +228,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 .subscribe(observer);
 
         final PlayQueue expectedQueue = TestPlayQueue.fromUrns(playSessionSource, tracks.get(0).getUrn(), tracks.get(1).getUrn(), tracks.get(2).getUrn());
-        assertPlayNewQueue(playSessionController, expectedQueue,tracks.get(1).getUrn(), 1, playSessionSource);
+        assertPlayNewQueue(playSessionController, expectedQueue, tracks.get(1).getUrn(), 1, playSessionSource);
     }
 
     @Test
@@ -252,7 +254,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playTracksNoOpsWhenItIsPQMCurrentTrackAndCurrentScreenSourceAndSameCollectionUrn()  {
+    public void playTracksNoOpsWhenItIsPQMCurrentTrackAndCurrentScreenSourceAndSameCollectionUrn() {
         final String screen = "origin_screen";
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         when(playQueueManager.getScreenTag()).thenReturn(screen);
@@ -268,7 +270,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playTracksNoOpsWhenItIsPQMCurrentTrackAndCurrentScreenSourceAndCurrentPlaylist()  {
+    public void playTracksNoOpsWhenItIsPQMCurrentTrackAndCurrentScreenSourceAndCurrentPlaylist() {
         final Urn playlistUrn = Urn.forPlaylist(456L);
         final Urn playlistOwnerUrn = Urn.forUser(789L);
         final String screen = "origin_screen";
@@ -291,8 +293,9 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3);
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
 
-        playbackInitiator.playTracksShuffled(Observable.just(tracksToPlay), playSessionSource).subscribe(observer);
+        playbackInitiator.playTracksShuffled(Observable.just(tracksToPlay), playSessionSource, false).subscribe(observer);
 
+        verify(offlinePlaybackOperations, never()).findOfflineAvailableTracks(anyList());
         verify(playSessionController).playNewQueue(playQueueTracksCaptor.capture(), any(Urn.class), eq(0), eq(playSessionSource));
         final PlayQueue actualQueue = playQueueTracksCaptor.getValue();
         assertThat(actualQueue.getTrackItemUrns()).contains(TRACK1, TRACK2, TRACK3);
@@ -301,9 +304,28 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void playTracksShuffledDoesNotLoadRecommendations() {
         final List<Urn> idsOrig = createTrackUrns(1L, 2L, 3L);
-        playbackInitiator.playTracksShuffled(Observable.just(idsOrig), new PlaySessionSource(Screen.YOUR_LIKES)).subscribe(observer);
+        playbackInitiator.playTracksShuffled(Observable.just(idsOrig), new PlaySessionSource(Screen.YOUR_LIKES), false).subscribe(observer);
 
         verify(playSessionController).playNewQueue(any(PlayQueue.class), any(Urn.class), eq(0), any(PlaySessionSource.class));
+    }
+
+    @Test
+    public void playTrackShuffledCreatesPlayQueueWithOfflineTrackPriority() {
+        final List<Urn> offlineTracks = Collections.singletonList(TRACK2);
+        final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
+        final boolean offlineContentEnabled = true;
+
+        when(offlinePlaybackOperations.findOfflineAvailableTracks(tracksToPlay)).thenReturn(offlineTracks);
+
+        playbackInitiator
+                .playTracksShuffled(Observable.just(tracksToPlay), playSessionSource, offlineContentEnabled)
+                .subscribe(observer);
+
+        verify(playSessionController).playNewQueue(playQueueTracksCaptor.capture(), any(Urn.class), eq(0), eq(playSessionSource));
+        final PlayQueue actualQueue = playQueueTracksCaptor.getValue();
+        assertThat(offlineTracks).contains(actualQueue.getUrn(0));
+        assertThat(actualQueue.getTrackItemUrns()).contains(TRACK1, TRACK2, TRACK3);
     }
 
     @Test
@@ -417,7 +439,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator.playStation(stationUrn, station.getTracks(), playSessionSource, station.getTracks().size() - 1).subscribe(observer);
 
         final PlayQueue expectedQueue = PlayQueue.fromStation(stationUrn, station.getTracks());
-        assertPlayNewQueue(playSessionController,expectedQueue, station.getTracks().get(0).getTrackUrn(), 0, playSessionSource);
+        assertPlayNewQueue(playSessionController, expectedQueue, station.getTracks().get(0).getTrackUrn(), 0, playSessionSource);
     }
 
 

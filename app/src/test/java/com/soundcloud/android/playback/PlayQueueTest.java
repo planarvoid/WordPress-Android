@@ -22,7 +22,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PlayQueueTest extends AndroidUnitTest {
 
@@ -233,7 +236,7 @@ public class PlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void getUrnsReturnsUrnsForGivenSection() {
-        assertThat(playQueue.getItemUrns(1,2)).containsExactly(TRACK_QUEUE_ITEM_2.getUrn(), VIDEO_QUEUE_ITEM.getUrn());
+        assertThat(playQueue.getItemUrns(1, 2)).containsExactly(TRACK_QUEUE_ITEM_2.getUrn(), VIDEO_QUEUE_ITEM.getUrn());
     }
 
     @Test
@@ -247,6 +250,25 @@ public class PlayQueueTest extends AndroidUnitTest {
         assertThat(playQueue.getPlayQueueItem(1)).isEqualTo(add1);
         assertThat(playQueue.getPlayQueueItem(2)).isEqualTo(add2);
         assertThat(playQueue.getPlayQueueItem(3)).isEqualTo(VIDEO_QUEUE_ITEM);
+    }
+
+    @Test
+    public void createShuffledPlayQueueWithOfflineTrackAtFirstPosition() {
+        final List<Urn> offlineTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
+        final List<Urn> allTracks = Arrays.asList(Urn.forTrack(2), Urn.forTrack(3), Urn.forTrack(2));
+
+        PlayQueue shuffled = PlayQueue.shuffled(offlineTracks, allTracks, playSessionSource, blockTracksMap(allTracks));
+        assertThat(offlineTracks).contains(shuffled.getUrn(0));
+        assertThat(shuffled.getTrackItemUrns()).containsAll(allTracks);
+    }
+
+    @Test
+    public void createsShufflePlayQueueWhenNoOfflineTracksFound() {
+        final List<Urn> offlineTracks = Collections.emptyList();
+        final List<Urn> allTracks = Arrays.asList(Urn.forTrack(2), Urn.forTrack(3), Urn.forTrack(2));
+
+        PlayQueue shuffled = PlayQueue.shuffled(offlineTracks, allTracks, playSessionSource, blockTracksMap(allTracks));
+        assertThat(shuffled.getTrackItemUrns()).containsAll(allTracks);
     }
 
     private void assertTrackQueueItem(PlayQueueItem playQueueItem, Urn trackUrn) {
@@ -265,5 +287,13 @@ public class PlayQueueTest extends AndroidUnitTest {
     private void assertVideoQueueItem(PlayQueueItem playQueueItem, Optional<AdData> adData) {
         assertThat(playQueueItem.isVideo()).isTrue();
         assertThat(playQueueItem.getAdData()).isEqualTo(adData);
+    }
+
+    private Map<Urn, Boolean> blockTracksMap(List<Urn> tracks) {
+        Map<Urn, Boolean> map = new HashMap<>(tracks.size());
+        for (Urn urn : tracks) {
+            map.put(urn, true);
+        }
+        return map;
     }
 }

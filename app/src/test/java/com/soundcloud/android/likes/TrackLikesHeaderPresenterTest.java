@@ -135,7 +135,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void emitTrackingEventOnShuffleButtonClick() {
-        when(playbackInitiator.playTracksShuffled(any(Observable.class), any(PlaySessionSource.class)))
+        when(playbackInitiator.playTracksShuffled(any(Observable.class), any(PlaySessionSource.class), anyBoolean()))
                 .thenReturn(Observable.<PlaybackResult>empty());
         presenter.onViewCreated(fragment, layoutView, null);
 
