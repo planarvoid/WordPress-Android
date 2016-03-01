@@ -23,10 +23,9 @@ import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.support.v7.app.AppCompatActivity;
 
-import java.lang.ref.WeakReference;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.lang.ref.WeakReference;
 
 @Singleton
 public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActivity> {
@@ -53,7 +52,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         }
 
         private boolean isDifferentTrack(PlayerState playerState) {
-            return lastSeenAdUrn.equals(playerState.playQueueItem.getUrn());
+            return playerState.playQueueItem.isEmpty() || lastSeenAdUrn.equals(playerState.playQueueItem.getUrn());
         }
     };
 

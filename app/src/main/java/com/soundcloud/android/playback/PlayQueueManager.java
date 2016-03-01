@@ -77,7 +77,7 @@ public class PlayQueueManager implements OriginProvider {
 
         if (this.playQueue.hasSameTracks(playQueue) && this.playSessionSource.equals(playSessionSource)) {
             this.currentPosition = startPosition;
-            eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(getCurrentPlayQueueItem(), getCollectionUrn(), getCurrentPosition()));
+            publishCurrentQueueItemChanged();
         } else {
             currentPosition = startPosition;
             setNewPlayQueueInternal(playQueue, playSessionSource);
@@ -449,6 +449,7 @@ public class PlayQueueManager implements OriginProvider {
         playQueueOperations.clear();
         playQueue = PlayQueue.empty();
         playSessionSource = PlaySessionSource.EMPTY;
+        broadcastNewPlayQueue();
     }
 
     @VisibleForTesting
@@ -512,10 +513,11 @@ public class PlayQueueManager implements OriginProvider {
 
     private void broadcastNewPlayQueue() {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(getCollectionUrn()));
+        publishCurrentQueueItemChanged();
+    }
 
-        if (playQueue.hasItems()) {
-            eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(getCurrentPlayQueueItem(), getCollectionUrn(), getCurrentPosition()));
-        }
+    private void publishCurrentQueueItemChanged() {
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(getCurrentPlayQueueItem(), getCollectionUrn(), getCurrentPosition()));
     }
 
     public void removeUpcomingItem(PlayQueueItem item, boolean shouldPublishQueueChange) {

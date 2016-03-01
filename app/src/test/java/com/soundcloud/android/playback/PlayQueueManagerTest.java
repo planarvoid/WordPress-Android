@@ -876,6 +876,22 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clearPublishesNewPlayQueueEvents() {
+        playQueueManager.clearAll();
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).hasSize(1);
+        assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.NEW_QUEUE);
+    }
+
+    @Test
+    public void clearPublishesPlayQueueItemChangedEvent() {
+        playQueueManager.clearAll();
+
+        final PlayQueueItem actual = eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM).getCurrentPlayQueueItem();
+        assertThat(actual).isSameAs(PlayQueueItem.EMPTY);
+    }
+
+    @Test
     public void isCurrentCollectionReturnsTrueIfPlaylistUrnMatchesAndCurrentTrackHasNoSource() {
         playlistSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, PLAYLIST_URN, USER_URN, PLAYLIST_TRACK_COUNT);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
