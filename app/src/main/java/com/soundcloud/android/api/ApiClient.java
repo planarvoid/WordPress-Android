@@ -11,6 +11,7 @@ import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleHeaderFormatter;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.net.HttpHeaders;
 import com.soundcloud.java.optional.Optional;
@@ -23,7 +24,6 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
-import org.apache.http.HttpStatus;
 
 import android.os.Looper;
 
@@ -98,7 +98,7 @@ public class ApiClient {
             final Request httpRequest = builder.build();
             logRequest(httpRequest);
             final Response response = httpClient.newCall(httpRequest).execute();
-            if (response.code() == HttpStatus.SC_UNAUTHORIZED) {
+            if (response.code() == HttpStatus.UNAUTHORIZED) {
                 if (accountOperations.hasValidToken()) {
                     unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
                 }

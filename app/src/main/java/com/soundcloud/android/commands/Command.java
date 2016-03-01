@@ -2,6 +2,7 @@ package com.soundcloud.android.commands;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -28,6 +29,15 @@ public abstract class Command<I, O> {
             @Override
             public void call(I i) {
                 Command.this.call(i);
+            }
+        };
+    }
+
+    public final Action0 toAction0() {
+        return new Action0() {
+            @Override
+            public void call() {
+                Command.this.call(null);
             }
         };
     }

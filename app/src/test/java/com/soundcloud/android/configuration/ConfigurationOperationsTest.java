@@ -22,7 +22,6 @@ import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -31,7 +30,6 @@ import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import com.soundcloud.android.utils.Sleeper;
 import com.soundcloud.android.utils.TryWithBackOff;
 import com.soundcloud.java.net.HttpHeaders;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -49,6 +47,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Mock private ApiClient apiClient;
     @Mock private ExperimentOperations experimentOperations;
     @Mock private FeatureOperations featureOperations;
+    @Mock private PlanChangeDetector planChangeDetector;
     @Mock private FeatureFlags featureFlags;
     @Mock private DeviceManagementStorage deviceManagementStorage;
     @Mock private ConfigurationSettingsStorage configurationSettingsStorage;
@@ -57,7 +56,6 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     private ConfigurationOperations operations;
     private Configuration configuration;
 
-    private TestEventBus eventBus = new TestEventBus();
     private TestSubscriber<Configuration> configSubscriber = new TestSubscriber<>();
     private TestSubscriber<Object> subscriber = new TestSubscriber<>();
     private TestScheduler scheduler = new TestScheduler();
@@ -68,8 +66,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         configuration = ModelFixtures.create(Configuration.class);
         TryWithBackOff.Factory factory = new TryWithBackOff.Factory(sleeper);
         operations = new ConfigurationOperations(apiClientRx,
-                experimentOperations, featureOperations, featureFlags, configurationSettingsStorage,
-                factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1), scheduler, eventBus);
+                experimentOperations, featureOperations, planChangeDetector, featureFlags, configurationSettingsStorage,
+                factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1), scheduler);
 
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
@@ -130,7 +128,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateUntilPlanChangedReturnsExpectedConfigurationOnFirstAttempt() {
+    public void awaitConfigurationWithPlanReturnsExpectedConfigurationOnFirstAttempt() {
         final Configuration highTier = getHighTierConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(Observable.just(highTier));
@@ -143,7 +141,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateUntilPlanChangedStopsPollingWhenExpectedPlanIsReturned() {
+    public void awaitConfigurationWithPlanStopsPollingWhenExpectedPlanIsReturned() {
         final Configuration noPlan = getNoPlanConfiguration();
         final Configuration withPlan = getHighTierConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
@@ -161,7 +159,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateUntilPlanChangedSavedConfigurationWhenExpectedPlanIsReturned() {
+    public void awaitConfigurationWithPlanSavesConfigurationWhenExpectedPlanIsReturned() {
         final Configuration withPlan = getHighTierConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(Observable.just(withPlan));
@@ -173,7 +171,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateUntilPlanChangedFailsAfterThreeAttempts() {
+    public void awaitConfigurationWithPlanFailsAfterThreeAttempts() {
         final Configuration noPlan = getNoPlanConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
 
@@ -184,7 +182,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateUntilPlanChangedDoesNotSaveConfigurationIfFailed() {
+    public void awaitConfigurationWithPlanDoesNotSaveConfigurationIfFailed() {
         final Configuration noPlan = getNoPlanConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
 
@@ -204,6 +202,48 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         configSubscriber.assertNoErrors();
         configSubscriber.assertNoValues();
         configSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void awaitConfigurationFromPendingPlanChangeAwaitsPendingHighTierUpgrade() {
+        when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.HIGH_TIER);
+        final Configuration highTier = getHighTierConfiguration();
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(Observable.just(highTier));
+
+        operations.awaitConfigurationFromPendingPlanChange().subscribe(configSubscriber);
+
+        scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
+        assertThat(configSubscriber.getOnNextEvents().get(0)).isSameAs(highTier);
+        configSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void awaitConfigurationFromPendingPlanChangeAwaitsPendingDowngrade() {
+        when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.FREE_TIER);
+        final Configuration noPlan = getNoPlanConfiguration();
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(Observable.just(noPlan));
+
+        operations.awaitConfigurationFromPendingPlanChange().subscribe(configSubscriber);
+
+        scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
+        assertThat(configSubscriber.getOnNextEvents().get(0)).isSameAs(noPlan);
+        configSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void awaitConfigurationFromPendingPlanChangeFailsIfNoPendingChange() {
+        when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.UNDEFINED);
+        final Configuration noPlan = getNoPlanConfiguration();
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(Observable.just(noPlan));
+
+        operations.awaitConfigurationFromPendingPlanChange().subscribe(configSubscriber);
+
+        scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
+        configSubscriber.assertNoValues();
+        configSubscriber.assertError(IllegalStateException.class);
     }
 
     @Test
@@ -271,73 +311,6 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations.saveConfiguration(authorized);
 
         verify(configurationSettingsStorage).setLastConfigurationUpdateTime(geq(now));
-    }
-
-    @Test
-    public void saveConfigurationPersistsPlanDowngrades() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
-        Configuration newConfig = getNoPlanConfiguration();
-
-        operations.saveConfiguration(newConfig);
-
-        verify(configurationSettingsStorage).storePendingPlanDowngrade(Plan.FREE_TIER);
-    }
-
-    @Test
-    public void saveConfigurationPersistsPlanUpgrades() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        Configuration newConfig = getHighTierConfiguration();
-
-        operations.saveConfiguration(newConfig);
-
-        verify(configurationSettingsStorage).storePendingPlanUpgrade(Plan.HIGH_TIER);
-    }
-
-    @Test
-    public void saveConfigurationDoesNotPersistPlanChangesIfPlanIsTheSame() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        Configuration newConfig = getNoPlanConfiguration();
-
-        operations.saveConfiguration(newConfig);
-
-        verify(configurationSettingsStorage, never()).storePendingPlanUpgrade(any(Plan.class));
-        verify(configurationSettingsStorage, never()).storePendingPlanDowngrade(any(Plan.class));
-    }
-
-    @Test
-    public void saveConfigurationPublishesPlanUpgrades() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        Configuration newConfig = getHighTierConfiguration();
-
-        operations.saveConfiguration(newConfig);
-
-        UserPlanChangedEvent event = eventBus.lastEventOn(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.class);
-        assertThat(event.isUpgrade()).isTrue();
-        assertThat(event.oldPlan).isEqualTo(Plan.FREE_TIER);
-        assertThat(event.newPlan).isEqualTo(Plan.HIGH_TIER);
-    }
-
-    @Test
-    public void saveConfigurationPublishesPlanDowngrades() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
-        Configuration newConfig = getNoPlanConfiguration();
-
-        operations.saveConfiguration(newConfig);
-
-        UserPlanChangedEvent event = eventBus.lastEventOn(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.class);
-        assertThat(event.isDowngrade()).isTrue();
-        assertThat(event.oldPlan).isEqualTo(Plan.HIGH_TIER);
-        assertThat(event.newPlan).isEqualTo(Plan.FREE_TIER);
-    }
-
-    @Test
-    public void saveConfigurationDoesNotPublishEventIfPlanDoesNotChange() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        Configuration newConfig = getNoPlanConfiguration();
-
-        operations.saveConfiguration(newConfig);
-
-        eventBus.verifyNoEventsOn(EventQueue.USER_PLAN_CHANGE);
     }
 
     @Test

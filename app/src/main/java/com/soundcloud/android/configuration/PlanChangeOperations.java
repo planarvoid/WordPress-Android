@@ -3,14 +3,12 @@ package com.soundcloud.android.configuration;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.PlaybackServiceInitiator;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.policies.PolicyOperations;
 import rx.Observable;
 import rx.functions.Action0;
 
 import javax.inject.Inject;
-import java.util.List;
 
 public class PlanChangeOperations {
 
@@ -42,25 +40,32 @@ public class PlanChangeOperations {
     }
 
     public Observable<Object> awaitAccountDowngrade() {
-        return policyOperations.refreshedTrackPolicies()
-                .flatMap(continueWith(clearTrackDownloadsCommand.toObservable(null)))
-                .doOnSubscribe(resetPlaybackService)
-                .doOnCompleted(clearPendingPlanChangeFlags)
-                .cast(Object.class);
+        return configurationOperations.awaitConfigurationFromPendingPlanChange()
+                .compose(new PlanChangedSteps<Configuration>())
+                .doOnCompleted(clearTrackDownloadsCommand.toAction0());
     }
 
-    public Observable<List<Urn>> awaitAccountUpgrade() {
-        Observable<List<Urn>> updatedAccountData;
+    public Observable<Object> awaitAccountUpgrade() {
+        Observable<Configuration> updatedConfiguration;
         if (configurationOperations.isPendingHighTierUpgrade()) {
-            // we already know the plans have changed; no need to await a plan change
-            updatedAccountData = policyOperations.refreshedTrackPolicies();
+            // plan change occurred in background; await that configuration
+            updatedConfiguration = configurationOperations.awaitConfigurationFromPendingPlanChange();
         } else {
-            updatedAccountData = configurationOperations
-                    .awaitConfigurationWithPlan(Plan.HIGH_TIER)
-                    .flatMap(continueWith(policyOperations.refreshedTrackPolicies()));
+            //TODO: handle mid-tier; right now, this can only be triggered by purchasing a high-tier
+            // sub in the app
+            updatedConfiguration = configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER);
         }
-        return updatedAccountData
-                .doOnSubscribe(resetPlaybackService)
-                .doOnCompleted(clearPendingPlanChangeFlags);
+        return updatedConfiguration.compose(new PlanChangedSteps<Configuration>());
+    }
+
+    private final class PlanChangedSteps<T> implements Observable.Transformer<T, Object> {
+
+        @Override
+        public Observable<Object> call(Observable<T> source) {
+            return source.flatMap(continueWith(policyOperations.refreshedTrackPolicies()))
+                    .doOnSubscribe(resetPlaybackService)
+                    .doOnCompleted(clearPendingPlanChangeFlags)
+                    .cast(Object.class);
+        }
     }
 }
