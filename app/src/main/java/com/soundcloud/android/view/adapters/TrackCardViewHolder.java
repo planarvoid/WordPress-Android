@@ -1,17 +1,16 @@
 package com.soundcloud.android.view.adapters;
 
+import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TieredTrack;
 
 import android.content.res.Resources;
@@ -22,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import static com.soundcloud.android.tracks.TieredTracks.isTrackPreview;
 
 public class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHolder {
     @Bind(R.id.image) ImageView image;
@@ -39,21 +37,15 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
 
     private CardEngagementsPresenter.CardEngagementClickListener clickListener;
     private final ImageOperations imageOperations;
-    private final FeatureFlags featureFlags;
-    private final FeatureOperations featureOperations;
     private final Navigator navigator;
     private final Resources resources;
 
     public TrackCardViewHolder(View view,
                                ImageOperations imageOperations,
-                               FeatureFlags featureFlags,
-                               FeatureOperations featureOperations,
                                Navigator navigator,
                                Resources resources) {
         super(view);
         this.imageOperations = imageOperations;
-        this.featureFlags = featureFlags;
-        this.featureOperations = featureOperations;
         this.navigator = navigator;
         this.resources = resources;
         ButterKnife.bind(this, view);
@@ -145,7 +137,7 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
     }
 
     private boolean showPreviewLabel(PlayableItem playableItem) {
-        return playableItem instanceof TieredTrack && isTrackPreview((TieredTrack) playableItem);
+        return playableItem instanceof TieredTrack && isHighTierPreview((TieredTrack) playableItem);
     }
 
     public void togglePreviewIndicator(boolean isUpsellable) {

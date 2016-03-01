@@ -1,6 +1,6 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.tracks.TieredTracks.isTrackPreview;
+import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -72,7 +72,7 @@ class StreamCardViewPresenter {
     }
 
     private boolean showPreviewLabel(PlayableItem playableItem) {
-        return playableItem instanceof TieredTrack && isTrackPreview((TieredTrack) playableItem);
+        return playableItem instanceof TieredTrack && isHighTierPreview((TieredTrack) playableItem);
     }
 
     private void loadArtwork(StreamItemViewHolder itemView, PlayableItem playableItem) {

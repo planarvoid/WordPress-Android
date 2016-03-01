@@ -14,36 +14,6 @@ public class TieredTracksTest {
     @Mock private TieredTrack tieredTrack;
 
     @Test
-    public void shouldIndicatePreviewWhenTrackIsSnippedAndInMidTier() {
-        when(tieredTrack.isSnipped()).thenReturn(true);
-        when(tieredTrack.isSubMidTier()).thenReturn(true);
-
-        assertThat(TieredTracks.isTrackPreview(tieredTrack)).isTrue();
-    }
-
-    @Test
-    public void shouldIndicatePreviewWhenTrackIsSnippedAndInHighTier() {
-        when(tieredTrack.isSnipped()).thenReturn(true);
-        when(tieredTrack.isSubHighTier()).thenReturn(true);
-
-        assertThat(TieredTracks.isTrackPreview(tieredTrack)).isTrue();
-    }
-
-    @Test
-    public void shouldNotIndicatePreviewWhenTrackIsNotSnipped() {
-        when(tieredTrack.isSubHighTier()).thenReturn(true);
-
-        assertThat(TieredTracks.isTrackPreview(tieredTrack)).isFalse();
-    }
-
-    @Test
-    public void shouldNotIndicatePreviewWhenTrackIsInFreeTier() {
-        when(tieredTrack.isSnipped()).thenReturn(true);
-
-        assertThat(TieredTracks.isTrackPreview(tieredTrack)).isFalse();
-    }
-
-    @Test
     public void shouldIndicateHighTierPreviewIfTrackIsSnippedAndInHighTier() {
         when(tieredTrack.isSnipped()).thenReturn(true);
         when(tieredTrack.isSubHighTier()).thenReturn(true);
