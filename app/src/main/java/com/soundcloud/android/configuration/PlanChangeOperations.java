@@ -2,8 +2,8 @@ package com.soundcloud.android.configuration;
 
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
-import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.policies.PolicyOperations;
 import rx.Observable;
 import rx.functions.Action0;
@@ -15,28 +15,30 @@ public class PlanChangeOperations {
     private final ConfigurationOperations configurationOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final PolicyOperations policyOperations;
-    private final PlaybackServiceInitiator playbackServiceInitiator;
+    private final PlaySessionController playSessionController;
+
     private final Action0 clearPendingPlanChangeFlags = new Action0() {
         @Override
         public void call() {
             configurationOperations.clearPendingPlanChanges();
         }
     };
-    private final Action0 resetPlaybackService = new Action0() {
+
+    private final Action0 resetPlaySession = new Action0() {
         @Override
         public void call() {
-            playbackServiceInitiator.resetPlaybackService();
+            playSessionController.resetPlaySession();
         }
     };
 
     @Inject
     PlanChangeOperations(ConfigurationOperations configurationOperations,
                          PolicyOperations policyOperations,
-                         PlaybackServiceInitiator playbackServiceInitiator,
+                         PlaySessionController playSessionController,
                          OfflineContentOperations offlineContentOperations) {
         this.configurationOperations = configurationOperations;
         this.policyOperations = policyOperations;
-        this.playbackServiceInitiator = playbackServiceInitiator;
+        this.playSessionController = playSessionController;
         this.offlineContentOperations = offlineContentOperations;
     }
 
@@ -64,7 +66,7 @@ public class PlanChangeOperations {
         @Override
         public Observable<Object> call(Observable<Object> source) {
             return source.flatMap(continueWith(policyOperations.refreshedTrackPolicies()))
-                    .doOnSubscribe(resetPlaybackService)
+                    .doOnSubscribe(resetPlaySession)
                     .doOnCompleted(clearPendingPlanChangeFlags)
                     .cast(Object.class);
         }
