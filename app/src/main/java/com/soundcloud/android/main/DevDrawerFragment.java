@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.ConfigurationManager;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -104,19 +105,13 @@ public class DevDrawerFragment extends PreferenceFragment {
                     }
                 });
 
-        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_flow_key))
-                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        navigator.resetForAccountUpgrade(getActivity());
-                        return true;
-                    }
-                });
-
         screen.findPreference(getString(R.string.dev_drawer_action_downgrade_flow_key))
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
+                        final SharedPreferences configSettings = getActivity().getSharedPreferences(
+                                "device_config_settings", Context.MODE_PRIVATE);
+                        configSettings.edit().putString("pending_plan_downgrade", Plan.FREE_TIER.planId).apply();
                         navigator.resetForAccountDowngrade(getActivity());
                         return true;
                     }

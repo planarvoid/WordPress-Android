@@ -8,17 +8,18 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.view.View;
 
 import javax.inject.Inject;
 
-class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> {
 
     enum StrategyContext {
         USER_NO_ACTION, USER_CONTINUE, USER_RESUBSCRIBE
@@ -29,7 +30,7 @@ class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity
     private final GoOffboardingView view;
     private final EventBus eventBus;
 
-    private AppCompatActivity activity;
+    private Fragment fragment;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     private Strategy strategy;
@@ -47,11 +48,15 @@ class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     @Override
-    public void onCreate(AppCompatActivity activity, Bundle bundle) {
-        view.bind(activity, this);
-        this.activity = activity;
+    public void onCreate(Fragment fragment, Bundle bundle) {
+        this.fragment = fragment;
         context = StrategyContext.USER_NO_ACTION;
         strategy = new InitStrategy().proceed();
+    }
+
+    @Override
+    public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
+        this.view.bind(fragment.getActivity(), this);
     }
 
     void trackResubscribeButtonImpression() {
@@ -59,9 +64,14 @@ class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     @Override
-    public void onDestroy(AppCompatActivity anActivity) {
+    public void onDestroyView(Fragment fragment) {
+        view.unbind();
+    }
+
+    @Override
+    public void onDestroy(Fragment fragment) {
         subscription.unsubscribe();
-        activity = null;
+        this.fragment = null;
     }
 
     void onResubscribeClicked() {
@@ -130,11 +140,11 @@ class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity
         public Strategy proceed() {
             switch (context) {
                 case USER_CONTINUE:
-                    navigator.openHomeAsRootScreen(activity);
+                    navigator.openHomeAsRootScreen(fragment.getContext());
                     view.reset();
                     return this;
                 case USER_RESUBSCRIBE:
-                    navigator.openUpgrade(activity);
+                    navigator.openUpgrade(fragment.getContext());
                     eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forResubscribeClick());
                     view.reset();
                     return this;
@@ -166,11 +176,11 @@ class GoOffboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity
             switch (context) {
                 case USER_CONTINUE:
                     view.setContinueButtonRetry();
-                    view.showErrorDialog(activity.getSupportFragmentManager());
+                    view.showErrorDialog(fragment.getFragmentManager());
                     return new InitStrategy();
                 case USER_RESUBSCRIBE:
                     view.setResubscribeButtonRetry();
-                    view.showErrorDialog(activity.getSupportFragmentManager());
+                    view.showErrorDialog(fragment.getFragmentManager());
                     return new InitStrategy();
                 default:
                     return this;

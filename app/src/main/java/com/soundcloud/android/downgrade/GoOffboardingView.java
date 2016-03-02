@@ -27,6 +27,10 @@ class GoOffboardingView {
         ButterKnife.bind(this, activity);
     }
 
+    void unbind() {
+        ButterKnife.unbind(this);
+    }
+
     @OnClick(R.id.btn_offboarding_resubscribe)
     void onResubscribeClicked() {
         presenter.onResubscribeClicked();

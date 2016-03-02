@@ -5,7 +5,8 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                GoOffboardingActivity.class
+                GoOffboardingActivity.class,
+                GoOffboardingFragment.class
         })
 public class DowngradeModule {
 }
