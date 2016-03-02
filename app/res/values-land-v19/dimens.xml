@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Go Onboarding  -->
+    <dimen name="android_status_bar_stub_height">14dp</dimen>
+
+</resources>
