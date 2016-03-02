@@ -61,9 +61,6 @@ android {
       buildConfigField BOOLEAN, flags['FEATURE_WAVEFORM_SPRING'], FALSE
       buildConfigField BOOLEAN, flags['FEATURE_PROFILE_NEW_TABS'], FALSE
       buildConfigField BOOLEAN, flags['FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES'], FALSE
-
-      buildConfigField BOOLEAN, flags['FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES'], TRUE
-
       buildConfigField BOOLEAN, flags['FEATURE_NEW_NOTIFICATION_SETTINGS'], FALSE
       buildConfigField BOOLEAN, flags['FEATURE_AUTO_REFRESH_STREAM'], FALSE
     }
