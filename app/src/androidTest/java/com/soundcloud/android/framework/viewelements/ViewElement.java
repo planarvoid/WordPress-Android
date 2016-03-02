@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.Tabs;
+import com.soundcloud.android.utils.Log;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -14,6 +15,11 @@ import android.webkit.WebView;
 import java.util.List;
 
 public abstract class ViewElement {
+
+    protected static void log(String msg) {
+        Log.i("ViewElement", msg);
+    }
+
     public abstract ViewElement findOnScreenElement(With with);
 
     public abstract List<ViewElement> findOnScreenElements(With with);
