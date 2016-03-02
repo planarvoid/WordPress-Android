@@ -67,7 +67,7 @@ public class PlanChangeOperations {
         public Observable<Object> call(Observable<Object> source) {
             return source.flatMap(continueWith(policyOperations.refreshedTrackPolicies()))
                     .doOnSubscribe(resetPlaySession)
-                    .doOnCompleted(clearPendingPlanChangeFlags)
+                    .finallyDo(clearPendingPlanChangeFlags)
                     .cast(Object.class);
         }
     }

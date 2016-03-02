@@ -2,7 +2,6 @@ package com.soundcloud.android.configuration;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,7 +88,7 @@ public class PlanChangeOperationsTest {
     }
 
     @Test
-    public void downgradeShouldNotResetPendingPlanChangeFlagsOnError() {
+    public void downgradeShouldResetPendingPlanChangeFlagsOnError() {
         when(configurationOperations.awaitConfigurationFromPendingPlanChange())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
         when(policyOperations.refreshedTrackPolicies())
@@ -97,7 +96,7 @@ public class PlanChangeOperationsTest {
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
 
-        verify(configurationOperations, never()).clearPendingPlanChanges();
+        verify(configurationOperations).clearPendingPlanChanges();
     }
 
     @Test
@@ -165,13 +164,13 @@ public class PlanChangeOperationsTest {
     }
 
     @Test
-    public void upgradeShouldNotResetPendingPlanChangeFlagsOnError() {
+    public void upgradeShouldResetPendingPlanChangeFlagsOnError() {
         when(configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER))
                 .thenReturn(Observable.<Configuration>error(new Exception()));
 
         operations.awaitAccountUpgrade().subscribe(subscriber);
 
-        verify(configurationOperations, never()).clearPendingPlanChanges();
+        verify(configurationOperations).clearPendingPlanChanges();
     }
 
     @Test
