@@ -29,6 +29,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
     public static final String TRIAL_DAYS_KEY = "trial_days";
     public static final String PACKAGE_URN_KEY = "package_urn";
     public static final String ENVIRONMENT_KEY = "env";
+    public static final String DISCOUNT_PRICE = "discount_price";
 
     private final WebCheckoutView view;
     private final AccountOperations operations;
@@ -83,7 +84,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
     }
 
     @Override
-    public void onFormReady() {
+    public void onWebAppReady() {
         cancelTimeout();
         // WebView callbacks are not on the UI thread
         activity.runOnUiThread(new Runnable() {
@@ -126,14 +127,19 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
 
     @VisibleForTesting
     String buildPaymentFormUrl(String token, WebProduct product, String environment) {
-        return Uri.parse(PAYMENT_FORM_BASE_URL)
+        final Uri.Builder builder = Uri.parse(PAYMENT_FORM_BASE_URL)
                 .buildUpon()
                 .appendQueryParameter(OAUTH_TOKEN_KEY, token)
                 .appendQueryParameter(PRICE_KEY, product.getPrice())
                 .appendQueryParameter(TRIAL_DAYS_KEY, Integer.toString(product.getTrialDays()))
                 .appendQueryParameter(EXPIRY_DATE_KEY, product.getExpiryDate())
                 .appendQueryParameter(PACKAGE_URN_KEY, product.getPackageUrn())
-                .appendQueryParameter(ENVIRONMENT_KEY, environment)
-                .toString();
+                .appendQueryParameter(ENVIRONMENT_KEY, environment);
+
+        if (product.getDiscountPrice().isPresent()) {
+            builder.appendQueryParameter(DISCOUNT_PRICE, product.getDiscountPrice().get());
+        }
+
+        return builder.toString();
     }
 }
