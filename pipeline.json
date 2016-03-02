@@ -50,7 +50,7 @@
       ]
     }, 
     {
-      "name": "test", 
+      "name": "test",
       "jobs": [
         [
           {
@@ -73,30 +73,7 @@
                 ]
               }
             }
-          }, 
-          {
-            "acceptance_tests": {
-              "artifacts": [
-                "app/build/outputs/apk/soundcloud*.apk",
-                "app/build/outputs/apk/*androidTest*.apk", 
-                "app/build/outputs/apk/androidnetworkmanager-*.apk"
-              ], 
-                "cmd": "./gradlew runLollipopTests", 
-                "plugins": {
-                  "htmlReports": [
-                    {
-                      "reportDir": "results/", 
-                      "reportFiles": "index.html", 
-                      "reportName": "Test Results"
-                    }
-                  ],
-                  "extEmail": {
-                    "content": "&lt;p&gt;${SCRIPT, template=&quot;random-gif.template&quot;}&lt;/p&gt;${SCRIPT, template=&quot;ios.template&quot;}"
-                  }
-                }, 
-                "test-reports": "results/xml/*.xml"
-            }
-          }, 
+          },
           {
             "dex_watchdog": {
               "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 assembleDebug assembleRelease \nexport COUNTS_FILE=dex-method-counts.csv \necho \"debug,release\" > $COUNTS_FILE;\n./gradlew --rerun-tasks --quiet countProdDebugDexMethods | grep -oP \"(\\d+)\" | xargs echo -n >> $COUNTS_FILE \n./gradlew --rerun-tasks --quiet countProdReleaseDexMethods | grep -oP \"(\\d+)\" | sed 's/^/,/' >> $COUNTS_FILE ",
@@ -112,9 +89,38 @@
         ]
       ], 
       "next-stages": [
+        "acceptance_test",
         "deploy"
       ]
-    }, 
+    },
+    {
+      "name": "acceptance_test",
+      "jobs": [
+        {
+          "acceptance_tests": {
+            "artifacts": [
+              "app/build/outputs/apk/soundcloud*.apk",
+              "app/build/outputs/apk/*androidTest*.apk",
+              "app/build/outputs/apk/androidnetworkmanager-*.apk"
+            ],
+            "cmd": "./gradlew runLollipopTests",
+            "plugins": {
+              "htmlReports": [
+                {
+                  "reportDir": "results/",
+                  "reportFiles": "index.html",
+                  "reportName": "Test Results"
+                }
+              ],
+              "extEmail": {
+                "content": "&lt;p&gt;${SCRIPT, template=&quot;random-gif.template&quot;}&lt;/p&gt;${SCRIPT, template=&quot;ios.template&quot;}"
+              }
+            },
+            "test-reports": "results/xml/*.xml"
+          }
+        }
+      ]
+    },
     {
       "name": "deploy",
       "jobs": [
