@@ -216,7 +216,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         PropertySet propertySet = PropertySet.create();
         propertySet.put(TrackProperty.URN, PREMIUM_TRACK_URN_ONE);
 
-        final ListItem premiumItem = SearchResultItem.buildPremiumItem(Collections.singletonList(propertySet), Optional.<Link>absent(), 1);
+        final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(propertySet), Optional.<Link>absent(), 1);
         final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
         final List<ListItem> listItems = Arrays.asList(premiumItem, trackItem);
 

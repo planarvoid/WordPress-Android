@@ -28,10 +28,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        final PropertySet propertySet = PropertySet.create()
-                .put(EntityProperty.URN, TRACK_URN)
-                .put(EntityProperty.URN, PLAYLIST_URN)
-                .put(EntityProperty.URN, USER_URN);
+        final PropertySet propertySet = PropertySet.create().put(EntityProperty.URN, TRACK_URN);
         searchPremiumItem = buildWithPropertySet(propertySet);
     }
 

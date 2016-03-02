@@ -7,7 +7,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
@@ -24,7 +23,6 @@ class SearchPremiumItem implements ListItem {
     private final ListItem firstItem;
 
     SearchPremiumItem(List<PropertySet> sourceSetPremiumItems, Optional<Link> nextHref, int resultsCount) {
-        Preconditions.checkState(!sourceSetPremiumItems.isEmpty());
         this.sourceSet = sourceSetPremiumItems;
         this.nextHref = nextHref;
         this.resultsCount = resultsCount;
