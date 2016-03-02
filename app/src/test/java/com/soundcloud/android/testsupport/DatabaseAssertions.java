@@ -43,6 +43,7 @@ import static com.soundcloud.android.storage.TableColumns.Sounds.PERMALINK_URL;
 import static com.soundcloud.android.storage.TableColumns.Sounds.PLAYBACK_COUNT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.REPOSTS_COUNT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.SHARING;
+import static com.soundcloud.android.storage.TableColumns.Sounds.SNIPPET_DURATION;
 import static com.soundcloud.android.storage.TableColumns.Sounds.STREAM_URL;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TAG_LIST;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TITLE;
@@ -153,7 +154,7 @@ public class DatabaseAssertions {
                 .whereEq(_ID, track.getUrn().getNumericId())
                 .whereEq(_TYPE, TYPE_TRACK)
                 .whereEq(TITLE, track.getTitle())
-                .whereEq(DURATION, track.getDuration())
+                .whereEq(SNIPPET_DURATION, track.getSnippetDuration())
                 .whereEq(FULL_DURATION, track.getFullDuration())
                 .whereEq(WAVEFORM_URL, track.getWaveformUrl())
                 .whereEq(STREAM_URL, track.getStreamUrl())

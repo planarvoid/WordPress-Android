@@ -93,7 +93,7 @@ public class PlaylistWithTracksTest extends AndroidUnitTest {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
                 PlaylistProperty.TRACK_COUNT.bind(1),
-                PlaylistProperty.PLAY_DURATION.bind(TimeUnit.SECONDS.toMillis(60))
+                PlaylistProperty.PLAYLIST_DURATION.bind(TimeUnit.SECONDS.toMillis(60))
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, Collections.<TrackItem>emptyList());
@@ -104,11 +104,11 @@ public class PlaylistWithTracksTest extends AndroidUnitTest {
     public void returnsDurationFromTracklistIfTracksAreThere() {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
-                PlaylistProperty.PLAY_DURATION.bind(TimeUnit.SECONDS.toMillis(60))
+                PlaylistProperty.PLAYLIST_DURATION.bind(TimeUnit.SECONDS.toMillis(60))
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, ModelFixtures.trackItems(2));
-        assertThat(playlistWithTracks.getDuration()).isEqualTo("0:24");
+        assertThat(playlistWithTracks.getDuration()).isEqualTo("22:37");
     }
 
     private PlaylistWithTracks createPlaylistMetaData(Urn playlistUrn, List<TrackItem> tracks) {

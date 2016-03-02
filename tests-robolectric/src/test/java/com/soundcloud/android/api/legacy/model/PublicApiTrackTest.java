@@ -295,7 +295,7 @@ public class PublicApiTrackTest {
         expect(t.waveform_url).toEqual(PublicApiTrack.fixWaveform(suggestion.getWaveformUrl()));
         expect(t.tag_list).toEqual(TextUtils.join(" ", suggestion.getUserTags()));
         expect(t.created_at).toEqual(suggestion.getCreatedAt());
-        expect(t.duration).toEqual(suggestion.getDuration());
+        expect(t.duration).toEqual(suggestion.getFullDuration());
         expect(t.sharing).toEqual(suggestion.getSharing());
         expect(t.permalink_url).toEqual(suggestion.getPermalinkUrl());
         expect(t.policy).toEqual(suggestion.getPolicy());
@@ -326,7 +326,8 @@ public class PublicApiTrackTest {
 
     private PropertySet assertTrackPropertiesWithoutPolicyInfo(PublicApiTrack track) {
         PropertySet propertySet = track.toPropertySet();
-        expect(propertySet.get(PlayableProperty.PLAY_DURATION)).toEqual(track.duration);
+        expect(propertySet.get(TrackProperty.FULL_DURATION)).toEqual(track.duration);
+        expect(propertySet.get(TrackProperty.SNIPPET_DURATION)).toEqual(track.getSnippetDuration());
         expect(propertySet.get(PlayableProperty.TITLE)).toEqual(track.title);
         expect(propertySet.get(PlayableProperty.URN)).toEqual(track.getUrn());
         expect(propertySet.get(PlayableProperty.CREATOR_URN)).toEqual(track.getUser().getUrn());
@@ -349,7 +350,8 @@ public class PublicApiTrackTest {
 
         expect(apiMobileTrack.getCommentsCount()).toEqual(track.getCommentsCount());
         expect(apiMobileTrack.getCreatedAt()).toEqual(track.getCreatedAt());
-        expect(apiMobileTrack.getDuration()).toEqual(track.getDuration());
+        expect(apiMobileTrack.getFullDuration()).toEqual(track.getFullDuration());
+        expect(apiMobileTrack.getSnippetDuration()).toEqual(track.getSnippetDuration());
         expect(apiMobileTrack.getGenre()).toEqual(track.getGenre());
         expect(apiMobileTrack.getLikesCount()).toEqual(track.getLikesCount());
         expect(apiMobileTrack.getPermalinkUrl()).toEqual(track.getPermalinkUrl());

@@ -1,5 +1,7 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.playback.Durations.getTrackPlayDuration;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.offline.OfflineProperty;
@@ -64,7 +66,7 @@ public class TrackItem extends PlayableItem implements TieredTrack {
     }
 
     public long getDuration() {
-        return source.get(TrackProperty.PLAY_DURATION);
+        return getTrackPlayDuration(source);
     }
 
     public OfflineState getDownloadedState() {

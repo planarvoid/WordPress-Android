@@ -1,12 +1,12 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.Durations;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -19,7 +19,7 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, Propert
             TrackProperty.TITLE.bind(Strings.EMPTY),
             TrackProperty.CREATOR_NAME.bind(Strings.EMPTY),
             TrackProperty.CREATOR_URN.bind(Urn.NOT_SET),
-            TrackProperty.PLAY_DURATION.bind(0L),
+            TrackProperty.SNIPPET_DURATION.bind(0L),
             TrackProperty.FULL_DURATION.bind(0L),
             TrackProperty.WAVEFORM_URL.bind(Strings.EMPTY),
             TrackProperty.IS_USER_LIKE.bind(false),
@@ -106,13 +106,11 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, Propert
     }
 
     long getPlayableDuration() {
-        return source.get(TrackProperty.PLAY_DURATION);
+        return Durations.getTrackPlayDuration(source);
     }
 
     long getFullDuration() {
-        // public api does not return full duration. Back this by play duration until we are off it
-        final Long fullDuration = source.get(TrackProperty.FULL_DURATION);
-        return fullDuration > 0 ? fullDuration : source.get(TrackProperty.PLAY_DURATION);
+        return source.get(TrackProperty.FULL_DURATION);
     }
 
     @Nullable

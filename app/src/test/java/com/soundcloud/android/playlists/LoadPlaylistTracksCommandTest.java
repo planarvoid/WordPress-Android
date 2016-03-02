@@ -123,7 +123,7 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
         return PropertySet.from(
                 TrackProperty.URN.bind(apiTrack.getUrn()),
                 TrackProperty.TITLE.bind(apiTrack.getTitle()),
-                TrackProperty.PLAY_DURATION.bind(apiTrack.getDuration()),
+                TrackProperty.SNIPPET_DURATION.bind(apiTrack.getSnippetDuration()),
                 TrackProperty.FULL_DURATION.bind(apiTrack.getFullDuration()),
                 TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
                 TrackProperty.LIKES_COUNT.bind(apiTrack.getStats().getLikesCount()),

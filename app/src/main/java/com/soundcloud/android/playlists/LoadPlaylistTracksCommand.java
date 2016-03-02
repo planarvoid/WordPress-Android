@@ -41,7 +41,7 @@ public class LoadPlaylistTracksCommand extends Command<Urn, List<PropertySet>> {
                         TableColumns.Sounds.TITLE,
                         TableColumns.Sounds.USER_ID,
                         TableColumns.Users.USERNAME,
-                        TableColumns.Sounds.DURATION,
+                        TableColumns.Sounds.SNIPPET_DURATION,
                         TableColumns.Sounds.FULL_DURATION,
                         TableColumns.Sounds.PLAYBACK_COUNT,
                         TableColumns.Sounds.LIKES_COUNT,

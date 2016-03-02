@@ -78,7 +78,8 @@ class RecommendationsStorage {
                         Recommendations.RECOMMENDED_SOUND_ID,
                         TableColumns.SoundView.TITLE,
                         TableColumns.SoundView.USERNAME,
-                        TableColumns.SoundView.DURATION,
+                        TableColumns.SoundView.SNIPPET_DURATION,
+                        TableColumns.SoundView.FULL_DURATION,
                         TableColumns.SoundView.PLAYBACK_COUNT,
                         TableColumns.SoundView.LIKES_COUNT,
                         TableColumns.SoundView.CREATED_AT)

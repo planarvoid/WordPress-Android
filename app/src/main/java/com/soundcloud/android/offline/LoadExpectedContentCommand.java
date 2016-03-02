@@ -6,7 +6,7 @@ import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
-import static com.soundcloud.android.storage.TableColumns.Sounds.DURATION;
+import static com.soundcloud.android.storage.TableColumns.Sounds.FULL_DURATION;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static com.soundcloud.android.storage.TableColumns.Sounds.USER_ID;
 import static com.soundcloud.android.storage.TableColumns.Sounds.WAVEFORM_URL;
@@ -111,7 +111,7 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
         final Query likesToDownload = Query.from(Sounds.name())
                 .select(
                         Sounds.field(_ID),
-                        Sounds.field(DURATION),
+                        Sounds.field(FULL_DURATION),
                         Sounds.field(WAVEFORM_URL),
                         Sounds.field(USER_ID),
                         TrackPolicies.field(SYNCABLE))
@@ -194,7 +194,7 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
             return OfflineRequestData.fromLikes(
                     reader.getLong(_ID),
                     reader.getLong(USER_ID),
-                    reader.getLong(DURATION),
+                    reader.getLong(FULL_DURATION),
                     reader.getString(WAVEFORM_URL),
                     reader.getBoolean(SYNCABLE));
         }

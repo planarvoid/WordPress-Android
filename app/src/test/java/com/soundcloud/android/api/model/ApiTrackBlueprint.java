@@ -32,7 +32,7 @@ public class ApiTrackBlueprint {
     String streamUrl = "http://media.soundcloud.com/stream/whVhoRw2gpUh";
 
     @Default(force = true)
-    long duration = 12345L;
+    long snippetDuration = 12345L;
 
     @Default(force = true)
     long fullDuration = 678910L;

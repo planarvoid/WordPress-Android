@@ -50,7 +50,7 @@ class TrackStorage {
                         TableColumns.SoundView.TITLE,
                         TableColumns.SoundView.USERNAME,
                         TableColumns.SoundView.USER_ID,
-                        TableColumns.SoundView.DURATION,
+                        TableColumns.SoundView.SNIPPET_DURATION,
                         TableColumns.SoundView.FULL_DURATION,
                         TableColumns.SoundView.PLAYBACK_COUNT,
                         TableColumns.SoundView.COMMENT_COUNT,

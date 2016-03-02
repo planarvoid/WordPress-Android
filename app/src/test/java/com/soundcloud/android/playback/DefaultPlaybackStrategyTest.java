@@ -198,7 +198,8 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     private PropertySet onlineTrack() {
         return PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
-                TrackProperty.PLAY_DURATION.bind(123L),
+                TrackProperty.SNIPPET_DURATION.bind(123L),
+                TrackProperty.FULL_DURATION.bind(456L),
                 TrackProperty.SNIPPED.bind(false),
                 OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE)
         );
@@ -211,7 +212,9 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     private PropertySet offlineTrack() {
         return PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
-                TrackProperty.PLAY_DURATION.bind(123L),
+                TrackProperty.SNIPPET_DURATION.bind(123L),
+                TrackProperty.FULL_DURATION.bind(456L),
+                TrackProperty.SNIPPED.bind(false),
                 OfflineProperty.OFFLINE_STATE.bind(OfflineState.DOWNLOADED)
 
         );

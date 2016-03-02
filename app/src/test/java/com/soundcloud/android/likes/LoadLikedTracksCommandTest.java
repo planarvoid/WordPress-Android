@@ -51,7 +51,7 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
                 TrackProperty.URN,
                 PlayableProperty.TITLE,
                 PlayableProperty.CREATOR_NAME,
-                PlayableProperty.PLAY_DURATION,
+                TrackProperty.SNIPPET_DURATION,
                 TrackProperty.FULL_DURATION,
                 TrackProperty.PLAY_COUNT,
                 PlayableProperty.LIKES_COUNT,

@@ -71,6 +71,7 @@ public final class TableColumns {
         public static final String GENRE = "genre";
         public static final String DURATION = "duration";
         public static final String FULL_DURATION = "full_duration";
+        public static final String SNIPPET_DURATION = "snippet_duration";
         public static final String TAG_LIST = "tag_list";
         public static final String TRACK_TYPE = "track_type";
         public static final String TITLE = "title";
@@ -104,7 +105,8 @@ public final class TableColumns {
         public static final int TYPE_COLLECTION = 2;
 
         public static final String[] ALL_FIELDS = {
-                _ID, _TYPE, ORIGINAL_CONTENT_SIZE, DURATION, FULL_DURATION, GENRE, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL,
+                _ID, _TYPE, ORIGINAL_CONTENT_SIZE, DURATION, FULL_DURATION, SNIPPET_DURATION, GENRE, TAG_LIST,
+                TRACK_TYPE, TITLE, PERMALINK_URL,
                 ARTWORK_URL, WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAMABLE,
                 COMMENTABLE, SHARING, LICENSE, PURCHASE_URL, PLAYBACK_COUNT, DOWNLOAD_COUNT,
                 COMMENT_COUNT, LIKES_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT,
@@ -310,6 +312,7 @@ public final class TableColumns {
         public static final String PERMALINK = Sounds.PERMALINK;
         public static final String CREATED_AT = Sounds.CREATED_AT;
         public static final String DURATION = Sounds.DURATION;
+        public static final String SNIPPET_DURATION = Sounds.SNIPPET_DURATION;
         public static final String FULL_DURATION = Sounds.FULL_DURATION;
         public static final String ORIGINAL_CONTENT_SIZE = Sounds.ORIGINAL_CONTENT_SIZE;
         public static final String STATE = Sounds.STATE;

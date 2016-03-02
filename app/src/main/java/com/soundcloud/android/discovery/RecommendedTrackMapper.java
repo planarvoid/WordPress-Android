@@ -18,7 +18,8 @@ class RecommendedTrackMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlayableProperty.URN, Urn.forTrack(cursorReader.getLong(Recommendations.RECOMMENDED_SOUND_ID)));
         propertySet.put(PlayableProperty.TITLE, cursorReader.getString(SoundView.TITLE));
         propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
-        propertySet.put(PlayableProperty.PLAY_DURATION, cursorReader.getLong(SoundView.DURATION));
+        propertySet.put(TrackProperty.SNIPPET_DURATION, cursorReader.getLong(SoundView.SNIPPET_DURATION));
+        propertySet.put(TrackProperty.FULL_DURATION, cursorReader.getLong(SoundView.FULL_DURATION));
         propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));
         propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
         propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundView.CREATED_AT));

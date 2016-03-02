@@ -89,7 +89,7 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
         assertThat(secondBroadcast.getExtras().get("id")).isEqualTo(track.get(TrackProperty.URN).getNumericId());
         assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo(track.get(PlayableProperty.CREATOR_NAME));
         assertThat(secondBroadcast.getExtras().get("track")).isEqualTo(track.get(PlayableProperty.TITLE));
-        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.get(PlayableProperty.PLAY_DURATION));
+        assertThat(secondBroadcast.getExtras().get("duration")).isEqualTo(track.get(TrackProperty.FULL_DURATION));
     }
 
     @Test

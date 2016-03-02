@@ -43,6 +43,8 @@ public class SoundStreamStorage implements TimelineStorage {
             SoundView.USERNAME,
             SoundView.USER_ID,
             SoundView.DURATION,
+            SoundView.FULL_DURATION,
+            SoundView.SNIPPET_DURATION,
             SoundView.PLAYBACK_COUNT,
             SoundView.TRACK_COUNT,
             SoundView.LIKES_COUNT,
@@ -149,15 +151,16 @@ public class SoundStreamStorage implements TimelineStorage {
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
 
-            propertySet.put(PlayableProperty.URN, readSoundUrn(cursorReader));
+            final Urn urn = readSoundUrn(cursorReader);
+            propertySet.put(PlayableProperty.URN, urn);
             addTitle(cursorReader, propertySet);
-            propertySet.put(PlayableProperty.PLAY_DURATION, cursorReader.getLong(SoundView.DURATION));
             propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
             propertySet.put(PlayableProperty.CREATOR_URN, Urn.forUser(cursorReader.getInt(SoundView.USER_ID)));
             propertySet.put(SoundStreamProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_PRIVATE,
                     Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
 
+            addDurations(cursorReader, propertySet, urn.isPlaylist());
             addUserLike(cursorReader, propertySet);
             addUserRepost(cursorReader, propertySet);
 
@@ -174,6 +177,15 @@ public class SoundStreamStorage implements TimelineStorage {
             }
 
             return propertySet;
+        }
+
+        private void addDurations(CursorReader cursorReader, PropertySet propertySet, boolean isPlaylist) {
+            if (isPlaylist) {
+                propertySet.put(PlaylistProperty.PLAYLIST_DURATION, cursorReader.getLong(SoundView.DURATION));
+            } else {
+                propertySet.put(TrackProperty.SNIPPET_DURATION, cursorReader.getLong(SoundView.SNIPPET_DURATION));
+                propertySet.put(TrackProperty.FULL_DURATION, cursorReader.getLong(SoundView.FULL_DURATION));
+            }
         }
 
         private void addTitle(CursorReader cursorReader, PropertySet propertySet) {

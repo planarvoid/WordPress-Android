@@ -2,8 +2,8 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.Durations;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -104,7 +104,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         put(CONNECTION_TYPE, connectionType);
         this.trackSourceInfo = trackSourceInfo;
         this.progress = progress;
-        this.duration = track.get(PlayableProperty.PLAY_DURATION);
+        this.duration = Durations.getTrackPlayDuration(track);
         EntityMetadata.from(track).addToTrackingEvent(this);
     }
 

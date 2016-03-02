@@ -737,8 +737,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     private void populateTrackPage() {
-        presenter.bindItemView(trackView, new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(), true, true,
-                viewVisibilityProvider));
+        final PropertySet source = TestPropertySets.expectedTrackForPlayer();
+        source.put(TrackProperty.SNIPPED, true);
+        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
     }
 
     private void bindSnippedTrack() {

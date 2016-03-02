@@ -280,7 +280,7 @@ public interface Tables {
                 "Sounds._id as _id," +
                 "Sounds._type as _type, " +
                 "Sounds.user_id as user_id, " +
-                "Sounds.duration as duration, " +
+                "Sounds.full_duration as duration, " +
                 "Sounds.waveform_url as waveform_url, " +
                 "TrackPolicies.syncable as syncable, " +
                 "TrackPolicies.last_updated as last_policy_update, " +

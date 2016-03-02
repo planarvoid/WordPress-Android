@@ -460,7 +460,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
             ErrorUtils.handleSilentException(new IllegalStateException("Attempting to create PropertySet with a null title; urn=" + getUrn()));
         }
         return PropertySet.from(
-                PlayableProperty.PLAY_DURATION.bind(duration),
                 // titles are sometimes null from public api (unfortunately) playlist endpoint.
                 PlayableProperty.TITLE.bind(title == null ? Strings.EMPTY : title),
                 PlayableProperty.URN.bind(getUrn()),

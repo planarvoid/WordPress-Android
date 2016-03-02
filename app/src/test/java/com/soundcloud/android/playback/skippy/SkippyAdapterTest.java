@@ -105,7 +105,9 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     private Urn trackUrn = Urn.forTrack(123L);
     private PropertySet track = PropertySet.from(
             TrackProperty.URN.bind(trackUrn),
-            TrackProperty.PLAY_DURATION.bind(456L)
+            TrackProperty.SNIPPET_DURATION.bind(345L),
+            TrackProperty.FULL_DURATION.bind(456L),
+            TrackProperty.SNIPPED.bind(false)
     );
     private PlaybackItem playbackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
     private TestDateProvider dateProvider;

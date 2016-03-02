@@ -25,7 +25,6 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -107,7 +106,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
+                .trackLength(track.get(TrackProperty.FULL_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .reposter(Urn.forUser(456L))
@@ -141,7 +140,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
+                .trackLength(track.get(TrackProperty.FULL_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .reposter(Urn.forUser(456L))
@@ -174,7 +173,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
+                .trackLength(track.get(TrackProperty.FULL_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .reposter(Urn.forUser(456L))
@@ -208,7 +207,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
+                .trackLength(track.get(TrackProperty.FULL_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(false)
@@ -243,7 +242,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
+                .trackLength(track.get(TrackProperty.FULL_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(false)
@@ -277,7 +276,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
+                .trackLength(track.get(TrackProperty.FULL_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(false)
@@ -310,7 +309,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
+                .trackLength(audioAdTrack.get(TrackProperty.FULL_DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
                 .trackOwner(audioAdTrack.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(false)
@@ -347,7 +346,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(audioAdTrack.get(PlayableProperty.PLAY_DURATION))
+                .trackLength(audioAdTrack.get(TrackProperty.FULL_DURATION))
                 .track(audioAdTrack.get(TrackProperty.URN))
                 .trackOwner(audioAdTrack.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(true)
@@ -385,7 +384,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .trackLength(track.get(PlayableProperty.PLAY_DURATION))
+                .trackLength(track.get(TrackProperty.FULL_DURATION))
                 .track(track.get(TrackProperty.URN))
                 .trackOwner(track.get(TrackProperty.CREATOR_URN))
                 .localStoragePlayback(false)
