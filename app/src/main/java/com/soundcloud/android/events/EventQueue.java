@@ -1,9 +1,8 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.playback.Player.StateTransition;
-
 import com.soundcloud.android.configuration.UserPlanChangedEvent;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.Queue;
@@ -18,24 +17,31 @@ public final class EventQueue {
         }
     };
 
-    public static final Queue<ConnectionType> NETWORK_CONNECTION_CHANGED = Queue.of(ConnectionType.class).onError(ON_ERROR).replay(ConnectionType.UNKNOWN).get();
-    public static final Queue<StateTransition> PLAYBACK_STATE_CHANGED = Queue.of(StateTransition.class).onError(ON_ERROR).replay(StateTransition.DEFAULT).get();
-    public static final Queue<PlaybackProgressEvent> PLAYBACK_PROGRESS = Queue.of(PlaybackProgressEvent.class).onError(ON_ERROR).get();
-    public static final Queue<ActivityLifeCycleEvent> ACTIVITY_LIFE_CYCLE = Queue.of(ActivityLifeCycleEvent.class).onError(ON_ERROR).get();
+    // playback
+    public static final Queue<Player.StateTransition> PLAYBACK_STATE_CHANGED = Queue.of(Player.StateTransition.class).onError(ON_ERROR).replay(Player.StateTransition.DEFAULT).get();
     public static final Queue<PlayerLifeCycleEvent> PLAYER_LIFE_CYCLE = Queue.of(PlayerLifeCycleEvent.class).onError(ON_ERROR).replay(PlayerLifeCycleEvent.forDestroyed()).get();
-    public static final Queue<CurrentUserChangedEvent> CURRENT_USER_CHANGED = Queue.of(CurrentUserChangedEvent.class).onError(ON_ERROR).get();
+    public static final Queue<PlaybackProgressEvent> PLAYBACK_PROGRESS = Queue.of(PlaybackProgressEvent.class).onError(ON_ERROR).get();
     public static final Queue<PlayerUIEvent> PLAYER_UI = Queue.of(PlayerUIEvent.class).onError(ON_ERROR).replay(PlayerUIEvent.fromPlayerCollapsed()).get();
     public static final Queue<PlayerUICommand> PLAYER_COMMAND = Queue.of(PlayerUICommand.class).onError(ON_ERROR).get();
     public static final Queue<PlayQueueEvent> PLAY_QUEUE = Queue.of(PlayQueueEvent.class).onError(ON_ERROR).get();
     public static final Queue<CurrentPlayQueueItemEvent> CURRENT_PLAY_QUEUE_ITEM = Queue.of(CurrentPlayQueueItemEvent.class).onError(ON_ERROR).replay().get();
     public static final Queue<AdOverlayEvent> AD_OVERLAY = Queue.of(AdOverlayEvent.class).onError(ON_ERROR).replay().get();
+
+    // accounts + users
+    public static final Queue<CurrentUserChangedEvent> CURRENT_USER_CHANGED = Queue.of(CurrentUserChangedEvent.class).onError(ON_ERROR).get();
+    public static final Queue<UserPlanChangedEvent> USER_PLAN_CHANGE = Queue.of(UserPlanChangedEvent.class).onError(ON_ERROR).get();
+
+    // application state
+    public static final Queue<ConnectionType> NETWORK_CONNECTION_CHANGED = Queue.of(ConnectionType.class).onError(ON_ERROR).replay(ConnectionType.UNKNOWN).get();
+    public static final Queue<ActivityLifeCycleEvent> ACTIVITY_LIFE_CYCLE = Queue.of(ActivityLifeCycleEvent.class).onError(ON_ERROR).get();
+
+    // data
     public static final Queue<SyncResult> SYNC_RESULT = Queue.of(SyncResult.class).onError(ON_ERROR).replay().get();
     public static final Queue<EntityStateChangedEvent> ENTITY_STATE_CHANGED = Queue.of(EntityStateChangedEvent.class).onError(ON_ERROR).get();
     public static final Queue<OfflineContentChangedEvent> OFFLINE_CONTENT_CHANGED = Queue.of(OfflineContentChangedEvent.class).onError(ON_ERROR).replay().get();
     public static final Queue<UploadEvent> UPLOAD = Queue.of(UploadEvent.class).onError(ON_ERROR).replay(UploadEvent.idle()).get();
     public static final Queue<PolicyUpdateEvent> POLICY_UPDATES = Queue.of(PolicyUpdateEvent.class).onError(ON_ERROR).get();
     public static final Queue<StreamEvent> STREAM = Queue.of(StreamEvent.class).onError(ON_ERROR).get();
-    public static final Queue<UserPlanChangedEvent> USER_PLAN_CHANGE = Queue.of(UserPlanChangedEvent.class).onError(ON_ERROR).get();
 
     // tracking event queues
     public static final Queue<TrackingEvent> TRACKING = Queue.of(TrackingEvent.class).onError(ON_ERROR).get();
