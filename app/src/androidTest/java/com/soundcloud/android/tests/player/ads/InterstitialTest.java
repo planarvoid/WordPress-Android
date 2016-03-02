@@ -11,7 +11,6 @@ import com.soundcloud.android.utils.Log;
 import android.net.Uri;
 
 @AdsTest
-@Ignore
 public class InterstitialTest extends AdBaseTest {
 
     @Override
