@@ -12,14 +12,12 @@ import android.content.Intent;
  */
 public final class ActivityAssert extends AbstractAssert<ActivityAssert, Activity> {
 
-    private final Intent shadowIntent;
-
     public ActivityAssert(Activity actual) {
         super(actual, ActivityAssert.class);
-        this.shadowIntent = Shadows.shadowOf(actual).getNextStartedActivity();
     }
 
     public IntentAssert nextStartedIntent() {
+        final Intent shadowIntent = getNextStartedActivity();
         isNotNull();
         Assertions.assertThat(shadowIntent).isNotNull();
         return new IntentAssert(shadowIntent);
@@ -27,6 +25,21 @@ public final class ActivityAssert extends AbstractAssert<ActivityAssert, Activit
 
     public void hasNoNextStartedIntent() {
         isNotNull();
-        Assertions.assertThat(shadowIntent).isNull();
+        Assertions.assertThat(getNextStartedActivity()).isNull();
+    }
+
+    public IntentAssert nextStartedService() {
+        final Intent shadowIntent = getNextStartedService();
+        isNotNull();
+        Assertions.assertThat(shadowIntent).isNotNull();
+        return new IntentAssert(shadowIntent);
+    }
+
+    private Intent getNextStartedActivity() {
+        return Shadows.shadowOf(actual).getNextStartedActivity();
+    }
+
+    private Intent getNextStartedService() {
+        return Shadows.shadowOf(actual).getNextStartedService();
     }
 }

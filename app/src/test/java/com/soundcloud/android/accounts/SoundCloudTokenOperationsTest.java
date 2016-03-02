@@ -1,24 +1,21 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 
-@RunWith(SoundCloudTestRunner.class)
-public class SoundCloudTokenOperationsTest {
-
+public class SoundCloudTokenOperationsTest extends AndroidUnitTest {
 
     private static final String ACCESSTOKEN = "access";
     private static final String REFRESHTOKEN = "refresh";
@@ -34,7 +31,7 @@ public class SoundCloudTokenOperationsTest {
     @Mock private Account account;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         initMocks(this);
         tokenOperations = new SoundCloudTokenOperations(accountManager);
         token = new Token(ACCESSTOKEN, REFRESHTOKEN, SCOPE, EXPIRES);
@@ -42,7 +39,7 @@ public class SoundCloudTokenOperationsTest {
     }
 
     @Test
-    public void shouldStoreTokenInformationIfSoundCloudAccountExists(){
+    public void shouldStoreTokenInformationIfSoundCloudAccountExists() {
         tokenOperations.storeSoundCloudTokenData(account, token);
 
         verify(accountManager).setAuthToken(account, "access_token", ACCESSTOKEN);
@@ -52,19 +49,19 @@ public class SoundCloudTokenOperationsTest {
     }
 
     @Test
-    public void shouldReturnTokenIfAccountExists(){
+    public void shouldReturnTokenIfAccountExists() {
         when(accountManager.getUserData(account, "scope")).thenReturn(SCOPE);
         when(accountManager.peekAuthToken(account, "access_token")).thenReturn(ACCESSTOKEN);
         when(accountManager.peekAuthToken(account, "refresh_token")).thenReturn(REFRESHTOKEN);
 
         Token token = tokenOperations.getTokenFromAccount(account);
-        expect(token.getAccessToken()).toEqual(ACCESSTOKEN);
-        expect(token.getRefreshToken()).toEqual(REFRESHTOKEN);
-        expect(token.getScope()).toEqual(SCOPE);
+        assertThat(token.getAccessToken()).isEqualTo(ACCESSTOKEN);
+        assertThat(token.getRefreshToken()).isEqualTo(REFRESHTOKEN);
+        assertThat(token.getScope()).isEqualTo(SCOPE);
     }
 
     @Test
-    public void shouldInvalidateTokensAndData(){
+    public void shouldInvalidateTokensAndData() {
         tokenOperations.invalidateToken(token, account);
         verify(accountManager).invalidateAuthToken(ACCOUNTTYPE, ACCESSTOKEN);
         verify(accountManager).invalidateAuthToken(ACCOUNTTYPE, REFRESHTOKEN);
@@ -77,7 +74,7 @@ public class SoundCloudTokenOperationsTest {
     public void shouldNotReloadTokenFromAccountIfAlreadyLoaded() {
         Token token1 = tokenOperations.getTokenFromAccount(account);
         Token token2 = tokenOperations.getTokenFromAccount(account);
-        expect(token1).toBe(token2);
+        assertThat(token1).isSameAs(token2);
     }
 
     @Test
@@ -85,7 +82,7 @@ public class SoundCloudTokenOperationsTest {
         Token token1 = tokenOperations.getTokenFromAccount(account);
         tokenOperations.invalidateToken(token, account);
         Token token2 = tokenOperations.getTokenFromAccount(account);
-        expect(token1).not.toBe(token2);
+        assertThat(token1).isNotSameAs(token2);
         verify(accountManager, times(2)).peekAuthToken(account, "access_token");
         verify(accountManager, times(2)).peekAuthToken(account, "refresh_token");
     }
@@ -95,7 +92,7 @@ public class SoundCloudTokenOperationsTest {
         Token token1 = tokenOperations.getTokenFromAccount(account);
         tokenOperations.resetToken();
         Token token2 = tokenOperations.getTokenFromAccount(account);
-        expect(token1).not.toBe(token2);
+        assertThat(token1).isNotSameAs(token2);
         verify(accountManager, times(2)).peekAuthToken(account, "access_token");
         verify(accountManager, times(2)).peekAuthToken(account, "refresh_token");
     }
