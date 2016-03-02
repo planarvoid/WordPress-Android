@@ -1,33 +1,29 @@
 package com.soundcloud.android.onboarding.auth;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-
-@RunWith(DefaultTestRunner.class)
 public class SignupMethodBasicsTest {
 
     @Test
     public void shouldNotAcceptPasswordShorterThan6Characters() throws Exception {
-        expect(SignupBasicsLayout.checkPassword("12345")).toBeFalse();
+        assertThat(SignupBasicsLayout.checkPassword("12345")).isFalse();
     }
 
     @Test
     public void shouldNotAcceptEmptyPassword() throws Exception {
-        expect(SignupBasicsLayout.checkPassword(null)).toBeFalse();
+        assertThat(SignupBasicsLayout.checkPassword(null)).isFalse();
     }
 
     @Test
     public void shouldNotAcceptEmptyStringAsPassword() throws Exception {
-        expect(SignupBasicsLayout.checkPassword("")).toBeFalse();
+        assertThat(SignupBasicsLayout.checkPassword("")).isFalse();
     }
 
     @Test
     public void shouldAccept6CharactersPassword() throws Exception {
-        expect(SignupBasicsLayout.checkPassword("123456")).toBeTrue();
+        assertThat(SignupBasicsLayout.checkPassword("123456")).isTrue();
     }
 
 }
