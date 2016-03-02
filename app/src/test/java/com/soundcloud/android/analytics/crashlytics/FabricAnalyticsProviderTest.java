@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.reporting.DatabaseReporting;
 import com.soundcloud.reporting.DataPoint;
@@ -66,5 +67,15 @@ public class FabricAnalyticsProviderTest {
 
         verify(fabricReporter).post(Metric.create("DB:RecordCount", DataPoint.numeric("tracks", 3)));
         verifyNoMoreInteractions(fabricReporter);
+    }
+
+    @Test
+    public void shouldHandleForceUpdateEvents() {
+        when(fabricProvider.isInitialized()).thenReturn(true); // unlock reports
+        ForceUpdateEvent event = new ForceUpdateEvent("6.0", "2016.01.01-release", 423);
+
+        provider.handleForceUpdateEvent(event);
+
+        verify(fabricReporter).post(event.toMetric());
     }
 }

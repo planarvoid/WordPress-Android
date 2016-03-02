@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.configuration.UserPlanChangedEvent;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.playback.Player;
@@ -30,6 +31,7 @@ public final class EventQueue {
     // accounts + users
     public static final Queue<CurrentUserChangedEvent> CURRENT_USER_CHANGED = Queue.of(CurrentUserChangedEvent.class).onError(ON_ERROR).get();
     public static final Queue<UserPlanChangedEvent> USER_PLAN_CHANGE = Queue.of(UserPlanChangedEvent.class).onError(ON_ERROR).get();
+    public static final Queue<ForceUpdateEvent> FORCE_UPDATE = Queue.of(ForceUpdateEvent.class).replay().onError(ON_ERROR).get();
 
     // application state
     public static final Queue<ConnectionType> NETWORK_CONNECTION_CHANGED = Queue.of(ConnectionType.class).onError(ON_ERROR).replay(ConnectionType.UNKNOWN).get();

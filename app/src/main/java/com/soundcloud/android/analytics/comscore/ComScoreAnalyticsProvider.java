@@ -2,12 +2,8 @@ package com.soundcloud.android.analytics.comscore;
 
 import com.comscore.analytics.comScore;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.AnalyticsProvider;
+import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 
@@ -16,8 +12,7 @@ import android.content.Context;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-@SuppressWarnings("PMD.UncommentedEmptyMethod")
-public class ComScoreAnalyticsProvider implements AnalyticsProvider {
+public class ComScoreAnalyticsProvider extends DefaultAnalyticsProvider {
 
     public static final int ONE_MINUTE = 60;
     public static final boolean AUTO_UPDATE_IN_BACKGROUND = false;
@@ -42,15 +37,6 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
-    }
-
-    @Override
-    public void onAppCreated(Context context) {
-        /* no op */
-    }
-
-    @Override
     public void handleActivityLifeCycleEvent(final ActivityLifeCycleEvent event) {
         executor.execute(new Runnable() {
             @Override
@@ -62,18 +48,6 @@ public class ComScoreAnalyticsProvider implements AnalyticsProvider {
                 }
             }
         });
-    }
-
-    @Override
-    public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
-    }
-
-    @Override
-    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-    }
-
-    @Override
-    public void handleOnboardingEvent(OnboardingEvent event) {
     }
 
     @Override
