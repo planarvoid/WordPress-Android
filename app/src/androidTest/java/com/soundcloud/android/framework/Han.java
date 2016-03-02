@@ -109,9 +109,7 @@ public class Han {
             viewElement = findOnScreenElement(with);
 
         }
-        if (viewElement instanceof DefaultViewElement) {
-            ((DefaultViewElement) viewElement).dragFullyOnScreenVertical(with);
-        }
+        viewElement.dragFullyOnScreenVertical();
         return viewElement;
     }
 

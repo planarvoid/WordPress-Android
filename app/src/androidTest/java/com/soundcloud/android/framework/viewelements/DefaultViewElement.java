@@ -1,8 +1,5 @@
 package com.soundcloud.android.framework.viewelements;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.ViewFetcher;
 import com.soundcloud.android.framework.Waiter;
@@ -15,7 +12,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -192,19 +188,6 @@ public class DefaultViewElement extends ViewElement {
         return true;
     }
 
-    // Tracking scrolling issue weirdness on the CI.
-    // Sometimes, Han is scrolling up instead of down after finding a view.
-    //
-    // THe suspicion is that the recycler view is recycling the view after finding it. Then,
-    // this code would scroll to the wrong view.
-    public boolean dragFullyOnScreenVertical(With... with) {
-        assertThat(testDriver.findOnScreenElement(with).getView() == getView(), is(true));
-        final boolean result = dragFullyOnScreenVertical();
-        assertThat(testDriver.findOnScreenElement(with).getView() == getView(), is(true));
-
-        return result;
-    }
-
     private boolean viewCanFitVerticallyOnScreen() {
         return getHeight() <= getAvailableScreenHeight();
     }
@@ -242,7 +225,7 @@ public class DefaultViewElement extends ViewElement {
     }
 
     private boolean isFullyOnScreen(Rect visibleRect, Rect viewRect) {
-        Log.i("CLICKEVENT", String.format("View rect: %s", viewRect.flattenToString()));
+        log(String.format("View rect: %s", viewRect.flattenToString()));
         return visibleRect.contains(viewRect.left, viewRect.top, viewRect.right, viewRect.bottom);
     }
 
