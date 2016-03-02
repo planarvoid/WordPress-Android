@@ -62,9 +62,9 @@ public class ExploreGenresFragment extends LightCycleSupportFragment
 
     @VisibleForTesting
     ExploreGenresFragment(ExploreTracksOperations exploreOperations,
-                                 ExploreGenresAdapter adapter,
-                                 ListViewController listViewController,
-                                 EventBus eventBus) {
+                          ExploreGenresAdapter adapter,
+                          ListViewController listViewController,
+                          EventBus eventBus) {
         this.exploreOperations = exploreOperations;
         this.adapter = adapter;
         this.listViewController = listViewController;
