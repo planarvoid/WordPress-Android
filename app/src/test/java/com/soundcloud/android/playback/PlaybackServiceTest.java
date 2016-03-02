@@ -12,6 +12,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -26,6 +27,7 @@ import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.content.Intent;
@@ -235,6 +237,21 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onPlaystateChanged(stateTransition);
 
         verify(analyticsController, never()).onStateTransition(any(Player.StateTransition.class));
+    }
+
+    @Test
+    public void onProgressForwardsProgressEventToAnalyticsController() {
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+        playbackService.onProgressEvent(25, 50);
+
+        ArgumentCaptor<PlaybackProgressEvent> captor = ArgumentCaptor.forClass(PlaybackProgressEvent.class);
+        verify(analyticsController).onProgressEvent(captor.capture());
+
+        final PlaybackProgressEvent event = captor.getValue();
+        assertThat(event.getPlaybackProgress().getPosition()).isEqualTo(25);
+        assertThat(event.getPlaybackProgress().getDuration()).isEqualTo(50);
+        assertThat(event.getUrn()).isEqualTo(playbackItem.getUrn());
     }
 
     @Test

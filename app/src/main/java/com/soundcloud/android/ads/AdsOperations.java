@@ -137,11 +137,11 @@ public class AdsOperations {
         if (apiAudioAd.hasApiLeaveBehind()) {
             insertAudioAdWithLeaveBehind(apiAudioAd, audioAdData, monetizableItem);
         } else {
-            insertAudioAdiWithoutLeaveBehind(monetizableItem, apiAudioAd, audioAdData);
+            insertAudioAdWithoutLeaveBehind(monetizableItem, apiAudioAd, audioAdData);
         }
     }
 
-    private void insertAudioAdiWithoutLeaveBehind(TrackQueueItem monetizableItem, ApiAudioAd apiAudioAd, AudioAd audioAdData) {
+    private void insertAudioAdWithoutLeaveBehind(TrackQueueItem monetizableItem, ApiAudioAd apiAudioAd, AudioAd audioAdData) {
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem).build();
         final TrackQueueItem audioAdItem = new TrackQueueItem.Builder(apiAudioAd.getApiTrack().getUrn())
                 .withAdData(audioAdData)
@@ -209,6 +209,10 @@ public class AdsOperations {
 
     public void clearAllAdsFromQueue() {
         playQueueManager.removeAds(PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
+    }
+
+    public Optional<AdData> getCurrentTrackAdData() {
+        return playQueueManager.getCurrentPlayQueueItem().getAdData();
     }
 
     public Optional<AdData> getNextTrackAdData() {

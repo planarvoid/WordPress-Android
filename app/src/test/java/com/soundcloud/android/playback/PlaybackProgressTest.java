@@ -41,6 +41,60 @@ public class PlaybackProgressTest {
         assertThat(event.isDurationValid()).isTrue();
     }
 
+    @Test
+    public void isPastFirstQuartileReturnsFalseWhenInvalidDuration() {
+        PlaybackProgress event = createPlaybackProgress(0, 0);
+        assertThat(event.isPastFirstQuartile()).isFalse();
+    }
+
+    @Test
+    public void isPastFirstQuartileReturnsTrueWhenExactlyAtFirstQuartile() {
+        PlaybackProgress event = createPlaybackProgress(1, 4);
+        assertThat(event.isPastFirstQuartile()).isTrue();
+    }
+
+    @Test
+    public void isPastFirstQuartileReturnsTrueWhenPastFirstQuartile() {
+        PlaybackProgress event = createPlaybackProgress(2, 4);
+        assertThat(event.isPastFirstQuartile()).isTrue();
+    }
+
+    @Test
+    public void isPastSecondQuartileReturnsFalseWhenInvalidDuration() {
+        PlaybackProgress event = createPlaybackProgress(0, 0);
+        assertThat(event.isPastSecondQuartile()).isFalse();
+    }
+
+    @Test
+    public void isPastSecondQuartileReturnsTrueWhenExactlyAtSecondQuartile() {
+        PlaybackProgress event = createPlaybackProgress(2, 4);
+        assertThat(event.isPastSecondQuartile()).isTrue();
+    }
+
+    @Test
+    public void isPastSecondQuartileReturnsTrueWhenPastSecondQuartile() {
+        PlaybackProgress event = createPlaybackProgress(3, 4);
+        assertThat(event.isPastSecondQuartile()).isTrue();
+    }
+
+    @Test
+    public void isPastThirdQuartileReturnsFalseWhenInvalidDuration() {
+        PlaybackProgress event = createPlaybackProgress(0,0);
+        assertThat(event.isPastThirdQuartile()).isFalse();
+    }
+
+    @Test
+    public void isPastThirdQuartileReturnsTrueWhenExactlyAtThirdQuartile() {
+        PlaybackProgress event = createPlaybackProgress(3, 4);
+        assertThat(event.isPastThirdQuartile()).isTrue();
+    }
+
+    @Test
+    public void isPastThirdQuartileReturnsTrueWhenPastThirdQuartile() {
+        PlaybackProgress event = createPlaybackProgress(4, 4);
+        assertThat(event.isPastThirdQuartile()).isTrue();
+    }
+
     private PlaybackProgress createPlaybackProgress(long position, long duration) {
         return new PlaybackProgress(position, duration, new CurrentDateProvider());
     }

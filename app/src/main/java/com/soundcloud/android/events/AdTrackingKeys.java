@@ -15,4 +15,5 @@ public class AdTrackingKeys {
     public static final String KEY_AD_TYPE = "ad_type";
     public static final String KEY_PROMOTER_URN = "promoter_urn";
     public static final String KEY_ADS_ENDPOINT = "request_endpoint";
+    public static final String KEY_QUARTILE_TYPE = "quartile_type";
 }

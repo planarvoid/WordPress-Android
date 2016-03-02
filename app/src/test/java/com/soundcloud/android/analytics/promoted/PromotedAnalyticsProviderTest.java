@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -13,9 +14,11 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.LeaveBehindAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
+import com.soundcloud.android.events.AdPlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -64,16 +67,11 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, times(2)).trackEvent(captor.capture());
         final List<TrackingRecord> trackingRecords = captor.getAllValues();
+
         final TrackingRecord event1 = trackingRecords.get(0);
+        assertPromotedTrackingRecord(event1, "url1", 12345L);
         final TrackingRecord event2 = trackingRecords.get(1);
-
-        assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(event1.getTimeStamp()).isEqualTo(12345L);
-        assertThat(event1.getData()).isEqualTo("url1");
-
-        assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(event2.getTimeStamp()).isEqualTo(12345L);
-        assertThat(event2.getData()).isEqualTo("url2");
+        assertPromotedTrackingRecord(event2, "url2", 12345L);
     }
 
     @Test
@@ -90,10 +88,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         assertThat(allValues.size()).isEqualTo(2);
 
         TrackingRecord adEvent = allValues.get(0);
-        assertThat(adEvent.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(adEvent.getData()).isEqualTo("comp_click1");
-
+        assertPromotedTrackingRecord(adEvent, "comp_click1", event.getTimestamp());
         assertThat(allValues.get(1).getData()).isEqualTo("comp_click2");
     }
 
@@ -111,10 +106,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         assertThat(allValues.size()).isEqualTo(2);
 
         TrackingRecord adEvent = allValues.get(0);
-        assertThat(adEvent.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(adEvent.getData()).isEqualTo("audio_skip1");
-
+        assertPromotedTrackingRecord(adEvent, "audio_skip1", event.getTimestamp());
         assertThat(allValues.get(1).getData()).isEqualTo("audio_skip2");
     }
 
@@ -142,10 +134,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         assertThat(allValues.size()).isEqualTo(2);
 
         TrackingRecord adEvent = allValues.get(0);
-        assertThat(adEvent.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(adEvent.getData()).isEqualTo("audio_finish1");
-
+        assertPromotedTrackingRecord(adEvent, "audio_finish1", event.getTimestamp());
         assertThat(allValues.get(1).getData()).isEqualTo("audio_finish2");
     }
 
@@ -162,14 +151,9 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(event1.getTimeStamp()).isEqualTo(333l);
-        assertThat(event1.getData()).isEqualTo("comp_impression1");
-
+        assertPromotedTrackingRecord(event1, "comp_impression1", 333l);
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(event2.getTimeStamp()).isEqualTo(333l);
-        assertThat(event2.getData()).isEqualTo("comp_impression2");
+        assertPromotedTrackingRecord(event2, "comp_impression2", 333l);
     }
 
     @Test
@@ -184,14 +168,9 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(event1.getTimeStamp()).isEqualTo(333l);
-        assertThat(event1.getData()).isEqualTo("leave_impression1");
-
+        assertPromotedTrackingRecord(event1, "leave_impression1", 333l);
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(event2.getTimeStamp()).isEqualTo(333l);
-        assertThat(event2.getData()).isEqualTo("leave_impression2");
+        assertPromotedTrackingRecord(event2, "leave_impression2", 333l);
     }
 
     @Test
@@ -205,14 +184,9 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(event1.getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(event1.getData()).isEqualTo("promoted1");
-
+        assertPromotedTrackingRecord(event1, "promoted1", event.getTimestamp());
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(event2.getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(event2.getData()).isEqualTo("promoted2");
+        assertPromotedTrackingRecord(event2, "promoted2", event.getTimestamp());
     }
 
     @Test
@@ -229,14 +203,71 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        assertThat(event1.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(event1.getTimeStamp()).isEqualTo(12345L);
-        assertThat(event1.getData()).isEqualTo("promoPlay1");
-
+        assertPromotedTrackingRecord(event1, "promoPlay1", 12345L);
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        assertThat(event2.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
-        assertThat(event2.getTimeStamp()).isEqualTo(12345L);
-        assertThat(event2.getData()).isEqualTo("promoPlay2");
+        assertPromotedTrackingRecord(event2, "promoPlay2", 12345L);
+    }
+
+    @Test
+    public void tracksFirstQuartileAdProgressEventsForVideo() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final AdPlaybackProgressEvent playbackProgressEvent = AdPlaybackProgressEvent.forFirstQuartile(Urn.forAd("dfp", "809"), videoAd, sourceInfo);
+
+        analyticsProvider.handleTrackingEvent(playbackProgressEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        assertPromotedTrackingRecord(event1, "video_quartile1_1", playbackProgressEvent.getTimestamp());
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        assertPromotedTrackingRecord(event2, "video_quartile1_2", playbackProgressEvent.getTimestamp());
+    }
+
+    @Test
+    public void tracksSecondQuartileAdProgressEventsForVideo() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final AdPlaybackProgressEvent playbackProgressEvent = AdPlaybackProgressEvent.forSecondQuartile(Urn.forAd("dfp", "809"), videoAd, sourceInfo);
+
+        analyticsProvider.handleTrackingEvent(playbackProgressEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        assertPromotedTrackingRecord(event1, "video_quartile2_1", playbackProgressEvent.getTimestamp());
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        assertPromotedTrackingRecord(event2, "video_quartile2_2", playbackProgressEvent.getTimestamp());
+    }
+
+    @Test
+    public void tracksThirdQuartileAdProgressEventsForVideo() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final AdPlaybackProgressEvent playbackProgressEvent = AdPlaybackProgressEvent.forThirdQuartile(Urn.forAd("dfp", "809"), videoAd, sourceInfo);
+
+        analyticsProvider.handleTrackingEvent(playbackProgressEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        assertPromotedTrackingRecord(event1, "video_quartile3_1", playbackProgressEvent.getTimestamp());
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        assertPromotedTrackingRecord(event2, "video_quartile3_2", playbackProgressEvent.getTimestamp());
+    }
+
+    @Test
+    public void noQuartileEventsForAudioAdsAreTracked() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final AdPlaybackProgressEvent playbackProgressEvent = AdPlaybackProgressEvent.forThirdQuartile(Urn.forAd("dfp", "809"), audioAd, sourceInfo);
+
+        analyticsProvider.handleTrackingEvent(playbackProgressEvent);
+
+        verify(eventTracker, never()).trackEvent(any(TrackingRecord.class));
     }
 
     @Test
@@ -253,5 +284,11 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
 
         verify(eventTracker, times(2)).trackEvent(any(TrackingRecord.class));
         verify(eventTracker).flush(PromotedAnalyticsProvider.BACKEND_NAME);
+    }
+
+    private void assertPromotedTrackingRecord(TrackingRecord trackingRecord, String data, long timeStamp) {
+        assertThat(trackingRecord.getBackend()).isEqualTo(PromotedAnalyticsProvider.BACKEND_NAME);
+        assertThat(trackingRecord.getData()).isEqualTo(data);
+        assertThat(trackingRecord.getTimeStamp()).isEqualTo(timeStamp);
     }
 }

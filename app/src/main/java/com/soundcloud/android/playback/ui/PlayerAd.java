@@ -2,8 +2,6 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.PlayerAdData;
-import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.ads.VideoSource;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
