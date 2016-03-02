@@ -8,7 +8,7 @@
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:orientation="vertical"
-    tools:showIn="@layout/go_offboarding">
+    tools:showIn="@layout/go_offboarding_fragment">
 
     <com.soundcloud.android.view.LoadingButton
         android:id="@+id/btn_offboarding_resubscribe"

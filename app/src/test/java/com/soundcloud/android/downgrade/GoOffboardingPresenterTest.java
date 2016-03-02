@@ -22,14 +22,14 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.app.Activity;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 
 import java.io.IOException;
 
 public class GoOffboardingPresenterTest extends AndroidUnitTest {
 
-    @Mock private AppCompatActivity activity;
+    @Mock private Fragment fragment;
     @Mock private Navigator navigator;
     @Mock private PlanChangeOperations operations;
 
@@ -56,7 +56,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     public void clickingContinueOpensStreamIfDowngradeAlreadyCompleted() {
         when(operations.awaitAccountDowngrade()).thenReturn(Observable.just(downgradeResult));
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onContinueClicked();
 
         assertThat(view.isContinueButtonWaiting).isFalse();
@@ -66,7 +66,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingContinueShowsProgressSpinnerIfDowngradeOngoing() {
         when(operations.awaitAccountDowngrade()).thenReturn(Observable.never());
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
 
         presenter.onContinueClicked();
 
@@ -78,7 +78,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         PublishSubject<Object> subject = PublishSubject.create();
         when(operations.awaitAccountDowngrade()).thenReturn(subject);
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onContinueClicked();
 
         verify(navigator, never()).openStream(any(Activity.class), any(Screen.class));
@@ -93,7 +93,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         final PublishSubject<Object> subject = PublishSubject.create();
         when(operations.awaitAccountDowngrade()).thenReturn(subject);
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onContinueClicked();
 
         assertThat(view.isContinueButtonWaiting).isTrue();
@@ -105,7 +105,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     public void displayContinueRetryOnNetworkErrorWhenErrorAlreadyOccurred() {
         when(operations.awaitAccountDowngrade()).thenReturn(Observable.error(new IOException()));
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onContinueClicked();
 
         assertThat(view.isContinueButtonWaiting).isFalse();
@@ -117,7 +117,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         final PublishSubject<Object> subject = PublishSubject.create();
         when(operations.awaitAccountDowngrade()).thenReturn(subject);
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onContinueClicked();
 
         assertThat(view.isContinueButtonWaiting).isTrue();
@@ -130,7 +130,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         when(operations.awaitAccountDowngrade())
                 .thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException())));
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onContinueClicked();
 
         assertThat(view.isContinueButtonWaiting).isFalse();
@@ -141,7 +141,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     public void clickingResubscribeOpensUpgradeScreenIfDowngradeAlreadyCompleted() {
         when(operations.awaitAccountDowngrade()).thenReturn(Observable.just(downgradeResult));
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onResubscribeClicked();
 
         assertThat(view.isResubscribeButtonWaiting).isFalse();
@@ -152,7 +152,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     public void clickingResubscribeSendsClickEvent() {
         when(operations.awaitAccountDowngrade()).thenReturn(Observable.just(downgradeResult));
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onResubscribeClicked();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
@@ -162,7 +162,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingResubscribeShowsProgressSpinnerIfDowngradeOngoing() {
         when(operations.awaitAccountDowngrade()).thenReturn(Observable.never());
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
 
         presenter.onResubscribeClicked();
 
@@ -174,7 +174,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         PublishSubject<Object> subject = PublishSubject.create();
         when(operations.awaitAccountDowngrade()).thenReturn(subject);
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onResubscribeClicked();
 
         subject.onNext(downgradeResult);
@@ -188,7 +188,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         final PublishSubject<Object> subject = PublishSubject.create();
         when(operations.awaitAccountDowngrade()).thenReturn(subject);
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onResubscribeClicked();
 
         assertThat(view.isResubscribeButtonWaiting).isTrue();
@@ -200,7 +200,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     public void displayResubscribeRetryOnNetworkErrorWhenErrorAlreadyOccurred() {
         when(operations.awaitAccountDowngrade()).thenReturn(Observable.error(new IOException()));
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onResubscribeClicked();
 
         assertThat(view.isResubscribeButtonWaiting).isFalse();
@@ -212,7 +212,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         final PublishSubject<Object> subject = PublishSubject.create();
         when(operations.awaitAccountDowngrade()).thenReturn(subject);
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onResubscribeClicked();
 
         assertThat(view.isResubscribeButtonWaiting).isTrue();
@@ -225,7 +225,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         when(operations.awaitAccountDowngrade())
                 .thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException())));
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onResubscribeClicked();
 
         assertThat(view.isResubscribeButtonWaiting).isFalse();
@@ -238,7 +238,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         final PublishSubject<Object> success = PublishSubject.create();
         when(operations.awaitAccountDowngrade()).thenReturn(error, success);
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
 
         presenter.onResubscribeClicked();
         error.onError(new IOException());
@@ -256,7 +256,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         final PublishSubject<Object> error2 = PublishSubject.create();
         when(operations.awaitAccountDowngrade()).thenReturn(error1, error2);
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
 
         presenter.onResubscribeClicked();
         error1.onError(new IOException());
@@ -272,7 +272,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         when(operations.awaitAccountDowngrade())
                 .thenReturn(Observable.error(ApiRequestException.malformedInput(null, new ApiMapperException("test"))));
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(fragment, null);
         presenter.onResubscribeClicked();
 
         assertThat(view.isErrorDialogShown).isTrue();
