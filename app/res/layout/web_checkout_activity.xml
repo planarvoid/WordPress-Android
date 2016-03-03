@@ -19,11 +19,39 @@
             android:layout_height="@dimen/medium_indeterminite_spinner_height"
             android:layout_gravity="center" />
 
-        <com.soundcloud.android.view.CustomFontButton
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/retry"
-            style="@style/CheckoutRetry"
-            android:text="@string/conversion_buy_retry"
-            android:visibility="gone" />
+            style="@style/CheckoutRetry">
+            <!--
+                Interstate is not used within the retry section to ensure this section looks the same as
+                the web payment form. The web payment form does not use the Interstate font because it
+                increases the load time an unacceptable amount.
+            -->
+            <TextView
+                android:id="@+id/retry_heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/conversion_retry_heading"
+                style="@style/CheckoutRetryHeading" />
+
+            <TextView
+                android:id="@+id/retry_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/retry_heading"
+                android:text="@string/conversion_retry_message"
+                style="@style/CheckoutRetryMessage" />
+
+            <Button
+                android:id="@+id/retry_button"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="@string/conversion_retry_button"
+                android:layout_below="@+id/retry_message"
+                style="@style/CheckoutRetryButton" />
+        </RelativeLayout>
 
         <WebView
             android:id="@+id/payment_form"

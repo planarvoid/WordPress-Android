@@ -18,7 +18,8 @@ class WebCheckoutView {
 
     @Bind(R.id.payment_form) WebView webView;
     @Bind(R.id.loading) View loading;
-    @Bind(R.id.retry) Button retry;
+    @Bind(R.id.retry) View retry;
+    @Bind(R.id.retry_button) Button retryButton;
 
     interface Listener {
         void onRetry();
@@ -30,7 +31,7 @@ class WebCheckoutView {
     void setupContentView(AppCompatActivity activity, final Listener listener) {
         ButterKnife.bind(this, activity);
         configureWebView();
-        retry.setOnClickListener(new View.OnClickListener() {
+        retryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onRetry();

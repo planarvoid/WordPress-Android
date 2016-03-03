@@ -17,6 +17,9 @@
     <string name="conversion_buy_loading">Loading</string>
     <string name="conversion_buy_trial">Try it free for %d days</string>
     <string name="conversion_buy_no_trial">Upgrade now</string>
+    <string name="conversion_retry_heading">Oops... try again</string>
+    <string name="conversion_retry_message">Looks like something went wrong. Please try again.</string>
+    <string name="conversion_retry_button">Try again</string>
     <string name="conversion_buy_retry">Loading failed. Retry?</string>
     <string name="conversion_restrictions">Restrictions apply</string>
     <string name="conversion_restrictions_dialog_title">Restrictions apply</string>
