@@ -170,11 +170,11 @@
     <dimen name="android_status_bar_stub_height">0dp</dimen>
     <dimen name="go_onboarding_header_text_size">26sp</dimen>
     <dimen name="go_onboarding_title_text_size">18sp</dimen>
-    <dimen name="go_onboarding_tooltip_margin_top">78dp</dimen>
+    <dimen name="go_onboarding_tooltip_margin_top">0dp</dimen>
     <dimen name="go_onboarding_tooltip_margin_bottom">50dp</dimen>
     <dimen name="go_onboarding_tooltip_size">84dp</dimen>
     <dimen name="go_onboarding_sub_title_text_size">14sp</dimen>
-    <dimen name="go_onboarding_header_width">200dp</dimen>
+    <dimen name="go_onboarding_header_width">240dp</dimen>
     <dimen name="go_onboarding_text_width">360dp</dimen>
 
     <!-- Go Onboarding Settings -->

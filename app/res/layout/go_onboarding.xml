@@ -22,37 +22,49 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
+            android:layout_marginBottom="12dp"
             android:text="@string/go_onboarding_header" />
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:orientation="vertical">
+            android:layout_below="@id/go_onboarding_header"
+            android:layout_above="@+id/btn_go_setup_start">
 
-            <ImageView
-                android:id="@+id/tooltip_image"
-                style="@style/GoOnboarding.Tooltip"
-                android:layout_width="@dimen/go_onboarding_tooltip_size"
-                android:layout_height="@dimen/go_onboarding_tooltip_size"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/go_onboarding_welcome_icon" />
-
-            <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/go_onboarding_title"
-                style="@style/GoOnboarding.Text.Title"
-                android:layout_width="@dimen/go_onboarding_text_width"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/go_onboarding_title" />
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                tools:ignore="uselessParent">
 
-            <com.soundcloud.android.view.CustomFontTextView
-                style="@style/GoOnboarding.Text.SubText"
-                android:layout_width="@dimen/go_onboarding_text_width"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/go_onboarding_subtext" />
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/tooltip_image"
+                    style="@style/GoOnboarding.Tooltip"
+                    android:layout_width="@dimen/go_onboarding_tooltip_size"
+                    android:layout_height="@dimen/go_onboarding_tooltip_size"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/go_onboarding_welcome_icon" />
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/go_onboarding_title"
+                    style="@style/GoOnboarding.Text.Title"
+                    android:layout_width="@dimen/go_onboarding_text_width"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/go_onboarding_title" />
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/GoOnboarding.Text.SubText"
+                    android:layout_width="@dimen/go_onboarding_text_width"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/go_onboarding_subtext" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
         <com.soundcloud.android.view.LoadingButton
             android:id="@+id/btn_go_setup_start"
