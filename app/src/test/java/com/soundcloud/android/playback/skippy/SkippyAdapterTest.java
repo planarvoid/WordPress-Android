@@ -364,6 +364,15 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void skippyIdleStoppedEventTranslatesToListenerIdleNoneEvent() {
+        skippyAdapter.play(playbackItem);
+        Player.StateTransition expected = new Player.StateTransition(PlayerState.IDLE, Player.Reason.NONE, trackUrn, PROGRESS, DURATION, dateProvider);
+        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        skippyAdapter.onStateChanged(State.IDLE, Reason.STOPPED, Error.OK, PROGRESS, DURATION, STREAM_URL);
+        verify(stateChangeHandler).sendMessage(message);
+    }
+
+    @Test
     public void skippyPlayingTranslatesToListenerPlayingEvent() {
         skippyAdapter.play(playbackItem);
         Player.StateTransition expected = new Player.StateTransition(PlayerState.PLAYING, Player.Reason.NONE, trackUrn, PROGRESS, DURATION, dateProvider);
