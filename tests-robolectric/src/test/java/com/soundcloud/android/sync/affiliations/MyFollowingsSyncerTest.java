@@ -18,6 +18,7 @@ import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -67,7 +68,7 @@ public class MyFollowingsSyncerTest {
         when(userAssociation.getUser()).thenReturn(user);
         when(userAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
-        when(accountOperations.getLoggedInUserId()).thenReturn(133201L);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(133201L));
     }
 
     @Test

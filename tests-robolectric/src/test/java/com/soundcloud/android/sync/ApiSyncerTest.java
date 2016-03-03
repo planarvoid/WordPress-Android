@@ -36,8 +36,7 @@ public class ApiSyncerTest {
     @Before
     public void before() {
         final PublicApiUser value = ModelFixtures.create(PublicApiUser.class);
-        when(accountOperations.getLoggedInUserId()).thenReturn(value.getId());
-        when(accountOperations.getLoggedInUser()).thenReturn(value);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(value.getUrn());
 
         startTime = System.currentTimeMillis();
     }

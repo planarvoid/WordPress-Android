@@ -88,7 +88,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         } else if (action != null && action.equals(ApiSyncService.ACTION_PUSH)) {
             return pushUserAssociations();
         } else {
-            return syncLocalToRemote(accountOperations.getLoggedInUserId());
+            return syncLocalToRemote(accountOperations.getLoggedInUserUrn().getNumericId());
         }
     }
 

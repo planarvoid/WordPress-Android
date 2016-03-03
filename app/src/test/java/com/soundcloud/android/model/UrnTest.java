@@ -177,11 +177,6 @@ public class UrnTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldBuildUrnsForAnonymousUsers() {
-        assertThat(Urn.forUser(-1).toString()).isEqualTo("soundcloud:users:0");
-    }
-
-    @Test
     public void shouldBeParcelable() {
         Parcel parcel = Parcel.obtain();
         Urn urn = new Urn("soundcloud:tracks:1");

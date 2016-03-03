@@ -6,10 +6,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
@@ -72,7 +70,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws CreateModelException {
         accountOperations = new AccountOperations(context(), accountManager, tokenOperations,
-                modelManager, userStorage, eventBus,
+                eventBus,
                 InjectionSupport.lazyOf(configurationOperations),
                 InjectionSupport.lazyOf(accountCleanupAction),
                 InjectionSupport.lazyOf(clearTrackDownloadsCommand), Schedulers.immediate());
@@ -174,17 +172,6 @@ public class AccountOperationsTest extends AndroidUnitTest {
         verify(accountManager).setUserData(account, "currentUsername", user.getUsername());
         verify(accountManager).setUserData(account, "currentUserPermalink", user.getPermalink());
         verify(accountManager).setUserData(account, "signup", SignupVia.API.getSignupIdentifier());
-    }
-
-    @Test
-    public void shouldSetLoggedInUserToNewUserIfAccountAdditionSucceeds() {
-        Account account = new Account(user.getUsername(), SC_ACCOUNT_TYPE);
-        when(modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(user);
-        when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
-
-        accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
-
-        assertThat(accountOperations.getLoggedInUser()).isSameAs(user);
     }
 
     @Test
@@ -295,55 +282,19 @@ public class AccountOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldReturnDummyUserWithMinimumAccountInfoIfNotYetLoaded() {
-        mockSoundCloudAccount();
-
-        final PublicApiUser loggedInUser = accountOperations.getLoggedInUser();
-
-        assertThat(loggedInUser.getId()).isEqualTo(123L);
-        assertThat(loggedInUser.getUsername()).isEqualTo("username");
-        assertThat(loggedInUser.getPermalink()).isEqualTo("permalink");
-    }
-
-    @Test
-    public void shouldLoadUserFromLocalStorageBasedOnAccountIdAndUpdateLoggedInUser() {
-        mockSoundCloudAccount();
-        when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
-        when(modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(user);
-
-        accountOperations.loadLoggedInUser();
-
-        assertThat(accountOperations.getLoggedInUser()).isSameAs(user);
-    }
-
-    @Test
-    public void shouldLoadUserFromLocalStorageBasedOnAccountIdAndUpdateLoggedInUserUrn() {
-        mockSoundCloudAccount();
-        when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
-        when(modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(user);
-
-        accountOperations.loadLoggedInUser();
-
-        assertThat(accountOperations.getLoggedInUserUrn()).isEqualTo(user.getUrn());
-    }
-
-    @Test
-    public void shouldNotLoadUserFromLocalStorageIfAccountIdIsNotSet() {
-        when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
-        when(modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(user);
-
-        accountOperations.loadLoggedInUser();
-
-        verifyZeroInteractions(userStorage);
-
-        assertThat(accountOperations.getLoggedInUser()).isNotSameAs(user);
-    }
-
-    @Test
     public void shouldGetLoggedInUserUrn() {
         mockSoundCloudAccount();
 
         assertThat(accountOperations.getLoggedInUserUrn()).isEqualTo(Urn.forUser(123L));
+    }
+
+    @Test
+    public void shouldClearUserUrn() {
+        mockSoundCloudAccount();
+
+        accountOperations.clearLoggedInUser();
+
+        assertThat(accountOperations.getLoggedInUserUrn()).isEqualTo(AccountOperations.ANONYMOUS_USER_URN);
     }
 
     @Test
@@ -365,19 +316,6 @@ public class AccountOperationsTest extends AndroidUnitTest {
         inOrder.verify(accountCleanupAction).call();
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
-    }
-
-    @Test
-    public void purgingUserDataShouldClearLoggedInUser() {
-        mockSoundCloudAccount();
-        when(userStorage.getUserAsync(123L)).thenReturn(Observable.just(user));
-        when(modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL)).thenReturn(user);
-        accountOperations.loadLoggedInUser();
-        assertThat(accountOperations.getLoggedInUser()).isSameAs(user);
-
-        accountOperations.purgeUserData().subscribe(observer);
-
-        assertThat(accountOperations.getLoggedInUser()).isNotSameAs(user);
     }
 
     @Test

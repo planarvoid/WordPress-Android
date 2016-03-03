@@ -56,7 +56,7 @@ public class ApiSyncer extends LegacySyncStrategy {
 
     @NotNull
     public ApiSyncResult syncContent(Uri uri, String action) throws IOException {
-        final long userId = accountOperations.getLoggedInUserId();
+        final long userId = accountOperations.getLoggedInUserUrn().getNumericId();
         Content c = Content.match(uri);
         ApiSyncResult result = new ApiSyncResult(uri);
 
@@ -69,8 +69,7 @@ public class ApiSyncer extends LegacySyncStrategy {
                     result = syncMe(c);
                     if (result.success) {
                         resolver.notifyChange(Content.ME.uri, null);
-                        PublicApiUser loggedInUser = accountOperations.getLoggedInUser();
-                        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(loggedInUser));
+                        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(accountOperations.getLoggedInUserUrn()));
                     }
                     PreferenceManager.getDefaultSharedPreferences(context)
                             .edit()

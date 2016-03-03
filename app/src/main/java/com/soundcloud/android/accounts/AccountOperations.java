@@ -1,8 +1,6 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.android.api.legacy.model.PublicApiUser.CRAWLER_USER;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.google.android.gms.auth.GoogleAuthException;
@@ -10,9 +8,7 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -21,7 +17,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaybackService;
-import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +24,6 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -46,15 +40,18 @@ import java.io.IOException;
 @Singleton
 public class AccountOperations {
 
-    public static final Urn ANONYMOUS_USER_URN = Urn.forUser(Consts.NOT_SET);
+    public static final String CRAWLER_USER_PERMALINK = "SoundCloud";
+    public static final Urn ANONYMOUS_USER_URN = Urn.forUser(0);
+
+    // Why is this -2? I don't have a good reason. We decided it is safer than -1, which is NOT_SET all over the app
+    public static final int CRAWLER_USER_ID = -2;
+    public static final Urn CRAWLER_USER_URN = Urn.forUser(CRAWLER_USER_ID);
 
     private static final String TOKEN_TYPE = "access_token";
 
     private final Context context;
     private final AccountManager accountManager;
     private final SoundCloudTokenOperations tokenOperations;
-    private final ScModelManager modelManager;
-    private final LegacyUserStorage userStorage;
     private final EventBus eventBus;
     private final Scheduler scheduler;
 
@@ -62,8 +59,6 @@ public class AccountOperations {
     private final Lazy<AccountCleanupAction> accountCleanupAction;
     private final Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand;
 
-    @Deprecated
-    private volatile PublicApiUser loggedInUser;
     private volatile Urn loggedInUserUrn;
 
     public enum AccountInfoKeys {
@@ -84,8 +79,10 @@ public class AccountOperations {
     }
 
     @Inject
-    AccountOperations(Context context, AccountManager accountManager, SoundCloudTokenOperations tokenOperations,
-                      ScModelManager modelManager, LegacyUserStorage userStorage, EventBus eventBus,
+    AccountOperations(Context context,
+                      AccountManager accountManager,
+                      SoundCloudTokenOperations tokenOperations,
+                      EventBus eventBus,
                       Lazy<ConfigurationOperations> configurationOperations,
                       Lazy<AccountCleanupAction> accountCleanupAction,
                       Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand,
@@ -93,8 +90,6 @@ public class AccountOperations {
         this.context = context;
         this.accountManager = accountManager;
         this.tokenOperations = tokenOperations;
-        this.modelManager = modelManager;
-        this.userStorage = userStorage;
         this.eventBus = eventBus;
         this.configurationOperations = configurationOperations;
         this.accountCleanupAction = accountCleanupAction;
@@ -102,36 +97,14 @@ public class AccountOperations {
         this.scheduler = scheduler;
     }
 
-    /**
-     * Returns the logged in user. You should not rely on the return value unless you have checked the user is
-     * actually logged in.
-     */
-    @Deprecated
-    public PublicApiUser getLoggedInUser() {
-        if (loggedInUser == null) {
-            // this means we haven't received all user metadata yet, fall back temporarily to a minimal representation
-            PublicApiUser user = new PublicApiUser();
-            user.setId(getAccountDataLong(AccountInfoKeys.USER_ID.getKey()));
-            user.username = getAccountDataString(AccountInfoKeys.USERNAME.getKey());
-            user.permalink = getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
-            return user;
-        }
-        return loggedInUser;
-    }
-
-    /**
-     * Returns the ID of the logged in user. If we don't have the full meta data of the user yet, it will read it
-     * from the account.
-     * You should not rely on the return value unless you have checked the user is actually logged in.
-     */
-    @Deprecated // use URNs for anything above the storage layer
-    public long getLoggedInUserId() {
-        return loggedInUser == null ? getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : loggedInUser.getId();
+    public String getLoggedInUsername() {
+        return getAccountDataString(AccountInfoKeys.USERNAME.getKey());
     }
 
     public Urn getLoggedInUserUrn() {
-        if (loggedInUserUrn == null){
-            loggedInUserUrn = Urn.forUser(getLoggedInUserId());
+        if (loggedInUserUrn == null) {
+            final long loggedInUserId = getLoggedInUserId();
+            loggedInUserUrn = loggedInUserId == Consts.NOT_SET ? ANONYMOUS_USER_URN : Urn.forUser(loggedInUserId);
         }
         return loggedInUserUrn;
     }
@@ -140,31 +113,13 @@ public class AccountOperations {
         return user.equals(getLoggedInUserUrn());
     }
 
-    public void loadLoggedInUser() {
-        final long id = getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
-        if (id != Consts.NOT_SET) {
-            fireAndForget(userStorage.getUserAsync(id).doOnNext(new Action1<PublicApiUser>() {
-                @Override
-                public void call(PublicApiUser user) {
-                    updateLoggedInUser(user);
-                }
-            }));
-        }
-    }
+    private long getLoggedInUserId() {
+        return getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
 
-    // adding a null check here because of https://github.com/soundcloud/SoundCloud-Android/issues/2486
-    // This happens when you don't sign out, but clear data; it should correct itself by going
-    // to AccountManager or constructing the Urn next time we try to get the logged in user.
-    private void updateLoggedInUser(@Nullable PublicApiUser user) {
-        if (user != null) {
-            loggedInUser = modelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
-            loggedInUserUrn = user.getUrn();
-        }
     }
 
     public void clearLoggedInUser() {
-        loggedInUser = null;
-        loggedInUserUrn = null;
+        loggedInUserUrn = ANONYMOUS_USER_URN;
     }
 
     public String getGoogleAccountToken(String accountName, String scope, Bundle bundle) throws GoogleAuthException, IOException {
@@ -215,8 +170,8 @@ public class AccountOperations {
             accountManager.setUserData(account, AccountInfoKeys.USERNAME.getKey(), user.getUsername());
             accountManager.setUserData(account, AccountInfoKeys.USER_PERMALINK.getKey(), user.getPermalink());
             accountManager.setUserData(account, AccountInfoKeys.SIGNUP.getKey(), via.getSignupIdentifier());
-            updateLoggedInUser(user);
-            eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user));
+            loggedInUserUrn = user.getUrn();
+            eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user.getUrn()));
             return account;
         } else {
             return null;
@@ -224,10 +179,10 @@ public class AccountOperations {
     }
 
     public void loginCrawlerUser() {
-        Account account = new Account(CRAWLER_USER.getPermalink(), context.getString(R.string.account_type));
-        updateLoggedInUser(CRAWLER_USER);
+        Account account = new Account(CRAWLER_USER_PERMALINK, context.getString(R.string.account_type));
+        loggedInUserUrn = CRAWLER_USER_URN;
         tokenOperations.storeSoundCloudTokenData(account, Token.EMPTY);
-        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(CRAWLER_USER));
+        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(CRAWLER_USER_URN));
     }
 
     @Nullable
@@ -332,7 +287,7 @@ public class AccountOperations {
     }
 
     public boolean isCrawler() {
-        return loggedInUser != null && loggedInUser.isCrawler();
+        return getLoggedInUserUrn().equals(CRAWLER_USER_URN);
     }
 
     public void clearCrawler() {
@@ -344,5 +299,5 @@ public class AccountOperations {
     private boolean isAnonymousUser() {
         return getLoggedInUserUrn().equals(ANONYMOUS_USER_URN);
     }
-    
+
 }

@@ -226,7 +226,7 @@ public class ScContentProvider extends ContentProvider {
                            final String selection,
                            final String[] selectionArgs,
                            final String sortOrder) {
-        final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
+        final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserUrn().getNumericId();
         final SCQueryBuilder qb = new SCQueryBuilder();
         String[] _columns = columns;
         String _selection = selection;
@@ -382,7 +382,7 @@ public class ScContentProvider extends ContentProvider {
     }
 
     private Uri doInsert(final Uri uri, final ContentValues values) {
-        final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
+        final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserUrn().getNumericId();
         long id;
         Uri result;
         SQLiteDatabase db = databaseManager.getWritableDatabase();
