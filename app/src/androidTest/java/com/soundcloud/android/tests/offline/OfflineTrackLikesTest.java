@@ -66,9 +66,4 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
 
         finishEventTracking(OFFLINE_LIKES_PERFORMANCE_TRACKING);
     }
-
-    @Override
-    protected void observeToastsHelper() {
-        toastObserver.observe();
-    }
 }
