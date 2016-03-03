@@ -205,7 +205,7 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
         operations.remove(playlist).subscribe();
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.PLAYLIST_DELETED);
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.ENTITY_DELETED);
         assertThat(event.getFirstUrn()).isEqualTo(playlist);
     }
 

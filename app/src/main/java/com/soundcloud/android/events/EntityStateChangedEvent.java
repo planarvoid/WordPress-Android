@@ -6,7 +6,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.stations.StationProperty;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import rx.functions.Func1;
@@ -20,14 +19,14 @@ import java.util.Map;
 @AutoValue
 public abstract class EntityStateChangedEvent implements UrnEvent {
 
-    public static final int ENTITY_SYNCED = 0;
+    public static final int UPDATED = 0;
     public static final int LIKE = 2;
     public static final int REPOST = 3;
     public static final int TRACK_ADDED_TO_PLAYLIST = 5;
     public static final int TRACK_REMOVED_FROM_PLAYLIST = 6;
     public static final int FOLLOWING = 7;
-    public static final int PLAYLIST_CREATED = 8;
-    public static final int PLAYLIST_DELETED = 9;
+    public static final int ENTITY_CREATED = 8;
+    public static final int ENTITY_DELETED = 9;
     public static final int PLAYLIST_PUSHED_TO_SERVER = 10;
     public static final int RECENT_STATION_UPDATED = 11;
 
@@ -48,14 +47,14 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isTrackLikeEvent() && event.getNextChangeSet().get(TrackProperty.IS_USER_LIKE);
+            return event.isTrackLikeEvent() && event.isEntityLiked();
         }
     };
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_UNLIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isTrackLikeEvent() && !event.getNextChangeSet().get(TrackProperty.IS_USER_LIKE);
+            return event.isTrackLikeEvent() && !event.isEntityLiked();
         }
     };
 
@@ -80,12 +79,12 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         }
     };
 
-    public static EntityStateChangedEvent fromSync(Collection<PropertySet> changedEntities) {
-        return create(ENTITY_SYNCED, changedEntities);
+    public static EntityStateChangedEvent forUpdate(Collection<PropertySet> propertiesSet) {
+        return create(UPDATED, propertiesSet);
     }
 
-    public static EntityStateChangedEvent fromSync(PropertySet changedEntity) {
-        return create(ENTITY_SYNCED, Collections.singleton(changedEntity));
+    public static EntityStateChangedEvent forUpdate(PropertySet propertySet) {
+        return create(UPDATED, propertySet);
     }
 
     public static EntityStateChangedEvent fromLike(Urn urn, boolean liked, int likesCount) {
@@ -113,12 +112,20 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return create(REPOST, newRepostState);
     }
 
-    public static EntityStateChangedEvent fromPlaylistCreated(Urn newPlaylistUrn) {
-        return create(PLAYLIST_CREATED, PropertySet.from(PlaylistProperty.URN.bind(newPlaylistUrn)));
+    public static EntityStateChangedEvent fromEntityCreated(Urn urn) {
+        return create(ENTITY_CREATED, PropertySet.from(EntityProperty.URN.bind(urn)));
     }
 
-    public static EntityStateChangedEvent fromPlaylistDeleted(Urn playlist) {
-        return create(PLAYLIST_DELETED, PropertySet.from(PlaylistProperty.URN.bind(playlist)));
+    public static EntityStateChangedEvent fromEntityCreated(PropertySet propertySet) {
+        return create(ENTITY_CREATED, propertySet);
+    }
+
+    public static EntityStateChangedEvent fromEntityDeleted(Urn urn) {
+        return create(ENTITY_DELETED, PropertySet.from(EntityProperty.URN.bind(urn)));
+    }
+
+    public static EntityStateChangedEvent fromEntityDeleted(PropertySet properties) {
+        return create(ENTITY_DELETED, properties);
     }
 
     public static EntityStateChangedEvent fromPlaylistPushedToServer(Urn localUrn, PropertySet playlist) {
@@ -176,24 +183,36 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return getChangeMap().size() == 1;
     }
 
+    private boolean isEntityLiked() {
+        return getNextChangeSet().get(PlayableProperty.IS_USER_LIKE);
+    }
+
+    public boolean isPlaylistLiked() {
+        return isPlaylistLikeEvent()  && isEntityLiked();
+    }
+
+    public boolean isPlaylistUnliked() {
+        return isPlaylistLikeEvent()  && !isEntityLiked();
+    }
+
+    public boolean isPlaylistLikeEvent() {
+        return isLikeKind() && getFirstUrn().isPlaylist();
+    }
+
     public boolean isTrackLikeEvent() {
-        return isSingularChange() && getFirstUrn().isTrack() && getKind() == LIKE;
+        return isLikeKind() && getFirstUrn().isTrack();
     }
 
-    public boolean isPlaylistLike() {
-        return isSingularChange() && getFirstUrn().isPlaylist() && getKind() == LIKE;
-    }
-
-    public boolean isPlaylistCreated() {
-        return isSingularChange() && getFirstUrn().isPlaylist() && getKind() == PLAYLIST_CREATED;
-    }
-
-    public boolean isLike() {
+    private boolean isLikeKind() {
         return isSingularChange() && getKind() == LIKE;
     }
 
-    public boolean isEntitySync() {
-        return getKind() == ENTITY_SYNCED;
+    public boolean isPlaylistCreated() {
+        return isSingularChange() && getFirstUrn().isPlaylist() && getKind() == ENTITY_CREATED;
+    }
+
+    public boolean isPlaylistDeleted() {
+        return isSingularChange() && getFirstUrn().isPlaylist() && getKind() == ENTITY_DELETED;
     }
 
     private boolean isTrackAddedEvent() {
@@ -208,6 +227,5 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("kind", getKind()).add("changeMap", getChangeMap()).toString();
     }
-
 
 }

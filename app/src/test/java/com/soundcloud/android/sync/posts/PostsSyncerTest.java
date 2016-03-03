@@ -1,6 +1,8 @@
 package com.soundcloud.android.sync.posts;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.fromSync;
+import static com.soundcloud.android.events.EntityStateChangedEvent.fromEntityCreated;
+import static com.soundcloud.android.events.EntityStateChangedEvent.fromEntityDeleted;
+import static com.soundcloud.android.events.EntityStateChangedEvent.fromRepost;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -20,7 +22,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.collections.Sets;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -113,41 +114,34 @@ public class PostsSyncerTest extends AndroidUnitTest {
 
         assertThat(syncer.call()).isTrue();
 
-        final EntityStateChangedEvent expectedEntityChangedSet = fromSync(
-                Sets.newHashSet(
-                        createRepostedEntityChangedProperty(remotePostUrn),
-                        createUnrepostedEntityChangedProperty(localPostUrn)
-                )
-        );
-        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(expectedEntityChangedSet);
+        final EntityStateChangedEvent postedEvent = fromRepost(createRepostedEntityChangedProperty(remotePostUrn));
+        final EntityStateChangedEvent unpostedEvent = fromRepost(createUnrepostedEntityChangedProperty(localPostUrn));
+
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(postedEvent, unpostedEvent);
     }
 
     @Test
     public void sendsEntityChangedEventsForPostAddition() throws Exception {
         final PropertySet newPost = createPost(Urn.forPlaylist(7L), new Date(100L), false);
-        final PropertySet expectedEntity = newPost
-                .slice(PlayableProperty.URN)
-                .put(PlayableProperty.IS_USER_REPOST, false);
+        final PropertySet expectedEntity = newPost.slice(PlayableProperty.URN);
 
         withLocalPlaylistPosts();
         withRemotePlaylistPosts(newPost);
 
         assertThat(syncer.call()).isTrue();
-        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(fromSync(expectedEntity));
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(fromEntityCreated(expectedEntity));
     }
 
     @Test
     public void sendsEntityChangedEventsForPostRemoval() throws Exception {
         final PropertySet postToDelete = createPost(Urn.forPlaylist(7L), new Date(100L), false);
-        final PropertySet expectedEntity = postToDelete
-                .slice(PlayableProperty.URN)
-                .put(PlayableProperty.IS_USER_REPOST, false);
+        final PropertySet expectedEntity = postToDelete.slice(PlayableProperty.URN);
 
         withLocalPlaylistPosts(postToDelete);
         withRemotePlaylistPosts();
 
         assertThat(syncer.call()).isTrue();
-        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(fromSync(expectedEntity));
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(fromEntityDeleted(expectedEntity));
     }
 
     private PropertySet createRepostedEntityChangedProperty(Urn urn) {

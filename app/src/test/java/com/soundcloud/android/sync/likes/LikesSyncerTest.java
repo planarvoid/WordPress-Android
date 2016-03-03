@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync.likes;
 
+import static com.soundcloud.android.events.EntityStateChangedEvent.fromLike;
 import static com.soundcloud.java.collections.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
@@ -15,7 +16,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
@@ -24,7 +24,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.collections.Sets;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -241,7 +240,7 @@ public class LikesSyncerTest extends AndroidUnitTest {
                 .put(LikeProperty.REMOVED_AT, new Date(existsRemotelyPendingRemoval.getCreatedAt().getTime() + 1));
         PropertySet existsLocallyNotRemotelyPendingRemoval =
                 ModelFixtures.apiTrackLike().toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date());
+                        .put(LikeProperty.REMOVED_AT, new Date());
         when(pushLikeDeletions.call()).thenReturn(singleton(existsLocallyPendingRemoval));
 
         // assertThated outcome:
@@ -268,13 +267,10 @@ public class LikesSyncerTest extends AndroidUnitTest {
         assertThat(pushLikeDeletions.getInput().iterator().next().get(LikeProperty.TARGET_URN))
                 .isEqualTo(existsRemotelyPendingRemoval.getTargetUrn());
 
-        final EntityStateChangedEvent expectedEntityChangedSet = EntityStateChangedEvent.fromSync(
-                Sets.newHashSet(
-                        createLikedEntityChangedProperty(existsRemotelyNotLocally.getTargetUrn()),
-                        createUnlikedEntityChangedProperty(existsLocallyNotRemotely.getTargetUrn())
-                )
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(
+                fromLike(createLikedEntityChangedProperty(existsRemotelyNotLocally.getTargetUrn())),
+                fromLike(createUnlikedEntityChangedProperty(existsLocallyNotRemotely.getTargetUrn()))
         );
-        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(expectedEntityChangedSet);
     }
 
     private PropertySet createLikedEntityChangedProperty(Urn urn) {
@@ -311,7 +307,7 @@ public class LikesSyncerTest extends AndroidUnitTest {
 
         try {
             syncer.call();
-        } catch (IOException e){
+        } catch (IOException e) {
             // no op
         }
 

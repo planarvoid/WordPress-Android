@@ -10,7 +10,6 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.collections.Sets;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.text.TextUtils;
@@ -104,24 +103,47 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
     }
 
     private void publishStateChanged(Set<PropertySet> additions, Set<PropertySet> removals) {
-        final Set<PropertySet> changedEntities = Sets.newHashSetWithExpectedSize(additions.size() + removals.size());
-        changedEntities.addAll(createChangedEntities(additions, true));
-        changedEntities.addAll(createChangedEntities(removals, false));
-        if (!changedEntities.isEmpty()) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(changedEntities));
+        publishAdditions(additions);
+        publishRemovals(removals);
+    }
+
+    private void publishAdditions(Set<PropertySet> additions) {
+        for (PropertySet post : additions) {
+            if (post.get(PostProperty.IS_REPOST)) {
+                publishRepostChanged(post, true);
+            } else {
+                publishEntityCreated(post);
+            }
         }
     }
 
-    private Set<PropertySet> createChangedEntities(Set<PropertySet> posts, boolean isAdded) {
-        Set<PropertySet> changedEntities = Sets.newHashSetWithExpectedSize(posts.size());
-        for (PropertySet post : posts) {
-            final boolean isUserRepost = post.get(PostProperty.IS_REPOST) && isAdded;
-            changedEntities.add(PropertySet.from(
-                    PlayableProperty.URN.bind(post.get(PlayableProperty.URN)),
-                    PlayableProperty.IS_USER_REPOST.bind(isUserRepost)
-            ));
+    private void publishRemovals(Set<PropertySet> removals) {
+        for (PropertySet post : removals) {
+            if (post.get(PostProperty.IS_REPOST)) {
+                publishRepostChanged(post, false);
+            } else {
+                publishEntityDeleted(post);
+            }
         }
-        return changedEntities;
+    }
+
+    private void publishEntityDeleted(PropertySet post) {
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityDeleted(PropertySet.from(
+                PlayableProperty.URN.bind(post.get(PlayableProperty.URN))
+        )));
+    }
+
+    private void publishEntityCreated(PropertySet post) {
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityCreated(PropertySet.from(
+                PlayableProperty.URN.bind(post.get(PlayableProperty.URN))
+        )));
+    }
+
+    private void publishRepostChanged(PropertySet post, boolean isUserRepost) {
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(PropertySet.from(
+                PlayableProperty.URN.bind(post.get(PlayableProperty.URN)),
+                PlayableProperty.IS_USER_REPOST.bind(isUserRepost)
+        )));
     }
 
     private void fetchResourcesForAdditions(Set<PropertySet> additions) throws Exception {

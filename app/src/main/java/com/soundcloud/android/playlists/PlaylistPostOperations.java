@@ -116,7 +116,7 @@ class PlaylistPostOperations {
     }
 
     private Action1<WriteResult> publishPlaylistDeletedEvent(final Urn urn) {
-        return eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistDeleted(urn));
+        return eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityDeleted(urn));
     }
 
     private Observable<List<PropertySet>> postedPlaylists(long beforeTime) {

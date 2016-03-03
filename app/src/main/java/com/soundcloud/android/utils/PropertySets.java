@@ -25,7 +25,7 @@ public final class PropertySets {
     @SuppressWarnings({"PMD.LooseCoupling"}) // we need ArrayList for Parceling
     public static ArrayList<Urn> extractUrns(List<PropertySet> entities) {
         ArrayList<Urn> urns = new ArrayList<>(entities.size());
-        for (PropertySet propertySet : entities){
+        for (PropertySet propertySet : entities) {
             urns.add(propertySet.get(EntityProperty.URN));
         }
         return urns;

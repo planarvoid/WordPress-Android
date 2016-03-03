@@ -80,13 +80,13 @@ class EntitySyncRequest implements SyncRequest {
 
     @Override
     public void finish() {
-        if (resultReceiver != null){
+        if (resultReceiver != null) {
             resultReceiver.send(0, getResultBundle());
         }
 
         final Collection<PropertySet> updatedEntities = entitySyncJob.getUpdatedEntities();
         if (!updatedEntities.isEmpty()) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(entitySyncJob.getUpdatedEntities()));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.forUpdate(updatedEntities));
         }
     }
 

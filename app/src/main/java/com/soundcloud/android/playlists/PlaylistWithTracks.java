@@ -75,7 +75,7 @@ public class PlaylistWithTracks {
     }
 
     public boolean isRepostedByUser() {
-        return sourceSet.get(PlaylistProperty.IS_USER_REPOST);
+        return sourceSet.getOrElse(PlaylistProperty.IS_USER_REPOST, false);
     }
 
     public boolean isPostedByUser() {

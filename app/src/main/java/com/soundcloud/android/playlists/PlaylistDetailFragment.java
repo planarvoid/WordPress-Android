@@ -74,7 +74,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private final Func1<EntityStateChangedEvent, Boolean> IS_CURRENT_PLAYLIST_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.getKind() == EntityStateChangedEvent.PLAYLIST_DELETED
+            return event.getKind() == EntityStateChangedEvent.ENTITY_DELETED
                     && event.getFirstUrn().equals(getPlaylistUrn());
         }
     };

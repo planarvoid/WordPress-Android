@@ -6,14 +6,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +32,6 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     private Urn userUrn = Urn.forUser(123L);
     private PropertySet track;
     private PropertySet trackDescription;
-    private TestEventBus eventBus;
 
     @Mock private TrackStorage trackStorage;
     @Mock private AccountOperations accountOperations;
@@ -44,8 +41,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        eventBus = new TestEventBus();
-        trackRepository = new TrackRepository(trackStorage, eventBus, syncInitiator, Schedulers.immediate());
+        trackRepository = new TrackRepository(trackStorage, syncInitiator, Schedulers.immediate());
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
         track = PropertySet.from(TrackProperty.URN.bind(trackUrn),
@@ -116,15 +112,4 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         verify(trackStorage, times(2)).loadTrack(trackUrn);
     }
 
-    @Test
-    public void fullTrackWithUpdatePublishesPlayableChangedEvent() throws CreateModelException {
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
-        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
-        when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Observable.just(trackDescription));
-
-        trackRepository.fullTrackWithUpdate(trackUrn).subscribe();
-
-        assertThat(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED).getNextChangeSet()).isEqualTo(
-                track.merge(trackDescription));
-    }
 }
