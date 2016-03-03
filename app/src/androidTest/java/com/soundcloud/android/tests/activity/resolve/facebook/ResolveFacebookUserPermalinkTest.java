@@ -11,15 +11,13 @@ import android.net.Uri;
 
 public class ResolveFacebookUserPermalinkTest extends FacebookResolveBaseTest {
 
-    private ProfileScreen profileScreen;
-
     @Override
     protected Uri getUri() {
         return TestConsts.FACEBOOK_USER_PERMALINK;
     }
 
     public void testFacebookUserDeeplink() {
-        profileScreen = new ProfileScreen(solo);
+        final ProfileScreen profileScreen = new ProfileScreen(solo);
         assertThat(profileScreen.getUserName(), is(equalToIgnoringCase("steveangello")));
     }
 }

@@ -15,7 +15,6 @@ import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistDetailsEngagementsTest extends ActivityTest<LauncherActivity> {
 
-    private CollectionScreen collectionScreen;
     private PlaylistDetailsScreen playlistDetailsScreen;
 
     public PlaylistDetailsEngagementsTest() {
@@ -34,7 +33,7 @@ public class PlaylistDetailsEngagementsTest extends ActivityTest<LauncherActivit
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        collectionScreen = mainNavHelper.goToCollections();
+        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
         waiter.waitForContentAndRetryIfLoadingFailed();
         playlistDetailsScreen = collectionScreen.clickOnFirstPlaylist();
     }

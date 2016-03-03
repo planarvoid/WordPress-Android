@@ -13,8 +13,6 @@ import com.soundcloud.android.tests.ActivityTest;
 
 public class ExplorePlaybackTest extends ActivityTest<MainActivity> {
     private ExploreScreen exploreScreen;
-    private ExploreGenreCategoryScreen categoryScreen;
-
     private VisualPlayerElement playerScreen;
 
     public ExplorePlaybackTest() {
@@ -46,9 +44,11 @@ public class ExplorePlaybackTest extends ActivityTest<MainActivity> {
 
     public void testPlayingExploreGenreTrack() {
         exploreScreen.touchGenresTab();
-        categoryScreen = exploreScreen.clickGenreItem("Ambient");
+
+        ExploreGenreCategoryScreen categoryScreen = exploreScreen.clickGenreItem("Ambient");
         String trackName = categoryScreen.getTrackTitle(0);
         String trackName2 = categoryScreen.getTrackTitle(1);
+
         playerScreen = categoryScreen.playTrack(0);
         assertThat(playerScreen.getTrackTitle(), is(equalTo(trackName)));
 

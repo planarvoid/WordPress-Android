@@ -88,7 +88,7 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         assertThat("Playlist screen should be visible", playlistDetailsScreen, is(visible()));
     }
 
-    public void testOrderOfDisplayededTabs() {
+    public void testOrderOfDisplayedTabs() {
         SearchResultsScreen resultsScreen = searchScreen.doSearch("clownstep");
         assertThat("Current tab should be ALL", resultsScreen.currentTabTitle(), is("ALL"));
 
