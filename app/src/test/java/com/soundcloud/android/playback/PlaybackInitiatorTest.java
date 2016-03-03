@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.main.Screen;
@@ -53,8 +52,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     private PlaybackInitiator playbackInitiator;
 
-    private PublicApiPlaylist playlist;
-
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlayQueueOperations playQueueOperations;
@@ -76,7 +73,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 playSessionController,
                 policyOperations, offlinePlaybackOperations);
 
-        playlist = ModelFixtures.create(PublicApiPlaylist.class);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1));
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
         when(policyOperations.blockedStatuses(anyList())).thenReturn(Observable.just(Collections.<Urn, Boolean>emptyMap()));
@@ -221,7 +217,8 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         final List<Urn> trackUrns = createTrackUrns(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
 
-        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_SCREEN.get(), playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(
+                ORIGIN_SCREEN.get(), Urn.forPlaylist(456), Urn.forUser(1), trackUrns.size());
 
         playbackInitiator
                 .playTracks(Observable.just(trackUrns), tracks.get(1).getUrn(), 1, playSessionSource)
@@ -241,7 +238,8 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         when(playQueueManager.isCurrentCollection(Urn.forPlaylist(1234))).thenReturn(false); // different Playlist Id
         when(playSessionController.playNewQueue(any(PlayQueue.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
 
-        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.EXPLORE_TRENDING_MUSIC.get(), playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(
+                Screen.EXPLORE_TRENDING_MUSIC.get(), Urn.forPlaylist(1234), Urn.forUser(1), trackUrns.size());
 
         playbackInitiator
                 .playTracks(Observable.just(trackUrns), tracks.get(1).getUrn(), 1, playSessionSource)
@@ -274,7 +272,8 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final Urn playlistUrn = Urn.forPlaylist(456L);
         final Urn playlistOwnerUrn = Urn.forUser(789L);
         final String screen = "origin_screen";
-        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(screen, playlistUrn, playlistOwnerUrn, playlist.getTrackCount());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(
+                screen, playlistUrn, playlistOwnerUrn, 2);
         when(playQueueManager.getScreenTag()).thenReturn(screen);
         when(playQueueManager.isCurrentCollection(playlistUrn)).thenReturn(true);
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);

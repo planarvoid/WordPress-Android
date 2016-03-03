@@ -25,27 +25,21 @@ public class ScModelManager {
 
     private final ModelCache<PublicApiTrack> trackCache;
     private final ModelCache<PublicApiUser> userCache;
-    private final ModelCache<PublicApiPlaylist> playlistCache;
-
 
     public ScModelManager(Context c) {
         final long availableMemory = Runtime.getRuntime().maxMemory();
         final int trackCapacity;
         final int userCapacity;
-        final int playlistCapacity;
         if (availableMemory < LOW_MEM_DEVICE_THRESHOLD) {
             trackCapacity = Ints.saturatedCast((availableMemory * 10) / LOW_MEM_REFERENCE);
             userCapacity = Ints.saturatedCast((availableMemory * 10) / LOW_MEM_REFERENCE);
-            playlistCapacity = Ints.saturatedCast((availableMemory * 10) / LOW_MEM_REFERENCE);
         } else {
             trackCapacity = DEFAULT_CACHE_CAPACITY;
             userCapacity = DEFAULT_CACHE_CAPACITY;
-            playlistCapacity = DEFAULT_CACHE_CAPACITY;
         }
 
         trackCache = new ModelCache<>(trackCapacity);
         userCache = new ModelCache<>(userCapacity);
-        playlistCache = new ModelCache<>(playlistCapacity);
 
         resolver = c.getContentResolver();
     }
@@ -60,18 +54,6 @@ public class ScModelManager {
             trackCache.put(track);
         }
         return track;
-    }
-
-    public PublicApiPlaylist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
-        final long id = cursor.getLong(cursor.getColumnIndex(idCol));
-        PublicApiPlaylist playlist = playlistCache.get(id);
-
-        // assumes track cache has always
-        if (playlist == null) {
-            playlist = new PublicApiPlaylist(cursor);
-            playlistCache.put(playlist);
-        }
-        return playlist;
     }
 
     public PublicApiUser getCachedUserFromSoundViewCursor(Cursor cursor) {
@@ -114,17 +96,9 @@ public class ScModelManager {
                 return trackCache;
             case USER:
                 return userCache;
-            case PLAYLIST:
-                return playlistCache;
             default:
                 return null;
         }
-    }
-
-    public
-    @Nullable
-    ScModel getModel(Uri uri) {
-        return getModel(uri, getCacheFromUri(uri));
     }
 
     /**
@@ -189,7 +163,8 @@ public class ScModelManager {
 
         PublicApiUser u = userCache.get(id);
         if (u == null) {
-            u = (PublicApiUser) getModel(Content.USER.forId(id));
+            Uri uri = Content.USER.forId(id);
+            u = (PublicApiUser) getModel(uri, getCacheFromUri(uri));
             if (u != null) {
                 userCache.put(u);
             }
@@ -202,15 +177,9 @@ public class ScModelManager {
         return userCache.get(id);
     }
 
-    public PublicApiResource cache(@Nullable PublicApiResource resource) {
-        return cache(resource, PublicApiResource.CacheUpdateMode.NONE);
-    }
-
     public PublicApiResource cache(@Nullable PublicApiResource resource, PublicApiResource.CacheUpdateMode updateMode) {
         if (resource instanceof PublicApiTrack) {
             return cache((PublicApiTrack) resource, updateMode);
-        } else if (resource instanceof PublicApiPlaylist) {
-            return cache((PublicApiPlaylist) resource, updateMode);
         } else if (resource instanceof PublicApiUser) {
             return cache((PublicApiUser) resource, updateMode);
         } else {
@@ -220,10 +189,6 @@ public class ScModelManager {
 
     public PublicApiTrack cache(@Nullable PublicApiTrack track) {
         return cache(track, PublicApiResource.CacheUpdateMode.NONE);
-    }
-
-    public PublicApiPlaylist cache(@Nullable PublicApiPlaylist playlist) {
-        return cache(playlist, PublicApiResource.CacheUpdateMode.NONE);
     }
 
     public PublicApiTrack cache(@Nullable PublicApiTrack track, PublicApiResource.CacheUpdateMode updateMode) {
@@ -245,31 +210,6 @@ public class ScModelManager {
         } else {
             trackCache.put(track);
             return track;
-        }
-    }
-
-    public PublicApiPlaylist cache(@Nullable PublicApiPlaylist playlist, PublicApiResource.CacheUpdateMode updateMode) {
-        if (playlist == null) {
-            return null;
-        }
-
-        if (playlist.user != null) {
-            playlist.user = cache(playlist.user, updateMode);
-        }
-
-        for (int i = 0; i < playlist.tracks.size(); i++) {
-            playlist.tracks.set(i, cache(playlist.tracks.get(i), updateMode));
-        }
-
-        if (playlistCache.containsKey(playlist.getId())) {
-            if (updateMode.shouldUpdate()) {
-                return playlistCache.get(playlist.getId()).updateFrom(playlist, updateMode);
-            } else {
-                return playlistCache.get(playlist.getId());
-            }
-        } else {
-            playlistCache.put(playlist);
-            return playlist;
         }
     }
 

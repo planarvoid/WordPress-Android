@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StoreTracksCommand;
@@ -46,6 +45,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     private static final String ORIGIN_PAGE = "origin:page";
     private static final long PLAYLIST_ID = 123L;
+    private static final Urn PLAYLIST_URN = Urn.forPlaylist(PLAYLIST_ID);
 
     private PlayQueueOperations playQueueOperations;
 
@@ -59,7 +59,6 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Mock private Observer observer;
 
     private PlaySessionSource playSessionSource;
-    private PublicApiPlaylist playlist;
 
     @Before
     public void before() throws CreateModelException {
@@ -75,8 +74,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_OWNER_URN), anyString())).thenReturn(Urn.forUser(123L).toString());
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
 
-        playlist = ModelFixtures.create(PublicApiPlaylist.class);
-        playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, playlist.getUrn(), playlist.getUserUrn(), playlist.getTrackCount());
+        playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, Urn.forUser(2), 5);
     }
 
     @Test
@@ -169,7 +167,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.TRACK_ID.name(), 456L);
         verify(sharedPreferencesEditor).putInt(PlayQueueOperations.Keys.PLAY_POSITION.name(), 8);
         verify(sharedPreferencesEditor).putString(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG, ORIGIN_PAGE);
-        verify(sharedPreferencesEditor).putString(PlaySessionSource.PREF_KEY_COLLECTION_URN, playlist.getUrn().toString());
+        verify(sharedPreferencesEditor).putString(PlaySessionSource.PREF_KEY_COLLECTION_URN, PLAYLIST_URN.toString());
     }
 
     @Test
