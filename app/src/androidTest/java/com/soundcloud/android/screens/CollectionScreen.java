@@ -67,7 +67,7 @@ public class CollectionScreen extends Screen {
     }
 
     public void removeFilters() {
-//        collectionsView().scrollToItem(With.id(R.id.btn_remove_filters)).click();
+        scrollToItem(With.id(R.id.btn_remove_filters)).click();
     }
 
     public int getLoadedItemCount() {
