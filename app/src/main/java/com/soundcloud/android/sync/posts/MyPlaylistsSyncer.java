@@ -92,7 +92,6 @@ public class MyPlaylistsSyncer implements SyncStrategy {
                 : ApiSyncResult.fromSuccessWithoutChange(uri);
     }
 
-    // TODO : move that away
     private boolean syncOfflinePlaylists() {
         final List<Urn> offlinePlaylists = loadOfflinePlaylistsCommand.call(null);
         final List<Urn> updatedOfflinePlaylists = new ArrayList<>();

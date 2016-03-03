@@ -132,8 +132,8 @@ public class OfflineContentController {
 
     private Observable<Object> offlinePlaylistContentChanged() {
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                // TODO : is the syncer sending this ?
-                // NOTE : Saved for next PR (cf MyPlaylistsSyncer.syncOfflinePlaylists)
+                // NOTE : this event is not sent from the Syncer.
+                // This case is handled in MyPlaylistsSyncer.syncOfflinePlaylists.
                 .filter(IS_PLAYLIST_CONTENT_CHANGED_FILTER)
                 .map(EntityStateChangedEvent.TO_URN)
                 .flatMap(isOfflinePlaylist)
