@@ -23,7 +23,7 @@ apply from: "${project.('buildSrcDir')}/apk_finder.gradle"
 apply from: "${project.('buildSrcDir')}/curl.gradle"
 
 def systemProperties = [
-        "log.tag.Propeller": "DEBUG",
+        //"log.tag.Propeller": "DEBUG", -- too noisy
         "log.tag.ApiClient": "DEBUG",
         "log.tag.PublicApi": "DEBUG",
         "log.tag.ApiSyncer": "DEBUG",
