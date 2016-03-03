@@ -77,8 +77,4 @@ class SearchResultItem {
         }
         throw new IllegalArgumentException("ListItem type not valid");
     }
-
-    static ListItem buildPremiumItem(List<PropertySet> propertySets, Optional<Link> nextHref, int resultsCount) {
-        return new SearchPremiumItem(propertySets, nextHref, resultsCount);
-    }
 }

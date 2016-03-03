@@ -12,6 +12,8 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -102,7 +104,8 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
     }
 
     private SearchPremiumItem dummySearchPremiumItem() {
-        return new SearchPremiumItem(Collections.<PropertySet>emptyList(), Optional.<Link>absent(), SEARCH_RESULTS_COUNT);
+        final PropertySet propertySet = PropertySet.create().put(EntityProperty.URN, Urn.forTrack(123L));
+        return new SearchPremiumItem(Collections.singletonList(propertySet), Optional.<Link>absent(), SEARCH_RESULTS_COUNT);
     }
 
     private SearchUpsellItem dummySearchUpsellItem() {

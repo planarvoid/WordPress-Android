@@ -54,7 +54,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
                 final SearchResult premiumSearchResult = premiumContent.get();
                 final List<PropertySet> premiumSearchResultItems = premiumSearchResult.getItems();
                 premiumItems = buildPremiumItemsList(premiumSearchResultItems);
-                searchItems.add(SearchResultItem.buildPremiumItem(premiumSearchResultItems,
+                searchItems.add(new SearchPremiumItem(premiumSearchResultItems,
                         premiumSearchResult.nextHref, premiumSearchResult.getResultsCount()));
             }
             for (PropertySet source : sourceSetsItems) {
