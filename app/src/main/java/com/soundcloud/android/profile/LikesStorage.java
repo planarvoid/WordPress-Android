@@ -14,7 +14,6 @@ import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.OfflinePlaylistMapper;
 import com.soundcloud.android.playlists.PlaylistMapper;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
@@ -62,7 +61,8 @@ public class LikesStorage {
                         field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(TableColumns.SoundView.LIKES_COUNT),
                         field(SoundView.field(TableColumns.SoundView.PLAYBACK_COUNT)).as(TableColumns.SoundView.PLAYBACK_COUNT),
                         field(SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
-                        field(SoundView.field(TableColumns.SoundView.DURATION)).as(TableColumns.SoundView.DURATION),
+                        field(SoundView.field(TableColumns.SoundView.SNIPPET_DURATION)).as(TableColumns.SoundView.SNIPPET_DURATION),
+                        field(SoundView.field(TableColumns.SoundView.FULL_DURATION)).as(TableColumns.SoundView.FULL_DURATION),
                         field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(TableColumns.SoundView.POLICIES_BLOCKED),
                         field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(TableColumns.SoundView.POLICIES_SNIPPED),
                         field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_MID_TIER)).as(TableColumns.SoundView.POLICIES_SUB_MID_TIER),
@@ -125,7 +125,7 @@ public class LikesStorage {
         }
     }
 
-    private static class LikedPlaylistMapper extends OfflinePlaylistMapper {
+    private static class LikedPlaylistMapper extends RxResultMapper<PropertySet> {
 
         @Override
         public PropertySet map(CursorReader cursorReader) {
@@ -147,7 +147,7 @@ public class LikesStorage {
         }
     }
 
-    private static class LikedTrackMapper extends OfflinePlaylistMapper {
+    private static class LikedTrackMapper extends RxResultMapper<PropertySet> {
 
         @Override
         public PropertySet map(CursorReader cursorReader) {
@@ -155,7 +155,8 @@ public class LikesStorage {
             propertySet.put(TrackProperty.URN, Urn.forTrack(cursorReader.getLong(BaseColumns._ID)));
             propertySet.put(TrackProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
             propertySet.put(TrackProperty.CREATOR_NAME, cursorReader.getString(TableColumns.SoundView.USERNAME));
-            propertySet.put(TrackProperty.PLAY_DURATION, cursorReader.getLong(TableColumns.SoundView.DURATION));
+            propertySet.put(TrackProperty.FULL_DURATION, cursorReader.getLong(TableColumns.SoundView.FULL_DURATION));
+            propertySet.put(TrackProperty.SNIPPET_DURATION, cursorReader.getLong(TableColumns.SoundView.SNIPPET_DURATION));
             propertySet.put(TrackProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
             propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.SoundView.PLAYBACK_COUNT));
             propertySet.put(TrackProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));

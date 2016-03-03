@@ -37,7 +37,7 @@ public class ApiPlaylistTest extends AndroidUnitTest {
         assertThat(propertySet.get(PlaylistProperty.URN)).isEqualTo(playlist.getUrn());
         assertThat(propertySet.get(PlaylistProperty.TITLE)).isEqualTo(playlist.getTitle());
         assertThat(propertySet.get(PlaylistProperty.CREATED_AT)).isEqualTo(playlist.getCreatedAt());
-        assertThat(propertySet.get(PlaylistProperty.PLAY_DURATION)).isEqualTo(playlist.getDuration());
+        assertThat(propertySet.get(PlaylistProperty.PLAYLIST_DURATION)).isEqualTo(playlist.getDuration());
         assertThat(propertySet.get(PlaylistProperty.PERMALINK_URL)).isEqualTo(playlist.getPermalinkUrl());
         assertThat(propertySet.get(PlaylistProperty.IS_PRIVATE)).isEqualTo(!playlist.isPublic());
         assertThat(propertySet.get(PlaylistProperty.TRACK_COUNT)).isEqualTo(playlist.getTrackCount());

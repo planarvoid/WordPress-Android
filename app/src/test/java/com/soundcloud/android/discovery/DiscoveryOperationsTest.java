@@ -183,7 +183,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         assertThat(recommendedTrackItem.getEntityUrn()).isEqualTo(recommendedTrack.getUrn());
         assertThat(recommendedTrackItem.getTitle()).isEqualTo(recommendedTrack.getTitle());
         assertThat(recommendedTrackItem.getCreatorName()).isEqualTo(recommendedTrack.getUserName());
-        assertThat(recommendedTrackItem.getDuration()).isEqualTo(recommendedTrack.getDuration());
+        assertThat(recommendedTrackItem.getDuration()).isEqualTo(recommendedTrack.getFullDuration());
     }
 
     @Test
@@ -272,7 +272,9 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
                 PlayableProperty.URN.bind(Urn.forTrack(recommendedTrack.getId())),
                 PlayableProperty.TITLE.bind(recommendedTrack.getTitle()),
                 PlayableProperty.CREATOR_NAME.bind(recommendedTrack.getUserName()),
-                PlayableProperty.PLAY_DURATION.bind(recommendedTrack.getDuration()),
+                TrackProperty.FULL_DURATION.bind(recommendedTrack.getFullDuration()),
+                TrackProperty.SNIPPET_DURATION.bind(recommendedTrack.getSnippetDuration()),
+                TrackProperty.SNIPPED.bind(false),
                 TrackProperty.PLAY_COUNT.bind(recommendedTrack.getPlaybackCount()),
                 PlayableProperty.LIKES_COUNT.bind(recommendedTrack.getLikesCount()),
                 PlayableProperty.CREATED_AT.bind(recommendedTrack.getCreatedAt())

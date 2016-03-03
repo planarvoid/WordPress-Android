@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -62,7 +61,7 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public long getDuration() {
-        return source.get(PlayableProperty.PLAY_DURATION);
+        return source.get(PlaylistProperty.PLAYLIST_DURATION);
     }
 
     @Override

@@ -44,7 +44,9 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
         propertySet = PropertySet.from(
                 TrackProperty.TITLE.bind("title"),
                 TrackProperty.CREATOR_NAME.bind("creator"),
-                TrackProperty.PLAY_DURATION.bind(227000L),
+                TrackProperty.SNIPPET_DURATION.bind(227000L),
+                TrackProperty.FULL_DURATION.bind(227000L),
+                TrackProperty.SNIPPED.bind(true),
                 TrackProperty.URN.bind(Urn.forTrack(123)),
                 TrackProperty.PLAY_COUNT.bind(870)
         );

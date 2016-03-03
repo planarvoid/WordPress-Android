@@ -6,6 +6,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playback.Durations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -52,7 +53,7 @@ public class PeripheralsController {
         Intent intent = new Intent(AVRCP_META_CHANGED);
         intent.putExtra("id", track.get(TrackProperty.URN).getNumericId());
         intent.putExtra("track", ScTextUtils.getClippedString(track.get(PlayableProperty.TITLE), 40));
-        intent.putExtra("duration", track.get(PlayableProperty.PLAY_DURATION).longValue());
+        intent.putExtra("duration", Durations.getTrackPlayDuration(track));
         intent.putExtra("artist", getSafeClippedString(track.get(PlayableProperty.CREATOR_NAME), 30));
         context.sendBroadcast(intent);
     }

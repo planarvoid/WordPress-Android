@@ -96,7 +96,7 @@ public class PlaylistWithTracks {
     }
 
     public String getDuration() {
-        final long duration = tracks.isEmpty() ? sourceSet.get(PlaylistProperty.PLAY_DURATION) : getCombinedTrackDurations();
+        final long duration = tracks.isEmpty() ? sourceSet.get(PlaylistProperty.PLAYLIST_DURATION) : getCombinedTrackDurations();
         return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
     }
 

@@ -22,7 +22,7 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
     private String genre;
     private ApiUser user;
     private boolean commentable;
-    private long duration = Consts.NOT_SET;
+    private long snippetDuration = Consts.NOT_SET;
     private long fullDuration = Consts.NOT_SET;
     private String streamUrl;
     private String waveformUrl;
@@ -100,16 +100,17 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
         this.commentable = commentable;
     }
 
-    public long getDuration() {
-        return duration;
+    public long getSnippetDuration() {
+        return snippetDuration;
     }
 
     public long getFullDuration() {
         return fullDuration;
     }
 
-    public void setDuration(long duration) {
-        this.duration = duration;
+    @JsonProperty("snippet_duration")
+    public void setSnippetDuration(long snippetDuration) {
+        this.snippetDuration = snippetDuration;
     }
 
     @JsonProperty("full_duration")
@@ -323,7 +324,7 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
                 .add("genre", genre)
                 .add("user", user)
                 .add("commentable", commentable)
-                .add("duration", duration)
+                .add("snippetDuration", snippetDuration)
                 .add("fullDuration", fullDuration)
                 .add("streamUrl", streamUrl)
                 .add("waveformUrl", waveformUrl)
@@ -332,6 +333,7 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
                 .add("artworkUrl", artworkUrl)
                 .add("permalinkUrl", permalinkUrl)
                 .add("monetizable", monetizable)
+                .add("snipped", snipped)
                 .add("blocked", blocked)
                 .add("syncable", syncable)
                 .add("policy", policy)
@@ -346,7 +348,7 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
                 TrackProperty.URN.bind(getUrn()),
                 TrackProperty.TITLE.bind(getTitle()),
                 TrackProperty.CREATED_AT.bind(getCreatedAt()),
-                TrackProperty.PLAY_DURATION.bind(getDuration()),
+                TrackProperty.SNIPPET_DURATION.bind(getSnippetDuration()),
                 TrackProperty.FULL_DURATION.bind(getFullDuration()),
                 TrackProperty.IS_PRIVATE.bind(isPrivate()),
                 TrackProperty.WAVEFORM_URL.bind(getWaveformUrl()),

@@ -187,7 +187,7 @@ public class Uploader implements Runnable {
     }
 
     private void onUploadFinished(PublicApiTrack track) {
-        if (track.getDuration() <= 0) {
+        if (track.getFullDuration() <= 0) {
             track.setDuration(recording.duration);
         }
 

@@ -16,7 +16,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
@@ -101,7 +100,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         setUser(new PublicApiUser(suggestion.getUser()));
         setTitle(suggestion.getTitle());
         setWaveformUrl(suggestion.getWaveformUrl());
-        duration = suggestion.getDuration();
+        duration = suggestion.getFullDuration();
         artwork_url = suggestion.getArtworkUrl();
         genre = suggestion.getGenre();
         commentable = suggestion.isCommentable();
@@ -335,7 +334,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     }
 
     @Override
-    public long getDuration() {
+    public long getSnippetDuration() {
         return duration;
     }
 
@@ -360,6 +359,8 @@ public class PublicApiTrack extends Playable implements TrackRecord {
                 .put(TrackProperty.URN, Urn.forTrack(getId()))
                 .put(TrackProperty.PLAY_COUNT, playback_count)
                 .put(TrackProperty.COMMENTS_COUNT, comment_count)
+                .put(TrackProperty.SNIPPET_DURATION, duration)
+                .put(TrackProperty.FULL_DURATION, duration)
                 .put(TrackProperty.DESCRIPTION, description == null ? Strings.EMPTY : description);
 
         // we may not have policy in the db yet, as it was not always part of the public API
@@ -604,7 +605,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         apiTrack.setCreatedAt(created_at);
         apiTrack.setArtworkUrl(artwork_url);
         apiTrack.setCommentable(commentable);
-        apiTrack.setDuration(duration);
+        apiTrack.setSnippetDuration(duration);
         apiTrack.setFullDuration(duration);
         apiTrack.setGenre(genre);
         apiTrack.setMonetizable(isMonetizable());

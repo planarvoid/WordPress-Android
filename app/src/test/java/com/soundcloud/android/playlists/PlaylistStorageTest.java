@@ -129,7 +129,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         assertThat(playlist.slice(
                         EntityProperty.URN,
                         PlayableProperty.TITLE,
-                        PlayableProperty.PLAY_DURATION,
+                        PlaylistProperty.PLAYLIST_DURATION,
                         PlayableProperty.CREATOR_NAME,
                         PlayableProperty.CREATOR_URN,
                         PlayableProperty.LIKES_COUNT,

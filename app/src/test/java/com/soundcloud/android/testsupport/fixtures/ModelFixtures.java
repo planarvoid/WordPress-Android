@@ -172,7 +172,7 @@ public class ModelFixtures {
 
     public static DownloadRequest downloadRequestFromLikes(ApiTrack track) {
         TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), true, false);
-        return DownloadRequest.create(track.getUrn(), track.getDuration(), track.getWaveformUrl(), true, trackContext);
+        return DownloadRequest.create(track.getUrn(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
     }
 
     public static DownloadRequest downloadRequestFromLikes(Urn track) {
@@ -182,12 +182,12 @@ public class ModelFixtures {
 
     public static DownloadRequest downloadRequestFromPlaylists(ApiTrack track) {
         TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), false, true);
-        return DownloadRequest.create(track.getUrn(), track.getDuration(), track.getWaveformUrl(), true, trackContext);
+        return DownloadRequest.create(track.getUrn(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
     }
 
     public static DownloadRequest downloadRequestFromLikesAndPlaylists(ApiTrack track) {
         TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), true, true);
-        return DownloadRequest.create(track.getUrn(), track.getDuration(), track.getWaveformUrl(), true, trackContext);
+        return DownloadRequest.create(track.getUrn(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
     }
 
 

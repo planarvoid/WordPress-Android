@@ -14,7 +14,7 @@ public interface TrackRecord  {
 
     String getTitle();
 
-    long getDuration();
+    long getSnippetDuration();
 
     long getFullDuration();
 

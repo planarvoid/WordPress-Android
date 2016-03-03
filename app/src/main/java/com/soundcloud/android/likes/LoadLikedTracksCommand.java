@@ -35,7 +35,7 @@ public class LoadLikedTracksCommand extends Command<Void, Collection<PropertySet
                         field(fullSoundIdColumn).as(BaseColumns._ID),
                         TableColumns.Sounds.TITLE,
                         TableColumns.Users.USERNAME,
-                        TableColumns.Sounds.DURATION,
+                        TableColumns.Sounds.SNIPPET_DURATION,
                         TableColumns.Sounds.FULL_DURATION,
                         TableColumns.Sounds.PLAYBACK_COUNT,
                         TableColumns.Sounds.LIKES_COUNT,

@@ -58,8 +58,9 @@ public abstract class TestPropertySets {
                 PlayableProperty.CREATOR_NAME.bind("squirlex"),
                 TrackProperty.MONETIZATION_MODEL.bind(MONETIZATION_MODEL),
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(456L)),
-                PlayableProperty.PLAY_DURATION.bind(20000L),
+                TrackProperty.SNIPPET_DURATION.bind(20000L),
                 TrackProperty.FULL_DURATION.bind(30000L),
+                TrackProperty.SNIPPED.bind(false),
                 PlayableProperty.IS_USER_LIKE.bind(true),
                 PlayableProperty.LIKES_COUNT.bind(1),
                 PlayableProperty.REPOSTS_COUNT.bind(1),
@@ -86,7 +87,9 @@ public abstract class TestPropertySets {
                 TrackProperty.TITLE.bind("Title " + urn),
                 TrackProperty.CREATOR_NAME.bind("Creator " + urn),
                 TrackProperty.PERMALINK_URL.bind("http://permalink.url"),
-                TrackProperty.PLAY_DURATION.bind(10L),
+                TrackProperty.SNIPPET_DURATION.bind(20000L),
+                TrackProperty.FULL_DURATION.bind(30000L),
+                TrackProperty.SNIPPED.bind(true),
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),
                 LikeProperty.CREATED_AT.bind(new Date()),
@@ -120,7 +123,8 @@ public abstract class TestPropertySets {
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.TITLE.bind("squirlex galore"),
                 TrackProperty.CREATOR_NAME.bind("avieciie"),
-                TrackProperty.PLAY_DURATION.bind(10L),
+                TrackProperty.SNIPPET_DURATION.bind(10000L),
+                TrackProperty.FULL_DURATION.bind(20000L),
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),
                 LikeProperty.CREATED_AT.bind(new Date()),
@@ -169,7 +173,8 @@ public abstract class TestPropertySets {
                 PlayableProperty.URN.bind(Urn.forTrack(123L)),
                 PlayableProperty.TITLE.bind("squirlex galore part 2"),
                 PlayableProperty.CREATOR_NAME.bind("avieciie"),
-                PlayableProperty.PLAY_DURATION.bind(123456L),
+                TrackProperty.SNIPPET_DURATION.bind(123456L),
+                TrackProperty.FULL_DURATION.bind(123456L),
                 PlayableProperty.LIKES_COUNT.bind(2),
                 PlayableProperty.IS_PRIVATE.bind(false),
                 PlayableProperty.PERMALINK_URL.bind("http://permalink.url"),
@@ -208,7 +213,9 @@ public abstract class TestPropertySets {
                 TrackProperty.CREATOR_URN.bind(creatorUrn),
                 TrackProperty.POLICY.bind(policy),
                 TrackProperty.MONETIZATION_MODEL.bind(MONETIZATION_MODEL),
-                PlayableProperty.PLAY_DURATION.bind(duration)
+                TrackProperty.SNIPPET_DURATION.bind(duration),
+                TrackProperty.FULL_DURATION.bind(duration),
+                TrackProperty.SNIPPED.bind(false)
         );
     }
 
@@ -228,7 +235,7 @@ public abstract class TestPropertySets {
         return PropertySet.from(
                 TrackProperty.URN.bind(apiTrack.getUrn()),
                 PlayableProperty.TITLE.bind(apiTrack.getTitle()),
-                PlayableProperty.PLAY_DURATION.bind(apiTrack.getDuration()),
+                TrackProperty.SNIPPET_DURATION.bind(apiTrack.getSnippetDuration()),
                 TrackProperty.FULL_DURATION.bind(apiTrack.getFullDuration()),
                 PlayableProperty.CREATOR_NAME.bind(apiTrack.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
@@ -271,7 +278,7 @@ public abstract class TestPropertySets {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forPlaylist(apiPlaylist.getId())),
                 PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
-                PlayableProperty.PLAY_DURATION.bind(apiPlaylist.getDuration()),
+                PlaylistProperty.PLAYLIST_DURATION.bind(apiPlaylist.getDuration()),
                 PlayableProperty.CREATOR_NAME.bind(apiPlaylist.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(apiPlaylist.getUser().getUrn()),
                 PlayableProperty.LIKES_COUNT.bind(apiPlaylist.getStats().getLikesCount()),

@@ -38,7 +38,9 @@ public class StreamPlayerTest extends AndroidUnitTest {
     private Urn trackUrn = Urn.forTrack(123L);
     private PropertySet track = PropertySet.from(
             TrackProperty.URN.bind(trackUrn),
-            TrackProperty.PLAY_DURATION.bind(456L)
+            TrackProperty.SNIPPED.bind(false),
+            TrackProperty.SNIPPET_DURATION.bind(345L),
+            TrackProperty.FULL_DURATION.bind(456L)
     );
     private AudioPlaybackItem audioPlaybackItem = AudioPlaybackItem.create(track, 123L);
     private AudioPlaybackItem offlinePlaybackItem = AudioPlaybackItem.forOffline(track, 123L);
