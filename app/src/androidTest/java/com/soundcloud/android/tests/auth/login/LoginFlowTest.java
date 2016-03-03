@@ -111,16 +111,6 @@ public class LoginFlowTest extends LoginTest {
     }
 
     /*
-    * As a Facebook User that has installed FB application on the phone
-    * I want to sign in with my FB credentials
-    * So that I don't need to create another account
-    */
-    public void ignore_testLoginWithFBApplication() {
-        //TODO Implement this
-        // QUESTION How can we control what's installed on device and what's not.
-    }
-
-    /*
      * As a User
      * I want to know if I entered wrong password
      * So that I can correct myself

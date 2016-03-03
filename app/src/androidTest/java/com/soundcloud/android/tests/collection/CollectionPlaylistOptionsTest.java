@@ -7,12 +7,10 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-@Ignore
 public class CollectionPlaylistOptionsTest extends ActivityTest<MainActivity> {
 
     protected CollectionScreen collectionScreen;

@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests.likes;
 
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
+import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -63,5 +64,10 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         player.pressBackToCollapse();
 
         assertThat(likesScreen.getTotalLikesCount(), equalTo(initialLikedTracksCount));
+    }
+
+    public void testSongIsPlayedWhenShuffleEnabled() {
+        VisualPlayerElement playerElement = likesScreen.clickShuffleButton();
+        assertThat(playerElement, is(playing()));
     }
 }
