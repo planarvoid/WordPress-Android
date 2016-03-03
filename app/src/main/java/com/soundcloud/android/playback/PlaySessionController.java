@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPP
 import static com.soundcloud.android.playback.Player.PlayerState;
 import static com.soundcloud.android.playback.Player.StateTransition;
 
+import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFunctions;
@@ -16,6 +17,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -96,6 +98,7 @@ public class PlaySessionController {
     private final AccountOperations accountOperations;
     private final StationsOperations stationsOperations;
     private final FeatureFlags featureFlags;
+    private final PlaybackServiceInitiator playbackServiceInitiator;
 
     private final Func1<Bitmap, Bitmap> copyBitmap = new Func1<Bitmap, Bitmap>() {
         @Override
@@ -190,7 +193,8 @@ public class PlaySessionController {
                                  PlaybackToastHelper playbackToastHelper,
                                  AccountOperations accountOperations,
                                  StationsOperations stationsOperations,
-                                 FeatureFlags featureFlags) {
+                                 FeatureFlags featureFlags,
+                                 PlaybackServiceInitiator playbackServiceInitiator) {
         this.resources = resources;
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
@@ -206,6 +210,7 @@ public class PlaySessionController {
         this.accountOperations = accountOperations;
         this.stationsOperations = stationsOperations;
         this.featureFlags = featureFlags;
+        this.playbackServiceInitiator = playbackServiceInitiator;
         this.audioManager = audioManager.get();
         this.imageOperations = imageOperations;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -327,6 +332,11 @@ public class PlaySessionController {
                 : playbackStrategyProvider.get().playCurrent();
 
         subscription = playCurrentObservable.subscribe(new PlayCurrentSubscriber());
+    }
+
+    public void resetPlaySession() {
+        playbackServiceInitiator.resetPlaybackService();
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
 
     private class AdvanceTrackSubscriber extends DefaultSubscriber<StateTransition> {

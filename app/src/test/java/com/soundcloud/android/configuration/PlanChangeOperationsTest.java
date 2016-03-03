@@ -6,9 +6,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
@@ -29,15 +29,16 @@ public class PlanChangeOperationsTest {
 
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private PolicyOperations policyOperations;
-    @Mock private PlaybackServiceInitiator playbackServiceInitiator;
     @Mock private OfflineContentOperations offlineContentOperations;
+    @Mock private PlaySessionController playSessionController;
+
     private TestSubscriber<Object> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
         when(offlineContentOperations.resetOfflineFeature()).thenReturn(Observable.<Void>just(null));
         operations = new PlanChangeOperations(configurationOperations,
-                policyOperations, playbackServiceInitiator, offlineContentOperations);
+                policyOperations, playSessionController, offlineContentOperations);
     }
 
     @Test
@@ -72,7 +73,7 @@ public class PlanChangeOperationsTest {
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
 
-        verify(playbackServiceInitiator).resetPlaybackService();
+        verify(playSessionController).resetPlaySession();
     }
 
     @Test
@@ -135,7 +136,7 @@ public class PlanChangeOperationsTest {
 
         operations.awaitAccountUpgrade().subscribe(subscriber);
 
-        verify(playbackServiceInitiator).resetPlaybackService();
+        verify(playSessionController).resetPlaySession();
     }
 
     @Test
@@ -148,7 +149,7 @@ public class PlanChangeOperationsTest {
 
         operations.awaitAccountUpgrade().subscribe(subscriber);
 
-        verify(playbackServiceInitiator).resetPlaybackService();
+        verify(playSessionController).resetPlaySession();
     }
 
     @Test
