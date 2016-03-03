@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
@@ -19,7 +18,6 @@ import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.InjectionSupport;
@@ -56,8 +54,6 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     @Mock private AccountManager accountManager;
     @Mock private SoundCloudTokenOperations tokenOperations;
-    @Mock private ScModelManager modelManager;
-    @Mock private LegacyUserStorage userStorage;
     @Mock private Account scAccount;
     @Mock private Observer observer;
     @Mock private Token token;

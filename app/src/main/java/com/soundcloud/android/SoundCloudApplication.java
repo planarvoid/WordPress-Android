@@ -14,7 +14,6 @@ import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.cast.CastSessionController;
@@ -81,10 +80,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @SuppressFBWarnings({"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static SoundCloudApplication instance;
 
-    @Deprecated
-    @SuppressFBWarnings({"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
-    public static ScModelManager sModelManager;
-
     // These are not injected because we need them before Dagger initializes
     private UncaughtExceptionHandlerController uncaughtExceptionHandlerController;
     private SharedPreferences sharedPreferences;
@@ -93,7 +88,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject MigrationEngine migrationEngine;
     @Inject EventBus eventBus;
     @Inject NetworkConnectivityListener networkConnectivityListener;
-    @Inject ScModelManager modelManager;
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
     @Inject ConfigurationManager configurationManager;
@@ -147,9 +141,6 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         initializePreInjectionObjects();
         objectGraph.inject(this);
-
-        // reroute to a static field for legacy code
-        sModelManager = modelManager;
 
         bootApplication();
     }

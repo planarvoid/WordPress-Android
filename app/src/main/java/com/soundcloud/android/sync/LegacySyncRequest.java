@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.sync.ApiSyncer.TAG;
 
 import com.soundcloud.android.utils.Log;
 
@@ -75,7 +74,7 @@ import java.util.Set;
     private boolean isSuccess() {
         for (LegacySyncJob r : legacySyncItems) {
             if (!r.getResult().success) {
-                Log.w(TAG, "collection sync request " + r + " not successful");
+                Log.w(ApiSyncService.LOG_TAG, "collection sync request " + r + " not successful");
                 return false;
             }
         }

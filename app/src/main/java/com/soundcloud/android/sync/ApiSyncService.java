@@ -18,7 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ApiSyncService extends Service {
-    public static final String LOG_TAG = ApiSyncer.class.getSimpleName();
+    public static final String LOG_TAG = ApiSyncService.class.getSimpleName();
 
     public static final String ACTION_APPEND        = "com.soundcloud.android.sync.action.APPEND";
     public static final String ACTION_PUSH          = "com.soundcloud.android.sync.action.PUSH";

@@ -3,12 +3,10 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.associations.AssociationsModule;
 import com.soundcloud.android.creators.upload.UploadService;
-import com.soundcloud.android.sync.ApiSyncer;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                ApiSyncer.class,
                 UploadService.class
         }, includes = AssociationsModule.class)
 
