@@ -30,7 +30,7 @@ android {
     buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), FALSE
     buildConfigField BOOLEAN, Feature.PAYMENTS_TEST.name(), FALSE
     buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), FALSE
-    buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+    buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), FALSE
@@ -61,6 +61,7 @@ android {
       buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), TRUE
       buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), TRUE // Does nothing unless FEATURE_VIDEO_ADS is enabled
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     end2end {
@@ -85,43 +86,40 @@ android {
   }
 }
 
-////Excluded build types
-//def excludedBuildTypes = ['repack']
-//
-////Checks whether all feature flags start with 'FEATURE'
-//task checkFlags (dependsOn: ':app:preBuild') {
-//  flags.each {
-//    if (!it.key.startsWith(FEATURE))
-//      failBuild('Feature flag defined without FEATURE prefix.')
-//  }
-//}
-//
-////Checks whether the number of flags is consistent within each build variant
-//android.buildTypes.all { buildType ->
-//  if (!excludedBuildTypes.contains(buildType.name)) {
-//    def featureFlagsForBuildType = []
-//    buildType.getBuildConfigFields().each {
-//      if (it.key.startsWith(FEATURE))
-//        featureFlagsForBuildType.add it.key
-//    }
-//    if (featureFlagsForBuildType.size != flags.keySet().toList().size)
-//      failBuild("Inconsistent number of flags for build type: ${buildType.name}")
-//  }
-//}
-//
-//android {
-//  tasks.whenTaskAdded { currentTask ->
-//    project.('android').buildTypes.all { build ->
-//      def buildName = build.name
-//      def generateBuildConfigTask = "generate${buildName.capitalize()}BuildConfig".toString()
-//      if (generateBuildConfigTask.equals(currentTask.name.toString())) {
-//
-//      }
-//    }
-//  }
-//}
-//
-//def failBuild(message) {
-//    throw new GradleException(message)
-//}
+//Excluded unrelated stuff
+def excludedBuildTypes = ['repack']
+def excludeConfigFields = ['RUN_ADS_TEST']
+
+task checkFlags (dependsOn: ':app:preBuild') {
+  def defaultFeatureFlags = android.defaultConfig.getBuildConfigFields()
+  //Checks that the number of flags defined in the enum is consistent
+  //with the number of flags defined in the default section.
+  if (defaultFeatureFlags.keySet().size() != Feature.values().size())
+      failBuild("Inconsistent number of flags between defaultConfig section and Feature enum.")
+  //Make sure that all flags in default config section are disabled.
+  defaultFeatureFlags.each {
+    if (it.getValue().getValue() == TRUE) {
+      failBuild("Flag ${it.key} has a TRUE value in defaultConfig. All values by default should be FALSE. " +
+              "Please override the Flag ${it.key} value in the build type you are interested in.")
+    }
+  }
+}
+
+//Checks whether all flags in each build are TRUE otherwise fails
+//the build asking to remove it since the default value is FALSE.
+android.buildTypes.all { buildType ->
+  if (!excludedBuildTypes.contains(buildType.name)) {
+    buildType.getBuildConfigFields().each {
+      if (!excludeConfigFields.contains(it.key))
+        if (it.getValue().getValue() == FALSE) {
+          failBuild("Flag ${it.key} has a FALSE value in build type: ${buildType.name}. " +
+                  "Please remove it or turn its value to TRUE.")
+        }
+    }
+  }
+}
+
+def failBuild(message) {
+    throw new GradleException(message)
+}
 
