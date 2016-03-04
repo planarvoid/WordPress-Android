@@ -7,7 +7,6 @@ import static com.soundcloud.android.utils.ErrorUtils.log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.accounts.FetchMeCommand;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -42,7 +41,6 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @Inject AccountOperations accountOperations;
     @Inject TokenInformationGenerator tokenUtils;
     @Inject ApiClient apiClient;
-    @Inject FetchMeCommand fetchMeCommand;
     @Inject StoreUsersCommand storeUsersCommand;
 
     public interface OnAuthResultListener {

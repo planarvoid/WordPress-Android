@@ -72,7 +72,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
 
     private LoginTask getLoginTask() {
         final LoginTask loginTask = new LoginTask((SoundCloudApplication) getActivity().getApplication(),
-                tokenUtils, fetchMeCommand, storeUsersCommand, configurationOperations, eventBus, accountOperations);
+                tokenUtils, storeUsersCommand, configurationOperations, eventBus, accountOperations, apiClient);
         loginTask.setTaskOwner(this);
         return loginTask;
     }
