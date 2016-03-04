@@ -2,7 +2,6 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;

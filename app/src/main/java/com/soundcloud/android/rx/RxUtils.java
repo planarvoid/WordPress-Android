@@ -2,12 +2,9 @@ package com.soundcloud.android.rx;
 
 import com.soundcloud.android.Consts;
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
-
-import java.util.List;
 
 public final class RxUtils {
 
@@ -41,12 +38,6 @@ public final class RxUtils {
 
     public static final Object EMPTY_VALUE = new Object();
 
-    public static <T> void emitIterable(Observer<? super T> observer, Iterable<T> iterable) {
-        for (T item : iterable) {
-            observer.onNext(item);
-        }
-    }
-
     /**
      * @return A Subscription that is always unsubscribed. Can use as a Null object; reference equality
      * checks are safe to perform.
@@ -78,15 +69,6 @@ public final class RxUtils {
             @Override
             public Observable<T> call(Object o) {
                 return continuation;
-            }
-        };
-    }
-
-    public static <T> Func1<List<T>, Boolean> filterEmptyLists() {
-        return new Func1<List<T>, Boolean>() {
-            @Override
-            public Boolean call(List<T> list) {
-                return !list.isEmpty();
             }
         };
     }

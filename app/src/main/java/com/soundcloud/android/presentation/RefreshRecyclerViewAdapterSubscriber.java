@@ -1,4 +1,6 @@
-package com.soundcloud.android.rx.observers;
+package com.soundcloud.android.presentation;
+
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
 import android.support.v7.widget.RecyclerView;
 

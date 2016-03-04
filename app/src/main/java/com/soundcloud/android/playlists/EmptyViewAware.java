@@ -1,4 +1,4 @@
-package com.soundcloud.android.rx.observers;
+package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.view.EmptyView;
 
