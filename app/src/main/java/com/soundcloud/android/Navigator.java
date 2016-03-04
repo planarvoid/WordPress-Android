@@ -105,7 +105,7 @@ public class Navigator {
                 : NativeConversionActivity.class;
     }
 
-    public void openUpgradeFromDeeplink(Context context) {
+    public void openUpgradeOnMain(Context context) {
         context.startActivity(createHomeIntent(context).putExtra(EXTRA_UPGRADE_INTENT, true));
     }
 
