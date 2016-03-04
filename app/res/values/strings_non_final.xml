@@ -156,7 +156,7 @@
     <string name="upsell_remove_ads">Go ad-free</string>
     <string name="upsell_stream_upgrade_button">Get SoundCloud Go</string>
     <string name="upsell_stream_upgrade_title">Upgrade to SoundCloud Go</string>
-    <string name="upsell_stream_upgrade_description">Get our expanded catalog, with offline listening and no ads.</string>
+    <string name="upsell_stream_upgrade_description">Get the expanded catalog, with offline listening and no ads.</string>
     <string name="upsell_track_preview">Preview</string>
     <string name="upsell_track_geo_blocked">Not available in your country</string>
 
