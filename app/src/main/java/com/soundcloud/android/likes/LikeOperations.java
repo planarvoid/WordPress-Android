@@ -3,7 +3,6 @@ package com.soundcloud.android.likes;
 import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
@@ -16,15 +15,10 @@ import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
-import android.support.annotation.VisibleForTesting;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
 public class LikeOperations {
-
-    @VisibleForTesting
-    static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
     private final UpdateLikeCommand storeLikeCommand;
     private final Scheduler scheduler;

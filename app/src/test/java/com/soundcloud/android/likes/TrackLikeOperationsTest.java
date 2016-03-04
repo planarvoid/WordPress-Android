@@ -1,7 +1,8 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.likes.LikeOperations.PAGE_SIZE;
 import static com.soundcloud.android.likes.TrackLikeOperations.INITIAL_TIMESTAMP;
+import static com.soundcloud.android.likes.TrackLikeOperations.PAGE_SIZE;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.never;
@@ -11,7 +12,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -21,6 +21,7 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.Pager.PagingFunction;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -35,7 +36,6 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,7 +67,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void syncAndLoadTrackLikesWhenInitialTrackLoadReturnsEmptyList() {
-        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncResult.success("action", false)));
 
@@ -94,7 +94,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void likedTracksReturnsLikedTracksFromStorage() {
-        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
@@ -106,7 +106,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void likedTracksRequestsUpdatesFromSyncer() {
-        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
@@ -118,7 +118,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void likedTracksDoesNotRequestsUpdatesFromSyncerWhenOffWifi() {
-        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
@@ -139,7 +139,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
-        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
@@ -150,7 +150,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() {
-        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncResult.success("any intent action", true)));
 
