@@ -168,12 +168,12 @@ public final class TableColumns {
     public static final class UserAssociations {
         public static final String TARGET_ID = "target_id";// the target user of the association
         public static final String ASSOCIATION_TYPE = "association_type"; // the type of association (e.g. Following, Follower)
-        public static final String RESOURCE_TYPE = "resource_type";  // currently unused, but if we add groups...
+        @Deprecated public static final String RESOURCE_TYPE = "resource_type";  // currently unused, but if we add groups...
         public static final String POSITION = "position"; // as returned from the api
-        public static final String CREATED_AT = "created_at"; // indicates when this was created on the api
+        @Deprecated public static final String CREATED_AT = "created_at"; // indicates when this was created on the api
         public static final String ADDED_AT = "added_at"; // when was this added locally (pre-api sync)
         public static final String REMOVED_AT = "removed_at"; // when was this removed locally (pre-api sync)
-        public static final String TOKEN = "token"; // when was this removed locally (pre-api sync)
+        @Deprecated public static final String TOKEN = "token";
 
         public static final int TYPE_FOLLOWING = ScContentProvider.CollectionItemTypes.FOLLOWING;
         public static final int TYPE_FOLLOWER = ScContentProvider.CollectionItemTypes.FOLLOWER;
@@ -423,7 +423,7 @@ public final class TableColumns {
         public static final String USER_ASSOCIATION_POSITION = "user_association_position";
         public static final String USER_ASSOCIATION_ADDED_AT = "user_association_added_at";
         public static final String USER_ASSOCIATION_REMOVED_AT = "user_association_removed_at";
-        public static final String USER_ASSOCIATION_TOKEN = "user_association_token";
+        @Deprecated public static final String USER_ASSOCIATION_TOKEN = "user_association_token";
     }
 
     public final static class SoundAssociationView extends SoundView {

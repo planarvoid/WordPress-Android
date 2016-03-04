@@ -107,13 +107,23 @@ public class DatabaseFixtures {
         insertInto(Table.UserAssociations, cv);
     }
 
-    public void insertFollowingPendingRemoval(Urn followedUrn) {
+    public void insertFollowingPendingRemoval(Urn followedUrn, long removedAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
         cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER);
         cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
         cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
-        cv.put(TableColumns.UserAssociations.REMOVED_AT, System.currentTimeMillis());
+        cv.put(TableColumns.UserAssociations.REMOVED_AT, removedAt);
+        insertInto(Table.UserAssociations, cv);
+    }
+
+    public void insertFollowingPendingAddition(Urn followedUrn, long addedAt) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
+        cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER);
+        cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
+        cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
+        cv.put(TableColumns.UserAssociations.ADDED_AT, addedAt);
         insertInto(Table.UserAssociations, cv);
     }
 

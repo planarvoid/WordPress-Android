@@ -2,14 +2,11 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylistBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiTrackBlueprint;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.PublicApiUserBlueprint;
 import com.soundcloud.android.api.legacy.model.RecordingBlueprint;
-import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiPlaylistBlueprint;
 import com.soundcloud.android.api.model.ApiPlaylistPostBlueprint;
@@ -100,16 +97,6 @@ public class ModelFixtures {
             models.add(create(target));
         }
         return models;
-    }
-
-    public static List<UserAssociation> createDirtyFollowings(int count) {
-        List<UserAssociation> userAssociations = new ArrayList<>();
-        for (PublicApiUser user : create(PublicApiUser.class, count)) {
-            final UserAssociation association = new UserAssociation(Association.Type.FOLLOWING, user);
-            association.markForAddition();
-            userAssociations.add(association);
-        }
-        return userAssociations;
     }
 
     public static ApiLike apiTrackLike() {

@@ -1,16 +1,36 @@
 package com.soundcloud.android.users;
 
+import static com.soundcloud.android.storage.Table.UserAssociations;
+import static com.soundcloud.android.storage.Table.Users;
+import static com.soundcloud.android.storage.TableColumns.UserAssociations.ADDED_AT;
+import static com.soundcloud.android.storage.TableColumns.UserAssociations.ASSOCIATION_TYPE;
+import static com.soundcloud.android.storage.TableColumns.UserAssociations.POSITION;
+import static com.soundcloud.android.storage.TableColumns.UserAssociations.REMOVED_AT;
+import static com.soundcloud.android.storage.TableColumns.UserAssociations.TARGET_ID;
+import static com.soundcloud.android.storage.TableColumns.UserAssociations.TYPE_FOLLOWING;
+import static com.soundcloud.propeller.ContentValuesBuilder.values;
+import static com.soundcloud.propeller.query.Filter.filter;
+import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.propeller.query.Query;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
 
+import android.provider.BaseColumns;
+
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
@@ -24,14 +44,19 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     private PropertySet follower;
     private PropertySet followingAndFollower;
     private PropertySet following;
+    private Urn followingUrn;
+    private Urn followingAndFollowerUrn;
 
     @Before
     public void setUp() throws Exception {
-        storage = new UserAssociationStorage(propellerRx());
+        storage = new UserAssociationStorage(propeller(), new StoreUsersCommand(propeller()));
 
         final ApiUser apiFollower = testFixtures().insertUser();
         final ApiUser apiFollowingAndFollower = testFixtures().insertUser();
         final ApiUser apiFollowing = testFixtures().insertUser();
+
+        followingUrn = apiFollowing.getUrn();
+        followingAndFollowerUrn = apiFollowingAndFollower.getUrn();
 
         testFixtures().insertFollower(apiFollower.getUrn(), 1);
         testFixtures().insertFollower(apiFollowingAndFollower.getUrn(), 2);
@@ -44,11 +69,44 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void shouldClearTable() {
+        assertThat(select(Query.from(UserAssociations))).counts(4);
+
+        storage.clear();
+
+        assertThat(select(Query.from(UserAssociations))).isEmpty();
+    }
+
+    @Test
+    public void shouldLoadIdsOfFollowingUsers() {
+        Assertions.assertThat(storage.loadFollowedUserIds()).containsOnly(
+                following.get(EntityProperty.URN).getNumericId(),
+                followingAndFollower.get(EntityProperty.URN).getNumericId()
+        );
+    }
+
+    @Test
+    public void shouldLoadIdsOfFollowingUsersUnlessPendingAddition() {
+        markFollowingAsAdded(followingAndFollower.get(EntityProperty.URN));
+        Assertions.assertThat(storage.loadFollowedUserIds()).containsOnly(
+                following.get(EntityProperty.URN).getNumericId()
+        );
+    }
+
+    @Test
+    public void shouldLoadIdsOfFollowingUsersUnlessPendingRemoval() {
+        markFollowingAsRemoved(followingAndFollower.get(EntityProperty.URN));
+        Assertions.assertThat(storage.loadFollowedUserIds()).containsOnly(
+                following.get(EntityProperty.URN).getNumericId()
+        );
+    }
+
+    @Test
     public void loadFollowersLoadsAllFollowers() {
-        storage.loadFollowers(3, 0).subscribe(subscriber);
+        storage.followers(3, 0).subscribe(subscriber);
 
         subscriber.assertValues(
-                Arrays.asList(
+                asList(
                         follower.put(UserProperty.IS_FOLLOWED_BY_ME, false)
                                 .put(UserAssociationProperty.POSITION, 1L),
                         followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
@@ -59,18 +117,18 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadFollowersAdheresToLimit() {
-        storage.loadFollowers(1, 0).subscribe(subscriber);
+        storage.followers(1, 0).subscribe(subscriber);
 
-        subscriber.assertValues(Collections.singletonList(
+        subscriber.assertValues(singletonList(
                 follower.put(UserProperty.IS_FOLLOWED_BY_ME, false)
                         .put(UserAssociationProperty.POSITION, 1L)));
     }
 
     @Test
     public void loadFollowersAdheresToPosition() {
-        storage.loadFollowers(2, 1).subscribe(subscriber);
+        storage.followers(2, 1).subscribe(subscriber);
 
-        subscriber.assertValues(Collections.singletonList(
+        subscriber.assertValues(singletonList(
                 followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
                         .put(UserAssociationProperty.POSITION, 2L)));
     }
@@ -78,7 +136,7 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     @Test
     public void loadFollowingLoadsSingleFollowing() {
         final TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
-        storage.loadFollowing(following.get(EntityProperty.URN)).subscribe(subscriber);
+        storage.followedUser(following.get(EntityProperty.URN)).subscribe(subscriber);
 
         subscriber.assertValues(
                 following.put(UserProperty.IS_FOLLOWED_BY_ME, true)
@@ -88,10 +146,10 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadFollowingsLoadsAllFollowings() {
-        storage.loadFollowings(3, 0).subscribe(subscriber);
+        storage.followedUsers(3, 0).subscribe(subscriber);
 
         subscriber.assertValues(
-                Arrays.asList(
+                asList(
                         followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
                                 .put(UserAssociationProperty.POSITION, 2L),
                         following.put(UserProperty.IS_FOLLOWED_BY_ME, true)
@@ -102,18 +160,18 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadFollowingsAdheresToLimit() {
-        storage.loadFollowings(1, 0).subscribe(subscriber);
+        storage.followedUsers(1, 0).subscribe(subscriber);
 
-        subscriber.assertValues(Collections.singletonList(
+        subscriber.assertValues(singletonList(
                 followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
                         .put(UserAssociationProperty.POSITION, 2L)));
     }
 
     @Test
     public void loadFollowingsAdheresToPosition() {
-        storage.loadFollowings(2, 2).subscribe(subscriber);
+        storage.followedUsers(2, 2).subscribe(subscriber);
 
-        subscriber.assertValues(Collections.singletonList(
+        subscriber.assertValues(singletonList(
                 following.put(UserProperty.IS_FOLLOWED_BY_ME, true)
                         .put(UserAssociationProperty.POSITION, 3L)));
     }
@@ -121,10 +179,10 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadFollowingsUrnsLoadsAllFollowings() {
-        storage.loadFollowingsUrns(3, 0).subscribe(urnSubscriber);
+        storage.followedUserUrns(3, 0).subscribe(urnSubscriber);
 
         urnSubscriber.assertValues(
-                Arrays.asList(
+                asList(
                         followingAndFollower.get(UserProperty.URN),
                         following.get(UserProperty.URN)
                 )
@@ -133,14 +191,176 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadFollowingsUrnsAdheresToLimit() {
-        storage.loadFollowingsUrns(1, 0).subscribe(urnSubscriber);
-        urnSubscriber.assertValues(Collections.singletonList(followingAndFollower.get(UserProperty.URN)));
+        storage.followedUserUrns(1, 0).subscribe(urnSubscriber);
+        urnSubscriber.assertValues(singletonList(followingAndFollower.get(UserProperty.URN)));
     }
 
     @Test
     public void loadFollowingsUrnsAdheresToPosition() {
-        storage.loadFollowingsUrns(2, 2).subscribe(urnSubscriber);
-        urnSubscriber.assertValues(Collections.singletonList(following.get(UserProperty.URN)));
+        storage.followedUserUrns(2, 2).subscribe(urnSubscriber);
+        urnSubscriber.assertValues(singletonList(following.get(UserProperty.URN)));
+    }
+
+    @Test
+    public void loadsStaleFollowingsWhenPendingAddition() {
+        testFixtures().insertFollowingPendingAddition(followingUrn, 123);
+
+        final List<PropertySet> followings = storage.loadStaleFollowings();
+
+        Assertions.assertThat(followings).containsExactly(following
+                        .put(UserAssociationProperty.ADDED_AT, new Date(123))
+                        .put(UserAssociationProperty.POSITION, 0L)
+                        .put(UserProperty.IS_FOLLOWED_BY_ME, true)
+        );
+    }
+
+    @Test
+    public void loadsStaleFollowingsWhenPendingRemoval() {
+        testFixtures().insertFollowingPendingRemoval(followingUrn, 123);
+
+        final List<PropertySet> followings = storage.loadStaleFollowings();
+
+        Assertions.assertThat(followings).containsExactly(following
+                        .put(UserAssociationProperty.REMOVED_AT, new Date(123))
+                        .put(UserAssociationProperty.POSITION, 0L)
+                        .put(UserProperty.IS_FOLLOWED_BY_ME, true)
+        );
+    }
+
+    @Test
+    public void hasStaleFollowingsIsFalseWhenAddedAtOrRemovedAtNotSet() {
+        Assertions.assertThat(storage.hasStaleFollowings()).isFalse();
+    }
+
+    @Test
+    public void hasStaleFollowingsIsTrueIfAddedAtIsSet() {
+        markFollowingAsAdded(followingUrn);
+
+        Assertions.assertThat(storage.hasStaleFollowings()).isTrue();
+    }
+
+    @Test
+    public void hasStaleFollowingsIsTrueIfRemovedAtIsSet() {
+        markFollowingAsRemoved(followingUrn);
+
+        Assertions.assertThat(storage.hasStaleFollowings()).isTrue();
+    }
+
+    @Test
+    public void shouldDeleteFollowingsById() {
+        storage.deleteFollowingsById(singletonList(followingAndFollowerUrn.getNumericId()));
+
+        // should not delete the FOLLOWER association
+        assertThat(select(Query.from(UserAssociations)
+                .whereEq(TARGET_ID, followingAndFollowerUrn.getNumericId())))
+                .counts(1);
+        // should only delete the FOLLOWING association
+        assertThat(select(Query.from(UserAssociations)
+                .whereEq(TARGET_ID, followingAndFollowerUrn.getNumericId())
+                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)))
+                .isEmpty();
+    }
+
+    @Test
+    public void shouldInsertNewFollowingsInPositionAsReceivedFromApi() {
+        final ApiUser user1 = ModelFixtures.create(ApiUser.class);
+        final ApiUser user2 = ModelFixtures.create(ApiUser.class);
+
+        storage.insertFollowedUsers(Arrays.<UserRecord>asList(user1, user2));
+
+        assertThat(select(Query.from(UserAssociations)
+                .whereEq(TARGET_ID, user1.getUrn().getNumericId())
+                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                .whereEq(POSITION, 0)))
+                .counts(1);
+        assertThat(select(Query.from(UserAssociations)
+                .whereEq(TARGET_ID, user2.getUrn().getNumericId())
+                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                .whereEq(POSITION, 1)))
+                .counts(1);
+    }
+
+    @Test
+    public void shouldInsertUsersWhenInsertingNewFollowings() {
+        final ApiUser user1 = ModelFixtures.create(ApiUser.class);
+        final ApiUser user2 = ModelFixtures.create(ApiUser.class);
+
+        storage.insertFollowedUsers(Arrays.<UserRecord>asList(user1, user2));
+
+        assertThat(select(Query.from(Users)
+                .whereEq(BaseColumns._ID, user1.getUrn().getNumericId())))
+                .counts(1);
+        assertThat(select(Query.from(Users)
+                .whereEq(BaseColumns._ID, user2.getUrn().getNumericId())))
+                .counts(1);
+    }
+
+    @Test
+    public void shouldInsertFromIdsWithOffset() {
+        final ApiUser user1 = ModelFixtures.create(ApiUser.class);
+        final ApiUser user2 = ModelFixtures.create(ApiUser.class);
+
+        storage.insertFollowedUserIds(asList(user1.getId(), user2.getId()), 2);
+
+        assertThat(select(Query.from(UserAssociations)
+                .whereEq(TARGET_ID, user1.getUrn().getNumericId())
+                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                .whereEq(POSITION, 2)))
+                .counts(1);
+        assertThat(select(Query.from(UserAssociations)
+                .whereEq(TARGET_ID, user2.getUrn().getNumericId())
+                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                .whereEq(POSITION, 3)))
+                .counts(1);
+    }
+
+    @Test
+    public void shouldResetPendingFollowingAddition() {
+        final Query addedAtQuery = Query.from(UserAssociations)
+                .select(ADDED_AT)
+                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                .whereEq(TARGET_ID, followingUrn.getNumericId());
+        markFollowingAsAdded(followingUrn);
+        long addedAtBefore = propeller().query(addedAtQuery).firstOrDefault(Long.class, 0L);
+        Assertions.assertThat(addedAtBefore).isGreaterThan(0L);
+
+        storage.updateFollowingFromPendingState(followingUrn);
+
+        long addedAtAfter = propeller().query(addedAtQuery).firstOrDefault(Long.class, 0L);
+        Assertions.assertThat(addedAtAfter).isEqualTo(0L);
+    }
+
+    @Test
+    public void shouldDeletePendingFollowingRemoval() {
+        markFollowingAsRemoved(followingUrn);
+        assertThat(select(Query.from(UserAssociations)
+                .whereEq(TARGET_ID, followingUrn.getNumericId())
+                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)))
+                .counts(1);
+
+        storage.updateFollowingFromPendingState(followingUrn);
+
+        assertThat(select(Query.from(UserAssociations)
+                .whereEq(TARGET_ID, followingUrn.getNumericId())
+                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)))
+                .isEmpty();
+    }
+
+    @Test
+    public void shouldNotUpdateFollowingFromPendingStateIfNotFound() {
+        storage.updateFollowingFromPendingState(Urn.forUser(99999));
+    }
+
+    private void markFollowingAsAdded(Urn followingUrn) {
+        propeller().update(UserAssociations,
+                values().put(ADDED_AT, 123).get(),
+                filter().whereEq(TARGET_ID, followingUrn.getNumericId()));
+    }
+
+    private void markFollowingAsRemoved(Urn followingUrn) {
+        propeller().update(UserAssociations,
+                values().put(REMOVED_AT, 123).get(),
+                filter().whereEq(TARGET_ID, followingUrn.getNumericId()));
     }
 
     private PropertySet apiUserToResultSet(ApiUser apiUser1) {

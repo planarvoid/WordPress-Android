@@ -28,7 +28,6 @@ import java.util.List;
 
 @Deprecated
 public abstract class BaseDAO<T extends Identifiable & Persisted> {
-    public static final int RESOLVER_BATCH_SIZE = 500;
 
     protected final ContentResolver resolver;
 

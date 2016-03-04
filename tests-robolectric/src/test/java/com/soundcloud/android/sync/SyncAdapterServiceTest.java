@@ -12,6 +12,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.users.UserAssociationStorage;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -75,7 +76,9 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
         final PlaylistStorage playlistStorage = Mockito.mock(PlaylistStorage.class);
         final SyncConfig syncConfig = Mockito.mock(SyncConfig.class);
         final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
-        expect(SyncAdapterService.performSync(application, null, syncResult, null, null, resultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig, featureFlags)).toBeFalse();
+        final UserAssociationStorage userAssociationStorage = Mockito.mock(UserAssociationStorage.class);
+        expect(SyncAdapterService.performSync(application, null, syncResult, null, userAssociationStorage,
+                null, resultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig, featureFlags)).toBeFalse();
         expect(syncResult.stats.numAuthExceptions).toBeGreaterThan(0L);
     }
 }

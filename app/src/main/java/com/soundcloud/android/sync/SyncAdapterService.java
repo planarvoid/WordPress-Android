@@ -10,9 +10,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
+import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +55,7 @@ public class SyncAdapterService extends Service {
     @Inject PlaylistStorage playlistStorage;
     @Inject SyncConfig syncConfig;
     @Inject FeatureFlags featureFlags;
+    @Inject UserAssociationStorage userAssociationStorage;
 
     public SyncAdapterService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -76,7 +77,10 @@ public class SyncAdapterService extends Service {
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
                 Looper.prepare();
                 looper = Looper.myLooper();
-                if (performSync((SoundCloudApplication) getApplication(), extras, syncResult, accountOperations.getSoundCloudToken(), new Runnable() {
+                if (performSync((SoundCloudApplication) getApplication(),
+                        extras, syncResult, accountOperations.getSoundCloudToken(),
+                        userAssociationStorage,
+                        new Runnable() {
                     @Override
                     public void run() {
                         Log.d(TAG, "sync finished");
@@ -126,7 +130,7 @@ public class SyncAdapterService extends Service {
                                Bundle extras,
                                final SyncResult syncResult,
                                @Nullable final Token token,
-                               @Nullable final Runnable onResult,
+                               UserAssociationStorage userAssociationStorage, @Nullable final Runnable onResult,
                                final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory,
                                MyLikesStateProvider myLikesStateProvider, PlaylistStorage playlistStorage,
                                SyncConfig syncConfig,
@@ -143,7 +147,8 @@ public class SyncAdapterService extends Service {
 
         final SyncStateManager syncStateManager = new SyncStateManager(app);
 
-        final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, playlistStorage, myLikesStateProvider, syncConfig, featureFlags);
+        final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, userAssociationStorage,
+                playlistStorage, myLikesStateProvider, syncConfig, featureFlags);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
             final SyncServiceResultReceiver syncServiceResultReceiver = syncServiceResultReceiverFactory.create(syncResult, new SyncServiceResultReceiver.OnResultListener() {
@@ -173,6 +178,7 @@ public class SyncAdapterService extends Service {
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras,
                                         SyncStateManager syncStateManager,
+                                        UserAssociationStorage userAssociationStorage,
                                         PlaylistStorage playlistStorage,
                                         MyLikesStateProvider myLikesStateProvider,
                                         SyncConfig syncConfig,
@@ -209,7 +215,7 @@ public class SyncAdapterService extends Service {
         }
 
         // see if there are any local playlists that need to be pushed
-        if (new LegacyUserAssociationStorage(app).hasFollowingsNeedingSync()) {
+        if (userAssociationStorage.hasStaleFollowings()) {
             urisToSync.add(Content.ME_FOLLOWINGS.uri);
         }
 

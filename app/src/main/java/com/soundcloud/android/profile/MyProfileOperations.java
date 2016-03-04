@@ -135,7 +135,7 @@ public class MyProfileOperations {
 
     private Observable<List<PropertySet>> pagedFollowingsFromPosition(long fromPosition) {
         return userAssociationStorage
-                .loadFollowingsUrns(PAGE_SIZE, fromPosition)
+                .followedUserUrns(PAGE_SIZE, fromPosition)
                 .flatMap(syncAndReloadFollowings(PAGE_SIZE, fromPosition));
     }
 
@@ -159,7 +159,7 @@ public class MyProfileOperations {
         return new Func1<SyncResult, Observable<List<PropertySet>>>() {
             @Override
             public Observable<List<PropertySet>> call(SyncResult syncResult) {
-                return userAssociationStorage.loadFollowings(pageSize, fromPosition).subscribeOn(scheduler);
+                return userAssociationStorage.followedUsers(pageSize, fromPosition).subscribeOn(scheduler);
             }
         };
     }

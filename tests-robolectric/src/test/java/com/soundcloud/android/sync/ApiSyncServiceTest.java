@@ -28,7 +28,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -36,7 +35,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -61,7 +59,7 @@ public class ApiSyncServiceTest {
     public void before() {
         resolver = Robolectric.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
-        collectionSyncRequestFactory = new LegacySyncJob.Factory(Robolectric.application, apiSyncerFactory, syncStateManager);
+        collectionSyncRequestFactory = new LegacySyncJob.Factory(apiSyncerFactory, syncStateManager);
         TestHelper.setUserId(USER_ID);
 
         syncRequestFactory = new SyncRequestFactory(
@@ -167,14 +165,13 @@ public class ApiSyncServiceTest {
     @Test
     public void shouldRemoveSyncRequestAfterCompletion() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-        Context context = DefaultTestRunner.application;
-        svc.runningJobs.add(new LegacySyncJob(context, Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
-        svc.runningJobs.add(new LegacySyncJob(context, Content.ME_FOLLOWINGS.uri, null, false, apiSyncerFactory, syncStateManager));
+        svc.runningJobs.add(new LegacySyncJob(Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
+        svc.runningJobs.add(new LegacySyncJob(Content.ME_FOLLOWINGS.uri, null, false, apiSyncerFactory, syncStateManager));
 
         ApiSyncResult result = new ApiSyncResult(Content.ME_LIKES.uri);
         result.success = true;
 
-        svc.onSyncJobCompleted(new LegacySyncJob(context, Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
+        svc.onSyncJobCompleted(new LegacySyncJob(Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
         expect(svc.runningJobs.size()).toBe(1);
     }
 
@@ -184,10 +181,4 @@ public class ApiSyncServiceTest {
         svc.onDestroy();
         expect(syncStateManager.fromContent(Content.ME_SOUNDS.uri).sync_state).toEqual(LocalCollection.SyncState.IDLE);
     }
-
-    private void serviceAction(ApiSyncService svc, String action, Content content, String... fixtures) throws IOException {
-        TestHelper.addPendingHttpResponse(SyncAdapterServiceTest.class, fixtures);
-        svc.onStart(new Intent(action, content.uri), 1);
-    }
-
 }

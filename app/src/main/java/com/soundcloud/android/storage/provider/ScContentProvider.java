@@ -115,11 +115,6 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;
 
-            case ME_FOLLOWINGS:
-                table = Table.UserAssociations;
-                extraCV = new String[]{TableColumns.UserAssociations.ASSOCIATION_TYPE, String.valueOf(content.collectionType)};
-                break;
-
             case PLAYLIST_TRACKS:
                 deleteUri = true; // clean out table first
                 table = Table.PlaylistTracks;
@@ -258,28 +253,6 @@ public class ScContentProvider extends ContentProvider {
                 _sortOrder = makeCollectionSort(uri, Table.Posts.field(TableColumns.Posts.CREATED_AT) + " DESC");
                 break;
 
-            case ME_FOLLOWINGS:
-                /* XXX special case for now. we  need to not join in the users table on an id only request, because
-                it is an inner join and will not return ids with missing users. Switching to a left join is possible
-                but not 4 days before major release*/
-                if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
-                    qb.setTables(Table.UserAssociations.name());
-                    qb.appendWhere(TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType);
-                    _columns = new String[]{TableColumns.UserAssociations.TARGET_ID};
-                    _sortOrder = makeCollectionSort(uri, sortOrder);
-
-                } else {
-                    qb.setTables(Table.UserAssociationView.name());
-                    if (_columns == null) {
-                        _columns = getUserViewColumns(Table.UserAssociationView);
-                    }
-                    qb.appendWhere(TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType);
-
-                    _sortOrder = makeCollectionSort(uri, sortOrder != null ?
-                            sortOrder : TableColumns.UserAssociationView.USER_ASSOCIATION_POSITION);
-                }
-                break;
-
             case ME_USERID:
                 MatrixCursor c = new MatrixCursor(new String[]{BaseColumns._ID}, 1);
                 c.addRow(new Object[]{userId});
@@ -395,7 +368,6 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTIONS:
             case USER_ASSOCIATIONS:
             case ME_PLAYLISTS:
-            case ME_FOLLOWINGS:
                 id = db.insertWithOnConflict(content.table.name(), null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 if (id >= 0 && values.containsKey(BaseColumns._ID)) {
                     id = values.getAsLong(BaseColumns._ID);
@@ -480,13 +452,6 @@ public class ScContentProvider extends ContentProvider {
                 String whereAppend = Table.Posts.field(TableColumns.Posts.TYPE) + " = '" + TableColumns.Posts.TYPE_POST + "' AND "
                         + Table.Posts.field(TableColumns.Posts.TARGET_TYPE) + " = " + TableColumns.Sounds.TYPE_PLAYLIST;
                 where = TextUtils.isEmpty(where) ? whereAppend : where + " AND " + whereAppend;
-                break;
-
-            case ME_FOLLOWINGS:
-                whereAppend = TableColumns.UserAssociations.ASSOCIATION_TYPE + " = " + content.collectionType;
-                where = TextUtils.isEmpty(where) ? whereAppend
-                        : where + " AND " + whereAppend;
-
                 break;
 
             default:

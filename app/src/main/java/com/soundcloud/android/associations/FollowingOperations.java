@@ -40,7 +40,7 @@ public class FollowingOperations {
     private final Func1<Urn, Observable<PropertySet>> loadFollowedUser = new Func1<Urn, Observable<PropertySet>>() {
         @Override
         public Observable<PropertySet> call(Urn urn) {
-            return userAssociationStorage.loadFollowing(urn);
+            return userAssociationStorage.followedUser(urn);
         }
     };
 

@@ -70,7 +70,7 @@ public class UserStorageTest  extends StorageIntegrationTest {
     @Test
     public void loadsUnfollowedUserPending() {
         ApiUser apiUser = testFixtures().insertUser();
-        testFixtures().insertFollowingPendingRemoval(apiUser.getUrn());
+        testFixtures().insertFollowingPendingRemoval(apiUser.getUrn(), 123);
 
         PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 

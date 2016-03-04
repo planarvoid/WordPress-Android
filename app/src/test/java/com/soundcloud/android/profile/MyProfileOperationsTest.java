@@ -280,8 +280,8 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final List<PropertySet> firstPage = createPageOfFollowings(PAGE_SIZE);
         final List<Urn> followingsUrn = Arrays.asList(Urn.forUser(123L), Urn.forUser(124L));
 
-        when(userAssociationStorage.loadFollowingsUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(followingsUrn));
-        when(userAssociationStorage.loadFollowings(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
+        when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(followingsUrn));
+        when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
         when(syncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
         when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncResult.success("success", true)));
 
@@ -292,8 +292,8 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void syncAndLoadEmptyFollowingsResultsWithEmptyResults() {
-        when(userAssociationStorage.loadFollowingsUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(Collections.<Urn>emptyList()));
-        when(userAssociationStorage.loadFollowings(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(Collections.<Urn>emptyList()));
+        when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
 
         operations.pagedFollowings().subscribe(subscriber);
@@ -305,8 +305,8 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void pagedFollowingsReturnsFollowingsFromStorage() {
         final List<PropertySet> pageOfFollowings = createPageOfFollowings(2);
         final List<Urn> urns = Arrays.asList(Urn.forUser(123L), Urn.forUser(124L));
-        when(userAssociationStorage.loadFollowingsUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(urns));
-        when(userAssociationStorage.loadFollowings(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(pageOfFollowings));
+        when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(urns));
+        when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(pageOfFollowings));
         when(syncInitiator.refreshFollowings()).thenReturn(Observable.<Boolean>empty());
         when(syncInitiator.syncUsers(urns)).thenReturn(Observable.just(SyncResult.success("success", true)));
 
@@ -322,8 +322,8 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final List<Urn> followingsUrn = pageOfUrns(firstPage);
         final long position = firstPage.get(PAGE_SIZE - 1).get(UserAssociationProperty.POSITION);
 
-        when(userAssociationStorage.loadFollowingsUrns(PAGE_SIZE, position)).thenReturn(Observable.just(followingsUrn));
-        when(userAssociationStorage.loadFollowings(PAGE_SIZE, position)).thenReturn(Observable.just(secondPage));
+        when(userAssociationStorage.followedUserUrns(PAGE_SIZE, position)).thenReturn(Observable.just(followingsUrn));
+        when(userAssociationStorage.followedUsers(PAGE_SIZE, position)).thenReturn(Observable.just(secondPage));
 
         when(syncInitiator.refreshFollowings()).thenReturn(Observable.<Boolean>empty());
         when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncResult.success("success", true)));
@@ -343,8 +343,8 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final List<PropertySet> pageOfFollowings = createPageOfFollowings(2);
         final List<Urn> followingsUrn = Arrays.asList(Urn.forUser(123L), Urn.forUser(124L));
 
-        when(userAssociationStorage.loadFollowingsUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(followingsUrn));
-        when(userAssociationStorage.loadFollowings(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(pageOfFollowings));
+        when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(followingsUrn));
+        when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(pageOfFollowings));
         when(syncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
         when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncResult.success("success", true)));
 
