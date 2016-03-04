@@ -3,7 +3,6 @@ package com.soundcloud.android.search;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -44,6 +43,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     private static final Urn PREMIUM_TRACK_URN_ONE = Urn.forTrack(1L);
     private static final Urn PREMIUM_TRACK_URN_TWO = Urn.forTrack(2L);
     private static final Urn TRACK_URN = Urn.forTrack(3L);
+    private static final Urn QUERY_URN = Urn.forUser(3L);
 
     private SearchPremiumResultsPresenter presenter;
 
@@ -68,14 +68,14 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
                 Collections.singletonList(PropertySet.create()
                         .put(EntityProperty.URN, PREMIUM_TRACK_URN_ONE)
                         .put(EntityProperty.URN, PREMIUM_TRACK_URN_TWO));
-        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, Optional.<Link>absent());
+        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, Optional.<Link>absent(), QUERY_URN);
         final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
 
         presenter = new SearchPremiumResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
                 clickListenerFactory, featureOperations, navigator, eventBus, searchTracker);
 
         when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
-        when(searchOperations.searchPremiumResultFrom(anyList(), any(Optional.class))).thenReturn(searchResultObservable);
+        when(searchOperations.searchPremiumResultFrom(any(List.class), any(Optional.class), any(Urn.class))).thenReturn(searchResultObservable);
         when(searchOperations.searchPremiumResult(anyString(), anyInt())).thenReturn(searchResultObservable);
         when(searchOperations.pagingPremiumFunction(anyInt())).thenReturn(searchPagingFunction);
     }

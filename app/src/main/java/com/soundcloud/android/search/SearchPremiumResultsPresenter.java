@@ -5,6 +5,7 @@ import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF;
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS;
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY;
+import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN;
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE;
 
 import com.soundcloud.android.Navigator;
@@ -140,7 +141,8 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
         searchType = bundle.getInt(EXTRA_SEARCH_TYPE);
         final List<PropertySet> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
         final Optional<Link> nextHref = Optional.fromNullable((Link) bundle.getParcelable(EXTRA_PREMIUM_CONTENT_NEXT_HREF));
-        return createCollectionBinding(searchOperations.searchPremiumResultFrom(premiumContentList, nextHref));
+        final Urn queryUrn = bundle.getParcelable(EXTRA_SEARCH_QUERY_URN);
+        return createCollectionBinding(searchOperations.searchPremiumResultFrom(premiumContentList, nextHref, queryUrn));
     }
 
     @Override

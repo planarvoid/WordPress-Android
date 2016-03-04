@@ -28,8 +28,8 @@ class SearchResult implements Iterable<PropertySet> {
         this.premiumContent = premiumContent;
     }
 
-    static SearchResult fromPropertySets(List<PropertySet> items, Optional<Link> nextHref) {
-        return new SearchResult(items, nextHref, Optional.<Urn>absent(), Optional.<SearchResult>absent(), 0);
+    static SearchResult fromPropertySets(List<PropertySet> items, Optional<Link> nextHref, Urn queryUrn) {
+        return new SearchResult(items, nextHref, Optional.of(queryUrn), Optional.<SearchResult>absent(), 0);
     }
 
     static SearchResult fromPropertySetSource(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn) {
