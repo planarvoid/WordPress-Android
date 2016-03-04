@@ -4,163 +4,121 @@ def BOOLEAN = "boolean"
 def TRUE = "true"
 def FALSE = "false"
 
-//Feature flags
-def FEATURE_PAYMENTS_TEST = "FEATURE_PAYMENTS_TEST"
-def FEATURE_SOUNDCLOUD_GO = "FEATURE_SOUNDCLOUD_GO"
-def FEATURE_STATIONS_HOME = "FEATURE_STATIONS_HOME"
-def FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB = "FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB"
-def FEATURE_VIDEO_ADS = "FEATURE_VIDEO_ADS"
-def FEATURE_SERVE_DEMO_VIDEO_AD = "FEATURE_SERVE_DEMO_VIDEO_AD"
-def FEATURE_WAVEFORM_SPRING = "FEATURE_WAVEFORM_SPRING"
-def FEATURE_DISCOVERY_RECOMMENDATIONS = "FEATURE_DISCOVERY_RECOMMENDATIONS"
-def FEATURE_DISCOVERY_CHARTS = "FEATURE_DISCOVERY_CHARTS"
-def FEATURE_PROFILE_NEW_TABS = "FEATURE_PROFILE_NEW_TABS"
-def FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES = "FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES"
-def FEATURE_NEW_NOTIFICATION_SETTINGS = "FEATURE_NEW_NOTIFICATION_SETTINGS"
-def FEATURE_AUTO_REFRESH_STREAM = "FEATURE_AUTO_REFRESH_STREAM"
-def FEATURE_WEB_UPGRADE_FLOW = "FEATURE_WEB_UPGRADE_FLOW"
+enum Feature {
+  SOUNDCLOUD_GO,
+  NEW_NOTIFICATION_SETTINGS,
+  AUTO_REFRESH_STREAM,
+  WEB_UPGRADE_FLOW,
+  SERVE_DEMO_VIDEO_AD,
+  PAYMENTS_TEST,
+  STATIONS_HOME,
+  PUBLISH_PLAY_EVENTS_TO_TPUB,
+  DISCOVERY_CHARTS,
+  DISCOVERY_RECOMMENDATIONS,
+  VIDEO_ADS,
+  WAVEFORM_SPRING,
+  PROFILE_NEW_TABS,
+  EXPLODE_PLAYLISTS_IN_PLAYQUEUES;
+}
 
 android {
+  defaultConfig {
+    buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), FALSE
+    buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), FALSE
+    buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), FALSE
+    buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), FALSE
+    buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), FALSE
+    buildConfigField BOOLEAN, Feature.PAYMENTS_TEST.name(), FALSE
+    buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), FALSE
+    buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
+    buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
+    buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), FALSE
+    buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), FALSE
+    buildConfigField BOOLEAN, Feature.WAVEFORM_SPRING.name(), FALSE
+    buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), FALSE
+    buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE
+  }
+
   buildTypes {
     alpha {
-      //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_SOUNDCLOUD_GO, TRUE
-      buildConfigField BOOLEAN, FEATURE_NEW_NOTIFICATION_SETTINGS, TRUE
-      buildConfigField BOOLEAN, FEATURE_AUTO_REFRESH_STREAM, TRUE
-      buildConfigField BOOLEAN, FEATURE_WEB_UPGRADE_FLOW, TRUE
-      buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, TRUE // Does nothing unless FEATURE_VIDEO_ADS is enabled
-
-      //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
-      buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
-      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
-      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
-      buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE
+      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
+      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), TRUE
+      buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), TRUE // Does nothing unless FEATURE_VIDEO_ADS is enabled
     }
 
     beta {
-      //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
-      buildConfigField BOOLEAN, FEATURE_WEB_UPGRADE_FLOW, TRUE
-
-      //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
-      buildConfigField BOOLEAN, FEATURE_SOUNDCLOUD_GO, FALSE
-      buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
-      buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
-      buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, FALSE // Does nothing unless FEATURE_VIDEO_ADS is enabled
-      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
-      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
-      buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_NOTIFICATION_SETTINGS, FALSE
-      buildConfigField BOOLEAN, FEATURE_AUTO_REFRESH_STREAM, FALSE
+      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     debug {
-      //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, TRUE
-      buildConfigField BOOLEAN, FEATURE_SOUNDCLOUD_GO, TRUE
-      buildConfigField BOOLEAN, FEATURE_WEB_UPGRADE_FLOW, TRUE
-      buildConfigField BOOLEAN, FEATURE_NEW_NOTIFICATION_SETTINGS, TRUE
-      buildConfigField BOOLEAN, FEATURE_AUTO_REFRESH_STREAM, TRUE
-      buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, TRUE // Does nothing unless FEATURE_VIDEO_ADS is enabled
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
-
-      //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
-      buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
-      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
-      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
-      buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE
+      buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), TRUE
+      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
+      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), TRUE
+      buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), TRUE // Does nothing unless FEATURE_VIDEO_ADS is enabled
+      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     end2end {
-      //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, TRUE
-      buildConfigField BOOLEAN, FEATURE_WEB_UPGRADE_FLOW, TRUE
-
-      //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_SOUNDCLOUD_GO, FALSE
-      buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
-      buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
-      buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, FALSE // Does nothing unless FEATURE_VIDEO_ADS is enabled
-      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
-      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
-      buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_NOTIFICATION_SETTINGS, FALSE
-      buildConfigField BOOLEAN, FEATURE_AUTO_REFRESH_STREAM, FALSE
+      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PAYMENTS_TEST.name(), TRUE
     }
 
     release {
-      //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_WEB_UPGRADE_FLOW, TRUE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
-
-      //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
-      buildConfigField BOOLEAN, FEATURE_SOUNDCLOUD_GO, FALSE
-      // When turning this on, make sure the ci does not exclude tests annotated with @StationsTest
-      buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
-      buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
-      buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, FALSE // Does nothing unless FEATURE_VIDEO_ADS is enabled
-      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
-      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
-      buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_NOTIFICATION_SETTINGS, FALSE
-      buildConfigField BOOLEAN, FEATURE_AUTO_REFRESH_STREAM, FALSE
+      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     releaseNoProguard {
-      //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_WEB_UPGRADE_FLOW, TRUE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
-
-      //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
-      buildConfigField BOOLEAN, FEATURE_SOUNDCLOUD_GO, FALSE
-      buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
-      buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
-      buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, FALSE // Does nothing unless FEATURE_VIDEO_ADS is enabled
-      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
-      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
-      buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_NOTIFICATION_SETTINGS, FALSE
-      buildConfigField BOOLEAN, FEATURE_AUTO_REFRESH_STREAM, FALSE
+      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     release_non_play_store {
-      //Feature flags enabled
-      buildConfigField BOOLEAN, FEATURE_WEB_UPGRADE_FLOW, TRUE
-      buildConfigField BOOLEAN, FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB, TRUE
-
-      //Feature flags disabled
-      buildConfigField BOOLEAN, FEATURE_PAYMENTS_TEST, FALSE
-      buildConfigField BOOLEAN, FEATURE_SOUNDCLOUD_GO, FALSE
-      buildConfigField BOOLEAN, FEATURE_STATIONS_HOME, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_RECOMMENDATIONS, FALSE
-      buildConfigField BOOLEAN, FEATURE_DISCOVERY_CHARTS, FALSE
-      buildConfigField BOOLEAN, FEATURE_VIDEO_ADS, FALSE
-      buildConfigField BOOLEAN, FEATURE_SERVE_DEMO_VIDEO_AD, FALSE // Does nothing unless FEATURE_VIDEO_ADS is enabled
-      buildConfigField BOOLEAN, FEATURE_WAVEFORM_SPRING, FALSE
-      buildConfigField BOOLEAN, FEATURE_PROFILE_NEW_TABS, FALSE
-      buildConfigField BOOLEAN, FEATURE_EXPLODE_PLAYLISTS_IN_PLAYQUEUES, FALSE
-      buildConfigField BOOLEAN, FEATURE_NEW_NOTIFICATION_SETTINGS, FALSE
-      buildConfigField BOOLEAN, FEATURE_AUTO_REFRESH_STREAM, FALSE
+      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
   }
 }
+
+//Excluded unrelated stuff
+def excludedBuildTypes = ['repack']
+def excludeConfigFields = ['RUN_ADS_TEST']
+
+task checkFlags (dependsOn: ':app:preBuild') {
+  def defaultFeatureFlags = android.defaultConfig.getBuildConfigFields()
+  //Checks that the number of flags defined in the enum is consistent
+  //with the number of flags defined in the default section.
+  if (defaultFeatureFlags.keySet().size() != Feature.values().size())
+      failBuild("Inconsistent number of flags between defaultConfig section and Feature enum.")
+  //Make sure that all flags in default config section are disabled.
+  defaultFeatureFlags.each {
+    if (it.getValue().getValue() == TRUE) {
+      failBuild("Flag ${it.key} has a TRUE value in defaultConfig. All values by default should be FALSE. " +
+              "Please override the Flag ${it.key} value in the build type you are interested in.")
+    }
+  }
+}
+
+//Checks whether all flags in each build are TRUE otherwise fails
+//the build asking to remove it since the default value is FALSE.
+android.buildTypes.all { buildType ->
+  if (!excludedBuildTypes.contains(buildType.name)) {
+    buildType.getBuildConfigFields().each {
+      if (!excludeConfigFields.contains(it.key))
+        if (it.getValue().getValue() == FALSE) {
+          failBuild("Flag ${it.key} has a FALSE value in build type: ${buildType.name}. " +
+                  "Please remove it or turn its value to TRUE.")
+        }
+    }
+  }
+}
+
+def failBuild(message) {
+    throw new GradleException(message)
+}
+
