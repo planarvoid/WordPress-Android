@@ -2,6 +2,9 @@ package com.soundcloud.android.tests.offline;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
+import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsRequested.requested;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
@@ -51,8 +54,8 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
                 .toggleOfflineEnabled()
                 .clickKeepLikesSynced();
 
-        assertTrue(trackLikesScreen.headerDownloadElement().isRequested());
-        assertTrue(trackLikesScreen.tracks().get(0).downloadElement().isRequested());
+        assertThat(trackLikesScreen.headerDownloadElement(),  is(requested()));
+        assertThat(trackLikesScreen.tracks().get(0).downloadElement(),  is(requested()));
     }
 
     @Override

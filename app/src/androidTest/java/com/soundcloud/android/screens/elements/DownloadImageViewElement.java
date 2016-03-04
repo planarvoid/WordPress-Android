@@ -40,6 +40,29 @@ public class DownloadImageViewElement {
         return wrappedElement.toDownloadImageView().isDownloaded();
     }
 
+    public static class IsRequested extends TypeSafeMatcher<DownloadImageViewElement> {
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("requested");
+        }
+
+        @Override
+        protected boolean matchesSafely(final DownloadImageViewElement element) {
+            return element.waiter.waitForElementCondition(new Condition() {
+                @Override
+                public boolean isSatisfied() {
+                    return element.isRequested();
+                }
+            });
+        }
+
+        @Factory
+        public static Matcher<DownloadImageViewElement> requested() {
+            return new IsRequested();
+        }
+
+    }
+
     public static class IsDownloading extends TypeSafeMatcher<DownloadImageViewElement> {
         @Override
         public void describeTo(Description description) {
