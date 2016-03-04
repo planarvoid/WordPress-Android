@@ -48,6 +48,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     private DownloadHandler downloadHandler;
     private Subscription subscription = RxUtils.invalidSubscription();
+
     private boolean isStopping;
     private boolean showResult;
 
@@ -260,23 +261,39 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
             if (downloadHandler.isDownloading()) {
                 final DownloadRequest currentRequest = downloadHandler.getCurrentRequest();
-                if (requests.contains(currentRequest)) {
-                    Log.d(OfflineContentService.TAG, "Keep downloading." + currentRequest);
-                    requests.remove(currentRequest);
-                    setNewRequests(requests, noContentRequested);
-                    publisher.publishDownloading(currentRequest.getTrack());
+                if (requests.contains(currentRequest) && downloadOperations.isConnectionValid()) {
+                    continueCurrentDownload(requests, noContentRequested, currentRequest);
+                } else if (!downloadOperations.isConnectionValid()) {
+                    cancelledByInvalidConnection(requests, noContentRequested, currentRequest);
                 } else {
-                    Log.d(OfflineContentService.TAG, "Cancelling " + currentRequest);
-                    setNewRequests(requests, noContentRequested);
-                    // download cancelled event is sent in the callback.
-                    downloadHandler.cancel();
-                    publisher.publishRemoved(currentRequest.getTrack());
+                    cancelledByUser(requests, noContentRequested, currentRequest);
                 }
             } else {
                 setNewRequests(requests, noContentRequested);
                 downloadNextOrFinish(null);
             }
         }
+    }
+
+    private void cancelledByUser(List<DownloadRequest> requests, boolean noContentRequested, DownloadRequest currentRequest) {
+        Log.d(OfflineContentService.TAG, "Cancelling " + currentRequest);
+        setNewRequests(requests, noContentRequested);
+        downloadHandler.cancel();
+        publisher.publishRemoved(currentRequest.getTrack());
+    }
+
+    private void cancelledByInvalidConnection(List<DownloadRequest> requests, boolean noContentRequested, DownloadRequest currentRequest) {
+        Log.d(OfflineContentService.TAG, "Canceling, no valid connection " + currentRequest);
+        setNewRequests(requests, noContentRequested);
+        downloadHandler.cancel();
+        publisher.publishRequested(currentRequest.getTrack());
+    }
+
+    private void continueCurrentDownload(List<DownloadRequest> requests, boolean noContentRequested, DownloadRequest currentRequest) {
+        Log.d(OfflineContentService.TAG, "Keep downloading." + currentRequest);
+        requests.remove(currentRequest);
+        setNewRequests(requests, noContentRequested);
+        publisher.publishDownloading(currentRequest.getTrack());
     }
 
     private void setNewRequests(List<DownloadRequest> requests, boolean muteNotification) {

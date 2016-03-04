@@ -59,6 +59,10 @@ class DownloadOperations {
         this.downloadConnectionHelper = downloadConnectionHelper;
     }
 
+    public boolean isConnectionValid() {
+        return !downloadConnectionHelper.isNetworkDisconnected() && downloadConnectionHelper.isDownloadPermitted();
+    }
+
     Observable<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
         return deleteOfflineContent
                 .toObservable(MoreCollections.filter(requests, isNotCurrentTrackFilter))
