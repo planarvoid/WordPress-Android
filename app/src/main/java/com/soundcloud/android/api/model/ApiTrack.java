@@ -108,7 +108,7 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
         return fullDuration;
     }
 
-    @JsonProperty("snippet_duration")
+    @JsonProperty("snip_duration")
     public void setSnippetDuration(long snippetDuration) {
         this.snippetDuration = snippetDuration;
     }
