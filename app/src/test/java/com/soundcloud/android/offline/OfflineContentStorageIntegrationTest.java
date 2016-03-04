@@ -23,7 +23,7 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
     public void storesPlaylistInOfflineContentTable() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
 
-        contentStorage.storeAsOfflinePlaylist(playlistUrn).subscribe();
+        contentStorage.storeAsOfflinePlaylists(singletonList(playlistUrn)).subscribe();
 
         databaseAssertions().assertIsOfflinePlaylist(playlistUrn);
     }
@@ -32,7 +32,7 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
     public void removePlaylistFromOffline() {
         final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
 
-        contentStorage.removePlaylistFromOffline(playlistUrn).subscribe();
+        contentStorage.removePlaylistsFromOffline(singletonList(playlistUrn)).subscribe();
 
         databaseAssertions().assertIsNotOfflinePlaylist(playlistUrn);
     }
@@ -85,7 +85,7 @@ public class OfflineContentStorageIntegrationTest extends StorageIntegrationTest
         final Urn previousPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
         final Urn expectedPlaylist = Urn.forPlaylist(345678L);
 
-        contentStorage.setOfflinePlaylists(singletonList(expectedPlaylist)).subscribe();
+        contentStorage.resetOfflinePlaylists(singletonList(expectedPlaylist)).subscribe();
 
         databaseAssertions().assertIsNotOfflinePlaylist(previousPlaylist);
         databaseAssertions().assertIsOfflinePlaylist(expectedPlaylist);

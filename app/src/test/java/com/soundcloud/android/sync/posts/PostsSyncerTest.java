@@ -4,6 +4,7 @@ import static com.soundcloud.android.events.EntityStateChangedEvent.fromEntityCr
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromEntityDeleted;
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromRepost;
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -27,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -129,7 +131,8 @@ public class PostsSyncerTest extends AndroidUnitTest {
         withRemotePlaylistPosts(newPost);
 
         assertThat(syncer.call()).isTrue();
-        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(fromEntityCreated(expectedEntity));
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED))
+                .containsExactly(fromEntityCreated(singletonList(expectedEntity)));
     }
 
     @Test
@@ -141,21 +144,30 @@ public class PostsSyncerTest extends AndroidUnitTest {
         withRemotePlaylistPosts();
 
         assertThat(syncer.call()).isTrue();
-        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(fromEntityDeleted(expectedEntity));
+        assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED))
+                .containsExactly(fromEntityDeleted(singletonList(expectedEntity)));
     }
 
-    private PropertySet createRepostedEntityChangedProperty(Urn urn) {
-        return PropertySet.from(
-                PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_USER_REPOST.bind(true)
-        );
+    private List<PropertySet> createRepostedEntityChangedProperty(Urn... urns) {
+        final List<PropertySet> reposts = new ArrayList<>(urns.length);
+        for (Urn urn : urns) {
+            reposts.add(PropertySet.from(
+                    PlayableProperty.URN.bind(urn),
+                    PlayableProperty.IS_USER_REPOST.bind(true)
+            ));
+        }
+        return reposts;
     }
 
-    private PropertySet createUnrepostedEntityChangedProperty(Urn urn) {
-        return PropertySet.from(
-                PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_USER_REPOST.bind(false)
-        );
+    private List<PropertySet> createUnrepostedEntityChangedProperty(Urn... urns) {
+        final List<PropertySet> unReposts = new ArrayList<>(urns.length);
+        for (Urn urn : urns) {
+            unReposts.add(PropertySet.from(
+                    PlayableProperty.URN.bind(urn),
+                    PlayableProperty.IS_USER_REPOST.bind(false)
+            ));
+        }
+        return unReposts;
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
@@ -134,7 +135,7 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         final PropertySet changeSet = PropertySet.from(TrackProperty.URN.bind(RECOMMENDED_ENTITY_1));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(changeSet));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(singletonList(changeSet)));
 
         InOrder inOrder = Mockito.inOrder(recommendedTrackItemOne, adapter);
         inOrder.verify(recommendedTrackItemOne).update(changeSet);
@@ -148,7 +149,7 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragment);
 
         final PropertySet changeSet = PropertySet.from(TrackProperty.URN.bind(RECOMMENDED_ENTITY_1));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(changeSet));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(singletonList(changeSet)));
 
         verify(recommendedTrackItemOne, never()).update(any(PropertySet.class));
         verify(adapter, never()).notifyDataSetChanged();

@@ -17,6 +17,7 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.List;
 
 @Singleton
 public class OfflineContentController {
@@ -29,14 +30,14 @@ public class OfflineContentController {
     private static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_LIKED_OR_CREATED = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isPlaylistLiked() || event.isPlaylistCreated();
+            return event.containsLikedPlaylist() || event.containsCreatedPlaylist();
         }
     };
 
     private static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_UNLIKED_OR_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isPlaylistUnliked() || event.isPlaylistDeleted();
+            return event.containsUnlikedPlaylist() || event.containsDeletedPlaylist();
         }
     };
 
@@ -54,17 +55,17 @@ public class OfflineContentController {
         }
     };
 
-    private final Func1<Urn, Observable<Void>> addOfflinePlaylist = new Func1<Urn, Observable<Void>>() {
+    private final Func1<List<Urn>, Observable<Void>> addOfflinePlaylist = new Func1<List<Urn>, Observable<Void>>() {
         @Override
-        public Observable<Void> call(final Urn newPlaylist) {
-            return offlineContentOperations.makePlaylistAvailableOffline(newPlaylist);
+        public Observable<Void> call(final List<Urn> newPlaylists) {
+            return offlineContentOperations.makePlaylistAvailableOffline(newPlaylists);
         }
     };
 
-    private final Func1<Urn, Observable<Void>> removeOfflinePlaylist = new Func1<Urn, Observable<Void>>() {
+    private final Func1<List<Urn>, Observable<Void>> removeOfflinePlaylist = new Func1<List<Urn>, Observable<Void>>() {
         @Override
-        public Observable<Void> call(final Urn newPlaylist) {
-            return offlineContentOperations.makePlaylistUnavailableOffline(newPlaylist);
+        public Observable<Void> call(final List<Urn> playlists) {
+            return offlineContentOperations.makePlaylistUnavailableOffline(playlists);
         }
     };
 
@@ -170,7 +171,7 @@ public class OfflineContentController {
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(isOfflineCollectionEnabled)
                 .filter(IS_PLAYLIST_LIKED_OR_CREATED)
-                .map(EntityStateChangedEvent.TO_URN)
+                .map(EntityStateChangedEvent.TO_URNS)
                 .flatMap(addOfflinePlaylist)
                 .cast(Object.class);
     }
@@ -180,7 +181,7 @@ public class OfflineContentController {
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(isOfflineCollectionEnabled)
                 .filter(IS_PLAYLIST_UNLIKED_OR_DELETED)
-                .map(EntityStateChangedEvent.TO_URN)
+                .map(EntityStateChangedEvent.TO_URNS)
                 .flatMap(removeOfflinePlaylist)
                 .cast(Object.class);
     }

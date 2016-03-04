@@ -268,8 +268,8 @@ public class LikesSyncerTest extends AndroidUnitTest {
                 .isEqualTo(existsRemotelyPendingRemoval.getTargetUrn());
 
         assertThat(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).containsExactly(
-                fromLike(createLikedEntityChangedProperty(existsRemotelyNotLocally.getTargetUrn())),
-                fromLike(createUnlikedEntityChangedProperty(existsLocallyNotRemotely.getTargetUrn()))
+                fromLike(Collections.singletonList(createLikedEntityChangedProperty(existsRemotelyNotLocally.getTargetUrn()))),
+                fromLike(Collections.singletonList(createUnlikedEntityChangedProperty(existsLocallyNotRemotely.getTargetUrn())))
         );
     }
 

@@ -98,31 +98,24 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         fetchAndWriteNewLikedEntities(getSetDifference(pendingLocalAdditions, pendingRemoteAdditions));
         writePendingAdditionsToLocalStorage(pendingLocalAdditions);
 
-        publishStateChanged(newLocalAdditions, newLocalRemovals);
+        publishLikeChanged(newLocalAdditions, true);
+        publishLikeChanged(newLocalRemovals, false);
 
         return !(pendingLocalAdditions.isEmpty() && pendingLocalRemovals.isEmpty());
     }
 
-    private void publishStateChanged(Set<PropertySet> additions, Set<PropertySet> removals) {
-        publishLiked(additions);
-        publishUnLiked(removals);
-    }
+    private void publishLikeChanged(Set<PropertySet> newlocalChanges, boolean isAddition) {
+        final Set<PropertySet> changedEntities = new HashSet<>(newlocalChanges.size());
 
-    private void publishUnLiked(Set<PropertySet> removals) {
-        for (PropertySet like : removals) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(PropertySet.from(
+        for (PropertySet like : newlocalChanges) {
+            changedEntities.add(PropertySet.from(
                     PlayableProperty.URN.bind(like.get(PlayableProperty.URN)),
-                    PlayableProperty.IS_USER_LIKE.bind(false)
-            )));
+                    PlayableProperty.IS_USER_LIKE.bind(isAddition)
+            ));
         }
-    }
 
-    private void publishLiked(Set<PropertySet> additions) {
-        for (PropertySet like : additions) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(PropertySet.from(
-                    PlayableProperty.URN.bind(like.get(PlayableProperty.URN)),
-                    PlayableProperty.IS_USER_LIKE.bind(true)
-            )));
+        if (!changedEntities.isEmpty()) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(changedEntities));
         }
     }
 

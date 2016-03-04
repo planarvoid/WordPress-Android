@@ -1,6 +1,7 @@
 package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.rx.RxUtils.returning;
+import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
@@ -26,7 +27,7 @@ public class RepostOperations {
     private final Action1<PropertySet> publishEntityStateChanged = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet newRepostState) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(newRepostState));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(singletonList(newRepostState)));
         }
     };
 

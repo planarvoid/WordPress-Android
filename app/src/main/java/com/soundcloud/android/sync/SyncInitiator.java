@@ -26,6 +26,7 @@ import android.support.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class SyncInitiator {
@@ -320,6 +321,17 @@ public class SyncInitiator {
         return new Intent(context, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .setData(Content.ME_PLAYLISTS.uri);
+    }
+
+    public Observable<SyncResult> syncPlaylists(final Collection<Urn> playlists) {
+        return Observable
+                .from(playlists)
+                .flatMap(new Func1<Urn, Observable<SyncResult>>() {
+                    @Override
+                    public Observable<SyncResult> call(Urn playlistUrn) {
+                        return syncPlaylist(playlistUrn);
+                    }
+                });
     }
 
     public Observable<SyncResult> syncPlaylist(final Urn playlistUrn) {

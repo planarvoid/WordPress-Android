@@ -1,5 +1,7 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
@@ -14,6 +16,7 @@ import android.support.v4.util.ArrayMap;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @AutoValue
@@ -79,6 +82,13 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         }
     };
 
+    public static final Func1<EntityStateChangedEvent, List<Urn>> TO_URNS = new Func1<EntityStateChangedEvent, List<Urn>>() {
+        @Override
+        public List<Urn> call(EntityStateChangedEvent entityStateChangedEvent) {
+            return newArrayList(entityStateChangedEvent.getChangeMap().keySet());
+        }
+    };
+
     public static EntityStateChangedEvent forUpdate(Collection<PropertySet> propertiesSet) {
         return create(UPDATED, propertiesSet);
     }
@@ -94,7 +104,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
                 PlayableProperty.LIKES_COUNT.bind(likesCount)));
     }
 
-    public static EntityStateChangedEvent fromLike(PropertySet newLikeState) {
+    public static EntityStateChangedEvent fromLike(Collection<PropertySet> newLikeState) {
         return create(LIKE, newLikeState);
     }
 
@@ -103,28 +113,28 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     }
 
     public static EntityStateChangedEvent fromRepost(Urn urn, boolean reposted) {
-        return fromRepost(PropertySet.from(
+        return create(REPOST, PropertySet.from(
                 PlayableProperty.URN.bind(urn),
                 PlayableProperty.IS_USER_REPOST.bind(reposted)));
     }
 
-    public static EntityStateChangedEvent fromRepost(PropertySet newRepostState) {
-        return create(REPOST, newRepostState);
+    public static EntityStateChangedEvent fromRepost(Collection<PropertySet> newRepostStates) {
+        return create(REPOST, newRepostStates);
     }
 
     public static EntityStateChangedEvent fromEntityCreated(Urn urn) {
         return create(ENTITY_CREATED, PropertySet.from(EntityProperty.URN.bind(urn)));
     }
 
-    public static EntityStateChangedEvent fromEntityCreated(PropertySet propertySet) {
-        return create(ENTITY_CREATED, propertySet);
+    public static EntityStateChangedEvent fromEntityCreated(Collection<PropertySet> properties) {
+        return create(ENTITY_CREATED, properties);
     }
 
     public static EntityStateChangedEvent fromEntityDeleted(Urn urn) {
         return create(ENTITY_DELETED, PropertySet.from(EntityProperty.URN.bind(urn)));
     }
 
-    public static EntityStateChangedEvent fromEntityDeleted(PropertySet properties) {
+    public static EntityStateChangedEvent fromEntityDeleted(Collection<PropertySet> properties) {
         return create(ENTITY_DELETED, properties);
     }
 
@@ -152,7 +162,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     }
 
     static EntityStateChangedEvent create(int kind, Collection<PropertySet> changedEntities) {
-        ArrayMap changeMap = new ArrayMap<>(changedEntities.size());
+        Map<Urn, PropertySet> changeMap = new ArrayMap<>(changedEntities.size());
         for (PropertySet entity : changedEntities) {
             changeMap.put(entity.get(EntityProperty.URN), entity);
         }
@@ -187,16 +197,12 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return getNextChangeSet().get(PlayableProperty.IS_USER_LIKE);
     }
 
-    public boolean isPlaylistLiked() {
-        return isPlaylistLikeEvent()  && isEntityLiked();
+    public boolean containsLikedPlaylist() {
+        return getKind() == LIKE && getFirstUrn().isPlaylist() && isEntityLiked();
     }
 
-    public boolean isPlaylistUnliked() {
-        return isPlaylistLikeEvent()  && !isEntityLiked();
-    }
-
-    public boolean isPlaylistLikeEvent() {
-        return isLikeKind() && getFirstUrn().isPlaylist();
+    public boolean containsUnlikedPlaylist() {
+        return getKind() == LIKE && getFirstUrn().isPlaylist() && !isEntityLiked();
     }
 
     public boolean isTrackLikeEvent() {
@@ -207,12 +213,12 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return isSingularChange() && getKind() == LIKE;
     }
 
-    public boolean isPlaylistCreated() {
-        return isSingularChange() && getFirstUrn().isPlaylist() && getKind() == ENTITY_CREATED;
+    public boolean containsCreatedPlaylist() {
+        return getFirstUrn().isPlaylist() && getKind() == ENTITY_CREATED;
     }
 
-    public boolean isPlaylistDeleted() {
-        return isSingularChange() && getFirstUrn().isPlaylist() && getKind() == ENTITY_DELETED;
+    public boolean containsDeletedPlaylist() {
+        return getFirstUrn().isPlaylist() && getKind() == ENTITY_DELETED;
     }
 
     private boolean isTrackAddedEvent() {
