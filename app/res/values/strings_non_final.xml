@@ -219,4 +219,8 @@
         <item quantity="other">%s new posts</item> <!-- 9+ new posts -->
     </plurals>
 
+    <!-- __KILL SWITCH -->
+    <string name="kill_switch_message">In order to continue using the SoundCloud app, please update to the latest version.</string>
+    <string name="kill_switch_confirm">Update now</string>
+
 </resources>

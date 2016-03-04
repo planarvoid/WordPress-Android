@@ -1,29 +1,22 @@
 package com.soundcloud.android.analytics.promoted;
 
-import com.soundcloud.android.analytics.AnalyticsProvider;
+import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackProgressEvent;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 
-import android.content.Context;
-
 import javax.inject.Inject;
 import java.util.List;
 
 // This class is all about multiplexing out tracking events
 @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops"})
-public class PromotedAnalyticsProvider implements AnalyticsProvider {
+public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
 
     public static final String BACKEND_NAME = "promoted";
     private final EventTracker eventTracker;
@@ -36,36 +29,6 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void flush() {
         eventTracker.flush(BACKEND_NAME);
-    }
-
-    @Override
-    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
-        /* no op */
-    }
-
-    @Override
-    public void onAppCreated(Context context) {
-        /* no op */
-    }
-
-    @Override
-    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-        /* no op */
-    }
-
-    @Override
-    public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
-        /* no op */
-    }
-
-    @Override
-    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-        /* no op */
-    }
-
-    @Override
-    public void handleOnboardingEvent(OnboardingEvent event) {
-        /* no op */
     }
 
     @Override

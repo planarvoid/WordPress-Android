@@ -5,6 +5,7 @@ import com.soundcloud.android.configuration.PlanChangeDetector;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.Response;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 class ApiUserPlanInterceptor implements Interceptor {
@@ -13,6 +14,7 @@ class ApiUserPlanInterceptor implements Interceptor {
 
     private final PlanChangeDetector planChangeDetector;
 
+    @Inject
     ApiUserPlanInterceptor(PlanChangeDetector planChangeDetector) {
         this.planChangeDetector = planChangeDetector;
     }

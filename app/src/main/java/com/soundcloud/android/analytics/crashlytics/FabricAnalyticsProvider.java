@@ -1,13 +1,9 @@
 package com.soundcloud.android.analytics.crashlytics;
 
 import com.crashlytics.android.core.CrashlyticsCore;
-import com.soundcloud.android.analytics.AnalyticsProvider;
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
+import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.events.MetricEvent;
-import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -23,7 +19,7 @@ import android.util.Log;
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class FabricAnalyticsProvider implements AnalyticsProvider {
+public class FabricAnalyticsProvider extends DefaultAnalyticsProvider {
 
     private static final String TAG = "FabricAnalytics";
     private static final String RECORD_COUNT_METRIC = "DB:RecordCount";
@@ -65,28 +61,8 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
-    }
-
-    @Override
     public void onAppCreated(Context context) {
         pendingOnCreate.set(true);
-    }
-
-    @Override
-    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-    }
-
-    @Override
-    public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
-    }
-
-    @Override
-    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-    }
-
-    @Override
-    public void handleOnboardingEvent(OnboardingEvent event) {
     }
 
     @Override
@@ -99,6 +75,13 @@ public class FabricAnalyticsProvider implements AnalyticsProvider {
             if (event instanceof MetricEvent) {
                 fabricReporter.post(((MetricEvent) event).toMetric());
             }
+        }
+    }
+
+    @Override
+    public void handleForceUpdateEvent(ForceUpdateEvent event) {
+        if (fabricProvider.isInitialized()) {
+            fabricReporter.post(event.toMetric());
         }
     }
 

@@ -6,7 +6,6 @@ import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.configuration.PlanChangeDetector;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleHeaderFormatter;
 import com.squareup.okhttp.OkHttpClient;
@@ -69,12 +68,14 @@ public class ApiModule {
     @Provides
     @Singleton
     @Named(API_HTTP_CLIENT)
-    public OkHttpClient provideOkHttpClient(PlanChangeDetector planChangeDetector) {
+    public OkHttpClient provideOkHttpClient(ApiUserPlanInterceptor userPlanInterceptor,
+                                            ApiKillSwitchInterceptor killSwitchInterceptor) {
         OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.setConnectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         okHttpClient.setReadTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         okHttpClient.setWriteTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        okHttpClient.interceptors().add(new ApiUserPlanInterceptor(planChangeDetector));
+        okHttpClient.interceptors().add(userPlanInterceptor);
+        okHttpClient.interceptors().add(killSwitchInterceptor);
         return okHttpClient;
     }
 }

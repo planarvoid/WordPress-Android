@@ -1,19 +1,16 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import com.soundcloud.android.analytics.AnalyticsProvider;
+import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
-import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackProgressEvent;
 import com.soundcloud.android.events.CollectionEvent;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
-import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -27,13 +24,11 @@ import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.settings.SettingKey;
 import dagger.Lazy;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 
-@SuppressWarnings("PMD.UncommentedEmptyMethod")
-public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
+public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
 
     public static final String BATCH_BACKEND_NAME = "boogaloo";
 
@@ -56,23 +51,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void flush() {
         eventTracker.flush(BATCH_BACKEND_NAME);
-    }
-
-    @Override
-    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
-    }
-
-    @Override
-    public void onAppCreated(Context context) {
-        /* no op */
-    }
-
-    @Override
-    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-    }
-
-    @Override
-    public void handleOnboardingEvent(OnboardingEvent event) {
     }
 
     @Override

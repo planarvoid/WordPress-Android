@@ -1,18 +1,13 @@
 package com.soundcloud.android.analytics.adjust;
 
-import com.soundcloud.android.analytics.AnalyticsProvider;
+import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.OnboardingEvent;
-import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.events.TrackingEvent;
 
 import android.content.Context;
 
 import javax.inject.Inject;
 
-public class AdjustAnalyticsProvider implements AnalyticsProvider {
+public class AdjustAnalyticsProvider extends DefaultAnalyticsProvider {
     private final AdjustWrapper adjustWrapper;
 
     @Inject
@@ -33,35 +28,4 @@ public class AdjustAnalyticsProvider implements AnalyticsProvider {
             adjustWrapper.onPause();
         }
     }
-    
-    @Override
-    public void flush() {
-        // Not implemented
-    }
-
-    @Override
-    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
-        // Not implemented
-    }
-
-    @Override
-    public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
-        // Not implemented
-    }
-
-    @Override
-    public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-        // Not implemented
-    }
-
-    @Override
-    public void handleOnboardingEvent(OnboardingEvent event) {
-        // Not implemented
-    }
-
-    @Override
-    public void handleTrackingEvent(TrackingEvent event) {
-        // Not implemented
-    }
-
 }

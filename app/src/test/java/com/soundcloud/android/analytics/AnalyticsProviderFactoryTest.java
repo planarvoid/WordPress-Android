@@ -52,7 +52,7 @@ public class AnalyticsProviderFactoryTest {
         promotedProvider = new PromotedAnalyticsProvider(eventTracker);
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
         when(appboyAnalyticsProvider.get()).thenReturn(mock(AppboyAnalyticsProvider.class));
-        baseProviders = Arrays.asList(eventLoggerProvider, promotedProvider);
+        baseProviders = Arrays.<AnalyticsProvider>asList(eventLoggerProvider, promotedProvider);
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
                 analyticsSettings, appboyAnalyticsProvider,
                 adjustAnalyticsProvider, comScoreProvider, fabricAnalyticsProvider,
