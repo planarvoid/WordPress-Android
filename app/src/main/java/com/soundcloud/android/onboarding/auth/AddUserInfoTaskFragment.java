@@ -40,7 +40,7 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
         final String username = getArguments().getString(USERNAME_EXTRA);
         final String permalink = account != null ? account.name : username;
         final File avatarFile = getArguments().containsKey(AVATAR_EXTRA) ? new File(getArguments().getString(AVATAR_EXTRA)) : null;
-        return new AddUserInfoTask(application, permalink, username, avatarFile, userStorage, apiClient, accountOperations);
+        return new AddUserInfoTask(application, permalink, username, avatarFile, storeUsersCommand, apiClient, accountOperations);
     }
 
     @Override

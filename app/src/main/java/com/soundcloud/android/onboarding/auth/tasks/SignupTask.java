@@ -9,12 +9,13 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.Params;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.storage.LegacyUserStorage;
 
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
@@ -32,8 +33,8 @@ public class SignupTask extends AuthTask {
     private TokenInformationGenerator tokenUtils;
     private ApiClient apiClient;
 
-    public SignupTask(SoundCloudApplication soundCloudApplication, LegacyUserStorage userStorage, TokenInformationGenerator tokenUtils, ApiClient apiClient) {
-        super(soundCloudApplication, userStorage);
+    public SignupTask(SoundCloudApplication soundCloudApplication, StoreUsersCommand storeUsersCommand, TokenInformationGenerator tokenUtils, ApiClient apiClient) {
+        super(soundCloudApplication, storeUsersCommand);
         this.tokenUtils = tokenUtils;
         this.apiClient = apiClient;
     }
@@ -65,7 +66,7 @@ public class SignupTask extends AuthTask {
                     .withToken(tokenUtils.verifyScopes(Token.SCOPE_SIGNUP))
                     .build();
 
-            PublicApiUser user = apiClient.fetchMappedResponse(request, PublicApiUser.class);
+            ApiUser user = apiClient.fetchMappedResponse(request, PublicApiUser.class).toApiMobileUser();
             return AuthTaskResult.success(user, SignupVia.API, false);
         } catch (TokenRetrievalException e) {
             return AuthTaskResult.failure(getString(R.string.signup_scope_revoked));

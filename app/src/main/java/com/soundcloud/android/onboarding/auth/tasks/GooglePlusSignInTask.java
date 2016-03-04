@@ -5,13 +5,12 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.accounts.FetchMeCommand;
 import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
-import com.soundcloud.android.storage.LegacyUserStorage;
-import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Bundle;
@@ -31,17 +30,9 @@ public class GooglePlusSignInTask extends LoginTask {
     protected String accountName, scope;
 
     public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope,
-                                ConfigurationOperations configurationOperations, EventBus eventBus, AccountOperations accountOperations,
-                                TokenInformationGenerator tokenUtils, ApiClient apiClient) {
-        this(application, accountName, scope, tokenUtils,
-                new FetchUserTask(apiClient),
-                new LegacyUserStorage(), accountOperations, configurationOperations, eventBus);
-    }
-
-    protected GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope,
-                                   TokenInformationGenerator tokenInformationGenerator, FetchUserTask fetchUserTask, LegacyUserStorage userStorage,
-                                   AccountOperations accountOperations, ConfigurationOperations configurationOperations, EventBus eventBus) {
-        super(application, tokenInformationGenerator, fetchUserTask, userStorage, configurationOperations, eventBus, accountOperations);
+                                TokenInformationGenerator tokenInformationGenerator, FetchMeCommand fetchMeCommand, StoreUsersCommand userStorage,
+                                AccountOperations accountOperations, ConfigurationOperations configurationOperations, EventBus eventBus) {
+        super(application, tokenInformationGenerator, fetchMeCommand, userStorage, configurationOperations, eventBus, accountOperations);
         this.accountName = accountName;
         this.scope = scope;
         extras = new Bundle();

@@ -13,18 +13,20 @@ import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.accounts.FetchMeCommand;
+import com.soundcloud.android.accounts.Me;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import com.soundcloud.android.storage.LegacyUserStorage;
-import com.soundcloud.android.tasks.FetchUserTask;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -40,13 +42,14 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
 
     @Mock private SoundCloudApplication app;
     @Mock private TokenInformationGenerator tokenInformationGenerator;
-    @Mock private FetchUserTask fetchUserTask;
-    @Mock private LegacyUserStorage userStorage;
+    @Mock private FetchMeCommand fetchMeCommand;
+    @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private Bundle bundle;
     @Mock private AccountOperations accountOperations;
-    @Mock private PublicApiUser user;
     @Mock private Token token;
     @Mock private ConfigurationOperations configurationOperations;
+
+    private ApiUser user = ModelFixtures.create(ApiUser.class);
 
     private GooglePlusSignInTask task;
 
@@ -55,7 +58,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
         when(app.getAccountOperations()).thenReturn(accountOperations);
         when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false));
-        task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, fetchUserTask, userStorage,
+        task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, fetchMeCommand, storeUsersCommand,
                 accountOperations, configurationOperations, new TestEventBus());
 
         stub(tokenInformationGenerator.getGrantBundle(anyString(),anyString())).toReturn(bundle);
@@ -85,7 +88,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     @Test
     public void shouldReturnSuccessIfGoogleSignInWasSuccessful() throws IOException, GoogleAuthException {
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME),eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
-        when(fetchUserTask.currentUser()).thenReturn(user);
+        when(fetchMeCommand.call(any(Void.class))).thenReturn(Me.create(user));
         when(app.addUserAccountAndEnableSync(eq(user), any(Token.class), any(SignupVia.class))).thenReturn(true);
         assertThat(task.doInBackground(bundle).wasSuccess()).isTrue();
     }

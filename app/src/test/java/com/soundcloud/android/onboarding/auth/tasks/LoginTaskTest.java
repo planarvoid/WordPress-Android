@@ -1,20 +1,23 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.accounts.FetchMeCommand;
+import com.soundcloud.android.accounts.Me;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
-import com.soundcloud.android.storage.LegacyUserStorage;
-import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,12 +29,13 @@ public class LoginTaskTest extends AndroidUnitTest {
 
     @Mock private SoundCloudApplication application;
     @Mock private TokenInformationGenerator tokenInformationGenerator;
-    @Mock private FetchUserTask fetchUserTask;
+    @Mock private FetchMeCommand fetchMeCommand;
     @Mock private Token token;
-    @Mock private PublicApiUser user;
-    @Mock private LegacyUserStorage userStorage;
+    @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountOperations accountOperations;
+
+    private ApiUser user = ModelFixtures.create(ApiUser.class);
 
     private LoginTask loginTask;
     private Bundle bundle;
@@ -39,7 +43,7 @@ public class LoginTaskTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         bundle = new Bundle();
-        loginTask = new LoginTask(application, tokenInformationGenerator, fetchUserTask, userStorage,
+        loginTask = new LoginTask(application, tokenInformationGenerator, fetchMeCommand, storeUsersCommand,
                 configurationOperations, new TestEventBus(), accountOperations);
     }
 
@@ -60,12 +64,12 @@ public class LoginTaskTest extends AndroidUnitTest {
     public void shouldMakeRequestToCurrentUser() throws Exception {
         setupMocksToReturnToken();
         loginTask.doInBackground(bundle);
-        verify(fetchUserTask).currentUser();
+        verify(fetchMeCommand).call(null);
     }
 
     @Test
     public void shouldReturnAuthenticationFailureIfUserPersistenceFails() throws Exception {
-        when(fetchUserTask.currentUser()).thenReturn(null);
+        when(fetchMeCommand.call(any(Void.class))).thenReturn(null);
         AuthTaskResult result = loginTask.doInBackground(bundle);
         assertThat(result.wasSuccess()).isFalse();
     }
@@ -157,7 +161,7 @@ public class LoginTaskTest extends AndroidUnitTest {
 
     private void setupMocksToReturnToken() throws Exception {
         when(tokenInformationGenerator.getToken(bundle)).thenReturn(token);
-        when(fetchUserTask.currentUser()).thenReturn(user);
+        when(fetchMeCommand.call(any(Void.class))).thenReturn(Me.create(user));
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false));
     }
 

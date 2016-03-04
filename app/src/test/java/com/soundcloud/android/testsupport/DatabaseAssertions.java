@@ -622,6 +622,7 @@ public class DatabaseAssertions {
         final Query query = from(Users.name())
                 .whereEq(_ID, user.getUrn().getNumericId())
                 .whereEq(TableColumns.Users.USERNAME, user.getUsername())
+                .whereEq(TableColumns.Users.PERMALINK, user.getPermalink())
                 .whereEq(COUNTRY, user.getCountry())
                 .whereEq(FOLLOWERS_COUNT, user.getFollowersCount());
 

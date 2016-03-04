@@ -8,7 +8,7 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -148,7 +148,7 @@ public class AccountOperations {
      * @return the new account, or null if account already existed or adding it failed
      */
     @Nullable
-    public Account addOrReplaceSoundCloudAccount(PublicApiUser user, Token token, SignupVia via) {
+    public Account addOrReplaceSoundCloudAccount(ApiUser user, Token token, SignupVia via) {
         boolean accountexists = false;
         Account account = getSoundCloudAccount();
         if (account != null) {

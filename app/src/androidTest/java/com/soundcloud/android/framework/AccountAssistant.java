@@ -6,6 +6,7 @@ import com.soundcloud.android.api.legacy.Endpoints;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -46,7 +47,7 @@ public final class AccountAssistant {
         return token;
     }
 
-    static boolean addAccountAndEnableSync(Context context, Token token, PublicApiUser user) {
+    static boolean addAccountAndEnableSync(Context context, Token token, ApiUser user) {
         final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
         application.getAccountOperations().updateToken(token);
         return application.addUserAccountAndEnableSync(user, token, SignupVia.NONE);

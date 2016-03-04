@@ -98,6 +98,7 @@ public enum ApiEndpoints {
     IMAGES("/images/%s/%s"),
     CONFIGURATION("/configuration/android"),
     RESOLVE_ENTITY("/resolve"),
+    ME("/me"),
 
     // public API
     PLAY_PUBLISH("/tpub"),

@@ -30,6 +30,11 @@ public class TestUserRecord implements UserRecord {
     }
 
     @Override
+    public String getPermalink() {
+        return apiUser.getPermalink();
+    }
+
+    @Override
     public String getUsername() {
         return apiUser.getUsername();
     }

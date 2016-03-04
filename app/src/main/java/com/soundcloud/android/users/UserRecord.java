@@ -7,6 +7,8 @@ public interface UserRecord {
 
     Urn getUrn();
 
+    String getPermalink();
+
     String getUsername();
 
     String getCountry();

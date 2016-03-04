@@ -21,6 +21,14 @@ public class ApiUserBlueprint {
     };
 
     @Default
+    FieldCallback permalink = new FieldCallback() {
+        @Override
+        public Object get(Object referenceModel) {
+            return "user-permalink" + ((ApiUser) referenceModel).getId();
+        }
+    };
+
+    @Default
     FieldCallback username = new FieldCallback() {
         @Override
         public Object get(Object referenceModel) {

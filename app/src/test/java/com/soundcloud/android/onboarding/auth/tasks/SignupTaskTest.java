@@ -13,10 +13,10 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,14 +28,14 @@ public class SignupTaskTest extends AndroidUnitTest {
     
     @Mock private TokenInformationGenerator tokenInformationGenerator;
     @Mock private ApiClient apiClient;
-    @Mock private LegacyUserStorage userStorage;
+    @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private SoundCloudApplication application;
 
     private SignupTask signupTask;
 
     @Before
     public void setUp() throws Exception {
-        signupTask = new SignupTask(application, userStorage, tokenInformationGenerator, apiClient);
+        signupTask = new SignupTask(application, storeUsersCommand, tokenInformationGenerator, apiClient);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class SignupTaskTest extends AndroidUnitTest {
         setupSignupWithUser(user);
 
         AuthTaskResult result = doSignup();
-        assertThat(result.getUser()).isEqualTo(user);
+        assertThat(result.getUser()).isEqualTo(user.toApiMobileUser());
         assertThat(result.wasSuccess()).isTrue();
     }
 
@@ -54,7 +54,7 @@ public class SignupTaskTest extends AndroidUnitTest {
         setupSignupWithUser(user);
 
         AuthTaskResult result = doSignupWithNullGender();
-        assertThat(result.getUser()).isEqualTo(user);
+        assertThat(result.getUser()).isEqualTo(user.toApiMobileUser());
         assertThat(result.wasSuccess()).isTrue();
     }
 

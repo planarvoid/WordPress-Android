@@ -62,7 +62,8 @@ public class TestUser {
         while (shouldRetry) {
             try {
                 tryCount++;
-                result = AccountAssistant.addAccountAndEnableSync(context, getToken(context, apiWrapper), getUser(apiWrapper));
+                result = AccountAssistant.addAccountAndEnableSync(context, getToken(context, apiWrapper),
+                        getUser(apiWrapper).toApiMobileUser());
             } catch (IOException e) {
 
                 if (tryCount > maxRetries) {

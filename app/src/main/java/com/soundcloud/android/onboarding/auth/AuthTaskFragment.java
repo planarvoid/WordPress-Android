@@ -7,13 +7,14 @@ import static com.soundcloud.android.utils.ErrorUtils.log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.accounts.FetchMeCommand;
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
-import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -41,10 +42,11 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @Inject AccountOperations accountOperations;
     @Inject TokenInformationGenerator tokenUtils;
     @Inject ApiClient apiClient;
-    @Inject LegacyUserStorage userStorage;
+    @Inject FetchMeCommand fetchMeCommand;
+    @Inject StoreUsersCommand storeUsersCommand;
 
     public interface OnAuthResultListener {
-        void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo);
+        void onAuthTaskComplete(ApiUser user, SignupVia signupVia, boolean shouldAddUserInfo);
 
         void onError(String message, boolean allowFeedback);
 
