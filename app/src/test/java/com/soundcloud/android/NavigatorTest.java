@@ -127,7 +127,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openUpgradeFromDeeplink() {
-        navigator.openUpgradeFromDeeplink(activityContext);
+        navigator.openUpgradeOnMain(activityContext);
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(MainActivity.class)
                 .containsExtra(Navigator.EXTRA_UPGRADE_INTENT, true);

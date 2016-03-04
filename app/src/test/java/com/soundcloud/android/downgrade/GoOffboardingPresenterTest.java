@@ -24,6 +24,7 @@ import rx.subjects.PublishSubject;
 import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 
 import java.io.IOException;
 
@@ -32,6 +33,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
     @Mock private Navigator navigator;
     @Mock private PlanChangeOperations operations;
+    @Mock private AppCompatActivity activity;
 
     private TestEventBus eventBus = new TestEventBus();
     private GoOffboardingViewStub view;
@@ -40,6 +42,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
+        when(fragment.getActivity()).thenReturn(activity);
         view = new GoOffboardingViewStub();
         presenter = new GoOffboardingPresenter(navigator, operations, view, eventBus);
     }
@@ -145,7 +148,8 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.onResubscribeClicked();
 
         assertThat(view.isResubscribeButtonWaiting).isFalse();
-        verify(navigator).openUpgrade(any(Activity.class));
+        verify(navigator).openUpgradeOnMain(any(Activity.class));
+        verify(activity).finish();
     }
 
     @Test
@@ -180,7 +184,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         subject.onNext(downgradeResult);
         subject.onCompleted();
 
-        verify(navigator).openUpgrade(any(Activity.class));
+        verify(navigator).openUpgradeOnMain(any(Activity.class));
     }
 
     @Test
@@ -247,7 +251,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         success.onNext(downgradeResult);
         success.onCompleted();
 
-        verify(navigator).openUpgrade(any(Activity.class));
+        verify(navigator).openUpgradeOnMain(any(Activity.class));
     }
 
     @Test

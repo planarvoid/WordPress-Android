@@ -144,9 +144,10 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
                     view.reset();
                     return this;
                 case USER_RESUBSCRIBE:
-                    navigator.openUpgrade(fragment.getContext());
+                    navigator.openUpgradeOnMain(fragment.getContext());
                     eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forResubscribeClick());
                     view.reset();
+                    fragment.getActivity().finish();
                     return this;
                 default:
                     return this;
