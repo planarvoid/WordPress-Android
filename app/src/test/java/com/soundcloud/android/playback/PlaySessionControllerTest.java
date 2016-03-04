@@ -337,8 +337,22 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onStateTransitionDoesNotAdvanceTracksIfNotCurrentPlayQueueTrack() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(998877)));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
+        verify(playQueueManager, never()).autoMoveToNextPlayableItem();
+    }
+
+    @Test
     public void onStateTransitionTriesToAdvanceItemIfTrackEndedWhileCasting() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
+        verify(playQueueManager).autoMoveToNextPlayableItem();
+        assertThat(playCurrentSubject.hasObservers()).isFalse();
+    }
+
+    @Test
+    public void onStateTransitionTriesToAdvanceItem() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
         verify(playQueueManager).autoMoveToNextPlayableItem();
         assertThat(playCurrentSubject.hasObservers()).isFalse();

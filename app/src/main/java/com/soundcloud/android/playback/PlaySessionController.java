@@ -174,6 +174,14 @@ public class PlaySessionController {
             adsController.publishAdDeliveryEventIfUpcoming();
         }
     };
+    private final Func1<StateTransition, Boolean> isForCurrentPlayQueueTrack = new Func1<StateTransition, Boolean>() {
+        @Override
+        public Boolean call(StateTransition stateTransition) {
+            final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+            return !currentPlayQueueItem.isEmpty() && stateTransition.isForUrn(currentPlayQueueItem.getUrn());
+        }
+    };
+
 
     @Inject
     public PlaySessionController(Resources resources,
@@ -222,6 +230,7 @@ public class PlaySessionController {
         eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .filter(PlayStateFunctions.IS_NOT_DEFAULT_STATE)
+                .filter(isForCurrentPlayQueueTrack)
                 .doOnNext(updateAudioManager)
                 .filter(shouldAdvanceTracks)
                 .doOnNext(reconfigureUpcomingAd)
