@@ -7,7 +7,6 @@ import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.api.ApiModule;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
@@ -165,12 +164,6 @@ public class ApplicationModule {
     @Provides
     public LocalBroadcastManager provideLocalBroadcastManager() {
         return LocalBroadcastManager.getInstance(application);
-    }
-
-    @Provides
-    @Singleton
-    public ScModelManager provideModelManager() {
-        return new ScModelManager(application);
     }
 
     @Provides

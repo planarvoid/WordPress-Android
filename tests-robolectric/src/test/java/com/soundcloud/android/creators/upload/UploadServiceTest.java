@@ -4,18 +4,14 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -127,10 +123,6 @@ public class UploadServiceTest {
         expect(notification).toHaveTitle("Upload Finished");
         expect(notification).toMatchIntent(new Intent(Robolectric.application, ProfileActivity.class));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
-
-        PublicApiTrack t = SoundCloudApplication.sModelManager.getTrack(12345l);
-        expect(t).not.toBeNull();
-        expect(t.state).toBe(PublicApiTrack.State.FINISHED);
     }
 
     @Ignore // fails with JNI error on Java 7

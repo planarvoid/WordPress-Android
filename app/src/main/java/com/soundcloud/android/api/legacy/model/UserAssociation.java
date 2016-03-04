@@ -1,6 +1,5 @@
 package com.soundcloud.android.api.legacy.model;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
@@ -55,7 +54,7 @@ public class UserAssociation extends Association implements UserHolder {
 
     public UserAssociation(Cursor cursor) {
         super(cursor);
-        user = SoundCloudApplication.sModelManager.getCachedUserFromCursor(cursor, TableColumns.UserAssociationView._ID);
+        user = new PublicApiUser(cursor);
         addedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
         removedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
         token = cursor.getString(cursor.getColumnIndex(TableColumns.UserAssociationView.USER_ASSOCIATION_TOKEN));

@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.activities.ActivitiesSyncer;
 import com.soundcloud.android.sync.affiliations.MyFollowingsSyncer;
+import com.soundcloud.android.sync.entities.MeSyncer;
 import com.soundcloud.android.sync.likes.MyLikesSyncer;
 import com.soundcloud.android.sync.playlists.LegacySinglePlaylistSyncer;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
@@ -35,6 +36,7 @@ public class ApiSyncerFactory {
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
     private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
     private final Lazy<TrackSyncer> lazyTrackSyncer;
+    private final Lazy<MeSyncer> lazyMeSyncer;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final JsonTransformer jsonTransformer;
     private final Navigator navigator;
@@ -49,6 +51,7 @@ public class ApiSyncerFactory {
                             Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer,
                             Lazy<TrackSyncer> lazyTrackSyncer,
+                            Lazy<MeSyncer> lazyMeSyncer,
                             SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
                             JsonTransformer jsonTransformer, Navigator navigator) {
         this.nextFollowingOperationsProvider = nextFollowingOperationsProvider;
@@ -60,6 +63,7 @@ public class ApiSyncerFactory {
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
         this.lazyMyPostsSyncer = lazyMyPostsSyncer;
         this.lazyTrackSyncer = lazyTrackSyncer;
+        this.lazyMeSyncer = lazyMeSyncer;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.jsonTransformer = jsonTransformer;
         this.navigator = navigator;
@@ -97,8 +101,11 @@ public class ApiSyncerFactory {
             case TRACK:
                 return lazyTrackSyncer.get();
 
+            case ME:
+                return lazyMeSyncer.get();
+
             default:
-                return new ApiSyncer(context, context.getContentResolver());
+                throw new IllegalArgumentException("Unhandled content uri for sync " + contentUri);
         }
     }
 

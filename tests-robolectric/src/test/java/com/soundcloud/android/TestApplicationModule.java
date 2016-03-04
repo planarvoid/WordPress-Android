@@ -13,7 +13,6 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -30,7 +29,6 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.ApiSyncService;
-import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.activities.ActivitiesSyncer;
 import com.soundcloud.android.sync.entities.EntitySyncJob;
@@ -68,8 +66,7 @@ import java.io.File;
 // Purely needed to shut up Dagger, since all tests that use DefaultTestRunner go through
 // Application#onCreate so injection has to be set up.
 // Has no relevance for our newer tests that use SoundCloudTestRunner
-@Module(injects = {SoundCloudApplication.class, TestApplication.class,
-        ApiSyncer.class, ApiSyncService.class}, library = true)
+@Module(injects = {SoundCloudApplication.class, TestApplication.class, ApiSyncService.class}, library = true)
 public class TestApplicationModule {
 
     private final SoundCloudApplication application;
@@ -82,11 +79,6 @@ public class TestApplicationModule {
     @Provides
     public EventBus provideEventBus() {
         return new TestEventBus();
-    }
-
-    @Provides
-    public ScModelManager provideModelManager() {
-        return new ScModelManager(application);
     }
 
     @Provides
