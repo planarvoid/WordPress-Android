@@ -178,8 +178,8 @@ class SearchOperations {
         return getSearchStrategy(searchType, ContentType.NORMAL).searchResult(query);
     }
 
-    Observable<SearchResult> searchPremiumResultFrom(List<PropertySet> propertySets, Optional<Link> nextHref) {
-        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, nextHref);
+    Observable<SearchResult> searchPremiumResultFrom(List<PropertySet> propertySets, Optional<Link> nextHref, Urn queryUrn) {
+        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, nextHref, queryUrn);
         return Observable.just(searchResult);
     }
 

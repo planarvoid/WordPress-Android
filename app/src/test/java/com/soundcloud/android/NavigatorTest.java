@@ -335,14 +335,16 @@ public class NavigatorTest extends AndroidUnitTest {
         final String searchQuery = "query";
         final int searchType = 1;
         final Optional<Link> nextHref = Optional.absent();
+        final Urn queryUrn = Urn.forTrack(1);
 
-        navigator.openSearchPremiumContentResults(activityContext, searchQuery, searchType, propertySets, nextHref);
+        navigator.openSearchPremiumContentResults(activityContext, searchQuery, searchType, propertySets, nextHref, queryUrn);
 
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(SearchPremiumResultsActivity.class)
                 .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, searchQuery)
                 .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE, searchType)
                 .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, propertySets)
+                .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN, queryUrn)
                 .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
     }
 

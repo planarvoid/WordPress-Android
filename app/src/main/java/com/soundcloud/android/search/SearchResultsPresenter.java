@@ -72,7 +72,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     private final Navigator navigator;
     private final SearchTracker searchTracker;
 
-    private final Action1<SearchResult> trackSearch = new Action1<SearchResult>() {
+    private final Action1<SearchResult> trackSearch =
+            new Action1<SearchResult>() {
         @Override
         public void call(SearchResult searchResult) {
             queryUrn = (searchResult.queryUrn.isPresent()) ? searchResult.queryUrn.get() : Urn.NOT_SET;
@@ -211,6 +212,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     @Override
     public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource, Optional<Link> nextHref) {
         searchTracker.trackPremiumResultsScreenEvent(queryUrn);
-        navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource, nextHref);
+        navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource, nextHref, queryUrn);
     }
 }

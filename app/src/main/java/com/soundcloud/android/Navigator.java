@@ -145,11 +145,13 @@ public class Navigator {
                                                 String searchQuery,
                                                 int searchType,
                                                 List<PropertySet> premiumContentList,
-                                                Optional<Link> nextHref) {
+                                                Optional<Link> nextHref,
+                                                Urn queryUrn) {
         final ArrayList<? extends Parcelable> sourceSetList = new ArrayList<>(premiumContentList);
         final Intent intent = new Intent(context, SearchPremiumResultsActivity.class)
                 .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, searchQuery)
                 .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE, searchType)
+                .putExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN, queryUrn)
                 .putParcelableArrayListExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, sourceSetList)
                 .putExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref.orNull());
         context.startActivity(intent);

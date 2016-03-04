@@ -1,16 +1,9 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF;
-import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS;
-import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY;
-import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -21,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 
 public class SearchPremiumResultsFragment extends LightCycleSupportFragment implements RefreshableScreen {
 
@@ -29,23 +21,15 @@ public class SearchPremiumResultsFragment extends LightCycleSupportFragment impl
 
     @Inject @LightCycle SearchPremiumResultsPresenter presenter;
 
+    static SearchPremiumResultsFragment create(Bundle extras) {
+        final SearchPremiumResultsFragment fragment = new SearchPremiumResultsFragment();
+        fragment.setArguments(extras);
+        return fragment;
+    }
+
     public SearchPremiumResultsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
-    }
-
-    static SearchPremiumResultsFragment create(String searchQuery,
-                                               int searchType,
-                                               ArrayList<PropertySet> premiumContentSourceSet,
-                                               Link nextHref) {
-        final Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_SEARCH_QUERY, searchQuery);
-        bundle.putInt(EXTRA_SEARCH_TYPE, searchType);
-        bundle.putParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS, premiumContentSourceSet);
-        bundle.putParcelable(EXTRA_PREMIUM_CONTENT_NEXT_HREF, nextHref);
-        final SearchPremiumResultsFragment fragment = new SearchPremiumResultsFragment();
-        fragment.setArguments(bundle);
-        return fragment;
     }
 
     @Override

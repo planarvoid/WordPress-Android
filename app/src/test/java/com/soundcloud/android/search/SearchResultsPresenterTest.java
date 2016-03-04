@@ -52,6 +52,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     private static final Urn PREMIUM_TRACK_URN_ONE = Urn.forTrack(1L);
     private static final Urn PREMIUM_TRACK_URN_TWO = Urn.forTrack(2L);
     private static final Urn TRACK_URN = Urn.forTrack(3L);
+    private static final Urn QUERY_URN = new Urn("soundcloud:search:123");
 
     private static final String SEARCH_QUERY = "query";
     private static final int SEARCH_TYPE = TYPE_ALL;
@@ -80,14 +81,15 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         setupFragmentArguments(true);
         final List<PropertySet> propertySets = Collections.singletonList(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
-        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, Optional.<Link>absent());
+        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, Optional.<Link>absent(), QUERY_URN);
         final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
 
         presenter = new SearchResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
                 clickListenerFactory, eventBus, featureFlags, navigator, searchTracker);
 
-        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, Urn.forTrack(1));
+        searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1));
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
+
 
         when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
         when(searchOperations.searchResult(anyString(), anyInt())).thenReturn(searchResultObservable);
@@ -130,8 +132,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     public void mustTrackSearchResults() {
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
-        verify(searchTracker).setTrackingData(SEARCH_TYPE, Urn.NOT_SET, false);
-        verify(searchTracker).trackSearchSubmission(SEARCH_TYPE, Urn.NOT_SET);
+        verify(searchTracker).setTrackingData(SEARCH_TYPE, QUERY_URN, false);
+        verify(searchTracker).trackSearchSubmission(SEARCH_TYPE, QUERY_URN);
         verify(searchTracker).trackResultsScreenEvent(SEARCH_TYPE);
     }
 
@@ -155,11 +157,14 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenHighTierSearchResults() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
         final List<PropertySet> premiumItemsSource = Collections.emptyList();
         final Optional<Link> nextHref = Optional.absent();
         presenter.onPremiumContentViewAllClicked(context(), premiumItemsSource, nextHref);
 
-        verify(navigator).openSearchPremiumContentResults(eq(context()), anyString(), anyInt(), eq(premiumItemsSource), eq(nextHref));
+        verify(navigator).openSearchPremiumContentResults(eq(context()), anyString(), anyInt(), eq(premiumItemsSource), eq(nextHref), eq(QUERY_URN));
     }
 
     @Test

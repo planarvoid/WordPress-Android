@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -19,6 +18,7 @@ public class SearchPremiumResultsActivity extends PlayerActivity {
 
     public static final String EXTRA_SEARCH_QUERY = "searchQuery";
     public static final String EXTRA_SEARCH_TYPE = "searchType";
+    public static final String EXTRA_SEARCH_QUERY_URN = "searchQueryUrn";
     public static final String EXTRA_PREMIUM_CONTENT_RESULTS = "searchPremiumContent";
     public static final String EXTRA_PREMIUM_CONTENT_NEXT_HREF = "searchPremiumNextHref";
 
@@ -36,13 +36,14 @@ public class SearchPremiumResultsActivity extends PlayerActivity {
 
     private void createFragmentForPremiumResults() {
         final Intent intent = getIntent();
-        final String searchQuery = intent.getStringExtra(EXTRA_SEARCH_QUERY);
-        final int searchType = intent.getIntExtra(EXTRA_SEARCH_TYPE, 0);
-        final ArrayList<PropertySet> premiumContentList = intent.getParcelableArrayListExtra(EXTRA_PREMIUM_CONTENT_RESULTS);
-        final Link nextHref = intent.getParcelableExtra(EXTRA_PREMIUM_CONTENT_NEXT_HREF);
-        Preconditions.checkState(premiumContentList != null && !premiumContentList.isEmpty(), "Invalid search premium content list");
-        final Fragment fragment = SearchPremiumResultsFragment.create(searchQuery, searchType, premiumContentList, nextHref);
+        checkIntentArguments(intent);
+        final Fragment fragment = SearchPremiumResultsFragment.create(intent.getExtras());
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment, SearchPremiumResultsFragment.TAG).commit();
+    }
+
+    private void checkIntentArguments(Intent intent) {
+        final ArrayList<PropertySet> premiumContentList = intent.getParcelableArrayListExtra(EXTRA_PREMIUM_CONTENT_RESULTS);
+        Preconditions.checkState(premiumContentList != null && !premiumContentList.isEmpty(), "Invalid search premium content list");
     }
 
     @Override
