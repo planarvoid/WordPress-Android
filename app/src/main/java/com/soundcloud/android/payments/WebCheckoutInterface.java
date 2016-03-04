@@ -10,6 +10,7 @@ class WebCheckoutInterface {
     interface Listener {
         void onWebAppReady();
         void onPaymentSuccess();
+        void onPaymentError(String errorType);
     }
 
     public WebCheckoutInterface(Listener listener) {
@@ -24,5 +25,10 @@ class WebCheckoutInterface {
     @JavascriptInterface
     public void onPaymentSuccess() {
         listener.onPaymentSuccess();
+    }
+
+    @JavascriptInterface
+    public void onPaymentError(String errorType) {
+        listener.onPaymentError(errorType);
     }
 }
