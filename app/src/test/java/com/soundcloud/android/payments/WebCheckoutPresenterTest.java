@@ -10,6 +10,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -27,6 +29,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private Navigator navigator;
     @Mock private Resources resources;
+    TestEventBus eventBus;
 
     private AppCompatActivity activity = new AppCompatActivity();
 
@@ -38,7 +41,8 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
         WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", "$1", 30, "start", "expiry");
         activity.setIntent(new Intent().putExtra(WebConversionPresenter.PRODUCT_INFO, product));
 
-        presenter = new WebCheckoutPresenter(view, accountOperations, navigator, new TestEventBus(), resources);
+        eventBus = new TestEventBus();
+        presenter = new WebCheckoutPresenter(view, accountOperations, navigator, eventBus, resources);
     }
 
     @Test
@@ -64,6 +68,15 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
         presenter.onWebAppReady();
 
         verify(view).setLoading(false);
+    }
+
+    @Test
+    public void paymentErrorsShouldBeTracked() {
+        presenter.onCreate(activity, null);
+        presenter.onPaymentError("KHAAAAAAAAAAAAAAAAAAAN");
+
+        final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(PaymentErrorEvent.KIND);
     }
 
     @Test
