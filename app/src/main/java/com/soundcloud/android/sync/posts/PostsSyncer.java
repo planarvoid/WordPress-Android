@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
@@ -87,7 +88,9 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
                 storePostsCommand.call(additions);
             }
 
-            publishStateChanged(additions, removals);
+            publishStateChanges(additions, true);
+            publishStateChanges(removals, false);
+
             return true;
         }
     }
@@ -102,48 +105,28 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
         }
     }
 
-    private void publishStateChanged(Set<PropertySet> additions, Set<PropertySet> removals) {
-        publishAdditions(additions);
-        publishRemovals(removals);
-    }
+    private void publishStateChanges(Set<PropertySet> changes, boolean isAddition) {
+        final Set<PropertySet> updatedEntities = new HashSet<>(changes.size());
+        final Set<PropertySet> newEntities = new HashSet<>(changes.size());
 
-    private void publishAdditions(Set<PropertySet> additions) {
-        for (PropertySet post : additions) {
+        for (PropertySet post : changes) {
             if (post.get(PostProperty.IS_REPOST)) {
-                publishRepostChanged(post, true);
+                updatedEntities.add(PropertySet.from(
+                        PlayableProperty.URN.bind(post.get(PlayableProperty.URN)),
+                        PlayableProperty.IS_USER_REPOST.bind(isAddition)));
             } else {
-                publishEntityCreated(post);
+                newEntities.add(PropertySet.from(PlayableProperty.URN.bind(post.get(PlayableProperty.URN))));
             }
         }
-    }
 
-    private void publishRemovals(Set<PropertySet> removals) {
-        for (PropertySet post : removals) {
-            if (post.get(PostProperty.IS_REPOST)) {
-                publishRepostChanged(post, false);
-            } else {
-                publishEntityDeleted(post);
-            }
+        if (!updatedEntities.isEmpty()) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(updatedEntities));
         }
-    }
 
-    private void publishEntityDeleted(PropertySet post) {
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityDeleted(PropertySet.from(
-                PlayableProperty.URN.bind(post.get(PlayableProperty.URN))
-        )));
-    }
-
-    private void publishEntityCreated(PropertySet post) {
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityCreated(PropertySet.from(
-                PlayableProperty.URN.bind(post.get(PlayableProperty.URN))
-        )));
-    }
-
-    private void publishRepostChanged(PropertySet post, boolean isUserRepost) {
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(PropertySet.from(
-                PlayableProperty.URN.bind(post.get(PlayableProperty.URN)),
-                PlayableProperty.IS_USER_REPOST.bind(isUserRepost)
-        )));
+        if (!newEntities.isEmpty()) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, isAddition ?
+                    EntityStateChangedEvent.fromEntityCreated(newEntities) : EntityStateChangedEvent.fromEntityDeleted(newEntities));
+        }
     }
 
     private void fetchResourcesForAdditions(Set<PropertySet> additions) throws Exception {

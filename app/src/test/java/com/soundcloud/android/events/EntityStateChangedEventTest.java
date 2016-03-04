@@ -10,6 +10,7 @@ import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public class EntityStateChangedEventTest extends AndroidUnitTest {
 
@@ -25,14 +26,14 @@ public class EntityStateChangedEventTest extends AndroidUnitTest {
     @Test
     public void shouldReturnSingleUrnFromSingularChangeEvent() {
         PropertySet track = TestPropertySets.fromApiTrack();
-        EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.fromLike(track);
+        EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.fromLike(Collections.singletonList(track));
         assertThat(singleChangeEvent.getFirstUrn()).isEqualTo(track.get(TrackProperty.URN));
     }
 
     @Test
     public void shouldReturnSingleChangeSetFromSingularChangeEvent() {
         PropertySet track = TestPropertySets.fromApiTrack();
-        EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.fromLike(track);
+        EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.fromLike(Collections.singletonList(track));
         assertThat(singleChangeEvent.getNextChangeSet()).isEqualTo(track);
     }
 }

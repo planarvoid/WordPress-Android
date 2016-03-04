@@ -38,6 +38,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import java.util.Collections;
+
 public class ProfilePresenterTest extends AndroidUnitTest {
 
     private static final int DIVIDER_WIDTH = 55;
@@ -122,7 +124,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(updatedProfileUser));
 
         final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(USER_URN));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(userProperties));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Collections.singletonList(userProperties)));
 
         verify(profileHeaderPresenter).setUserDetails(updatedProfileUser);
     }
@@ -133,7 +135,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         Mockito.reset(profileOperations);
 
         final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(Urn.forUser(444)));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(userProperties));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Collections.singletonList(userProperties)));
 
         verifyZeroInteractions(profileOperations);
     }

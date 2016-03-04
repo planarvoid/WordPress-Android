@@ -17,6 +17,7 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collections;
 
 public class LikeOperations {
 
@@ -29,7 +30,8 @@ public class LikeOperations {
     private final Action1<PropertySet> publishPlayableChanged = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet changeSet) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(changeSet));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                    EntityStateChangedEvent.fromLike(Collections.singletonList(changeSet)));
         }
     };
 

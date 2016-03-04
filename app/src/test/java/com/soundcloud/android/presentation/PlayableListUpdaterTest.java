@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import android.support.v4.app.Fragment;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public class PlayableListUpdaterTest extends AndroidUnitTest {
 
@@ -126,7 +127,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
         when(adapter.getItems()).thenReturn(Arrays.<PlayableItem>asList(track1, track2));
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(changeSet);
+        final EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(Collections.singletonList(changeSet));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
         verify(adapter, never()).notifyDataSetChanged();
@@ -139,6 +140,6 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
                 PlayableProperty.CREATOR_NAME.bind(UPDATED_CREATOR));
 
         when(adapter.getItems()).thenReturn(Arrays.<PlayableItem>asList(track1, track2));
-        return EntityStateChangedEvent.fromLike(changeSet);
+        return EntityStateChangedEvent.fromLike(Collections.singletonList(changeSet));
     }
 }

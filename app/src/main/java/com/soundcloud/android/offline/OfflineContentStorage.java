@@ -8,6 +8,7 @@ import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Tables.OfflineContent;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.ChangeResult;
@@ -63,18 +64,18 @@ class OfflineContentStorage {
         return isOfflineLikedTracksEnabledCommand.toObservable(null);
     }
 
-    public Observable<ChangeResult> storeAsOfflinePlaylist(Urn playlistUrn) {
-        return propellerRx.upsert(OfflineContent.TABLE, buildContentValuesForPlaylist(playlistUrn));
+    public Observable<TxnResult> storeAsOfflinePlaylists(final List<Urn> playlistUrns) {
+        return propellerRx.bulkUpsert(OfflineContent.TABLE, buildContentValuesForPlaylist(playlistUrns));
     }
 
-    Observable<ChangeResult> removePlaylistFromOffline(Urn playlistUrn) {
+    Observable<ChangeResult> removePlaylistsFromOffline(List<Urn> playlistUrns) {
         return propellerRx.delete(
                 OfflineContent.TABLE,
-                playlistFilter(playlistUrn)
+                playlistFilter(playlistUrns)
         );
     }
 
-    public Observable<TxnResult> setOfflinePlaylists(final List<Urn> expectedOfflinePlaylists) {
+    public Observable<TxnResult> resetOfflinePlaylists(final List<Urn> expectedOfflinePlaylists) {
         return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
@@ -142,6 +143,12 @@ class OfflineContentStorage {
     private Where playlistFilter(Urn urn) {
         return filter()
                 .whereEq(OfflineContent._ID, urn.getNumericId())
+                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
+    }
+
+    private Where playlistFilter(List<Urn> urns) {
+        return filter()
+                .whereIn(OfflineContent._ID, Urns.toIds(urns))
                 .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
     }
 

@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.OfflineContentChangedEvent.requested;
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -201,7 +202,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     public void startOfflineSyncOnPolicyUpdateEvent() {
         controller.subscribe();
 
-        eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.create(Collections.singletonList(Urn.forTrack(123L))));
+        eventBus.publish(EventQueue.POLICY_UPDATES, PolicyUpdateEvent.create(singletonList(Urn.forTrack(123L))));
 
         startServiceSubscriber.assertValueCount(1);
     }
@@ -210,7 +211,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     public void addOfflinePlaylistOnCreationWhenOfflineCollectionEnabled() {
         final PublishSubject<Void> makeAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        when(offlineContentOperations.makePlaylistAvailableOffline(PLAYLIST)).thenReturn(makeAvailableOffline);
+        when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(makeAvailableOffline);
 
         controller.subscribe();
 
@@ -225,7 +226,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     public void addOfflinePlaylistOnLikeWhenOfflineCollectionEnabled() {
         final PublishSubject<Void> makeAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        when(offlineContentOperations.makePlaylistAvailableOffline(PLAYLIST)).thenReturn(makeAvailableOffline);
+        when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(makeAvailableOffline);
 
         controller.subscribe();
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(PLAYLIST, true, 1));
@@ -239,7 +240,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     public void dontAddAgainOfflinePlaylistOnLikeWhenOfflineCollectionEnabled() {
         // Note : If not, this would trigger an inifinite loop.
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        when(offlineContentOperations.makePlaylistAvailableOffline(PLAYLIST)).thenReturn(Observable.<Void>empty());
+        when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(Observable.<Void>empty());
         when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
 
         controller.subscribe();

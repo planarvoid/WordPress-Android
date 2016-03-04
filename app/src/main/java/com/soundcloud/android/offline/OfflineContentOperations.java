@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.rx.RxUtils.continueWith;
+import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.collection.CollectionOperations;
@@ -14,7 +15,6 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -70,10 +70,10 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Func1<List<Urn>, Observable<TxnResult>> setOfflinePlaylists = new Func1<List<Urn>, Observable<TxnResult>>() {
+    private final Func1<List<Urn>, Observable<TxnResult>> resetOfflinePlaylists = new Func1<List<Urn>, Observable<TxnResult>>() {
         @Override
         public Observable<TxnResult> call(List<Urn> playlists) {
-            return offlineContentStorage.setOfflinePlaylists(playlists);
+            return offlineContentStorage.resetOfflinePlaylists(playlists);
         }
     };
 
@@ -146,7 +146,7 @@ public class OfflineContentOperations {
 
     private Observable<TxnResult> setMyPlaylistsAsOfflinePlaylists() {
         return collectionOperations.myPlaylists().map(TO_URN)
-                .flatMap(setOfflinePlaylists);
+                .flatMap(resetOfflinePlaylists);
     }
 
     public void disableOfflineCollection() {
@@ -191,27 +191,35 @@ public class OfflineContentOperations {
         return offlineContentStorage.isOfflinePlaylist(playlist).subscribeOn(scheduler);
     }
 
-    public Observable<Void> makePlaylistAvailableOffline(final Urn playlistUrn) {
+    public Observable<Void> makePlaylistAvailableOffline(final Urn playlist) {
+        return makePlaylistAvailableOffline(singletonList(playlist));
+    }
+
+    public Observable<Void> makePlaylistAvailableOffline(final List<Urn> playlistUrns) {
         return offlineContentStorage
-                .storeAsOfflinePlaylist(playlistUrn)
+                .storeAsOfflinePlaylists(playlistUrns)
                 .doOnNext(serviceInitiator.startFromUserAction())
-                .flatMap(syncPlaylist(playlistUrn))
+                .flatMap(syncPlaylists(playlistUrns))
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
 
-    private Func1<ChangeResult, Observable<SyncResult>> syncPlaylist(final Urn playlistUrn) {
-        return new Func1<ChangeResult, Observable<SyncResult>>() {
+    private Func1<TxnResult, Observable<SyncResult>> syncPlaylists(final List<Urn> playlistUrns) {
+        return new Func1<TxnResult, Observable<SyncResult>>() {
             @Override
-            public Observable<SyncResult> call(ChangeResult changeResult) {
-                return syncInitiator.syncPlaylist(playlistUrn);
+            public Observable<SyncResult> call(TxnResult changeResult) {
+                return syncInitiator.syncPlaylists(playlistUrns);
             }
         };
     }
 
     public Observable<Void> makePlaylistUnavailableOffline(final Urn playlistUrn) {
+        return makePlaylistUnavailableOffline(singletonList(playlistUrn));
+    }
+
+    public Observable<Void> makePlaylistUnavailableOffline(final List<Urn> playlistUrn) {
         return offlineContentStorage
-                .removePlaylistFromOffline(playlistUrn)
+                .removePlaylistsFromOffline(playlistUrn)
                 .doOnNext(eventBus.publishAction1(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.removed(playlistUrn)))
                 .doOnNext(serviceInitiator.startFromUserAction())
                 .doOnNext(serviceScheduler.scheduleCleanupAction())

@@ -59,7 +59,11 @@ public final class OfflineContentChangedEvent {
     }
 
     public static OfflineContentChangedEvent removed(Urn entity) {
-        return new OfflineContentChangedEvent(OfflineState.NOT_OFFLINE, singletonList(entity), false);
+        return removed(singletonList(entity));
+    }
+
+    public static OfflineContentChangedEvent removed(Collection<Urn> entities) {
+        return new OfflineContentChangedEvent(OfflineState.NOT_OFFLINE, entities, false);
     }
 
     public static OfflineContentChangedEvent removed(boolean isLikedTrackCollection) {
