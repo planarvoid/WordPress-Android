@@ -122,6 +122,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Test
     public void returnConnectionErrorWhenIOExceptionThrown() throws IOException {
         when(httpClient.getFileStream(streamUrl)).thenThrow(new IOException());
+        when(downloadConnectionHelper.isNetworkDisconnected()).thenReturn(true);
 
         assertThat(operations.download(downloadRequest, listener).isConnectivityError()).isTrue();
     }

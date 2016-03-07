@@ -64,6 +64,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class)))
                 .thenReturn(downloadMessage);
+        when(downloadOperations.isConnectionValid()).thenReturn(true);
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         when(offlineContentOperations.loadOfflineContentUpdates())
                 .thenReturn(Observable.<OfflineContentUpdates>never());
@@ -325,6 +326,30 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
 
         verify(publisher).publishRemoved(downloadRequest1.getTrack());
+    }
+
+    @Test
+    public void cancelsDownloadingWhenConnectionIsNotValidAnymore() {
+        when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
+        when(downloadOperations.isConnectionValid()).thenReturn(false);
+        setUpsDownloads(downloadRequest1, downloadRequest2);
+
+        startService();
+
+        verify(downloadHandler).cancel();
+    }
+
+    @Test
+    public void publishRequestedWhenCancelingDownloadBecauseOfConnectionNotAllowed() {
+        when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
+        when(downloadOperations.isConnectionValid()).thenReturn(false);
+        setUpsDownloads(downloadRequest1, downloadRequest2);
+
+        startService();
+
+        verify(publisher).publishRequested(downloadRequest1.getTrack());
     }
 
     @Test

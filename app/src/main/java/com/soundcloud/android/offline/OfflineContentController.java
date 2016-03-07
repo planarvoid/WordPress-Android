@@ -3,6 +3,7 @@ package com.soundcloud.android.offline;
 import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_CONTENT_CHANGED_FILTER;
 import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER;
 
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
@@ -38,6 +39,13 @@ public class OfflineContentController {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.containsUnlikedPlaylist() || event.containsDeletedPlaylist();
+        }
+    };
+
+    private static final Func1<ConnectionType, Boolean> IS_KNOWN_CONNECTION_TYPE = new Func1<ConnectionType, Boolean>() {
+        @Override
+        public Boolean call(ConnectionType connectionType) {
+            return connectionType != ConnectionType.UNKNOWN;
         }
     };
 
@@ -108,7 +116,7 @@ public class OfflineContentController {
         return Observable
                 .merge(offlinePlaylistChanged(),
                         offlineTrackLikedChanged(),
-                        syncOverWifiOnlySettingChanged(),
+                        networkOrWifiOnlySettingChanged(),
                         policyUpdates(),
                         offlineCollectionChanged()
                 )
@@ -149,10 +157,13 @@ public class OfflineContentController {
                 .filter(RxUtils.IS_TRUE);
     }
 
-    private Observable<Boolean> syncOverWifiOnlySettingChanged() {
-        // TODO : BUG when 3g -> wifi only ?
-        // https://soundcloud.atlassian.net/browse/COLLECTION-276
-        return syncWifiOnlyToggled.filter(RxUtils.IS_FALSE);
+    private Observable<Object> networkOrWifiOnlySettingChanged() {
+        return Observable.merge(
+                eventBus.queue(EventQueue.NETWORK_CONNECTION_CHANGED)
+                        .filter(IS_KNOWN_CONNECTION_TYPE)
+                        .cast(Object.class),
+                syncWifiOnlyToggled
+        );
     }
 
     private Observable<PolicyUpdateEvent> policyUpdates() {

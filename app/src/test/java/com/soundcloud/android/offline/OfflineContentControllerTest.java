@@ -5,6 +5,7 @@ import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PolicyUpdateEvent;
@@ -137,12 +138,21 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doesNotStartOfflineSyncWhenWifiOnlySyncWasEnabled() {
+    public void startsOfflineSyncWhenWifiOnlySyncWasEnabled() {
         controller.subscribe();
 
         wifiOnlyToggleSetting.onNext(true);
 
-        startServiceSubscriber.assertNoValues();
+        startServiceSubscriber.assertValueCount(1);
+    }
+
+    @Test
+    public void restartsOfflineSyncWhenConnectionChanges() {
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.OFFLINE);
+
+        startServiceSubscriber.assertValueCount(1);
     }
 
     @Test
