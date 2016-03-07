@@ -15,12 +15,9 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSubscriber;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
@@ -52,10 +49,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private final ShareOperations shareOperations;
     private final PlaylistOperations playlistOperations;
     private final ScreenProvider screenProvider;
-    private final PlaybackInitiator playbackInitiator;
-    private final PlaybackToastHelper playbackToastHelper;
-    private final FeatureFlags featureFlags;
-    private final DelayedLoadingDialogPresenter.Builder dialogBuilder;
     private final StartStationPresenter startStationPresenter;
     private final AccountOperations accountOperations;
 
@@ -65,7 +58,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private Urn pageUrn;
     private int positionInAdapter;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
-    private Subscription relatedTracksPlaybackSubscription = RxUtils.invalidSubscription();
 
     @Nullable private RemoveTrackListener removeTrackListener;
 
@@ -78,16 +70,15 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     @Inject
     TrackItemMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
                            TrackRepository trackRepository,
-                           EventBus eventBus, Context context,
+                           EventBus eventBus,
+                           Context context,
                            LikeOperations likeOperations,
-                           RepostOperations repostOperations, PlaylistOperations playlistOperations,
+                           RepostOperations repostOperations,
+                           PlaylistOperations playlistOperations,
                            ScreenProvider screenProvider,
-                           PlaybackInitiator playbackInitiator,
-                           PlaybackToastHelper playbackToastHelper,
-                           FeatureFlags featureFlags,
                            ShareOperations shareOperations,
-                           DelayedLoadingDialogPresenter.Builder dialogBuilder,
-                           StartStationPresenter startStationPresenter, AccountOperations accountOperations) {
+                           StartStationPresenter startStationPresenter,
+                           AccountOperations accountOperations) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackRepository = trackRepository;
         this.eventBus = eventBus;
@@ -96,10 +87,6 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         this.repostOperations = repostOperations;
         this.playlistOperations = playlistOperations;
         this.screenProvider = screenProvider;
-        this.playbackInitiator = playbackInitiator;
-        this.playbackToastHelper = playbackToastHelper;
-        this.featureFlags = featureFlags;
-        this.dialogBuilder = dialogBuilder;
         this.startStationPresenter = startStationPresenter;
         this.shareOperations = shareOperations;
         this.accountOperations = accountOperations;

@@ -73,8 +73,8 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("screen");
 
         presenter = new TrackItemMenuPresenter(popupMenuWrapperFactory, trackRepository, eventBus, context,
-                likeOperations, repostOperations, playlistOperations, screenProvider, playbackInitiator, playbackToastHelper,
-                featureFlags, shareOperations, dialogBuilder, startStationPresenter, accountOperations);
+                likeOperations, repostOperations, playlistOperations, screenProvider, shareOperations,
+                startStationPresenter, accountOperations);
     }
 
     @Test
