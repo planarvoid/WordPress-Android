@@ -1,13 +1,14 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.events.EventQueue;
@@ -20,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 public class PlayPublisherTest extends AndroidUnitTest {
 
@@ -30,7 +30,7 @@ public class PlayPublisherTest extends AndroidUnitTest {
     private PlayPublisher playPublisher;
 
     @Mock private GcmStorage gcmStorage;
-    @Mock private ApiClientRx apiClient;
+    @Mock private ApiClient apiClient;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -44,35 +44,24 @@ public class PlayPublisherTest extends AndroidUnitTest {
 
     @Test
     public void playEventCausesPlayPublishApiRequest() {
-        final PublishSubject<ApiResponse> apiResponseSubject = PublishSubject.create();
-        when(apiClient.response(argThat(isPublicApiRequestTo("POST", "/tpub")
-                .withContent(new PlayPublisher.Payload(resources().getString(R.string.gcm_gateway_id), "token", 123L, TRACK_URN))))).thenReturn(apiResponseSubject);
+        when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(new ApiResponse(null, 200, "body"));
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN));
 
-        assertThat(apiResponseSubject.hasObservers()).isTrue();
+        verify(apiClient).fetchResponse(argThat(isPublicApiRequestTo("POST", "/tpub").withContent(new PlayPublisher.Payload(resources().getString(R.string.gcm_gateway_id), "token", 123L, TRACK_URN))));
     }
 
     @Test
     public void bufferingEventDoesNotCausePlayPublishApiRequest() {
-        final PublishSubject<ApiResponse> apiResponseSubject = PublishSubject.create();
-        when(apiClient.response(any(ApiRequest.class))).thenReturn(apiResponseSubject);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, TRACK_URN));
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, TRACK_URN));
-
-        assertThat(apiResponseSubject.hasObservers()).isFalse();
+        verify(apiClient, never()).fetchResponse(any(ApiRequest.class));
     }
 
     @Test
     public void idleEventDoesNotCausePlayPublishApiRequest() {
-        final PublishSubject<ApiResponse> apiResponseSubject = PublishSubject.create();
-        when(apiClient.response(any(ApiRequest.class))).thenReturn(apiResponseSubject);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, TRACK_URN));
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, TRACK_URN));
-
-        assertThat(apiResponseSubject.hasObservers()).isFalse();
+        verify(apiClient, never()).fetchResponse(any(ApiRequest.class));
     }
 }
