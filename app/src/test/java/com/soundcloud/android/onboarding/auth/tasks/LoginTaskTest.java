@@ -1,14 +1,19 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.accounts.FetchMeCommand;
 import com.soundcloud.android.accounts.Me;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -18,6 +23,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,26 +31,33 @@ import org.mockito.Mock;
 
 import android.os.Bundle;
 
+import java.io.IOException;
+import java.util.Collections;
+
 public class LoginTaskTest extends AndroidUnitTest {
 
     @Mock private SoundCloudApplication application;
     @Mock private TokenInformationGenerator tokenInformationGenerator;
-    @Mock private FetchMeCommand fetchMeCommand;
     @Mock private Token token;
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountOperations accountOperations;
-
+    @Mock private ApiClient apiClient;
     private ApiUser user = ModelFixtures.create(ApiUser.class);
+    private Bundle bundle;
 
     private LoginTask loginTask;
-    private Bundle bundle;
 
     @Before
     public void setUp() throws Exception {
         bundle = new Bundle();
-        loginTask = new LoginTask(application, tokenInformationGenerator, fetchMeCommand, storeUsersCommand,
-                configurationOperations, new TestEventBus(), accountOperations);
+        loginTask = new LoginTask(application, tokenInformationGenerator, storeUsersCommand,
+                configurationOperations, new TestEventBus(), accountOperations, apiClient);
+
+        when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
+        when(apiClient.fetchMappedResponse(argThat(
+                isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class)))
+                .thenReturn(Me.create(user));
     }
 
     @Test
@@ -61,15 +74,15 @@ public class LoginTaskTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldMakeRequestToCurrentUser() throws Exception {
+    public void shouldStoreCurrentUser() throws Exception {
         setupMocksToReturnToken();
         loginTask.doInBackground(bundle);
-        verify(fetchMeCommand).call(null);
+        verify(storeUsersCommand).call(Collections.singleton(user));
     }
 
     @Test
     public void shouldReturnAuthenticationFailureIfUserPersistenceFails() throws Exception {
-        when(fetchMeCommand.call(any(Void.class))).thenReturn(null);
+        when(apiClient.fetchMappedResponse(any(ApiRequest.class), any(TypeToken.class))).thenThrow(new IOException());
         AuthTaskResult result = loginTask.doInBackground(bundle);
         assertThat(result.wasSuccess()).isFalse();
     }
@@ -161,7 +174,6 @@ public class LoginTaskTest extends AndroidUnitTest {
 
     private void setupMocksToReturnToken() throws Exception {
         when(tokenInformationGenerator.getToken(bundle)).thenReturn(token);
-        when(fetchMeCommand.call(any(Void.class))).thenReturn(Me.create(user));
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false));
     }
 

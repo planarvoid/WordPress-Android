@@ -7,8 +7,10 @@ import static com.soundcloud.android.utils.ErrorUtils.log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.accounts.FetchMeCommand;
 import com.soundcloud.android.accounts.Me;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -21,6 +23,7 @@ import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.AddAccountException;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,21 +35,21 @@ public class LoginTask extends AuthTask {
     @VisibleForTesting
     static String IS_CONFLICTING_DEVICE = "isConflictingDevice";
 
-    private FetchMeCommand fetchMeCommand;
     private final ConfigurationOperations configurationOperations;
     private final EventBus eventBus;
     protected final AccountOperations accountOperations;
+    private final ApiClient apiClient;
     protected final TokenInformationGenerator tokenUtils;
 
     public LoginTask(@NotNull SoundCloudApplication application, TokenInformationGenerator tokenUtils,
-                     FetchMeCommand fetchMeCommand, StoreUsersCommand storeUsersCommand, ConfigurationOperations configurationOperations,
-                     EventBus eventBus, AccountOperations accountOperations) {
+                     StoreUsersCommand storeUsersCommand, ConfigurationOperations configurationOperations,
+                     EventBus eventBus, AccountOperations accountOperations, ApiClient apiClient) {
         super(application, storeUsersCommand);
         this.tokenUtils = tokenUtils;
-        this.fetchMeCommand = fetchMeCommand;
         this.configurationOperations = configurationOperations;
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
+        this.apiClient = apiClient;
     }
 
     @Override
@@ -79,7 +82,7 @@ public class LoginTask extends AuthTask {
 
             accountOperations.updateToken(token);
 
-            final Me me = fetchMeCommand.call(null);
+            final Me me = apiClient.fetchMappedResponse(buildRequest(), new TypeToken<Me>() {});
             if (me == null) {
                 return AuthTaskResult.failure(getString(R.string.authentication_error_no_connection_message));
             }
@@ -99,5 +102,11 @@ public class LoginTask extends AuthTask {
             log(INFO, ONBOARDING_TAG, "error retrieving SC API token: " + e.getMessage());
             return AuthTaskResult.failure(new TokenRetrievalException(e));
         }
+    }
+
+    protected ApiRequest buildRequest() {
+        return ApiRequest.get(ApiEndpoints.ME.path())
+                .forPrivateApi(1)
+                .build();
     }
 }
