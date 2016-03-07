@@ -4,7 +4,7 @@ import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
@@ -19,6 +19,7 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Func0;
 import rx.functions.Func1;
 
 import android.content.res.Resources;
@@ -36,7 +37,7 @@ public class PlayPublisher {
     private final DateProvider dateProvider;
     private final EventBus eventBus;
     private final Scheduler scheduler;
-    private final ApiClientRx apiClient;
+    private final ApiClient apiClient;
 
     private static final Func1<Player.StateTransition, Boolean> IS_PLAYER_PLAYING_A_TRACK =
             new Func1<Player.StateTransition, Boolean>() {
@@ -48,21 +49,27 @@ public class PlayPublisher {
 
     private Func1<Player.StateTransition, Observable<ApiResponse>> toApiResponse = new Func1<Player.StateTransition, Observable<ApiResponse>>() {
         @Override
-        public Observable<ApiResponse> call(Player.StateTransition stateTransition) {
-            final Payload payload = createPayload(stateTransition);
-            final ApiRequest apiRequest = ApiRequest
-                    .post(ApiEndpoints.PLAY_PUBLISH.path())
-                    .forPublicApi()
-                    .withContent(payload)
-                    .build();
-
-            return apiClient.response(apiRequest).subscribeOn(scheduler);
+        public Observable<ApiResponse> call(final Player.StateTransition stateTransition) {
+            return Observable
+                    .defer(new Func0<Observable<ApiResponse>>() {
+                        @Override
+                        public Observable<ApiResponse> call() {
+                            final Payload payload = createPayload(stateTransition);
+                            final ApiRequest apiRequest = ApiRequest
+                                    .post(ApiEndpoints.PLAY_PUBLISH.path())
+                                    .forPublicApi()
+                                    .withContent(payload)
+                                    .build();
+                            return Observable.just(apiClient.fetchResponse(apiRequest));
+                        }
+                    })
+                    .subscribeOn(scheduler);
         }
     };
 
     @Inject
     public PlayPublisher(Resources resources, GcmStorage gcmStorage, CurrentDateProvider dateProvider, EventBus eventBus,
-                         @Named(HIGH_PRIORITY) Scheduler scheduler, ApiClientRx apiClient) {
+                         @Named(HIGH_PRIORITY) Scheduler scheduler, ApiClient apiClient) {
         this.resources = resources;
         this.gcmStorage = gcmStorage;
         this.dateProvider = dateProvider;
