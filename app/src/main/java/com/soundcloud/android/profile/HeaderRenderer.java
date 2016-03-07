@@ -3,7 +3,7 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 
-import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -18,28 +18,32 @@ class HeaderRenderer implements CellRenderer<UserSoundsItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return new TextView(parent.getContext());
+        return LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.profile_user_sounds_header, parent, false);
     }
 
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
-        ((TextView) itemView).setText(getText(items.get(position), itemView.getContext()));
+        final UserSoundsItem item = items.get(position);
+        final TextView headerTextView = (TextView) itemView.findViewById(R.id.sounds_header_text);
+
+        headerTextView.setText(getText(item));
     }
 
-    public String getText(UserSoundsItem item, Context context) {
+    public int getText(UserSoundsItem item) {
         switch (item.getCollectionType()) {
             case UserSoundsTypes.SPOTLIGHT:
-                return context.getString(R.string.user_profile_sounds_header_spotlight);
+                return R.string.user_profile_sounds_header_spotlight;
             case UserSoundsTypes.TRACKS:
-                return context.getString(R.string.user_profile_sounds_header_tracks);
+                return R.string.user_profile_sounds_header_tracks;
             case UserSoundsTypes.RELEASES:
-                return context.getString(R.string.user_profile_sounds_header_releases);
+                return R.string.user_profile_sounds_header_releases;
             case UserSoundsTypes.PLAYLISTS:
-                return context.getString(R.string.user_profile_sounds_header_playlists);
+                return R.string.user_profile_sounds_header_playlists;
             case UserSoundsTypes.REPOSTS:
-                return context.getString(R.string.user_profile_sounds_header_reposts);
+                return R.string.user_profile_sounds_header_reposts;
             case UserSoundsTypes.LIKES:
-                return context.getString(R.string.user_profile_sounds_header_likes);
+                return R.string.user_profile_sounds_header_likes;
             default:
                 throw new IllegalArgumentException("No User Sound Item of the given type");
         }
