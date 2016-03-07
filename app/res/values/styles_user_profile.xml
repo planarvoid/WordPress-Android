@@ -145,23 +145,32 @@
 
     <style name="Profile.Sounds" />
 
-    <style name="Profile.Sounds.Bucket" />
-
-    <style name="Profile.Sounds.Bucket.Heading">
+    <style name="Profile.Sounds.Heading" parent="TextAppearance.SoundCloudRegularFont">
+        <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:padding">14sp</item>
-        <item name="android:textColor">@color/user_sounds_bucket_header</item>
+        <item name="android:lineSpacingMultiplier">1</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:textColor">@color/user_sounds_header</item>
+        <item name="android:background">@android:color/white</item>
     </style>
 
-    <style name="Profile.Sounds.Bucket.ViewAll">
-        <item name="android:singleLine">true</item>
+    <style name="Profile.Sounds.ViewAll" />
+
+    <style name="Profile.Sounds.ViewAll.Container">
+        <item name="android:background">@drawable/user_profile_view_all_bottom</item>
         <item name="android:padding">14sp</item>
-        <item name="android:textSize">14sp</item>
         <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/list_primary</item>
-        <item name="android:background">@drawable/divider_bottom</item>
+    </style>
+
+    <style name="Profile.Sounds.ViewAll.Text" parent="TextAppearance.SoundCloudRegularFont">
+        <item name="android:textColor">@color/user_sounds_view_all</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">true</item>
+        <item name="android:drawablePadding">6dp</item>
     </style>
 
 </resources>
