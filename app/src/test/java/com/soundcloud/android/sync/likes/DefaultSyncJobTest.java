@@ -1,18 +1,18 @@
 package com.soundcloud.android.sync.likes;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultSyncJobTest {
     
     private DefaultSyncJob defaultSyncJob;
@@ -29,7 +29,7 @@ public class DefaultSyncJobTest {
         when(syncer.call()).thenReturn(true);
 
         defaultSyncJob.run();
-        expect(defaultSyncJob.resultedInAChange()).toBeTrue();
+        assertThat(defaultSyncJob.resultedInAChange()).isTrue();
     }
 
     @Test
@@ -39,7 +39,7 @@ public class DefaultSyncJobTest {
 
         defaultSyncJob.run();
 
-        expect(defaultSyncJob.getException()).toBe(ioException);
+        assertThat(defaultSyncJob.getException()).isSameAs(ioException);
     }
 
     @Test
@@ -49,6 +49,6 @@ public class DefaultSyncJobTest {
 
         defaultSyncJob.run();
 
-        expect(defaultSyncJob.wasSuccess()).toBeFalse();
+        assertThat(defaultSyncJob.wasSuccess()).isFalse();
     }
 }

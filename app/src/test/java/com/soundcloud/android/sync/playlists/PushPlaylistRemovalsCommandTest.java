@@ -1,7 +1,8 @@
 package com.soundcloud.android.sync.playlists;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
@@ -11,20 +12,18 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.api.TestApiResponses;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PushPlaylistRemovalsCommandTest {
+public class PushPlaylistRemovalsCommandTest extends AndroidUnitTest {
     private PushPlaylistRemovalsCommand command;
 
     @Mock private ApiClient apiClient;
@@ -49,14 +48,14 @@ public class PushPlaylistRemovalsCommandTest {
                 isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))));
         verify(apiClient).fetchResponse(argThat(
                 isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track2))));
-        expect(result).toBe(input);
+        assertThat(result).isSameAs(input);
     }
 
     @Test(expected = ApiRequestException.class)
     public void throwsExceptionOnNetworkError() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(1);
         final Urn track1 = Urn.forTrack(1);
-        final List<Urn> input = Arrays.asList(track1);
+        final List<Urn> input = singletonList(track1);
 
         when(apiClient.fetchResponse(argThat(
                 isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))))).thenReturn(TestApiResponses.networkError());
@@ -68,7 +67,7 @@ public class PushPlaylistRemovalsCommandTest {
     public void throwsExceptionOnServerError() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(1);
         final Urn track1 = Urn.forTrack(1);
-        final List<Urn> input = Arrays.asList(track1);
+        final List<Urn> input = singletonList(track1);
 
         when(apiClient.fetchResponse(argThat(
                 isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))))).thenReturn(TestApiResponses.status(502));

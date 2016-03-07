@@ -1,21 +1,18 @@
 package com.soundcloud.android.sync.playlists;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.playlists.PlaylistTrackProperty;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Date;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
 public class LoadPlaylistTracksWithChangesCommandTest extends StorageIntegrationTest {
 
     private LoadPlaylistTracksWithChangesCommand command;
@@ -34,7 +31,7 @@ public class LoadPlaylistTracksWithChangesCommandTest extends StorageIntegration
 
         List<PropertySet> playlistTracks = command.with(playlist.getUrn()).call();
 
-        expect(playlistTracks).toContainExactly(
+        assertThat(playlistTracks).containsExactly(
                 PropertySet.from(
                         PlaylistTrackProperty.TRACK_URN.bind(track1.getUrn())
                 ),

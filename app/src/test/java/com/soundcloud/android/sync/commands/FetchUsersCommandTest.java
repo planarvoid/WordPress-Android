@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync.commands;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
@@ -12,21 +12,19 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-@RunWith(SoundCloudTestRunner.class)
-public class FetchUsersCommandTest {
+public class FetchUsersCommandTest extends AndroidUnitTest {
 
     private FetchUsersCommand command;
 
@@ -45,7 +43,7 @@ public class FetchUsersCommandTest {
         setupRequest(urns, users);
 
         Collection<PublicApiUser> result = command.with(urns).call();
-        expect(result).toEqual(users);
+        assertThat(result).isEqualTo(users);
     }
 
     @Test
@@ -57,7 +55,7 @@ public class FetchUsersCommandTest {
         setupRequest(urns.subList(2, 3), users.subList(2, 3));
 
         Collection<PublicApiUser> result = command.with(urns).call();
-        expect(result).toEqual(users);
+        assertThat(result).isEqualTo(users);
     }
 
     private void setupRequest(List<Urn> urns, List<PublicApiUser> users) throws Exception {

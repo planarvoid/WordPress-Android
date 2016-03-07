@@ -1,7 +1,8 @@
 package com.soundcloud.android.sync.posts;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
@@ -9,18 +10,14 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-
-@RunWith(SoundCloudTestRunner.class)
-public class FetchPostsCommandTest {
+public class FetchPostsCommandTest extends AndroidUnitTest {
 
     private FetchPostsCommand command;
 
@@ -34,10 +31,11 @@ public class FetchPostsCommandTest {
     @Test
     public void fetchesPostsViaApiMobile() throws Exception {
         final ApiPostItem apiTrackPostItem = ModelFixtures.apiTrackPostItem();
-        final ModelCollection<ApiPostItem> response = new ModelCollection<>(Arrays.asList(apiTrackPostItem));
+        final ModelCollection<ApiPostItem> response = new ModelCollection<>(singletonList(apiTrackPostItem));
         when(apiClient.fetchMappedResponse(
-                argThat(isApiRequestTo("GET", ApiEndpoints.MY_PLAYLIST_POSTS.path())), isA(TypeToken.class))).thenReturn(response);
+                argThat(isApiRequestTo("GET", ApiEndpoints.MY_PLAYLIST_POSTS.path())), isA(TypeToken.class)))
+                .thenReturn(response);
 
-        expect(command.with(ApiEndpoints.MY_PLAYLIST_POSTS).call()).toContainExactly(apiTrackPostItem.toPropertySet());
+        assertThat(command.with(ApiEndpoints.MY_PLAYLIST_POSTS).call()).containsExactly(apiTrackPostItem.toPropertySet());
     }
 }
