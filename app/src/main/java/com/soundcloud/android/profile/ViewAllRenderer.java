@@ -3,6 +3,7 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -17,12 +18,32 @@ public class ViewAllRenderer implements CellRenderer<UserSoundsItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return new TextView(parent.getContext());
+        return LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.profile_user_sounds_view_all, parent, false);
     }
 
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
-        //TODO: Need to display separate text for collection type (fix in styling story)
-        ((TextView) itemView).setText(itemView.getContext().getString(R.string.user_profile_sounds_view_all));
+        final TextView viewAllTextView = (TextView) itemView.findViewById(R.id.sounds_view_all_text);
+
+        viewAllTextView.setText(getText(items.get(position)));
+    }
+
+    private int getText(UserSoundsItem item) {
+        switch (item.getCollectionType()) {
+            case UserSoundsTypes.TRACKS:
+                return R.string.user_profile_sounds_view_all_tracks;
+            case UserSoundsTypes.RELEASES:
+                return R.string.user_profile_sounds_view_all_releases;
+            case UserSoundsTypes.PLAYLISTS:
+                return R.string.user_profile_sounds_view_all_playlists;
+            case UserSoundsTypes.REPOSTS:
+                return R.string.user_profile_sounds_view_all_reposts;
+            case UserSoundsTypes.LIKES:
+                return R.string.user_profile_sounds_view_all_likes;
+            default:
+                //Shouldn't ideally land here. Just a safeguard.
+                return R.string.user_profile_sounds_view_all;
+        }
     }
 }

@@ -90,6 +90,8 @@ public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserS
             final List<UserSoundsItem> items = new ArrayList<>(3 + itemsToMap.getCollection().size());
 
             if (!itemsToMap.getCollection().isEmpty()) {
+                items.add(UserSoundsItem.fromDivider());
+
                 items.add(UserSoundsItem.fromHeader(collectionType));
 
                 items.addAll(transform(
@@ -99,8 +101,6 @@ public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserS
                 if (itemsToMap.getNextLink().isPresent()) {
                     items.add(UserSoundsItem.fromViewAll(collectionType));
                 }
-
-                items.add(UserSoundsItem.fromDivider());
             }
             return items;
         }
