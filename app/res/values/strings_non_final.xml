@@ -149,12 +149,8 @@
     <string name="user_profile_sounds_header_playlists">Playlists</string>
     <string name="user_profile_sounds_header_reposts">Reposts</string>
     <string name="user_profile_sounds_header_likes">Likes</string>
-    <string name="user_profile_sounds_view_all">View all</string>
-    <string name="user_profile_sounds_view_all_tracks">View all tracks</string>
-    <string name="user_profile_sounds_view_all_releases">View all releases</string>
-    <string name="user_profile_sounds_view_all_playlists">View all playlists</string>
-    <string name="user_profile_sounds_view_all_reposts">View all reposts</string>
-    <string name="user_profile_sounds_view_all_likes">View all likes</string>
+    <string name="user_profile_sounds_divider_temp_text">DIVIDER</string>
+    <string name="user_profile_sounds_view_all">View All</string>
 
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Go ad-free</string>

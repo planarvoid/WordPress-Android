@@ -54,18 +54,18 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
         List<UserSoundsItem> result = new UserSoundsMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 
         assertThat(result.size()).isEqualTo(4);
-        assertThat(result.get(0).getItemType()).isEqualTo(UserSoundsItem.TYPE_DIVIDER);
+        assertThat(result.get(0).getItemType()).isEqualTo(UserSoundsItem.TYPE_HEADER);
+        assertThat(result.get(0).getCollectionType()).isEqualTo(UserSoundsTypes.TRACKS);
 
-        assertThat(result.get(1).getItemType()).isEqualTo(UserSoundsItem.TYPE_HEADER);
-        assertThat(result.get(1).getCollectionType()).isEqualTo(UserSoundsTypes.TRACKS);
-
-        assertThat(result.get(2).getItemType()).isEqualTo(UserSoundsItem.TYPE_TRACK);
-        assertThat(result.get(2).getEntityUrn())
+        assertThat(result.get(1).getItemType()).isEqualTo(UserSoundsItem.TYPE_TRACK);
+        assertThat(result.get(1).getEntityUrn())
                 .isEqualTo(trackPost.toPropertySet().get(EntityProperty.URN));
 
-        assertThat(result.get(3).getItemType()).isEqualTo(UserSoundsItem.TYPE_PLAYLIST);
-        assertThat(result.get(3).getEntityUrn())
+        assertThat(result.get(2).getItemType()).isEqualTo(UserSoundsItem.TYPE_PLAYLIST);
+        assertThat(result.get(2).getEntityUrn())
                 .isEqualTo(playlistPost.toPropertySet().get(EntityProperty.URN));
+
+        assertThat(result.get(3).getItemType()).isEqualTo(UserSoundsItem.TYPE_DIVIDER);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
 
         List<UserSoundsItem> result = new UserSoundsMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 
-        assertThat(result.get(3).getItemType()).isEqualTo(UserSoundsItem.TYPE_VIEW_ALL);
+        assertThat(result.get(2).getItemType()).isEqualTo(UserSoundsItem.TYPE_VIEW_ALL);
     }
 
     private ModelCollection<ApiEntityHolder> toApiEntityHolderCollection(
