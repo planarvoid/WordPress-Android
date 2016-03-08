@@ -223,4 +223,7 @@
     <string name="kill_switch_message">In order to continue using the SoundCloud app, please update to the latest version.</string>
     <string name="kill_switch_confirm">Update now</string>
 
+    <!-- __COLLECTIONS -->
+    <string name="collections_options_toggle_offline">Offline</string>
+
 </resources>

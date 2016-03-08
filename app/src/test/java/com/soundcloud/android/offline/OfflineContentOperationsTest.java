@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -191,6 +192,30 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         subscriber.assertValueCount(1);
         subscriber.assertCompleted();
+    }
+
+    @Test
+    public void makePlaylistAvailableOfflinePublishesEntityStateChange() {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        List<Urn> playlists = singletonList(playlistUrn);
+        when(offlineContentStorage.storeAsOfflinePlaylists(playlists)).thenReturn(Observable.just(txnResult));
+
+        operations.makePlaylistAvailableOffline(playlistUrn).subscribe();
+
+        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        assertThat(event).isEqualTo(EntityStateChangedEvent.fromPlaylistsMarkedForDownload(playlists));
+    }
+
+    @Test
+    public void makePlaylistUnAvailableOfflinePublishesEntityStateChange() {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        List<Urn> playlists = singletonList(playlistUrn);
+        when(offlineContentStorage.removePlaylistsFromOffline(playlists)).thenReturn(Observable.just(changeResult));
+
+        operations.makePlaylistUnavailableOffline(playlistUrn).subscribe();
+
+        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        assertThat(event).isEqualTo(EntityStateChangedEvent.fromPlaylistsUnmarkedForDownload(playlists));
     }
 
     @Test

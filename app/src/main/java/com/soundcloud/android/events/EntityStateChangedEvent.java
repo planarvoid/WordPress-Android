@@ -6,9 +6,12 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.stations.StationProperty;
+import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
 import rx.functions.Func1;
 
@@ -32,6 +35,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int ENTITY_DELETED = 9;
     public static final int PLAYLIST_PUSHED_TO_SERVER = 10;
     public static final int RECENT_STATION_UPDATED = 11;
+    public static final int PLAYLIST_MARKED_FOR_DOWNLOAD = 12;
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -159,6 +163,25 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static EntityStateChangedEvent fromTrackRemovedFromPlaylist(PropertySet newPlaylistState) {
         return create(TRACK_REMOVED_FROM_PLAYLIST, newPlaylistState);
+    }
+
+    public static EntityStateChangedEvent fromPlaylistsMarkedForDownload(List<Urn> playlistUrns) {
+        return create(PLAYLIST_MARKED_FOR_DOWNLOAD, toMarkedForOfflinePropertySets(playlistUrns, true));
+    }
+
+    public static EntityStateChangedEvent fromPlaylistsUnmarkedForDownload(List<Urn> playlistUrns) {
+        return create(PLAYLIST_MARKED_FOR_DOWNLOAD, toMarkedForOfflinePropertySets(playlistUrns, false));
+    }
+
+    private static Collection<PropertySet> toMarkedForOfflinePropertySets(List<Urn> playlistUrns, final boolean markedForOffline) {
+        return MoreCollections.transform(playlistUrns, new Function<Urn, PropertySet>() {
+            @Override
+            public PropertySet apply(Urn urn) {
+                return PropertySet.from(
+                        PlayableProperty.URN.bind(urn),
+                        OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(markedForOffline));
+            }
+        });
     }
 
     static EntityStateChangedEvent create(int kind, Collection<PropertySet> changedEntities) {

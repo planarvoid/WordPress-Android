@@ -1,6 +1,7 @@
 package com.soundcloud.android.collection;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.collections.Lists.transform;
 
@@ -175,6 +176,7 @@ public class CollectionOperations {
                 case EntityStateChangedEvent.LIKE:
                 case EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER:
                 case EntityStateChangedEvent.RECENT_STATION_UPDATED:
+                case EntityStateChangedEvent.PLAYLIST_MARKED_FOR_DOWNLOAD:
                     return true;
                 default:
                     return false;
@@ -300,10 +302,29 @@ public class CollectionOperations {
 
     private Observable<List<PlaylistItem>> loadPlaylists(PlaylistsOptions options) {
         return unsortedPlaylists(options)
+                .map(offlineOnly(options.showOfflineOnly()))
                 .map(options.sortByTitle() ? SORT_BY_TITLE : SORT_BY_CREATION)
                 .map(REMOVE_DUPLICATE_PLAYLISTS)
                 .map(PlaylistItem.fromPropertySets())
                 .subscribeOn(scheduler);
+    }
+
+    private Func1<List<PropertySet>, List<PropertySet>> offlineOnly(final boolean offlineOnly) {
+        return new Func1<List<PropertySet>, List<PropertySet>>() {
+            @Override
+            public List<PropertySet> call(List<PropertySet> propertySets) {
+                if (offlineOnly) {
+                    for (Iterator<PropertySet> iterator = propertySets.iterator(); iterator.hasNext(); ) {
+                        OfflineState offlineState = iterator.next().getOrElse(OfflineProperty.OFFLINE_STATE, NOT_OFFLINE);
+
+                        if (offlineState.equals(NOT_OFFLINE)) {
+                            iterator.remove();
+                        }
+                    }
+                }
+                return propertySets;
+            }
+        };
     }
 
     private Observable<List<PropertySet>> unsortedPlaylists(PlaylistsOptions options) {
@@ -312,7 +333,6 @@ public class CollectionOperations {
 
         if (options.showLikes() && !options.showPosts()) {
             return loadLikedPlaylists;
-
         } else if (options.showPosts() && !options.showLikes()) {
             return loadPostedPlaylists;
         } else {

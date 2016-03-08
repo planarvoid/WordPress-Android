@@ -123,6 +123,22 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void addsFilterRemovalWhenFilterAppliedForOfflineOnly() {
+        final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
+        final MyCollection myCollection = getMyCollection(playlistItems, LIKES, RECENT_STATIONS, false);
+
+        presenter.onOptionsUpdated(PlaylistsOptions.builder().showOfflineOnly(true).build());
+
+        assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
+                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
+                CollectionItem.fromPlaylistHeader(),
+                CollectionItem.fromPlaylistItem(playlistItems.get(0)),
+                CollectionItem.fromPlaylistItem(playlistItems.get(1)),
+                CollectionItem.fromKillFilter()
+        );
+    }
+
+    @Test
     public void doesNotAddFilterRemovalWhenBothFiltersApplied() {
         final List<PlaylistItem> playlistItems = ModelFixtures.create(PlaylistItem.class, 2);
         final MyCollection myCollection = getMyCollection(playlistItems, LIKES, RECENT_STATIONS, false);
