@@ -33,6 +33,7 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import java.util.Date;
@@ -814,6 +815,18 @@ public class DatabaseFixtures {
         builder.put(TableColumns.Comments.TIMESTAMP, comment.getTrackTime());
         builder.put(TableColumns.Comments.TRACK_ID, comment.getTrackUrn().getNumericId());
         builder.put(TableColumns.Comments.USER_ID, comment.getUser().getUrn().getNumericId());
+    }
+
+    public void insertSyncState(Uri contentUri,
+                                long lastSyncAttempt,
+                                long lastSyncSuccess,
+                                String extra) {
+        ContentValuesBuilder builder = ContentValuesBuilder.values();
+        builder.put(TableColumns.Collections.URI, contentUri.toString());
+        builder.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, lastSyncAttempt);
+        builder.put(TableColumns.Collections.LAST_SYNC, lastSyncSuccess);
+        builder.put(TableColumns.Collections.EXTRA, extra);
+        insertInto(Table.Collections, builder.get());
     }
 
     public long insertInto(com.soundcloud.propeller.schema.Table table, ContentValues cv) {

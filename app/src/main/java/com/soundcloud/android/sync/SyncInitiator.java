@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -369,7 +370,7 @@ public class SyncInitiator {
             public void call(Boolean changed) {
                 if (changed) {
                     for (Uri uri : uris) {
-                        syncStateManager.resetSyncMisses(uri);
+                        fireAndForget(syncStateManager.resetSyncMissesAsync(uri));
                     }
 
                 }
@@ -382,7 +383,7 @@ public class SyncInitiator {
             @Override
             public void call(SyncResult result) {
                 if (result.wasChanged()) {
-                    syncStateManager.resetSyncMisses(uri);
+                    fireAndForget(syncStateManager.resetSyncMissesAsync(uri));
                 }
             }
         };

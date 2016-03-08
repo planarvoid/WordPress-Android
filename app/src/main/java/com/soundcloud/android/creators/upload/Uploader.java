@@ -63,13 +63,13 @@ public class Uploader implements Runnable {
     private final EventBus eventBus;
 
     public Uploader(Context context, ApiClient apiClient, Recording recording, StoreTracksCommand storeTracksCommand,
-                    StorePostsCommand storePostsCommand, EventBus eventBus) {
+                    StorePostsCommand storePostsCommand, EventBus eventBus, SyncStateManager syncStateManager) {
         this.apiClient = apiClient;
         this.recording = recording;
         this.storeTracksCommand = storeTracksCommand;
         this.storePostsCommand = storePostsCommand;
         this.resources = context.getResources();
-        this.syncStateManager = new SyncStateManager(context);
+        this.syncStateManager = syncStateManager;
         this.subscription = eventBus.subscribe(EventQueue.UPLOAD, new EventSubscriber());
         this.eventBus = eventBus;
     }

@@ -3,13 +3,13 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.stations.StationsSyncRequestFactory;
-import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.LikesSyncer;
@@ -26,8 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -42,8 +42,6 @@ import java.util.LinkedHashMap;
 public class ApiSyncServiceTest {
     private static final long USER_ID = 100L;
 
-    private ContentResolver resolver;
-    private SyncStateManager syncStateManager;
     private LegacySyncJob.Factory collectionSyncRequestFactory;
     private SyncRequestFactory syncRequestFactory;
 
@@ -54,13 +52,14 @@ public class ApiSyncServiceTest {
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     @Mock private RecommendationsSyncer recommendationsSyncer;
     @Mock private StationsSyncRequestFactory stationsSyncRequestFactory;
+    @Mock private SyncStateManager syncStateManager;
 
     @Before
     public void before() {
-        resolver = Robolectric.application.getContentResolver();
-        syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
         collectionSyncRequestFactory = new LegacySyncJob.Factory(apiSyncerFactory, syncStateManager);
         TestHelper.setUserId(USER_ID);
+
+        when(syncStateManager.updateLastSyncAttemptAsync(any(Uri.class))).thenReturn(Observable.just(true));
 
         syncRequestFactory = new SyncRequestFactory(
                 new LegacySyncRequest.Factory(collectionSyncRequestFactory),
@@ -173,12 +172,5 @@ public class ApiSyncServiceTest {
 
         svc.onSyncJobCompleted(new LegacySyncJob(Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
         expect(svc.runningJobs.size()).toBe(1);
-    }
-
-    @Test
-    public void shouldClearSyncStatuses() throws Exception {
-        ApiSyncService svc = new ApiSyncService();
-        svc.onDestroy();
-        expect(syncStateManager.fromContent(Content.ME_SOUNDS.uri).sync_state).toEqual(LocalCollection.SyncState.IDLE);
     }
 }

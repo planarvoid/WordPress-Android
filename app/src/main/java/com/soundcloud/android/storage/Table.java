@@ -28,7 +28,7 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
             TableColumns.CollectionItems.COLLECTION_TYPE,
             TableColumns.CollectionItems.RESOURCE_TYPE),
             false, DatabaseSchema.DATABASE_CREATE_COLLECTION_ITEMS),
-    Collections(false, DatabaseSchema.DATABASE_CREATE_COLLECTIONS),
+    Collections(PrimaryKey.of(TableColumns.Collections.URI), false, DatabaseSchema.DATABASE_CREATE_COLLECTIONS),
     CollectionPages(PrimaryKey.of(
             TableColumns.CollectionPages.COLLECTION_ID,
             TableColumns.CollectionPages.PAGE_INDEX),

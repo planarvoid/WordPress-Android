@@ -292,8 +292,6 @@ public final class TableColumns {
         public static final String URI = "uri";                      // local content provider uri
         public static final String LAST_SYNC = "last_sync";          // timestamp of last sync
         public static final String LAST_SYNC_ATTEMPT = "last_sync_attempt";          // timestamp of last sync
-        public static final String SIZE = "size";
-        public static final String SYNC_STATE = "sync_state";        // are we currently syncing?
         public static final String EXTRA = "extra";                  // general purpose field
     }
 

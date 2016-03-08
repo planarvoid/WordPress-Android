@@ -219,15 +219,10 @@ final class DatabaseSchema {
      * {@link com.soundcloud.android.storage.TableColumns.Collections}
      */
     static final String DATABASE_CREATE_COLLECTIONS = "(" +
-            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "uri VARCHAR(255)," +
-            "last_addition INTEGER, " +
-            "last_sync INTEGER, " +
-            "last_sync_attempt INTEGER, " +
-            "size INTEGER, " +
-            "sync_state INTEGER, " +
-            "extra VARCHAR(255), " +
-            "UNIQUE (uri)" +
+            "uri TEXT PRIMARY KEY," +
+            "last_sync INTEGER DEFAULT 0, " +
+            "last_sync_attempt INTEGER DEFAULT 0, " +
+            "extra TEXT" +
             ");";
 
     /**

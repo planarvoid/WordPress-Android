@@ -1,10 +1,11 @@
 package com.soundcloud.android.sync;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.InvalidTokenException;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.UnexpectedResponseException;
-import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 
@@ -14,11 +15,6 @@ import android.support.annotation.VisibleForTesting;
 import javax.inject.Inject;
 import java.io.IOException;
 
-/**
- * Sync request for one specific collection type. Is queued in the {@link ApiSyncService}, uses {@link ApiSyncer} to do the
- * job, then updates {@link LocalCollection}. The actual execution happens in
- * {@link com.soundcloud.android.sync.ApiSyncService#flushSyncRequests()}.
- */
 @SuppressWarnings({"PMD.AvoidCatchingGenericException"})
 @Deprecated // use SyncItem instead
 public class LegacySyncJob implements SyncJob {
@@ -30,7 +26,6 @@ public class LegacySyncJob implements SyncJob {
     private final SyncStateManager syncStateManager;
     private final ApiSyncerFactory apiSyncerFactory;
 
-    private LocalCollection localCollection;
     private ApiSyncResult result;
     private Exception exception;
 
@@ -56,12 +51,11 @@ public class LegacySyncJob implements SyncJob {
 
     @Override
     public void onQueued() {
-        localCollection = syncStateManager.fromContent(contentUri);
-        if (localCollection != null) {
-            syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.PENDING);
+        if (contentUri != null) {
+            fireAndForget(syncStateManager.updateLastSyncAttemptAsync(contentUri));
         } else {
             // Happens with database locking. This should just return with an unsuccessful result below
-            Log.e(TAG, "Unable to create collection for uri " + contentUri);
+            Log.e(TAG, "Unable to create collection for null URI");
         }
     }
 
@@ -80,7 +74,7 @@ public class LegacySyncJob implements SyncJob {
      */
     @Override
     public void run() {
-        if (localCollection == null || !syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.SYNCING)) {
+        if (contentUri == null || !syncStateManager.updateLastSyncAttempt(contentUri)) {
             Log.e(TAG, "LocalCollection error :" + contentUri);
             return;
         }
@@ -91,7 +85,7 @@ public class LegacySyncJob implements SyncJob {
         try {
             Log.d(TAG, "syncing " + contentUri);
             result = apiSyncerFactory.forContentUri(contentUri).syncContent(contentUri, action);
-            syncStateManager.onSyncComplete(result, localCollection);
+            syncStateManager.onSyncComplete(result, contentUri);
         } catch (InvalidTokenException e) {
             handleSyncException(ApiSyncResult.fromAuthException(contentUri), e);
         } catch (UnexpectedResponseException e) {
@@ -138,7 +132,6 @@ public class LegacySyncJob implements SyncJob {
     }
 
     private void handleSyncException(ApiSyncResult apiSyncResult, Exception exception) {
-        syncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
         result = apiSyncResult;
         this.exception = exception;
     }
