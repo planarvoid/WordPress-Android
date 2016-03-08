@@ -51,7 +51,7 @@ public class StreamEventGatewayAudioTest extends TrackingActivityTest<MainActivi
         startEventTracking();
 
         final VisualPlayerElement playerElement =
-                streamScreen.scrollToFirstNotPromotedPlaylistAndClickIt().clickFirstTrack();
+                streamScreen.clickFirstNotPromotedPlaylistCard().clickFirstTrack();
 
         assertThat(playerElement, is(visible()));
         assertThat(playerElement, is(playing()));

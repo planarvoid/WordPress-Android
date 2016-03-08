@@ -27,10 +27,13 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     public void testVisualPlayerIsAccessibleFromSearch() {
         final VisualPlayerElement player = mainNavHelper
                 .goToStream()
-                .clickFirstTrackCard();
+                .clickFirstNotPromotedPlaylistCard()
+                .clickFirstTrack();
 
         assertThat(player, is(expanded()));
         player.pressBackToCollapse();
+
+        solo.goBack();
 
         mainNavHelper.goToDiscovery();
 

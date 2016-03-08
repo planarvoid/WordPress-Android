@@ -49,7 +49,7 @@ public class StreamScreen extends Screen {
         ));
     }
 
-    public PlaylistDetailsScreen scrollToFirstNotPromotedPlaylistAndClickIt() {
+    public PlaylistDetailsScreen clickFirstNotPromotedPlaylistCard() {
         scrollToFirstNotPromotedPlaylist().clickToPlay();
         return new PlaylistDetailsScreen(testDriver);
     }
