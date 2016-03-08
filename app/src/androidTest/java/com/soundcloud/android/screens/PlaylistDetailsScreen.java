@@ -85,15 +85,6 @@ public class PlaylistDetailsScreen extends Screen {
         return new VisualPlayerElement(testDriver);
     }
 
-    public void clickHeaderPause() {
-        headerPlayButton().click();
-        waiter.waitForPlaybackToBeIdle();
-    }
-
-    public boolean isPlayToggleChecked() {
-        return headerPlayButton().isChecked();
-    }
-
     public void touchToggleLike() {
         likeToggle().click();
     }
@@ -122,11 +113,6 @@ public class PlaylistDetailsScreen extends Screen {
         return this;
     }
 
-    public PlaylistDetailsScreen scrollToPosition(int position) {
-        testDriver.scrollListToLine(position);
-        return this;
-    }
-
     public TrackItemMenuElement findAndClickFirstTrackOverflowButton() {
         return scrollToAndGetFirstTrackItem()
                 .clickOverflowButton();
@@ -138,7 +124,9 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private TextElement title() {
-        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.title)));
+        final ViewElement normalTitle = testDriver.findOnScreenElement(With.id(R.id.title));
+        return normalTitle.hasVisibility() ? new TextElement(normalTitle) :
+                new TextElement(testDriver.findOnScreenElement(With.id(R.id.title_private)));
     }
 
     private ViewElement headerPlayButton() {
