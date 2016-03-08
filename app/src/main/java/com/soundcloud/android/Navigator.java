@@ -31,7 +31,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.settings.LegalActivity;
-import com.soundcloud.android.settings.NewNotificationSettingsActivity;
+import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
@@ -289,7 +289,7 @@ public class Navigator {
     }
 
     public void openNewNotificationSettings(Context context) {
-        context.startActivity(new Intent(context, NewNotificationSettingsActivity.class));
+        context.startActivity(new Intent(context, NotificationPreferencesActivity.class));
     }
 
     public void openOfflineSettingsOnboarding(Context context) {

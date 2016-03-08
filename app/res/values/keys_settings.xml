@@ -19,25 +19,27 @@
     <string name="key_notifications_followers">notificationsFollowers</string>
 
     <!-- New Notification settings -->
-    <string name="key_push_notifications_follower">pushNotificationsFollower</string>
-    <string name="key_push_notifications_repost">pushNotificationsRepost</string>
-    <string name="key_push_notifications_new_post">pushNotificationsNewPost</string>
-    <string name="key_push_notifications_like">pushNotificationsLike</string>
-    <string name="key_push_notifications_product_updates">pushNotificationsProductUpdates</string>
-    <string name="key_push_notifications_survey">pushNotificationsSurvey</string>
-    <string name="key_push_notifications_tips">pushNotificationsTips</string>
+    <string name="key_push_notifications_all">all_mobile</string>
+    <string name="key_push_notifications_follows">follows_mobile</string>
+    <string name="key_push_notifications_reposts">reposts_mobile</string>
+    <string name="key_push_notifications_new_content">newContent_mobile</string>
+    <string name="key_push_notifications_likes">likes_mobile</string>
+    <string name="key_push_notifications_product_updates">productUpdates_mobile</string>
+    <string name="key_push_notifications_surveys">surveys_mobile</string>
+    <string name="key_push_notifications_tips">tips_mobile</string>
 
-    <string name="key_email_notifications_follower">emailNotificationsFollower</string>
-    <string name="key_email_notifications_repost">emailNotificationsRepost</string>
-    <string name="key_email_notifications_new_post">emailNotificationsNewPost</string>
-    <string name="key_email_notifications_like">emailNotificationsLike</string>
-    <string name="key_email_notifications_message">emailNotificationsMessage</string>
-    <string name="key_email_notifications_comment">emailNotificationsComment</string>
-    <string name="key_email_notifications_group">emailNotificationsGroup</string>
-    <string name="key_email_notifications_product_updates">emailNotificationsProductUpdates</string>
-    <string name="key_email_notifications_survey">emailNotificationsSurvey</string>
-    <string name="key_email_notifications_tips">emailNotificationsTips</string>
-    <string name="key_email_notifications_newsletter">emailNotificationsNewsletter</string>
+    <string name="key_email_notifications_all">all_mail</string>
+    <string name="key_email_notifications_follows">follows_mail</string>
+    <string name="key_email_notifications_reposts">reposts_mail</string>
+    <string name="key_email_notifications_new_content">newContent_mail</string>
+    <string name="key_email_notifications_likes">likes_mail</string>
+    <string name="key_email_notifications_messages">messages_mail</string>
+    <string name="key_email_notifications_comments">comments_mail</string>
+    <string name="key_email_notifications_groups">groups_mail</string>
+    <string name="key_email_notifications_product_updates">productUpdates_mail</string>
+    <string name="key_email_notifications_surveys">surveys_mail</string>
+    <string name="key_email_notifications_tips">tips_mail</string>
+    <string name="key_email_notifications_newsletters">newsletters_mail</string>
 
     <!-- Subscription settings -->
     <string name="key_subscription_buy">buySubscription</string>

@@ -1,4 +1,4 @@
-package com.soundcloud.android.settings;
+package com.soundcloud.android.settings.notifications;
 
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
@@ -8,14 +8,14 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class NewNotificationSettingsActivity extends LoggedInActivity {
+public class NotificationPreferencesActivity extends LoggedInActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentFragment(NewNotificationSettingsFragment.create());
+        setContentFragment(NotificationPreferencesFragment.create());
     }
 
     @Override
