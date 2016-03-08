@@ -28,6 +28,7 @@ import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlayPublisher;
+import com.soundcloud.android.playback.PlayQueueExtender;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackServiceModule;
@@ -99,6 +100,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject RemoteAudioManagerUpdater remoteAudioManagerUpdater;
     @Inject PlaySessionStateProvider playSessionStateProvider;
     @Inject PlaylistExploder playlistExploder;
+    @Inject PlayQueueExtender playQueueExtender;
     @Inject PlayPublisher playPublisher;
     @Inject AdsController adsController;
     @Inject PlaylistTagStorage playlistTagStorage;
@@ -190,6 +192,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         castSessionController.startListening();
         trackOfflineStateProvider.subscribe();
         remoteAudioManagerUpdater.subscribe();
+        playQueueExtender.subscribe();
 
         if (featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)){
             playlistExploder.subscribe();

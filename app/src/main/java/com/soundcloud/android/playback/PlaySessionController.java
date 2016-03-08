@@ -13,44 +13,31 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.settings.SettingKey;
-import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
-import android.content.SharedPreferences;
-import android.support.annotation.VisibleForTesting;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class PlaySessionController {
 
     private static final String TAG = "PlaySessionController";
-
-    @VisibleForTesting
-    static final int RECOMMENDED_LOAD_TOLERANCE = 5;
 
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private static final long SEEK_POSITION_RESET = 0L;
@@ -59,30 +46,17 @@ public class PlaySessionController {
     private final AdsOperations adsOperations;
 
     private final AdsController adsController;
-    private final PlayQueueOperations playQueueOperations;
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final CastConnectionHelper castConnectionHelper;
-    private final SharedPreferences sharedPreferences;
     private final NetworkConnectionHelper connectionHelper;
     private final Provider<PlaybackStrategy> playbackStrategyProvider;
     private final PlaybackToastHelper playbackToastHelper;
     private final AccountOperations accountOperations;
-    private final StationsOperations stationsOperations;
     private final PlaybackServiceInitiator playbackServiceInitiator;
 
-    private final Action1<PlayQueue> appendPlayQueueItems = new Action1<PlayQueue>() {
-        @Override
-        public void call(PlayQueue playQueue) {
-            playQueueManager.appendPlayQueueItems(playQueue);
-        }
-    };
-
     private Subscription currentTrackSubscription = RxUtils.invalidSubscription();
-    private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();
     private Subscription subscription = RxUtils.invalidSubscription();
-
-    private boolean stopContinuousPlayback; // killswitch. If the api returns no tracks, stop asking for them
 
     private final Action0 stopLoadingPreviousTrack = new Action0() {
         @Override
@@ -135,27 +109,21 @@ public class PlaySessionController {
                                  AdsOperations adsOperations,
                                  AdsController adsController,
                                  PlayQueueManager playQueueManager,
-                                 PlayQueueOperations playQueueOperations,
                                  PlaySessionStateProvider playSessionStateProvider,
                                  CastConnectionHelper castConnectionHelper,
-                                 SharedPreferences sharedPreferences,
                                  NetworkConnectionHelper connectionHelper,
                                  Provider<PlaybackStrategy> playbackStrategyProvider,
                                  PlaybackToastHelper playbackToastHelper,
                                  AccountOperations accountOperations,
-                                 StationsOperations stationsOperations,
                                  PlaybackServiceInitiator playbackServiceInitiator) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.adsController = adsController;
         this.playQueueManager = playQueueManager;
-        this.playQueueOperations = playQueueOperations;
-        this.sharedPreferences = sharedPreferences;
         this.connectionHelper = connectionHelper;
         this.playbackStrategyProvider = playbackStrategyProvider;
         this.playbackToastHelper = playbackToastHelper;
         this.accountOperations = accountOperations;
-        this.stationsOperations = stationsOperations;
         this.playbackServiceInitiator = playbackServiceInitiator;
         this.playSessionStateProvider = playSessionStateProvider;
         this.castConnectionHelper = castConnectionHelper;
@@ -163,7 +131,6 @@ public class PlaySessionController {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackSubscriber());
-        eventBus.subscribe(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber());
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .filter(shouldAdvanceTracks)
                 .doOnNext(reconfigureUpcomingAd)
@@ -232,7 +199,7 @@ public class PlaySessionController {
         }
     }
 
-    public boolean shouldDisableSkipping() {
+    private boolean shouldDisableSkipping() {
         return adsOperations.isCurrentItemAd() &&
                 playSessionStateProvider.getLastProgressEventForCurrentPlayQueueItem().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
     }
@@ -299,36 +266,9 @@ public class PlaySessionController {
                 && connectionHelper.isNetworkConnected();
     }
 
-    private class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
-        @Override
-        public void onNext(PlayQueueEvent event) {
-            if (event.isNewQueue()) {
-                loadRecommendedSubscription.unsubscribe();
-                stopContinuousPlayback = false;
-            }
-        }
-    }
-
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            if (withinRecommendedFetchTolerance() && isNotAlreadyLoadingRecommendations()) {
-                final PlayQueueItem lastPlayQueueItem = playQueueManager.getLastPlayQueueItem();
-                if (currentQueueAllowsRecommendations() && lastPlayQueueItem.isTrack()) {
-                    loadRecommendedSubscription = playQueueOperations
-                            .relatedTracksPlayQueue(lastPlayQueueItem.getUrn(), fromContinuousPlay())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnNext(appendPlayQueueItems)
-                            .subscribe(new UpcomingTracksSubscriber());
-                } else if (event.getCollectionUrn().isStation()) {
-                    loadRecommendedSubscription = stationsOperations
-                            .fetchUpcomingTracks(event.getCollectionUrn(), playQueueManager.getQueueSize())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnNext(appendPlayQueueItems)
-                            .subscribe(new UpcomingTracksSubscriber());
-                }
-            }
-
             currentTrackSubscription.unsubscribe();
 
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
@@ -349,62 +289,8 @@ public class PlaySessionController {
         }
     }
 
-    private boolean currentQueueAllowsRecommendations() {
-        if (stopContinuousPlayback) {
-            return false;
-        } else {
-            final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
-            final boolean isStation = playQueueManager.getCollectionUrn().isStation();
-            return !isStation && (sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true) ||
-                    currentPlaySessionSource.originatedInExplore() ||
-                    Screen.DEEPLINK.get().equals(currentPlaySessionSource.getOriginScreen()));
-        }
-    }
-
-    private boolean withinRecommendedFetchTolerance() {
-        return !playQueueManager.isQueueEmpty() &&
-                playQueueManager.getPlayableQueueItemsRemaining() <= RECOMMENDED_LOAD_TOLERANCE;
-    }
-
-    private boolean isNotAlreadyLoadingRecommendations() {
-        return loadRecommendedSubscription.isUnsubscribed();
-    }
-
-    // Hacky, but the similar sounds service needs to know if it is allowed to not fulfill this request. This should
-    // only be allowed if we are not in explore, or serving a deeplink. This should be removed after rollout and we
-    // have determined the service can handle the load we give it...
-    private boolean fromContinuousPlay() {
-        final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
-        return !(currentPlaySessionSource.originatedInExplore() ||
-                currentPlaySessionSource.originatedFromDeeplink() ||
-                currentPlaySessionSource.originatedInSearchSuggestions());
-    }
-
     private StateTransition createPlayQueueCompleteEvent(Urn trackUrn) {
         return new StateTransition(PlayerState.IDLE, Player.Reason.PLAY_QUEUE_COMPLETE, trackUrn);
-    }
-
-    private class UpcomingTracksSubscriber extends DefaultSubscriber<PlayQueue> {
-        @Override
-        public void onNext(PlayQueue playQueue) {
-            stopContinuousPlayback = playQueue.isEmpty();
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            if (e instanceof UnsupportedOperationException) {
-                // we should not need this, as we should never get this far with an empty queue.
-                // Just being defensive while we investigate
-                // https://github.com/soundcloud/SoundCloud-Android/issues/3938
-
-                final HashMap<String, String> valuePairs = new HashMap<>(2);
-                valuePairs.put("Queue Size", String.valueOf(playQueueManager.getQueueSize()));
-                valuePairs.put("PlaySessionSource", playQueueManager.getCurrentPlaySessionSource().toString());
-                ErrorUtils.handleSilentException(e, valuePairs);
-            } else {
-                super.onError(e);
-            }
-        }
     }
 
     private class PlayCurrentSubscriber extends DefaultSubscriber<Void> {
