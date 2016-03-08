@@ -10,7 +10,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +25,7 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
     private final EventBus eventBus;
 
     private Subscription subscription = RxUtils.invalidSubscription();
-    private Activity activity;
+    private AppCompatActivity activity;
     private Optional<WebProduct> product = Optional.absent();
 
     @Inject
@@ -72,7 +71,7 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
 
     @Override
     public void close() {
-        activity.finish();
+        activity.supportFinishAfterTransition();
     }
 
     private void startWebCheckout() {
