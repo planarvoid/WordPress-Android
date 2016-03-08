@@ -18,6 +18,7 @@ import com.soundcloud.android.sync.activities.ActivitiesNotifier;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.sync.stream.SoundStreamNotifier;
 import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.users.UserAssociationStorage;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import android.app.Notification;
@@ -126,7 +128,14 @@ public abstract class SyncAdapterServiceTestBase {
 
         SyncAdapterService.performSync(
                 app,
-                extras, result, token, null, syncServiceResultReceiverFactory, Mockito.mock(MyLikesStateProvider.class), Mockito.mock(PlaylistStorage.class), Mockito.mock(SyncConfig.class), Mockito.mock(FeatureFlags.class));
+                extras, result, token,
+                Mockito.mock(UserAssociationStorage.class),
+                null,
+                syncServiceResultReceiverFactory,
+                Mockito.mock(MyLikesStateProvider.class),
+                Mockito.mock(PlaylistStorage.class),
+                Mockito.mock(SyncConfig.class),
+                Mockito.mock(FeatureFlags.class));
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 

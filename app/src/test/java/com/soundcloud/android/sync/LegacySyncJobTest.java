@@ -41,19 +41,19 @@ public class LegacySyncJobTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        legacySyncItem = new LegacySyncJob(context(),
+        legacySyncItem = new LegacySyncJob(
                 Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
     }
 
     @Test
     public void shouldHaveEquals() throws Exception {
-        LegacySyncJob r1 = new LegacySyncJob(context(),
+        LegacySyncJob r1 = new LegacySyncJob(
                 Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
 
-        LegacySyncJob r2 = new LegacySyncJob(context(),
+        LegacySyncJob r2 = new LegacySyncJob(
                 Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
 
-        LegacySyncJob r3 = new LegacySyncJob(context(),
+        LegacySyncJob r3 = new LegacySyncJob(
                 Content.ME_FOLLOWINGS.uri, "someOtherAction", false, apiSyncerFactory, syncStateManager);
 
         assertThat(r1).isEqualTo(r2);
@@ -70,7 +70,7 @@ public class LegacySyncJobTest extends AndroidUnitTest {
     public void shouldNotSyncIfLocalCollectionUpdateFails() throws Exception {
         when(syncStateManager.fromContent(Content.ME_FOLLOWINGS.uri)).thenReturn(localCollection);
         when(localCollection.getId()).thenReturn(1L);
-        when(apiSyncerFactory.forContentUri(context(), Content.ME_FOLLOWINGS.uri)).thenReturn(SyncStrategy);
+        when(apiSyncerFactory.forContentUri(Content.ME_FOLLOWINGS.uri)).thenReturn(SyncStrategy);
         when(syncStateManager.updateSyncState(1L, LocalCollection.SyncState.SYNCING)).thenReturn(false);
 
         legacySyncItem.onQueued();
@@ -248,7 +248,7 @@ public class LegacySyncJobTest extends AndroidUnitTest {
     private void setupSync() {
         when(syncStateManager.fromContent(Content.ME_FOLLOWINGS.uri)).thenReturn(localCollection);
         when(localCollection.getId()).thenReturn(1L);
-        when(apiSyncerFactory.forContentUri(context(), Content.ME_FOLLOWINGS.uri)).thenReturn(SyncStrategy);
+        when(apiSyncerFactory.forContentUri(Content.ME_FOLLOWINGS.uri)).thenReturn(SyncStrategy);
         when(syncStateManager.updateSyncState(1L, LocalCollection.SyncState.SYNCING)).thenReturn(true);
     }
 }

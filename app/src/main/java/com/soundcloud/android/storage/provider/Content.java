@@ -6,7 +6,6 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.Collecti
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.REPOST;
 
 import com.soundcloud.android.api.legacy.Endpoints;
-import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
@@ -15,7 +14,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModel;
-import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.storage.Table;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,12 +27,12 @@ public enum Content {
     ME_SOUNDS("me/sounds", null, 132, null, -1, Table.Posts),
     ME_SOUND_STREAM("me/stream", null, 140, null, -1, null),
     ME_ACTIVITIES("me/activities/all/own", null, 142, null, -1, null),
+    ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, null, FOLLOWING, Table.UserAssociations),
+    ME_FOLLOWING("me/followings/#", null, 104, null, -1, null),
 
     // legacy stuff
     ME("me", Endpoints.MY_DETAILS, 100, PublicApiUser.class, -1, Table.Users),
     ME_COMMENTS("me/comments", null, 102, PublicApiComment.class, -1, Table.Comments),
-    ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, UserAssociation.class, FOLLOWING, Table.UserAssociations),
-    ME_FOLLOWING("me/followings/#", null, 104, UserAssociation.class, -1, null),
     ME_LIKE("me/likes/#", null, 108, PublicApiTrack.class, LIKE, null),
     ME_REPOSTS("me/reposts", null, 109, null, REPOST, Table.CollectionItems),
     ME_PLAYLISTS("me/playlists", TempEndpoints.MY_PLAYLISTS, 110, PublicApiPlaylist.class, ScContentProvider.CollectionItemTypes.PLAYLIST, Table.Posts),
@@ -114,8 +112,6 @@ public enum Content {
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static final private SparseArray<Content> sMap = new SparseArray<>();
 
-    public static final int SYNCABLE_CEILING = 190;
-
     static {
         for (Content c : Content.values()) {
             if (c.id >= 0 && c.uri != null) {
@@ -123,10 +119,6 @@ public enum Content {
                 sMap.put(c.id, c);
             }
         }
-    }
-
-    public boolean isSyncable() {
-        return id < SYNCABLE_CEILING && id > 0;
     }
 
     public Uri.Builder buildUpon() {
@@ -152,43 +144,6 @@ public enum Content {
         }
     }
 
-    public Request request() {
-        return request(null);
-    }
-
-    public Request request(Uri contentUri) {
-        if (remoteUri != null) {
-            String query = null;
-            if (contentUri != null) {
-                query = contentUri.getQuery();
-            }
-
-            final String resource = remoteUri + (query != null ? "?" + query : "");
-            if (remoteUri.contains("%d")) {
-                int substitute = 0;
-                if (contentUri != null) {
-                    for (String segment : contentUri.getPathSegments()) {
-                        try {
-                            substitute = Integer.parseInt(segment);
-                            break;
-                        } catch (NumberFormatException ignored) {
-                        }
-                    }
-                }
-
-                return Request.to(resource, substitute);
-            } else {
-                return Request.to(resource);
-            }
-        } else {
-            throw new IllegalArgumentException("no remote uri defined for content" + this);
-        }
-    }
-
-    public boolean hasRequest() {
-        return remoteUri != null;
-    }
-
     @Override
     public String toString() {
         return "Content." + name();
@@ -203,10 +158,6 @@ public enum Content {
         return match != -1 ? sMap.get(match) : UNKNOWN;
     }
 
-    public static Content match(String path) {
-        return match(Uri.parse("content://" + ScContentProvider.AUTHORITY + "/" + path));
-    }
-
     public static Content get(String s) {
         try {
             return Content.valueOf(s);
@@ -215,7 +166,4 @@ public enum Content {
         }
     }
 
-    public boolean isUserBased() {
-        return PublicApiUser.class.equals(modelType) || UserAssociation.class.equals(modelType);
-    }
 }

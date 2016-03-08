@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -69,7 +68,7 @@ public class LegacySyncRequestTest {
         });
 
         final LegacySyncJob legacySyncItem = new LegacySyncJob(
-                Robolectric.application, Content.ME_FOLLOWINGS.uri, null, false, apiSyncerFactory, syncStateManager);
+                Content.ME_FOLLOWINGS.uri, null, false, apiSyncerFactory, syncStateManager);
         when(collectionSyncRequestFactory.create(any(Uri.class), anyString(), anyBoolean())).thenReturn(legacySyncItem);
 
         LegacySyncRequest req = new LegacySyncRequest(intent, collectionSyncRequestFactory);

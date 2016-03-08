@@ -17,13 +17,13 @@ import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.storage.LegacyUserAssociationStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.stream.SoundStreamOperations;
 import com.soundcloud.android.sync.SyncCleanupAction;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor editor;
     @Mock private SoundCloudApplication soundCloudApplication;
-    @Mock private LegacyUserAssociationStorage legacyUserAssociationStorage;
+    @Mock private UserAssociationStorage userAssociationStorage;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Mock private AccountOperations accountOperations;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
@@ -60,7 +60,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        action = new AccountCleanupAction(legacyUserAssociationStorage, tagStorage, soundRecorder,
+        action = new AccountCleanupAction(userAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, syncCleanupAction, planStorage,
                 removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations,
                 collectionOperations, soundStreamOperations, configurationOperations);
@@ -86,7 +86,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Test
     public void shouldClearUserAssociationStorage() {
         action.call();
-        verify(legacyUserAssociationStorage).clear();
+        verify(userAssociationStorage).clear();
     }
 
     @Test

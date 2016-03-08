@@ -78,7 +78,7 @@ public class FollowingOperationsTest extends AndroidUnitTest {
 
         final EntityStateChangedEvent event = EntityStateChangedEvent.fromFollowing(getFollowingChangeSet(true));
         final PropertySet following = PropertySet.create();
-        when(userAssociationStorage.loadFollowing(targetUrn)).thenReturn(Observable.just(following));
+        when(userAssociationStorage.followedUser(targetUrn)).thenReturn(Observable.just(following));
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 

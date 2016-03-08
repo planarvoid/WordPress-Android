@@ -25,7 +25,6 @@ import java.io.IOException;
 public class LegacySyncJob implements SyncJob {
 
     public static final String TAG = ApiSyncService.class.getSimpleName();
-    private final Context context;
     private final Uri contentUri;
     private final String action;
     private final boolean isUI;
@@ -36,9 +35,8 @@ public class LegacySyncJob implements SyncJob {
     private ApiSyncResult result;
     private Exception exception;
 
-    public LegacySyncJob(Context context, Uri contentUri, String action, boolean isUI,
+    public LegacySyncJob(Uri contentUri, String action, boolean isUI,
                          ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
-        this.context = context;
         this.contentUri = contentUri;
         this.action = action;
         this.isUI = isUI;
@@ -48,8 +46,7 @@ public class LegacySyncJob implements SyncJob {
     }
 
     @VisibleForTesting
-    public LegacySyncJob(Context context, Uri contentUri, String action, boolean isUI) {
-        this.context = context;
+    public LegacySyncJob(Uri contentUri, String action, boolean isUI) {
         this.contentUri = contentUri;
         this.action = action;
         this.isUI = isUI;
@@ -94,7 +91,7 @@ public class LegacySyncJob implements SyncJob {
 
         try {
             Log.d(TAG, "syncing " + contentUri);
-            result = apiSyncerFactory.forContentUri(context, contentUri).syncContent(contentUri, action);
+            result = apiSyncerFactory.forContentUri(contentUri).syncContent(contentUri, action);
             syncStateManager.onSyncComplete(result, localCollection);
         } catch (InvalidTokenException e) {
             handleSyncException(ApiSyncResult.fromAuthException(contentUri), e);
@@ -199,19 +196,17 @@ public class LegacySyncJob implements SyncJob {
 
     static class Factory {
 
-        private final Context context;
         private final ApiSyncerFactory apiSyncerFactory;
         private final SyncStateManager syncStateManager;
 
         @Inject
-        Factory(Context context, ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
-            this.context = context;
+        Factory(ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
             this.apiSyncerFactory = apiSyncerFactory;
             this.syncStateManager = syncStateManager;
         }
 
         LegacySyncJob create(Uri contentUri, String action, boolean isUI) {
-            return new LegacySyncJob(context, contentUri, action, isUI, apiSyncerFactory, syncStateManager);
+            return new LegacySyncJob(contentUri, action, isUI, apiSyncerFactory, syncStateManager);
         }
     }
 }
