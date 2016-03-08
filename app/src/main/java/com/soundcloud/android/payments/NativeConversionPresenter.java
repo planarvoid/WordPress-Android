@@ -89,7 +89,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
 
     @Override
     public void close() {
-        activity.finish();
+        activity.supportFinishAfterTransition();
     }
 
     public void handleBillingResult(BillingResult result) {
