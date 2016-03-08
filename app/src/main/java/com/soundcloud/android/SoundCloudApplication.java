@@ -31,6 +31,7 @@ import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackServiceModule;
+import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.playback.RemoteAudioManagerUpdater;
 import com.soundcloud.android.playback.StreamPreloader;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
@@ -97,6 +98,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject PlaySessionController playSessionController;
     @Inject RemoteAudioManagerUpdater remoteAudioManagerUpdater;
     @Inject PlaySessionStateProvider playSessionStateProvider;
+    @Inject PlaylistExploder playlistExploder;
     @Inject PlayPublisher playPublisher;
     @Inject AdsController adsController;
     @Inject PlaylistTagStorage playlistTagStorage;
@@ -188,6 +190,10 @@ public class SoundCloudApplication extends MultiDexApplication {
         castSessionController.startListening();
         trackOfflineStateProvider.subscribe();
         remoteAudioManagerUpdater.subscribe();
+
+        if (featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)){
+            playlistExploder.subscribe();
+        }
 
         if (featureFlags.isEnabled(Flag.FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB)) {
             playPublisher.subscribe();

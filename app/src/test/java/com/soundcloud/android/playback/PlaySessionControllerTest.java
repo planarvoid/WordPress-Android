@@ -1,9 +1,7 @@
 package com.soundcloud.android.playback;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
@@ -27,7 +25,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
@@ -79,7 +76,6 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private AccountOperations accountOperations;
     @Mock private StationsOperations stationsOperations;
-    @Mock private PlaylistOperations playlistOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private PlaybackServiceInitiator playbackServiceInitiator;
 
@@ -88,9 +84,9 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new PlaySessionController(eventBus, adsOperations, playlistOperations, adsController, playQueueManager,
+        controller = new PlaySessionController(eventBus, adsOperations, adsController, playQueueManager,
                 playQueueOperations, playSessionStateProvider, castConnectionHelper,
-                sharedPreferences, networkConnectionHelper, InjectionSupport.providerOf(playbackStrategy), playbackToastHelper, accountOperations, stationsOperations, featureFlags, playbackServiceInitiator);
+                sharedPreferences, networkConnectionHelper, InjectionSupport.providerOf(playbackStrategy), playbackToastHelper, accountOperations, stationsOperations, playbackServiceInitiator);
         controller.subscribe();
 
         trackUrn = Urn.forTrack(123);
@@ -105,10 +101,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true)).thenReturn(Observable.just(recommendedPlayQueue));
         when(sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true)).thenReturn(true);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
-        when(playlistOperations.trackUrnsForPlayback(any(Urn.class))).thenReturn(Observable.<List<Urn>>empty());
         when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.<Urn>newArrayList());
         when(featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)).thenReturn(true);
     }
@@ -886,61 +880,6 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         controller.reloadQueueAndShowPlayerIfEmpty();
 
         assertThat(subject.hasObservers()).isTrue();
-    }
-
-    @Test
-    public void insertsPlaylistTracksForUpcomingPlaylists() {
-        final Urn playlistUrn1 = Urn.forPlaylist(123);
-        final Urn playlistUrn2 = Urn.forPlaylist(456);
-        final List<Urn> trackUrns1 = Collections.singletonList(Urn.forTrack(123));
-        final List<Urn> trackUrns2 = Collections.singletonList(Urn.forTrack(456));
-        when(playQueueManager.getUpcomingPlayQueueItems(PlaySessionController.PLAYLIST_LOOKAHEAD_COUNT))
-                .thenReturn(Arrays.asList(playlistUrn1, playlistUrn2));
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(Observable.just(trackUrns1));
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(Observable.just(trackUrns2));
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
-
-        verify(playQueueManager).insertPlaylistTracks(playlistUrn1, trackUrns1);
-        verify(playQueueManager).insertPlaylistTracks(playlistUrn2, trackUrns2);
-    }
-
-    @Test
-    public void playlistLoadRetriesOnTrackChangeAfterError() {
-        final Urn playlistUrn1 = Urn.forPlaylist(123);
-        final List<Urn> trackUrns1 = Collections.singletonList(Urn.forTrack(123));
-        when(playQueueManager.getUpcomingPlayQueueItems(PlaySessionController.PLAYLIST_LOOKAHEAD_COUNT))
-                .thenReturn(Arrays.asList(playlistUrn1));
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(
-                Observable.<List<Urn>>error(new IOException()), Observable.just(trackUrns1));
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
-        verify(playQueueManager, never()).insertPlaylistTracks(any(Urn.class), anyList());
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
-        verify(playQueueManager).insertPlaylistTracks(playlistUrn1, trackUrns1);
-    }
-
-    @Test
-    public void playlistLoadsAreUnsubscribedOnQueueChange() {
-        final Urn playlistUrn1 = Urn.forPlaylist(123);
-        final Urn playlistUrn2 = Urn.forPlaylist(456);
-        final PublishSubject<List<Urn>> playlistLoad1 = PublishSubject.create();
-        final PublishSubject<List<Urn>> playlistLoad2 = PublishSubject.create();
-        when(playQueueManager.getUpcomingPlayQueueItems(PlaySessionController.PLAYLIST_LOOKAHEAD_COUNT))
-                .thenReturn(Arrays.asList(playlistUrn1, playlistUrn2));
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(playlistLoad1);
-        when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(playlistLoad2);
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
-
-        assertThat(playlistLoad1.hasObservers()).isTrue();
-        assertThat(playlistLoad2.hasObservers()).isTrue();
-
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue(Urn.NOT_SET));
-
-        assertThat(playlistLoad1.hasObservers()).isFalse();
-        assertThat(playlistLoad2.hasObservers()).isFalse();
     }
 
     @Test
