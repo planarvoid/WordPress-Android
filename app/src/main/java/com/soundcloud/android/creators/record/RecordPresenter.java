@@ -18,6 +18,7 @@ import butterknife.OnClick;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.RxUtils;
@@ -149,7 +150,8 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
                 .subscribe(getCleanupRecordingsSubscriber());
 
         cleanupStaleUploadsSubscription = recordingOperations.deleteStaleUploads(SoundRecorder.UPLOAD_DIR)
-                .subscribe(new DefaultSubscriber<Void>() {});
+                .subscribe(new DefaultSubscriber<Void>() {
+                });
     }
 
     @NotNull
@@ -518,7 +520,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     private void showRemoveRecordingDialog(int message) {
         new AlertDialog.Builder(recordFragment.getActivity())
-                .setMessage(message)
+                .setView(new CustomFontViewBuilder(recordFragment.getActivity()).setTitle(message).get())
                 .setNegativeButton(R.string.btn_no, null)
                 .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                     @Override
@@ -533,7 +535,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     private void showRevertRecordingDialog() {
         new AlertDialog.Builder(recordFragment.getActivity())
-                .setMessage(R.string.dialog_revert_recording_message)
+                .setView(new CustomFontViewBuilder(recordFragment.getActivity()).setTitle(R.string.dialog_revert_recording_message).get())
                 .setNegativeButton(R.string.btn_no, null)
                 .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                     @Override

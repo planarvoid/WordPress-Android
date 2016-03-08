@@ -38,6 +38,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import javax.inject.Inject;
@@ -74,11 +75,13 @@ public class AddCommentDialogFragment extends DialogFragment {
         final String timeFormatted = ScTextUtils.formatTimestamp(getArguments().getLong(EXTRA_POSITION), TimeUnit.MILLISECONDS);
 
         final View dialogView = View.inflate(getActivity(), R.layout.comment_input, null);
+        final TextView title = (TextView) dialogView.findViewById(R.id.custom_dialog_title);
         final EditText input = (EditText) dialogView.findViewById(R.id.comment_input);
+
+        title.setText(getString(R.string.comment_on_tracktitle, track.get(TrackProperty.TITLE)));
         input.setHint(getString(R.string.comment_at_time, timeFormatted));
 
         return new AlertDialog.Builder(getActivity())
-                .setTitle(getString(R.string.comment_on_tracktitle, track.get(TrackProperty.TITLE)))
                 .setView(dialogView)
                 .setPositiveButton(R.string.btn_post, new DialogInterface.OnClickListener() {
                     @Override

@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -27,33 +28,32 @@ class WhyAdsDialogPresenter {
     }
 
     public void show(final Context context) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.ads_why_ads);
+        final CustomFontViewBuilder view = new CustomFontViewBuilder(context).setTitle(R.string.ads_why_ads);
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(context);
 
         if (featureOperations.upsellRemoveAudioAds()) {
             eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forWhyAdsImpression());
-            configureDialogForUpsell(context, dialog);
+            configureForUpsell(context, view, dialog);
         } else {
-            configureDefaultDialog(dialog);
+            configureDefaultDialog(view, dialog);
         }
         dialog.create().show();
     }
 
-    private void configureDefaultDialog(AlertDialog.Builder dialog) {
-        dialog.setMessage(R.string.ads_why_ads_dialog_message)
+    private void configureDefaultDialog(CustomFontViewBuilder view, AlertDialog.Builder dialog) {
+        dialog.setView(view.setMessage(R.string.ads_why_ads_dialog_message).get())
                 .setPositiveButton(android.R.string.ok, null);
     }
 
-    private void configureDialogForUpsell(final Context context, AlertDialog.Builder dialog) {
-        dialog.setMessage(R.string.ads_why_ads_upsell_dialog_message)
+    private void configureForUpsell(final Context context, CustomFontViewBuilder view, AlertDialog.Builder dialog) {
+        dialog.setView(view.setMessage(R.string.ads_why_ads_upsell_dialog_message).get())
                 .setPositiveButton(R.string.upsell_remove_ads, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog11, int which) {
-                navigator.openUpgrade(context);
-                eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forWhyAdsClick());
-            }
-        })
-        .setNegativeButton(android.R.string.ok, null);
+                    @Override
+                    public void onClick(DialogInterface dialog11, int which) {
+                        navigator.openUpgrade(context);
+                        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forWhyAdsClick());
+                    }
+                })
+                .setNegativeButton(android.R.string.ok, null);
     }
-
 }

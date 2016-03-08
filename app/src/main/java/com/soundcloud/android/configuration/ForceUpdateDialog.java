@@ -1,6 +1,7 @@
 package com.soundcloud.android.configuration;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -27,7 +28,7 @@ public class ForceUpdateDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new AlertDialog.Builder(getActivity())
-                .setMessage(R.string.kill_switch_message)
+                .setView(new CustomFontViewBuilder(getActivity()).setTitle(R.string.kill_switch_message).get())
                 .setPositiveButton(R.string.kill_switch_confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

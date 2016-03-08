@@ -1,33 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<LinearLayout
+    style="@style/DialogContainer"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/DialogContainer">
+    android:orientation="vertical">
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/custom_dialog_title"
+        style="@style/MaterialDialog.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_new_playlist" />
 
     <com.soundcloud.android.view.CustomFontEditText
         android:id="@android:id/edit"
+        style="@style/DialogInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/DialogInput"
         android:hint="@string/create_new_playlist_hint"
         android:singleLine="true" />
 
-    <CheckBox
+    <com.soundcloud.android.view.CustomFontCheckBox
         android:id="@+id/chk_private"
-        android:layout_marginTop="10dp"
+        style="@style/DialogContentText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/DialogContentText"
+        android:layout_marginTop="10dp"
         android:text="@string/add_playlist_private" />
 
-    <CheckBox
+    <com.soundcloud.android.view.CustomFontCheckBox
         android:id="@+id/chk_offline"
-        android:layout_marginTop="10dp"
+        style="@style/DialogContentText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/DialogContentText"
-        android:visibility="gone"
-        android:text="@string/add_playlist_offline"/>
+        android:layout_marginTop="10dp"
+        android:text="@string/add_playlist_offline"
+        android:visibility="gone" />
 
 </LinearLayout>

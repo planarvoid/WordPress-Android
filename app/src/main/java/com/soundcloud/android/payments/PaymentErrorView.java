@@ -1,7 +1,7 @@
 package com.soundcloud.android.payments;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.dialog.ImageAlertDialog;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.payments.error.AlreadySubscribedDialog;
 import com.soundcloud.android.payments.error.BillingUnavailableDialog;
 import com.soundcloud.android.payments.error.ConnectionErrorDialog;
@@ -13,6 +13,8 @@ import com.soundcloud.android.payments.error.WrongUserDialog;
 import android.app.Activity;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
+import android.view.View;
 
 import javax.inject.Inject;
 
@@ -22,7 +24,8 @@ class PaymentErrorView {
     private FragmentManager fragmentManager;
 
     @Inject
-    public PaymentErrorView() {}
+    public PaymentErrorView() {
+    }
 
     public void bind(FragmentActivity activity) {
         this.activity = activity;
@@ -30,10 +33,12 @@ class PaymentErrorView {
     }
 
     public void showCancelled() {
-        new ImageAlertDialog(activity)
+        final View view = new CustomFontViewBuilder(activity)
                 .setContent(R.drawable.dialog_payment_error,
                         R.string.payments_error_title_canceled,
-                        R.string.payments_error_cancelled)
+                        R.string.payments_error_cancelled).get();
+        new AlertDialog.Builder(activity)
+                .setView(view)
                 .setPositiveButton(android.R.string.ok, null)
                 .create()
                 .show();

@@ -1,11 +1,13 @@
 package com.soundcloud.android.policies;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.dialog.ImageAlertDialog;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 
 import android.app.Activity;
 import android.content.res.Resources;
 import android.support.annotation.VisibleForTesting;
+import android.support.v7.app.AlertDialog;
+import android.view.View;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -21,10 +23,13 @@ class GoBackOnlineDialogPresenter {
 
     public void show(Activity activity, long lastOnlineStatusDate) {
         final int daysToGoOnline = getRemainingDaysToGoOnline(lastOnlineStatusDate);
-        new ImageAlertDialog(activity)
-                .setContent(R.drawable.dialog_go_online_days,
-                        getTitleText(daysToGoOnline),
-                        getContentText(daysToGoOnline))
+        final View view = new CustomFontViewBuilder(activity)
+                .setIcon(R.drawable.dialog_go_online_days)
+                .setTitle(getTitleText(daysToGoOnline))
+                .setMessage(getContentText(daysToGoOnline)).get();
+
+        new AlertDialog.Builder(activity)
+                .setView(view)
                 .setPositiveButton(R.string.offline_dialog_go_online_continue, null)
                 .create()
                 .show();

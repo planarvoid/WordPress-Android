@@ -85,7 +85,6 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
         setOfflineVisibility();
 
         return new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.create_new_playlist)
                 .setView(dialogView)
                 .setPositiveButton(R.string.btn_done, new DialogInterface.OnClickListener() {
                     @Override

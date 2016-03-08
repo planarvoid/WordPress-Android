@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
 
 import javax.inject.Inject;
 
@@ -53,11 +55,14 @@ public class OfflineLikesDialog extends DialogFragment implements DialogInterfac
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new AlertDialog.Builder(getActivity())
+        final View view = new CustomFontViewBuilder(getActivity())
                 .setTitle(R.string.offline_likes_dialog_title)
-                .setMessage(R.string.offline_likes_dialog_message)
-                .setNegativeButton(R.string.btn_cancel, null)
+                .setMessage(R.string.offline_likes_dialog_message).get();
+
+        return new AlertDialog.Builder(getActivity())
+                .setView(view)
                 .setPositiveButton(R.string.make_offline_available, OfflineLikesDialog.this)
+                .setNegativeButton(R.string.btn_cancel, null)
                 .create();
     }
 

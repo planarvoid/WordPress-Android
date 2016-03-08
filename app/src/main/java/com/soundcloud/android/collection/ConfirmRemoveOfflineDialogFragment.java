@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.dialog.ImageAlertDialog;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.model.Urn;
@@ -20,6 +20,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
+import android.view.View;
 
 import javax.inject.Inject;
 
@@ -53,10 +55,13 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new ImageAlertDialog(getActivity())
-                .setContent(R.drawable.dialog_download,
-                        R.string.disable_offline_collection_title,
-                        R.string.disable_offline_collection_body)
+        final View view = new CustomFontViewBuilder(getActivity())
+                .setIcon(R.drawable.dialog_download)
+                .setTitle(R.string.disable_offline_collection_title)
+                .setMessage(R.string.disable_offline_collection_body).get();
+
+        return new AlertDialog.Builder(getActivity())
+                .setView(view)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

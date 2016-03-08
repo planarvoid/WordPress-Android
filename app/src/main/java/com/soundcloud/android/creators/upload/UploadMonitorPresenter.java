@@ -5,6 +5,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
@@ -224,8 +225,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
 
     private void showCancelDialog() {
         new AlertDialog.Builder(uploadMonitorFragment.getActivity())
-                .setTitle(null)
-                .setMessage(R.string.dialog_cancel_upload_message)
+                .setView(new CustomFontViewBuilder(uploadMonitorFragment.getActivity()).setTitle(R.string.dialog_cancel_upload_message).get())
                 .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
