@@ -21,7 +21,7 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.scAccount.logIn(getInstrumentation().getTargetContext());
     }
 
     @Override
