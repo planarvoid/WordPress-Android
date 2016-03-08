@@ -67,7 +67,7 @@ public class FadeDown extends Visibility {
         return new NoPauseAnimator(ObjectAnimator.ofPropertyValuesHolder(
                 endValues.view,
                 PropertyValuesHolder.ofFloat(View.ALPHA, 1f, 0f),
-                PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, 0f, 0f)));
+                PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, 0f, offset)));
     }
 
 }
