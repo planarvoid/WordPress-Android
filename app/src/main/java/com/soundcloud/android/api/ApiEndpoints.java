@@ -99,6 +99,7 @@ public enum ApiEndpoints {
     CONFIGURATION("/configuration/android"),
     RESOLVE_ENTITY("/resolve"),
     ME("/me"),
+    NOTIFICATION_PREFERENCES("/notification_preferences"),
 
     // public API
     PLAY_PUBLISH("/tpub"),

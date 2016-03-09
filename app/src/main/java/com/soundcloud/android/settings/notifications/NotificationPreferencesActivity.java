@@ -15,7 +15,7 @@ public class NotificationPreferencesActivity extends LoggedInActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentFragment(NotificationPreferencesFragment.create());
+        setContentFragment(new NotificationPreferencesFragment());
     }
 
     @Override

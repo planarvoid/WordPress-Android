@@ -16,6 +16,7 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
+import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.stream.SoundStreamOperations;
@@ -57,13 +58,14 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private CollectionOperations collectionOperations;
     @Mock private SoundStreamOperations soundStreamOperations;
     @Mock private ConfigurationOperations configurationOperations;
+    @Mock private NotificationPreferencesStorage notificationPreferencesStorage;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(userAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, syncCleanupAction, planStorage,
                 removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations,
-                collectionOperations, soundStreamOperations, configurationOperations);
+                collectionOperations, soundStreamOperations, configurationOperations, notificationPreferencesStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -165,6 +167,12 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldClearPolicies() {
         action.call();
         verify(clearTableCommand).call(Table.TrackPolicies);
+    }
+
+    @Test
+    public void shouldClearNotificationPreferences() {
+        action.call();
+        verify(notificationPreferencesStorage).clear();
     }
 
     @Test
