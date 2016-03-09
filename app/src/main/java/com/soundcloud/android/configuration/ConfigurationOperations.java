@@ -173,7 +173,12 @@ public class ConfigurationOperations {
         } else if (isPendingDowngrade()) {
             return awaitConfigurationWithPlan(configurationSettingsStorage.getPendingPlanDowngrade());
         } else {
-            return Observable.error(new IllegalStateException("Expected a pending plan change, but none found."));
+            // this might seem counter-intuitive since it actually violates a precondition, but we actually
+            // found a case where due to abnormal termination of the offboarding activity, Android launched
+            // us back into it after we successfully completed the flow, so instead of throwing an error
+            // here we just nod and move on.
+            // See https://github.com/soundcloud/SoundCloud-Android/issues/5024
+            return Observable.empty();
         }
     }
 
