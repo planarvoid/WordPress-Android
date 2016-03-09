@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync.posts;
 
-import static com.soundcloud.android.storage.TableColumns.CollectionItems.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.propeller.query.Query.Order.DESC;
 
@@ -35,7 +34,7 @@ public class LoadLocalPostsCommand extends LegacyCommand<Object, List<PropertySe
         return database.query(Query.from(Table.Posts.name())
                 .select(Posts.TARGET_ID, Posts.CREATED_AT, Posts.TYPE)
                 .whereEq(Posts.TARGET_TYPE, resourceType)
-                .order(CREATED_AT, DESC)).toList(new PlaylistMapper(resourceType == TableColumns.Sounds.TYPE_PLAYLIST));
+                .order(Posts.CREATED_AT, DESC)).toList(new PlaylistMapper(resourceType == TableColumns.Sounds.TYPE_PLAYLIST));
     }
 
     private static class PlaylistMapper extends RxResultMapper<PropertySet> {

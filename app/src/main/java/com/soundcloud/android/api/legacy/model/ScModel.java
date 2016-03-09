@@ -6,10 +6,8 @@ import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
 import com.soundcloud.android.model.Urn;
 
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.provider.BaseColumns;
 
 import java.util.List;
 
@@ -50,14 +48,6 @@ public class ScModel implements Parcelable, Identifiable {
         if (hasUrn == 1) {
             urn = new Urn(parcel.readString());
         }
-    }
-
-    public ContentValues buildContentValues() {
-        ContentValues cv = new ContentValues();
-        if (getId() != NOT_SET) {
-            cv.put(BaseColumns._ID, getId());
-        }
-        return cv;
     }
 
     @Override

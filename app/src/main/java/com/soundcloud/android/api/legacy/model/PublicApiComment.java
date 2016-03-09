@@ -7,17 +7,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.behavior.RelatesToPlayable;
 import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
-import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.provider.BulkInsertMap;
-import com.soundcloud.android.storage.provider.Content;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentValues;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -98,63 +91,6 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
     private Date createdAt;
 
     public PublicApiComment() {
-    }
-
-    @Override
-    public void putDependencyValues(@NotNull BulkInsertMap destination) {
-        if (user != null) {
-            user.putFullContentValues(destination);
-        }
-        if (track != null) {
-            track.putFullContentValues(destination);
-        }
-    }
-
-    @Override
-    public Uri toUri() {
-       return Content.COMMENTS.forId(getId());
-    }
-
-
-    @Override
-    public Uri getBulkInsertUri() {
-        return Content.COMMENTS.uri;
-    }
-
-    public PublicApiComment(Cursor c, boolean view) {
-        if (view) {
-            setId(c.getLong(c.getColumnIndex(TableColumns.ActivityView.COMMENT_ID)));
-            track_id = c.getLong(c.getColumnIndex(TableColumns.ActivityView.SOUND_ID));
-            user_id = c.getLong(c.getColumnIndex(TableColumns.ActivityView.USER_ID));
-            user = PublicApiUser.fromActivityView(c);
-            body = c.getString(c.getColumnIndex(TableColumns.ActivityView.COMMENT_BODY));
-            timestamp = c.getLong(c.getColumnIndex(TableColumns.ActivityView.COMMENT_TIMESTAMP));
-            createdAt = new Date(c.getLong(c.getColumnIndex(TableColumns.ActivityView.COMMENT_CREATED_AT)));
-        } else {
-            setId(c.getLong(c.getColumnIndex(TableColumns.Comments._ID)));
-            track_id = c.getLong(c.getColumnIndex(TableColumns.Comments.TRACK_ID));
-            user_id = c.getLong(c.getColumnIndex(TableColumns.Comments.USER_ID));
-            body = c.getString(c.getColumnIndex(TableColumns.Comments.BODY));
-            timestamp = c.getLong(c.getColumnIndex(TableColumns.Comments.TIMESTAMP));
-            createdAt = new Date(c.getLong(c.getColumnIndex(TableColumns.Comments.CREATED_AT)));
-        }
-    }
-
-    public void calculateXPos(int parentWidth, long duration){
-        if (duration != 0) {
-            xPos = (int) ((timestamp * parentWidth)/duration);
-        }
-    }
-
-    @Override
-    public ContentValues buildContentValues() {
-        ContentValues cv = super.buildContentValues();
-        cv.put(TableColumns.Comments.CREATED_AT, createdAt.getTime());
-        cv.put(TableColumns.Comments.BODY, body);
-        cv.put(TableColumns.Comments.USER_ID, user_id);
-        cv.put(TableColumns.Comments.TRACK_ID, track_id);
-        cv.put(TableColumns.Comments.TIMESTAMP, timestamp);
-        return cv;
     }
 
     @Override @JsonIgnore

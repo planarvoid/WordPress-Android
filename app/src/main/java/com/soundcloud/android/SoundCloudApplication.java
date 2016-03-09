@@ -1,8 +1,5 @@
 package com.soundcloud.android;
 
-import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORITY;
-import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
-
 import com.facebook.FacebookSdk;
 import com.newrelic.agent.android.NewRelic;
 import com.newrelic.agent.android.logging.AgentLog;
@@ -63,7 +60,6 @@ import org.jetbrains.annotations.NotNull;
 
 import android.accounts.Account;
 import android.app.ActivityManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -119,6 +115,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory;
     @Inject FabricProvider fabricProvider;
     @Inject TrackOfflineStateProvider trackOfflineStateProvider;
+    @Inject SyncConfig syncConfig;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -243,8 +240,8 @@ public class SoundCloudApplication extends MultiDexApplication {
         final Account account = accountOperations.getSoundCloudAccount();
 
         if (account != null) {
-            if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
-                enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
+            if (!syncConfig.isSyncingEnabled(account)) {
+                syncConfig.enableSyncing(account);
             }
 
             // remove device url so clients resubmit the registration request with
@@ -301,7 +298,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
             // move this when we can't guarantee we will only have 1 account active at a time
-            enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
+            syncConfig.enableSyncing(account);
             requestSetsSync();
             return true;
         } else {

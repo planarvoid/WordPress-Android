@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
-import com.soundcloud.android.api.legacy.model.behavior.Persisted;
-import com.soundcloud.android.storage.provider.BulkInsertMap;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -22,7 +19,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = PublicApiPlaylist.class, name = "playlist")})
 public abstract class PublicApiResource
         extends ScModel
-        implements Identifiable, Persisted {
+        implements Identifiable {
 
     @JsonIgnore
     public long last_updated = NOT_SET;
@@ -40,14 +37,6 @@ public abstract class PublicApiResource
 
     public void setUpdated() {
         last_updated = System.currentTimeMillis();
-    }
-
-    public enum CacheUpdateMode {
-        NONE, MINI, FULL;
-
-        public boolean shouldUpdate() {
-            return this != NONE;
-        }
     }
 
     @Override
@@ -73,27 +62,6 @@ public abstract class PublicApiResource
      */
     public boolean isSaved() {
         return getId() > NOT_SET;
-    }
-
-    /**
-     * Add resource's dependencies to the given map.
-     * Used for object persistence in DB.
-     *
-     * @param destination
-     */
-    @JsonIgnore
-    public void putDependencyValues(@NotNull BulkInsertMap destination) {
-        // no dependencies by default
-    }
-
-    /**
-     * Put all necessary content values into the map, includeing the object itself
-     *
-     * @param destination
-     */
-    public void putFullContentValues(@NotNull BulkInsertMap destination) {
-        putDependencyValues(destination);
-        destination.add(getBulkInsertUri(), buildContentValues());
     }
 
     public static class ResourceHolder<T extends PublicApiResource> extends CollectionHolder<T> {

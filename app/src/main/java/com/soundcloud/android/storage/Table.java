@@ -7,13 +7,10 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
     SoundStream(false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM),
     PromotedTracks(false, DatabaseSchema.DATABASE_CREATE_PROMOTED_TRACKS),
     Sounds(PrimaryKey.of(TableColumns.Sounds._ID, TableColumns.Sounds._TYPE), false, DatabaseSchema.DATABASE_CREATE_SOUNDS, TableColumns.Sounds.ALL_FIELDS),
-    TrackMetadata(false, DatabaseSchema.DATABASE_CREATE_TRACK_METADATA, TableColumns.TrackMetadata.ALL_FIELDS),
     TrackPolicies(PrimaryKey.of(TableColumns.TrackPolicies.TRACK_ID), false, DatabaseSchema.DATABASE_CREATE_TRACK_POLICIES, TableColumns.TrackPolicies.ALL_FIELDS),
     Users(false, DatabaseSchema.DATABASE_CREATE_USERS, TableColumns.Users.ALL_FIELDS),
     Comments(false, DatabaseSchema.DATABASE_CREATE_COMMENTS),
     Activities(false, DatabaseSchema.DATABASE_CREATE_ACTIVITIES),
-    Recordings(false, DatabaseSchema.DATABASE_CREATE_RECORDINGS, TableColumns.Recordings.ALL_FIELDS),
-    Searches(false, DatabaseSchema.DATABASE_CREATE_SEARCHES),
     PlaylistTracks(PrimaryKey.of(
             TableColumns.PlaylistTracks._ID,
             TableColumns.PlaylistTracks.POSITION,
@@ -22,19 +19,7 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
 
     UserAssociations(false, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATIONS),
 
-    CollectionItems(PrimaryKey.of(
-            TableColumns.CollectionItems.USER_ID,
-            TableColumns.CollectionItems.ITEM_ID,
-            TableColumns.CollectionItems.COLLECTION_TYPE,
-            TableColumns.CollectionItems.RESOURCE_TYPE),
-            false, DatabaseSchema.DATABASE_CREATE_COLLECTION_ITEMS),
     Collections(PrimaryKey.of(TableColumns.Collections.URI), false, DatabaseSchema.DATABASE_CREATE_COLLECTIONS),
-    CollectionPages(PrimaryKey.of(
-            TableColumns.CollectionPages.COLLECTION_ID,
-            TableColumns.CollectionPages.PAGE_INDEX),
-            false, DatabaseSchema.DATABASE_CREATE_COLLECTION_PAGES),
-
-    Suggestions(false, DatabaseSchema.DATABASE_CREATE_SUGGESTIONS, TableColumns.Suggestions.ALL_FIELDS),
 
     Waveforms(PrimaryKey.of(TableColumns.Waveforms.TRACK_ID), false, DatabaseSchema.DATABASE_CREATE_WAVEFORMS),
 

@@ -3,11 +3,9 @@ package com.soundcloud.android.settings;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncConfig;
 
 import android.accounts.Account;
-import android.content.ContentResolver;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -21,6 +19,7 @@ import java.util.List;
 public class NotificationSettingsFragment extends PreferenceFragment {
 
     @Inject AccountOperations accountOperations;
+    @Inject SyncConfig syncConfig;
 
     final List<CheckBoxPreference> syncPreferences = new ArrayList<>();
 
@@ -68,11 +67,11 @@ public class NotificationSettingsFragment extends PreferenceFragment {
         }
         if (accountOperations.isUserLoggedIn()) {
             final Account account = accountOperations.getSoundCloudAccount();
-            final boolean autoSyncing = ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY);
+            final boolean autoSyncing = syncConfig.isAutoSyncing(account);
             if (sync && !autoSyncing) {
-                ScContentProvider.enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
+                syncConfig.enableSyncing(account);
             } else if (!sync && autoSyncing) {
-                ScContentProvider.disableSyncing(account);
+                syncConfig.disableSyncing(account);
             }
         }
         return sync;

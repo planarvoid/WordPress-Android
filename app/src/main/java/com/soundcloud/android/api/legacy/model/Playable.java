@@ -12,19 +12,12 @@ import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -87,60 +80,11 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     @JsonIgnore protected CharSequence elapsedTime;
     @JsonIgnore protected String artworkUri;
 
-    protected static int getIntOrNotSet(Cursor c, String column) {
-        final int index = c.getColumnIndex(column);
-        return c.isNull(index) ? ScModel.NOT_SET : c.getInt(index);
-    }
-
     public Playable() {
     }
 
     public Playable(long id) {
         super(id);
-    }
-
-    public Playable(Cursor cursor) {
-
-        final int trackIdIdx = cursor.getColumnIndex(TableColumns.ActivityView.SOUND_ID);
-        if (trackIdIdx == -1) {
-            setId(cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView._ID)));
-        } else {
-            setId(cursor.getLong(cursor.getColumnIndex(TableColumns.ActivityView.SOUND_ID)));
-        }
-        permalink = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.PERMALINK));
-        duration = cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.DURATION));
-
-        created_at = new Date(cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.CREATED_AT)));
-        tag_list = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TAG_LIST));
-        title = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TITLE));
-        permalink_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.PERMALINK_URL));
-        artwork_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.ARTWORK_URL));
-        downloadable = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.DOWNLOADABLE)) == 1;
-        streamable = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.STREAMABLE)) == 1;
-        sharing = Sharing.from(cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.SHARING)));
-        license = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.LICENSE));
-        genre = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.GENRE));
-        likes_count = getIntOrNotSet(cursor, TableColumns.SoundView.LIKES_COUNT);
-        reposts_count = getIntOrNotSet(cursor, TableColumns.SoundView.REPOSTS_COUNT);
-        user_id = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.USER_ID));
-
-        final long lastUpdated = cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.LAST_UPDATED));
-        if (lastUpdated > 0) {
-            last_updated = lastUpdated;
-        }
-
-        // gets joined in
-        final int favIdx = cursor.getColumnIndex(TableColumns.SoundView.USER_LIKE);
-        if (favIdx != -1) {
-            user_like = cursor.getInt(favIdx) == 1;
-        }
-        final int repostIdx = cursor.getColumnIndex(TableColumns.SoundView.USER_REPOST);
-        if (repostIdx != -1) {
-            user_repost = cursor.getInt(repostIdx) == 1;
-        }
-
-        user = PublicApiUser.fromSoundView(cursor);
-
     }
 
     public String getTitle() {
@@ -164,16 +108,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     }
 
     @Override
-    public boolean isStale() {
-        return false;
-    }
-
-    @Override
-    public boolean isIncomplete() {
-        return user == null || user.isIncomplete();
-    }
-
-    @Override
     @Nullable
     @JsonIgnore
     public PublicApiUser getUser() {
@@ -188,33 +122,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     @JsonIgnore
     public Playable getPlayable() {
         return this;
-    }
-
-    public String getArtwork() {
-        if (shouldLoadArtwork()) {
-            return artwork_url;
-        } else if (user != null && user.shouldLoadIcon()) {
-            return user.avatar_url;
-        } else {
-            return null;
-        }
-    }
-
-    public boolean shouldLoadArtwork() {
-        return ImageUtils.checkIconShouldLoad(artwork_url);
-    }
-
-    public void refreshTimeSinceCreated(Context context) {
-        if (created_at != null) {
-            elapsedTime = ScTextUtils.formatTimeElapsed(context.getResources(), created_at.getTime());
-        }
-    }
-
-    @Override
-    public void putDependencyValues(BulkInsertMap destination) {
-        if (user != null) {
-            user.putFullContentValues(destination);
-        }
     }
 
     public Bundle getBundle() {
@@ -293,113 +200,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         artworkUri = b.getString("list_artwork_uri");
     }
 
-    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    public ContentValues buildContentValues() {
-        ContentValues cv = super.buildContentValues();
-
-        cv.put(TableColumns.Sounds.PERMALINK, permalink);
-        cv.put(TableColumns.Sounds._TYPE, getTypeId());
-
-        // account for partial objects, don't overwrite local full objects
-        if (title != null) {
-            cv.put(TableColumns.Sounds.TITLE, title);
-        } else {
-            // adding this in for the time being to better understand these crashes:
-            // https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/53ebe1b3e3de5099baa83a9a
-            ErrorUtils.handleSilentException(new IllegalStateException("Attempting to insert a playable with a null title; id=" + getId()));
-        }
-        if (duration > 0) {
-            cv.put(TableColumns.Sounds.DURATION, duration);
-        }
-        if (user_id != 0) {
-            cv.put(TableColumns.Sounds.USER_ID, user_id);
-        } else if (user != null && user.isSaved()) {
-            cv.put(TableColumns.Sounds.USER_ID, user.getId());
-        }
-        if (created_at != null) {
-            cv.put(TableColumns.Sounds.CREATED_AT, created_at.getTime());
-        }
-        if (tag_list != null) {
-            cv.put(TableColumns.Sounds.TAG_LIST, tag_list);
-        }
-        if (permalink_url != null) {
-            cv.put(TableColumns.Sounds.PERMALINK_URL, permalink_url);
-        }
-        if (artwork_url != null) {
-            cv.put(TableColumns.Sounds.ARTWORK_URL, artwork_url);
-        }
-        if (downloadable) {
-            cv.put(TableColumns.Sounds.DOWNLOADABLE, downloadable);
-        }
-        if (streamable) {
-            cv.put(TableColumns.Sounds.STREAMABLE, streamable);
-        }
-        if (sharing != Sharing.UNDEFINED) {
-            cv.put(TableColumns.Sounds.SHARING, sharing.value);
-        }
-        if (license != null) {
-            cv.put(TableColumns.Sounds.LICENSE, license);
-        }
-        if (genre != null) {
-            cv.put(TableColumns.Sounds.GENRE, genre);
-        }
-        if (likes_count != -1) {
-            cv.put(TableColumns.Sounds.LIKES_COUNT, likes_count);
-        }
-        if (reposts_count != -1) {
-            cv.put(TableColumns.Sounds.REPOSTS_COUNT, reposts_count);
-        }
-        return cv;
-    }
-
-    public Playable updateFrom(Playable updatedItem, CacheUpdateMode cacheUpdateMode) {
-        setId(updatedItem.getId());
-        title = updatedItem.title;
-        permalink = updatedItem.permalink;
-
-        user_id = updatedItem.user_id;
-        uri = updatedItem.uri;
-
-        if (cacheUpdateMode == CacheUpdateMode.FULL) {
-            duration = updatedItem.duration;
-            sharing = updatedItem.sharing;
-            streamable = updatedItem.streamable;
-            downloadable = updatedItem.downloadable;
-            artwork_url = updatedItem.artwork_url;
-            permalink_url = updatedItem.permalink_url;
-            user = updatedItem.user;
-            likes_count = updatedItem.likes_count;
-            reposts_count = updatedItem.reposts_count;
-            created_at = updatedItem.created_at;
-            description = updatedItem.description;
-            tag_list = updatedItem.tag_list;
-            license = updatedItem.license;
-            label_id = updatedItem.label_id;
-            label_name = updatedItem.label_name;
-            ean = updatedItem.ean;
-            genre = updatedItem.genre;
-            type = updatedItem.type;
-
-            purchase_url = updatedItem.purchase_url;
-            purchase_title = updatedItem.purchase_title;
-
-            release = updatedItem.release;
-            release_day = updatedItem.release_day;
-            release_year = updatedItem.release_year;
-            release_month = updatedItem.release_month;
-
-            embeddable_by = updatedItem.embeddable_by;
-
-            // these will get refreshed
-            elapsedTime = null;
-            artworkUri = null;
-
-            last_updated = updatedItem.last_updated;
-        }
-
-        return this;
-    }
-
     public Urn getUserUrn() {
         return user != null ? user.getUrn() : Urn.forUser(user_id);
     }
@@ -407,8 +207,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     public long getUserId() {
         return user != null ? user.getId() : user_id;
     }
-
-    public abstract int getTypeId();
 
     public boolean isPublic() {
         return sharing.isPublic();
@@ -418,10 +216,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         return sharing.isPrivate();
     }
 
-    public boolean hasAvatar() {
-        return user != null && user.hasAvatarUrl();
-    }
-
     public String getUsername() {
         return user != null ? user.username : "";
     }
@@ -429,10 +223,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     @NotNull
     public Sharing getSharing() {
         return sharing;
-    }
-
-    protected static boolean isTrackCursor(Cursor cursor) {
-        return cursor.getInt(cursor.getColumnIndex(TableColumns.Sounds._TYPE)) == DB_TYPE_TRACK;
     }
 
     public List<String> humanTags() {

@@ -4,14 +4,20 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.IOUtils;
 
+import android.accounts.Account;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.concurrent.TimeUnit;
 
+@Singleton
 public class SyncConfig {
     public static final long DEFAULT_SYNC_DELAY = TimeUnit.HOURS.toSeconds(1); // interval between syncs
+    public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
 
     static final long DEFAULT_NOTIFICATIONS_FREQUENCY = TimeUnit.HOURS.toMillis(4);
 
@@ -101,6 +107,25 @@ public class SyncConfig {
 
     public void disableServerSideNotifications() {
         setServerSideNotifications(false);
+    }
+
+    public boolean isSyncingEnabled(Account account) {
+        return ContentResolver.getIsSyncable(account, AUTHORITY) > 0;
+    }
+
+    public void enableSyncing(Account account) {
+        ContentResolver.setIsSyncable(account, AUTHORITY, 1);
+        ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
+        ContentResolver.addPeriodicSync(account, AUTHORITY, new Bundle(), DEFAULT_SYNC_DELAY);
+    }
+
+    public void disableSyncing(Account account) {
+        ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
+        ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
+    }
+
+    public boolean isAutoSyncing(Account account) {
+        return ContentResolver.getSyncAutomatically(account, AUTHORITY);
     }
 
     private void setServerSideNotifications(boolean isServerSideNotifications) {
