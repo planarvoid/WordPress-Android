@@ -37,8 +37,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ConfigurationOperations {
 
+    public static final String TAG = "Configuration";
     static final long CONFIGURATION_STALE_TIME_MILLIS = TimeUnit.MINUTES.toMillis(30);
-    static final String TAG = "Configuration";
 
     private static final String PARAM_EXPERIMENT_LAYERS = "experiment_layers";
 

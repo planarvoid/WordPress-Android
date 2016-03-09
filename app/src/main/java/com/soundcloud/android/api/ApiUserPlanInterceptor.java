@@ -1,7 +1,9 @@
 package com.soundcloud.android.api;
 
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeDetector;
+import com.soundcloud.android.utils.Log;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.Response;
 
@@ -11,6 +13,7 @@ import java.io.IOException;
 class ApiUserPlanInterceptor implements Interceptor {
 
     private static final String USER_PLAN_HEADER = "SC-Mob-UserPlan";
+    private static final String TAG = ConfigurationOperations.TAG;
 
     private final PlanChangeDetector planChangeDetector;
 
@@ -23,6 +26,7 @@ class ApiUserPlanInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         final Response response = chain.proceed(chain.request());
         final Plan remotePlan = Plan.fromId(response.header(USER_PLAN_HEADER));
+        Log.d(TAG, "Got remote plan: " + remotePlan + " for req=" + chain.request());
         planChangeDetector.handleRemotePlan(remotePlan);
         return response;
     }
