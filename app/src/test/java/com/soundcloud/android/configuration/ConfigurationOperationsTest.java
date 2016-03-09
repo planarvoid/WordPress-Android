@@ -233,7 +233,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void awaitConfigurationFromPendingPlanChangeFailsIfNoPendingChange() {
+    public void awaitConfigurationFromPendingPlanChangeCompletesImmediatelyIfNoPendingChange() {
         when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.UNDEFINED);
         final Configuration noPlan = getNoPlanConfiguration();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
@@ -243,7 +243,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
         configSubscriber.assertNoValues();
-        configSubscriber.assertError(IllegalStateException.class);
+        configSubscriber.assertCompleted();
     }
 
     @Test
