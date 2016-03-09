@@ -40,6 +40,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private AppCompatActivity activity;
     private MainPagerAdapter pagerAdapter;
     private ViewPager pager;
+    private TabLayout tabBar;
 
     @Inject
     MainTabsPresenter(NavigationModel navigationModel, BaseLayoutHelper layoutHelper,
@@ -118,7 +119,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private void selectItem(Screen screen) {
         int position = navigationModel.getPosition(screen);
         if (position != NavigationModel.NOT_FOUND) {
-            pager.setCurrentItem(position);
+            tabBar.getTabAt(position).select();
         }
     }
 
@@ -126,10 +127,11 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
         pager = (ViewPager) activity.findViewById(R.id.pager);
         pager.setPageMargin(ViewUtils.dpToPx(activity, 10));
         pager.setPageMarginDrawable(R.color.page_background);
-        bindPagerWithTabs(createTabs());
+        tabBar = createTabs();
+        bindPagerToTabs();
     }
 
-    private void bindPagerWithTabs(TabLayout tabBar) {
+    private void bindPagerToTabs() {
         pager.setAdapter(pagerAdapter);
         tabBar.setOnTabSelectedListener(tabSelectedListener(pager, pagerAdapter));
         pager.addOnPageChangeListener(pageChangeListenerFor(tabBar));
