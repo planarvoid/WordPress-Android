@@ -197,7 +197,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     public void onPremiumItemClicked(View view, List<ListItem> premiumItemsList) {
         final Urn firstPremiumItemUrn = premiumItemsList.get(0).getEntityUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo =
-                new SearchQuerySourceInfo(queryUrn, PREMIUM_ITEMS_POSITION, firstPremiumItemUrn);
+                pagingFunction.getSearchQuerySourceInfo(PREMIUM_ITEMS_POSITION, firstPremiumItemUrn);
         searchTracker.trackSearchItemClick(searchType, firstPremiumItemUrn, searchQuerySourceInfo);
         clickListenerFactory.create(searchTracker.getTrackingScreen(searchType), searchQuerySourceInfo)
                 .onItemClick(buildPlaylistWithPremiumContent(premiumItemsList), view, PREMIUM_ITEMS_POSITION);
