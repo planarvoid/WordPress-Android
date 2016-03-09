@@ -44,8 +44,7 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
 
     public void testPostsPlaylistClickOpensPlaylistPage() {
         final PlaylistElement expectedPlaylist = profileScreen
-                .getPlaylists()
-                .get(0);
+                .scrollToFirstPlaylist();
 
         String targetPlaylistTitle = expectedPlaylist.getTitle();
         assertEquals(expectedPlaylist.click().getTitle(), targetPlaylistTitle);

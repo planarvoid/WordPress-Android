@@ -72,6 +72,11 @@ public class ProfileScreen extends Screen {
         throw new IllegalStateException("Could not find playlist with a valid track count");
     }
 
+    public PlaylistElement scrollToFirstPlaylist() {
+        return PlaylistElement.forListItem(testDriver, scrollToItem(
+                With.id(R.id.playlist_list_item)));
+    }
+
     public List<PlaylistElement> getPlaylists() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
