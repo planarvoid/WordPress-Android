@@ -1004,6 +1004,24 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.getCurrentPlayQueueItem().getUrn()).isEqualTo(track2);
     }
 
+    @Test
+    public void insertPlaylistTracksKeepsCurrentPlayQueueItemIfAfterPlaylist() {
+        final Urn track1 = Urn.forTrack(1);
+        final List<Urn> urns = Arrays.asList(Urn.forPlaylist(123), Urn.forPlaylist(123), track1);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(urns, playlistSessionSource), playlistSessionSource, 2);
+
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(3);
+        assertThat(playQueueManager.getCurrentPlayQueueItem().getUrn()).isEqualTo(track1);
+
+        final Urn track2 = Urn.forTrack(2);
+        final Urn track3 = Urn.forTrack(3);
+        playQueueManager.insertPlaylistTracks(Urn.forPlaylist(123), Arrays.asList(track2, track3));
+
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(5);
+        assertThat(playQueueManager.getCurrentPlayQueueItem().getUrn()).isEqualTo(track1);
+    }
+
     public void removeUpcomingItemDoesNotRemoveCurrentItem() {
         final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
         final int currentPosition = playQueueManager.getCurrentPosition();
@@ -1046,6 +1064,22 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.getQueueSize()).isEqualTo(2);
         assertThat(playQueueManager.getCurrentQueueTrackUrns()).isEqualTo(TestUrns.createTrackUrns(1L, 3L));
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).isQueueUpdate()).isTrue();
+    }
+
+    @Test
+    public void getUpcomingPlayQueueItemsReturnsUpcomingItems() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource), playlistSessionSource, 1);
+        assertThat(playQueueManager.getUpcomingPlayQueueItems(2)).isEqualTo(TestUrns.createTrackUrns(3L, 4L));
+    }
+
+    @Test
+    public void getPreviousPlayQueueItemsReturnsPreviousItems() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource), playlistSessionSource, 3);
+        assertThat(playQueueManager.getPreviousPlayQueueItems(3)).isEqualTo(TestUrns.createTrackUrns(1L, 2L, 3L));
     }
 
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {

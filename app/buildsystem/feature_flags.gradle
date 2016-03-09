@@ -47,12 +47,14 @@ android {
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
 
     beta {
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
 
     debug {
@@ -63,6 +65,7 @@ android {
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
 
     end2end {
@@ -70,24 +73,28 @@ android {
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
 
     release {
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
 
     releaseNoProguard {
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
 
     release_non_play_store {
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
   }
 }

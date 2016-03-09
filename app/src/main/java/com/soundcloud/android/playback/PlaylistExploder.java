@@ -16,6 +16,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +24,8 @@ import java.util.Set;
 
 public class PlaylistExploder {
 
-    static final int PLAYLIST_LOOKAHEAD_COUNT = 10;
+    static final int PLAYLIST_LOOKAHEAD_COUNT = 8;
+    static final int PLAYLIST_LOOKBEHIND_COUNT = 4;
 
     private final EventBus eventBus;
     private final PlaylistOperations playlistOperations;
@@ -59,7 +61,7 @@ public class PlaylistExploder {
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            final Collection<Urn> playlists = getUpcomingPlaylists();
+            final Collection<Urn> playlists = getSurroundingPlaylists();
             for (final Urn playlist : playlists) {
                 if (!playlistLoads.contains(playlist)) {
                     loadPlaylistTracks(playlist);
@@ -91,9 +93,10 @@ public class PlaylistExploder {
         };
     }
 
-    private Collection<Urn> getUpcomingPlaylists() {
-        final List<Urn> upcomingPlayQueueItems = playQueueManager.getUpcomingPlayQueueItems(PLAYLIST_LOOKAHEAD_COUNT);
-        return MoreCollections.filter(upcomingPlayQueueItems, new Predicate<Urn>() {
+    private Collection<Urn> getSurroundingPlaylists() {
+        final List<Urn> surrounding = new ArrayList<>(playQueueManager.getUpcomingPlayQueueItems(PLAYLIST_LOOKAHEAD_COUNT));
+        surrounding.addAll(playQueueManager.getPreviousPlayQueueItems(PLAYLIST_LOOKBEHIND_COUNT));
+        return MoreCollections.filter(surrounding, new Predicate<Urn>() {
             @Override
             public boolean apply(Urn input) {
                 return input.isPlaylist();

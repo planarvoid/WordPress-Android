@@ -45,20 +45,27 @@ public class PlaylistExploderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void insertsPlaylistTracksForUpcomingPlaylists() {
+    public void insertsPlaylistTracksForSurroundingPlaylists() {
         final Urn playlistUrn1 = Urn.forPlaylist(123);
         final Urn playlistUrn2 = Urn.forPlaylist(456);
+        final Urn playlistUrn3 = Urn.forPlaylist(789);
         final List<Urn> trackUrns1 = Collections.singletonList(Urn.forTrack(123));
         final List<Urn> trackUrns2 = Collections.singletonList(Urn.forTrack(456));
+        final List<Urn> trackUrns3 = Collections.singletonList(Urn.forTrack(789));
         when(playQueueManager.getUpcomingPlayQueueItems(PlaylistExploder.PLAYLIST_LOOKAHEAD_COUNT))
                 .thenReturn(Arrays.asList(playlistUrn1, playlistUrn2));
+        when(playQueueManager.getPreviousPlayQueueItems(PlaylistExploder.PLAYLIST_LOOKBEHIND_COUNT))
+                .thenReturn(Arrays.asList(playlistUrn3));
+
         when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(Observable.just(trackUrns1));
         when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(Observable.just(trackUrns2));
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn3)).thenReturn(Observable.just(trackUrns3));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).insertPlaylistTracks(playlistUrn1, trackUrns1);
         verify(playQueueManager).insertPlaylistTracks(playlistUrn2, trackUrns2);
+        verify(playQueueManager).insertPlaylistTracks(playlistUrn3, trackUrns3);
     }
 
     @Test

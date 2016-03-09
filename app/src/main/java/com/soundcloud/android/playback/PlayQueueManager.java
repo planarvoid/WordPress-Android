@@ -105,7 +105,16 @@ public class PlayQueueManager implements OriginProvider {
     public List<Urn> getUpcomingPlayQueueItems(int count) {
         if (hasNextItem()) {
             final int nextPosition = currentPosition + 1;
-            return playQueue.getItemUrns(nextPosition, nextPosition + count);
+            return playQueue.getItemUrns(nextPosition, count);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public List<Urn> getPreviousPlayQueueItems(int count) {
+        if (hasPreviousItem()) {
+            final int firstPosition = Math.max(0, currentPosition - count);
+            return playQueue.getItemUrns(firstPosition, currentPosition - firstPosition);
         } else {
             return Collections.emptyList();
         }
@@ -114,11 +123,17 @@ public class PlayQueueManager implements OriginProvider {
     public void insertPlaylistTracks(Urn playlistUrn, List<Urn> tracks) {
         for (PlayQueueItem item : playQueue.itemsWithUrn(playlistUrn)) {
             PlayableQueueItem playableQueueItem = (PlayableQueueItem) item;
+
+            final int index = playQueue.indexOfPlayQueueItem(item);
+            if (index < currentPosition) {
+                currentPosition += tracks.size() - 1;
+            }
+
             List<PlayQueueItem> items = new ArrayList<>(tracks.size());
             for (Urn track : tracks) {
                 items.add(new TrackQueueItem.Builder(track).copySource(playableQueueItem).build());
             }
-            playQueue.replaceItem(playQueue.indexOfPlayQueueItem(item), items);
+            playQueue.replaceItem(index, items);
         }
         publishQueueUpdate();
     }
