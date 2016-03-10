@@ -77,6 +77,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void openHomeAsRootScreen() {
         navigator.openHomeAsRootScreen(activityContext);
+        assertThat(activityContext).isFinishing();
         assertThat(activityContext).nextStartedIntent()
                 .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -112,6 +113,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void openCollectionAsRootScreen() {
         navigator.openCollectionAsRootScreen(activityContext);
+        assertThat(activityContext).isFinishing();
         assertThat(activityContext).nextStartedIntent()
                 .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
