@@ -23,7 +23,7 @@ public class UnrecoverableErrorDialog extends DialogFragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
-            navigator.openHomeAsRootScreen(getContext());
+            navigator.openHomeAsRootScreen(getActivity());
         }
     };
 

@@ -74,8 +74,9 @@ public class Navigator {
         context.startActivity(createHomeIntent(context));
     }
 
-    public void openHomeAsRootScreen(Context context) {
-        context.startActivity(rootScreen(createHomeIntent(context)));
+    public void openHomeAsRootScreen(Activity activity) {
+        activity.finish();
+        activity.startActivity(rootScreen(createHomeIntent(activity)));
     }
 
     public void launchHome(Context context, @Nullable Bundle extras) {
@@ -239,8 +240,9 @@ public class Navigator {
         context.startActivity(createStreamIntent(screen));
     }
 
-    public void openCollectionAsRootScreen(Context context) {
-        context.startActivity(rootScreen(new Intent(Actions.COLLECTION).setFlags(FLAGS_TOP)));
+    public void openCollectionAsRootScreen(Activity activity) {
+        activity.finish();
+        activity.startActivity(rootScreen(new Intent(Actions.COLLECTION).setFlags(FLAGS_TOP)));
     }
 
     public void openLauncher(Context context) {
