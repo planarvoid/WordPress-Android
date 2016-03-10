@@ -11,6 +11,7 @@ import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 
@@ -65,17 +66,25 @@ public class MainActivity extends PlayerActivity {
         finish();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        setupUpgradeUpsell();
-    }
-
     private void setupUpgradeUpsell() {
         if (getIntent().getBooleanExtra(Navigator.EXTRA_UPGRADE_INTENT, false)) {
             getIntent().removeExtra(Navigator.EXTRA_UPGRADE_INTENT);
             navigator.openUpgrade(this);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            setupUpgradeUpsell();
+        }
+    }
+
+    @Override
+    public void onEnterAnimationComplete() {
+        setupUpgradeUpsell();
     }
 
     @Override
