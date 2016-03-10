@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class MetadataFragment extends LightCycleSupportFragment {
+public class MetadataFragment extends LightCycleSupportFragment<MetadataFragment> {
 
     @Inject @LightCycle MetadataPresenter metadataPresenter;
 

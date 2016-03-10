@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 
-class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsFragment>
+class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollableProfileFragment>
         implements SwipeRefreshLayout.OnRefreshListener {
 
     private boolean isNotEmpty;
@@ -47,7 +47,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     }
 
     @Override
-    public void onCreate(UserDetailsFragment fragment, Bundle bundle) {
+    public void onCreate(ScrollableProfileFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
 
@@ -57,7 +57,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     }
 
     @Override
-    public void onViewCreated(final UserDetailsFragment fragment, View view, Bundle savedInstanceState) {
+    public void onViewCreated(final ScrollableProfileFragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
         userDetailsView.setView(view);
@@ -93,7 +93,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     }
 
     @Override
-    public void onDestroyView(UserDetailsFragment fragment) {
+    public void onDestroyView(ScrollableProfileFragment fragment) {
         refreshLayout = null;
         userDetailsView.setListener(null);
         userDetailsView.clearViews();

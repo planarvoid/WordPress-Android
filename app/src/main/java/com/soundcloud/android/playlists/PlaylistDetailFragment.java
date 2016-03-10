@@ -64,7 +64,7 @@ import java.util.List;
 
 @SuppressLint("ValidFragment")
 @SuppressWarnings("PMD.TooManyFields")
-public class PlaylistDetailFragment extends LightCycleSupportFragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, PlaylistDetailsController.Listener {
+public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDetailFragment> implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, PlaylistDetailsController.Listener {
 
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";

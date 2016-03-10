@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class RecommendedTracksFragment extends LightCycleSupportFragment implements RefreshableScreen {
+public class RecommendedTracksFragment extends LightCycleSupportFragment<RecommendedTracksFragment> implements RefreshableScreen {
 
     private static final String EXTRA_LOCAL_SEED_ID = "localSeedId";
 

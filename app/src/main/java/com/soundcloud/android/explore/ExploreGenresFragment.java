@@ -34,7 +34,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 
 @SuppressLint("ValidFragment")
-public class ExploreGenresFragment extends LightCycleSupportFragment
+public class ExploreGenresFragment extends LightCycleSupportFragment<ExploreGenresFragment>
         implements ReactiveListComponent<ConnectableObservable<GenreSection<ExploreGenre>>> {
 
     private static final Func1<ExploreGenresSections, Observable<GenreSection<ExploreGenre>>> GENRES_TO_SECTIONS =

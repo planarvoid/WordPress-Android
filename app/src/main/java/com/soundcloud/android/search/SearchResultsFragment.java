@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class SearchResultsFragment extends LightCycleSupportFragment implements RefreshableScreen {
+public class SearchResultsFragment extends LightCycleSupportFragment<SearchResultsFragment> implements RefreshableScreen {
 
     static final String EXTRA_QUERY = "query";
     static final String EXTRA_TYPE = "type";

@@ -16,7 +16,7 @@ import com.soundcloud.android.utils.ProfileScrollHelper;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleBinder;
+import com.soundcloud.lightcycle.LightCycles;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -65,7 +65,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.featureFlags = featureFlags;
-        LightCycleBinder.bind(this);
+        LightCycles.bind(this);
     }
 
     @Override

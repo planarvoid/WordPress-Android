@@ -8,7 +8,7 @@ import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import android.os.Bundle;
 import android.view.View;
 
-public abstract class ScrollableProfileFragment extends LightCycleSupportFragment implements ProfileScreen, RefreshableScreen {
+public abstract class ScrollableProfileFragment extends LightCycleSupportFragment<ScrollableProfileFragment> implements ProfileScreen, RefreshableScreen {
 
     private Integer pendingEmptyViewHeight;
     private Boolean pendingRefreshState;

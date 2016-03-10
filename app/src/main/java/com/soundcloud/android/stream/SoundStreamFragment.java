@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class SoundStreamFragment extends LightCycleSupportFragment implements RefreshableScreen, ScrollContent {
+public class SoundStreamFragment extends LightCycleSupportFragment<SoundStreamFragment> implements RefreshableScreen, ScrollContent {
 
     @Inject @LightCycle SoundStreamPresenter presenter;
 
