@@ -8,8 +8,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.view.FixedWidthView;
 import com.soundcloud.android.view.WaveformScrollView;
 import com.soundcloud.android.waveform.WaveformData;
-import me.everything.android.ui.overscroll.HorizontalOverScrollBounceEffectDecorator;
-import me.everything.android.ui.overscroll.adapters.HorizontalScrollViewOverScrollDecorAdapter;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
@@ -144,18 +142,6 @@ public class WaveformView extends FrameLayout {
 
         leftLine.setImageDrawable(createLoadingDrawable(progressAboveEnd, unplayableAbovePaint));
         rightLine.setImageDrawable(createLoadingDrawable(unplayedAbove, unplayableBelowPaint));
-    }
-
-    void configureOverscroller(boolean useSpringOverscroll) {
-        if (useSpringOverscroll){
-            new HorizontalOverScrollBounceEffectDecorator(new HorizontalScrollViewOverScrollDecorAdapter(dragViewHolder),
-                    OVERSCROLL_TOUCH_DRAG_RATIO_FWD,
-                    HorizontalOverScrollBounceEffectDecorator.DEFAULT_TOUCH_DRAG_MOVE_RATIO_BCK,
-                    OVERSCROLL_DECELERATE_FACTOR
-            );
-        } else {
-            dragViewHolder.setOverScrollMode(OVER_SCROLL_NEVER);
-        }
     }
 
     public void setOnWidthChangedListener(OnWidthChangedListener onWidthChangedListener) {

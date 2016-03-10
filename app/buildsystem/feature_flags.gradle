@@ -15,7 +15,6 @@ enum Feature {
   DISCOVERY_CHARTS,
   DISCOVERY_RECOMMENDATIONS,
   VIDEO_ADS,
-  WAVEFORM_SPRING,
   PROFILE_NEW_TABS,
   EXPLODE_PLAYLISTS_IN_PLAYQUEUES;
 }
@@ -32,7 +31,6 @@ android {
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.WAVEFORM_SPRING.name(), FALSE
     buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), FALSE
     buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE
   }
