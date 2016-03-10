@@ -2,6 +2,7 @@ package com.soundcloud.android.configuration;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,7 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
+import java.io.IOException;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -88,7 +90,19 @@ public class PlanChangeOperationsTest {
     }
 
     @Test
-    public void downgradeShouldResetPendingPlanChangeFlagsOnError() {
+    public void downgradeShouldNotResetPendingPlanChangeFlagsOnNetworkErrors() {
+        when(configurationOperations.awaitConfigurationFromPendingPlanChange())
+                .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
+        when(policyOperations.refreshedTrackPolicies())
+                .thenReturn(Observable.<List<Urn>>error(new IOException()));
+
+        operations.awaitAccountDowngrade().subscribe(subscriber);
+
+        verify(configurationOperations, never()).clearPendingPlanChanges();
+    }
+
+    @Test
+    public void downgradeShouldResetPendingPlanChangeFlagsOnOtherError() {
         when(configurationOperations.awaitConfigurationFromPendingPlanChange())
                 .thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
         when(policyOperations.refreshedTrackPolicies())
@@ -164,7 +178,17 @@ public class PlanChangeOperationsTest {
     }
 
     @Test
-    public void upgradeShouldResetPendingPlanChangeFlagsOnError() {
+    public void upgradeShouldNotResetPendingPlanChangeFlagsOnNetworkErrors() {
+        when(configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER))
+                .thenReturn(Observable.<Configuration>error(new IOException()));
+
+        operations.awaitAccountUpgrade().subscribe(subscriber);
+
+        verify(configurationOperations, never()).clearPendingPlanChanges();
+    }
+
+    @Test
+    public void upgradeShouldResetPendingPlanChangeFlagsOnOtherErrors() {
         when(configurationOperations.awaitConfigurationWithPlan(Plan.HIGH_TIER))
                 .thenReturn(Observable.<Configuration>error(new Exception()));
 
