@@ -173,6 +173,20 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clickingRetryOnNetworkErrorTogglesProgressSpinner() {
+        when(planChangeOperations.awaitAccountUpgrade())
+                .thenReturn(Observable.error(new IOException()), Observable.never());
+
+        presenter.onCreate(activity, null);
+        presenter.onSetupOfflineClicked();
+
+        assertThat(view.isSetUpOfflineButtonWaiting).isFalse();
+        assertThat(view.isSetUpOfflineButtonRetry).isTrue();
+        presenter.onSetupOfflineClicked();
+        assertThat(view.isSetUpOfflineButtonWaiting).isTrue();
+    }
+
+    @Test
     public void displayErrorDialogOnNonNetworkError() {
         when(planChangeOperations.awaitAccountUpgrade())
                 .thenReturn(Observable.error(ApiRequestException.malformedInput(null, new ApiMapperException("test"))));

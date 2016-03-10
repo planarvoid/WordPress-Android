@@ -47,11 +47,19 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         this.eventBus = eventBus;
     }
 
+    private LoadingStrategy initialLoadingStrategy() {
+        return new LoadingStrategy(false);
+    }
+
+    private LoadingStrategy retryLoadingStrategy() {
+        return new LoadingStrategy(true);
+    }
+
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
         this.fragment = fragment;
         context = StrategyContext.USER_NO_ACTION;
-        strategy = new InitStrategy().proceed();
+        strategy = initialLoadingStrategy().proceed();
     }
 
     @Override
@@ -87,7 +95,7 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
     private class DowngradeCompleteSubscriber extends DefaultSubscriber<Object> {
 
         @Override
-        public void onNext(Object args) {
+        public void onCompleted() {
             strategy = new SuccessStrategy().proceed();
         }
 
@@ -108,10 +116,18 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         Strategy proceed();
     }
 
-    private class InitStrategy implements Strategy {
+    private class LoadingStrategy implements Strategy {
+
+        private boolean isRetrying;
+
+        private LoadingStrategy(boolean isRetrying) {
+            this.isRetrying = isRetrying;
+        }
+
         @Override
         public Strategy proceed() {
-            strategy = new PendingStrategy();
+            strategy = isRetrying ? new PendingStrategy().proceed() : new PendingStrategy();
+            subscription.unsubscribe();
             subscription = operations.awaitAccountDowngrade()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new DowngradeCompleteSubscriber());
@@ -161,10 +177,10 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
             switch (context) {
                 case USER_CONTINUE:
                     view.setContinueButtonRetry();
-                    return new InitStrategy();
+                    return retryLoadingStrategy();
                 case USER_RESUBSCRIBE:
                     view.setResubscribeButtonRetry();
-                    return new InitStrategy();
+                    return retryLoadingStrategy();
                 default:
                     return this;
             }
@@ -178,11 +194,11 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
                 case USER_CONTINUE:
                     view.setContinueButtonRetry();
                     view.showErrorDialog(fragment.getFragmentManager());
-                    return new InitStrategy();
+                    return retryLoadingStrategy();
                 case USER_RESUBSCRIBE:
                     view.setResubscribeButtonRetry();
                     view.showErrorDialog(fragment.getFragmentManager());
-                    return new InitStrategy();
+                    return retryLoadingStrategy();
                 default:
                     return this;
             }

@@ -141,6 +141,20 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void clickingRetryOnNetworkErrorTogglesProgressSpinner() {
+        when(operations.awaitAccountDowngrade())
+                .thenReturn(Observable.error(new IOException()), Observable.never());
+
+        presenter.onCreate(fragment, null);
+        presenter.onContinueClicked();
+
+        assertThat(view.isContinueButtonWaiting).isFalse();
+        assertThat(view.isContinueButtonRetry).isTrue();
+        presenter.onContinueClicked();
+        assertThat(view.isContinueButtonWaiting).isTrue();
+    }
+
+    @Test
     public void clickingResubscribeOpensUpgradeScreenIfDowngradeAlreadyCompleted() {
         when(operations.awaitAccountDowngrade()).thenReturn(Observable.just(downgradeResult));
 
