@@ -73,9 +73,7 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.CollectionsTest",
           "com.soundcloud.android.framework.annotation.GoogleAccountTest",
           "com.soundcloud.android.framework.annotation.QueueExplosionTest",
-          "com.soundcloud.android.framework.annotation.StationsTabTest",
-          "com.soundcloud.android.framework.annotation.SearchResultsHighTier",
-          "com.soundcloud.android.framework.annotation.OfflineSyncTest"
+          "com.soundcloud.android.framework.annotation.StationsTabTest"
   ] as String[]
 
   runTests("Lollipop", excludeAnnotations, systemProperties, null, null)

@@ -29,4 +29,9 @@ public class WebCheckoutActivity extends LoggedInActivity {
             super.onBackPressed();
         }
     }
+
+    @Override
+    protected boolean receiveConfigurationUpdates() {
+        return false;
+    }
 }

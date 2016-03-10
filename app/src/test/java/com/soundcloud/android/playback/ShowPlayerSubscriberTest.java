@@ -26,10 +26,10 @@ public class ShowPlayerSubscriberTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showsPlayerAsCollapsedOnSuccessfulPlaybackResult() {
+    public void showsPlayerOnSuccessfulPlaybackResult() {
         subscriber.onNext(PlaybackResult.success());
 
-        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isCollapse()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).isTrue();
     }
 
     @Test

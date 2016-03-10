@@ -46,7 +46,7 @@ class LegacyProfilePagerAdapter extends FragmentPagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         final Fragment item = (Fragment) super.instantiateItem(container, position);
-        if (item instanceof ProfileScreen){
+        if (item instanceof ProfileScreen) {
             activtyScrollHelper.addProfileCollection((ProfileScreen) item);
         }
         return item;
@@ -54,7 +54,7 @@ class LegacyProfilePagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        if (object instanceof ProfileScreen){
+        if (object instanceof ProfileScreen) {
             activtyScrollHelper.removeProfileScreen((ProfileScreen) object);
         }
         super.destroyItem(container, position, object);
@@ -65,26 +65,26 @@ class LegacyProfilePagerAdapter extends FragmentPagerAdapter {
         switch (position) {
             case TAB_INFO:
                 return UserDetailsFragment.create(userUrn);
-
             case TAB_POSTS:
-                return isLoggedInUser ? MyPostsFragment.create(Screen.YOUR_POSTS, searchQuerySourceInfo) :
-                        UserPostsFragment.create(userUrn, Screen.USER_POSTS, searchQuerySourceInfo);
-
+                return isLoggedInUser
+                        ? MyPostsFragment.create(Screen.YOUR_POSTS, searchQuerySourceInfo)
+                        : UserPostsFragment.create(userUrn, Screen.USER_POSTS, searchQuerySourceInfo);
             case TAB_PLAYLISTS:
-                return isLoggedInUser ? MyPlaylistsFragment.create(Screen.YOUR_PLAYLISTS, searchQuerySourceInfo) :
-                        UserPlaylistsFragment.create(userUrn, Screen.USER_PLAYLISTS, searchQuerySourceInfo);
-
+                return isLoggedInUser
+                        ? MyPlaylistsFragment.create(Screen.YOUR_PLAYLISTS, searchQuerySourceInfo)
+                        : UserPlaylistsFragment.create(userUrn, Screen.USER_PLAYLISTS, searchQuerySourceInfo);
             case TAB_LIKES:
-                return isLoggedInUser ? MyLikesFragment.create(Screen.YOUR_LIKES, searchQuerySourceInfo) :
-                        UserLikesFragment.create(userUrn, Screen.USER_LIKES, searchQuerySourceInfo);
-
+                return isLoggedInUser
+                        ? MyLikesFragment.create(Screen.YOUR_LIKES, searchQuerySourceInfo)
+                        : UserLikesFragment.create(userUrn, Screen.USER_LIKES, searchQuerySourceInfo);
             case TAB_FOLLOWINGS:
-                return isLoggedInUser ? MyFollowingsFragment.create(Screen.YOUR_FOLLOWINGS, searchQuerySourceInfo) :
-                        UserFollowingsFragment.create(userUrn, Screen.USER_FOLLOWINGS, searchQuerySourceInfo);
-
+                return isLoggedInUser
+                        ? MyFollowingsFragment.create(Screen.YOUR_FOLLOWINGS, searchQuerySourceInfo)
+                        : UserFollowingsFragment.create(userUrn, Screen.USER_FOLLOWINGS, searchQuerySourceInfo);
             case TAB_FOLLOWERS:
-                return UserFollowersFragment.create(userUrn, Screen.USER_FOLLOWERS, searchQuerySourceInfo);
-
+                return isLoggedInUser
+                        ? UserFollowersFragment.createForCurrentUser(userUrn, Screen.USER_FOLLOWERS, searchQuerySourceInfo)
+                        : UserFollowersFragment.create(userUrn, Screen.USER_FOLLOWERS, searchQuerySourceInfo);
             default:
                 throw new IllegalArgumentException("Unexpected position for " + position);
         }

@@ -41,44 +41,51 @@ android {
 
   buildTypes {
     alpha {
-      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
-      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), TRUE
       buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), TRUE
       buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), TRUE // Does nothing unless FEATURE_VIDEO_ADS is enabled
+      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
+      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     beta {
+      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     debug {
       buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), TRUE
-      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
-      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), TRUE
       buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), TRUE
       buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), TRUE // Does nothing unless FEATURE_VIDEO_ADS is enabled
+      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
+      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     end2end {
-      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PAYMENTS_TEST.name(), TRUE
+      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
+      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     release {
+      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     releaseNoProguard {
+      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }
 
     release_non_play_store {
+      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
     }

@@ -6,14 +6,12 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
-@Ignore
 public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
 
     private static final String STREAM_UPSELL_TRACKING_TEST = "stream_upsell_tracking_test";

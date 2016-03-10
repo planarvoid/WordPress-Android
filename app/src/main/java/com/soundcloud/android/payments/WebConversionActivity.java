@@ -19,4 +19,9 @@ public class WebConversionActivity extends LoggedInActivity {
     protected void setActivityContentView() {
         super.setContentView(R.layout.conversion_activity);
     }
+
+    @Override
+    protected boolean receiveConfigurationUpdates() {
+        return false;
+    }
 }

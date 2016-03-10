@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -17,7 +16,6 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 
-@Ignore
 public class ResolveDeepLinkBeforeAndAfterLogin extends ActivityTest<ResolveActivity> {
 
     public ResolveDeepLinkBeforeAndAfterLogin() {
