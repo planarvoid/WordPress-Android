@@ -7,6 +7,12 @@ import org.junit.Test;
 public class PlayerUICommandTest {
 
     @Test
+    public void createEventForShowPlayer() {
+        PlayerUICommand event = PlayerUICommand.showPlayer();
+        assertThat(event.isShow()).isTrue();
+    }
+
+    @Test
     public void createEventForExpandPlayer() {
         PlayerUICommand event = PlayerUICommand.expandPlayer();
         assertThat(event.isExpand()).isTrue();

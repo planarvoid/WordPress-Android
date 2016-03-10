@@ -130,7 +130,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
             castPlayer.playCurrent();
         }
 
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
     }
 
     @Override

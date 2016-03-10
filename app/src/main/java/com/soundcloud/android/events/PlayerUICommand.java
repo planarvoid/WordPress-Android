@@ -2,14 +2,22 @@ package com.soundcloud.android.events;
 
 public final class PlayerUICommand {
 
-    private static final int EXPAND_PLAYER = 0;
-    private static final int COLLAPSE_PLAYER = 1;
-    private static final int LOCK_PLAYER_EXPANDED = 2;
-    private static final int UNLOCK_PLAYER = 3;
-    private static final int FORCE_PLAYER_LANDSCAPE = 4;
-    private static final int FORCE_PLAYER_PORTRAIT = 5;
+    private static final int SHOW_PLAYER = 0;
+    private static final int EXPAND_PLAYER = 1;
+    private static final int COLLAPSE_PLAYER = 2;
+    private static final int LOCK_PLAYER_EXPANDED = 3;
+    private static final int UNLOCK_PLAYER = 4;
+    private static final int FORCE_PLAYER_LANDSCAPE = 5;
+    private static final int FORCE_PLAYER_PORTRAIT = 6;
 
     private final int kind;
+
+    /**
+     * Signals any on-screen instance of the player to be shown. If player was hidden, we will show it in the collapsed state
+     */
+    public static PlayerUICommand showPlayer() {
+        return new PlayerUICommand(SHOW_PLAYER);
+    }
 
     /**
      * Signals any on-screen instance of the player to expand. It will be made visible if hidden.
@@ -55,6 +63,10 @@ public final class PlayerUICommand {
 
     private PlayerUICommand(int kind) {
         this.kind = kind;
+    }
+
+    public boolean isShow() {
+        return kind == SHOW_PLAYER;
     }
 
     public boolean isExpand() {
