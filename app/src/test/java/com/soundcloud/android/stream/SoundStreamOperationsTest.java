@@ -20,7 +20,6 @@ import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.provider.Content;
@@ -64,7 +63,6 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     @Mock private MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     @Mock private FacebookInvitesOperations facebookInvitesOperations;
     @Mock private StationsOperations stationsOperations;
-    @Mock private FeatureFlags featureFlags;
     @Mock private UpsellOperations upsellOperations;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -86,7 +84,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
                                                              SyncStateStorage syncStateStorage) {
         return new SoundStreamOperations(storage, syncInitiator, contentStats, removeStalePromotedItemsCommand,
                 markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
-                stationsOperations, upsellOperations, featureFlags, syncStateStorage);
+                stationsOperations, upsellOperations, syncStateStorage);
     }
 
     @Override

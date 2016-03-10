@@ -43,7 +43,6 @@ public class DevDrawerFragment extends PreferenceFragment {
     @Inject DevDrawerExperimentsHelper drawerExperimentsHelper;
     @Inject ConfigurationManager configurationManager;
     @Inject Navigator navigator;
-    private SharedPreferences.OnSharedPreferenceChangeListener configurationUpdateListener;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -165,15 +164,14 @@ public class DevDrawerFragment extends PreferenceFragment {
             }
         });
         final SharedPreferences sharedPrefs = getActivity().getSharedPreferences(DEVICE_CONFIG_SETTINGS, Context.MODE_PRIVATE);
-        configurationUpdateListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        sharedPrefs.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 if (KEY_LAST_CONFIG_CHECK_TIME.equals(key)) {
-                    updateLastConfigUpdateText(updateConfigPref, sharedPreferences);
+                    DevDrawerFragment.this.updateLastConfigUpdateText(updateConfigPref, sharedPreferences);
                 }
             }
-        };
-        sharedPrefs.registerOnSharedPreferenceChangeListener(configurationUpdateListener);
+        });
         updateLastConfigUpdateText(updateConfigPref, sharedPrefs);
     }
 

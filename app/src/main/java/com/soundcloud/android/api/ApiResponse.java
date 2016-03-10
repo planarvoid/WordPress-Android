@@ -2,7 +2,6 @@ package com.soundcloud.android.api;
 
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 import org.apache.http.HttpStatus;

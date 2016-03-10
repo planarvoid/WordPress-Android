@@ -19,7 +19,7 @@ import android.widget.TextView;
 class ErrorViewController {
 
     enum ErrorState {
-        FAILED, BLOCKED, UNPLAYABLE;
+        FAILED, BLOCKED, UNPLAYABLE
     }
 
     private final View trackView;

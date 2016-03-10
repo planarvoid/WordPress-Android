@@ -3,6 +3,7 @@ package com.soundcloud.android.onboarding;
 
 import static com.soundcloud.android.onboarding.OnboardActivity.ONBOARDING_TAG;
 import static com.soundcloud.android.utils.ErrorUtils.log;
+import static java.util.Collections.singletonList;
 
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
     static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile", "email", "user_birthday", "user_friends", "user_likes");
-    static List<String> EMAIL_ONLY_PERMISSION = Arrays.asList("email");
+    static List<String> EMAIL_ONLY_PERMISSION = singletonList("email");
 
     private final WeakReference<FacebookLoginCallbacks> activityRef;
 

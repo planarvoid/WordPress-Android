@@ -103,7 +103,7 @@ public class StreamPreloader {
     };
 
     @NonNull
-    private final Func1<Object, PreloadItem> toPreloadItem(final PropertySet propertyBindings) {
+    private Func1<Object, PreloadItem> toPreloadItem(final PropertySet propertyBindings) {
         return new Func1<Object, PreloadItem>() {
             @Override
             public PreloadItem call(Object ignored) {

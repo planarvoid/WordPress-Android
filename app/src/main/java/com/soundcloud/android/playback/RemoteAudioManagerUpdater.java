@@ -60,7 +60,7 @@ public class RemoteAudioManagerUpdater {
                         }
                     });
         }
-    };;
+    };
 
     @Inject
     public RemoteAudioManagerUpdater(TrackRepository trackRepository,

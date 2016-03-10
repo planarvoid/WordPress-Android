@@ -39,7 +39,6 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     public static final String INFO_DIALOG_TAG = "info_dialog";
     public static final String ADD_COMMENT_DIALOG_TAG = "add_comment_dialog";
 
-    private final FeatureFlags featureFlags;
     private final FragmentActivity activity;
     private final PopupMenuWrapper popupMenuWrapper;
     private final PlayQueueManager playQueueManager;
@@ -54,15 +53,13 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     private long commentPosition;
 
-    private TrackPageMenuController(FeatureFlags featureFlags,
-                                    PlayQueueManager playQueueManager,
+    private TrackPageMenuController(PlayQueueManager playQueueManager,
                                     RepostOperations repostOperations,
                                     FragmentActivity context,
                                     PopupMenuWrapper popupMenuWrapper,
                                     StartStationPresenter startStationPresenter,
                                     EventBus eventBus,
                                     ShareOperations shareOperations) {
-        this.featureFlags = featureFlags;
         this.playQueueManager = playQueueManager;
         this.repostOperations = repostOperations;
         this.activity = context;
@@ -252,7 +249,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
         TrackPageMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
-            return new TrackPageMenuController(featureFlags, playQueueManager, repostOperations,
+            return new TrackPageMenuController(playQueueManager, repostOperations,
                     activityContext, popupMenuWrapperFactory.build(activityContext, anchorView),
                     startStationPresenter, eventBus, shareOperations);
         }

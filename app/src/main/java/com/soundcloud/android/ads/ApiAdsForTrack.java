@@ -3,14 +3,12 @@ package com.soundcloud.android.ads;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.VisibleForTesting;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

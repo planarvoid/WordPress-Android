@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync;
 
+import static java.util.Collections.singletonList;
+
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -7,7 +9,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 public class SingleJobRequest implements SyncRequest {
@@ -35,7 +36,7 @@ public class SingleJobRequest implements SyncRequest {
 
     @Override
     public Collection<? extends SyncJob> getPendingJobs() {
-        return Arrays.asList(syncJob);
+        return singletonList(syncJob);
     }
 
     @Override

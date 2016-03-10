@@ -2,7 +2,6 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.java.optional.Optional.absent;
 
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -12,8 +11,6 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
-
-import java.util.List;
 
 class SearchResultItem {
 

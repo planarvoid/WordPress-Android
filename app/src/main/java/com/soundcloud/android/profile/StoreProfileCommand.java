@@ -22,8 +22,6 @@ public class StoreProfileCommand extends Command<UserProfileRecord, Boolean> {
 
     @Override
     public Boolean call(UserProfileRecord profile) {
-        final List<RecordHolder> emptyList = Collections.emptyList();
-
         final ModelCollection<? extends ApiEntityHolderSource> spotlight = profile.getSpotlight();
         final ModelCollection<? extends ApiEntityHolder> tracks = profile.getTracks();
         final ModelCollection<? extends ApiEntityHolder> releases = profile.getReleases();
