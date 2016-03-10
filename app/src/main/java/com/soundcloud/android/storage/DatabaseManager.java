@@ -3,6 +3,7 @@ package com.soundcloud.android.storage;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.alterColumns;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropTable;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropView;
+import static com.soundcloud.android.storage.SchemaMigrationHelper.recreate;
 
 import com.soundcloud.android.utils.ErrorUtils;
 
@@ -21,7 +22,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 70;
+    public static final int DATABASE_VERSION = 71;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -206,6 +207,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 70:
                             success = upgradeTo70(db, oldVersion);
+                            break;
+                        case 71:
+                            success = upgradeTo71(db, oldVersion);
                             break;
                         default:
                             break;
@@ -727,6 +731,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 70);
+        }
+        return false;
+    }
+
+    /*
+     * Made Uri the primary key of Collections
+     */
+    private static boolean upgradeTo71(SQLiteDatabase db, int oldVersion) {
+        try {
+            recreate(Table.Collections, db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 71);
         }
         return false;
     }

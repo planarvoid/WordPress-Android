@@ -355,7 +355,6 @@ public class ScContentProvider extends ContentProvider {
     }
 
     private Uri doInsert(final Uri uri, final ContentValues values) {
-        final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserUrn().getNumericId();
         long id;
         Uri result;
         SQLiteDatabase db = databaseManager.getWritableDatabase();

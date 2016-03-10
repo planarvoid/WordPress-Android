@@ -26,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import android.app.Notification;
@@ -122,7 +121,7 @@ public abstract class SyncAdapterServiceTestBase {
         final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory = new SyncServiceResultReceiver.Factory(app,
                 Mockito.mock(SoundStreamNotifier.class),
                 Mockito.mock(ActivitiesNotifier.class),
-                new SyncStateManager(Robolectric.application),
+                Mockito.mock(SyncStateManager.class),
                 new ContentStats(app),
                 Mockito.mock(SyncConfig.class));
 
@@ -131,6 +130,7 @@ public abstract class SyncAdapterServiceTestBase {
                 extras, result, token,
                 Mockito.mock(UserAssociationStorage.class),
                 null,
+                Mockito.mock(SyncStateManager.class),
                 syncServiceResultReceiverFactory,
                 Mockito.mock(MyLikesStateProvider.class),
                 Mockito.mock(PlaylistStorage.class),

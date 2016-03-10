@@ -72,13 +72,14 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
         SyncResult syncResult = new SyncResult();
         final SoundCloudApplication application = Mockito.mock(SoundCloudApplication.class);
         final MyLikesStateProvider myLikesStateProvider = Mockito.mock(MyLikesStateProvider.class);
+        final SyncStateManager syncStateManager = Mockito.mock(SyncStateManager.class);
         final SyncServiceResultReceiver.Factory resultReceiverFactory = Mockito.mock(SyncServiceResultReceiver.Factory.class);
         final PlaylistStorage playlistStorage = Mockito.mock(PlaylistStorage.class);
         final SyncConfig syncConfig = Mockito.mock(SyncConfig.class);
         final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
         final UserAssociationStorage userAssociationStorage = Mockito.mock(UserAssociationStorage.class);
         expect(SyncAdapterService.performSync(application, null, syncResult, null, userAssociationStorage,
-                null, resultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig, featureFlags)).toBeFalse();
+                null, syncStateManager, resultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig, featureFlags)).toBeFalse();
         expect(syncResult.stats.numAuthExceptions).toBeGreaterThan(0L);
     }
 }

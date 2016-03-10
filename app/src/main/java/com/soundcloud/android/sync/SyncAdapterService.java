@@ -56,6 +56,7 @@ public class SyncAdapterService extends Service {
     @Inject SyncConfig syncConfig;
     @Inject FeatureFlags featureFlags;
     @Inject UserAssociationStorage userAssociationStorage;
+    @Inject SyncStateManager syncStateManager;
 
     public SyncAdapterService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -88,7 +89,7 @@ public class SyncAdapterService extends Service {
 
                         looper.quit();
                     }
-                }, syncServiceResultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig, featureFlags)) {
+                }, syncStateManager, syncServiceResultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig, featureFlags)) {
                     Looper.loop(); // wait for results to come in
                 }
                 PublicApi.setBackgroundMode(false);
@@ -131,6 +132,7 @@ public class SyncAdapterService extends Service {
                                final SyncResult syncResult,
                                @Nullable final Token token,
                                UserAssociationStorage userAssociationStorage, @Nullable final Runnable onResult,
+                               SyncStateManager syncStateManager,
                                final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory,
                                MyLikesStateProvider myLikesStateProvider, PlaylistStorage playlistStorage,
                                SyncConfig syncConfig,
@@ -144,8 +146,6 @@ public class SyncAdapterService extends Service {
         // for first sync set all last seen flags to "now"
         setContentStatsIfNeverSeen(app, Content.ME_SOUND_STREAM);
         setContentStatsIfNeverSeen(app, Content.ME_ACTIVITIES);
-
-        final SyncStateManager syncStateManager = new SyncStateManager(app);
 
         final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, userAssociationStorage,
                 playlistStorage, myLikesStateProvider, syncConfig, featureFlags);

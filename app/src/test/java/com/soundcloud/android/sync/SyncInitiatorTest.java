@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +21,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowContentResolver;
+import rx.Observable;
 import rx.Subscriber;
 import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
@@ -93,7 +95,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         initiator.refreshTimelineItems(SyncContent.MySoundStream).subscribe(legacySyncSubscriber);
         final Uri uri = SyncContent.MySoundStream.contentUri();
         sendSyncChangedLegacyToUri(uri);
-        verify(syncStateManager).resetSyncMisses(uri);
+        verify(syncStateManager).resetSyncMissesAsync(uri);
     }
 
     @Test
@@ -124,7 +126,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         initiator.refreshMyPlaylists().subscribe(legacySyncSubscriber);
         final Uri uri = Content.ME_PLAYLISTS.uri;
         sendSyncChangedLegacyToUri(uri);
-        verify(syncStateManager).resetSyncMisses(uri);
+        verify(syncStateManager).resetSyncMissesAsync(uri);
     }
 
     @Test
@@ -193,7 +195,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         initiator.syncTrackLikes().subscribe(syncSubscriber);
         final Uri uri = Content.ME_LIKES.uri;
         sendSyncChangedToUri();
-        verify(syncStateManager).resetSyncMisses(uri);
+        verify(syncStateManager).resetSyncMissesAsync(uri);
     }
 
     @Test
@@ -211,7 +213,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         initiator.syncPlaylistLikes().subscribe(syncSubscriber);
         final Uri uri = Content.ME_LIKES.uri;
         sendSyncChangedToUri();
-        verify(syncStateManager).resetSyncMisses(uri);
+        verify(syncStateManager).resetSyncMissesAsync(uri);
     }
 
     @Test
@@ -250,13 +252,14 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void refreshCollectionsResetsSyncMissesOnAllCollections() {
+        when(syncStateManager.resetSyncMissesAsync(any(Uri.class))).thenReturn(Observable.just(true));
         initiator.refreshCollections().subscribe(legacySyncSubscriber);
         final Uri[] uris = new Uri[] {Content.ME_PLAYLISTS.uri, Content.ME_LIKES.uri};
 
         sendSyncChangedLegacyToUri(uris);
 
         for (Uri uri : uris) {
-            verify(syncStateManager).resetSyncMisses(uri);
+            verify(syncStateManager).resetSyncMissesAsync(uri);
         }
     }
 

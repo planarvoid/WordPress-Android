@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.upload;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -20,35 +20,28 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UploadEvent;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-
-import android.content.Context;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-@RunWith(SoundCloudTestRunner.class)
-public class UploaderTest {
+public class UploaderTest extends AndroidUnitTest {
     private Recording recording;
     private TestEventBus eventBus = new TestEventBus();
-    private Context context = Robolectric.application.getApplicationContext();
-
 
     @Mock private ApiClient apiClient;
-
-    @Mock StoreTracksCommand storeTracksCommand;
-    @Mock StorePostsCommand storePostsCommand;
+    @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private StorePostsCommand storePostsCommand;
+    @Mock private SyncStateManager syncStateManager;
 
     @Before
     public void before() throws Exception {
@@ -56,7 +49,8 @@ public class UploaderTest {
     }
 
     private Uploader uploader(Recording recording) {
-        return new Uploader(context, apiClient, recording, storeTracksCommand, storePostsCommand, eventBus);
+        return new Uploader(context(), apiClient, recording, storeTracksCommand, storePostsCommand,
+                eventBus, syncStateManager);
     }
 
     @Test
@@ -65,7 +59,7 @@ public class UploaderTest {
 
         uploader(upload).run();
 
-        expect(eventBus.lastEventOn(EventQueue.UPLOAD)).toEqual(
+        assertThat(eventBus.lastEventOn(EventQueue.UPLOAD)).isEqualTo(
                 UploadEvent.error(upload));
     }
 
@@ -75,7 +69,7 @@ public class UploaderTest {
 
         uploader(upload).run();
 
-        expect(eventBus.lastEventOn(EventQueue.UPLOAD)).toEqual(
+        assertThat(eventBus.lastEventOn(EventQueue.UPLOAD)).isEqualTo(
                 UploadEvent.error(upload));
     }
 
@@ -90,14 +84,13 @@ public class UploaderTest {
         List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
         PublicApiTrack track = eventBus.lastEventOn(EventQueue.UPLOAD).getTrack();
 
-        expect(events).toNumber(3);
-        expect(events).toContainExactly(
+        assertThat(events).containsExactly(
                 UploadEvent.idle(),
                 UploadEvent.transferStarted(recording),
                 UploadEvent.transferSuccess(recording, track));
 
-        expect(recording.isUploaded()).toBeTrue();
-        expect(track.getUrn()).toEqual(apiTrack.getUrn());
+        assertThat(recording.isUploaded()).isTrue();
+        assertThat(track.getUrn()).isEqualTo(apiTrack.getUrn());
     }
 
     @Test
@@ -131,16 +124,15 @@ public class UploaderTest {
                 .thenThrow(ApiRequestException.unexpectedResponse(null, new ApiResponse(null, 499, "error")));
 
         uploader(recording).run();
-        
+
         List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
 
-        expect(events).toNumber(3);
-        expect(events).toContainExactly(
+        assertThat(events).containsExactly(
                 UploadEvent.idle(),
                 UploadEvent.transferStarted(recording),
                 UploadEvent.error(recording));
 
-        expect(recording.isUploaded()).toBeFalse();
+        assertThat(recording.isUploaded()).isFalse();
     }
 
     @Test
@@ -149,7 +141,7 @@ public class UploaderTest {
                 argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
                 .thenThrow(new IOException("network error"));
         uploader(recording).run();
-        expect(recording.isUploaded()).toBeFalse();
+        assertThat(recording.isUploaded()).isFalse();
     }
 
     @Test
@@ -160,6 +152,6 @@ public class UploaderTest {
         final Uploader uploader = uploader(recording);
         uploader.cancel();
         uploader.run();
-        expect(recording.isUploaded()).toBeFalse();
+        assertThat(recording.isUploaded()).isFalse();
     }
 }
