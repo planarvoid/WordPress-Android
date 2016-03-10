@@ -18,6 +18,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.PropertySets;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
@@ -369,19 +370,16 @@ class SearchOperations {
 
         private final int searchType;
         private final ContentType contentType;
-        private final List<Urn> allUrns = new ArrayList<>();
-        private Urn queryUrn = Urn.NOT_SET;
 
-        public SearchPagingFunction(int searchType, ContentType contentType) {
+        private final List<Urn> allUrns = new ArrayList<>();
+
+        private Urn queryUrn = Urn.NOT_SET;
+        SearchPagingFunction(int searchType, ContentType contentType) {
             this.searchType = searchType;
             this.contentType = contentType;
         }
 
-        public SearchQuerySourceInfo getSearchQuerySourceInfo() {
-            return new SearchQuerySourceInfo(queryUrn);
-        }
-
-        public SearchQuerySourceInfo getSearchQuerySourceInfo(int clickPosition, Urn clickUrn) {
+        SearchQuerySourceInfo getSearchQuerySourceInfo(int clickPosition, Urn clickUrn) {
             SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(queryUrn, clickPosition, clickUrn);
             searchQuerySourceInfo.setQueryResults(allUrns);
             return searchQuerySourceInfo;
@@ -389,19 +387,33 @@ class SearchOperations {
 
         @Override
         public Observable<SearchResult> call(SearchResult searchResultsCollection) {
-            final Optional<Link> nextHref = searchResultsCollection.nextHref;
-
+            final Optional<SearchResult> premiumContent = searchResultsCollection.getPremiumContent();
+            if (premiumContent.isPresent()) {
+                allUrns.add(premiumContent.get().getFirstItemUrn());
+            }
             allUrns.addAll(PropertySets.extractUrns(searchResultsCollection.getItems()));
 
-            if (searchResultsCollection.queryUrn.isPresent()) {
-                queryUrn = searchResultsCollection.queryUrn.get();
+            final Optional<Urn> queryUrn = searchResultsCollection.queryUrn;
+            if (queryUrn.isPresent()) {
+                this.queryUrn = queryUrn.or(Urn.NOT_SET);
             }
 
+            final Optional<Link> nextHref = searchResultsCollection.nextHref;
             if (nextHref.isPresent()) {
                 return nextResultPage(nextHref.get(), searchType, contentType);
             } else {
                 return Pager.finish();
             }
+        }
+
+        @VisibleForTesting
+        SearchQuerySourceInfo getSearchQuerySourceInfo() {
+            return new SearchQuerySourceInfo(queryUrn);
+        }
+
+        @VisibleForTesting
+        List<Urn> getAllUrns() {
+            return allUrns;
         }
     }
 }

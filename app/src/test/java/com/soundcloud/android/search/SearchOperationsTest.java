@@ -20,6 +20,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -51,6 +52,9 @@ public class SearchOperationsTest extends AndroidUnitTest {
     private static final int TRACK_RESULTS_COUNT = 10;
     private static final int PLAYLIST_RESULTS_COUNT = 10;
     private static final int USER_RESULTS_COUNT = 10;
+    private static final Urn TRACK_ONE_URN = Urn.forTrack(1L);
+    private static final Urn TRACK_TWO_URN = Urn.forTrack(2L);
+    private static final Urn PREMIUM_TRACK_URN = Urn.forTrack(3L);
 
     private SearchOperations operations;
 
@@ -511,6 +515,39 @@ public class SearchOperationsTest extends AndroidUnitTest {
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
         assertThat(searchResult.getPremiumContent().isPresent()).isFalse();
+    }
+
+    @Test
+    public void premiumContentUrnShouldNotBeIncludedInPaginatedContentWhenAbsent() {
+        final PropertySet trackOne = PropertySet.create().put(EntityProperty.URN, TRACK_ONE_URN);
+        final PropertySet trackTwo = PropertySet.create().put(EntityProperty.URN, TRACK_TWO_URN);
+        final SearchResult searchResult = SearchResult.fromPropertySets(Arrays.asList(trackOne, trackTwo), Optional.<Link>absent(), Urn.NOT_SET);
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchOperations.TYPE_ALL);
+
+        pagingFunction.call(searchResult);
+
+        final List<Urn> allUrns = pagingFunction.getAllUrns();
+        assertThat(allUrns.get(0)).isEqualTo(TRACK_ONE_URN);
+        assertThat(allUrns.get(1)).isEqualTo(TRACK_TWO_URN);
+        assertThat(allUrns.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void premiumContentUrnShouldBeIncludedInPaginatedContent() {
+        final PropertySet premiumTrack = PropertySet.create().put(EntityProperty.URN, PREMIUM_TRACK_URN);
+        final ArrayList<ApiUniversalSearchItem> searchItems = Lists.newArrayList(ApiUniversalSearchItem.forTrack(track));
+        final SearchResult premiumSearchResult = SearchResult.fromPropertySets(Collections.singletonList(premiumTrack),
+                Optional.<Link>absent(), Urn.NOT_SET);
+        final SearchResult searchResult = SearchResult.fromPropertySetSource(searchItems, Optional.<Link>absent(),
+                Optional.<Urn>absent(), Optional.of(premiumSearchResult), SEARCH_RESULTS_COUNT);
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchOperations.TYPE_ALL);
+
+        pagingFunction.call(searchResult);
+
+        final List<Urn> allUrns = pagingFunction.getAllUrns();
+        assertThat(allUrns.get(0)).isEqualTo(PREMIUM_TRACK_URN);
+        assertThat(allUrns.get(1)).isEqualTo(track.getUrn());
+        assertThat(allUrns.size()).isEqualTo(2);
     }
 
     private <T> void mockPremiumSearchApiResponse(List<T> searchItems, SearchModelCollection<T> apiPremiumItems) {

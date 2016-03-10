@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.VisibleForTesting;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -63,11 +62,6 @@ public class SearchQuerySourceInfo implements Parcelable {
 
     public int getUpdatedResultPosition(Urn currentTrack) {
         return clickUrn.isTrack() && queryResults != null ? queryResults.indexOf(currentTrack) : clickPosition;
-    }
-
-    @VisibleForTesting
-    List<Urn> getQueryResults() {
-        return this.queryResults;
     }
 
     public int getClickPosition() { return clickPosition; }
