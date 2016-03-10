@@ -44,8 +44,8 @@ android {
       buildConfigField "boolean", "RUN_ADS_TEST", "false"
     }
 
-    release_non_play_store.initWith(buildTypes.release)
-    release_non_play_store {
+    releaseNonPlayStore.initWith(buildTypes.release)
+    releaseNonPlayStore {
       versionNameSuffix '-release'
       signingConfig signingConfigs.release
       buildConfigField "boolean", "RUN_ADS_TEST", "false"
@@ -75,12 +75,6 @@ android {
       minifyEnabled project.hasProperty('proguard')
       multiDexEnabled true
       buildConfigField "boolean", "RUN_ADS_TEST", "true"
-    }
-
-    end2end.initWith(buildTypes.debug)
-    end2end {
-      versionNameSuffix '-end2end'
-      buildConfigField "boolean", "RUN_ADS_TEST", "false"
     }
 
     repack.initWith(buildTypes.debug)

@@ -19,8 +19,6 @@ import static org.mockito.Mockito.when;
 import com.android.vending.billing.IInAppBillingService;
 import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -53,7 +51,6 @@ public class BillingServiceTest extends AndroidUnitTest {
     @Mock private BillingServiceBinder billingBinder;
     @Mock private IInAppBillingService service;
     @Mock private EventBus eventBus;
-    @Mock private FeatureFlags flags;
 
     @Captor private ArgumentCaptor<ServiceConnection> connectionCaptor;
 
@@ -61,7 +58,7 @@ public class BillingServiceTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        billingService = new BillingService(deviceHelper, billingBinder, responseProcessor, eventBus, flags);
+        billingService = new BillingService(deviceHelper, billingBinder, responseProcessor, eventBus);
         when(billingBinder.bind(binder)).thenReturn(service);
         when(billingBinder.canConnect()).thenReturn(true);
         when(deviceHelper.getPackageName()).thenReturn("com.package");
@@ -175,7 +172,6 @@ public class BillingServiceTest extends AndroidUnitTest {
         Bundle bundle = okBundle();
         bundle.putParcelable(RESPONSE_BUY_INTENT, PendingIntent.getActivity(activity, 0, new Intent(), 0));
         when(service.getBuyIntent(3, "com.package", "package_id", "subs", "token")).thenReturn(bundle);
-        when(flags.isDisabled(Flag.PAYMENTS_TEST)).thenReturn(true);
 
         billingService.openConnection(activity);
         onServiceConnected();

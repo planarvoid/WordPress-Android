@@ -68,22 +68,6 @@ android {
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
-    end2end {
-      resValue "string", "build_type", "debug"
-      resValue "string", "com_appboy_api_key", "67bdf947-6d23-40b7-9c2d-b721411634ca"
-      resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
-      resValue "string", "adjust_environment", "sandbox"
-      resValue "string", "gcm_gateway_id", ""
-      resValue "string", "new_relic_app_token", "AA6cf074186892fc0ca95fdfd742fdf987222b6331"
-      resValue "bool", "new_relic_enabled", "true"
-      resValue "string", "web_payment_form_environment", "sandbox"
-
-      resValue "bool", "google_plus_enabled", "true"
-
-      resValue "string", "mobile_api_base_url", "https://api-mobile-beta.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
-    }
-
     release {
       resValue "string", "build_type", "release"
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
@@ -116,7 +100,7 @@ android {
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
-    release_non_play_store {
+    releaseNonPlayStore {
       resValue "string", "build_type", "release"
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"

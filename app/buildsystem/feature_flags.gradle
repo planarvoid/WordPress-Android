@@ -10,7 +10,6 @@ enum Feature {
   AUTO_REFRESH_STREAM,
   WEB_UPGRADE_FLOW,
   SERVE_DEMO_VIDEO_AD,
-  PAYMENTS_TEST,
   STATIONS_HOME,
   PUBLISH_PLAY_EVENTS_TO_TPUB,
   DISCOVERY_CHARTS,
@@ -28,7 +27,6 @@ android {
     buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), FALSE
     buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), FALSE
     buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), FALSE
-    buildConfigField BOOLEAN, Feature.PAYMENTS_TEST.name(), FALSE
     buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), FALSE
     buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
@@ -68,14 +66,6 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
 
-    end2end {
-      buildConfigField BOOLEAN, Feature.PAYMENTS_TEST.name(), TRUE
-      buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
-      buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
-      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
-      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-    }
-
     release {
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
@@ -90,7 +80,7 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
 
-    release_non_play_store {
+    releaseNonPlayStore {
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE

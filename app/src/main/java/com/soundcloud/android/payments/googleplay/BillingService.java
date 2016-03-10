@@ -15,8 +15,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PaymentFailureEvent;
 import com.soundcloud.android.payments.ConnectionStatus;
 import com.soundcloud.android.payments.ProductDetails;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Lists;
@@ -49,7 +47,6 @@ public class BillingService {
     private final BillingServiceBinder binder;
     private final ResponseProcessor processor;
     private final EventBus eventBus;
-    private final FeatureFlags flags;
 
     private final BehaviorSubject<ConnectionStatus> connectionSubject = BehaviorSubject.create();
 
@@ -73,13 +70,11 @@ public class BillingService {
     private IInAppBillingService iabService;
 
     @Inject
-    BillingService(DeviceHelper deviceHelper, BillingServiceBinder binder, ResponseProcessor processor,
-                   EventBus eventBus, FeatureFlags flags) {
+    BillingService(DeviceHelper deviceHelper, BillingServiceBinder binder, ResponseProcessor processor, EventBus eventBus) {
         this.deviceHelper = deviceHelper;
         this.binder = binder;
         this.processor = processor;
         this.eventBus = eventBus;
-        this.flags = flags;
     }
 
     public Observable<ConnectionStatus> openConnection(Activity bindingActivity) {
@@ -164,7 +159,7 @@ public class BillingService {
             int responseCode = getResponseCodeFromBundle(response);
             logBillingResponse("getBuyIntent", responseCode);
 
-            if (responseCode == RESULT_OK && flags.isDisabled(Flag.PAYMENTS_TEST)) {
+            if (responseCode == RESULT_OK) {
                 PendingIntent buyIntent = response.getParcelable(RESPONSE_BUY_INTENT);
                 bindingActivity.startIntentSenderForResult(buyIntent.getIntentSender(),
                         BillingResult.REQUEST_CODE, new Intent(), NO_FLAGS, NO_FLAGS, NO_FLAGS);
