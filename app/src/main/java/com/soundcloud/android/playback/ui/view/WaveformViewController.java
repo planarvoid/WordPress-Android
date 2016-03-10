@@ -14,7 +14,6 @@ import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.waveform.WaveformData;
@@ -83,7 +82,6 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         leftProgressController = animationControllerFactory.create(waveformView.getLeftWaveform());
         rightProgressController = animationControllerFactory.create(waveformView.getRightWaveform());
         dragProgressController = animationControllerFactory.create(waveformView.getDragViewHolder());
-        waveformView.configureOverscroller(featureFlags.isEnabled(Flag.WAVEFORM_SPRING));
     }
 
     @Override
