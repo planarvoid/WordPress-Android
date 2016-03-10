@@ -42,12 +42,20 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         this.eventBus = eventBus;
     }
 
+    private LoadingStrategy initialLoadingStrategy() {
+        return new LoadingStrategy(false);
+    }
+
+    private LoadingStrategy retryLoadingStrategy() {
+        return new LoadingStrategy(true);
+    }
+
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         view.bind(activity, this);
         this.activity = activity;
         context = StrategyContext.USER_NO_ACTION;
-        strategy = new InitStrategy().proceed();
+        strategy = initialLoadingStrategy().proceed();
     }
 
     @Override
@@ -96,10 +104,17 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         Strategy proceed();
     }
 
-    private class InitStrategy implements Strategy {
+    private class LoadingStrategy implements Strategy {
+
+        private final boolean isRetrying;
+
+        private LoadingStrategy(boolean isRetrying) {
+            this.isRetrying = isRetrying;
+        }
+
         @Override
         public Strategy proceed() {
-            strategy = new PendingStrategy();
+            strategy = isRetrying ? new PendingStrategy().proceed() : new PendingStrategy();
             subscription = planChangeOperations.awaitAccountUpgrade()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new UpgradeCompleteSubscriber());
@@ -135,7 +150,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         public Strategy proceed() {
             if (context == StrategyContext.USER_CLICKED_START) {
                 view.setSetUpOfflineButtonRetry();
-                return new InitStrategy();
+                return retryLoadingStrategy();
             } else {
                 return this;
             }
@@ -148,7 +163,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
             if (context == StrategyContext.USER_CLICKED_START) {
                 view.setSetUpOfflineButtonRetry();
                 view.showErrorDialog(activity.getSupportFragmentManager());
-                return new InitStrategy();
+                return retryLoadingStrategy();
             } else {
                 return this;
             }

@@ -1,12 +1,14 @@
 package com.soundcloud.android.configuration;
 
 import static com.soundcloud.android.rx.RxUtils.continueWith;
+import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.policies.PolicyOperations;
 import rx.Observable;
 import rx.functions.Action0;
+import rx.functions.Action1;
 
 import javax.inject.Inject;
 
@@ -21,6 +23,16 @@ public class PlanChangeOperations {
         @Override
         public void call() {
             configurationOperations.clearPendingPlanChanges();
+        }
+    };
+
+    private Action1<Throwable> clearPendingPlanChangeFlagsIfUnrecoverableError = new Action1<Throwable>() {
+        @Override
+        public void call(Throwable throwable) {
+            // we retry network errors, so don't treat this as terminal
+            if (!isNetworkError(throwable)) {
+                configurationOperations.clearPendingPlanChanges();
+            }
         }
     };
 
@@ -67,7 +79,8 @@ public class PlanChangeOperations {
         public Observable<Object> call(Observable<Object> source) {
             return source.flatMap(continueWith(policyOperations.refreshedTrackPolicies()))
                     .doOnSubscribe(resetPlaySession)
-                    .finallyDo(clearPendingPlanChangeFlags)
+                    .doOnCompleted(clearPendingPlanChangeFlags)
+                    .doOnError(clearPendingPlanChangeFlagsIfUnrecoverableError)
                     .cast(Object.class);
         }
     }
