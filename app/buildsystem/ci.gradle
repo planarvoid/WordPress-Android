@@ -26,14 +26,6 @@ task buildDebug(dependsOn: ['clean', 'versionizeDebug', 'assembleDebugWrapper', 
 }
 assembleDebugWrapper.mustRunAfter('versionizeDebug')
 
-task assembleEnd2endWrapper(dependsOn: 'assembleProdEnd2end')
-
-task buildEnd2end(dependsOn: ['clean', 'versionizeDebug','assembleEnd2endWrapper']) {
-  description = 'Assembles End2End debug build for payments test on CI.'
-  rootProject.ext.preDexLibs = false
-}
-assembleEnd2endWrapper.mustRunAfter('versionizeDebug')
-
 // *********************************************************************************************************************
 // ALPHA BUILDS
 // *********************************************************************************************************************

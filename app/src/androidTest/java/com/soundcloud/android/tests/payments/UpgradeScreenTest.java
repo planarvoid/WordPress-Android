@@ -9,7 +9,6 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.PaymentErrorScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
@@ -30,7 +29,6 @@ public class UpgradeScreenTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.PAYMENTS_TEST);
         super.setUp();
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
         settingsScreen = mainNavHelper.goToOfflineSettings();

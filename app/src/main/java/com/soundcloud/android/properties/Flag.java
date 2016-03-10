@@ -8,7 +8,6 @@ import java.util.Locale;
 public enum Flag {
 
     TEST_FEATURE(true),
-    PAYMENTS_TEST(BuildConfig.PAYMENTS_TEST),
     SOUNDCLOUD_GO(BuildConfig.SOUNDCLOUD_GO),
     STATIONS_HOME(BuildConfig.STATIONS_HOME),
     FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB(BuildConfig.PUBLISH_PLAY_EVENTS_TO_TPUB),
@@ -38,6 +37,6 @@ public enum Flag {
     }
 
     public static EnumSet<Flag> realFeatures() {
-        return EnumSet.complementOf(EnumSet.of(TEST_FEATURE, PAYMENTS_TEST));
+        return EnumSet.complementOf(EnumSet.of(TEST_FEATURE));
     }
 }

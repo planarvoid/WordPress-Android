@@ -77,12 +77,6 @@ android {
       buildConfigField "boolean", "RUN_ADS_TEST", "true"
     }
 
-    end2end.initWith(buildTypes.debug)
-    end2end {
-      versionNameSuffix '-end2end'
-      buildConfigField "boolean", "RUN_ADS_TEST", "false"
-    }
-
     repack.initWith(buildTypes.debug)
     repack {
       minifyEnabled true
