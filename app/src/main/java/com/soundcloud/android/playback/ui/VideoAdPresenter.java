@@ -417,7 +417,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         void setupFadingInterface(boolean enableAllFadeableElements) {
             final List<View> fadeViews = enableAllFadeableElements ?
                     getAllFadeableElementViews() : Collections.singletonList(videoLayoutControls);
-            final List<View> fadeViewsWithPause = new ArrayList<View>(fadeViews);
+            final List<View> fadeViewsWithPause = new ArrayList<>(fadeViews);
             fadeViewsWithPause.add(pauseButton);
             fadingViews = Iterables.filter(fadeViews, presentInConfig);
             fadingViewsWithPause = Iterables.filter(fadeViewsWithPause, presentInConfig);

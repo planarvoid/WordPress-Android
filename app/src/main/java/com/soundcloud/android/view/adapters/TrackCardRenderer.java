@@ -3,15 +3,10 @@ package com.soundcloud.android.view.adapters;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
-import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.stream.StreamItemViewHolder;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -30,8 +25,6 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
     private final TrackItemMenuPresenter menuPresenter;
     private final CardEngagementsPresenter engagementsPresenter;
     private final ImageOperations imageOperations;
-    private final FeatureFlags featureFlags;
-    private final FeatureOperations featureOperations;
     private final Navigator navigator;
     private final Resources resources;
 
@@ -40,16 +33,12 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
                              TrackItemMenuPresenter menuPresenter,
                              CardEngagementsPresenter engagementsPresenter,
                              ImageOperations imageOperations,
-                             FeatureFlags featureFlags,
-                             FeatureOperations featureOperations,
                              Navigator navigator,
                              Resources resources) {
         this.numberFormatter = numberFormatter;
         this.menuPresenter = menuPresenter;
         this.engagementsPresenter = engagementsPresenter;
         this.imageOperations = imageOperations;
-        this.featureFlags = featureFlags;
-        this.featureOperations = featureOperations;
         this.navigator = navigator;
         this.resources = resources;
     }
@@ -80,12 +69,6 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
                 menuPresenter.show((FragmentActivity) itemView.getContext(), viewHolder.overflowButton, track, position);
             }
         });
-    }
-
-    private void loadArtwork(StreamItemViewHolder itemView, PlayableItem playableItem) {
-        imageOperations.displayInAdapterView(
-                playableItem.getEntityUrn(), ApiImageSize.getFullImageSize(resources),
-                itemView.getImage());
     }
 
     private EventContextMetadata getEventContextMetadata() {

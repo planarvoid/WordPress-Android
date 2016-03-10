@@ -378,12 +378,11 @@ public final class ImageUtils {
     }
 
     public static TransitionDrawable createTransitionDrawable(Drawable from, Drawable to) {
-        TransitionDrawable tDrawable = new OneShotTransitionDrawable(
+        return new OneShotTransitionDrawable(
                 new Drawable[]{
                         from == null ? new ColorDrawable(Color.TRANSPARENT) : from,
                         to
                 });
-        return tDrawable;
     }
 
     public static Bitmap toBitmap(Drawable drawable, int width, int height) {

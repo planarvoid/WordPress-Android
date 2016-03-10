@@ -5,7 +5,6 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Player.PlayerListener;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;

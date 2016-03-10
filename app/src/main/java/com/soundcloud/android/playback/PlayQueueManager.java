@@ -13,7 +13,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
-import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -42,7 +41,6 @@ public class PlayQueueManager implements OriginProvider {
     private static final String UI_ASSERTION_MESSAGE = "Play queues must be set from the main thread only.";
 
     private final PlayQueueOperations playQueueOperations;
-    private final PolicyOperations policyOperations;
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final TrackOfflineStateProvider offlineStateProvider;
@@ -57,12 +55,10 @@ public class PlayQueueManager implements OriginProvider {
     @Inject
     public PlayQueueManager(PlayQueueOperations playQueueOperations,
                             EventBus eventBus,
-                            PolicyOperations policyOperations,
                             NetworkConnectionHelper networkConnectionHelper,
                             TrackOfflineStateProvider offlineStateProvider) {
         this.playQueueOperations = playQueueOperations;
         this.eventBus = eventBus;
-        this.policyOperations = policyOperations;
         this.networkConnectionHelper = networkConnectionHelper;
         this.offlineStateProvider = offlineStateProvider;
     }

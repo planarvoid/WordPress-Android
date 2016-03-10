@@ -8,7 +8,6 @@ import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 
-import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.VisibleForTesting;
 

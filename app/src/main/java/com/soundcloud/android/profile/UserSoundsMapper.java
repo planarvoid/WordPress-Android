@@ -17,8 +17,6 @@ import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Func1;
 
-import android.support.annotation.VisibleForTesting;
-
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;

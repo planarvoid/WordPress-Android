@@ -1,10 +1,8 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackService.Action;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -19,7 +17,6 @@ import javax.inject.Inject;
 class PlaybackReceiver extends BroadcastReceiver {
 
     private static final long DEFAULT_SEEK_POSITION = 0L;
-    private static final long DEFAULT_DURATION = Consts.NOT_SET;
 
     private final PlaybackService playbackService;
     private final PlayQueueManager playQueueManager;

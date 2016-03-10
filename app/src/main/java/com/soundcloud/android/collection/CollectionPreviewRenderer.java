@@ -7,7 +7,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 
 import android.content.res.Resources;
@@ -23,7 +22,6 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private final Navigator navigator;
     private final Resources resources;
     private final FeatureOperations featureOperations;
-    private final FeatureFlags featureFlags;
 
     private final View.OnClickListener goToTrackLikesListener = new View.OnClickListener() {
         @Override
@@ -40,12 +38,10 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     };
 
     @Inject
-    public CollectionPreviewRenderer(Navigator navigator, Resources resources, FeatureOperations featureOperations,
-                                     FeatureFlags featureFlags) {
+    public CollectionPreviewRenderer(Navigator navigator, Resources resources, FeatureOperations featureOperations) {
         this.navigator = navigator;
         this.resources = resources;
         this.featureOperations = featureOperations;
-        this.featureFlags = featureFlags;
     }
 
     @Override

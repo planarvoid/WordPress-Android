@@ -19,7 +19,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
@@ -54,7 +53,6 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
     private final FacebookInvitesOperations facebookInvites;
     private final StationsOperations stationsOperations;
     private final UpsellOperations upsellOperations;
-    private final FeatureFlags featureFlags;
     private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
@@ -147,9 +145,7 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           FacebookInvitesOperations facebookInvites,
                           StationsOperations stationsOperations, UpsellOperations upsellOperations,
-                          FeatureFlags featureFlags,
                           SyncStateStorage syncStateStorage) {
-
         super(SyncContent.MySoundStream, soundStreamStorage, syncInitiator, contentStats, scheduler, syncStateStorage);
         this.soundStreamStorage = soundStreamStorage;
         this.removeStalePromotedItemsCommand = removeStalePromotedItemsCommand;
@@ -159,7 +155,6 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
         this.facebookInvites = facebookInvites;
         this.stationsOperations = stationsOperations;
         this.upsellOperations = upsellOperations;
-        this.featureFlags = featureFlags;
     }
 
     public Observable<Integer> newItemsSince(long time) {

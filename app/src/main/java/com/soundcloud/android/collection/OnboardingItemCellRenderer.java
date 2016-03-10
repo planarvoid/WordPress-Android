@@ -2,7 +2,6 @@ package com.soundcloud.android.collection;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
 
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -14,7 +13,6 @@ import javax.inject.Inject;
 import java.util.List;
 
 class OnboardingItemCellRenderer implements CellRenderer<CollectionItem> {
-    private final FeatureFlags featureFlags;
 
     interface Listener {
         void onCollectionsOnboardingItemClosed(int position);
@@ -23,8 +21,7 @@ class OnboardingItemCellRenderer implements CellRenderer<CollectionItem> {
     @Nullable private Listener listener;
 
     @Inject
-    public OnboardingItemCellRenderer(FeatureFlags featureFlags) {
-        this.featureFlags = featureFlags;
+    public OnboardingItemCellRenderer() {
     }
 
     @Override

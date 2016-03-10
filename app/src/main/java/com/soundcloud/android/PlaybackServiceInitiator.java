@@ -51,7 +51,7 @@ public class PlaybackServiceInitiator {
     public void preload(PreloadItem preloadItem) {
         Intent intent = new Intent(context, PlaybackService.class);
         intent.setAction(PlaybackService.Action.PRELOAD);
-        intent.putExtra(PlaybackService.ActionExtras.PRELOAD_ITEM, (Parcelable) preloadItem);
+        intent.putExtra(PlaybackService.ActionExtras.PRELOAD_ITEM, preloadItem);
         context.startService(intent);
     }
 

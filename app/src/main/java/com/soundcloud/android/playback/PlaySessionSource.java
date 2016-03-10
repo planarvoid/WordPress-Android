@@ -2,10 +2,9 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;

@@ -1,5 +1,7 @@
 package com.soundcloud.android.cast;
 
+import static java.util.Collections.singletonList;
+
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
@@ -28,7 +30,6 @@ import android.support.annotation.NonNull;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -124,7 +125,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
             }
         } else {
             Log.d(CastOperations.TAG, "Does not have the same tracklist, updating locally");
-            List<Urn> trackUrns = remoteTrackList.isEmpty() ? Arrays.asList(remoteCurrentUrn) : remoteTrackList;
+            List<Urn> trackUrns = remoteTrackList.isEmpty() ? singletonList(remoteCurrentUrn) : remoteTrackList;
             final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns, PlaySessionSource.EMPTY, Collections.<Urn, Boolean>emptyMap());
             playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.EMPTY, remotePosition);
             castPlayer.playCurrent();

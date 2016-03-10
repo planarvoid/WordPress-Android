@@ -83,7 +83,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Before
     public void before() throws CreateModelException {
-        playQueueManager = new PlayQueueManager(playQueueOperations, eventBus, policyOperations, networkConnectionHelper, offlineStateProvider);
+        playQueueManager = new PlayQueueManager(playQueueOperations, eventBus, networkConnectionHelper, offlineStateProvider);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
