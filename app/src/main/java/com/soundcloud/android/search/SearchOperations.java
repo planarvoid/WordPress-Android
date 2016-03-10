@@ -13,7 +13,6 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -389,15 +388,14 @@ class SearchOperations {
         @Override
         public Observable<SearchResult> call(SearchResult searchResultsCollection) {
             final Optional<SearchResult> premiumContent = searchResultsCollection.getPremiumContent();
-            if (premiumContent.isPresent() && !premiumContent.get().getItems().isEmpty()) {
-                final Urn firstPremiumItemUrn = premiumContent.get().getItems().get(0).get(EntityProperty.URN);
-                allUrns.add(firstPremiumItemUrn);
+            if (premiumContent.isPresent()) {
+                allUrns.add(premiumContent.get().getFirstItemUrn());
             }
             allUrns.addAll(PropertySets.extractUrns(searchResultsCollection.getItems()));
 
             final Optional<Urn> queryUrn = searchResultsCollection.queryUrn;
             if (queryUrn.isPresent()) {
-                this.queryUrn = queryUrn.get();
+                this.queryUrn = queryUrn.or(Urn.NOT_SET);
             }
 
             final Optional<Link> nextHref = searchResultsCollection.nextHref;

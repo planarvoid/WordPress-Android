@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -89,6 +90,10 @@ class SearchResult implements Iterable<PropertySet> {
 
     int getResultsCount() {
         return resultsCount;
+    }
+
+    Urn getFirstItemUrn() {
+        return (getItems().isEmpty()) ? Urn.NOT_SET : getItems().get(0).get(EntityProperty.URN);
     }
 
     @Override
