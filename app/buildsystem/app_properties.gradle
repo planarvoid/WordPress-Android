@@ -100,7 +100,7 @@ android {
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
-    release_non_play_store {
+    releaseNonPlayStore {
       resValue "string", "build_type", "release"
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"

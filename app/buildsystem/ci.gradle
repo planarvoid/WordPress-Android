@@ -104,7 +104,7 @@ task deployReleaseRolloutFull(dependsOn: ['rolloutFull', 'slogRolloutFull']) {
 }
 slogRolloutFull.mustRunAfter('rolloutFull')
 
-task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_store']) {
+task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleReleaseNonPlayStore']) {
   description = 'Assembles Release for Non Google Play Stores for CI.'
 }
 

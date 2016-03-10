@@ -80,7 +80,7 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
 
-    release_non_play_store {
+    releaseNonPlayStore {
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE

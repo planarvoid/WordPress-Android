@@ -44,8 +44,8 @@ android {
       buildConfigField "boolean", "RUN_ADS_TEST", "false"
     }
 
-    release_non_play_store.initWith(buildTypes.release)
-    release_non_play_store {
+    releaseNonPlayStore.initWith(buildTypes.release)
+    releaseNonPlayStore {
       versionNameSuffix '-release'
       signingConfig signingConfigs.release
       buildConfigField "boolean", "RUN_ADS_TEST", "false"
