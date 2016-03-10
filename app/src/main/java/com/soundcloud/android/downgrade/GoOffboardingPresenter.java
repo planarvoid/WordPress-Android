@@ -156,7 +156,7 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         public Strategy proceed() {
             switch (context) {
                 case USER_CONTINUE:
-                    navigator.openHomeAsRootScreen(fragment.getContext());
+                    navigator.openHomeAsRootScreen(fragment.getActivity());
                     view.reset();
                     return this;
                 case USER_RESUBSCRIBE:

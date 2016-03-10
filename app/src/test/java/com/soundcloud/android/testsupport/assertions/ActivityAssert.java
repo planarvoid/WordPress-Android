@@ -16,6 +16,11 @@ public final class ActivityAssert extends AbstractAssert<ActivityAssert, Activit
         super(actual, ActivityAssert.class);
     }
 
+    public ActivityAssert isFinishing() {
+        Assertions.assertThat(Shadows.shadowOf(actual).isFinishing()).isTrue();
+        return this;
+    }
+
     public IntentAssert nextStartedIntent() {
         final Intent shadowIntent = getNextStartedActivity();
         isNotNull();
