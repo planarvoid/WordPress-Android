@@ -32,7 +32,7 @@ public class WaveformView extends FrameLayout {
     private static final int DEFAULT_BAR_SPACE_DP = 1;
     private static final int DEFAULT_BASELINE_DP = 68;
     private static final float DEFAULT_WAVEFORM_WIDTH_RATIO = 1.5f;
-    private static final int SCALE_DOWN_DURATION = 50;
+    private static final int SCALE_DOWN_DURATION = 150;
 
     private static final double SPRING_TENSION = 180.0D;
     private static final double SPRING_FRICTION = 10.0D;

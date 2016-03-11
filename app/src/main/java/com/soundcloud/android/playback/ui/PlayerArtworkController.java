@@ -5,25 +5,20 @@ import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 import static com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView.OnWidthChangedListener;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 
-import android.view.View;
-import android.widget.ImageView;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 public class PlayerArtworkController implements ProgressAware, OnScrubListener, OnWidthChangedListener {
+
     private final PlayerTrackArtworkView artworkView;
-    private final ImageView wrappedImageView;
-    private final ImageView imageOverlay;
-    private final View imageHolder;
     private final ProgressController progressController;
     private final PlayerArtworkLoader playerArtworkLoader;
 
@@ -39,10 +34,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
                                    PlayerArtworkLoader playerArtworkLoader) {
         this.artworkView = artworkView;
         this.playerArtworkLoader = playerArtworkLoader;
-        wrappedImageView = (ImageView) artworkView.findViewById(R.id.artwork_image_view);
-        imageOverlay = (ImageView) artworkView.findViewById(R.id.artwork_overlay_image);
-        imageHolder = artworkView.findViewById(R.id.artwork_holder);
-        progressController = animationControllerFactory.create(imageHolder);
+        progressController = animationControllerFactory.create(artworkView.getArtworkHolder());
         artworkView.setOnWidthChangedListener(this);
     }
 
@@ -70,7 +62,21 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         setProgress(PlaybackProgress.empty());
     }
 
-    public void showPlayingState(PlaybackProgress progress) {
+    public void setPlayState(Player.StateTransition state, boolean isCurrentTrack) {
+        if (state.playSessionIsActive() && isCurrentTrack) {
+            if (state.isPlayerPlaying()) {
+                showPlayingState(state.getProgress());
+            } else {
+                showIdleState(state.getProgress());
+            }
+        } else {
+            showIdleState();
+        }
+
+        artworkView.setArtworkActive(state.playSessionIsActive());
+    }
+
+    private void showPlayingState(PlaybackProgress progress) {
         latestProgress = progress;
         isPlaying = true;
         if (progress != null && !suppressProgress && fullDuration > 0) {
@@ -78,16 +84,15 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         }
     }
 
-    public void showIdleState(PlaybackProgress progress) {
+    private void showIdleState(PlaybackProgress progress) {
         latestProgress = progress;
         showIdleState();
         if (!progress.isEmpty()){
             setProgress(progress);
         }
-
     }
 
-    public void showIdleState() {
+    private void showIdleState() {
         isPlaying = false;
         progressController.cancelProgressAnimation();
     }
@@ -106,14 +111,14 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     @Override
     public void displayScrubPosition(float actualPosition, float boundedPosition) {
         if (helper != null) {
-            helper.setValueFromProportion(imageHolder, boundedPosition);
+            helper.setValueFromProportion(artworkView.getArtworkHolder(), boundedPosition);
         }
     }
 
     @Override
     public void onArtworkSizeChanged() {
         final int width = artworkView.getWidth();
-        final int imageViewWidth = wrappedImageView.getMeasuredWidth();
+        final int imageViewWidth = artworkView.getWrappedImageView().getMeasuredWidth();
 
         if (width > 0 && imageViewWidth > 0) {
             helper = new TranslateXHelper(0, Math.min(0, -(imageViewWidth - width)));
@@ -123,12 +128,12 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     }
 
     public void clear(){
-        wrappedImageView.setImageDrawable(null);
-        imageOverlay.setImageDrawable(null);
+        artworkView.getWrappedImageView().setImageDrawable(null);
+        artworkView.getImageOverlay().setImageDrawable(null);
     }
 
     public void loadArtwork(Urn urn, boolean isHighPriority, ViewVisibilityProvider viewVisibilityProvider) {
-        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlay, isHighPriority, viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(urn, artworkView.getWrappedImageView(), artworkView.getImageOverlay(), isHighPriority, viewVisibilityProvider);
     }
 
     public void reset() {

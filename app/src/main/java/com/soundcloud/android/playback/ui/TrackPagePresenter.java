@@ -383,16 +383,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     private void setViewPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
         updateErrorState(holder, state, isCurrentTrack);
-
-        if (state.playSessionIsActive() && isCurrentTrack) {
-            if (state.isPlayerPlaying()) {
-                holder.artworkController.showPlayingState(state.getProgress());
-            } else {
-                holder.artworkController.showIdleState(state.getProgress());
-            }
-        } else {
-            holder.artworkController.showIdleState();
-        }
+        holder.artworkController.setPlayState(state, isCurrentTrack);
 
         for (PlayerOverlayController playerOverlayController : holder.playerOverlayControllers) {
             playerOverlayController.setPlayState(state);
@@ -563,6 +554,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         holder.castDeviceName = (TextView) trackView.findViewById(R.id.cast_device_name);
         holder.artworkView = (PlayerTrackArtworkView) trackView.findViewById(R.id.track_page_artwork);
+        holder.artworkOverlayDark = trackView.findViewById(R.id.artwork_overlay_dark);
         holder.timestamp = (TimestampView) trackView.findViewById(R.id.timestamp);
         holder.likeToggle = (ToggleButton) trackView.findViewById(R.id.track_page_like);
         holder.more = trackView.findViewById(R.id.track_page_more);
@@ -589,7 +581,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final WaveformView waveformView = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
         holder.waveformController = waveformControllerFactory.create(waveformView);
         holder.playerOverlayControllers = new PlayerOverlayController[]{
-                playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark)),
+                playerOverlayControllerFactory.create(holder.artworkOverlayDark),
                 playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image))
         };
 
@@ -671,6 +663,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         TextView castDeviceName;
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
+        View artworkOverlayDark;
         ToggleButton likeToggle;
         MediaRouteButton mediaRouteButton;
         View more;

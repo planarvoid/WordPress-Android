@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import android.animation.ObjectAnimator;
 import android.content.res.Resources;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 
 import javax.inject.Inject;
 
@@ -33,6 +34,7 @@ public class OverlayAnimator {
     public void hideOverlay(View artworkIdleOverlay) {
         stopOverlayAnimation();
         objectAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", artworkIdleOverlay.getAlpha(), 0f);
+        objectAnimator.setInterpolator(new DecelerateInterpolator());
         objectAnimator.setDuration(fadeDuration);
         objectAnimator.start();
     }

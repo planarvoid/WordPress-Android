@@ -9,6 +9,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <View android:id="@+id/artwork_overlay_dark"
+        style="@style/PlayerTrackArtworkOverlay"/>
+
     <include layout="@layout/player_gradient" />
 
     <include layout="@layout/player_expanded_close_control" />

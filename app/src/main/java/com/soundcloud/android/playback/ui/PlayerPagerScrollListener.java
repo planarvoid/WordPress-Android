@@ -118,7 +118,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
         if (state == ViewPager.SCROLL_STATE_DRAGGING) {
             wasDragging = true;
         } else if (state == ViewPager.SCROLL_STATE_IDLE) {
-            wasDragging = false;
+            wasDragging =  false;
             wasPageChange = false;
         }
     }
