@@ -66,13 +66,13 @@ public class NotificationPreferencesStorageTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldStoreAndRestoreLastSyncDate() {
+    public void shouldStoreAndRestoreLastUpdate() {
         dateProvider.setTime(1000, TimeUnit.SECONDS);
 
-        storage.setSynced();
+        storage.setUpdated();
         dateProvider.advanceBy(500, TimeUnit.SECONDS);
 
-        assertThat(storage.getLastSyncAgo()).isEqualTo(500000);
+        assertThat(storage.getLastUpdateAgo()).isEqualTo(500000);
     }
 
     @Test

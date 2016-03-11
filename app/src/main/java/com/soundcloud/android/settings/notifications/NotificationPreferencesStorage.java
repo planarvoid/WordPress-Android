@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class NotificationPreferencesStorage {
     private static final boolean DEFAULT_VALUE = true;
-    private static final String LAST_SYNC = "last_sync";
+    private static final String LAST_UPDATE = "last_update";
     private static final String PENDING_SYNC = "pending_sync";
     private static final String BACKUP_PREFIX = "backup_";
 
@@ -55,12 +55,12 @@ public class NotificationPreferencesStorage {
                 .apply();
     }
 
-    long getLastSyncAgo() {
-        return dateProvider.getCurrentTime() - sharedPreferences.getLong(LAST_SYNC, Consts.NOT_SET);
+    long getLastUpdateAgo() {
+        return dateProvider.getCurrentTime() - sharedPreferences.getLong(LAST_UPDATE, Consts.NOT_SET);
     }
 
-    void setSynced() {
-        sharedPreferences.edit().putLong(LAST_SYNC, dateProvider.getCurrentTime()).apply();
+    void setUpdated() {
+        sharedPreferences.edit().putLong(LAST_UPDATE, dateProvider.getCurrentTime()).apply();
     }
 
     void update(NotificationPreferences preferences) {
