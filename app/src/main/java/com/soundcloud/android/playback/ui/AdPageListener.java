@@ -7,6 +7,7 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -74,19 +75,28 @@ class AdPageListener extends PageListener {
 
     public void onClickThrough() {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
-        final PlayerAdData playerAdData = (PlayerAdData) currentPlayQueueItem.getAdData().get();
+
+        if (AdsOperations.isAudioAd(currentPlayQueueItem)) {
+            audioAdClickThrough((AudioAd) adsOperations.getCurrentTrackAdData().get());
+        } else {
+            videoAdClickThrough((VideoAd) adsOperations.getCurrentTrackAdData().get());
+        }
+
         final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
-
-        startActivity(playerAdData.getVisualAd().getClickThroughUrl());
-
         if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
             ((OverlayAdData) monetizableAdData.get()).setMetaAdClicked();
         }
+    }
 
-        if (AdFunctions.IS_AUDIO_AD_ITEM.apply(currentPlayQueueItem)) {
-            final Urn trackUrn = currentPlayQueueItem.getUrn();
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromAudioAdClick((AudioAd) playerAdData, trackUrn, accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo()));
-        }
+    private void audioAdClickThrough(AudioAd audioAd) {
+        final Urn trackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
+        startActivity(audioAd.getVisualAd().getClickThroughUrl());
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAudioAdClick(audioAd, trackUrn, accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo()));
+    }
+
+    private void videoAdClickThrough(VideoAd videoAd) {
+        startActivity(videoAd.getClickThroughUrl());
+        // TODO: Tracking events
     }
 
     public void onAboutAds(Context context) {

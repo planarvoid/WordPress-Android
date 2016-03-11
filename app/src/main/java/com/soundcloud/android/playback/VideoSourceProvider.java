@@ -34,7 +34,7 @@ public class VideoSourceProvider {
     private static final Predicate<VideoSource> SUPPORTED_FORMAT_PREDICATE = new Predicate<VideoSource>() {
         @Override
         public boolean apply(VideoSource source) {
-            return SUPPORTED_FORMATS.contains(source.getCodec());
+            return SUPPORTED_FORMATS.contains(source.getType());
         }
     };
 

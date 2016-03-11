@@ -12,7 +12,7 @@ import com.soundcloud.java.optional.Optional;
 abstract class ApiAdWrapper {
     @JsonCreator
     public static ApiAdWrapper create(@JsonProperty("audio_ad") @Nullable ApiAudioAd audioAd,
-                                      @JsonProperty("video_ad") @Nullable ApiVideoAd videoAd,
+                                      @JsonProperty("video") @Nullable ApiVideoAd videoAd,
                                       @JsonProperty("interstitial") @Nullable ApiInterstitial interstitial) {
         return new AutoValue_ApiAdWrapper(
                 Optional.fromNullable(audioAd),

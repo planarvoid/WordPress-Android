@@ -54,7 +54,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
         presenter = new AudioAdPresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener);
         adView = presenter.createItemView(new FrameLayout(context()), skipListener);
-        presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
+        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(), buildTrack()));
     }
 
     @Test
@@ -137,8 +137,8 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void callToActionTextShouldUseProvidedText() {
         final String expectedText = "CLICK ME!!!";
-        final PlayerAdData adData = prepareAd(AdFixtures.getAudioAdWithCustomCTA(expectedText, Urn.forTrack(123L)));
-        presenter.bindItemView(adView, new PlayerAd(adData, buildTrack()));
+        final AudioAd adData = prepareAd(AdFixtures.getAudioAdWithCustomCTA(expectedText, Urn.forTrack(123L)));
+        presenter.bindItemView(adView, new AudioPlayerAd(adData, buildTrack()));
 
         final Button button = (Button) adView.findViewById(R.id.cta_button);
 
@@ -176,7 +176,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void bothLayoutsInvisibleOnNullAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just((Bitmap) null));
-        presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
+        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(), buildTrack()));
 
         assertCenteredLayoutInvisible();
         assertFullbleedLayoutInvisible();
@@ -185,7 +185,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void centeredLayoutSetOnIABSizedAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(300, 250)));
-        presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
+        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(), buildTrack()));
 
         assertCenteredLayoutVisible();
         assertFullbleedLayoutInvisible();
@@ -194,7 +194,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void centeredLayoutSetOn2xIABSizedAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(600, 500)));
-        presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
+        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(), buildTrack()));
 
         assertCenteredLayoutVisible();
         assertFullbleedLayoutInvisible();
@@ -203,7 +203,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void fullbleedLayoutSetOnLargerThan2xIABSizedAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(601, 501)));
-        presenter.bindItemView(adView, new PlayerAd(buildAd(), buildTrack()));
+        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(), buildTrack()));
 
         assertCenteredLayoutInvisible();
         assertFullbleedLayoutVisible();
@@ -301,11 +301,11 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
         return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     }
 
-    private PlayerAdData buildAd() {
+    private AudioAd buildAd() {
         return prepareAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
     }
 
-    private PlayerAdData prepareAd(AudioAd audioAd) {
+    private AudioAd prepareAd(AudioAd audioAd) {
         audioAd.setMonetizableTitle("track");
         audioAd.setMonetizableCreator("artist");
         return audioAd;

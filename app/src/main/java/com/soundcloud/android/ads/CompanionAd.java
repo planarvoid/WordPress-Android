@@ -18,13 +18,7 @@ public abstract class CompanionAd {
                 Uri.parse(apiCompanionAd.clickthroughUrl),
                 apiCompanionAd.trackingImpressionUrls,
                 apiCompanionAd.trackingClickUrls,
-                apiCompanionAd.ctaButtonText,
-                apiCompanionAd.displayProperties.defaultTextColor,
-                apiCompanionAd.displayProperties.defaultBackgroundColor,
-                apiCompanionAd.displayProperties.pressedTextColor,
-                apiCompanionAd.displayProperties.pressedBackgroundColor,
-                apiCompanionAd.displayProperties.focusedTextColor,
-                apiCompanionAd.displayProperties.focusedBackgroundColor
+                apiCompanionAd.ctaButtonText
         );
     }
 
@@ -40,15 +34,4 @@ public abstract class CompanionAd {
 
     public abstract Optional<String> getCallToActionButtonText();
 
-    public abstract String getDefaultTextColor();
-
-    public abstract String getDefaultBackgroundColor();
-
-    public abstract String getPressedTextColor();
-
-    public abstract String getPressedBackgroundColor();
-
-    public abstract String getFocusedTextColor();
-
-    public abstract String getFocusedBackgroundColor();
 }

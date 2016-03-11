@@ -6,8 +6,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;
-import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -111,7 +111,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             if (adData instanceof VideoAd) {
                 return new VideoPlayerAd((VideoAd) adData, trackProperties);
             } else {
-                return new PlayerAd((PlayerAdData) adData, trackProperties);
+                return new AudioPlayerAd((AudioAd) adData, trackProperties);
             }
         }
     };

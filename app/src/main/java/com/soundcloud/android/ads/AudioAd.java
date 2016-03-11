@@ -9,10 +9,11 @@ public abstract class AudioAd extends PlayerAdData {
     private static AudioAd create(ApiAudioAd apiAudioAd) {
         return new AutoValue_AudioAd(
                 apiAudioAd.getUrn(),
-                CompanionAd.create(apiAudioAd.getCompanion()),
                 apiAudioAd.getTrackingImpressionUrls(),
                 apiAudioAd.getTrackingFinishUrls(),
-                apiAudioAd.getTrackingSkipUrls()
+                apiAudioAd.getTrackingSkipUrls(),
+                VisualAdDisplayProperties.create(apiAudioAd.getCompanion().displayProperties),
+                CompanionAd.create(apiAudioAd.getCompanion())
         );
     }
 
@@ -21,5 +22,7 @@ public abstract class AudioAd extends PlayerAdData {
         audioAd.setMonetizableTrackUrn(monetizableUrn);
         return audioAd;
     }
+
+    public abstract CompanionAd getVisualAd();
 
 }

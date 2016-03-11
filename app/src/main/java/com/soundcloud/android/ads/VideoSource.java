@@ -18,7 +18,7 @@ public abstract class VideoSource implements Parcelable {
 
     public static VideoSource create(ApiVideoSource apiVideoSource) {
         return new AutoParcel_VideoSource(
-                apiVideoSource.getCodec(),
+                apiVideoSource.getType(),
                 apiVideoSource.getUrl(),
                 apiVideoSource.getBitRate(),
                 apiVideoSource.getWidth(),
@@ -26,7 +26,7 @@ public abstract class VideoSource implements Parcelable {
         );
     }
 
-    public abstract String getCodec();
+    public abstract String getType();
 
     public abstract String getUrl();
 

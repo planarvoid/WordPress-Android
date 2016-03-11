@@ -32,7 +32,7 @@ public class VisualAdImpressionOperations {
         public VisualAdImpressionEvent call(State state) {
             final PlayerAdData adData = (PlayerAdData) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
             return new VisualAdImpressionEvent(
-                    adData,
+                    (AudioAd) adData,
                     state.currentTrackUrn,
                     accountOperations.getLoggedInUserUrn(),
                     playQueueManager.getCurrentTrackSourceInfo()

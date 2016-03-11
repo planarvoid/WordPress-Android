@@ -31,12 +31,12 @@ public abstract class PlayerAdData extends AdData {
         thirdQuartileReported = true;
     }
 
-    public abstract CompanionAd getVisualAd();
-
     public abstract List<String> getImpressionUrls();
 
     public abstract List<String> getFinishUrls();
 
     public abstract List<String> getSkipUrls();
+
+    public abstract VisualAdDisplayProperties getDisplayProperties();
 
 }

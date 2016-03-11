@@ -8,6 +8,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.events.EventQueue;
@@ -56,6 +57,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), adData));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(adData));
     }
 
     @Test
@@ -64,10 +66,11 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
         listener.onClickThrough();
 
+        final AudioAd audioAd = (AudioAd) adData;
         Intent intent = Shadows.shadowOf(context()).getShadowApplication().getNextStartedActivity();
         assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo(Intent.ACTION_VIEW);
-        assertThat(intent.getData()).isSameAs(adData.getVisualAd().getClickThroughUrl());
+        assertThat(intent.getData()).isSameAs(audioAd.getVisualAd().getClickThroughUrl());
     }
 
     @Test
