@@ -15,6 +15,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
@@ -42,6 +43,8 @@ import java.util.List;
 
 public class PlaylistOperationsTest extends AndroidUnitTest {
 
+    private static final boolean IS_PRIVATE = true;
+    private static final String NEW_TITLE = "new title";
     private PlaylistOperations operations;
 
     @Mock private Observer<PlaylistWithTracks> playlistInfoObserver;
@@ -53,13 +56,16 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Mock private OfflineContentOperations offlineOperations;
     @Mock private AddTrackToPlaylistCommand addTrackToPlaylistCommand;
     @Mock private RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
+    @Mock private EditPlaylistCommand editPlaylistCommand;
     @Captor private ArgumentCaptor<AddTrackToPlaylistParams> addTrackCommandParamsCaptor;
     @Captor private ArgumentCaptor<RemoveTrackFromPlaylistParams> removeTrackCommandParamsCaptor;
+    @Captor private ArgumentCaptor<EditPlaylistCommandParams> editPlaylistCommandParamsCaptor;
 
     private final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
     private final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
     private final PropertySet track2 = ModelFixtures.create(ApiTrack.class).toPropertySet();
     private final Urn trackUrn = Urn.forTrack(123L);
+    private final List<Urn> newTrackList = Arrays.asList(trackUrn);
     private TestEventBus eventBus;
 
     @Before
@@ -67,7 +73,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator, tracksStorage,
                 playlistStorage, loadPlaylistTrackUrns,
-                addTrackToPlaylistCommand, removeTrackFromPlaylistCommand, eventBus);
+                addTrackToPlaylistCommand, removeTrackFromPlaylistCommand, editPlaylistCommand, eventBus);
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
 
     }
@@ -276,9 +282,54 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);
     }
 
+    @Test
+    public void shouldPublishEntityChangedEventAfterEditingPlaylist() {
+        when(editPlaylistCommand.toObservable(any(EditPlaylistCommandParams.class))).thenReturn(Observable.just(1));
+
+        operations.editPlaylist(playlist.getUrn(), NEW_TITLE, IS_PRIVATE, Arrays.asList(trackUrn)).subscribe();
+
+        verifyEditPlaylistCommandParams();
+
+        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.PLAYLIST_EDITED);
+        assertThat(event.getFirstUrn()).isEqualTo(playlist.getUrn());
+        assertThat(event.getChangeMap().get(playlist.getUrn())).isEqualTo(playlistEditedChangeSet(playlist.getUrn()));
+    }
+
+    @Test
+    public void shouldRequestSystemSyncAfterEditingPlaylist() {
+        when(editPlaylistCommand.toObservable(any(EditPlaylistCommandParams.class))).thenReturn(Observable.just(1));
+
+        operations.editPlaylist(playlist.getUrn(), NEW_TITLE, IS_PRIVATE, Arrays.asList(trackUrn)).subscribe();
+
+        verifyEditPlaylistCommandParams();
+        verify(requestSystemSyncAction).call();
+    }
+
+    @Test
+    public void shouldNotPublishEntityChangedEventAfterEditingPlaylistFailed() {
+        when(editPlaylistCommand.toObservable(any(EditPlaylistCommandParams.class)))
+                .thenReturn(Observable.<Integer>error(new Exception()));
+
+        operations.editPlaylist(playlist.getUrn(), NEW_TITLE, IS_PRIVATE, Arrays.asList(trackUrn))
+                .subscribe(new TestObserver<PropertySet>());
+
+        verifyEditPlaylistCommandParams();
+        eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);
+    }
+
     private PropertySet playlistChangeSet(Urn playlistUrn) {
         return PropertySet.from(
                 PlaylistProperty.URN.bind(playlistUrn),
+                PlaylistProperty.TRACK_COUNT.bind(1)
+        );
+    }
+
+    private PropertySet playlistEditedChangeSet(Urn playlistUrn) {
+        return PropertySet.from(
+                PlaylistProperty.URN.bind(playlistUrn),
+                PlaylistProperty.IS_PRIVATE.bind(IS_PRIVATE),
+                PlaylistProperty.TITLE.bind(NEW_TITLE),
                 PlaylistProperty.TRACK_COUNT.bind(1)
         );
     }
@@ -298,4 +349,14 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         assertThat(removeTrackCommandParamsCaptor.getValue().playlistUrn).isEqualTo(playlist.getUrn());
         assertThat(removeTrackCommandParamsCaptor.getValue().trackUrn).isEqualTo(trackUrn);
     }
+
+    private void verifyEditPlaylistCommandParams() {
+        verify(editPlaylistCommand).toObservable(editPlaylistCommandParamsCaptor.capture());
+        assertThat(editPlaylistCommandParamsCaptor.getValue().playlistUrn).isEqualTo(playlist.getUrn());
+        assertThat(editPlaylistCommandParamsCaptor.getValue().trackList).isEqualTo(newTrackList);
+        assertThat(editPlaylistCommandParamsCaptor.getValue().isPrivate).isEqualTo(IS_PRIVATE);
+        assertThat(editPlaylistCommandParamsCaptor.getValue().playlistTitle).isEqualTo(NEW_TITLE);
+    }
+
+
 }

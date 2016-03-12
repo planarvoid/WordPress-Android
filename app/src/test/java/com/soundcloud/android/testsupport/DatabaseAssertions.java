@@ -187,10 +187,17 @@ public class DatabaseAssertions {
                 .whereNull(UNAVAILABLE_AT))).counts(1);
     }
 
-    public void assertPlaylistTrackForRemoval(long playlistId, Urn urn) {
+    public void assertPlaylistTrackForAddition(Urn playlist, Urn track) {
         assertThat(select(from(PlaylistTracks.name())
-                .whereEq(PLAYLIST_ID, playlistId)
-                .whereEq(TRACK_ID, urn.getNumericId())
+                .whereEq(PLAYLIST_ID, playlist.getNumericId())
+                .whereEq(TRACK_ID, track.getNumericId())
+                .whereNotNull(ADDED_AT))).counts(1);
+    }
+
+    public void assertPlaylistTrackForRemoval(Urn playlist, Urn track) {
+        assertThat(select(from(PlaylistTracks.name())
+                .whereEq(PLAYLIST_ID, playlist.getNumericId())
+                .whereEq(TRACK_ID, track.getNumericId())
                 .whereNotNull(REMOVED_AT))).counts(1);
     }
 
@@ -431,6 +438,11 @@ public class DatabaseAssertions {
         assertThat(select(from(Sounds.name())
                 .whereEq(_ID, playlistId)
                 .whereEq(_TYPE, TYPE_PLAYLIST))).counts(0);
+    }
+
+    public void assertPlaylistTracksNotStored(Urn playlistUrn) {
+        assertThat(select(from(PlaylistTracks.name())
+                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId()))).counts(0);
     }
 
     public void assertPlaylistInserted(Urn playlist) {

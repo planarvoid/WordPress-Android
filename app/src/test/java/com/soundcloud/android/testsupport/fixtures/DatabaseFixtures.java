@@ -35,6 +35,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -486,6 +487,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
         cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
         cv.put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime());
+        cv.put(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()));
         return cv;
     }
 

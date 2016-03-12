@@ -28,6 +28,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int UPDATED = 0;
     public static final int LIKE = 2;
     public static final int REPOST = 3;
+    public static final int PLAYLIST_EDITED = 4;
     public static final int TRACK_ADDED_TO_PLAYLIST = 5;
     public static final int TRACK_REMOVED_FROM_PLAYLIST = 6;
     public static final int FOLLOWING = 7;
@@ -75,7 +76,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_CONTENT_CHANGED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isTrackAddedEvent() || event.isTrackRemovedEvent();
+            return event.isTrackAddedEvent() || event.isTrackRemovedEvent() || event.isPlaylistEditedEvent();
         }
     };
 
@@ -159,6 +160,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(PropertySet newPlaylistState) {
         return create(TRACK_ADDED_TO_PLAYLIST, newPlaylistState);
+    }
+
+    public static EntityStateChangedEvent fromPlaylistEdited(PropertySet newPlaylistState) {
+        return create(PLAYLIST_EDITED, newPlaylistState);
     }
 
     public static EntityStateChangedEvent fromTrackRemovedFromPlaylist(PropertySet newPlaylistState) {
@@ -246,6 +251,10 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
 
     private boolean isTrackAddedEvent() {
         return getKind() == TRACK_ADDED_TO_PLAYLIST;
+    }
+
+    private boolean isPlaylistEditedEvent() {
+        return getKind() == PLAYLIST_EDITED;
     }
 
     private boolean isTrackRemovedEvent() {

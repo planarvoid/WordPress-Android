@@ -40,7 +40,7 @@ public class RemoveTrackFromPlaylistCommandTest extends StorageIntegrationTest {
         command.call(new RemoveTrackFromPlaylistParams(apiPlaylist.getUrn(), track1.getUrn()));
 
         databaseAssertions().assertPlaylistTracklist(apiPlaylist.getId(), Arrays.asList(track2.getUrn()));
-        databaseAssertions().assertPlaylistTrackForRemoval(apiPlaylist.getId(), track1.getUrn());
+        databaseAssertions().assertPlaylistTrackForRemoval(apiPlaylist.getUrn(), track1.getUrn());
     }
 
     @Test
@@ -53,8 +53,8 @@ public class RemoveTrackFromPlaylistCommandTest extends StorageIntegrationTest {
         command.call(new RemoveTrackFromPlaylistParams(apiPlaylist.getUrn(), track2.getUrn()));
 
         databaseAssertions().assertPlaylistTracklist(apiPlaylist.getId(), Arrays.asList(track1.getUrn()));
-        databaseAssertions().assertPlaylistTrackForRemoval(apiPlaylist.getId(), track2.getUrn());
-        databaseAssertions().assertPlaylistTrackForRemoval(apiPlaylist.getId(), track3.getUrn());
+        databaseAssertions().assertPlaylistTrackForRemoval(apiPlaylist.getUrn(), track2.getUrn());
+        databaseAssertions().assertPlaylistTrackForRemoval(apiPlaylist.getUrn(), track3.getUrn());
     }
 
     @Test
