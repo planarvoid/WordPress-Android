@@ -11,7 +11,7 @@ public class NotificationPreferences {
     private final HashMap<String, NotificationPreference> properties;
 
     public NotificationPreferences() {
-        properties = new HashMap<>(12);
+        properties = new HashMap<>(NotificationPreferenceType.values().length);
     }
 
     @JsonAnySetter
