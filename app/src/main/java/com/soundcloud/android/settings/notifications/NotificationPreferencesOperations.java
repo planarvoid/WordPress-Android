@@ -5,6 +5,7 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -21,14 +22,17 @@ class NotificationPreferencesOperations {
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
     private final NotificationPreferencesStorage storage;
+    private final NetworkConnectionHelper connectionHelper;
 
     @Inject
     NotificationPreferencesOperations(ApiClientRx apiClientRx,
                                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                                      NotificationPreferencesStorage storage) {
+                                      NotificationPreferencesStorage storage,
+                                      NetworkConnectionHelper connectionHelper) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.storage = storage;
+        this.connectionHelper = connectionHelper;
     }
 
     Observable<NotificationPreferences> refresh() {
@@ -46,7 +50,8 @@ class NotificationPreferencesOperations {
     }
 
     boolean needsSyncOrRefresh() {
-        return storage.isPendingSync() || storage.getLastUpdateAgo() >= STALE_PREFERENCES;
+        boolean isStale = storage.getLastUpdateAgo() >= STALE_PREFERENCES;
+        return connectionHelper.isNetworkConnected() && (storage.isPendingSync() || isStale);
     }
 
     private Observable<NotificationPreferences> fetch() {

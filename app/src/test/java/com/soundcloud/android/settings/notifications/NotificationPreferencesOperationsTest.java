@@ -15,6 +15,7 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -32,6 +33,7 @@ public class NotificationPreferencesOperationsTest extends AndroidUnitTest {
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private NotificationPreferencesStorage storage;
+    @Mock private NetworkConnectionHelper connectionHelper;
 
     NotificationPreferencesOperations operations;
 
@@ -40,7 +42,8 @@ public class NotificationPreferencesOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         content = buildContent();
-        operations = new NotificationPreferencesOperations(apiClientRx, Schedulers.immediate(), storage);
+        operations = new NotificationPreferencesOperations(apiClientRx,
+                Schedulers.immediate(), storage, connectionHelper);
     }
 
     @Test
@@ -133,6 +136,7 @@ public class NotificationPreferencesOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNeedSyncOrRefreshWhenIsPendingSync() {
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(storage.isPendingSync()).thenReturn(true);
         when(storage.getLastUpdateAgo()).thenReturn(TimeUnit.MINUTES.toMillis(3));
 
@@ -143,6 +147,7 @@ public class NotificationPreferencesOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNeedSyncOrRefreshWhenIsStale() {
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(storage.isPendingSync()).thenReturn(false);
         when(storage.getLastUpdateAgo()).thenReturn(TimeUnit.MINUTES.toMillis(15));
 
@@ -152,7 +157,19 @@ public class NotificationPreferencesOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldNotNeedSyncOrRefreshWhenNotConnected() {
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+        when(storage.isPendingSync()).thenReturn(true);
+        when(storage.getLastUpdateAgo()).thenReturn(TimeUnit.MINUTES.toMillis(15));
+
+        boolean result = operations.needsSyncOrRefresh();
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
     public void shouldNotNeedSyncOrRefresh() {
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(storage.isPendingSync()).thenReturn(false);
         when(storage.getLastUpdateAgo()).thenReturn(TimeUnit.MINUTES.toMillis(3));
 

@@ -4,28 +4,25 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.view.CircularProgressBar;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.view.View;
 
 import javax.inject.Inject;
-import java.lang.ref.WeakReference;
 
 public class NotificationPreferencesActivity extends LoggedInActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject NotificationPreferencesOperations operations;
-    @Inject NetworkConnectionHelper connection;
 
-    private Subscription subscription;
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     public NotificationPreferencesActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -35,11 +32,10 @@ public class NotificationPreferencesActivity extends LoggedInActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            setContentFragment(new Fragment());
-        }
-
-        if (operations.needsSyncOrRefresh() && connection.isNetworkConnected()) {
+        if (operations.needsSyncOrRefresh()) {
+            if (savedInstanceState != null) {
+                clearContentFragment();
+            }
             refresh();
         } else {
             showPreferences();
@@ -61,11 +57,9 @@ public class NotificationPreferencesActivity extends LoggedInActivity {
     }
 
     @Override
-    protected void onPause() {
-        if (subscription != null) {
-            subscription.unsubscribe();
-        }
-        super.onPause();
+    protected void onDestroy() {
+        subscription.unsubscribe();
+        super.onDestroy();
     }
 
     private void refresh() {
@@ -93,21 +87,18 @@ public class NotificationPreferencesActivity extends LoggedInActivity {
 
     private static class PreferencesFetchSubscriber extends DefaultSubscriber<NotificationPreferences> {
 
+        NotificationPreferencesActivity activity;
+
         public PreferencesFetchSubscriber(NotificationPreferencesActivity activity) {
-            this.activityReference = new WeakReference<>(activity);
+            this.activity = activity;
             activity.showProgressBar();
         }
 
-        WeakReference<NotificationPreferencesActivity> activityReference;
-
         @Override
         public void onCompleted() {
-            if (activityReference.get() != null) {
-                NotificationPreferencesActivity activity = activityReference.get();
-                if (!activity.isFinishing()) {
-                    activity.hideProgressBar();
-                    activity.showPreferences();
-                }
+            if (!activity.isFinishing()) {
+                activity.hideProgressBar();
+                activity.showPreferences();
             }
         }
     }
