@@ -30,7 +30,7 @@ public class NotificationPreferencesStorage {
     NotificationPreferences buildNotificationPreferences() {
         NotificationPreferences preferences = new NotificationPreferences();
         for (NotificationPreferenceType preference : NotificationPreferenceType.values()) {
-            preferences.add(preference.getName(), get(preference));
+            preferences.add(preference.getSettingKey(), get(preference));
         }
         return preferences;
     }

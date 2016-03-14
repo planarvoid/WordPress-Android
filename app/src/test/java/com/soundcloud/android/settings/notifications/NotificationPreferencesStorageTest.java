@@ -50,7 +50,7 @@ public class NotificationPreferencesStorageTest extends AndroidUnitTest {
 
         NotificationPreferences preferences = storage.buildNotificationPreferences();
 
-        NotificationPreference newslettersPreference = preferences.getProperties().get(NEWSLETTERS.getName());
+        NotificationPreference newslettersPreference = preferences.getProperties().get(NEWSLETTERS.getSettingKey());
         assertThat(newslettersPreference.isMobile()).isTrue();
         assertThat(newslettersPreference.isMail()).isFalse();
     }
@@ -90,7 +90,7 @@ public class NotificationPreferencesStorageTest extends AndroidUnitTest {
 
     private NotificationPreferences buildTestPreferences() {
         NotificationPreferences notificationPreferences = new NotificationPreferences();
-        notificationPreferences.add(NEWSLETTERS.getName(), new NotificationPreference(true, false));
+        notificationPreferences.add(NEWSLETTERS.getSettingKey(), new NotificationPreference(true, false));
         return notificationPreferences;
     }
 }

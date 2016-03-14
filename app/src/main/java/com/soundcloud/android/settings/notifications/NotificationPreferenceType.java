@@ -40,12 +40,12 @@ enum NotificationPreferenceType {
         }
     };
 
-    private final String name;
+    private final String settingKey;
     private final Optional<String> mobileKey;
     private final Optional<String> mailKey;
 
-    NotificationPreferenceType(String name, String mobileKey, String mailKey) {
-        this.name = name;
+    NotificationPreferenceType(String settingKey, String mobileKey, String mailKey) {
+        this.settingKey = settingKey;
         this.mobileKey = Optional.fromNullable(mobileKey);
         this.mailKey = Optional.fromNullable(mailKey);
     }
@@ -58,13 +58,13 @@ enum NotificationPreferenceType {
         return mobileKey;
     }
 
-    String getName() {
-        return name;
+    String getSettingKey() {
+        return settingKey;
     }
 
-    static Optional<NotificationPreferenceType> from(String key) {
+    static Optional<NotificationPreferenceType> from(String settingKey) {
         for (NotificationPreferenceType type : values()) {
-            if (type.getName().equals(key)) {
+            if (type.getSettingKey().equals(settingKey)) {
                 return Optional.of(type);
             }
         }
