@@ -15,7 +15,8 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration(Arrays.asList(
                 new Feature("feature", false, Arrays.asList("mid_tier"))),
                 new UserPlan("free", Collections.<String>emptyList()), null,
-                new DeviceManagement(true, false));
+                new DeviceManagement(true, false),
+                false);
         assertThat(configuration.assignment.isEmpty()).isTrue();
     }
 

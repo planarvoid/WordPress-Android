@@ -48,6 +48,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Mock private ExperimentOperations experimentOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private PlanChangeDetector planChangeDetector;
+    @Mock private ForceUpdateHandler forceUpdateHandler;
     @Mock private FeatureFlags featureFlags;
     @Mock private DeviceManagementStorage deviceManagementStorage;
     @Mock private ConfigurationSettingsStorage configurationSettingsStorage;
@@ -66,7 +67,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         configuration = ModelFixtures.create(Configuration.class);
         TryWithBackOff.Factory factory = new TryWithBackOff.Factory(sleeper);
         operations = new ConfigurationOperations(apiClientRx,
-                experimentOperations, featureOperations, planChangeDetector, featureFlags, configurationSettingsStorage,
+                experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler, featureFlags, configurationSettingsStorage,
                 factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1), scheduler);
 
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
@@ -349,16 +350,23 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         subscriber.assertNoErrors();
     }
 
+    @Test
+    public void shouldCheckForKillSwitchPresenceWhenSavingConfiguration() {
+        operations.saveConfiguration(configuration);
+
+        verify(forceUpdateHandler).checkForForcedUpdate(configuration);
+    }
+
     private Configuration getNoPlanConfiguration() {
         final UserPlan userPlan = new UserPlan(Plan.FREE_TIER.planId, Collections.<String>emptyList());
         return new Configuration(ConfigurationBlueprint.createFeatures(), userPlan,
-                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false));
+                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false), false);
     }
 
     private Configuration getHighTierConfiguration() {
         final UserPlan userPlan = new UserPlan(Plan.HIGH_TIER.planId, Collections.<String>emptyList());
         return new Configuration(ConfigurationBlueprint.createFeatures(), userPlan,
-                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false));
+                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false), false);
     }
 
 }

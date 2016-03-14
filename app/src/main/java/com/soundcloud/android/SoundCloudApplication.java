@@ -197,6 +197,8 @@ public class SoundCloudApplication extends MultiDexApplication {
         configurationFeatureController.subscribe();
         FacebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();
+
+        configurationManager.checkForForcedApplicationUpdate();
     }
 
     private void initializeNewRelic() {

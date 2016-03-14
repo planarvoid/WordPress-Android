@@ -68,14 +68,12 @@ public class ApiModule {
     @Provides
     @Singleton
     @Named(API_HTTP_CLIENT)
-    public OkHttpClient provideOkHttpClient(ApiUserPlanInterceptor userPlanInterceptor,
-                                            ApiKillSwitchInterceptor killSwitchInterceptor) {
+    public OkHttpClient provideOkHttpClient(ApiUserPlanInterceptor userPlanInterceptor) {
         OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.setConnectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         okHttpClient.setReadTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         okHttpClient.setWriteTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         okHttpClient.interceptors().add(userPlanInterceptor);
-        okHttpClient.interceptors().add(killSwitchInterceptor);
         return okHttpClient;
     }
 }

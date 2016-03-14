@@ -60,7 +60,7 @@ public class DailyUpdateService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (ACTION_START.equals(intent.getAction())) {
             updateTrackPolicies();
-            configurationManager.forceUpdate();
+            configurationManager.forceConfigurationUpdate();
             adIdHelper.init();
         }
     }

@@ -51,6 +51,7 @@ public class ConfigurationOperations {
     private final ExperimentOperations experimentOperations;
     private final FeatureOperations featureOperations;
     private final PlanChangeDetector planChangeDetector;
+    private final ForceUpdateHandler forceUpdateHandler;
     private final FeatureFlags featureFlags;
     private final ConfigurationSettingsStorage configurationSettingsStorage;
     private final TryWithBackOff<Configuration> tryWithBackOff;
@@ -94,8 +95,9 @@ public class ConfigurationOperations {
                                    ConfigurationSettingsStorage configurationSettingsStorage,
                                    TryWithBackOff.Factory tryWithBackOffFactory,
                                    @Named(HIGH_PRIORITY) Scheduler scheduler,
-                                   PlanChangeDetector planChangeDetector) {
-        this(apiClientRx, experimentOperations, featureOperations, planChangeDetector, featureFlags,
+                                   PlanChangeDetector planChangeDetector,
+                                   ForceUpdateHandler forceUpdateHandler) {
+        this(apiClientRx, experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler, featureFlags,
                 configurationSettingsStorage, tryWithBackOffFactory.<Configuration>withDefaults(), scheduler);
     }
 
@@ -104,12 +106,14 @@ public class ConfigurationOperations {
                             ExperimentOperations experimentOperations,
                             FeatureOperations featureOperations,
                             PlanChangeDetector planChangeDetector,
+                            ForceUpdateHandler forceUpdateHandler,
                             FeatureFlags featureFlags,
                             ConfigurationSettingsStorage configurationSettingsStorage,
                             TryWithBackOff<Configuration> tryWithBackOff,
                             @Named(HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.planChangeDetector = planChangeDetector;
+        this.forceUpdateHandler = forceUpdateHandler;
         this.apiClient = apiClientRx.getApiClient();
         this.experimentOperations = experimentOperations;
         this.featureOperations = featureOperations;
@@ -231,7 +235,11 @@ public class ConfigurationOperations {
     void saveConfiguration(Configuration configuration) {
         Log.d(TAG, "Saving new configuration...");
         configurationSettingsStorage.setLastConfigurationUpdateTime(System.currentTimeMillis());
+
+        forceUpdateHandler.checkForForcedUpdate(configuration);
+
         experimentOperations.update(configuration.assignment);
+
         if (featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)) {
             featureOperations.updateFeatures(configuration.features);
             planChangeDetector.handleRemotePlan(configuration.userPlan.currentPlan);
