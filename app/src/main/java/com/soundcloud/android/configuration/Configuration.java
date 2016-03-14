@@ -15,17 +15,20 @@ public class Configuration {
     public final UserPlan userPlan;
     public final Assignment assignment;
     public final DeviceManagement deviceManagement;
+    public final boolean selfDestruct;
 
     @JsonCreator
     public Configuration(
             @JsonProperty("features") List<Feature> features,
             @JsonProperty("plan") UserPlan userPlan,
             @JsonProperty("experiments") List<Layer> experimentLayers,
-            @JsonProperty("device_management") DeviceManagement deviceManagement) {
+            @JsonProperty("device_management") DeviceManagement deviceManagement,
+            @JsonProperty("self_destruct") boolean selfDestruct) {
         this.features = Collections.unmodifiableList(features);
         this.userPlan = userPlan;
         this.assignment = experimentLayers == null ? Assignment.empty() : new Assignment(experimentLayers);
         this.deviceManagement = deviceManagement;
+        this.selfDestruct = selfDestruct;
     }
 
 }

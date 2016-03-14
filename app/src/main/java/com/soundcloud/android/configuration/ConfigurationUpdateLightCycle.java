@@ -36,7 +36,7 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
         } else if (configurationManager.isPendingDowngrade()) {
             navigator.resetForAccountDowngrade(activity);
         } else {
-            configurationManager.requestUpdate();
+            configurationManager.requestConfigurationUpdate();
         }
     }
 

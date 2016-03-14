@@ -64,7 +64,7 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
     public void updatesConfiguration() {
         dailyUpdateService.onHandleIntent(startIntent());
 
-        verify(configurationManager).forceUpdate();
+        verify(configurationManager).forceConfigurationUpdate();
     }
 
     @Test
