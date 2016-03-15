@@ -1,4 +1,0 @@
---!UP!
-goodupmigration
---!DOWN!
-gooddownmigration
