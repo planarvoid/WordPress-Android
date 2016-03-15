@@ -7,6 +7,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.tracks.TrackItem;
@@ -31,6 +32,13 @@ public class PlaylistOperations {
         }
     };
 
+    private final Action1<PropertySet> publishPlaylistEditedEvent = new Action1<PropertySet>() {
+        @Override
+        public void call(PropertySet newPlaylistTrackData) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistEdited(newPlaylistTrackData));
+        }
+    };
+
     private final Action1<PropertySet> publishTrackRemovedFromPlaylistEvent = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet newPlaylistTrackData) {
@@ -51,16 +59,17 @@ public class PlaylistOperations {
     private final PlaylistTracksStorage playlistTracksStorage;
     private final AddTrackToPlaylistCommand addTrackToPlaylistCommand;
     private final RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
+    private final EditPlaylistCommand editPlaylistCommand;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
 
     private final Func2<PropertySet, List<TrackItem>, PlaylistWithTracks> mergePlaylistWithTracks =
             new Func2<PropertySet, List<TrackItem>, PlaylistWithTracks>() {
-        @Override
-        public PlaylistWithTracks call(PropertySet playlist, List<TrackItem> tracks) {
-            return new PlaylistWithTracks(playlist, tracks);
-        }
-    };
+                @Override
+                public PlaylistWithTracks call(PropertySet playlist, List<TrackItem> tracks) {
+                    return new PlaylistWithTracks(playlist, tracks);
+                }
+            };
 
     private final Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>> validateLoadedPlaylist = new Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>>() {
         @Override
@@ -79,7 +88,7 @@ public class PlaylistOperations {
                        LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns,
                        AddTrackToPlaylistCommand addTrackToPlaylistCommand,
                        RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand,
-                       EventBus eventBus) {
+                       EditPlaylistCommand editPlaylistCommand, EventBus eventBus) {
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.playlistTracksStorage = playlistTracksStorage;
@@ -87,6 +96,7 @@ public class PlaylistOperations {
         this.loadPlaylistTrackUrns = loadPlaylistTrackUrns;
         this.addTrackToPlaylistCommand = addTrackToPlaylistCommand;
         this.removeTrackFromPlaylistCommand = removeTrackFromPlaylistCommand;
+        this.editPlaylistCommand = editPlaylistCommand;
         this.eventBus = eventBus;
     }
 
@@ -101,6 +111,14 @@ public class PlaylistOperations {
                 .doOnNext(publishPlaylistCreatedEvent)
                 .subscribeOn(scheduler)
                 .doOnCompleted(syncInitiator.requestSystemSyncAction());
+    }
+
+    Observable<PropertySet> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
+        return editPlaylistCommand.toObservable(new EditPlaylistCommandParams(playlistUrn, title, isPrivate, updatedTracklist))
+                .map(toEditedChangeSet(playlistUrn, title, isPrivate))
+                .doOnNext(publishPlaylistEditedEvent)
+                .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                .subscribeOn(scheduler);
     }
 
     Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
@@ -127,6 +145,19 @@ public class PlaylistOperations {
             public PropertySet call(Integer newTrackCount) {
                 return PropertySet.from(
                         PlaylistProperty.URN.bind(targetUrn),
+                        PlaylistProperty.TRACK_COUNT.bind(newTrackCount));
+            }
+        };
+    }
+
+    private Func1<Integer, PropertySet> toEditedChangeSet(final Urn targetUrn, final String title, final boolean isPrivate) {
+        return new Func1<Integer, PropertySet>() {
+            @Override
+            public PropertySet call(Integer newTrackCount) {
+                return PropertySet.from(
+                        PlaylistProperty.URN.bind(targetUrn),
+                        PlaylistProperty.TITLE.bind(title),
+                        PlaylistProperty.IS_PRIVATE.bind(isPrivate),
                         PlaylistProperty.TRACK_COUNT.bind(newTrackCount));
             }
         };

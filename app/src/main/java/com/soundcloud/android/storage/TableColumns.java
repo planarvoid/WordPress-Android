@@ -96,6 +96,7 @@ public final class TableColumns {
         public static final String TRACK_COUNT = "track_count";
         public static final String PLAYLIST_TYPE = "playlist_type";
         public static final String REMOVED_AT = "removed_at";
+        public static final String MODIFIED_AT = "modified_at";
         public static final String DESCRIPTION = "description";
 
         public static final int TYPE_TRACK    = 0;
@@ -109,7 +110,7 @@ public final class TableColumns {
                 COMMENTABLE, SHARING, LICENSE, PURCHASE_URL, PLAYBACK_COUNT, DOWNLOAD_COUNT,
                 COMMENT_COUNT, LIKES_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT,
                 USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED,
-                TRACKS_URI, TRACK_COUNT, PLAYLIST_TYPE, REMOVED_AT, DESCRIPTION
+                TRACKS_URI, TRACK_COUNT, PLAYLIST_TYPE, REMOVED_AT, MODIFIED_AT, DESCRIPTION
         };
     }
 

@@ -70,6 +70,7 @@ final class DatabaseSchema {
             "playlist_type VARCHAR(255)," +
             "user_id INTEGER," +
             "removed_at INTEGER DEFAULT NULL," +
+            "modified_at INTEGER DEFAULT NULL," +
             "DESCRIPTION TEXT," +
             "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
             ");";
