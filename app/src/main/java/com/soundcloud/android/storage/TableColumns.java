@@ -1,7 +1,5 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.storage.provider.ScContentProvider;
-
 import android.app.SearchManager;
 import android.provider.BaseColumns;
 
@@ -133,36 +131,6 @@ public final class TableColumns {
     }
 
     /**
-     * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_TRACK_METADATA}
-     */
-    public static final class TrackMetadata implements BaseColumns {
-        public static final String USER_ID = "user_id";
-        public static final String PLAY_COUNT = "play_count";
-        public static final String CACHED = "cached";
-        public static final String TYPE = "type";
-        public static final String SIZE = "size";
-        public static final String URL_HASH = "url_hash";
-        public static final String ETAG = "etag";
-        public static final String BITRATE = "bitrate";
-
-        public static final String[] ALL_FIELDS = new String[]{
-                _ID, USER_ID, PLAY_COUNT, CACHED, TYPE, ETAG, BITRATE, URL_HASH, SIZE
-        };
-    }
-
-    /**
-     * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_COLLECTION_ITEMS}
-     */
-    public static final class CollectionItems {
-        public static final String ITEM_ID = "item_id";
-        public static final String USER_ID = "user_id";     // "owner" of the item
-        public static final String COLLECTION_TYPE = "collection_type"; // the association
-        public static final String RESOURCE_TYPE = "resource_type";  // used by sounds to determine playlist or track
-        public static final String POSITION = "position";
-        public static final String CREATED_AT = "created_at";
-    }
-
-    /**
      * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_USER_ASSOCIATIONS}
      */
     public static final class UserAssociations {
@@ -175,8 +143,8 @@ public final class TableColumns {
         public static final String REMOVED_AT = "removed_at"; // when was this removed locally (pre-api sync)
         @Deprecated public static final String TOKEN = "token";
 
-        public static final int TYPE_FOLLOWING = ScContentProvider.CollectionItemTypes.FOLLOWING;
-        public static final int TYPE_FOLLOWER = ScContentProvider.CollectionItemTypes.FOLLOWER;
+        public static final int TYPE_FOLLOWING = 2; // inlined from ScContentProvider
+        public static final int TYPE_FOLLOWER = 3; // inlined from ScContentProvider
 
         public static final int TYPE_RESOURCE_USER = 0;
     }
@@ -226,44 +194,6 @@ public final class TableColumns {
     }
 
     /**
-     * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_RECORDINGS}
-     */
-    public static final class Recordings implements BaseColumns {
-        public static final String USER_ID = "user_id";
-        public static final String TIMESTAMP = "timestamp";
-        public static final String LONGITUDE = "longitude";
-        public static final String LATITUDE = "latitude";
-        public static final String WHAT_TEXT = "what_text";
-        public static final String WHERE_TEXT = "where_text";
-        public static final String AUDIO_PATH = "audio_path";
-        public static final String DURATION = "duration";
-        public static final String DESCRIPTION = "description";
-        public static final String ARTWORK_PATH = "artwork_path";
-        public static final String SHARED_EMAILS = "shared_emails";
-        public static final String SHARED_IDS = "shared_ids";
-        public static final String PRIVATE_USER_ID = "private_user_id";
-        public static final String TIP_KEY = "tip_key";
-        public static final String SERVICE_IDS = "service_ids";
-        public static final String IS_PRIVATE = "is_private";
-        public static final String EXTERNAL_UPLOAD = "external_upload";
-        public static final String UPLOAD_STATUS = "upload_status";
-        public static final String FOUR_SQUARE_VENUE_ID = "four_square_venue_id";
-        public static final String TRIM_LEFT = "trim_left";
-        public static final String TRIM_RIGHT = "trim_right";
-        public static final String FILTERS = "filters";
-        public static final String OPTIMIZE = "optimize";
-        public static final String FADING = "fading";
-
-        public static final String[] ALL_FIELDS = {
-                _ID, USER_ID, TIMESTAMP, LONGITUDE, LATITUDE, WHAT_TEXT,
-                WHERE_TEXT, AUDIO_PATH, DURATION, DESCRIPTION, ARTWORK_PATH,
-                SHARED_EMAILS, SHARED_IDS, PRIVATE_USER_ID, TIP_KEY, SERVICE_IDS, IS_PRIVATE,
-                EXTERNAL_UPLOAD, UPLOAD_STATUS, FOUR_SQUARE_VENUE_ID,
-                TRIM_LEFT, TRIM_RIGHT, FILTERS, OPTIMIZE, FADING
-        };
-    }
-
-    /**
      * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_ACTIVITIES}
      */
     public static class Activities implements BaseColumns {
@@ -293,16 +223,6 @@ public final class TableColumns {
         public static final String LAST_SYNC = "last_sync";          // timestamp of last sync
         public static final String LAST_SYNC_ATTEMPT = "last_sync_attempt";          // timestamp of last sync
         public static final String EXTRA = "extra";                  // general purpose field
-    }
-
-    /**
-     * {@link com.soundcloud.android.storage.DatabaseSchema#DATABASE_CREATE_COLLECTION_PAGES}
-     */
-    public static final class CollectionPages implements BaseColumns {
-        public static final String COLLECTION_ID = "collection_id";
-        public static final String ETAG = "etag";
-        public static final String SIZE = "size";
-        public static final String PAGE_INDEX = "page_index";
     }
 
     public static class SoundView extends ResourceTable implements BaseColumns {
@@ -418,7 +338,6 @@ public final class TableColumns {
     public final static class UserAssociationView extends Users {
         public static final String USER_ASSOCIATION_TIMESTAMP = AssociationView.ASSOCIATION_TIMESTAMP;
         public static final String USER_ASSOCIATION_TYPE = AssociationView.ASSOCIATION_TYPE;
-        public static final String USER_ASSOCIATION_POSITION = "user_association_position";
         public static final String USER_ASSOCIATION_ADDED_AT = "user_association_added_at";
         public static final String USER_ASSOCIATION_REMOVED_AT = "user_association_removed_at";
         @Deprecated public static final String USER_ASSOCIATION_TOKEN = "user_association_token";

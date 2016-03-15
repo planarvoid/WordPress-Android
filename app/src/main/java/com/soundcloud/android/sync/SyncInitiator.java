@@ -6,7 +6,6 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
@@ -66,7 +65,7 @@ public class SyncInitiator {
             final Bundle extras = new Bundle();
             extras.putBoolean(SyncAdapterService.EXTRA_SYNC_PUSH, true);
             extras.putString(SyncAdapterService.EXTRA_SYNC_PUSH_URI, Content.ME_FOLLOWINGS.uri.toString());
-            ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, extras);
+            ContentResolver.requestSync(account, SyncConfig.AUTHORITY, extras);
             return true;
         } else {
             return false;
@@ -76,7 +75,7 @@ public class SyncInitiator {
     public boolean requestSystemSync() {
         final Account soundCloudAccount = accountOperations.getSoundCloudAccount();
         if (soundCloudAccount != null) {
-            ContentResolver.requestSync(soundCloudAccount, ScContentProvider.AUTHORITY, new Bundle());
+            ContentResolver.requestSync(soundCloudAccount, SyncConfig.AUTHORITY, new Bundle());
             return true;
         } else {
             return false;

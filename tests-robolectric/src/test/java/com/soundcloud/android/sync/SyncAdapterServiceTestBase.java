@@ -53,11 +53,6 @@ public abstract class SyncAdapterServiceTestBase {
         TestHelper.setBackgrounData(true);
         TestHelper.connectedViaWifi(true);
 
-        // the current sc user, assumed to be already in the db
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Users._ID, 133201L);
-        cv.put(TableColumns.Users.USERNAME, "Foo Bar");
-        Robolectric.application.getContentResolver().insert(Content.USERS.uri, cv);
         TestHelper.setUserId(133201L);
 
         // always notify

@@ -62,7 +62,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
 
     @Test
     public void shouldLaunchSystemSearch() {
-        final Uri uri = Content.COLLECTION.uri;
+        final Uri uri = Content.TRACK.uri;
         intent.setAction(Intent.ACTION_VIEW);
         intent.setData(uri);
 

@@ -105,19 +105,6 @@ final class DatabaseSchema {
             "PRIMARY KEY (track_id, position, playlist_id) ON CONFLICT IGNORE" +
             ");";
 
-    static final String DATABASE_CREATE_TRACK_METADATA = "(" +
-            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "user_id INTEGER, " +
-            "play_count INTEGER DEFAULT 0," + // not used currently, do not want to alter this table until streamProxy is gone
-            "cached INTEGER DEFAULT 0," +
-            "type INTEGER DEFAULT 0," +
-            "etag VARCHAR(34)," +
-            "url_hash VARCHAR(32)," +
-            "size INTEGER," +
-            "bitrate INTEGER," +
-            "UNIQUE (_id, user_id) ON CONFLICT IGNORE" +
-            ");";
-
     static final String DATABASE_CREATE_USERS = "(" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "_type INTEGER DEFAULT 0," +
@@ -152,34 +139,6 @@ final class DatabaseSchema {
             "last_updated INTEGER" +
             ");";
 
-    static final String DATABASE_CREATE_RECORDINGS = "(" +
-            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "user_id INTEGER," +
-            "timestamp INTEGER," +
-            "longitude VARCHAR(255)," +
-            "latitude VARCHAR(255)," +
-            "what_text VARCHAR(255)," +
-            "where_text VARCHAR(255)," +
-            "audio_path VARCHAR(255)," +
-            "artwork_path VARCHAR(255)," +
-            "duration INTEGER," +
-            "description VARCHAR(255)," +
-            "four_square_venue_id VARCHAR(255), " +
-            "shared_emails text," +
-            "shared_ids text, " +
-            "private_user_id INTEGER," +
-            "tip_key VARCHAR(255)," +
-            "service_ids VARCHAR(255)," +
-            "is_private BOOLEAN," +
-            "external_upload BOOLEAN," +
-            "upload_status INTEGER DEFAULT 0," +
-            "trim_left INTEGER," +
-            "trim_right INTEGER," +
-            "filters INTEGER," +
-            "optimize INTEGER," +
-            "fading INTEGER" +
-            ");";
-
     static final String DATABASE_CREATE_COMMENTS = "(" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "urn TEXT UNIQUE," +
@@ -206,15 +165,6 @@ final class DatabaseSchema {
             "UNIQUE (created_at, type, content_id, sound_id, user_id)" +
             ");";
 
-    static final String DATABASE_CREATE_SEARCHES = "(" +
-            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "created_at INTEGER," +
-            "user_id INTEGER," +
-            "query VARCHAR(255)," +
-            "search_type INTEGER," +
-            "UNIQUE (user_id, search_type, query) ON CONFLICT REPLACE" +
-            ");";
-
     /**
      * {@link com.soundcloud.android.storage.TableColumns.Collections}
      */
@@ -223,30 +173,6 @@ final class DatabaseSchema {
             "last_sync INTEGER DEFAULT 0, " +
             "last_sync_attempt INTEGER DEFAULT 0, " +
             "extra TEXT" +
-            ");";
-
-    /**
-     * {@link com.soundcloud.android.storage.TableColumns.CollectionPages}
-     */
-    static final String DATABASE_CREATE_COLLECTION_PAGES = "(" +
-            "collection_id INTEGER," +
-            "page_index INTEGER," +
-            "etag VARCHAR(255), " +
-            "size INTEGER, " +
-            "PRIMARY KEY(collection_id, page_index) ON CONFLICT REPLACE" +
-            ");";
-
-    /**
-     * {@link com.soundcloud.android.storage.TableColumns.CollectionItems}
-     */
-    static final String DATABASE_CREATE_COLLECTION_ITEMS = "(" +
-            "user_id INTEGER, " +
-            "item_id INTEGER," +
-            "collection_type INTEGER, " +
-            "resource_type INTEGER DEFAULT 0, " +
-            "position INTEGER, " +
-            "created_at INTEGER, " +
-            "PRIMARY KEY(user_id, item_id, collection_type, resource_type) ON CONFLICT REPLACE" +
             ");";
 
     static final String DATABASE_CREATE_LIKES = "(" +
@@ -334,9 +260,6 @@ final class DatabaseSchema {
             ",Users." + TableColumns.Users.AVATAR_URL + " as " + TableColumns.SoundView.USER_AVATAR_URL +
             "," + Tables.TrackDownloads.DOWNLOADED_AT + " as " + TableColumns.SoundView.OFFLINE_DOWNLOADED_AT +
             "," + Tables.TrackDownloads.REMOVED_AT + " as " + TableColumns.SoundView.OFFLINE_REMOVED_AT +
-            ",COALESCE(TrackMetadata." + TableColumns.TrackMetadata.PLAY_COUNT + ", 0) as " + TableColumns.SoundView.USER_PLAY_COUNT +
-            ",COALESCE(TrackMetadata." + TableColumns.TrackMetadata.CACHED + ", 0) as " + TableColumns.SoundView.CACHED +
-            ",COALESCE(TrackMetadata." + TableColumns.TrackMetadata.TYPE + ", 0) as " + TableColumns.SoundView._TYPE +
             " FROM Sounds" +
             " LEFT JOIN Users ON(" +
             "   Sounds." + TableColumns.Sounds.USER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
@@ -345,22 +268,13 @@ final class DatabaseSchema {
             "   Sounds." + TableColumns.Sounds._TYPE + " = " + TableColumns.Sounds.TYPE_TRACK + ")" +
             " LEFT OUTER JOIN TrackPolicies ON(" +
             "   Sounds." + TableColumns.Sounds._ID + " = " + "TrackPolicies." + TableColumns.TrackPolicies.TRACK_ID + ")" +
-            " LEFT OUTER JOIN TrackMetadata ON(" +
-            "   TrackMetadata." + TableColumns.TrackMetadata._ID + " = " + "Sounds." + TableColumns.SoundView._ID + ")" +
             " WHERE " + "Sounds." + TableColumns.Sounds.REMOVED_AT + " IS NULL" +
             " AND (Sounds." + TableColumns.Sounds._TYPE + " != " + TableColumns.Sounds.TYPE_TRACK +
             " OR TrackPolicies." + TableColumns.TrackPolicies.TRACK_ID + " IS NOT NULL)";
 
-    /**
-     * A view which combines user associations with users.
-     * This currently excludes :
-     *
-     * @see com.soundcloud.android.storage.TableColumns.UserAssociations.RESOURCE_TYPE (currently only 1 type in the user table, might change if we add groups)
-     */
     static final String DATABASE_CREATE_USER_ASSOCIATION_VIEW = " AS SELECT " +
             "UserAssociations." + TableColumns.UserAssociations.CREATED_AT + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_TIMESTAMP +
             ", UserAssociations." + TableColumns.UserAssociations.ASSOCIATION_TYPE + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_TYPE +
-            ", UserAssociations." + TableColumns.CollectionItems.POSITION + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_POSITION +
             ", UserAssociations." + TableColumns.UserAssociations.ADDED_AT + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_ADDED_AT +
             ", UserAssociations." + TableColumns.UserAssociations.REMOVED_AT + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_REMOVED_AT +
             ", UserAssociations." + TableColumns.UserAssociations.TOKEN + " as " + TableColumns.UserAssociationView.USER_ASSOCIATION_TOKEN +
@@ -474,23 +388,4 @@ final class DatabaseSchema {
             // filter out activities with playables marked for removal or removed
             " (Activities." + TableColumns.ActivityView.TYPE + " == '" + ActivityKind.USER_FOLLOW + "' OR SoundView." + TableColumns.SoundView._ID + " IS NOT NULL)" +
             " ORDER BY " + TableColumns.ActivityView.CREATED_AT + " DESC";
-
-    /**
-     * {@link com.soundcloud.android.storage.TableColumns.Suggestions}
-     */
-    static final String DATABASE_CREATE_SUGGESTIONS = "(" +
-            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "id  INTEGER," +
-            "kind VARCHAR(32) NOT NULL," +
-            "text VARCHAR(255) COLLATE NOCASE," +
-            "icon_url       VARCHAR(255)," +
-            "permalink_url  VARCHAR(255)," +
-            "suggest_text_1 VARCHAR(255) NOT NULL," +
-            "suggest_text_2 VARCHAR(255)," +
-            "suggest_icon_1 VARCHAR(255)," +
-            "suggest_intent_data VARCHAR(255)," +
-
-            "UNIQUE(id, kind) ON CONFLICT REPLACE" +
-            ")";
-
 }

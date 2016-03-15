@@ -92,7 +92,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         ApiSyncResult result = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
 
         Set<Long> local = userAssociationStorage.loadFollowedUserIds();
-        List<Long> followedUserIds = api.readFullCollection(Request.to(Content.ME_FOLLOWINGS.remoteUri + "/ids"), IdHolder.class);
+        List<Long> followedUserIds = api.readFullCollection(Request.to(Endpoints.MY_FOLLOWINGS + "/ids"), IdHolder.class);
 
         log("Cloud Api service: got followedUserIds " + followedUserIds.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(), followedUserIds.size());
@@ -111,7 +111,7 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
 
         // load the first page of items to get proper last_seen ordering
         // parse and add first items
-        List<PublicApiUser> followedUsers = api.readList(Request.to(Content.ME_FOLLOWINGS.remoteUri)
+        List<PublicApiUser> followedUsers = api.readList(Request.to(Endpoints.MY_FOLLOWINGS)
                 .add(PublicApi.LINKED_PARTITIONING, "1")
                 .add("limit", Consts.LIST_PAGE_SIZE));
 

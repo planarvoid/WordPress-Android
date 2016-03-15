@@ -11,7 +11,6 @@ import com.soundcloud.android.creators.record.PlaybackStream;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.creators.record.reader.WavReader;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -496,26 +495,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
 
     private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
         try {
-            final AudioReader reader = AudioReader.guessMultiple(audio_path, getEncodedFile());
-
-            PlaybackStream stream = new PlaybackStream(reader);
-            if (c != null) {
-                long startPos = c.getLong(c.getColumnIndex(TableColumns.Recordings.TRIM_LEFT));
-                long endPos = c.getLong(c.getColumnIndex(TableColumns.Recordings.TRIM_RIGHT));
-
-                // validate, can happen after migration
-                if (endPos <= startPos) {
-                    endPos = duration;
-                }
-
-                boolean optimize = c.getInt(c.getColumnIndex(TableColumns.Recordings.OPTIMIZE)) == 1;
-                boolean fade = c.getInt(c.getColumnIndex(TableColumns.Recordings.FADING)) == 1;
-
-                stream.setFading(fade);
-                stream.setOptimize(optimize);
-                stream.setTrim(startPos, endPos);
-            }
-            return stream;
+            return new PlaybackStream(AudioReader.guessMultiple(audio_path, getEncodedFile()));
         } catch (IOException e) {
             Log.w(TAG, "could not initialize playback stream", e);
             return new PlaybackStream(AudioReader.EMPTY);

@@ -6,14 +6,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.json.Views;
-import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackStats;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.collections.PropertySet;
@@ -22,8 +18,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentValues;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -36,7 +30,6 @@ import java.util.List;
 import java.util.Locale;
 
 @Deprecated
-@SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PublicApiTrack extends Playable implements TrackRecord {
     public static final String EXTRA = "track";
@@ -50,7 +43,6 @@ public class PublicApiTrack extends Playable implements TrackRecord {
             return new PublicApiTrack[size];
         }
     };
-    private static final String TAG = "Track";
     private static final String API_MONETIZABLE_VALUE = "monetize";
     private static final String API_BLOCK_VALUE = "BLOCK";
     // API fields
@@ -95,31 +87,6 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     @JsonIgnore public boolean local_cached;
     @JsonIgnore public int last_playback_error = -1;
 
-    public PublicApiTrack(ApiTrack suggestion) {
-        setUrn(suggestion.getUrn().toString());
-        setUser(new PublicApiUser(suggestion.getUser()));
-        setTitle(suggestion.getTitle());
-        setWaveformUrl(suggestion.getWaveformUrl());
-        duration = suggestion.getFullDuration();
-        artwork_url = suggestion.getArtworkUrl();
-        genre = suggestion.getGenre();
-        commentable = suggestion.isCommentable();
-        stream_url = suggestion.getStreamUrl();
-        tag_list = suggestion.getUserTags() == null ? Strings.EMPTY : TextUtils.join(" ", suggestion.getUserTags());
-        created_at = suggestion.getCreatedAt();
-        sharing = suggestion.getSharing();
-        permalink_url = suggestion.getPermalinkUrl();
-        policy = suggestion.getPolicy();
-
-        final ApiTrackStats stats = suggestion.getStats();
-        if (stats != null) {
-            playback_count = stats.getPlaybackCount();
-            likes_count = stats.getLikesCount();
-            comment_count = stats.getCommentsCount();
-            reposts_count = stats.getRepostsCount();
-        }
-    }
-
     public PublicApiTrack() {
         super();
     }
@@ -163,34 +130,6 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         local_user_playback_count = b.getInt("local_user_playback_count");
         local_cached = b.getBoolean("local_cached");
         last_playback_error = b.getInt("last_playback_error");
-    }
-
-    public PublicApiTrack(Cursor cursor) {
-        super(cursor);
-        policy = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.POLICIES_POLICY));
-        state = State.fromString(cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STATE)));
-        track_type = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TRACK_TYPE));
-
-        waveform_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.WAVEFORM_URL));
-
-        download_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.DOWNLOAD_URL));
-
-        stream_url = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STREAM_URL));
-        playback_count = getIntOrNotSet(cursor, TableColumns.SoundView.PLAYBACK_COUNT);
-        download_count = getIntOrNotSet(cursor, TableColumns.SoundView.DOWNLOAD_COUNT);
-        comment_count = getIntOrNotSet(cursor, TableColumns.SoundView.COMMENT_COUNT);
-        shared_to_count = getIntOrNotSet(cursor, TableColumns.SoundView.SHARED_TO_COUNT);
-        commentable = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.COMMENTABLE)) == 1;
-        description = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.DESCRIPTION));
-
-        final int localPlayCountIdx = cursor.getColumnIndex(TableColumns.SoundView.USER_PLAY_COUNT);
-        if (localPlayCountIdx != -1) {
-            local_user_playback_count = cursor.getInt(localPlayCountIdx);
-        }
-        final int cachedIdx = cursor.getColumnIndex(TableColumns.SoundView.CACHED);
-        if (cachedIdx != -1) {
-            local_cached = cursor.getInt(cachedIdx) == 1;
-        }
     }
 
     public void setPolicy(String policy){
@@ -261,15 +200,6 @@ public class PublicApiTrack extends Playable implements TrackRecord {
                 return null;
             }
         }
-    }
-
-    public Uri toUri() {
-        return Content.TRACKS.forId(getId());
-    }
-
-    @JsonIgnore
-    public boolean isWaitingOnState() {
-        return state == null;
     }
 
     public boolean isProcessing() {
@@ -386,54 +316,6 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         return false;
     }
 
-    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    public ContentValues buildContentValues() {
-        ContentValues cv = super.buildContentValues();
-
-        if (stream_url != null) {
-            cv.put(TableColumns.Sounds.STREAM_URL, stream_url);
-        }
-        if (state != null) {
-            cv.put(TableColumns.Sounds.STATE, state.name);
-        }
-        if (track_type != null) {
-            cv.put(TableColumns.Sounds.TRACK_TYPE, track_type);
-        }
-        if (waveform_url != null) {
-            cv.put(TableColumns.Sounds.WAVEFORM_URL, waveform_url);
-        }
-        if (download_url != null) {
-            cv.put(TableColumns.Sounds.DOWNLOAD_URL, download_url);
-        }
-        if (playback_count != NOT_SET) {
-            cv.put(TableColumns.Sounds.PLAYBACK_COUNT, playback_count);
-        }
-        if (download_count != NOT_SET) {
-            cv.put(TableColumns.Sounds.DOWNLOAD_COUNT, download_count);
-        }
-        if (comment_count != NOT_SET) {
-            cv.put(TableColumns.Sounds.COMMENT_COUNT, comment_count);
-        }
-        if (commentable) {
-            cv.put(TableColumns.Sounds.COMMENTABLE, commentable);
-        }
-        if (shared_to_count != NOT_SET) {
-            cv.put(TableColumns.Sounds.SHARED_TO_COUNT, shared_to_count);
-        }
-        if (description != null) {
-            cv.put(TableColumns.Sounds.DESCRIPTION, description);
-        }
-        if (isCompleteTrack()) {
-            cv.put(TableColumns.Sounds.LAST_UPDATED, System.currentTimeMillis());
-        }
-        return cv;
-    }
-
-    @Override
-    public Uri getBulkInsertUri() {
-        return Content.TRACKS.uri;
-    }
-
     public boolean isCompleteTrack() {
         return state != null && created_at != null && duration > 0;
     }
@@ -542,42 +424,11 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         return !TextUtils.isEmpty(waveform_url);
     }
 
-    @Override
-    public Refreshable getRefreshableResource() {
-        return this;
-    }
-
-    @Override
-    public boolean isStale() {
-        return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.TRACK;
-    }
-
-    public PublicApiTrack updateFrom(PublicApiTrack updatedItem, CacheUpdateMode cacheUpdateMode) {
-        super.updateFrom(updatedItem, cacheUpdateMode);
-        stream_url = updatedItem.stream_url;
-        if (cacheUpdateMode == CacheUpdateMode.FULL) {
-            policy = updatedItem.policy;
-            user_like = updatedItem.user_like;
-            commentable = updatedItem.commentable;
-            state = updatedItem.state;
-            waveform_url = updatedItem.waveform_url;
-            playback_count = updatedItem.playback_count;
-            comment_count = updatedItem.comment_count;
-            shared_to_count = updatedItem.shared_to_count;
-        }
-        return this;
-    }
-
     public String userTrackPermalink() {
         if (permalink == null) {
             return null;
         }
         return (user != null ? TextUtils.isEmpty(user.permalink) ? "" : user.permalink + "/" : "") + permalink;
-    }
-
-    @Override
-    public int getTypeId() {
-        return DB_TYPE_TRACK;
     }
 
     public String getStreamUrl() {

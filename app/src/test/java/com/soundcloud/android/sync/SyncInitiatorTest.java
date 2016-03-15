@@ -10,7 +10,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -56,7 +55,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
         when(accountOperations.getSoundCloudAccount()).thenReturn(account);
         assertThat(initiator.pushFollowingsToApi()).isTrue();
 
-        ShadowContentResolver.Status syncStatus = ShadowContentResolver.getStatus(account, ScContentProvider.AUTHORITY);
+        ShadowContentResolver.Status syncStatus = ShadowContentResolver.getStatus(account, SyncConfig.AUTHORITY);
         assertThat(syncStatus.syncRequests).isEqualTo(1);
         assertThat(syncStatus.syncExtras.getBoolean(SyncAdapterService.EXTRA_SYNC_PUSH)).isTrue();
         assertThat(syncStatus.syncExtras.getString(SyncAdapterService.EXTRA_SYNC_PUSH_URI)).isEqualTo(Content.ME_FOLLOWINGS.uri.toString());
@@ -165,7 +164,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isEqualTo(Content.TRACKS.forQuery(String.valueOf(1L)));
+        assertThat(intent.getData()).isEqualTo(Content.TRACK.forId(1L));
         assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
         assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
     }
