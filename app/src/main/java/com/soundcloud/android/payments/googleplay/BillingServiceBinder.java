@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.IBinder;
 
@@ -27,7 +28,8 @@ class BillingServiceBinder {
     }
 
     public boolean canConnect() {
-        List<ResolveInfo> resolveInfo = context.getPackageManager().queryIntentServices(serviceIntent, NO_FLAGS);
+        List<ResolveInfo> resolveInfo = context.getPackageManager().queryIntentServices(
+                serviceIntent, PackageManager.MATCH_DEFAULT_ONLY);
         return resolveInfo != null && !resolveInfo.isEmpty();
     }
 
