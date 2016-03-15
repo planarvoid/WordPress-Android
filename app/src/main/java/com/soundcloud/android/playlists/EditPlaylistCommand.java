@@ -78,6 +78,7 @@ class EditPlaylistCommand extends WriteStorageCommand<EditPlaylistCommand.EditPl
         return ContentValuesBuilder.values()
                 .put(TableColumns.Sounds.TITLE, input.playlistTitle)
                 .put(TableColumns.Sounds.SHARING, input.isPrivate ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value())
+                .put(TableColumns.Sounds.MODIFIED_AT, dateProvider.getCurrentTime())
                 .get();
     }
 

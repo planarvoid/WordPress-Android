@@ -1,55 +1,64 @@
 package com.soundcloud.android.sync.playlists;
 
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistRecord;
+import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.PlaylistTrackProperty;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.java.collections.PropertySet;
 
+import android.support.annotation.NonNull;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 public class SinglePlaylistSyncer implements Callable<Boolean> {
 
     private final LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
-    private final PushPlaylistAdditionsCommand pushPlaylistAdditions;
-    private final PushPlaylistRemovalsCommand pushPlaylistRemovals;
+    private final ApiClient apiClient;
     private final FetchPlaylistWithTracksCommand fetchPlaylistWithTracks;
     private final StoreTracksCommand storeTracks;
-    private final StorePlaylistCommand storePlaylist;
+    private final StorePlaylistsCommand storePlaylists;
     private final ReplacePlaylistTracksCommand replacePlaylistTracks;
     private final RemovePlaylistCommand removePlaylist;
+    private final PlaylistStorage playlistStorage;
 
     SinglePlaylistSyncer(FetchPlaylistWithTracksCommand fetchPlaylistWithTracks,
                          RemovePlaylistCommand removePlaylist,
                          LoadPlaylistTracksWithChangesCommand loadPlaylistTracks,
-                         PushPlaylistAdditionsCommand pushPlaylistAdditions,
-                         PushPlaylistRemovalsCommand pushPlaylistRemovals,
-                         StoreTracksCommand storeTracks,
-                         StorePlaylistCommand storePlaylist,
-                         ReplacePlaylistTracksCommand replacePlaylistTracks) {
+                         ApiClient apiClient, StoreTracksCommand storeTracks,
+                         StorePlaylistsCommand storePlaylists,
+                         ReplacePlaylistTracksCommand replacePlaylistTracks,
+                         PlaylistStorage playlistStorage) {
 
         this.loadPlaylistTracks = loadPlaylistTracks;
-        this.pushPlaylistAdditions = pushPlaylistAdditions;
-        this.pushPlaylistRemovals = pushPlaylistRemovals;
+        this.apiClient = apiClient;
         this.fetchPlaylistWithTracks = fetchPlaylistWithTracks;
         this.storeTracks = storeTracks;
-        this.storePlaylist = storePlaylist;
+        this.storePlaylists = storePlaylists;
         this.removePlaylist = removePlaylist;
         this.replacePlaylistTracks = replacePlaylistTracks;
+        this.playlistStorage = playlistStorage;
     }
 
     @Override
     public Boolean call() throws Exception {
-
         // get remote playlist
         ApiPlaylistWithTracks apiPlaylistWithTracks;
         try {
@@ -59,30 +68,88 @@ public class SinglePlaylistSyncer implements Callable<Boolean> {
             return true;
         }
 
-        final Set<Urn> remoteTracks = createRemoteTracklist(apiPlaylistWithTracks);
+        final List<Urn> remoteTracks = createRemoteTracklist(apiPlaylistWithTracks);
 
         // populate local sets
-        final Set<Urn> localCleanTracks = new TreeSet<>();
-        final Set<Urn> localAdditions = new TreeSet<>();
-        final Set<Urn> localRemovals = new TreeSet<>();
-        compileLocalPlaylistState(localCleanTracks, localAdditions, localRemovals);
+        final List<Urn> fullLocalTracklist = new ArrayList<>();
+        final List<Urn> localRemovals = new ArrayList<>();
+        final Set<Urn> localAdditions = new HashSet<>();
 
-        // perform remote removals
-        final Set<Urn> pendingRemoteRemovals = getSetIntersection(localRemovals, remoteTracks);
-        List<ApiTrack> validRemoteTracks = performRemovals(apiPlaylistWithTracks, pendingRemoteRemovals);
+        final Urn playlistUrn = apiPlaylistWithTracks.getPlaylist().getUrn();
+        final PropertySet playlistModifications = playlistStorage.loadPlaylistModifications(playlistUrn);
+        compileLocalPlaylistState(fullLocalTracklist, localRemovals, localAdditions);
 
+        if (hasChangesToPush(playlistModifications, localRemovals, localAdditions)) {
+            final boolean trustLocalState = !playlistModifications.isEmpty();
+            final List<Urn> finalTracklist = compileFinalTrackList(trustLocalState, remoteTracks, fullLocalTracklist, localRemovals, localAdditions);
+            final PlaylistRecord playlistRecord = pushPlaylistChangesToApi(finalTracklist, playlistUrn, playlistModifications);
+            resolveLocalState(playlistRecord, apiPlaylistWithTracks, finalTracklist);
+        } else {
+            resolveLocalState(apiPlaylistWithTracks.getPlaylist(), apiPlaylistWithTracks, remoteTracks);
+        }
+        return true;
+    }
+
+    private List<Urn> compileFinalTrackList(boolean trustLocal, List<Urn> remoteTracks, List<Urn> localTracks, List<Urn> localRemovals, Set<Urn> localAdditions) {
+        if (trustLocal) {
+            return compileLocallyBasedFinalTrackList(remoteTracks, localTracks, localRemovals, localAdditions);
+        } else {
+            return compileRemoteBasedFinalTrackList(remoteTracks, localRemovals, localAdditions);
+        }
+    }
+
+    @NonNull
+    private List<Urn> compileLocallyBasedFinalTrackList(List<Urn> remoteTracks, List<Urn> localTracks, List<Urn> localRemovals, Set<Urn> localAdditions) {
+        // add all local tracks that have not been removed remotely
+        List<Urn> finalTrackList = new ArrayList<>(Math.max(remoteTracks.size(), localTracks.size()));
+        for (Urn track : localTracks) {
+            if (remoteTracks.contains(track) || localAdditions.contains(track)) {
+                finalTrackList.add(track);
+            }
+        }
+
+        // add new remote tracks to the end
+        finalTrackList.addAll(getListDifference(remoteTracks, localTracks, localRemovals));
+        return finalTrackList;
+    }
+
+    @NonNull
+    private List<Urn> compileRemoteBasedFinalTrackList(List<Urn> remoteTracks, List<Urn> localRemovals, Set<Urn> localAdditions) {
+        // add all local tracks that have not been removed remotely
+        List<Urn> finalTrackList = new ArrayList<>(remoteTracks.size() + localAdditions.size() - localRemovals.size());
+        for (Urn track : remoteTracks) {
+            if (!localRemovals.contains(track)) {
+                finalTrackList.add(track);
+            }
+        }
+
+        // add new local tracks to the end
+        finalTrackList.addAll(localAdditions);
+        return finalTrackList;
+    }
+
+    private boolean hasChangesToPush(PropertySet localPlaylist, List<Urn> localRemovals, Set<Urn> localAdditions) {
+        return !localPlaylist.isEmpty() || !localRemovals.isEmpty() || !localAdditions.isEmpty();
+    }
+
+    private PublicApiPlaylist pushPlaylistChangesToApi(List<Urn> finalTrackList, Urn playlistUrn, PropertySet localPlaylist) throws ApiRequestException, IOException, ApiMapperException {
+        final ApiRequest request =
+                ApiRequest.put(ApiEndpoints.LEGACY_PLAYLIST_DETAILS.path(playlistUrn.getNumericId()))
+                        .forPublicApi()
+                        .withContent(Collections.singletonMap("playlist", PlaylistApiUpdateObject.create(localPlaylist, finalTrackList)))
+                        .build();
+        return apiClient.fetchMappedResponse(request, PublicApiPlaylist.class);
+    }
+
+    private void resolveLocalState(PlaylistRecord playlistRecord, ApiPlaylistWithTracks apiPlaylistWithTracks, List<Urn> finalTrackList) throws Exception {
         // store dependencies (all still valid tracks that came back)
-        storeTracks.call(validRemoteTracks);
-
-        // perform remote additions
-        final Set<Urn> pendingRemoteAdditions = getSetDifference(localAdditions, remoteTracks);
-        List<Urn> finalTrackList = performAdditions(validRemoteTracks, pendingRemoteAdditions);
+        storeTracks.call(extractValidRemoteTracks(apiPlaylistWithTracks, finalTrackList));
 
         // store final playlist tracks
         replacePlaylistTracks.with(finalTrackList).call();
 
-        updateLocalPlaylist(apiPlaylistWithTracks.getPlaylist(), pendingRemoteRemovals, pendingRemoteAdditions);
-        return true;
+        // store final playlist metadata
+        storePlaylists.call(Collections.singleton(playlistRecord));
     }
 
     private void handleRemotePlaylistException(Urn urn, ApiRequestException exception) throws Exception {
@@ -96,9 +163,9 @@ public class SinglePlaylistSyncer implements Callable<Boolean> {
         }
     }
 
-    private Set<Urn> createRemoteTracklist(ApiPlaylistWithTracks playlist) {
-        final Set<Urn> remoteTracks = new TreeSet<>();
+    private List<Urn> createRemoteTracklist(ApiPlaylistWithTracks playlist) {
         final ModelCollection<ApiTrack> playlistTracks = playlist.getPlaylistTracks();
+        final List<Urn> remoteTracks = new ArrayList<>(playlistTracks.getCollection().size());
 
         for (ApiTrack apiTrack : playlistTracks.getCollection()){
             remoteTracks.add(apiTrack.getUrn());
@@ -106,67 +173,35 @@ public class SinglePlaylistSyncer implements Callable<Boolean> {
         return remoteTracks;
     }
 
-    private void compileLocalPlaylistState(Set<Urn> localCleanTracks, Set<Urn> localAdditions, Set<Urn> localRemovals) throws Exception {
+    private void compileLocalPlaylistState(List<Urn> validLocalTracks, List<Urn> localRemovals, Set<Urn> localAdditions) throws Exception {
         for (PropertySet playlistTrack : loadPlaylistTracks.call()){
             if (playlistTrack.contains(PlaylistTrackProperty.REMOVED_AT)){
                 localRemovals.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
-            } else if (playlistTrack.contains(PlaylistTrackProperty.ADDED_AT)){
-                localAdditions.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
             } else {
-                localCleanTracks.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
+                validLocalTracks.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
+                if (playlistTrack.contains(PlaylistTrackProperty.ADDED_AT)){
+                    localAdditions.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
+                }
             }
         }
     }
 
-    private List<ApiTrack> performRemovals(ApiPlaylistWithTracks playlist, Set<Urn> pendingRemoteRemovals) throws Exception {
-        // remove remote tracks
-        pushPlaylistRemovals.with(pendingRemoteRemovals).call();
-
-        // filter out removed tracks
+    private List<ApiTrack> extractValidRemoteTracks(ApiPlaylistWithTracks playlist, List<Urn> finalTrackList) throws Exception {
         List<ApiTrack> validRemoteTracks = new ArrayList<>();
         for (ApiTrack apiTrack : playlist.getPlaylistTracks().getCollection()){
-            if (!pendingRemoteRemovals.contains(apiTrack.getUrn())){
+            if (finalTrackList.contains(apiTrack.getUrn())){
                 validRemoteTracks.add(apiTrack);
             }
         }
         return validRemoteTracks;
     }
 
-    private List<Urn> performAdditions(List<ApiTrack> validRemoteTracks, Set<Urn> pendingRemoteAdditions) throws Exception {
-        Collection<Urn> additions = pushPlaylistAdditions.with(pendingRemoteAdditions).call(); // could indiv. tracks fail?
-
-        // compile api tracks + new additions
-        List<Urn> newTrackList = new ArrayList<>(validRemoteTracks.size() + additions.size());
-        for (ApiTrack track : validRemoteTracks){
-            newTrackList.add(track.getUrn());
-        }
-        newTrackList.addAll(additions);
-        return newTrackList;
-    }
-
-    private void updateLocalPlaylist(ApiPlaylist playlist, Set<Urn> pendingRemoteRemovals, Set<Urn> pendingRemoteAdditions) throws com.soundcloud.propeller.PropellerWriteException {
-
-        // update final track count with new additions + removals
-        final int originalTrackCount = playlist.getTrackCount();
-        playlist.setTrackCount(originalTrackCount + pendingRemoteAdditions.size() - pendingRemoteRemovals.size());
-
-        // store final playlist metadata
-        storePlaylist.with(playlist).call();
-    }
-
-    private Set<Urn> getSetDifference(Set<Urn> set, Set<Urn>... without) {
-        final Set<Urn> difference = new TreeSet<>();
-        difference.addAll(set);
-        for (Set<Urn> s : without) {
-            difference.removeAll(s);
+    private List<Urn> getListDifference(List<Urn> list, List<Urn>... without) {
+        final List<Urn> difference = new ArrayList<>();
+        difference.addAll(list);
+        for (Collection<Urn> toRemove : without) {
+            difference.removeAll(toRemove);
         }
         return difference;
-    }
-
-    private Set<Urn> getSetIntersection(Set<Urn> set, Set<Urn> toIntersectWith) {
-        final Set<Urn> intersection = new TreeSet<>();
-        intersection.addAll(set);
-        intersection.retainAll(toIntersectWith);
-        return intersection;
     }
 }

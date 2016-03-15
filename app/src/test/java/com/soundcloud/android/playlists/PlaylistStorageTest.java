@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -13,6 +14,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -237,5 +239,26 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
         assertThat(playlist).isEqualTo(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, false, true));
+    }
+
+    @Test
+    public void loadPlaylistModificationsReturnsEmptySetWhenNoModifications() {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(apiPlaylist.getUser().getUrn());
+
+        assertThat(storage.loadPlaylistModifications(apiPlaylist.getUrn())).isEmpty();
+    }
+
+    @Test
+    public void loadPlaylistModificationsLoadsNewInfoWithModifications() {
+        final ApiPlaylist apiPlaylist = testFixtures().insertModifiedPlaylist(new Date());
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(apiPlaylist.getUser().getUrn());
+
+        PropertySet playlist = storage.loadPlaylistModifications(apiPlaylist.getUrn());
+
+        assertThat(playlist).isEqualTo(PropertySet.from(
+                TrackProperty.URN.bind(Urn.forPlaylist(apiPlaylist.getId())),
+                PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
+                PlayableProperty.IS_PRIVATE.bind(Sharing.PRIVATE.equals(apiPlaylist.getSharing()))));
     }
 }

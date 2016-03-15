@@ -1,30 +1,41 @@
 package com.soundcloud.android.sync.playlists;
 
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistRecord;
+import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.PlaylistTrackProperty;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -32,25 +43,25 @@ import java.util.Date;
 public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     @Mock private LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
-    @Mock private PushPlaylistAdditionsCommand pushPlaylistAdditions;
-    @Mock private PushPlaylistRemovalsCommand pushPlaylistRemovals;
     @Mock private FetchPlaylistWithTracksCommand fetchPlaylistWithTracks;
-    @Mock private StorePlaylistCommand storePlaylistCommand;
+    @Mock private StorePlaylistsCommand storePlaylistCommand;
     @Mock private RemovePlaylistCommand removePlaylist;
     @Mock private ReplacePlaylistTracksCommand replacePlaylistTracks;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private WriteResult writeResult;
     @Mock private ApiRequest apiRequest;
+    @Mock private ApiClient apiClient;
+    @Mock private PlaylistStorage playlistStorage;
 
     private SinglePlaylistSyncer singlePlaylistSyncer;
+    private PublicApiPlaylist updatedPlaylist;
 
     @Before
     public void setUp() throws Exception {
-        singlePlaylistSyncer = new SinglePlaylistSyncer(fetchPlaylistWithTracks, removePlaylist, loadPlaylistTracks, pushPlaylistAdditions,
-                pushPlaylistRemovals, storeTracksCommand,
-                storePlaylistCommand, replacePlaylistTracks);
-
-        when(storePlaylistCommand.call()).thenReturn(writeResult);
+        updatedPlaylist = ModelFixtures.create(PublicApiPlaylist.class);
+        singlePlaylistSyncer = new SinglePlaylistSyncer(fetchPlaylistWithTracks, removePlaylist, loadPlaylistTracks,
+                apiClient, storeTracksCommand,
+                storePlaylistCommand, replacePlaylistTracks, playlistStorage);
     }
 
     @Test
@@ -59,7 +70,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
         singlePlaylistSyncer.call();
 
-        verify(storePlaylistCommand, never()).call();
+        verify(storePlaylistCommand, never()).call(any(Iterable.class));
         verify(removePlaylist).call(any(Urn.class));
     }
 
@@ -69,7 +80,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
         singlePlaylistSyncer.call();
 
-        verify(storePlaylistCommand, never()).call();
+        verify(storePlaylistCommand, never()).call(any(Iterable.class));
         verify(removePlaylist).call(any(Urn.class));
     }
 
@@ -77,11 +88,11 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     public void syncsPlaylistThatDoesNotExistLocally() throws Exception {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(apiTrack);
+        withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), PropertySet.create());
 
         singlePlaylistSyncer.call();
 
-        verifyNoRemoteRemovals();
-        verifyNoRemoteAdditions();
+        verifyNoChangesPushed();
         verifyPlaylistStored(apiPlaylistWithTracks.getPlaylist());
         verifyTracksStored(apiTrack);
         verifyPlaylistTrackStored(apiTrack.getUrn());
@@ -91,12 +102,13 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     public void syncsPlaylistWithNoChanges() throws Exception {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(apiTrack);
+
+        withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), PropertySet.create());
         withLocalTracks(cleanTrack(apiTrack));
 
         singlePlaylistSyncer.call();
 
-        verifyNoRemoteRemovals();
-        verifyNoRemoteAdditions();
+        verifyNoChangesPushed();
         verifyPlaylistStored(apiPlaylistWithTracks.getPlaylist());
         verifyTracksStored(apiTrack);
         verifyPlaylistTrackStored(apiTrack.getUrn());
@@ -104,71 +116,121 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     @Test
     public void syncsPlaylistWithLocalRemoval() throws Exception {
+        syncPlaylistWithLocalRemovalCommon(PropertySet.create());
+    }
+
+    @Test
+    public void syncsEditedPlaylistWithLocalRemoval() throws Exception {
+        syncPlaylistWithLocalRemovalCommon(modifiedPlaylistFromStorage());
+    }
+
+    private void syncPlaylistWithLocalRemovalCommon(PropertySet playlistFromStorage) throws Exception {
         final ApiTrack localRemoval = ModelFixtures.create(ApiTrack.class);
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(localRemoval);
+
+        withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
         withLocalTracks(removedTrack(localRemoval));
+        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
 
         singlePlaylistSyncer.call();
 
-        verifyRemoteRemoval(localRemoval.getUrn());
-        verifyNoRemoteAdditions();
-        verifyPlaylistStored(apiPlaylistWithTracks.getPlaylist());
+        verifyPlaylistStored(updatedPlaylist);
         verifyNoTracksStored();
         verifyEmptyTrackListStored();
     }
 
     @Test
     public void syncsPlaylistWithLocalAddition() throws Exception {
+        syncsPlaylistWithLocalAdditionCommon(PropertySet.create());
+    }
+
+    @Test
+    public void syncsEditedPlaylistWithLocalAddition() throws Exception {
+        syncsPlaylistWithLocalAdditionCommon(modifiedPlaylistFromStorage());
+    }
+
+    private void syncsPlaylistWithLocalAdditionCommon(PropertySet playlistFromStorage) throws Exception {
         final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(ModelFixtures.apiPlaylistWithNoTracks());
+
+        withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
         withLocalTracks(addedTrack(localAddition));
-        withSuccessfulAdditions(localAddition.getUrn());
+        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage, localAddition.getUrn());
 
         singlePlaylistSyncer.call();
 
-        verifyNoRemoteRemovals();
-        verifyRemoteAddition(localAddition.getUrn());
-        verifyPlaylistStored(apiPlaylistWithTracks.getPlaylist());
+        verifyPlaylistStored(updatedPlaylist);
         verifyNoTracksStored();
         verifyPlaylistTrackStored(localAddition.getUrn());
     }
 
     @Test
     public void syncsPlaylistWithLocalAdditionAndRemoval() throws Exception {
+        syncsPlaylistWithLocalAdditionAndRemovalCommon(PropertySet.create());
+    }
+
+    @Test
+    public void syncsEditedPlaylistWithLocalAdditionAndRemoval() throws Exception {
+        syncsPlaylistWithLocalAdditionAndRemovalCommon(modifiedPlaylistFromStorage());
+    }
+
+    private void syncsPlaylistWithLocalAdditionAndRemovalCommon(PropertySet playlistFromStorage) throws Exception {
         final ApiTrack noChange = ModelFixtures.create(ApiTrack.class);
         final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);
         final ApiTrack localRemoval = ModelFixtures.create(ApiTrack.class);
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(noChange, localRemoval);
+
+        withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
         withLocalTracks(cleanTrack(noChange), addedTrack(localAddition), removedTrack(localRemoval));
-        withSuccessfulAdditions(localAddition.getUrn());
+        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage, noChange.getUrn(), localAddition.getUrn());
 
         singlePlaylistSyncer.call();
 
-        verifyRemoteRemoval(localRemoval.getUrn());
-        verifyRemoteAddition(localAddition.getUrn());
-        verifyPlaylistStored(apiPlaylistWithTracks.getPlaylist());
+        verifyPlaylistStored(updatedPlaylist);
         verifyTracksStored(noChange);
         verifyPlaylistTrackStored(noChange.getUrn(), localAddition.getUrn());
     }
 
     @Test
     public void syncsPlaylistWithLocalAndRemoteAdditionsAndRemovals() throws Exception {
+        PropertySet playlistFromStorage = PropertySet.create();
         final ApiTrack noChange = ModelFixtures.create(ApiTrack.class);
         final ApiTrack localRemoval = ModelFixtures.create(ApiTrack.class);
         final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);
         final ApiTrack remoteAddition = ModelFixtures.create(ApiTrack.class);
         final ApiTrack remoteRemoval = ModelFixtures.create(ApiTrack.class);
         final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(noChange, localRemoval, remoteAddition);
+
+        withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
         withLocalTracks(cleanTrack(noChange), cleanTrack(remoteRemoval), addedTrack(localAddition), removedTrack(localRemoval));
-        withSuccessfulAdditions(localAddition.getUrn());
+        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage, noChange.getUrn(), remoteAddition.getUrn(), localAddition.getUrn());
 
         singlePlaylistSyncer.call();
 
-        verifyRemoteRemoval(localRemoval.getUrn());
-        verifyRemoteAddition(localAddition.getUrn());
-        verifyPlaylistStored(apiPlaylistWithTracks.getPlaylist());
+        verifyPlaylistStored(updatedPlaylist);
         verifyTracksStored(noChange, remoteAddition);
         verifyPlaylistTrackStored(noChange.getUrn(), remoteAddition.getUrn(), localAddition.getUrn());
+    }
+
+    @Test
+    public void syncsEditedPlaylistWithLocalAndRemoteAdditionsAndRemovals() throws Exception {
+        PropertySet playlistFromStorage = modifiedPlaylistFromStorage();
+        final ApiTrack noChange = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack localRemoval = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack remoteAddition = ModelFixtures.create(ApiTrack.class);
+        final ApiTrack remoteRemoval = ModelFixtures.create(ApiTrack.class);
+        final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(noChange, localRemoval, remoteAddition);
+
+        withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
+        withLocalTracks(cleanTrack(noChange), cleanTrack(remoteRemoval), addedTrack(localAddition), removedTrack(localRemoval));
+        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage, noChange.getUrn(), localAddition.getUrn(), remoteAddition.getUrn());
+
+        singlePlaylistSyncer.call();
+
+        verifyPlaylistStored(updatedPlaylist);
+        verifyTracksStored(noChange, remoteAddition);
+        verifyPlaylistTrackStored(noChange.getUrn(), localAddition.getUrn(), remoteAddition.getUrn());
     }
 
     private ApiPlaylistWithTracks setupApiPlaylistWithTracks(ApiTrack... apiTrack) throws Exception {
@@ -180,9 +242,8 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         return apiPlaylistWithTracks;
     }
 
-    private void verifyPlaylistStored(ApiPlaylist apiPlaylist) throws PropellerWriteException {
-        verify(storePlaylistCommand).call();
-        assertThat(storePlaylistCommand.getInput()).isSameAs(apiPlaylist);
+    private void verifyPlaylistStored(PlaylistRecord playlistRecord) throws PropellerWriteException {
+        verify(storePlaylistCommand).call(Collections.singleton(playlistRecord));
     }
 
     private void verifyPlaylistTrackStored(Urn... urns) throws PropellerWriteException {
@@ -194,21 +255,11 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         verify(storeTracksCommand).call(Arrays.asList(apiTrack));
     }
 
-    private void verifyNoRemoteAdditions() {
-        assertThat(pushPlaylistAdditions.getInput()).isEmpty();
+    private void verifyNoChangesPushed() throws ApiRequestException, IOException, ApiMapperException {
+        verify(apiClient, never()).fetchMappedResponse(any(ApiRequest.class), any(TypeToken.class));
+        verify(apiClient, never()).fetchMappedResponse(any(ApiRequest.class), any(Class.class));
     }
 
-    private void verifyNoRemoteRemovals() {
-        assertThat(pushPlaylistRemovals.getInput()).isEmpty();
-    }
-
-    private void verifyRemoteAddition(Urn... urns) {
-        assertThat(pushPlaylistAdditions.getInput()).containsExactly(urns);
-    }
-
-    private void verifyRemoteRemoval(Urn... urns) {
-        assertThat(pushPlaylistRemovals.getInput()).containsExactly(urns);
-    }
 
     private void verifyEmptyTrackListStored() throws PropellerWriteException {
         verify(replacePlaylistTracks).call();
@@ -219,15 +270,23 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         verify(storeTracksCommand).call(Collections.<TrackRecord>emptyList());
     }
 
+    private void withLocalPlaylist(Urn urn, PropertySet playlistFromStorage) {
+        when(playlistStorage.loadPlaylistModifications(urn)).thenReturn(playlistFromStorage);
+    }
+
     private void withLocalTracks(PropertySet... tracks) throws Exception {
         when(loadPlaylistTracks.call()).thenReturn(Arrays.asList(tracks));
     }
 
-    private void withSuccessfulAdditions(Urn... additions) throws Exception {
-        when(pushPlaylistAdditions.call()).thenReturn(Arrays.asList(additions));
+    private void withPushes(Urn playlistUrn, PropertySet playlistMetadata, Urn... trackList) throws Exception {
+        when(apiClient.fetchMappedResponse(argThat(
+                isPublicApiRequestTo("put", ApiEndpoints.LEGACY_PLAYLIST_DETAILS.path(playlistUrn.getNumericId())).withContent(
+                        Collections.singletonMap("playlist", PlaylistApiUpdateObject.create(playlistMetadata, Arrays.asList(trackList)))))
+                , any(Class.class)))
+                .thenReturn(updatedPlaylist);
     }
 
-    private PropertySet cleanTrack(ApiTrack apiTrack){
+    private PropertySet cleanTrack(ApiTrack apiTrack) {
         return PropertySet.from(
                 PlaylistTrackProperty.TRACK_URN.bind(apiTrack.getUrn())
         );
@@ -245,5 +304,9 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
                 PlaylistTrackProperty.TRACK_URN.bind(apiTrack.getUrn()),
                 PlaylistTrackProperty.ADDED_AT.bind(new Date())
         );
+    }
+
+    private PropertySet modifiedPlaylistFromStorage() {
+        return PropertySet.from(PlaylistProperty.TITLE.bind("Playlist title"), PlaylistProperty.IS_PRIVATE.bind(true));
     }
 }
