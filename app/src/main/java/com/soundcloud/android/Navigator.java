@@ -222,6 +222,11 @@ public class Navigator {
         context.startActivity(new Intent(context, NotificationPreferencesActivity.class));
     }
 
+    public void openNotificationPreferencesFromDeeplink(Context context) {
+        context.startActivity(new Intent(context, NotificationPreferencesActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+    }
+
     public void openLegal(Context context) {
         context.startActivity(new Intent(context, LegalActivity.class));
     }

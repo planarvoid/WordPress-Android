@@ -392,6 +392,16 @@ public class IntentResolverTest extends AndroidUnitTest {
         verify(navigator).openStream(context, Screen.DEEPLINK);
     }
 
+    @Test
+    public void shouldLaunchNotificationPreferences() throws Exception {
+        setupIntentForUrl("soundcloud://notification_preferences");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openNotificationPreferences(context);
+    }
+
     public void setupIntentForUrl(String url) {
         if (url != null) {
             uri = Uri.parse(url);
