@@ -1,3 +1,0 @@
-migration
---!DOWN!
-downmigration
