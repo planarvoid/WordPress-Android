@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.TrackCardRenderer;
@@ -17,6 +18,7 @@ class UserSoundsTrackCardRenderer implements CellRenderer<UserSoundsItem> {
     @Inject
     public UserSoundsTrackCardRenderer(TrackCardRenderer trackCardRenderer) {
         this.trackCardRenderer = trackCardRenderer;
+        trackCardRenderer.setLayoutResource(R.layout.profile_user_sounds_track_card);
     }
 
     @Override

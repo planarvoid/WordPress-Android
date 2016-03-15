@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.view.adapters.PlaylistCardRenderer;
@@ -17,6 +18,7 @@ class UserSoundsPlaylistCardRenderer implements CellRenderer<UserSoundsItem> {
     @Inject
     public UserSoundsPlaylistCardRenderer(PlaylistCardRenderer playlistCardRenderer) {
         this.playlistCardRenderer = playlistCardRenderer;
+        playlistCardRenderer.setLayoutResource(R.layout.profile_user_sounds_playlist_card);
     }
 
     @Override
