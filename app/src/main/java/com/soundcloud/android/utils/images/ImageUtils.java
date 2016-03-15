@@ -4,6 +4,7 @@ package com.soundcloud.android.utils.images;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.Crop;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.OneShotTransitionDrawable;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -281,7 +282,7 @@ public final class ImageUtils {
 
     public static void showImagePickerDialog(final Activity activity, final File newImageLocation) {
         new AlertDialog.Builder(activity)
-                .setMessage(R.string.image_where)
+                .setView(new CustomFontViewBuilder(activity).setTitle(R.string.image_where).get())
                 .setPositiveButton(R.string.take_new_picture, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

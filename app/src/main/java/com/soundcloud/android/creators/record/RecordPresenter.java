@@ -7,6 +7,7 @@ import static com.soundcloud.android.creators.record.RecordFragment.CreateState.
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.IDLE_RECORD;
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.PLAYBACK;
 import static com.soundcloud.android.creators.record.RecordFragment.CreateState.RECORD;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.view.CustomFontLoader.SOUNDCLOUD_INTERSTATE_LIGHT;
 import static com.soundcloud.android.view.CustomFontLoader.SOUNDCLOUD_INTERSTATE_LIGHT_TNUM;
 import static com.soundcloud.android.view.CustomFontLoader.getFont;
@@ -18,6 +19,7 @@ import butterknife.OnClick;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.RxUtils;
@@ -86,7 +88,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     private CreateWaveDisplay waveDisplay;
     private CreateState currentState;
     private Subscription cleanupRecordingsSubscription = RxUtils.invalidSubscription();
-    private Subscription cleanupStaleUploadsSubscription = RxUtils.invalidSubscription();
+
     private Map<View, Pair<BitSet, Integer>> visibilities;
     private RecordFragment recordFragment;
 
@@ -131,8 +133,6 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     @Override
     public void onPause(Fragment fragment) {
         cleanupRecordingsSubscription.unsubscribe();
-        cleanupStaleUploadsSubscription.unsubscribe();
-
         recorder.stopReading(); // this will stop the amplitude reading loop
 
         if (recordFragment.getActivity().isFinishing() || !recordFragment.getActivity().isChangingConfigurations()) {
@@ -148,8 +148,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(getCleanupRecordingsSubscriber());
 
-        cleanupStaleUploadsSubscription = recordingOperations.deleteStaleUploads(SoundRecorder.UPLOAD_DIR)
-                .subscribe(new DefaultSubscriber<Void>() {});
+        fireAndForget(recordingOperations.deleteStaleUploads(SoundRecorder.UPLOAD_DIR));
     }
 
     @NotNull
@@ -518,7 +517,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     private void showRemoveRecordingDialog(int message) {
         new AlertDialog.Builder(recordFragment.getActivity())
-                .setMessage(message)
+                .setView(new CustomFontViewBuilder(recordFragment.getActivity()).setTitle(message).get())
                 .setNegativeButton(R.string.btn_no, null)
                 .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                     @Override
@@ -533,7 +532,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     private void showRevertRecordingDialog() {
         new AlertDialog.Builder(recordFragment.getActivity())
-                .setMessage(R.string.dialog_revert_recording_message)
+                .setView(new CustomFontViewBuilder(recordFragment.getActivity()).setTitle(R.string.dialog_revert_recording_message).get())
                 .setNegativeButton(R.string.btn_no, null)
                 .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                     @Override

@@ -22,7 +22,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crop.Crop;
-import com.soundcloud.android.dialog.ImageAlertDialog;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -914,10 +914,11 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onDeviceConflict(final Bundle loginBundle) {
-        final AlertDialog.Builder builder = new ImageAlertDialog(this)
-                .setContent(R.drawable.dialog_device_management,
-                        R.string.device_management_limit_title,
-                        R.string.device_management_limit_active)
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setView(new CustomFontViewBuilder(this)
+                        .setIcon(R.drawable.dialog_device_management)
+                        .setTitle(R.string.device_management_limit_title)
+                        .setMessage(R.string.device_management_limit_active).get())
                 .setPositiveButton(R.string.device_management_register, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -930,19 +931,23 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onDeviceBlock() {
-        final AlertDialog.Builder builder = new ImageAlertDialog(this)
-                .setContent(R.drawable.dialog_device_management,
-                        R.string.device_management_limit_title,
-                        R.string.device_management_limit_registered)
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setView(new CustomFontViewBuilder(this)
+                        .setIcon(R.drawable.dialog_device_management)
+                        .setTitle(R.string.device_management_limit_title)
+                        .setMessage(R.string.device_management_limit_registered).get())
                 .setPositiveButton(android.R.string.ok, null);
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceBlockOnLogin());
     }
 
     private void showDeviceConflictLogoutDialog() {
-        final AlertDialog.Builder builder = new ImageAlertDialog(this)
-                .setContent(R.drawable.dialog_device_management,
-                        R.string.device_management_limit_title,
-                        R.string.device_management_conflict_message)
+        final View view = new CustomFontViewBuilder(this)
+                .setIcon(R.drawable.dialog_device_management)
+                .setTitle(R.string.device_management_limit_title)
+                .setMessage(R.string.device_management_conflict_message).get();
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setView(view)
                 .setPositiveButton(android.R.string.ok, null);
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictLoggedOut());
     }

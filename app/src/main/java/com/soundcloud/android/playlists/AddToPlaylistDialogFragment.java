@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -96,7 +97,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         loadPlaylistSubscription = loadPlaylists.subscribe(new PlaylistsLoadedSubscriber());
 
         return new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.add_track_to_playlist)
+                .setCustomTitle(new CustomFontViewBuilder(getActivity()).setTitle(R.string.add_track_to_playlist).get())
                 .setAdapter(adapter, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int position) {

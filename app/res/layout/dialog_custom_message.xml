@@ -1,29 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/go_back_online_dialog"
+    style="@style/DialogContainer"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    style="@style/DialogContainer">
+    android:orientation="vertical">
 
     <ImageView
         android:id="@+id/custom_dialog_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="4dp" />
+        android:layout_marginBottom="24dp"
+        android:visibility="gone"
+        tools:src="@drawable/dialog_download"
+        tools:visibility="visible" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/custom_dialog_title"
+        style="@style/MaterialDialog.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/MaterialDialog.Title" />
+        tools:text="Title" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/custom_dialog_body"
+        style="@style/MaterialDialog.Content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/MaterialDialog.Content" />
+        android:visibility="gone"
+        tools:text="dialog body"
+        tools:visibility="visible" />
 </LinearLayout>

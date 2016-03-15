@@ -15,7 +15,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.dialog.ImageAlertDialog;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
@@ -141,10 +141,13 @@ public class OfflineSettingsFragment extends PreferenceFragment
     }
 
     private void confirmDisableOfflineCollection() {
-        new ImageAlertDialog(getActivity())
+        final View view = new CustomFontViewBuilder(getActivity())
                 .setContent(R.drawable.dialog_download,
                         R.string.disable_offline_collection_title,
-                        R.string.disable_offline_collection_body)
+                        R.string.disable_offline_collection_body).get();
+
+        new AlertDialog.Builder(getActivity())
+                .setView(view)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -213,11 +216,12 @@ public class OfflineSettingsFragment extends PreferenceFragment
     }
 
     private void showRemoveAllOfflineContentDialog() {
-        new AlertDialog.Builder(getActivity())
+        final View view = new CustomFontViewBuilder(getActivity())
                 .setTitle(R.string.remove_offline_content_title)
-                .setMessage(offlineContentOperations.isOfflineCollectionEnabled()
-                        ? R.string.remove_offline_content_body_sync_collection
-                        : R.string.remove_offline_content_body_default)
+                .setMessage(getRemoveAllOfflineContentDialogBody()).get();
+
+        new AlertDialog.Builder(getActivity())
+                .setView(view)
                 .setPositiveButton(R.string.btn_continue, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -226,6 +230,12 @@ public class OfflineSettingsFragment extends PreferenceFragment
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
+    }
+
+    private int getRemoveAllOfflineContentDialogBody() {
+        return offlineContentOperations.isOfflineCollectionEnabled()
+                ? R.string.remove_offline_content_body_sync_collection
+                : R.string.remove_offline_content_body_default;
     }
 
     private void resetOfflineFeature() {

@@ -1,7 +1,7 @@
 package com.soundcloud.android.payments.error;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.dialog.ImageAlertDialog;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
+import android.view.View;
 
 public class StaleCheckoutDialog extends UnrecoverableErrorDialog {
 
@@ -39,10 +41,13 @@ public class StaleCheckoutDialog extends UnrecoverableErrorDialog {
     @NotNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new ImageAlertDialog(getActivity())
+        final View view = new CustomFontViewBuilder(getActivity())
                 .setContent(R.drawable.dialog_payment_error,
                         R.string.payments_error_title_stale,
-                        R.string.payments_error_stale)
+                        R.string.payments_error_stale).get();
+
+        return new AlertDialog.Builder(getActivity())
+                .setView(view)
                 .setPositiveButton(R.string.contact_support, listener)
                 .setNegativeButton(android.R.string.cancel, listener)
                 .create();

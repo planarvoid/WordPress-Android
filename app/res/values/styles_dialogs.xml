@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Dialog" parent="android:Theme.Dialog">
         <item name="android:windowBackground">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
     </style>
 
-    <style name="Theme.ScDialog" parent="android:Theme.Holo.Dialog"/>
-    <style name="Theme.ScDialog.Light" parent="android:Theme.Holo.Light.Dialog"/>
+    <style name="Theme.ScDialog" parent="android:Theme.Holo.Dialog" />
+
+    <style name="Theme.ScDialog.Light" parent="android:Theme.Holo.Light.Dialog" />
 
     <style name="Theme.FramelessDialog" parent="Theme.ScDialog">
         <item name="android:windowFrame">@null</item>
@@ -62,13 +64,14 @@
     <style name="DialogContainer">
         <item name="android:paddingRight">@dimen/dialog_padding</item>
         <item name="android:paddingLeft">@dimen/dialog_padding</item>
-        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingTop">@dimen/dialog_padding</item>
         <item name="android:paddingBottom">12dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minWidth">@dimen/dialog_width</item>
     </style>
 
     <style name="DialogInput" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:layout_marginTop">12dp</item>
         <item name="android:textSize">@dimen/dialog_content_text_size</item>
         <item name="android:inputType">text</item>
         <item name="android:layout_width">match_parent</item>
@@ -79,14 +82,15 @@
 
     <style name="MaterialDialog.Title">
         <item name="android:textColor">@color/dark_gray_text</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:lineSpacingMultiplier">1.1</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="MaterialDialog.Content">
         <item name="android:textSize">16sp</item>
-        <item name="android:lineSpacingMultiplier">1.2</item>
-        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:lineSpacingMultiplier">1.1</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
     </style>
 
     <style name="LoadingRelatedTracks" parent="MaterialDialog.Content" />

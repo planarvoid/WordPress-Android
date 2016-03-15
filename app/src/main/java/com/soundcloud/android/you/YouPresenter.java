@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
@@ -256,9 +257,12 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     }
 
     private void showOfflineContentSignOutPrompt(final Context activityContext) {
-        new AlertDialog.Builder(activityContext)
+        final View view = new CustomFontViewBuilder(activityContext)
                 .setTitle(R.string.sign_out_title_offline)
-                .setMessage(R.string.sign_out_description_offline)
+                .setMessage(R.string.sign_out_description_offline).get();
+
+        new AlertDialog.Builder(activityContext)
+                .setView(view)
                 .setPositiveButton(R.string.ok_got_it, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -270,9 +274,12 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     }
 
     private void showDefaultSignOutPrompt(final Context activityContext) {
-        new AlertDialog.Builder(activityContext)
+        final View view = new CustomFontViewBuilder(activityContext)
                 .setTitle(R.string.sign_out_title)
-                .setMessage(R.string.sign_out_description)
+                .setMessage(R.string.sign_out_description).get();
+
+        new AlertDialog.Builder(activityContext)
+                .setView(view)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

@@ -8,15 +8,21 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
 
 public class TokenExpiredDialogFragment extends DialogFragment {
     public static final String TAG = "TokenExpiredDialog";
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new AlertDialog.Builder(getActivity()).setTitle(R.string.error_unauthorized_title)
-                .setMessage(R.string.error_unauthorized_message).setPositiveButton(
-                        R.string.pref_revoke_access, new DialogInterface.OnClickListener() {
+        final View view = new CustomFontViewBuilder(getActivity())
+                .setTitle(R.string.error_unauthorized_title)
+                .setMessage(R.string.error_unauthorized_message)
+                .get();
+
+        return new AlertDialog.Builder(getActivity())
+                .setView(view)
+                .setPositiveButton(R.string.pref_revoke_access, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 LogoutActivity.start(getActivity());
                                 dismiss();

@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.model.Urn;
 
 import android.app.Dialog;
@@ -13,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
 
 import javax.inject.Inject;
 
@@ -37,9 +39,12 @@ public class DeletePlaylistDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new AlertDialog.Builder(getActivity())
+        final View view = new CustomFontViewBuilder(getActivity())
                 .setTitle(R.string.dialog_playlist_delete_title)
-                .setMessage(R.string.dialog_playlist_delete_message)
+                .setMessage(R.string.dialog_playlist_delete_message).get();
+
+        return new AlertDialog.Builder(getActivity())
+                .setView(view)
                 .setPositiveButton(R.string.delete_playlist, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
