@@ -7,13 +7,11 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
-import com.soundcloud.android.configuration.experiments.AppboySyncNotificationsExperiment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import rx.Observable;
 
 import android.support.v7.app.AppCompatActivity;
 
@@ -23,15 +21,13 @@ public class AnalyticsConnectorTest {
     @Mock private AppboyWrapper appboyWrapper;
     @Mock private AppCompatActivity activity;
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
-    @Mock private AppboySyncNotificationsExperiment notificationsExperiment;
     @Mock private AccountOperations accountOperations;
 
     private AnalyticsConnector analyticsConnector;
 
     @Before
     public void setUp() throws Exception {
-        when(notificationsExperiment.configure()).thenReturn(Observable.<Boolean>empty());
-        analyticsConnector = new AnalyticsConnector(appboyWrapper, appboyPlaySessionState, notificationsExperiment, accountOperations);
+        analyticsConnector = new AnalyticsConnector(appboyWrapper, appboyPlaySessionState, accountOperations);
     }
 
     @Test
@@ -57,15 +53,6 @@ public class AnalyticsConnectorTest {
         analyticsConnector.onStart(activity);
 
         verify(appboyPlaySessionState).resetSessionPlayed();
-    }
-
-    @Test
-    public void shouldConfigureServerSideNotificationsExperimentOnStart() {
-        when(appboyWrapper.openSession(activity)).thenReturn(true);
-
-        analyticsConnector.onStart(activity);
-
-        verify(notificationsExperiment).configure();
     }
 
     @Test

@@ -32,7 +32,6 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -114,10 +113,8 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
 
-        if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
-            newItemsIndicator.setTextResourceId(R.plurals.stream_new_posts);
-            newItemsIndicator.setClickListener(this);
-        }
+        newItemsIndicator.setTextResourceId(R.plurals.stream_new_posts);
+        newItemsIndicator.setClickListener(this);
 
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnFacebookCreatorInvitesClickListener(this);
@@ -130,10 +127,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
         super.onCreate(fragment, bundle);
         this.fragment = fragment;
         getBinding().connect();
-
-        if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
-            refreshAndUpdateIndicator();
-        }
+        refreshAndUpdateIndicator();
     }
 
     @Override
@@ -146,10 +140,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
 
     @Override
     protected CollectionBinding<StreamItem> onRefreshBinding() {
-        if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
-            newItemsIndicator.hideAndReset();
-        }
-
+        newItemsIndicator.hideAndReset();
         return CollectionBinding.from(
                 streamOperations.updatedStreamItems()
                         .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.STREAM))))
@@ -169,9 +160,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
 
-        if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
-            initializeNewItemsIndicator(view);
-        }
+        initializeNewItemsIndicator(view);
     }
 
     private void addScrollListeners() {
@@ -182,9 +171,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<StreamItem> impl
     @Override
     public void onDestroyView(Fragment fragment) {
         viewLifeCycle.unsubscribe();
-        if (featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)) {
-            newItemsIndicator.destroy();
-        }
+        newItemsIndicator.destroy();
         super.onDestroyView(fragment);
     }
 

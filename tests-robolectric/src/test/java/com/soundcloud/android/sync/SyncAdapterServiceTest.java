@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import android.content.SyncResult;
-import android.preference.PreferenceManager;
 
 /**
  * General sync adapter tests.
@@ -59,16 +58,12 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
     @Test
     public void performSyncShouldReturnFalseIfNoSyncStarted() throws Exception {
         TestHelper.connectedViaWifi(false);
-        PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
-                .edit()
-                .putBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, true)
-                .apply();
         SyncOutcome result = doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
         expect(result.notifications).toBeEmpty();
     }
 
     @Test
-    public void shouldNotPerformSyncWithNullToken(){
+    public void shouldNotPerformSyncWithNullToken() {
         SyncResult syncResult = new SyncResult();
         final SoundCloudApplication application = Mockito.mock(SoundCloudApplication.class);
         final MyLikesStateProvider myLikesStateProvider = Mockito.mock(MyLikesStateProvider.class);
@@ -76,10 +71,9 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
         final SyncServiceResultReceiver.Factory resultReceiverFactory = Mockito.mock(SyncServiceResultReceiver.Factory.class);
         final PlaylistStorage playlistStorage = Mockito.mock(PlaylistStorage.class);
         final SyncConfig syncConfig = Mockito.mock(SyncConfig.class);
-        final FeatureFlags featureFlags = Mockito.mock(FeatureFlags.class);
         final UserAssociationStorage userAssociationStorage = Mockito.mock(UserAssociationStorage.class);
         expect(SyncAdapterService.performSync(application, null, syncResult, null, userAssociationStorage,
-                null, syncStateManager, resultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig, featureFlags)).toBeFalse();
+                null, syncStateManager, resultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig)).toBeFalse();
         expect(syncResult.stats.numAuthExceptions).toBeGreaterThan(0L);
     }
 }

@@ -15,10 +15,7 @@ import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
@@ -50,8 +47,6 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private final Navigator navigator;
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
-    private final SyncConfig syncConfig;
-    private final FeatureFlags featureFlags;
     private final OfflineSettingsStorage settingsStorage;
 
     private Optional<YouView> youViewOpt = Optional.absent();
@@ -69,8 +64,6 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                         Navigator navigator,
                         BugReporter bugReporter,
                         ApplicationProperties appProperties,
-                        SyncConfig syncConfig,
-                        FeatureFlags featureFlags,
                         OfflineSettingsStorage settingsStorage) {
         this.youViewFactory = youViewFactory;
         this.userRepository = userRepository;
@@ -83,8 +76,6 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         this.navigator = navigator;
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
-        this.syncConfig = syncConfig;
-        this.featureFlags = featureFlags;
         this.settingsStorage = settingsStorage;
     }
 
@@ -103,9 +94,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
         youViewOpt = Optional.of(youView);
 
         setupOfflineSync(youView);
-        setupNotifications(youView);
         setupFeedback(youView);
-        setupNewNotifications(youView);
         bindUserIfPresent();
     }
 
@@ -130,18 +119,6 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private void setupFeedback(YouView youView) {
         if (appProperties.shouldAllowFeedback()) {
             youView.showReportBug();
-        }
-    }
-
-    private void setupNotifications(YouView youView) {
-        if (syncConfig.isServerSideNotifications()) {
-            youView.hideNotificationSettings();
-        }
-    }
-
-    private void setupNewNotifications(YouView youView) {
-        if (featureFlags.isEnabled(Flag.NEW_NOTIFICATION_SETTINGS)) {
-            youView.showNewNotificationSettings();
         }
     }
 
@@ -219,8 +196,8 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     }
 
     @Override
-    public void onNotificationSettingsClicked(View view) {
-        navigator.openNotificationSettings(view.getContext());
+    public void onNotificationPreferencesClicked(View view) {
+        navigator.openNotificationPreferences(view.getContext());
     }
 
     @Override
@@ -289,8 +266,4 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
                 .show();
     }
 
-    @Override
-    public void onNewNotificationSettingsClicked(View view) {
-        navigator.openNewNotificationSettings(view.getContext());
-    }
 }

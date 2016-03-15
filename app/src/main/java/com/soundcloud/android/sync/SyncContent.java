@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.Log;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,11 +43,8 @@ public enum SyncContent {
             if (resultData.containsKey(contentUri)) {
                 if (resultData.getBoolean(contentUri)) {
                     stateManager.resetSyncMisses(sc.content.uri);
-                    Log.d(SyncAdapterService.TAG, "Sync endpoint changed, reset misses for " + sc.content.uri);
                 } else {
-                    final int misses = stateManager.incrementSyncMiss(sc.content.uri);
-                    Log.d(SyncAdapterService.TAG, "Sync endpoint unchanged, " + sc.content.uri +
-                            " incremented misses to " + misses);
+                    stateManager.incrementSyncMiss(sc.content.uri);
                 }
             }
         }

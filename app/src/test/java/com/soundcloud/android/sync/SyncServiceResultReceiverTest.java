@@ -4,12 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.activities.ActivitiesNotifier;
-import com.soundcloud.android.sync.stream.SoundStreamNotifier;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,8 +23,6 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
 
     private SyncServiceResultReceiver syncServiceResultReceiver;
 
-    @Mock private SoundStreamNotifier soundStreamNotifier;
-    @Mock private ActivitiesNotifier activitiesNotifier;
     @Mock private SyncStateManager syncStateManager;
     @Mock private ContentStats contentStats;
     @Mock private SyncServiceResultReceiver.OnResultListener onResultListener;
@@ -37,8 +32,7 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        syncServiceResultReceiver = new SyncServiceResultReceiver.Factory(context(), soundStreamNotifier,
-                activitiesNotifier, syncStateManager, contentStats, syncConfig)
+        syncServiceResultReceiver = new SyncServiceResultReceiver.Factory(syncStateManager)
                 .create(syncResult, onResultListener);
     }
 
@@ -96,29 +90,4 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
         verify(syncStateManager, never()).incrementSyncMiss(eq(LIKES_URI));
     }
 
-    @Test
-    public void syncSuccessOnStreamCreatesNotification() throws Exception {
-        when(contentStats.getLastSeen(Content.ME_SOUND_STREAM)).thenReturn(1000L);
-        when(syncConfig.shouldUpdateDashboard()).thenReturn(true);
-        when(syncConfig.isIncomingEnabled()).thenReturn(true);
-
-        final Bundle resultData = new Bundle();
-        resultData.putBoolean(LIKES_URI_STRING, true);
-        syncServiceResultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
-
-        verify(soundStreamNotifier).notifyUnseenItems();
-    }
-
-    @Test
-    public void syncSuccessDoesNotCreateNotificationsWhenExperimentIsActive() throws Exception {
-        when(contentStats.getLastSeen(Content.ME_SOUND_STREAM)).thenReturn(1000L);
-        when(syncConfig.isServerSideNotifications()).thenReturn(true);
-
-        final Bundle resultData = new Bundle();
-        resultData.putBoolean(LIKES_URI_STRING, true);
-        syncServiceResultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
-
-        verify(soundStreamNotifier, never()).notifyUnseenItems();
-        verify(activitiesNotifier, never()).notifyUnseenItems(context());
-    }
 }

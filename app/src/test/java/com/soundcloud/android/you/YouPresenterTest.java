@@ -2,7 +2,6 @@ package com.soundcloud.android.you;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -70,8 +69,7 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new YouPresenter(youViewFactory, userRepository, accountOperations, imageOperations, resources(),
-                eventBus, featureOperations, offlineContentOperations, navigator, bugReporter, appProperties, syncConfig,
-                featureFlags, storage);
+                eventBus, featureOperations, offlineContentOperations, navigator, bugReporter, appProperties, storage);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(youViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(youView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
@@ -250,35 +248,9 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Test
     public void onNotificationSettingsClickedShowsNotificationSettings() {
         setupForegroundFragment();
-        listenerArgumentCaptor.getValue().onNotificationSettingsClicked(new View(context()));
+        listenerArgumentCaptor.getValue().onNotificationPreferencesClicked(new View(context()));
 
-        verify(navigator).openNotificationSettings(context());
-    }
-
-    @Test
-    public void onNewNotificationSettingsClickedShowsNewNotificationSettings() {
-        setupForegroundFragment();
-        listenerArgumentCaptor.getValue().onNewNotificationSettingsClicked(new View(context()));
-
-        verify(navigator).openNewNotificationSettings(context());
-    }
-
-    @Test
-    public void onServerSideNotificationsNotificationSettingsIsHidden() {
-        when(syncConfig.isServerSideNotifications()).thenReturn(true);
-
-        setupForegroundFragment();
-
-        verify(youView).hideNotificationSettings();
-    }
-
-    @Test
-    public void onClientSideNotificationsNotificationSettingsIsNotHidden() {
-        when(syncConfig.isServerSideNotifications()).thenReturn(false);
-
-        setupForegroundFragment();
-
-        verify(youView, never()).hideNotificationSettings();
+        verify(navigator).openNotificationPreferences(context());
     }
 
     @Test

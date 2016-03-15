@@ -41,9 +41,9 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLoadInitialItemsInOnCreate() {
+    public void shouldRefreshItemsWithFallbackOnCreate() {
         ActivityItem activityItem = new ActivityItem(TestPropertySets.activityTrackLike());
-        when(operations.initialActivities()).thenReturn(Observable.just(singletonList(activityItem)));
+        when(operations.updatedActivitiesWithFallback()).thenReturn(Observable.just(singletonList(activityItem)));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 

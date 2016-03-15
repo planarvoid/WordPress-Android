@@ -26,7 +26,6 @@ import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -325,7 +324,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onStreamRefreshNewItemsSinceDate() {
-        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class)))
                 .thenReturn(new Date(123L));
@@ -340,7 +338,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onStreamRefreshUpdatesOnlyWhenThereAreVisibleItems() {
-        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(null);
 
@@ -354,7 +351,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRefreshOnCreate() {
-        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
         when(streamOperations.updatedStreamItemsForStart()).thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(new Date(123L));
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
@@ -366,7 +362,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotUpdateIndicatorWhenUpdatedItemsForStartIsEmpty() {
-        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
         when(streamOperations.updatedStreamItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(new Date(123L));
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
@@ -378,7 +373,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldResetOverlayOnRefreshBinding() {
-        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
         when(streamOperations.updatedStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
 
         presenter.onRefreshBinding();
@@ -388,7 +382,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetOverlayViewOnViewCreated() {
-        when(featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM)).thenReturn(true);
         presenter.onCreate(fragmentRule.getFragment(), null);
 
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);

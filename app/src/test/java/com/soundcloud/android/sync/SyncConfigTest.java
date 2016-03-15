@@ -1,7 +1,5 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.Consts.PrefKeys.NOTIFICATIONS_FREQUENCY;
-import static com.soundcloud.android.sync.SyncConfig.DEFAULT_NOTIFICATIONS_FREQUENCY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -25,25 +23,6 @@ public class SyncConfigTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         syncConfig = new SyncConfig(sharedPreferences, new TestDateProvider(10000L), context());
-    }
-
-    @Test
-    public void testGetNotificationsFrequencyDefault() throws Exception {
-        when(sharedPreferences.contains(NOTIFICATIONS_FREQUENCY)).thenReturn(false);
-
-        long notificationsFrequency = syncConfig.getNotificationsFrequency();
-
-        assertThat(notificationsFrequency).isEqualTo(DEFAULT_NOTIFICATIONS_FREQUENCY);
-    }
-
-    @Test
-    public void testGetNotificationsFrequency() throws Exception {
-        when(sharedPreferences.contains(NOTIFICATIONS_FREQUENCY)).thenReturn(true);
-        when(sharedPreferences.getString(eq(NOTIFICATIONS_FREQUENCY), any(String.class))).thenReturn("1000");
-
-        long notificationsFrequency = syncConfig.getNotificationsFrequency();
-
-        assertThat(notificationsFrequency).isEqualTo(1000L);
     }
 
     @Test

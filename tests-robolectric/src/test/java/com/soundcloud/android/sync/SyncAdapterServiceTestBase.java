@@ -14,7 +14,6 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.activities.ActivitiesNotifier;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.sync.stream.SoundStreamNotifier;
 import com.soundcloud.android.testsupport.TestHelper;
@@ -37,7 +36,6 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.content.TestIntentSender;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,12 +52,6 @@ public abstract class SyncAdapterServiceTestBase {
         TestHelper.connectedViaWifi(true);
 
         TestHelper.setUserId(133201L);
-
-        // always notify
-        PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
-                .edit()
-                .putString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY, 0 + "")
-                .apply();
     }
 
     @After
@@ -114,8 +106,6 @@ public abstract class SyncAdapterServiceTestBase {
         SyncResult result = new SyncResult();
 
         final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory = new SyncServiceResultReceiver.Factory(app,
-                Mockito.mock(SoundStreamNotifier.class),
-                Mockito.mock(ActivitiesNotifier.class),
                 Mockito.mock(SyncStateManager.class),
                 new ContentStats(app),
                 Mockito.mock(SyncConfig.class));
@@ -129,8 +119,7 @@ public abstract class SyncAdapterServiceTestBase {
                 syncServiceResultReceiverFactory,
                 Mockito.mock(MyLikesStateProvider.class),
                 Mockito.mock(PlaylistStorage.class),
-                Mockito.mock(SyncConfig.class),
-                Mockito.mock(FeatureFlags.class));
+                Mockito.mock(SyncConfig.class));
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 

@@ -9,11 +9,9 @@ import dagger.Module;
         injects = {
                 SettingsActivity.class,
                 OfflineSettingsActivity.class,
-                NotificationSettingsFragment.class,
                 NotificationPreferencesFragment.class,
                 OfflineSettingsFragment.class,
                 ClearCacheDialog.class,
-                NotificationSettingsActivity.class,
                 NotificationPreferencesActivity.class,
                 LegalActivity.class,
                 LicensesActivity.class

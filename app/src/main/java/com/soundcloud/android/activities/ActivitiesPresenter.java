@@ -59,7 +59,7 @@ class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> {
 
     @Override
     protected CollectionBinding<ActivityItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(operations.initialActivities())
+        return CollectionBinding.from(operations.updatedActivitiesWithFallback())
                 .withAdapter(adapter)
                 .withPager(operations.pagingFunction())
                 .build();

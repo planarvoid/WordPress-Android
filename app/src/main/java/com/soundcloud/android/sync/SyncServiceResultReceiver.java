@@ -1,13 +1,6 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.activities.ActivitiesNotifier;
-import com.soundcloud.android.sync.stream.SoundStreamNotifier;
-import com.soundcloud.android.utils.Log;
-
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,32 +14,16 @@ import javax.inject.Inject;
  */
 @SuppressLint("ParcelCreator") // we need to review this; not an easy fix
 class SyncServiceResultReceiver extends ResultReceiver {
-    private final SoundStreamNotifier soundStreamNotifier;
-    private final ActivitiesNotifier activitiesNotifier;
     private final SyncStateManager syncStateManager;
-    private final ContentStats contentStats;
-    private final SyncConfig syncConfig;
     private final SyncResult result;
-    private final Context context;
     private final OnResultListener listener;
 
-
-    private SyncServiceResultReceiver(Context context,
-                                      SoundStreamNotifier soundStreamNotifier,
-                                      ActivitiesNotifier activitiesNotifier,
-                                      SyncStateManager syncStateManager,
-                                      ContentStats contentStats,
-                                      SyncConfig syncConfig,
+    private SyncServiceResultReceiver(SyncStateManager syncStateManager,
                                       SyncResult result,
                                       OnResultListener listener) {
         super(new Handler());
-        this.activitiesNotifier = activitiesNotifier;
         this.syncStateManager = syncStateManager;
-        this.contentStats = contentStats;
-        this.syncConfig = syncConfig;
         this.result = result;
-        this.context = context;
-        this.soundStreamNotifier = soundStreamNotifier;
         this.listener = listener;
     }
 
@@ -75,34 +52,8 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
             case ApiSyncService.STATUS_SYNC_FINISHED: {
                 SyncContent.updateCollections(syncStateManager, resultData);
-
-                // notification related
-                if (syncConfig.shouldUpdateDashboard()) {
-                    if (!syncConfig.isServerSideNotifications()) {
-                        createSystemNotification();
-                    }
-                }
                 break;
             }
-        }
-    }
-
-    private void createSystemNotification() {
-        final long frequency = syncConfig.getNotificationsFrequency();
-        final long delta = System.currentTimeMillis() - contentStats.getLastNotified(Content.ME_SOUND_STREAM);
-
-        // deliver incoming sounds, if the user has enabled this
-        if (syncConfig.isIncomingEnabled()) {
-            if (delta > frequency) {
-                soundStreamNotifier.notifyUnseenItems();
-            } else {
-                Log.d(SyncAdapterService.TAG, "skipping stream notification, delta " + delta + " < frequency=" + frequency);
-            }
-        }
-
-        // deliver incoming activities, if the user has enabled this
-        if (syncConfig.isActivitySyncEnabled()) {
-            activitiesNotifier.notifyUnseenItems(context);
         }
     }
 
@@ -111,28 +62,15 @@ class SyncServiceResultReceiver extends ResultReceiver {
     }
 
     public static class Factory {
-        private final Context context;
-        private final SoundStreamNotifier streamNotifier;
-        private final ActivitiesNotifier activitiesNotifier;
         private final SyncStateManager syncStateManager;
-        private final ContentStats contentStats;
-        private final SyncConfig syncConfig;
 
         @Inject
-        public Factory(Context context, SoundStreamNotifier streamNotifier,
-                       ActivitiesNotifier activitiesNotifier, SyncStateManager syncStateManager,
-                       ContentStats contentStats, SyncConfig syncConfig) {
-            this.context = context;
-            this.streamNotifier = streamNotifier;
-            this.activitiesNotifier = activitiesNotifier;
+        public Factory(SyncStateManager syncStateManager) {
             this.syncStateManager = syncStateManager;
-            this.contentStats = contentStats;
-            this.syncConfig = syncConfig;
         }
 
         public SyncServiceResultReceiver create(SyncResult result, OnResultListener listener) {
-            return new SyncServiceResultReceiver(context, streamNotifier, activitiesNotifier,
-                    syncStateManager, contentStats, syncConfig, result, listener);
+            return new SyncServiceResultReceiver(syncStateManager, result, listener);
         }
     }
 }

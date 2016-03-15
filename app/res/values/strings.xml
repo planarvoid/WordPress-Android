@@ -437,30 +437,6 @@
     <string name="title_legal">Legal</string>
     <string name="title_notification_settings">Notification settings</string>
 
-    <!-- __SETTINGS (PUSH) NOTIFICATIONS -->
-    <string name="pref_notifications_activity">Activity</string>
-    <string name="pref_notifications_comments">Comments</string>
-    <string name="pref_notifications_comments_description">Receive notifications about new comments on your sounds.</string>
-    <string name="pref_notifications_likes">Likes</string>
-    <string name="pref_notifications_likes_description">Receive notifications about new likes on your sounds.</string>
-    <string name="pref_notifications_followers">Followers</string>
-    <string name="pref_notifications_followers_description">Receive a notification when you have a new follower.</string>
-    <string name="pref_notifications_frequency">Notifications frequency</string>
-    <string name="pref_notifications_frequency_description">Set the frequency between notifications.</string>
-    <string name="pref_notifications_incoming">Incoming sounds</string>
-    <string name="pref_notifications_incoming_description">Receive notifications about new public sounds shared with you.</string>
-    <string name="pref_notifications_stream">Stream</string>
-    <string name="pref_notifications_wifi_only">Wi-Fi only notifications</string>
-    <string name="pref_notifications_wifi_only_description">Request notifications only when connected via Wi-Fi.</string>
-    <string name="pref_notifications_reposts">Reposts</string>
-    <string name="pref_notifications_reposts_description">Receive notifications about new reposts of your sounds.</string>
-    <string-array name="pref_notifications_frequency_entries">
-        <item>Every hour</item>
-        <item>Every 4 hours</item>
-        <item>Every 12 hours</item>
-        <item>Every 24 hours</item>
-    </string-array>
-
     <!-- __STATIONS -->
     <string name="stations_start_track_station">Start track station</string>
     <string name="stations_unable_to_start_station">We’re unable to start this station. Try again in a few minutes.</string>
@@ -609,87 +585,6 @@
     <string name="notification_username_reposted_tracktitle">reposted %s</string>
     <string name="notification_username_commented_on_tracktitle">commented on %s</string>
     <string name="notification_username_started_following_you">started following you</string>
-
-    <!-- _NOTIFICATION_AGGREGATIONS -->
-    <string name="dashboard_notifications_message_incoming">from %s</string>
-    <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
-    <string name="dashboard_notifications_message_incoming_others">from %1$s, %2$s and others</string>
-
-    <string name="dashboard_notifications_activity_message_repost">%1$s reposted %2$s</string>
-    <string name="dashboard_notifications_activity_message_repost_one">on %1$s</string>
-    <string name="dashboard_notifications_activity_message_repost_two">on %1$s and %2$s</string>
-    <string name="dashboard_notifications_activity_message_repost_other">on %1$s, %2$s and other sounds</string>
-
-    <string name="dashboard_notifications_activity_message_activity_one_user_one_playable">from %1$s on %2$s</string>
-    <string name="dashboard_notifications_activity_message_activity_one_user_multiple_playables">from %1$s</string>
-    <string name="dashboard_notifications_activity_message_activity_two">Comments and likes from %1$s and %2$s</string>
-    <string name="dashboard_notifications_activity_message_activity_other">Comments and likes from %1$s, %2$s and others</string>
-
-    <string name="dashboard_notifications_activity_message_comment_single_track_one">new comment on %1$s from %2$s</string>
-    <string name="dashboard_notifications_activity_message_comment_single_track_two">%1$d new comments on %2$s from %3$s and %4$s</string>
-    <string name="dashboard_notifications_activity_message_comment_single_track_other">%1$d new comments on %2$s from %3$s, %4$s and others</string>
-
-    <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
-    <string name="dashboard_notifications_activity_message_like_one">on %1$s</string>
-    <string name="dashboard_notifications_activity_message_like_two">on %1$s and %2$s</string>
-    <string name="dashboard_notifications_activity_message_like_other">on %1$s, %2$s and other sounds</string>
-
-    <string name="dashboard_notifications_activity_message_follow_one">%1$s followed you</string>
-    <string name="dashboard_notifications_activity_message_follow_two">%1$s and %2$s followed you</string>
-    <string name="dashboard_notifications_activity_message_follow_three">%1$s, %2$s and 1 other followed you</string>
-    <string name="dashboard_notifications_activity_message_follow_many">%1$s, %2$s and %3$s others followed you</string>
-
-    <string name="dashboard_notifications_activity_message_comment_one">Comments from %s</string>
-    <string name="dashboard_notifications_activity_message_comment_two">Comments from %1$s and %2$s</string>
-    <string name="dashboard_notifications_activity_message_comment_other">Comments from %1$s, %2$s and others</string>
-
-    <plurals name="dashboard_notifications_activity_ticker_repost">
-        <item quantity="one">%d new repost</item>
-        <item quantity="other">%d new reposts</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_activity">
-        <item quantity="one">%d new activity</item>
-        <item quantity="other">%d new activities</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_comment">
-        <item quantity="one">%d new comment</item>
-        <item quantity="other">%d new comments</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_ticker_like">
-        <item quantity="one">%d new like</item>
-        <item quantity="other">%d new likes</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_activity">
-        <item quantity="one">%d new activity</item>
-        <item quantity="other">%d new activities</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_comment">
-        <item quantity="one">%d new comment</item>
-        <item quantity="other">%d new comments</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_like">
-        <item quantity="one">%d new like</item>
-        <item quantity="other">%d new likes</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_title_repost">
-        <item quantity="one">%d new repost</item>
-        <item quantity="other">%d new reposts</item>
-    </plurals>
-    <plurals name="dashboard_notifications_activity_follower">
-        <item quantity="one">%d new follower</item>
-        <item quantity="other">%d new followers</item>
-    </plurals>
-    <!-- When number is greater than 100, the string "100+" is used otherwise the number as a string -->
-    <plurals name="dashboard_notifications_ticker">
-        <item quantity="one">%s new sound</item>
-        <item quantity="other">%s new sounds</item>
-    </plurals>
-
-    <!-- When number is greater than 100, the string "100+" is used otherwise the number as a string -->
-    <plurals name="dashboard_notifications_title">
-        <item quantity="one">%s new sound</item>
-        <item quantity="other">%s new sounds</item>
-    </plurals>
 
     <!-- __SUBS -->
     <string name="pref_subscriptions_header">Subscriptions</string>
@@ -882,8 +777,6 @@
     <string name="search_premium_content_upsell">Upgrade to hear full tracks</string>
 
     <!-- __NOTIFICATION SETTINGS -->
-    <string name="new_notification_settings">(New) Notification settings</string>
-
     <string name="push_notifications_all_title">Push notifications</string>
     <string name="push_notifications_all_summary">Turn on all mobile notifications\nor select which to receive</string>
     <string name="push_notifications_follower">New follower</string>

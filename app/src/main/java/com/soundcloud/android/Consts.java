@@ -23,7 +23,6 @@ public final class Consts {
 
     public static final int LIST_PAGE_SIZE = 30;
     public static final int CARD_PAGE_SIZE = 20;
-    public static final int MAX_COMMENTS_TO_LOAD = 50;
 
     public static final class RequestCodes {
         public static final int GALLERY_IMAGE_PICK = 9000;
@@ -47,15 +46,6 @@ public final class Consts {
 
     public static final class PrefKeys {
         public static final String C2DM_DEVICE_URL = "c2dm.device_url";
-        public static final String NOTIFICATIONS_FOLLOWERS = "notificationsFollowers";
-        public static final String NOTIFICATIONS_WIFI_ONLY = "notificationsWifiOnly";
-        public static final String NOTIFICATIONS_INCOMING = "notificationsIncoming";
-        public static final String NOTIFICATIONS_LIKES = "notificationsFavoritings";
-        public static final String NOTIFICATIONS_REPOSTS = "notificationsReposts";
-        public static final String NOTIFICATIONS_COMMENTS = "notificationsComments";
-        public static final String NOTIFICATIONS_FREQUENCY = "notificationsFrequency";
-        public static final String NOTIFICATIONS_SERVER_SIDE = "notificationsServerSide";
-        public static final String PLAYBACK_ERROR_REPORTING_ENABLED = "playbackErrorReportingEnabled";
         public static final String LAST_USER_SYNC = "lastUserSync";
         public static final String DEV_HTTP_PROXY = "dev.http.proxy";
     }

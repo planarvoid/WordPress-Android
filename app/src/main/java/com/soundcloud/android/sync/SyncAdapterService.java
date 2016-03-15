@@ -8,8 +8,6 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -54,7 +52,6 @@ public class SyncAdapterService extends Service {
     @Inject MyLikesStateProvider myLikesStateProvider;
     @Inject PlaylistStorage playlistStorage;
     @Inject SyncConfig syncConfig;
-    @Inject FeatureFlags featureFlags;
     @Inject UserAssociationStorage userAssociationStorage;
     @Inject SyncStateManager syncStateManager;
 
@@ -89,7 +86,7 @@ public class SyncAdapterService extends Service {
 
                         looper.quit();
                     }
-                }, syncStateManager, syncServiceResultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig, featureFlags)) {
+                }, syncStateManager, syncServiceResultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig)) {
                     Looper.loop(); // wait for results to come in
                 }
                 PublicApi.setBackgroundMode(false);
@@ -135,8 +132,7 @@ public class SyncAdapterService extends Service {
                                SyncStateManager syncStateManager,
                                final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory,
                                MyLikesStateProvider myLikesStateProvider, PlaylistStorage playlistStorage,
-                               SyncConfig syncConfig,
-                               FeatureFlags featureFlags) {
+                               SyncConfig syncConfig) {
         if (token == null || !token.valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
@@ -148,7 +144,7 @@ public class SyncAdapterService extends Service {
         setContentStatsIfNeverSeen(app, Content.ME_ACTIVITIES);
 
         final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, userAssociationStorage,
-                playlistStorage, myLikesStateProvider, syncConfig, featureFlags);
+                playlistStorage, myLikesStateProvider, syncConfig);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
             final SyncServiceResultReceiver syncServiceResultReceiver = syncServiceResultReceiverFactory.create(syncResult, new SyncServiceResultReceiver.OnResultListener() {
@@ -181,8 +177,7 @@ public class SyncAdapterService extends Service {
                                         UserAssociationStorage userAssociationStorage,
                                         PlaylistStorage playlistStorage,
                                         MyLikesStateProvider myLikesStateProvider,
-                                        SyncConfig syncConfig,
-                                        FeatureFlags featureFlags) {
+                                        SyncConfig syncConfig) {
 
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
         if (extras.getBoolean(EXTRA_SYNC_PUSH)) {
@@ -191,20 +186,8 @@ public class SyncAdapterService extends Service {
             return syncIntent;
         }
 
-
         final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
         final ArrayList<Uri> urisToSync = new ArrayList<>();
-        if (syncConfig.shouldUpdateDashboard()) {
-            if (!featureFlags.isEnabled(Flag.AUTO_REFRESH_STREAM) &&
-                    syncConfig.isIncomingEnabled() &&
-                    (manual || syncStateManager.isContentDueForSync(SyncContent.MySoundStream))) {
-                urisToSync.add(Content.ME_SOUND_STREAM.uri);
-            }
-            if (syncConfig.isActivitySyncEnabled() &&
-                    (manual || syncStateManager.isContentDueForSync(SyncContent.MyActivities))) {
-                urisToSync.add(Content.ME_ACTIVITIES.uri);
-            }
-        }
 
         if (manual || syncConfig.shouldSyncCollections()) {
             final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, manual);

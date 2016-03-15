@@ -1,5 +1,7 @@
 package com.soundcloud.android.activities;
 
+import static com.soundcloud.android.rx.RxUtils.continueWith;
+
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.sync.SyncContent;
@@ -40,6 +42,12 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
                          SyncStateStorage syncStateStorage) {
         super(SyncContent.MyActivities, activitiesStorage, syncInitiator, contentStats, scheduler, syncStateStorage);
         this.scheduler = scheduler;
+    }
+
+    public Observable<List<ActivityItem>> updatedActivitiesWithFallback() {
+        return updatedActivities()
+                .onErrorResumeNext(Observable.<List<ActivityItem>>just(null))
+                .flatMap(continueWith(initialActivities()));
     }
 
     Observable<List<ActivityItem>> initialActivities() {
