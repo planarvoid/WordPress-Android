@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    android:id="@+id/playlist_list_item"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="?attr/selectableItemBackground">
+    android:orientation="vertical">
 
     <LinearLayout
-        style="@style/Card"
+        style="@style/Profile.Sounds.Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:ignore="UselessParent">
+        android:orientation="vertical">
 
         <include layout="@layout/playlist_card" />
 
@@ -20,4 +16,6 @@
 
     </LinearLayout>
 
-</FrameLayout>
+    <View style="@style/Divider.Item" />
+
+</LinearLayout>

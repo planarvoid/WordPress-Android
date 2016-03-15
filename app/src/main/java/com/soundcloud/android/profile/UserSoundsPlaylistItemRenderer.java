@@ -1,10 +1,12 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.java.optional.Optional;
 
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -21,7 +23,8 @@ class UserSoundsPlaylistItemRenderer implements CellRenderer<UserSoundsItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return playlistItemRenderer.createItemView(parent);
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.profile_user_sounds_playlist_list_item,
+                parent, false);
     }
 
     @Override

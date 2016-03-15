@@ -151,7 +151,6 @@
     <!-- Profile -->
     <color name="user_sounds_header">#666666</color>
     <color name="user_sounds_view_all">#666666</color>
-    <color name="user_sounds_divider">#e5e5e5</color>
 
     <!-- Collections -->
     <color name="collections_options_dialog_header">#b3b3b3</color>

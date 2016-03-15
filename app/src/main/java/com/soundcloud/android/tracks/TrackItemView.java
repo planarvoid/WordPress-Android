@@ -5,6 +5,7 @@ import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.Context;
 import android.support.annotation.ColorRes;
+import android.support.annotation.LayoutRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -147,10 +148,15 @@ public class TrackItemView {
 
     public static class Factory {
         @Inject
-        public Factory() {}
+        public Factory() {
+        }
 
         public View createItemView(ViewGroup parent) {
-            final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.track_list_item, parent, false);
+            return createItemView(parent, R.layout.track_list_item);
+        }
+
+        public View createItemView(ViewGroup parent, @LayoutRes int layout) {
+            final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
             inflatedView.setTag(new TrackItemView(inflatedView));
             return inflatedView;
         }

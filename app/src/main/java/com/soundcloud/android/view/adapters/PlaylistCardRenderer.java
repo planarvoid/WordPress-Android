@@ -23,6 +23,7 @@ import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -42,6 +43,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
     private final ImageOperations imageOperations;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final CardEngagementsPresenter cardEngagementsPresenter;
+    private int layoutResource = R.layout.default_playlist_card;
 
     @Inject
     public PlaylistCardRenderer(Resources resources,
@@ -59,7 +61,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
     public View createItemView(ViewGroup parent) {
         final View inflatedView =
                 LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.default_playlist_card, parent, false);
+                        .inflate(layoutResource, parent, false);
         inflatedView.setTag(new PlaylistViewHolder(inflatedView));
         return inflatedView;
     }
@@ -78,6 +80,10 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         viewHolder.tracksView.setText(tracksQuantity);
 
         setupEngagementBar(viewHolder, playlist);
+    }
+
+    public void setLayoutResource(@LayoutRes int layoutResource) {
+        this.layoutResource = layoutResource;
     }
 
     private void setupEngagementBar(PlaylistViewHolder playlistView, final PlaylistItem playlistItem) {

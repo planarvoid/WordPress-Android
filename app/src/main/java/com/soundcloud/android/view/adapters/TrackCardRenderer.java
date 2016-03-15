@@ -12,6 +12,7 @@ import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 
 import android.content.res.Resources;
+import android.support.annotation.LayoutRes;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
     private final ImageOperations imageOperations;
     private final Navigator navigator;
     private final Resources resources;
+    private int layoutResource = R.layout.default_track_card;
 
     @Inject
     public TrackCardRenderer(CondensedNumberFormatter numberFormatter,
@@ -45,7 +47,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.default_track_card, parent, false);
+        final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(layoutResource, parent, false);
         inflatedView.setTag(new TrackCardViewHolder(inflatedView, imageOperations, navigator, resources));
         return inflatedView;
     }
@@ -69,6 +71,10 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
                 menuPresenter.show((FragmentActivity) itemView.getContext(), viewHolder.overflowButton, track, position);
             }
         });
+    }
+
+    public void setLayoutResource(@LayoutRes int layoutResource) {
+        this.layoutResource = layoutResource;
     }
 
     private EventContextMetadata getEventContextMetadata() {
