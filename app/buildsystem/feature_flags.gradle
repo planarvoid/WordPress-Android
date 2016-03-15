@@ -13,11 +13,13 @@ enum Feature {
   DISCOVERY_RECOMMENDATIONS,
   VIDEO_ADS,
   PROFILE_NEW_TABS,
-  EXPLODE_PLAYLISTS_IN_PLAYQUEUES;
+  EXPLODE_PLAYLISTS_IN_PLAYQUEUES,
+  NEW_PLAYLIST_DETAILS;
 }
 
 android {
   defaultConfig {
+    buildConfigField BOOLEAN, Feature.NEW_PLAYLIST_DETAILS.name(), FALSE
     buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), FALSE
     buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), FALSE
     buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), FALSE
@@ -31,6 +33,7 @@ android {
 
   buildTypes {
     alpha {
+      buildConfigField BOOLEAN, Feature.NEW_PLAYLIST_DETAILS.name(), TRUE
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
@@ -46,6 +49,7 @@ android {
     }
 
     debug {
+      buildConfigField BOOLEAN, Feature.NEW_PLAYLIST_DETAILS.name(), TRUE
       buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), TRUE
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE

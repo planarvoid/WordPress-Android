@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="EngagementAction.ToggleButton.LikeBase.Like">
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+</resources>

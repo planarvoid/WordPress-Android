@@ -47,17 +47,25 @@
         <item name="android:background">?attr/selectableItemBackground</item>
     </style>
 
-    <style name="EngagementAction.ToggleButton.Like">
-        <item name="android:drawableLeft">@drawable/ic_toggle_player_like_states</item>
-        <item name="android:layout_marginLeft">10dp</item>
+    <style name="EngagementAction.ToggleButton.LikeBase">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
+        <item name="android:background">@drawable/ic_toggle_player_like_states</item>
     </style>
+
+    <style name="EngagementAction.ToggleButton.LikeBase.Like" />
 
     <style name="EngagementAction.ToggleButton.Download">
         <item name="android:layout_marginLeft">8dp</item>
         <item name="android:visibility">gone</item>
         <item name="android:src">@drawable/ic_toggle_download</item>
-        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:layout_height">48dp</item>
+        <item name="android:layout_width">48dp</item>
+        <item name="android:scaleType">centerInside</item>
     </style>
 
     <style name="EngagementAction.ToggleButton.Repost">

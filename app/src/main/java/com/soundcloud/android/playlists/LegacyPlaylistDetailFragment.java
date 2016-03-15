@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.main.Screen.PLAYLIST_DETAILS;
 import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissingException;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
@@ -15,7 +16,6 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PullToRefreshEvent;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -25,7 +25,6 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
@@ -53,9 +52,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import javax.inject.Inject;
@@ -64,28 +61,33 @@ import java.util.List;
 
 @SuppressLint("ValidFragment")
 @SuppressWarnings("PMD.TooManyFields")
-public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<LegacyPlaylistDetailFragment> implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, PlaylistDetailsController.Listener {
+public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<LegacyPlaylistDetailFragment> implements
+        AdapterView.OnItemClickListener,
+        SwipeRefreshLayout.OnRefreshListener,
+        PlaylistDetailsController.Listener {
 
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
     public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
     public static final String EXTRA_AUTOPLAY = "autoplay";
 
-    private final Func1<EntityStateChangedEvent, Boolean> IS_CURRENT_PLAYLIST_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.getKind() == EntityStateChangedEvent.ENTITY_DELETED
-                    && event.getFirstUrn().equals(getPlaylistUrn());
-        }
-    };
+    private final Func1<EntityStateChangedEvent, Boolean> IS_CURRENT_PLAYLIST_DELETED =
+            new Func1<EntityStateChangedEvent, Boolean>() {
+                @Override
+                public Boolean call(EntityStateChangedEvent event) {
+                    return event.getKind() == EntityStateChangedEvent.ENTITY_DELETED
+                            && event.getFirstUrn().equals(getPlaylistUrn());
+                }
+            };
 
-    private final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_PUSHED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.getKind() == EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER
-                    && event.getFirstUrn().equals(getPlaylistUrn());
-        }
-    };
+    private final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_PUSHED_FILTER =
+            new Func1<EntityStateChangedEvent, Boolean>() {
+                @Override
+                public Boolean call(EntityStateChangedEvent event) {
+                    return event.getKind() == EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER
+                            && event.getFirstUrn().equals(getPlaylistUrn());
+                }
+            };
 
     @Inject PlaylistDetailsController.Provider controllerProvider;
     @Inject PlaylistOperations playlistOperations;
@@ -96,8 +98,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     @Inject @LightCycle PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
-    @Inject PlaylistPresenter playlistPresenter;
-    @Inject PlaybackToastHelper playbackToastHelper;
+    @Inject PlaylistDetailsViewFactory playlistDetailsViewFactory;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     @Inject AccountOperations accountOperations;
     @Inject Navigator navigator;
@@ -111,6 +112,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
     private CompositeSubscription eventSubscription = new CompositeSubscription();
 
+    private PlaylistDetailsView playlistDetailsView;
     private View headerUsernameText;
     private ImageButton playToggle;
     private PlaylistWithTracks playlistWithTracks;
@@ -132,16 +134,18 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         }
     };
 
-    private final DefaultSubscriber<EntityStateChangedEvent> trackAddedToPlaylist = new DefaultSubscriber<EntityStateChangedEvent>() {
-        @Override
-        public void onNext(EntityStateChangedEvent event) {
-            if (event.getFirstUrn().equals(playlistWithTracks.getUrn())) {
-                onPlaylistContentChanged();
-            }
-        }
-    };
+    private final DefaultSubscriber<EntityStateChangedEvent> trackAddedToPlaylist =
+            new DefaultSubscriber<EntityStateChangedEvent>() {
+                @Override
+                public void onNext(EntityStateChangedEvent event) {
+                    if (event.getFirstUrn().equals(playlistWithTracks.getUrn())) {
+                        onPlaylistContentChanged();
+                    }
+                }
+            };
 
-    public static LegacyPlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo, PromotedSourceInfo promotedInfo, boolean autoplay) {
+    public static LegacyPlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo,
+                                                      PromotedSourceInfo promotedInfo, boolean autoplay) {
         final Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_URN, playlistUrn);
         bundle.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchInfo);
@@ -168,7 +172,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
                                  PlaylistEngagementsPresenter engagementsPresenter,
                                  PullToRefreshController pullToRefreshController,
                                  PlayQueueManager playQueueManager,
-                                 PlaylistPresenter playlistPresenter,
+                                 PlaylistDetailsViewFactory playlistDetailsViewFactory,
                                  Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                  AccountOperations accountOperations,
                                  Navigator navigator) {
@@ -181,7 +185,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         this.engagementsPresenter = engagementsPresenter;
         this.pullToRefreshController = pullToRefreshController;
         this.playQueueManager = playQueueManager;
-        this.playlistPresenter = playlistPresenter;
+        this.playlistDetailsViewFactory = playlistDetailsViewFactory;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.accountOperations = accountOperations;
         this.navigator = navigator;
@@ -246,7 +250,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         playlistSubscription.unsubscribe();
         playlistSubscription = playlistOperations.updatedPlaylistInfo(getPlaylistUrn())
                 // Experiment: track pull to refresh counts
-                .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.PLAYLIST_DETAILS)))
+                .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(PLAYLIST_DETAILS)))
                 .observeOn(mainThread())
                 .subscribe(new RefreshSubscriber());
     }
@@ -312,13 +316,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     }
 
     private void setupPlaylistDetails(View detailsView) {
-        playlistPresenter
-                .setTitleView((TextView) detailsView.findViewById(R.id.title))
-                .setPrivateTitleView((TextView) detailsView.findViewById(R.id.title_private))
-                .setUsernameView((TextView) detailsView.findViewById(R.id.username))
-                .setArtwork((ImageView) detailsView.findViewById(R.id.artwork),
-                        ApiImageSize.getFullImageSize(getActivity().getResources()));
-
+        playlistDetailsView = playlistDetailsViewFactory.create(detailsView, onPlayClick, onHeaderTextClick);
         engagementsPresenter.bindView(detailsView, new OriginProvider() {
             @Override
             public String getScreenTag() {
@@ -327,7 +325,6 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         });
 
         playToggle = (ImageButton) detailsView.findViewById(R.id.btn_play);
-        playToggle.setOnClickListener(onPlayClick);
 
         headerUsernameText = detailsView.findViewById(R.id.username);
         headerUsernameText.setOnClickListener(onHeaderTextClick);
@@ -365,7 +362,8 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
 
     private PlaySessionSource getPlaySessionSource() {
         final String originScreen = Screen.fromBundle(getArguments()).get();
-        final PlaySessionSource playlistSessionSource = PlaySessionSource.forPlaylist(originScreen, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
+        final PlaySessionSource playlistSessionSource = PlaySessionSource.forPlaylist(originScreen,
+                playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
         playlistSessionSource.setPromotedSourceInfo(getPromotedSourceInfo());
         return playlistSessionSource;
     }
@@ -384,8 +382,8 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         }
 
         this.playlistWithTracks = playlistWithTracks;
-        playlistPresenter.setPlaylist(playlistWithTracks);
-        engagementsPresenter.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
+        playlistDetailsView.setPlaylist(playlistWithTracks.getPlaylistItem(), !playlistWithTracks.getTracks().isEmpty());
+        engagementsPresenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
 
         // don't register clicks before we have a valid playlist
         final List<TrackItem> tracks = playlistWithTracks.getTracks();
@@ -395,8 +393,6 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         } else {
             playToggle.setVisibility(View.GONE);
         }
-
-        playlistPresenter.setTextVisibility(View.VISIBLE);
         headerUsernameText.setEnabled(true);
     }
 

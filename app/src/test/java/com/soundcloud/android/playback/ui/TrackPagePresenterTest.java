@@ -40,6 +40,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -122,7 +123,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void bindItemViewSetsInitialLikeStatesFromTrackData() {
         populateTrackPage();
         assertThat(getHolder(trackView).likeToggle).isChecked();
-        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 1);
+        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 1,
+                R.drawable.player_like_active, R.drawable.player_like);
     }
 
     @Test
@@ -340,7 +342,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
-        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 9999);
+        verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 9999,
+                R.drawable.player_like_active, R.drawable.player_like);
     }
 
     @Test

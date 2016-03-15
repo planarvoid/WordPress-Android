@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CenteredImageSpan;
 
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -22,9 +22,10 @@ public class MaterialLikeButtonPresenter implements LikeButtonPresenter {
     }
 
     @Override
-    public void setLikeCount(ToggleButton likeButton, int count) {
-        likeButton.setTextOn(createLikeSpan(likeButton, count, R.drawable.player_like_active));
-        likeButton.setTextOff(createLikeSpan(likeButton, count, R.drawable.player_like));
+    public void setLikeCount(ToggleButton likeButton, int count,
+                             @DrawableRes int drawableLiked, @DrawableRes int drawableUnliked) {
+        likeButton.setTextOn(createLikeSpan(likeButton, count, drawableLiked));
+        likeButton.setTextOff(createLikeSpan(likeButton, count, drawableUnliked));
         // hax : setTextOn/Off does not sync text state. Call this to refresh the text (count)
         likeButton.setChecked(likeButton.isChecked());
     }

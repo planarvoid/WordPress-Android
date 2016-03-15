@@ -6,7 +6,7 @@ import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.playback.ui.LikeButtonPresenter;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Checkable;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
@@ -26,11 +27,11 @@ import javax.inject.Inject;
 public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListener {
 
     private final Context context;
-    private final CondensedNumberFormatter numberFormatter;
     private final Resources resources;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final DownloadStateView downloadStateView;
+    private final LikeButtonPresenter likeButtonPresenter;
 
     private PopupMenuWrapper popupMenuWrapper;
     private OnEngagementListener listener;
@@ -40,11 +41,12 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     @Bind(R.id.playlist_details_overflow_button) View overflowButton;
 
     @Inject
-    public PlaylistEngagementsView(Context context, CondensedNumberFormatter numberFormatter,
+    public PlaylistEngagementsView(Context context,
                                    PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                                   DownloadStateView downloadStateView) {
+                                   DownloadStateView downloadStateView,
+                                   LikeButtonPresenter likeButtonPresenter) {
         this.context = context;
-        this.numberFormatter = numberFormatter;
+        this.likeButtonPresenter = likeButtonPresenter;
         this.resources = context.getResources();
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.downloadStateView = downloadStateView;
@@ -88,6 +90,8 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         downloadToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boolean changedState = ((Checkable) v).isChecked();
+                downloadToggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
                 listener.onMakeOfflineAvailable(!isAvailable);
             }
         });
@@ -194,30 +198,29 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         return listener;
     }
 
-    private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
-                                    int checkedStringId) {
-        final String buttonLabel = count < 0 ? Strings.EMPTY : numberFormatter.format(count);
-        button.setTextOn(buttonLabel);
-        button.setTextOff(buttonLabel);
-        button.setChecked(checked);
-        button.invalidate();
+    private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID,
+                                    int count, boolean checked, int checkedStringId) {
+        if (button != null) {
+            likeButtonPresenter.setLikeCount(button, count, R.drawable.ic_liked, R.drawable.ic_like);
+            button.setChecked(checked);
 
-        if (AndroidUtils.accessibilityFeaturesAvailable(context)
-                && TextUtils.isEmpty(button.getContentDescription())) {
-            final StringBuilder builder = new StringBuilder();
-            builder.append(resources.getString(actionStringID));
+            if (AndroidUtils.accessibilityFeaturesAvailable(context)
+                    && Strings.isBlank(button.getContentDescription())) {
+                final StringBuilder builder = new StringBuilder();
+                builder.append(resources.getString(actionStringID));
 
-            if (count >= 0) {
-                builder.append(", ");
-                builder.append(resources.getQuantityString(descriptionPluralID, count, count));
+                if (count >= 0) {
+                    builder.append(", ");
+                    builder.append(resources.getQuantityString(descriptionPluralID, count, count));
+                }
+
+                if (checked) {
+                    builder.append(", ");
+                    builder.append(resources.getString(checkedStringId));
+                }
+
+                button.setContentDescription(builder.toString());
             }
-
-            if (checked) {
-                builder.append(", ");
-                builder.append(resources.getString(checkedStringId));
-            }
-
-            button.setContentDescription(builder.toString());
         }
     }
 

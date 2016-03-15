@@ -47,7 +47,7 @@ public class PlaylistItem extends PlayableItem {
         return Optional.fromNullable(source.getOrElseNull(OfflineProperty.IS_MARKED_FOR_OFFLINE));
     }
 
-    public boolean isPosted() {
+    public boolean isPostedByUser() {
         return source.getOrElse(PlaylistProperty.IS_POSTED, false);
     }
 
@@ -64,6 +64,18 @@ public class PlaylistItem extends PlayableItem {
         return source.get(PlaylistProperty.PLAYLIST_DURATION);
     }
 
+    public boolean isLikedByUser() {
+        return source.get(PlaylistProperty.IS_USER_LIKE);
+    }
+
+    public boolean isRepostedByUser() {
+        return source.getOrElse(PlaylistProperty.IS_USER_REPOST, false);
+    }
+
+    public boolean isPublic() {
+        return !isPrivate();
+    }
+
     @Override
     public boolean equals(Object o) {
         return o instanceof PlaylistItem && ((PlaylistItem) o).source.equals(this.source);
@@ -73,4 +85,5 @@ public class PlaylistItem extends PlayableItem {
     public int hashCode() {
         return source.hashCode();
     }
+
 }

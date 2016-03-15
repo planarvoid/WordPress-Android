@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static java.util.Collections.singletonList;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -32,6 +33,7 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
@@ -61,12 +63,12 @@ import java.util.List;
 
 public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
 
-    private final Observable<List<Urn>> playlistTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1)));
+    private final Observable<List<Urn>> playlistTrackUrns = Observable.just(singletonList(Urn.forTrack(1)));
     private LegacyPlaylistDetailFragment fragment;
     private PlaylistWithTracks playlistWithTracks;
     private TestEventBus eventBus = new TestEventBus();
 
-    private TestSubscriber<PlaybackResult> playerExpandSubscriber = new TestSubscriber();
+    private TestSubscriber<PlaybackResult> playerExpandSubscriber = new TestSubscriber<>();
     private Provider expandPlayerSubscriberProvider = providerOf(playerExpandSubscriber);
 
     @Mock private PlaylistDetailsController.Provider controllerProvider;
@@ -94,7 +96,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
                 playlistEngagementsPresenter,
                 ptrController,
                 playQueueManager,
-                new PlaylistPresenter(imageOperations),
+                new PlaylistDetailsViewFactory(InjectionSupport.providerOf(imageOperations)),
                 expandPlayerSubscriberProvider,
                 accountOperations,
                 navigator
@@ -123,7 +125,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
 
         list.getOnItemClickListener().onItemClick(list, mock(View.class), /* offset for header */ 1, 123);
 
-        playerExpandSubscriber.assertReceivedOnNext(Arrays.asList(playbackResult));
+        playerExpandSubscriber.assertReceivedOnNext(singletonList(playbackResult));
     }
 
     @Test
@@ -157,8 +159,8 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         captor.getValue().onPlaylistContentChanged();
 
         InOrder inOrder = Mockito.inOrder(playlistEngagementsPresenter);
-        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(eq(playlistWithTracks), any(PlaySessionSource.class));
-        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(eq(updatedPlaylistWithTracks), any(PlaySessionSource.class));
+        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(eq(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource())));
+        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(eq(PlaylistHeaderItem.create(updatedPlaylistWithTracks, getPlaySessionSource())));
     }
 
     @Test
@@ -222,7 +224,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
     }
 
     @Test
-     public void engagementsControllerStartsListeningInOnStart() {
+    public void engagementsControllerStartsListeningInOnStart() {
         createFragmentView();
         verify(playlistEngagementsPresenter).onStart(fragment);
     }
@@ -289,7 +291,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
     @Test
     public void setsPlayableOnEngagementsControllerWhenPlaylistIsReturned() {
         createFragmentView();
-        verify(playlistEngagementsPresenter).setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
+        verify(playlistEngagementsPresenter).setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
     }
 
     @Test
@@ -300,8 +302,10 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(playlistEngagementsPresenter);
-        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
-        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(updatedPlaylistWithTracks, getPlaySessionSource(updatedPlaylistWithTracks));
+        inOrder.verify(playlistEngagementsPresenter)
+                .setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+        inOrder.verify(playlistEngagementsPresenter)
+                .setPlaylistInfo(PlaylistHeaderItem.create(updatedPlaylistWithTracks, getPlaySessionSource(updatedPlaylistWithTracks)));
     }
 
     @Test

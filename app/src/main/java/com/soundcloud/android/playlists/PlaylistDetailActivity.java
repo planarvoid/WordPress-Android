@@ -7,6 +7,8 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +30,7 @@ public class PlaylistDetailActivity extends PlayerActivity {
     public static final String EXTRA_PROMOTED_SOURCE_INFO = "promoted_source_info";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+    @Inject FeatureFlags featureFlags;
 
     @Deprecated // Use Navigator
     public static void start(Context context, @NotNull Urn playlist, Screen screen) {
@@ -87,7 +90,12 @@ public class PlaylistDetailActivity extends PlayerActivity {
         boolean autoplay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false);
         Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);
 
-        Fragment fragment = LegacyPlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
+        Fragment fragment;
+        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_DETAILS)) {
+            fragment = PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
+        } else {
+            fragment = LegacyPlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
+        }
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 
