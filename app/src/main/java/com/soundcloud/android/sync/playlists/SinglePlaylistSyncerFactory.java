@@ -1,7 +1,10 @@
 package com.soundcloud.android.sync.playlists;
 
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 
 import javax.inject.Inject;
@@ -10,26 +13,26 @@ import javax.inject.Provider;
 public class SinglePlaylistSyncerFactory {
 
     private final Provider<LoadPlaylistTracksWithChangesCommand> loadUnpushedTracksForPlaylist;
-    private final Provider<PushPlaylistAdditionsCommand> pushPlaylistAdditions;
-    private final Provider<PushPlaylistRemovalsCommand> pushPlaylistRemovals;
+    private final ApiClient apiClient;
     private final Provider<FetchPlaylistWithTracksCommand> fetchPlaylistWithTracks;
-    private final StorePlaylistCommand storePlaylist;
+    private final StorePlaylistsCommand storePlaylist;
     private final RemovePlaylistCommand removePlaylist;
     private final StoreTracksCommand storeTracks;
+    private final PlaylistStorage playlistStorage;
     private final Provider<ReplacePlaylistTracksCommand> replacePlaylistTracks;
 
     @Inject
     public SinglePlaylistSyncerFactory(Provider<LoadPlaylistTracksWithChangesCommand> loadUnpushedTracksForPlaylist,
-                                       Provider<PushPlaylistAdditionsCommand> pushPlaylistAdditions,
-                                       Provider<PushPlaylistRemovalsCommand> pushPlaylistRemovals,
+                                       ApiClient apiClient,
                                        Provider<FetchPlaylistWithTracksCommand> fetchPlaylistWithTracks,
-                                       StorePlaylistCommand storePlaylist,
+                                       StorePlaylistsCommand storePlaylist,
                                        RemovePlaylistCommand removePlaylist,
                                        StoreTracksCommand storeTracks,
+                                       PlaylistStorage playlistStorage,
                                        Provider<ReplacePlaylistTracksCommand> replacePlaylistTracks) {
         this.loadUnpushedTracksForPlaylist = loadUnpushedTracksForPlaylist;
-        this.pushPlaylistAdditions = pushPlaylistAdditions;
-        this.pushPlaylistRemovals = pushPlaylistRemovals;
+        this.apiClient = apiClient;
+        this.playlistStorage = playlistStorage;
         this.fetchPlaylistWithTracks = fetchPlaylistWithTracks;
         this.storePlaylist = storePlaylist;
         this.removePlaylist = removePlaylist;
@@ -42,10 +45,9 @@ public class SinglePlaylistSyncerFactory {
                 fetchPlaylistWithTracks.get().with(playlistUrn),
                 removePlaylist,
                 loadUnpushedTracksForPlaylist.get().with(playlistUrn),
-                pushPlaylistAdditions.get().with(playlistUrn),
-                pushPlaylistRemovals.get().with(playlistUrn),
-                storeTracks,
+                apiClient, storeTracks,
                 storePlaylist,
-                replacePlaylistTracks.get().with(playlistUrn));
+                replacePlaylistTracks.get().with(playlistUrn),
+                playlistStorage);
     }
 }

@@ -23,7 +23,8 @@ import java.util.List;
 
 public class EditPlaylistCommandTest extends StorageIntegrationTest {
 
-    public static final String NEW_TITLE = "new title";
+    private static final String NEW_TITLE = "new title";
+    private static final boolean IS_PRIVATE = true;
 
     @Mock CurrentDateProvider dateProvider;
 
@@ -55,6 +56,7 @@ public class EditPlaylistCommandTest extends StorageIntegrationTest {
         assertThat(command.call(getInput(apiPlaylist.getUrn(), newTrackList))).isEqualTo(2);
 
         databaseAssertions().assertPlaylistTracklist(apiPlaylist.getUrn().getNumericId(), newTrackList);
+        databaseAssertions().assertModifiedPlaylistInserted(apiPlaylist.getUrn(), NEW_TITLE, IS_PRIVATE);
     }
 
     @Test
@@ -115,6 +117,6 @@ public class EditPlaylistCommandTest extends StorageIntegrationTest {
 
     @NonNull
     private EditPlaylistCommandParams getInput(Urn urn, List<Urn> trackList) {
-        return new EditPlaylistCommandParams(urn, NEW_TITLE, true, trackList);
+        return new EditPlaylistCommandParams(urn, NEW_TITLE, IS_PRIVATE, trackList);
     }
 }

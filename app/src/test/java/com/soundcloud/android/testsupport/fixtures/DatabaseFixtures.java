@@ -448,6 +448,16 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiPlaylist insertModifiedPlaylist(Date modifiedDate) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        insertUser(playlist.getUser());
+        insertPlaylist(playlist);
+        database.execSQL("UPDATE Sounds SET "+ TableColumns.Sounds.MODIFIED_AT + " = " + modifiedDate.getTime()
+                + " WHERE _id=" + playlist.getUrn().getNumericId()
+                + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
+        return playlist;
+    }
+
     public ApiPlaylist insertLikedPlaylist(Date creationDate, Date likedDate) {
         return insertLikedPlaylist(likedDate, insertPlaylistWithCreatedAt(creationDate));
     }

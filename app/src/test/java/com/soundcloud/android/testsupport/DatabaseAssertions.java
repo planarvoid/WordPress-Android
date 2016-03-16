@@ -481,6 +481,16 @@ public class DatabaseAssertions {
                 .whereEq(TITLE, title))).counts(1);
     }
 
+    public void assertModifiedPlaylistInserted(Urn playlistUrn, String title, boolean isPrivate) {
+        assertThat(select(from(Sounds.name())
+                .whereEq(_ID, playlistUrn.getNumericId())
+                .whereEq(_TYPE, TYPE_PLAYLIST)
+                .whereNotNull(CREATED_AT)
+                .whereEq(SHARING, Sharing.from(!isPrivate).value())
+                .whereEq(TITLE, title)
+                .whereNotNull(TableColumns.Sounds.MODIFIED_AT))).counts(1);
+    }
+
     public void assertPlaylistTracklist(long playlistId, List<Urn> tracklist) {
         for (int i = 0; i < tracklist.size(); i++) {
             assertThat(select(from(PlaylistTracks.name())

@@ -10,6 +10,7 @@ import static com.soundcloud.propeller.query.Query.apply;
 import static com.soundcloud.propeller.query.Query.from;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineFilters;
 import com.soundcloud.android.storage.Table;
@@ -19,10 +20,13 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
+import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
+
+import android.provider.BaseColumns;
 
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -76,10 +80,27 @@ public class PlaylistStorage {
                 .whereGt(TableColumns.PlaylistTracks.PLAYLIST_ID, 0);
     }
 
+    public PropertySet loadPlaylistModifications(Urn playlistUrn) {
+        return propeller.query(buildPlaylistModificationQuery(playlistUrn))
+                .firstOrDefault(new PlaylistModificationMapper(), PropertySet.create());
+    }
+
     public Observable<PropertySet> loadPlaylist(Urn playlistUrn) {
         return propellerRx.query(buildSinglePlaylistQuery(playlistUrn))
                 .map(new PlaylistInfoMapper(accountOperations.getLoggedInUserUrn()))
                 .defaultIfEmpty(PropertySet.create());
+    }
+
+    private Query buildPlaylistModificationQuery(Urn playlistUrn) {
+        return Query.from(Table.Sounds.name())
+                .select(
+                        TableColumns.Sounds._ID,
+                        TableColumns.Sounds.TITLE,
+                        TableColumns.Sounds.SHARING
+                )
+                .whereEq(TableColumns.Sounds._ID, playlistUrn.getNumericId())
+                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereNotNull(TableColumns.Sounds.MODIFIED_AT);
     }
 
     private Query buildSinglePlaylistQuery(Urn playlistUrn) {
@@ -157,5 +178,16 @@ public class PlaylistStorage {
                 .whereEq(TableColumns.Sounds._ID, playlistUrn.getNumericId())
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
+    }
+
+    private static class PlaylistModificationMapper implements ResultMapper<PropertySet> {
+        @Override
+        public PropertySet map(CursorReader cursorReader) {
+            final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
+            propertySet.put(PlaylistProperty.URN, Urn.forPlaylist(cursorReader.getLong(BaseColumns._ID)));
+            propertySet.put(PlaylistProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
+            propertySet.put(PlaylistProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
+            return propertySet;
+        }
     }
 }

@@ -117,6 +117,8 @@ public enum ApiEndpoints {
     LEGACY_USER_FOLLOWINGS("/users/%s/followings"),
     LEGACY_USER_FOLLOWERS("/users/%s/followers"),
 
+    LEGACY_PLAYLIST_DETAILS("/playlists/%s"),
+
     OAUTH2_TOKEN("/oauth2/token");
 
     private final String path;
