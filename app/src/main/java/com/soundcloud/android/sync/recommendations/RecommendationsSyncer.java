@@ -26,7 +26,7 @@ public class RecommendationsSyncer implements Callable<Boolean> {
     public Boolean call() throws Exception {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.RECOMMENDATIONS.path())
-                        .forPrivateApi(1)
+                        .forPrivateApi()
                         .build();
 
         final ModelCollection<ApiRecommendation> apiRecommendations = getApiRecommendations(request);

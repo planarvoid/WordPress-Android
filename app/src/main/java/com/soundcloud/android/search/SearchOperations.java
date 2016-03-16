@@ -227,12 +227,12 @@ class SearchOperations {
             return getSearchResultObservable(ApiRequest.get(apiEndpoint)
                     .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.LIST_PAGE_SIZE))
                     .addQueryParam("q", query)
-                    .forPrivateApi(1));
+                    .forPrivateApi());
         }
 
         private Observable<SearchResult> nextResultPage(Link nextPageLink) {
             return getSearchResultObservable(ApiRequest.get(nextPageLink.getHref())
-                    .forPrivateApi(1));
+                    .forPrivateApi());
         }
 
         protected abstract String getEndpoint();

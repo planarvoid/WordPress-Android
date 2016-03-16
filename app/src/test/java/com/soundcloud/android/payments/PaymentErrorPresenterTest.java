@@ -33,7 +33,7 @@ public class PaymentErrorPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        apiRequest = ApiRequest.get("/").forPrivateApi(1).build();
+        apiRequest = ApiRequest.get("/").forPrivateApi().build();
         apiResponse = new ApiResponse(apiRequest, 200, "body");
         paymentErrorPresenter = new PaymentErrorPresenter(errorPresenter, eventBus);
         paymentErrorPresenter.setActivity(activity);

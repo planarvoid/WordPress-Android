@@ -35,7 +35,7 @@ class PushPlaylistAdditionsCommand extends LegacyCommand<Collection<Urn>, Collec
         for (Urn urn : input) {
             final ApiRequest request =
                     ApiRequest.post(ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn))
-                            .forPrivateApi(1)
+                            .forPrivateApi()
                             .withContent(Collections.singletonMap("track_urn", urn.toString()))
                             .build();
 

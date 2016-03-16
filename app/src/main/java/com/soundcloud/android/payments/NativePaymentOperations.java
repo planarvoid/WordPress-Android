@@ -117,7 +117,7 @@ class NativePaymentOperations {
 
     Observable<String> purchase(final String id) {
         final ApiRequest request = ApiRequest.post(ApiEndpoints.CHECKOUT.path())
-                        .forPrivateApi(API_VERSION)
+                        .forPrivateApi()
                         .withContent(new StartCheckout(id))
                         .build();
         return api.mappedResponse(request, CheckoutStarted.class)
@@ -174,7 +174,7 @@ class NativePaymentOperations {
     private Observable<PurchaseStatus> getStatus() {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.CHECKOUT_URN.path(tokenStorage.getCheckoutToken()))
-                .forPrivateApi(API_VERSION)
+                .forPrivateApi()
                 .build();
         return api.mappedResponse(request, CheckoutUpdated.class)
                 .subscribeOn(scheduler)
@@ -189,7 +189,7 @@ class NativePaymentOperations {
 
     private ApiRequest buildUpdateRequest(UpdateCheckout update) {
         return ApiRequest.post(ApiEndpoints.CHECKOUT_URN.path(tokenStorage.getCheckoutToken()))
-                .forPrivateApi(API_VERSION)
+                .forPrivateApi()
                 .withContent(update)
                 .build();
     }
@@ -207,7 +207,7 @@ class NativePaymentOperations {
     private Observable<AvailableProducts> fetchAvailableProducts() {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.NATIVE_PRODUCTS.path())
-                        .forPrivateApi(API_VERSION)
+                        .forPrivateApi()
                         .build();
         return api.mappedResponse(request, AvailableProducts.class).subscribeOn(scheduler);
     }

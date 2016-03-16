@@ -39,7 +39,7 @@ class PushLikesCommand<ApiModel extends PropertySetSource>
         final Map<String, List<Map<String, String>>> body = Collections.singletonMap("likes", urns);
 
         final ApiRequest.Builder builder = ApiRequest.post(endpoint.path());
-        final ApiRequest request = builder.forPrivateApi(1).withContent(body).build();
+        final ApiRequest request = builder.forPrivateApi().withContent(body).build();
         final ModelCollection<ApiModel> successSet = apiClient.fetchMappedResponse(request, typeToken);
         return PropertySets.toPropertySets(successSet.getCollection());
     }

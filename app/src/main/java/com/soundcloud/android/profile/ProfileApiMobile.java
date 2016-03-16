@@ -62,7 +62,7 @@ public class ProfileApiMobile implements ProfileApi {
     @NotNull
     private Observable<ModelCollection<ApiEntityHolder>> getPostsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
@@ -92,7 +92,7 @@ public class ProfileApiMobile implements ProfileApi {
     @NotNull
     private Observable<ModelCollection<ApiEntityHolder>> getLikesCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
@@ -123,7 +123,7 @@ public class ProfileApiMobile implements ProfileApi {
     public Observable<ApiUserProfile> userProfile(Urn user) {
         final ApiRequest request = ApiRequest
                 .get(ApiEndpoints.PROFILE.path(user))
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
 
         return apiClientRx.mappedResponse(request, ApiUserProfile.class);

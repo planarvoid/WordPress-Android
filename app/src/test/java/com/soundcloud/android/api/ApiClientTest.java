@@ -92,7 +92,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Test
     public void shouldSendUserAgentHeader() throws Exception {
         when(deviceHelper.getUserAgent()).thenReturn("agent");
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
 
         ApiResponse response = apiClient.fetchResponse(request);
@@ -103,7 +103,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldSendDeviceLocaleHeader() throws Exception {
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
 
         ApiResponse response = apiClient.fetchResponse(request);
@@ -116,7 +116,7 @@ public class ApiClientTest extends AndroidUnitTest {
     public void shouldOmitDeviceLocaleHeaderIfLocaleUnavailable() throws Exception {
         when(localeHeaderFormatter.getFormattedLocale()).thenReturn(Optional.<String>absent());
 
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
 
         ApiResponse response = apiClient.fetchResponse(request);
@@ -128,7 +128,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Test
     public void shouldAddScalarQueryParametersToHttpRequest() throws Exception {
         ApiRequest request = ApiRequest.get(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .addQueryParam("k1", "v1")
                 .build();
         mockSuccessfulResponseFor(request);
@@ -141,7 +141,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Test
     public void shouldAddMultiDimensionalQueryParametersToHttpRequest() throws Exception {
         ApiRequest request = ApiRequest.get(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .addQueryParam("k1", "v1", "v2")
                 .build();
         mockSuccessfulResponseFor(request);
@@ -153,7 +153,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldForwardRequestHeaders() throws Exception {
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).withHeader("key", "value").build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().withHeader("key", "value").build();
         mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
@@ -163,12 +163,12 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldSynthesizeContentTypeHeaderWithVersionForMobileApiRequests() throws Exception {
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
 
-        assertThat(httpRequestCaptor.getValue().headers("Accept")).containsExactly("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+        assertThat(httpRequestCaptor.getValue().headers("Accept")).containsExactly("application/json; charset=utf-8");
     }
 
     @Test
@@ -183,7 +183,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldAddOAuthHeader() throws Exception {
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
@@ -193,7 +193,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldAddUDIDHeaderIfAvailable() throws IOException {
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
@@ -203,7 +203,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldAddAdIdHeadersIfAvailable() throws IOException {
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
@@ -215,7 +215,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Test
     public void shouldOmitAdIdHeadersIfUnvailable() throws IOException {
         when(adIdHelper.getAdId()).thenReturn(Optional.<String>absent());
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
@@ -229,7 +229,7 @@ public class ApiClientTest extends AndroidUnitTest {
         when(httpCall.execute()).thenReturn(
                 TestHttpResponses.response(200).build(),
                 TestHttpResponses.response(401).build());
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockRequestBuilderFor(request);
         when(accountOperations.hasValidToken()).thenReturn(true);
 
@@ -244,7 +244,7 @@ public class ApiClientTest extends AndroidUnitTest {
         when(httpCall.execute()).thenReturn(
                 TestHttpResponses.response(200).build(),
                 TestHttpResponses.response(401).build());
-        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockRequestBuilderFor(request);
         when(accountOperations.hasValidToken()).thenReturn(false);
 
@@ -256,7 +256,7 @@ public class ApiClientTest extends AndroidUnitTest {
     public void shouldMakePostRequestToApiMobileWithJsonContentProvidedInRequest() throws Exception {
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.post(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .withContent(new ApiTrack())
                 .build();
         mockJsonResponseFor(request, 200, JSON_DATA);
@@ -266,14 +266,14 @@ public class ApiClientTest extends AndroidUnitTest {
         assertThat(httpRequestCaptor.getValue().method()).isEqualTo("POST");
         assertThat(httpRequestCaptor.getValue().body().contentLength()).isEqualTo((long) JSON_DATA.length());
         assertThat(httpRequestCaptor.getValue().body().contentType().toString())
-                .isEqualTo("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+                .isEqualTo("application/json; charset=utf-8");
     }
 
     @Test
     public void shouldMakePostRequestToApiMobileWithoutContent() throws Exception {
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.post(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
         mockSuccessfulResponseFor(request);
 
@@ -282,14 +282,14 @@ public class ApiClientTest extends AndroidUnitTest {
         assertThat(httpRequestCaptor.getValue().method()).isEqualTo("POST");
         assertThat(httpRequestCaptor.getValue().body().contentLength()).isEqualTo(0L);
         assertThat(httpRequestCaptor.getValue().body().contentType().toString())
-                .isEqualTo("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+                .isEqualTo("application/json; charset=utf-8");
     }
 
     @Test
     public void shouldMakePutRequestToApiMobileWithJsonContentProvidedInRequest() throws Exception {
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.put(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .withContent(new ApiTrack())
                 .build();
         mockSuccessfulResponseFor(request);
@@ -299,7 +299,7 @@ public class ApiClientTest extends AndroidUnitTest {
         assertThat(httpRequestCaptor.getValue().method()).isEqualTo("PUT");
         assertThat(httpRequestCaptor.getValue().body().contentLength()).isEqualTo((long) JSON_DATA.length());
         assertThat(httpRequestCaptor.getValue().body().contentType().toString())
-                .isEqualTo("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+                .isEqualTo("application/json; charset=utf-8");
     }
 
     @Test
@@ -319,7 +319,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Test
     public void shouldMakePostRequestToApiMobileWithMultipartFileContent() throws Exception {
         ApiRequest request = ApiRequest.post(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .withFormPart(new StringPart("str", "value"))
                 .withFormPart(new FilePart("file1.png", new File("/path"), "file1", "image/png"))
                 .build();
@@ -335,7 +335,7 @@ public class ApiClientTest extends AndroidUnitTest {
     public void shouldWrapRequestBodyInProgressRequestBodyWhenProgressListenerSet() throws Exception {
         ProgressListener progressListener = mock(ProgressListener.class);
         ApiRequest request = ApiRequest.post(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .withFormPart(new FilePart("file1.png", new File("/path"), "file1", "image/png"))
                 .withProgressListener(progressListener)
                 .build();
@@ -349,7 +349,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Test
     public void shouldSendDeleteRequest() throws Exception {
         ApiRequest request = ApiRequest.delete(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
         mockSuccessfulResponseFor(request);
         ApiResponse response = apiClient.fetchResponse(request);
@@ -363,7 +363,7 @@ public class ApiClientTest extends AndroidUnitTest {
         final ApiTrack mappedTrack = new ApiTrack();
         when(jsonTransformer.fromJson(JSON_DATA, TypeToken.of(ApiTrack.class))).thenReturn(mappedTrack);
         ApiRequest request = ApiRequest.get(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
         mockJsonResponseFor(request, 200, JSON_DATA);
         ApiTrack resource = apiClient.fetchMappedResponse(request, ApiTrack.class);
@@ -374,7 +374,7 @@ public class ApiClientTest extends AndroidUnitTest {
     public void shouldThrowMappingExceptionIfParsedToUnknownResource() throws Exception {
         when(jsonTransformer.fromJson(eq(JSON_DATA), any(TypeToken.class))).thenReturn(new UnknownResource());
         ApiRequest request = ApiRequest.get(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
         mockJsonResponseFor(request, 200, JSON_DATA);
         apiClient.fetchMappedResponse(request, ApiTrack.class);
@@ -383,7 +383,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Test(expected = ApiMapperException.class)
     public void shouldThrowMappingExceptionIfResponseBodyIsBlank() throws Exception {
         ApiRequest request = ApiRequest.get(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
         mockJsonResponseFor(request, 200, "");
         apiClient.fetchMappedResponse(request, ApiTrack.class);
@@ -392,7 +392,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Test(expected = ApiRequestException.class)
     public void shouldThrowMappingExceptionIfResponseWasUnsuccessful() throws Exception {
         ApiRequest request = ApiRequest.get(URL)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
         mockJsonResponseFor(request, 500, "");
         apiClient.fetchMappedResponse(request, ApiTrack.class);
@@ -401,7 +401,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Test(expected = IllegalStateException.class)
     public void shouldThrowWhenAssertingBackgroundThreadButExecutingOnMainThread() throws Exception {
         apiClient.setAssertBackgroundThread(true);
-        apiClient.fetchResponse(ApiRequest.get(URL).forPrivateApi(1).build());
+        apiClient.fetchResponse(ApiRequest.get(URL).forPrivateApi().build());
     }
 
     private void mockSuccessfulResponseFor(ApiRequest request) throws IOException {

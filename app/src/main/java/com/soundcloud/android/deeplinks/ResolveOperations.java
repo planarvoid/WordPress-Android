@@ -68,7 +68,7 @@ class ResolveOperations {
     private ApiResolvedResource resolveResource(@NonNull String identifier)
             throws ApiRequestException, IOException, ApiMapperException {
         ApiRequest request = ApiRequest.get(ApiEndpoints.RESOLVE_ENTITY.path())
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .addQueryParam("identifier", identifier)
                 .build();
 

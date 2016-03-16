@@ -108,7 +108,7 @@ public class PlaylistDiscoveryOperations {
 
     private Observable<List<String>> fetchAndCachePopularTags() {
         ApiRequest request = ApiRequest.get(ApiEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
         final TypeToken<ModelCollection<String>> resourceType = new TypeToken<ModelCollection<String>>() {
         };
@@ -152,7 +152,7 @@ public class PlaylistDiscoveryOperations {
     }
 
     private ApiRequest.Builder createPlaylistResultsRequest(String url) {
-        return ApiRequest.get(url).forPrivateApi(1);
+        return ApiRequest.get(url).forPrivateApi();
     }
 
     private Observable<SearchResult> getPlaylistResultsPage(String query, ApiRequest request) {

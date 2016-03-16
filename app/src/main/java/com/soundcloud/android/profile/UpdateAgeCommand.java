@@ -28,7 +28,7 @@ class UpdateAgeCommand extends LegacyCommand<BirthdayInfo, Boolean, UpdateAgeCom
         body.put("month", input.getMonth());
         body.put("year", input.getYear());
 
-        ApiRequest request = ApiRequest.put(ApiEndpoints.MY_DOB.path()).forPrivateApi(1).withContent(body).build();
+        ApiRequest request = ApiRequest.put(ApiEndpoints.MY_DOB.path()).forPrivateApi().withContent(body).build();
         ApiResponse response = apiClient.fetchResponse(request);
         return response.isSuccess();
     }

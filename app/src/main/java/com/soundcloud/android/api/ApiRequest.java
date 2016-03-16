@@ -1,7 +1,6 @@
 package com.soundcloud.android.api;
 
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.api.oauth.OAuth;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class ApiRequest {
@@ -29,13 +27,12 @@ public class ApiRequest {
     static final String HTTP_PUT = "PUT";
     static final String HTTP_DELETE = "DELETE";
 
-    private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json; charset=utf-8";
+    private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/json; charset=utf-8";
     // do not use MediaType.JSON_UTF8; the public API does not accept qualified media types that include charsets
     private static final String PUBLIC_API_ACCEPT_CONTENT_TYPE = "application/json";
 
     private final Uri uri;
     private final String httpMethod;
-    private final int endpointVersion;
     private final Boolean isPrivate;
     private final MultiMap<String, String> queryParams;
     private final Map<String, String> headers;
@@ -56,12 +53,11 @@ public class ApiRequest {
         return new Builder(uri, HTTP_DELETE);
     }
 
-    ApiRequest(Uri uri, String method, int endpointVersion,
+    ApiRequest(Uri uri, String method,
                Boolean isPrivate, MultiMap<String, String> queryParams,
                Map<String, String> headers) {
         this.uri = uri;
         this.httpMethod = method;
-        this.endpointVersion = endpointVersion;
         this.isPrivate = isPrivate;
         this.queryParams = queryParams;
         this.headers = headers;
@@ -77,10 +73,6 @@ public class ApiRequest {
 
     public String getMethod() {
         return httpMethod;
-    }
-
-    public int getVersion() {
-        return endpointVersion;
     }
 
     public boolean isPrivate() {
@@ -99,7 +91,7 @@ public class ApiRequest {
 
     public String getAcceptMediaType() {
         return isPrivate
-                ? String.format(Locale.US, PRIVATE_API_ACCEPT_CONTENT_TYPE, endpointVersion)
+                ? PRIVATE_API_ACCEPT_CONTENT_TYPE
                 : PUBLIC_API_ACCEPT_CONTENT_TYPE;
     }
 
@@ -127,7 +119,6 @@ public class ApiRequest {
     public static class Builder {
         private final Uri uri;
         private final String httpMethod;
-        private int endpointVersion;
         private Boolean isPrivate;
         private final MultiMap<String, String> parameters;
         private final Map<String, String> headers;
@@ -144,22 +135,18 @@ public class ApiRequest {
 
         public ApiRequest build() {
             checkNotNull(isPrivate, "Must specify api mode");
-            if (isPrivate) {
-                checkArgument(endpointVersion > 0, "Not a valid api version: " + endpointVersion);
-            }
             if (content != null) {
-                return new ApiObjectContentRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers, content);
+                return new ApiObjectContentRequest(uri, httpMethod, isPrivate, parameters, headers, content);
             } else if (formParts != null) {
-                return new ApiMultipartRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers,
+                return new ApiMultipartRequest(uri, httpMethod, isPrivate, parameters, headers,
                         formParts, progressListener);
             } else {
-                return new ApiRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers);
+                return new ApiRequest(uri, httpMethod, isPrivate, parameters, headers);
             }
         }
 
-        public Builder forPrivateApi(int version) {
+        public Builder forPrivateApi() {
             isPrivate = true;
-            endpointVersion = version;
             return this;
         }
 
@@ -220,7 +207,6 @@ public class ApiRequest {
         return MoreObjects.toStringHelper(this).omitNullValues()
                 .add("uri", uri.toString())
                 .add("httpMethod", httpMethod)
-                .add("endPointVersion", endpointVersion)
                 .add("isPrivate", isPrivate).toString();
     }
 }

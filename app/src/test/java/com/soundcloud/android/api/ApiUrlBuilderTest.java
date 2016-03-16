@@ -44,14 +44,14 @@ public class ApiUrlBuilderTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildFullUrlFromApiMobileRequestWithRelativeUrl() {
-        ApiRequest request = ApiRequest.get("/path").forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get("/path").forPrivateApi().build();
         final String url = urlBuilder.from(request).build();
         assertThat(url).isEqualTo("https://api-mobile.soundcloud.com/path?client_id=test_client_id");
     }
 
     @Test
     public void shouldBuildFullUrlFromApiMobileRequestWithAbsoluteUrl() {
-        ApiRequest request = ApiRequest.get("http://api.com/path").forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get("http://api.com/path").forPrivateApi().build();
         final String url = urlBuilder.from(request).build();
         assertThat(url).isEqualTo("http://api.com/path?client_id=test_client_id");
     }

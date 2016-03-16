@@ -196,7 +196,7 @@ public class ConfigurationOperations {
         Log.d(TAG, "Forcing device registration");
         final ApiRequest request = ApiRequest.post(ApiEndpoints.CONFIGURATION.path())
                 .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token))
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
 
         return apiClient.fetchMappedResponse(request, Configuration.class).deviceManagement;
@@ -204,7 +204,7 @@ public class ConfigurationOperations {
 
     public Observable<Object> deregisterDevice() {
         return apiClientRx.response(ApiRequest.delete(ApiEndpoints.CONFIGURATION.path())
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build())
                 .doOnNext(new Action1<ApiResponse>() {
                     @Override
@@ -225,7 +225,7 @@ public class ConfigurationOperations {
     private ApiRequest.Builder configurationRequestBuilderForGet() {
         return ApiRequest.get(ApiEndpoints.CONFIGURATION.path())
                 .addQueryParam(PARAM_EXPERIMENT_LAYERS, experimentOperations.getActiveLayers())
-                .forPrivateApi(1);
+                .forPrivateApi();
     }
 
     void saveConfiguration(Configuration configuration) {

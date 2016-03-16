@@ -43,7 +43,7 @@ class ExploreTracksOperations {
 
     Observable<ExploreGenresSections> getCategories() {
         ApiRequest request = ApiRequest.get(ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
         return apiClientRx.mappedResponse(request, ExploreGenresSections.class).subscribeOn(scheduler);
     }
@@ -65,7 +65,7 @@ class ExploreTracksOperations {
     private Observable<SuggestedTracksCollection> getSuggestedTracks(String endpoint) {
         ApiRequest request = ApiRequest.get(endpoint)
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
 
         return apiClientRx.mappedResponse(request, SuggestedTracksCollection.class)

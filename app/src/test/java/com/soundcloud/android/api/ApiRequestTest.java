@@ -34,29 +34,8 @@ public class ApiRequestTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnRequestInstanceWithPostMethodSet() {
-        ApiRequest request = ApiRequest.post(URI_PATH).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.post(URI_PATH).forPrivateApi().build();
         assertThat(request.getMethod()).isEqualTo("POST");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldRaiseIllegalArgumentExceptionOnNegativeVersionValue() {
-        ApiRequest.get(URI_PATH).forPrivateApi(-1).build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldRaiseIllegalArgumentExceptionOnZeroVersionValueForPrivateAPI() {
-        ApiRequest.get(URI_PATH).forPrivateApi(0).build();
-    }
-
-    @Test
-    public void shouldReturnRequestInstanceWithVersionCodeSetForPrivateAPI() {
-        ApiRequest request = validRequest(URI_PATH).build();
-        assertThat(request.getVersion()).isEqualTo(1);
-    }
-
-    @Test
-    public void shouldAllowNoVersionForPublicAPI() {
-        ApiRequest.get("/uri").forPublicApi().build();
     }
 
     @Test(expected = NullPointerException.class)
@@ -135,8 +114,8 @@ public class ApiRequestTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnJsonAcceptMediaTypeForMobileApiRequests() {
-        final ApiRequest request = ApiRequest.get(URI_PATH).forPrivateApi(1).build();
-        assertThat(request.getAcceptMediaType()).isEqualTo("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+        final ApiRequest request = ApiRequest.get(URI_PATH).forPrivateApi().build();
+        assertThat(request.getAcceptMediaType()).isEqualTo("application/json; charset=utf-8");
     }
 
     @Test
@@ -170,7 +149,7 @@ public class ApiRequestTest extends AndroidUnitTest {
     }
 
     private ApiRequest.Builder validRequest(String uri) {
-        return ApiRequest.get(uri).forPrivateApi(1);
+        return ApiRequest.get(uri).forPrivateApi();
     }
 
 }

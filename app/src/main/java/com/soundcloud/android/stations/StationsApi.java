@@ -27,7 +27,7 @@ class StationsApi {
     Observable<ApiStation> fetchStation(Urn stationUrn) {
         final ApiRequest request = ApiRequest
                 .get(ApiEndpoints.STATION.path(stationUrn.toString()))
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
 
         return apiClientRx.mappedResponse(request, ApiStation.class);
@@ -37,7 +37,7 @@ class StationsApi {
         final ApiRequest request = ApiRequest
                 .post(ApiEndpoints.STATIONS.path())
                 .withContent(new StationsSyncPostBody(recentStationsToSync))
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
 
         return apiClient.fetchMappedResponse(request, ApiStationsCollections.class);
