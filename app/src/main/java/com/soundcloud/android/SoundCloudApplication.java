@@ -32,6 +32,7 @@ import com.soundcloud.android.playback.PlaybackServiceModule;
 import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.playback.RemoteAudioManagerUpdater;
 import com.soundcloud.android.playback.StreamPreloader;
+import com.soundcloud.android.playback.PlayQueueAdvancer;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
@@ -93,6 +94,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject PlayerWidgetController widgetController;
     @Inject PeripheralsController peripheralsController;
     @Inject PlaySessionController playSessionController;
+    @Inject PlayQueueAdvancer playQueueAdvancer;
     @Inject RemoteAudioManagerUpdater remoteAudioManagerUpdater;
     @Inject PlaySessionStateProvider playSessionStateProvider;
     @Inject PlaylistExploder playlistExploder;
@@ -182,6 +184,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         widgetController.subscribe();
         peripheralsController.subscribe();
         playSessionController.subscribe();
+        playQueueAdvancer.subscribe();
         playSessionStateProvider.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();

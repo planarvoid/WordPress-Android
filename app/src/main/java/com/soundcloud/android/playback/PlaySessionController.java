@@ -1,8 +1,6 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPPABLE;
-import static com.soundcloud.android.playback.Player.PlayerState;
-import static com.soundcloud.android.playback.Player.StateTransition;
 
 import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -21,7 +19,6 @@ import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -33,6 +30,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.util.concurrent.TimeUnit;
+
 
 @Singleton
 public class PlaySessionController {
@@ -49,7 +47,7 @@ public class PlaySessionController {
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final CastConnectionHelper castConnectionHelper;
-    private final NetworkConnectionHelper connectionHelper;
+
     private final Provider<PlaybackStrategy> playbackStrategyProvider;
     private final PlaybackToastHelper playbackToastHelper;
     private final AccountOperations accountOperations;
@@ -86,24 +84,6 @@ public class PlaySessionController {
         }
     };
 
-    private final Func1<StateTransition, Boolean> shouldAdvanceTracks = new Func1<StateTransition, Boolean>() {
-        @Override
-        public Boolean call(StateTransition stateTransition) {
-            return playQueueManager.isCurrentTrack(stateTransition.getUrn())
-                    && stateTransition.isPlayerIdle()
-                    && !stateTransition.isPlayQueueComplete()
-                    && (stateTransition.playbackEnded() || unrecoverableErrorDuringAutoplay(stateTransition));
-        }
-    };
-
-    private final Action1<StateTransition> reconfigureUpcomingAd = new Action1<StateTransition>() {
-        @Override
-        public void call(StateTransition stateTransition) {
-            adsController.reconfigureAdForNextTrack();
-            adsController.publishAdDeliveryEventIfUpcoming();
-        }
-    };
-
     @Inject
     public PlaySessionController(EventBus eventBus,
                                  AdsOperations adsOperations,
@@ -111,7 +91,6 @@ public class PlaySessionController {
                                  PlayQueueManager playQueueManager,
                                  PlaySessionStateProvider playSessionStateProvider,
                                  CastConnectionHelper castConnectionHelper,
-                                 NetworkConnectionHelper connectionHelper,
                                  Provider<PlaybackStrategy> playbackStrategyProvider,
                                  PlaybackToastHelper playbackToastHelper,
                                  AccountOperations accountOperations,
@@ -120,7 +99,6 @@ public class PlaySessionController {
         this.adsOperations = adsOperations;
         this.adsController = adsController;
         this.playQueueManager = playQueueManager;
-        this.connectionHelper = connectionHelper;
         this.playbackStrategyProvider = playbackStrategyProvider;
         this.playbackToastHelper = playbackToastHelper;
         this.accountOperations = accountOperations;
@@ -131,10 +109,6 @@ public class PlaySessionController {
 
     public void subscribe() {
         eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new PlayQueueTrackSubscriber());
-        eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .filter(shouldAdvanceTracks)
-                .doOnNext(reconfigureUpcomingAd)
-                .subscribe(new AdvanceTrackSubscriber());
     }
 
     public void reloadQueueAndShowPlayerIfEmpty() {
@@ -248,24 +222,6 @@ public class PlaySessionController {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
     }
 
-    private class AdvanceTrackSubscriber extends DefaultSubscriber<StateTransition> {
-        @Override
-        public void onNext(StateTransition stateTransition) {
-            if (!playQueueManager.autoMoveToNextPlayableItem()) {
-                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getUrn()));
-            } else if (!stateTransition.playSessionIsActive()) {
-                playCurrent();
-            }
-        }
-    }
-
-    private boolean unrecoverableErrorDuringAutoplay(StateTransition stateTransition) {
-        final TrackSourceInfo currentTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-        return stateTransition.wasError() && !stateTransition.wasGeneralFailure() &&
-                currentTrackSourceInfo != null && !currentTrackSourceInfo.getIsUserTriggered()
-                && connectionHelper.isNetworkConnected();
-    }
-
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
@@ -287,10 +243,6 @@ public class PlaySessionController {
                 }
             }
         }
-    }
-
-    private StateTransition createPlayQueueCompleteEvent(Urn trackUrn) {
-        return new StateTransition(PlayerState.IDLE, Player.Reason.PLAY_QUEUE_COMPLETE, trackUrn);
     }
 
     private class PlayCurrentSubscriber extends DefaultSubscriber<Void> {
