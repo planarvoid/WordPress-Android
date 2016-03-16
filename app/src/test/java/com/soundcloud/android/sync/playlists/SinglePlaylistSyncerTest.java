@@ -279,10 +279,10 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     }
 
     private void withPushes(Urn playlistUrn, PropertySet playlistMetadata, Urn... trackList) throws Exception {
+        final PlaylistApiUpdateObject expectedUpdateObject = PlaylistApiUpdateObject.create(playlistMetadata, Arrays.asList(trackList));
         when(apiClient.fetchMappedResponse(argThat(
-                isPublicApiRequestTo("put", ApiEndpoints.LEGACY_PLAYLIST_DETAILS.path(playlistUrn.getNumericId())).withContent(
-                        Collections.singletonMap("playlist", PlaylistApiUpdateObject.create(playlistMetadata, Arrays.asList(trackList)))))
-                , any(Class.class)))
+                isPublicApiRequestTo("put", ApiEndpoints.LEGACY_PLAYLIST_DETAILS.path(playlistUrn.getNumericId()))
+                        .withContent(Collections.singletonMap("playlist", expectedUpdateObject))), any(Class.class)))
                 .thenReturn(updatedPlaylist);
     }
 

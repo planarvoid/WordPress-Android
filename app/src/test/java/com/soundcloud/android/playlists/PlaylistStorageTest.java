@@ -25,7 +25,7 @@ import java.util.Date;
 public class PlaylistStorageTest extends StorageIntegrationTest {
 
     private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
-    
+
     private com.soundcloud.android.playlists.PlaylistStorage storage;
     @Mock AccountOperations accountOperations;
 
@@ -189,7 +189,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
         final PropertySet expected = TestPropertySets
-                .fromApiPlaylist(apiPlaylist, false, false, true, false)
+                .fromApiPlaylist(apiPlaylist, false,  false, true, false)
                 .put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
 
         assertThat(playlist).isEqualTo(expected);
@@ -257,7 +257,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         PropertySet playlist = storage.loadPlaylistModifications(apiPlaylist.getUrn());
 
         assertThat(playlist).isEqualTo(PropertySet.from(
-                TrackProperty.URN.bind(Urn.forPlaylist(apiPlaylist.getId())),
+                TrackProperty.URN.bind(apiPlaylist.getUrn()),
                 PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
                 PlayableProperty.IS_PRIVATE.bind(Sharing.PRIVATE.equals(apiPlaylist.getSharing()))));
     }
