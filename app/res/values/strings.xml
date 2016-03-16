@@ -907,7 +907,7 @@
     <!-- __STREAM -->
     <plurals name="stream_new_posts">
         <item quantity="one">1 new post</item>
-        <item quantity="other">%s new posts</item> <!-- 9+ new posts -->
+        <item quantity="other">%s new posts</item>
     </plurals>
 
     <!-- __KILL SWITCH -->
