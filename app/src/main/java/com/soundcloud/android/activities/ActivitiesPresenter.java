@@ -1,5 +1,9 @@
 package com.soundcloud.android.activities;
 
+import static com.soundcloud.android.rx.RxUtils.IS_VALID_TIMESTAMP;
+import static com.soundcloud.android.rx.RxUtils.continueWith;
+
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
@@ -11,22 +15,32 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.util.Date;
 
-class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> {
+class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> implements
+        NewItemsIndicator.Listener {
 
     private final ActivitiesOperations operations;
     private final ActivitiesAdapter adapter;
     private final TrackRepository trackRepository;
     private final Navigator navigator;
+    private final NewItemsIndicator newItemsIndicator;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
 
     @Inject
@@ -34,18 +48,24 @@ class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> {
                         ActivitiesOperations operations,
                         ActivitiesAdapter adapter,
                         TrackRepository trackRepository,
-                        Navigator navigator) {
+                        Navigator navigator,
+                        NewItemsIndicator newItemsIndicator) {
         super(swipeRefreshAttacher, Options.list().build());
         this.operations = operations;
         this.adapter = adapter;
         this.trackRepository = trackRepository;
         this.navigator = navigator;
+        this.newItemsIndicator = newItemsIndicator;
+
+        newItemsIndicator.setTextResourceId(R.plurals.activities_new_notification);
+        newItemsIndicator.setClickListener(this);
     }
 
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
+        refreshAndUpdateIndicator();
     }
 
     @Override
@@ -55,11 +75,14 @@ class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> {
         emptyView.setImage(R.drawable.empty_activity);
         emptyView.setMessageText(R.string.list_empty_notification_message);
         emptyView.setSecondaryText(R.string.list_empty_notification_secondary);
+
+        newItemsIndicator.setTextView((TextView) view.findViewById(R.id.new_items_indicator));
+        getRecyclerView().addOnScrollListener(newItemsIndicator.getScrollListener());
     }
 
     @Override
     protected CollectionBinding<ActivityItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(operations.updatedActivitiesWithFallback())
+        return CollectionBinding.from(operations.initialActivities())
                 .withAdapter(adapter)
                 .withPager(operations.pagingFunction())
                 .build();
@@ -103,4 +126,59 @@ class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> {
             navigator.openProfile(view.getContext(), userUrn);
         }
     }
+
+    private void softReload() {
+        adapter.clear();
+        rebuildBinding(null).connect();
+    }
+
+    @Override
+    public void onNewItemsIndicatorClicked() {
+        scrollToTop();
+        softReload();
+    }
+
+    private Observable<Long> mostRecentTimestamp() {
+        return Observable.create(new Observable.OnSubscribe<Long>() {
+            @Override
+            public void call(Subscriber<? super Long> subscriber) {
+                Date date = operations.getFirstItemTimestamp(adapter.getItems());
+                subscriber.onNext(date == null ? Consts.NOT_SET : date.getTime());
+                subscriber.onCompleted();
+            }
+        });
+    }
+
+    private void refreshAndUpdateIndicator() {
+        operations.updatedActivityItemsForStart()
+                .flatMap(continueWith(updateIndicatorFromMostRecent()))
+                .subscribe();
+    }
+
+    private Observable<Integer> updateIndicatorFromMostRecent() {
+        return mostRecentTimestamp()
+                .filter(IS_VALID_TIMESTAMP)
+                .flatMap(newItemsCount())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(updateNewItemsIndicator());
+    }
+
+    private Func1<Long, Observable<Integer>> newItemsCount() {
+        return new Func1<Long, Observable<Integer>>() {
+            @Override
+            public Observable<Integer> call(Long time) {
+                return operations.newItemsSince(time);
+            }
+        };
+    }
+
+    private Action1<Integer> updateNewItemsIndicator() {
+        return new Action1<Integer>() {
+            @Override
+            public void call(Integer newItems) {
+                newItemsIndicator.update(newItems);
+            }
+        };
+    }
+
 }

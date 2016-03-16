@@ -8,7 +8,6 @@ import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +23,13 @@ public class ActivitiesFragment extends LightCycleSupportFragment<ActivitiesFrag
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+        return inflater.inflate(getLayoutResource(), container, false);
+    }
+
+    private int getLayoutResource() {
+        return R.layout.default_recyclerview_with_refresh_and_new_items_indicator;
     }
 
     @Override

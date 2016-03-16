@@ -16,6 +16,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
+import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 
 import java.util.Date;
@@ -167,6 +168,15 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
                 expectedPropertiesFor(newestActivity),
                 expectedPropertiesFor(olderActivity)
         );
+    }
+
+    @Test
+    public void loadActivityItemsCountSinceOnlyCountsItemsNewerThanTheGivenTimestamp() {
+        TestObserver<Integer> observer = new TestObserver<>();
+
+        storage.timelineItemCountSince(TIMESTAMP).subscribe(observer);
+
+        assertThat(observer.getOnNextEvents()).containsExactly(2);
     }
 
     private PropertySet expectedPropertiesFor(ApiUserFollowActivity activity) {

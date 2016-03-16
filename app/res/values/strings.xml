@@ -807,6 +807,12 @@
         <item quantity="other">%s new posts</item>
     </plurals>
 
+    <!-- __ACTIVITIES -->
+    <plurals name="activities_new_notification">
+        <item quantity="one">1 new notification</item>
+        <item quantity="other">%s new notifications</item> <!-- 9+ new notifications -->
+    </plurals>
+
     <!-- __KILL SWITCH -->
     <string name="kill_switch_message">In order to continue using the SoundCloud app, please update to the latest version.</string>
     <string name="kill_switch_confirm">Update now</string>

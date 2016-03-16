@@ -1,5 +1,6 @@
 package com.soundcloud.android.activities;
 
+import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
@@ -32,6 +33,7 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
         }
     };
 
+    private final ActivitiesStorage activitiesStorage;
     private final Scheduler scheduler;
 
     @Inject
@@ -41,13 +43,21 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                          SyncStateStorage syncStateStorage) {
         super(SyncContent.MyActivities, activitiesStorage, syncInitiator, contentStats, scheduler, syncStateStorage);
+        this.activitiesStorage = activitiesStorage;
         this.scheduler = scheduler;
     }
 
-    public Observable<List<ActivityItem>> updatedActivitiesWithFallback() {
-        return updatedActivities()
-                .onErrorResumeNext(Observable.<List<ActivityItem>>just(null))
-                .flatMap(continueWith(initialActivities()));
+    public Observable<List<ActivityItem>> updatedActivityItemsForStart() {
+        return hasSyncedBefore()
+                .filter(IS_TRUE)
+                .flatMap(continueWith(updatedTimelineItems()))
+                .onErrorResumeNext(Observable.<List<ActivityItem>>empty())
+                .subscribeOn(scheduler);
+    }
+
+    public Observable<Integer> newItemsSince(long time) {
+        return activitiesStorage.timelineItemCountSince(time)
+                .subscribeOn(scheduler);
     }
 
     Observable<List<ActivityItem>> initialActivities() {
@@ -72,4 +82,5 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
     protected boolean isEmptyResult(List<ActivityItem> result) {
         return result.isEmpty();
     }
+
 }

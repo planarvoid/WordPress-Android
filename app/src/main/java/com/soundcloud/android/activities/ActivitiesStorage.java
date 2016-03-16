@@ -1,7 +1,10 @@
 package com.soundcloud.android.activities;
 
+import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.TableColumns.ActivityView;
 import com.soundcloud.android.storage.TableColumns.SoundView;
 import com.soundcloud.android.sync.timeline.TimelineStorage;
@@ -27,6 +30,13 @@ public class ActivitiesStorage implements TimelineStorage {
     public ActivitiesStorage(PropellerDatabase propeller, PropellerRx propellerRx) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
+    }
+
+    public Observable<Integer> timelineItemCountSince(final long timestamp) {
+        Query query = Query.count(Table.ActivityView.name())
+                .whereGt((Table.ActivityView.field(TableColumns.ActivityView.CREATED_AT)), timestamp);
+
+        return propellerRx.query(query).map(scalar(Integer.class));
     }
 
     @NonNull

@@ -160,7 +160,7 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
     }
 
     @Nullable
-    protected Date getFirstItemTimestamp(List<ItemT> items) {
+    public Date getFirstItemTimestamp(List<ItemT> items) {
         final ListIterator<ItemT> iterator = items.listIterator();
         if (iterator.hasNext()) {
             return iterator.next().getCreatedAt();

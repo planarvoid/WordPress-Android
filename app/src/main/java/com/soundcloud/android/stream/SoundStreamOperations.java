@@ -248,7 +248,7 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
 
     @Nullable
     @Override
-    protected Date getFirstItemTimestamp(List<StreamItem> items) {
+    public Date getFirstItemTimestamp(List<StreamItem> items) {
         final Optional<StreamItem> streamItem = getFirstOfKind(items, PLAYABLE);
         if (streamItem.isPresent()) {
             return streamItem.get().getCreatedAt();
