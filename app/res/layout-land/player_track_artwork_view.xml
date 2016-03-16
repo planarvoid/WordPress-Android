@@ -17,6 +17,4 @@
 
     </FrameLayout>
 
-    <View android:id="@+id/artwork_overlay_dark"
-          style="@style/PlayerTrackArtworkOverlay"/>
 </merge>

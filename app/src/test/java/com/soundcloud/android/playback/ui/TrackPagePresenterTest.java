@@ -24,6 +24,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
@@ -213,22 +214,17 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playingStateWithCurrentTrackShowsPlayingStateWithProgressOnArtwork() {
-        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20, dateProvider), true, true);
+    public void playingStateWithCurrentTrackSetsPlayStateOnArtwork() {
+        final Player.StateTransition state = TestPlayStates.playing(10, 20, dateProvider);
+        presenter.setPlayState(trackView, state, true, true);
 
-        verify(artworkController).showPlayingState(eq(new PlaybackProgress(10, 20, dateProvider)));
+        verify(artworkController).setPlayState(state, true);
     }
 
     @Test
     public void playingStateWithOtherTrackShowsIdleStateOnWaveform() {
         presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), false, true);
         verify(waveformViewController).showIdleState();
-    }
-
-    @Test
-    public void playingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
-        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), false, true);
-        verify(artworkController).showIdleState();
     }
 
     @Test
@@ -245,15 +241,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bufferingStateWithCurrentTrackShowsIdleStateWithProgressOnArtwork() {
-        presenter.setPlayState(trackView, TestPlayStates.buffering(10, 20), true, true);
-
-        verify(artworkController).showIdleState(progressArgumentCaptor.capture());
-        assertThat(progressArgumentCaptor.getValue().getPosition()).isEqualTo(10);
-        assertThat(progressArgumentCaptor.getValue().getDuration()).isEqualTo(20);
-    }
-
-    @Test
     public void bufferingStateWithOtherTrackClearsProgress() {
         presenter.setPlayState(trackView, TestPlayStates.buffering(), false, true);
 
@@ -267,33 +254,15 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bufferingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
-        presenter.setPlayState(trackView, TestPlayStates.buffering(), false, true);
-        verify(artworkController).showIdleState();
-    }
-
-    @Test
     public void idleStateWithCurrentTrackShowsIdleStateOnWaveform() {
         presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
-    public void idleStateWithCurrentTrackShowsIdleStateOnArtwork() {
-        presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
-        verify(artworkController).showIdleState();
-    }
-
-    @Test
     public void idleStateWithOtherTrackShowsIdleStateOnWaveform() {
         presenter.setPlayState(trackView, TestPlayStates.idle(), false, true);
         verify(waveformViewController).showIdleState();
-    }
-
-    @Test
-    public void idleStateWithOtherTrackShowsIdleStateOnArtwork() {
-        presenter.setPlayState(trackView, TestPlayStates.idle(), false, true);
-        verify(artworkController).showIdleState();
     }
 
     @Test

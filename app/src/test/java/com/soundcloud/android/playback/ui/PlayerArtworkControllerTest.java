@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,15 +29,15 @@ import android.widget.ImageView;
 import javax.inject.Provider;
 
 public class PlayerArtworkControllerTest extends AndroidUnitTest {
-    private static final int FULL_DURATION = 10000;
+    private static final long FULL_DURATION = 10000L;
     private PlayerArtworkController playerArtworkController;
 
     @Mock private ProgressController.Factory animationControllerFactory;
     @Mock private PlayerTrackArtworkView playerTrackArtworkView;
     @Mock private ProgressController progressController;
-    @Mock private ImageView wrappedImageView;
     @Mock private ImageView artworkOverlayImage;
     @Mock private View artworkIdleOverlay;
+    @Mock private ImageView wrappedImageView;
     @Mock private PlaybackProgress playbackProgress;
     @Mock private PlayerArtworkLoader playerArtworkLoader;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
@@ -48,6 +49,9 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         artworkHolder = new FrameLayout(context());
 
+        when(playerTrackArtworkView.getArtworkHolder()).thenReturn(artworkHolder);
+        when(playerTrackArtworkView.getWrappedImageView()).thenReturn(wrappedImageView);
+        when(playerTrackArtworkView.getImageOverlay()).thenReturn(artworkOverlayImage);
         when(playerTrackArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay_image)).thenReturn(artworkOverlayImage);
@@ -65,36 +69,36 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
 
     @Test
     public void showPlayingStateDoesNotStartProgressAnimationWithoutDuration() {
-        playerArtworkController.showPlayingState(playbackProgress);
+        playerArtworkController.setPlayState(TestPlayStates.playing(), true);
         verify(progressController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
     }
 
     @Test
     public void showPlayingStateStartsProgressAnimationWithProgressArgument() {
         playerArtworkController.setFullDuration(FULL_DURATION);
-        playerArtworkController.showPlayingState(playbackProgress);
-        verify(progressController).startProgressAnimation(playbackProgress, FULL_DURATION);
+        playerArtworkController.setPlayState(TestPlayStates.playing(), true);
+        verify(progressController).startProgressAnimation(any(PlaybackProgress.class), eq(FULL_DURATION));
     }
 
     @Test
     public void showPlayingStateDoesNotStartProgressAnimationIfScrubbing() {
         playerArtworkController.setFullDuration(FULL_DURATION);
         playerArtworkController.scrubStateChanged(ScrubController.SCRUB_STATE_SCRUBBING);
-        playerArtworkController.showPlayingState(playbackProgress);
+        playerArtworkController.setPlayState(TestPlayStates.playing(), true);
         verify(progressController, never()).startProgressAnimation(any(PlaybackProgress.class), anyLong());
     }
 
     @Test
     public void setDurationAfterShowPlayingStateStartsProgressAnimations() {
-        playerArtworkController.showPlayingState(playbackProgress);
+        playerArtworkController.setPlayState(TestPlayStates.playing(1, 2), true);
         playerArtworkController.setFullDuration(FULL_DURATION);
-        verify(progressController).startProgressAnimation(playbackProgress, FULL_DURATION);
+        verify(progressController).startProgressAnimation(any(PlaybackProgress.class), eq(FULL_DURATION));
     }
 
     @Test
     public void scrubStateCancelledStartsProgressAnimationFromLastPositionIfPlaying() {
         playerArtworkController.setFullDuration(FULL_DURATION);
-        playerArtworkController.showPlayingState(playbackProgress);
+        playerArtworkController.setPlayState(TestPlayStates.playing(), true);
         PlaybackProgress latest = new PlaybackProgress(5, 10);
 
         playerArtworkController.setProgress(latest);
@@ -112,15 +116,13 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
 
     @Test
     public void showIdleStateCancelsProgressAnimation() {
-        playerArtworkController.showIdleState();
+        playerArtworkController.setPlayState(TestPlayStates.idle(), true);
         verify(progressController).cancelProgressAnimation();
     }
 
     @Test
     public void showIdleStateWithProgressDoesNotSetProgressIfDurationNotSet() {
-        final PlaybackProgress progress = new PlaybackProgress(5, 10);
-
-        playerArtworkController.showIdleState(progress);
+        playerArtworkController.setPlayState(TestPlayStates.idle(), true);
 
         verify(progressController, never()).setPlaybackProgress(any(PlaybackProgress.class), anyLong());
     }
@@ -128,17 +130,17 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     @Test
     public void showIdleStateWithProgressSetsProgressIfDurationSet() {
         playerArtworkController.setFullDuration(FULL_DURATION);
-        final PlaybackProgress progress = new PlaybackProgress(5, 10);
 
-        playerArtworkController.showIdleState(progress);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(1, 2);
+        playerArtworkController.setProgress(playbackProgress);
 
-        verify(progressController).setPlaybackProgress(progress, FULL_DURATION);
+        verify(progressController).setPlaybackProgress(playbackProgress, FULL_DURATION);
     }
 
     @Test
     public void showIdleStateWithEmptyProgressDoesNotSetProgress() {
         playerArtworkController.setFullDuration(FULL_DURATION);
-        playerArtworkController.showIdleState(PlaybackProgress.empty());
+        playerArtworkController.setPlayState(TestPlayStates.idle(1, 2), true);
 
         verify(progressController, never()).setPlaybackProgress(any(PlaybackProgress.class), anyLong());
     }
@@ -175,6 +177,7 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     @Test
     public void clearClearsWrappedImageView() {
         playerArtworkController.clear();
+
         verify(wrappedImageView).setImageDrawable(null);
     }
 

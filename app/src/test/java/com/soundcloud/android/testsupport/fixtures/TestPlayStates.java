@@ -27,6 +27,10 @@ public class TestPlayStates {
         return new StateTransition(PlayerState.IDLE, Reason.NONE, URN);
     }
 
+    public static StateTransition idle(long position, long duration) {
+        return new StateTransition(PlayerState.IDLE, Reason.NONE, URN, position, duration);
+    }
+
     public static StateTransition idleDefault() {
         return new StateTransition(PlayerState.IDLE, Reason.NONE, Urn.NOT_SET);
     }
