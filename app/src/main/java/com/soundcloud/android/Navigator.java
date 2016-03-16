@@ -224,7 +224,7 @@ public class Navigator {
 
     public void openNotificationPreferencesFromDeeplink(Context context) {
         context.startActivity(new Intent(context, NotificationPreferencesActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+                .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
     }
 
     public void openLegal(Context context) {

@@ -141,8 +141,7 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openNotificationPreferencesFromDeeplink(activityContext);
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(NotificationPreferencesActivity.class)
-                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK);
+                .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     }
 
     @Test
