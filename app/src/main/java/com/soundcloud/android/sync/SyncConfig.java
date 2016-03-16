@@ -26,6 +26,8 @@ public class SyncConfig {
     static int[] DEFAULT_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24};
     static int[] USER_BACKOFF_MULTIPLIERS = new int[]{1, 2, 3};
 
+    private static final String PREF_SYNC_WIFI_ONLY = "syncWifiOnly";
+
     private final SharedPreferences sharedPreferences;
     private final CurrentDateProvider dateProvider;
     private final Context context;
@@ -37,8 +39,12 @@ public class SyncConfig {
         this.context = context;
     }
 
+    public boolean isSyncWifiOnlyEnabled() {
+        return sharedPreferences.getBoolean(PREF_SYNC_WIFI_ONLY, true);
+    }
+
     public boolean shouldSyncCollections() {
-        return IOUtils.isWifiConnected(context);
+        return !isSyncWifiOnlyEnabled() || IOUtils.isWifiConnected(context);
     }
 
     public boolean shouldSync(String prefKey, long max) {
