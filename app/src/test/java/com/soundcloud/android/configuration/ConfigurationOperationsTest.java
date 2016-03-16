@@ -129,10 +129,10 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void awaitConfigurationWithPlanReturnsExpectedConfigurationOnFirstAttempt() {
+    public void awaitConfigurationWithPlanReturnsExpectedConfigurationOnFirstAttempt() throws Exception {
         final Configuration highTier = getHighTierConfiguration();
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
-                .thenReturn(Observable.just(highTier));
+        when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(highTier);
 
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
 
@@ -142,11 +142,11 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void awaitConfigurationWithPlanStopsPollingWhenExpectedPlanIsReturned() {
+    public void awaitConfigurationWithPlanStopsPollingWhenExpectedPlanIsReturned() throws Exception {
         final Configuration noPlan = getNoPlanConfiguration();
         final Configuration withPlan = getHighTierConfiguration();
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
-                .thenReturn(Observable.just(noPlan), Observable.just(withPlan));
+        when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(noPlan, withPlan);
 
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
 
@@ -160,10 +160,10 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void awaitConfigurationWithPlanSavesConfigurationWhenExpectedPlanIsReturned() {
+    public void awaitConfigurationWithPlanSavesConfigurationWhenExpectedPlanIsReturned() throws Exception{
         final Configuration withPlan = getHighTierConfiguration();
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
-                .thenReturn(Observable.just(withPlan));
+        when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(withPlan);
 
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
@@ -206,11 +206,11 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void awaitConfigurationFromPendingPlanChangeAwaitsPendingHighTierUpgrade() {
+    public void awaitConfigurationFromPendingPlanChangeAwaitsPendingHighTierUpgrade() throws Exception {
         when(configurationSettingsStorage.getPendingPlanUpgrade()).thenReturn(Plan.HIGH_TIER);
         final Configuration highTier = getHighTierConfiguration();
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
-                .thenReturn(Observable.just(highTier));
+        when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(highTier);
 
         operations.awaitConfigurationFromPendingPlanChange().subscribe(configSubscriber);
 
@@ -220,11 +220,11 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void awaitConfigurationFromPendingPlanChangeAwaitsPendingDowngrade() {
+    public void awaitConfigurationFromPendingPlanChangeAwaitsPendingDowngrade() throws Exception {
         when(configurationSettingsStorage.getPendingPlanDowngrade()).thenReturn(Plan.FREE_TIER);
         final Configuration noPlan = getNoPlanConfiguration();
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
-                .thenReturn(Observable.just(noPlan));
+        when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(noPlan);
 
         operations.awaitConfigurationFromPendingPlanChange().subscribe(configSubscriber);
 
