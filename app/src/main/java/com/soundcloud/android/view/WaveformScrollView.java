@@ -9,14 +9,18 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 import android.widget.EdgeEffect;
 import android.widget.HorizontalScrollView;
+import android.widget.OverScroller;
 
 import java.lang.reflect.Field;
 
 public class WaveformScrollView extends HorizontalScrollView {
 
-    private static final int BASE_OVERSCROLL_DISTANCE = 60;
+    private static final int BASE_OVERSCROLL_DISTANCE = 40;
+    private static final int FRICTION_MULTIPLIER = 2;
+
     @Nullable private OnScrollListener listener;
 
     private int areaWidth = Consts.NOT_SET;
@@ -46,10 +50,25 @@ public class WaveformScrollView extends HorizontalScrollView {
 
     private void init(Context context) {
         adjustedMaxOverScrollX = (int) (BASE_OVERSCROLL_DISTANCE * context.getResources().getDisplayMetrics().density);
-        killEdgeEffect(context);
+        customize(context);
     }
 
-    private void killEdgeEffect(Context context) {
+    private void customize(Context context) {
+        setScrollFriction();
+        hideEdgeGlow(context);
+    }
+
+    private void setScrollFriction() {
+        try {
+            Field scroller = HorizontalScrollView.class.getDeclaredField("mScroller");
+            scroller.setAccessible(true);
+            ((OverScroller) scroller.get(this)).setFriction(ViewConfiguration.getScrollFriction() * FRICTION_MULTIPLIER);
+        } catch (Exception e) {
+            ErrorUtils.handleSilentException("Unable to set scroll speed", e);
+        }
+    }
+
+    private void hideEdgeGlow(Context context) {
         try {
             Field edgeGlowLeft = HorizontalScrollView.class.getDeclaredField("mEdgeGlowLeft");
             edgeGlowLeft.setAccessible(true);
