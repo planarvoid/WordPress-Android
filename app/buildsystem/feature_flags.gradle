@@ -9,7 +9,6 @@ enum Feature {
   NEW_NOTIFICATION_SETTINGS,
   AUTO_REFRESH_STREAM,
   WEB_UPGRADE_FLOW,
-  SERVE_DEMO_VIDEO_AD,
   STATIONS_HOME,
   PUBLISH_PLAY_EVENTS_TO_TPUB,
   DISCOVERY_CHARTS,
@@ -25,7 +24,6 @@ android {
     buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), FALSE
     buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), FALSE
     buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), FALSE
-    buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), FALSE
     buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), FALSE
     buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
@@ -39,9 +37,9 @@ android {
     alpha {
       buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), TRUE
       buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), TRUE
-      buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), TRUE // Does nothing unless FEATURE_VIDEO_ADS is enabled
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }
@@ -57,9 +55,9 @@ android {
       buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), TRUE
       buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), TRUE
-      buildConfigField BOOLEAN, Feature.SERVE_DEMO_VIDEO_AD.name(), TRUE // Does nothing unless FEATURE_VIDEO_ADS is enabled
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
+      buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
     }

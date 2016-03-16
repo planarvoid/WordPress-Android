@@ -461,7 +461,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void shouldBindAdViewForAudioAds() {
         presenter.onResume(playerFragment);
         View pageView = getAudioAdPageView();
-        ArgumentCaptor<PlayerAd> captorPropertySet = ArgumentCaptor.forClass(PlayerAd.class);
+        ArgumentCaptor<AudioPlayerAd> captorPropertySet = ArgumentCaptor.forClass(AudioPlayerAd.class);
 
         verify(audioAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
 
@@ -479,7 +479,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         verify(videoAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
 
-        assertThat(captorPropertySet.getValue().getArtwork()).isNotNull();
         assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
         assertThat(captorPropertySet.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
     }

@@ -15,15 +15,15 @@ public abstract class ApiVideoSource {
     };
 
     @JsonCreator
-    public static ApiVideoSource create(@JsonProperty("codec") String codec,
+    public static ApiVideoSource create(@JsonProperty("type") String type,
                                         @JsonProperty("url") String url,
                                         @JsonProperty("bitrate_kbps") int bitRate,
                                         @JsonProperty("width") int width,
                                         @JsonProperty("height") int height) {
-        return new AutoValue_ApiVideoSource(codec, url, bitRate, width, height);
+        return new AutoValue_ApiVideoSource(type, url, bitRate, width, height);
     }
 
-    public abstract String getCodec();
+    public abstract String getType();
 
     public abstract String getUrl();
 

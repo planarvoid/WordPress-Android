@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import android.net.Uri;
+
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Lists;
@@ -13,11 +15,12 @@ public abstract class VideoAd extends PlayerAdData {
         final ApiVideoTracking videoTracking = apiVideoAd.getVideoTracking();
         return new AutoValue_VideoAd(
                 apiVideoAd.getAdUrn(),
-                CompanionAd.create(apiVideoAd.getVisualAd()),
                 videoTracking.impressionUrls,
                 videoTracking.finishUrls,
                 videoTracking.skipUrls,
+                VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties()),
                 Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoSource),
+                Uri.parse(apiVideoAd.getClickThroughUrl()),
                 videoTracking.startUrls,
                 videoTracking.firstQuartileUrls,
                 videoTracking.secondQuartileUrls,
@@ -36,6 +39,8 @@ public abstract class VideoAd extends PlayerAdData {
     }
 
     public abstract List<VideoSource> getVideoSources();
+
+    public abstract Uri getClickThroughUrl();
 
     public abstract List<String> getStartUrls();
 

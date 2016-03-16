@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class ApiVideoTracking {
+    public final List<String> clickUrls;
     public final List<String> impressionUrls;
     public final List<String> skipUrls;
 
@@ -20,7 +21,8 @@ public class ApiVideoTracking {
     public final List<String> exitFullScreenUrls;
 
     @JsonCreator
-    public ApiVideoTracking(@JsonProperty("impression_urls") List<String> impressionUrls,
+    public ApiVideoTracking(@JsonProperty("click_urls") List<String> clickUrls,
+                            @JsonProperty("impression_urls") List<String> impressionUrls,
                             @JsonProperty("skip_urls") List<String> skipUrls,
                             @JsonProperty("start_urls") List<String> startUrls,
                             @JsonProperty("first_quartile_urls") List<String> firstQuartileUrls,
@@ -31,6 +33,7 @@ public class ApiVideoTracking {
                             @JsonProperty("resume_urls") List<String> resumeUrls,
                             @JsonProperty("fullscreen_urls") List<String> fullScreenUrls,
                             @JsonProperty("exit_fullscreen_urls") List<String> exitFullScreenUrls) {
+        this.clickUrls = clickUrls;
         this.impressionUrls = impressionUrls;
         this.skipUrls = skipUrls;
         this.startUrls = startUrls;

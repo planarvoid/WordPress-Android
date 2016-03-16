@@ -149,6 +149,7 @@ public class AdFixtures {
 
     public static ApiVideoTracking getApiVideoAdTracking() {
         return new ApiVideoTracking(
+                Arrays.asList("video_click1", "video_click2"),
                 Arrays.asList("video_impression1", "video_impression2"),
                 Arrays.asList("video_skip1", "video_skip2"),
                 Arrays.asList("video_start1", "video_start2"),
@@ -174,9 +175,10 @@ public class AdFixtures {
     public static ApiVideoAd getApiVideoAd(List<ApiVideoSource> apiVideoSources) {
         return ApiVideoAd.create(
                 Urn.forAd("dfp", "905"),
+                "http://clickthrough.videoad.com",
+                getApiDisplayProperties(),
                 apiVideoSources,
-                getApiVideoAdTracking(),
-                getApiCompanionAd()
+                getApiVideoAdTracking()
         );
     }
 

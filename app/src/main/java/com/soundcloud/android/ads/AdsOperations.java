@@ -99,9 +99,7 @@ public class AdsOperations {
 
         if (monetizableItem instanceof TrackQueueItem) {
             TrackQueueItem trackQueueItem = (TrackQueueItem) monetizableItem;
-            if (featureFlags.isEnabled(Flag.VIDEO_ADS) && featureFlags.isEnabled(Flag.SERVE_DEMO_VIDEO_AD)) {
-                insertVideoAd(trackQueueItem, DemoVideoAdProvider.getRandomVideo());
-            } else if (featureFlags.isEnabled(Flag.VIDEO_ADS) && ads.videoAd().isPresent()) {
+            if (featureFlags.isEnabled(Flag.VIDEO_ADS) && ads.videoAd().isPresent()) {
                 insertVideoAd(trackQueueItem, ads.videoAd().get());
             } else if (ads.interstitialAd().isPresent()) {
                 applyInterstitialAd(ads.interstitialAd().get(), trackQueueItem);

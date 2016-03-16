@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-class AudioAdPresenter extends AdPagePresenter<PlayerAd> implements View.OnClickListener {
+class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.OnClickListener {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -101,7 +101,7 @@ class AudioAdPresenter extends AdPagePresenter<PlayerAd> implements View.OnClick
     }
 
     @Override
-    public void bindItemView(View view, PlayerAd playerAd) {
+    public void bindItemView(View view, AudioPlayerAd playerAd) {
         final Holder holder = getViewHolder(view);
         displayAdvertisement(playerAd, holder);
         displayPreview(playerAd, holder, imageOperations, resources);
@@ -155,7 +155,7 @@ class AudioAdPresenter extends AdPagePresenter<PlayerAd> implements View.OnClick
         setVisibility(false, holder.fullbleedAdViews);
     }
 
-    private void displayAdvertisement(PlayerAd playerAd, Holder holder) {
+    private void displayAdvertisement(AudioPlayerAd playerAd, Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.ads_advertisement));
         holder.footerAdTitle.setText(playerAd.getAdTitle());
         holder.adImageSubscription = imageOperations.adImage(playerAd.getArtwork()).subscribe(getAdImageSubscriber(holder));

@@ -166,7 +166,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         assertThat(videoSource.getBitRate()).isEqualTo(apiVideoSource.getBitRate());
         assertThat(videoSource.getWidth()).isEqualTo(apiVideoSource.getWidth());
         assertThat(videoSource.getHeight()).isEqualTo(apiVideoSource.getHeight());
-        assertThat(videoSource.getCodec()).isEqualTo(apiVideoSource.getCodec());
+        assertThat(videoSource.getType()).isEqualTo(apiVideoSource.getType());
     }
 
     private static ApiVideoSource createApiVideoSource(int width, int height, String type, int bitRate) {

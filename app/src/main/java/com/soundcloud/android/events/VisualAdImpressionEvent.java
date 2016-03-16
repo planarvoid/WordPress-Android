@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -11,12 +12,12 @@ import java.util.List;
 public class VisualAdImpressionEvent extends TrackingEvent {
     private List<String> impressionUrls;
 
-    public VisualAdImpressionEvent(PlayerAdData adData, Urn audioAdTrack, Urn userUrn, TrackSourceInfo sessionSource) {
+    public VisualAdImpressionEvent(AudioAd adData, Urn audioAdTrack, Urn userUrn, TrackSourceInfo sessionSource) {
         this(adData, audioAdTrack, userUrn, sessionSource, System.currentTimeMillis());
     }
 
     @VisibleForTesting
-    public VisualAdImpressionEvent(PlayerAdData adData, Urn audioAdTrack, Urn userUrn, TrackSourceInfo sessionSource, long timeStamp) {
+    public VisualAdImpressionEvent(AudioAd adData, Urn audioAdTrack, Urn userUrn, TrackSourceInfo sessionSource, long timeStamp) {
         super(KIND_DEFAULT, timeStamp);
         put(AdTrackingKeys.KEY_USER_URN, userUrn.toString());
         put(AdTrackingKeys.KEY_AD_TRACK_URN, audioAdTrack.toString());
