@@ -628,4 +628,204 @@
     <item quantity="one">%s novo som</item>
     <item quantity="other">%s novos sons</item>
   </plurals>
+  <!--__SUBS-->
+  <string name="pref_subscriptions_header">Assinaturas</string>
+  <string name="pref_subscription_buy_title">Atualizar</string>
+  <string name="pref_subscription_buy_summary">Atualize sua conta</string>
+  <string name="pref_subscription_restore_title">Restaurar</string>
+  <string name="pref_subscription_restore_summary">Restaurar uma assinatura existente</string>
+  <!--__CONVERSION-->
+  <string name="conversion_page_title">Inscrever</string>
+  <string name="conversion_title">Obter SoundCloud Go</string>
+  <string name="conversion_price">%s / mês</string>
+  <string name="conversion_feature_1">Reproduzir todas as faixas</string>
+  <string name="conversion_feature_2">Ouvir off-line em qualquer lugar</string>
+  <string name="conversion_feature_3">Retirar anúncios</string>
+  <string name="conversion_buy_loading">Carregando…</string>
+  <string name="conversion_buy_trial">Teste grátis por %d dias</string>
+  <string name="conversion_buy_no_trial">Faz o upgrade agora</string>
+  <string name="conversion_retry_heading">Ups... tente novamente</string>
+  <string name="conversion_retry_message">Parece que deu alguma coisa errada. Tente novamente.</string>
+  <string name="conversion_retry_button">Tenta novamente</string>
+  <string name="conversion_buy_retry">Falha no carregamento. Tentar novamente?</string>
+  <string name="conversion_restrictions">Aplicam-se restrições</string>
+  <string name="conversion_restrictions_dialog_title">Aplicam-se restrições</string>
+  <string name="conversion_restrictions_dialog_message">Oferta limitada para uma avaliação de 30 dias por usuário. Depois dos primeiros 30 dias, o usuário será cobrado mensalmente a menos que seja cancelado antes. A avaliação poderá ser canceladas a qualquer momento nos primeiros 30 dias.</string>
+  <string name="ads_why_ads_upsell_dialog_message">Todas as vezes que você ver ou ouvir um anúncio, os artistas são pagos. É assim que mantemos a SoundCloud grátis para os ouvintes.\n\nQuer saltar as interrupções? Retire os anúncios e continue apoiando seus artistas favoritos com o SoundCloud Go.</string>
+  <!--__PAYMENTS-->
+  <string name="payments_error_title_unavailable">Produto indisponível</string>
+  <string name="payments_error_title_no_billing">Cobrança indisponível</string>
+  <string name="payments_error_title_already_subscribed">Já há uma assinatura ativa</string>
+  <string name="payments_error_title_unconfirmed_email">E-mail não confirmado</string>
+  <string name="payments_error_title_canceled">Falha ao comprar</string>
+  <string name="payments_error_title_stale">Falha na validação do pagamento</string>
+  <string name="payments_error_title_wrong_user">Assinatura errada do usuário</string>
+  <string name="payments_error_title_verification_fail">Falha na verificação do pagamento</string>
+  <string name="payments_error_title_verification_timeout">Tempo limite esgotado para verificação do pagamento</string>
+  <string name="payments_error_unavailable">Houve um problema ao tentar se conectar à loja de aplicativos. Tente novamente.</string>
+  <string name="payments_error_no_billing">Parece que não há loja de aplicativos válidos neste dispositivo.</string>
+  <string name="payments_error_already_subscribed">Parece que já há uma assinatura ativa vinculada à sua conta.</string>
+  <string name="payments_error_unconfirmed_email">Confirme seu endereço de e-mail para comprar o SoundCloud Go. Verifique sua caixa de entrada para obter instruções de confirmação.</string>
+  <string name="payments_error_cancelled">Não conseguimos concluir a compra. Tente novamente.</string>
+  <string name="payments_error_stale">Passou muito tempo para validar seu pagamento. Se este problema persistir, entre em contato com nossa equipe de suporte.</string>
+  <string name="payments_error_wrong_user">Sua assinatura está associada a uma conta diferente na SoundCloud. Garanta que sua conta da SoundCloud coincida com a assinatura na sua conta do Google Play.</string>
+  <string name="payments_error_verification_issue">Não conseguimos verificar seu pagamento. Tente novamente mais tarde.</string>
+  <string name="payments_sign_out">Sair</string>
+  <!--__OFFLINE SYNC-->
+  <string name="offline_track_not_available">A faixa não está disponível offline</string>
+  <string name="offline_update_completed_title">Todas as faixas salvas offline</string>
+  <string name="offline_update_completed_message">Pronto para a escuta offline</string>
+  <string name="offline_update_storage_limit_reached_title">Limite de armazenamento atingido</string>
+  <string name="offline_update_storage_limit_reached_message">Toque aqui para ver as configurações de armazenamento</string>
+  <string name="offline_update_in_progress">Salvando offline</string>
+  <string name="offline_likes_dialog_title">Salvar suas curtidas offline</string>
+  <string name="offline_likes_dialog_message">Isso vai salvar as curtidas atuais e futuras offline, assim você poderá ouvir sem conexão Wi-Fi ou de dados.</string>
+  <string name="make_offline_available">Salvar off-line</string>
+  <string name="make_offline_unavailable">Remover do modo off-line</string>
+  <string name="offline_dialog_go_online_continue">Continuar</string>
+  <string name="offline_dialog_go_online_error_title">Não foi possível verificar sua assinatura</string>
+  <string name="offline_dialog_go_online_error_content">Como este dispositivo ficou offline por mais de 30 dias, não conseguimos verificar sua assinatura. Para obter acesso novamente ao seu conteúdo offline, conecte-se à Internet com este dispositivo.</string>
+  <string name="offline_update_paused">Pausa ao salvar offline</string>
+  <string name="no_network_connection">Sem conexão de rede</string>
+  <string name="no_wifi_connection">Sem conexão Wi-Fi</string>
+  <string name="offline_not_available_offline">Não disponível off-line</string>
+  <!--__GO ONBOARDING-->
+  <string name="go_onboarding_header">Bem-vindo ao SoundCloud Go</string>
+  <string name="go_onboarding_title">Salvar sua música offline</string>
+  <string name="go_onboarding_subtext">Use a seta para salvar todas as suas curtidas ou\nqualquer uma de suas playlists offline.</string>
+  <string name="go_onboarding_start">OK, entendi</string>
+  <string name="go_onboarding_retry">Falha no carregamento. Tentar novamente?</string>
+  <string name="go_onboarding_error_dialog_title">Ocorreu um erro</string>
+  <string name="go_onboarding_error_dialog_msg">Houve um problema ao ativar seus novos recursos e conteúdo. Reinicie o aplicativo.</string>
+  <string name="go_onboarding_error_dialog_button">Tente novamente mais tarde</string>
+  <string name="go_onboarding_offline_settings_title">Salve tudo automaticamente</string>
+  <string name="go_onboarding_offline_settings_subtext">A escolha dessa opção vai salvar todas as suas curtidas e playlists atuais e futuros offline automaticamente.</string>
+  <string name="go_onboarding_offline_settings_continue">OK, entendi</string>
+  <!--__GO OFFBOARDING-->
+  <string name="go_offboarding_title">Sua assinatura da SoundCloud Go terminou</string>
+  <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
+  <string name="go_offboarding_description">Ficamos tristes em ver que você está indo embora.
+Se você sente falta de um acesso offline sem anúncio ao nosso catálogo expandido, não se preocupe. Você poderá voltar a qualquer momento.</string>
+  <string name="go_offboarding_primary_button_text">Assinar novamente</string>
+  <string name="go_offboarding_secondary_button_text">Continuar</string>
+  <!--__OFFLINE SETTINGS-->
+  <string name="pref_offline_offline_collection">Salvar automaticamente</string>
+  <string name="pref_offline_offline_collection_description_off">Ative este recurso para salvar todas as suas curtidas e playlists atuais e futuras offline.</string>
+  <string name="pref_offline_offline_collection_description_on">Desative isso para parar de salvar automaticamente e remover tudo o que foi salvo offline.</string>
+  <string name="pref_offline_wifi_only_sync">Salvar apenas por Wi-Fi</string>
+  <string name="pref_offline_wifi_only_description">Quando ele for ligado, somente salvaremos as faixas offline com uma conexão Wi-Fi.</string>
+  <string name="pref_offline_storage_limit">Limite de armazenamento</string>
+  <string name="pref_offline_storage_limit_description">Isso definirá a quantidade de armazenamento disponível que poder ser usada para a escuta offline.</string>
+  <string name="pref_offline_storage_free_gb">%1$.1f GB livres de %2$.1f GB</string>
+  <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
+  <string name="pref_offline_storage_usage">Utilização de armazenamento</string>
+  <string name="pref_offline_used_by_other_apps">Usados por outros apps</string>
+  <string name="pref_offline_used">Usado</string>
+  <string name="pref_offline_limit">Limite</string>
+  <string name="pref_offline_remove_all_offline_content">Remover conteúdo salvo offline</string>
+  <string name="pref_offline_remove_all_offline_content_description">Isso vai remover qualquer conteúdo que seja armazenado no dispositivo.</string>
+  <string name="remove_offline_content_title">Remover tudo da escuta offline?</string>
+  <string name="remove_offline_content_body_default">Você está prestes a remover tudo da escuta offline.</string>
+  <string name="remove_offline_content_body_sync_collection">Você está prestes a remover tudo da escuta offline. Além disso, suas novas curtidas e playlists não serão mais salvas automaticamente.</string>
+  <string name="offline_cannot_set_limit_below_usage">O limite não pode ser definido abaixo do uso de armazenamento atual.</string>
+  <string name="sign_out_title_offline">Quando o usuário se desconectar, todas as faixas offline serão removidas</string>
+  <string name="sign_out_description_offline">Na próxima que você fizer login, vai conseguir decidir quais faixas e playlists devem ser salvas novamente.</string>
+  <string name="disable_offline_collection_title">Parar de salvar automaticamente as playlists e curtidas?</string>
+  <string name="disable_offline_collection_body">Suas novas curtidas e playlists não serão mais salvas automaticamente, e os sons salvos atuais serão removidos da escuta offline.</string>
+  <!--offline playlist creation-->
+  <string name="add_playlist_offline">Disponível offline</string>
+  <!--offline settings-->
+  <string name="title_offline_settings">Configurações de escuta offline</string>
+  <string name="you_offline_sync_settings">Configurações de escuta offline</string>
+  <string name="unlimited">ilimitado</string>
+  <plurals name="downloading_track_of_tracks">
+    <item quantity="one">%1$d faixa</item>
+    <item quantity="other">%1$d de %2$d faixas</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_title">
+    <item quantity="one">Verificar sua assinatura em %d dia</item>
+    <item quantity="other">Verificar sua assinatura em %d dias</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_content">
+    <item quantity="one">Seu dispositivo precisa estar online pelo menos uma vez a cada 30 dias para verificar sua assinatura. Fique online novamente em %d dia para manter acessível o conteúdo que você salvou offline.</item>
+    <item quantity="other">Seu dispositivo precisa estar online pelo menos uma vez a cada 30 dias para verificar sua assinatura. Fique online novamente em %d dias para manter acessível o conteúdo que você salvou offline. </item>
+  </plurals>
+  <!--__DEVICE MANAGEMENT-->
+  <string name="device_management_limit_title">Você atingiu o limite do seu dispositivo</string>
+  <string name="device_management_limit_active">Você já tem o SoundCloud Go em três dispositivos. Se você registrar este dispositivo, vamos cancelar o registro automaticamente do que você não usa há mais tempo.</string>
+  <string name="device_management_limit_registered">Você já tem o SoundCloud Go em dez dispositivos. Você precisa sair em um dispositivo para logar com este.</string>
+  <string name="device_management_conflict_message">Como você atingiu o limite do seu dispositivo SoundCloud Go, saímos completamente deste dispositivo e cancelamos sua inscrição. Tudo o que você salvou offline foi removido. Você precisa  fazer login antes de registrar novamente este dispositivo.</string>
+  <string name="device_management_register">Registrar</string>
+  <!--__PROFILE-->
+  <string name="user_profile_sounds_header_spotlight">Spotlight</string>
+  <string name="user_profile_sounds_header_tracks">Faixas</string>
+  <string name="user_profile_sounds_header_releases">Versões</string>
+  <string name="user_profile_sounds_header_playlists">Playlists</string>
+  <string name="user_profile_sounds_header_reposts">Republicações</string>
+  <string name="user_profile_sounds_header_likes">Curtidas</string>
+  <string name="user_profile_sounds_divider_temp_text">DIVISOR</string>
+  <string name="user_profile_sounds_view_all">Ver tudo</string>
+  <!--__UPSELL-->
+  <string name="upsell_remove_ads">Retirar anúncios</string>
+  <string name="upsell_stream_upgrade_button">Obter SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_title">Fazer upgrade para o SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_description">Obtenha nosso catálogo expandido, com escuta offline e sem anúncios.</string>
+  <string name="upsell_track_preview">Pré-vizualização</string>
+  <string name="upsell_track_geo_blocked">Não disponível no seu país</string>
+  <!--__STATIONS-->
+  <string name="station_type_track">Estação de faixa</string>
+  <string name="station_type_genre">Estação de gênero</string>
+  <string name="station_type_curator">Estação de curador</string>
+  <string name="stations_collection_title_saved_stations">Suas estações</string>
+  <string name="stations_collection_title_track_recommendations">Recomendações de faixa</string>
+  <string name="stations_collection_title_curator_recommendations">Recomendações do curador</string>
+  <string name="stations_collection_title_genre_recommendations">Recomendações de gênero</string>
+  <string name="station_bucket_action_text">Exibir tudo</string>
+  <!--__STREAMING-->
+  <string name="concurrent_streaming_stopped">Pausado porque você começou a reproduzir em outro dispositivo</string>
+  <!--__PLAYER-->
+  <string name="playback_error_blocked">Não disponível em\nseu país</string>
+  <string name="playback_preview_indicator">visualizar</string>
+  <string name="playback_upsell_button">Ouvir faixa completa</string>
+  <!--__SEARCH-->
+  <plurals name="search_premium_content_results_count">
+    <item quantity="one">Foi encontrado %1$d resultado no SoundCloud Go</item>
+    <item quantity="other">Foram encontrados %1$d resultados no SoundCloud Go</item>
+  </plurals>
+  <string name="search_premium_content_view_all">Ver todos os resultados do SoundCloud Go</string>
+  <string name="search_premium_content_upsell">Atualizar para ouvir as faixas completas</string>
+  <!--__NOTIFICATION SETTINGS-->
+  <string name="new_notification_settings">(Novo) Configurações de notificação</string>
+  <string name="push_notifications_all_title">Notificações push</string>
+  <string name="push_notifications_all_summary">Ativar todas as notificações móveis\nou selecionar qual receber</string>
+  <string name="push_notifications_follower">Novo seguidor</string>
+  <string name="push_notifications_repost">Republicação do seu post</string>
+  <string name="push_notifications_new_post">Novo post de usuário sendo seguido</string>
+  <string name="push_notifications_like">Curtir seu post</string>
+  <string name="push_notifications_product_updates">Atualizações do produto</string>
+  <string name="push_notifications_survey">Convidar para pesquisa</string>
+  <string name="push_notifications_tips">Dicas e práticas recomendadas</string>
+  <string name="email_notifications_all_title">Notificações de e-mail</string>
+  <string name="email_notifications_all_summary">Ativar todas as notificações de e-mail\nou selecionar qual receber</string>
+  <string name="email_notifications_follower">Novo seguidor</string>
+  <string name="email_notifications_repost">Republicação do seu post</string>
+  <string name="email_notifications_new_post">Novo post de usuário sendo seguido</string>
+  <string name="email_notifications_like">Curtir seu post</string>
+  <string name="email_notifications_message">Nova mensagem</string>
+  <string name="email_notifications_comment">Comentar seu post</string>
+  <string name="email_notifications_group">Nova postagem de grupo</string>
+  <string name="email_notifications_product_updates">Atualizações do produto</string>
+  <string name="email_notifications_survey">Convidar para pesquisa</string>
+  <string name="email_notifications_tips">Dicas e práticas recomendadas</string>
+  <string name="email_notifications_newsletter">Newsletter da SoundCloud</string>
+  <!--__STREAM-->
+  <plurals name="stream_new_posts">
+    <item quantity="one">1 nova postagem</item>
+    <item quantity="other">%s novas postagens</item>
+  </plurals>
+  <!--__KILL SWITCH-->
+  <string name="kill_switch_message">Para continuar usando o aplicativo SoundCloud, atualize para a versão mais recente.</string>
+  <string name="kill_switch_confirm">Atualizar agora</string>
+  <!--__COLLECTIONS-->
+  <string name="collections_options_toggle_offline">Off-line</string>
 </resources>
