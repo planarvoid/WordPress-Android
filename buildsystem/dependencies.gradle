@@ -48,7 +48,7 @@ ext {
           comscore                    : "com.comscore:comscore:3.1508.28",
           adjustAndroid               : "com.adjust.sdk:adjust-android:4.1.2",
           crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.5",
-          appBoy                      : "com.appboy:android-sdk-ui:1.11.0",
+          appBoy                      : "com.appboy:android-sdk-ui:1.13.2",
           newRelic                    : "com.newrelic.agent.android:android-agent:5.3.3",
 
           // utility libraries
