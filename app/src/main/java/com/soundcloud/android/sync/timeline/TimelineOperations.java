@@ -192,7 +192,8 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
         return hasSyncedBefore()
                 .filter(IS_TRUE)
                 .flatMap(continueWith(updatedTimelineItems()))
-                .onErrorResumeNext(Observable.<List<ItemT>>empty());
+                .onErrorResumeNext(Observable.<List<ItemT>>empty())
+                .subscribeOn(scheduler);
     }
 
     public Observable<Integer> newItemsSince(long time) {

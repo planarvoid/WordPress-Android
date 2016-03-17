@@ -55,11 +55,6 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
         return updatedTimelineItems().subscribeOn(scheduler);
     }
 
-    Observable<List<ActivityItem>> updatedActivitiesForStart() {
-        return updatedTimelineItemsForStart()
-                .subscribeOn(scheduler);
-    }
-
     @Override
     protected Func1<List<PropertySet>, List<ActivityItem>> toViewModels() {
         return TO_VIEW_MODELS;
