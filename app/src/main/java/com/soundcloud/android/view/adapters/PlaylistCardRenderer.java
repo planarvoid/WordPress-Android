@@ -186,6 +186,13 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
             this.clickListener = cardEngagementClickListener;
         }
 
+        @Override
+        public void hideRepostStats() {
+            if (repostButton != null) {
+                repostButton.setVisibility(View.GONE);
+            }
+        }
+
         @Nullable
         @OnClick(R.id.toggle_repost)
         public void repost() {

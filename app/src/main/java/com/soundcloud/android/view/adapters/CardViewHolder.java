@@ -9,4 +9,6 @@ public interface CardViewHolder {
     void showRepostStats(String countString, boolean reposted);
 
     void setEngagementClickListener(CardEngagementClickListener cardEngagementClickListener);
+
+    void hideRepostStats();
 }
