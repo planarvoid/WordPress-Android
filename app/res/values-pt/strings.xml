@@ -763,7 +763,6 @@ Se você sente falta de um acesso offline sem anúncio ao nosso catálogo expand
   <string name="user_profile_sounds_header_playlists">Playlists</string>
   <string name="user_profile_sounds_header_reposts">Republicações</string>
   <string name="user_profile_sounds_header_likes">Curtidas</string>
-  <string name="user_profile_sounds_divider_temp_text">DIVISOR</string>
   <string name="user_profile_sounds_view_all">Ver tudo</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Retirar anúncios</string>

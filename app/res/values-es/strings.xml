@@ -761,7 +761,6 @@
   <string name="user_profile_sounds_header_playlists">Listas</string>
   <string name="user_profile_sounds_header_reposts">Reposts</string>
   <string name="user_profile_sounds_header_likes">Me gusta</string>
-  <string name="user_profile_sounds_divider_temp_text">SEPARADOR</string>
   <string name="user_profile_sounds_view_all">Ver todos</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Sin anuncios</string>
