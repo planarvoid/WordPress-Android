@@ -34,7 +34,7 @@ class MyLikesPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<List<PropertySet>, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(profileOperations.pagedLikes(), pageTransformer)
                 .withAdapter(adapter)
                 .withPager(profileOperations.likesPagingFunction())
@@ -42,7 +42,7 @@ class MyLikesPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onRefreshBinding() {
+    protected CollectionBinding<List<PropertySet>, PlayableItem> onRefreshBinding() {
         return CollectionBinding.from(profileOperations.updatedLikes(), pageTransformer)
                 .withAdapter(adapter)
                 .withPager(profileOperations.likesPagingFunction())

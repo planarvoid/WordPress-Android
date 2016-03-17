@@ -24,7 +24,7 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
+class StationsHomePresenter extends RecyclerViewPresenter<List<StationBucket>, StationBucket> {
     private final Func1<SyncResult, Observable<List<StationBucket>>> toBuckets = new Func1<SyncResult, Observable<List<StationBucket>>>() {
         @Override
         public Observable<List<StationBucket>> call(SyncResult ignored) {
@@ -75,7 +75,7 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
     }
 
     @Override
-    protected CollectionBinding<StationBucket> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<List<StationBucket>, StationBucket> onBuildBinding(Bundle bundle) {
         return CollectionBinding
                 .from(buckets())
                 .withAdapter(adapter)
@@ -83,7 +83,7 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
     }
 
     @Override
-    protected CollectionBinding<StationBucket> onRefreshBinding() {
+    protected CollectionBinding<List<StationBucket>, StationBucket> onRefreshBinding() {
         return CollectionBinding
                 .from(operations.sync().flatMap(toBuckets))
                 .withAdapter(adapter)

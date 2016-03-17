@@ -106,7 +106,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         );
         when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
 
-        CollectionBinding<StreamItem> binding = presenter.onBuildBinding(null);
+        CollectionBinding<List<StreamItem>, StreamItem> binding = presenter.onBuildBinding(null);
         binding.connect();
         binding.items().subscribe(itemObserver);
 
@@ -120,7 +120,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 Collections.singletonList(streamItem)
         ));
 
-        CollectionBinding<StreamItem> binding = presenter.onRefreshBinding();
+        CollectionBinding<List<StreamItem>, StreamItem> binding = presenter.onRefreshBinding();
         binding.connect();
         binding.items().subscribe(itemObserver);
 

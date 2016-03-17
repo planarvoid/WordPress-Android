@@ -33,7 +33,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> implements CollectionAdapter.Listener, CollectionPlaylistOptionsPresenter.Listener, OnboardingItemCellRenderer.Listener {
+public class CollectionPresenter extends RecyclerViewPresenter<MyCollection, CollectionItem> implements CollectionAdapter.Listener, CollectionPlaylistOptionsPresenter.Listener, OnboardingItemCellRenderer.Listener {
 
     private static final int NON_PLAYLIST_COLLECTION_ITEMS = 4;
 
@@ -193,7 +193,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
     }
 
     @Override
-    protected CollectionBinding<CollectionItem> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<MyCollection, CollectionItem> onBuildBinding(Bundle bundle) {
         final Observable<MyCollection> collections = collectionOperations.collections(currentOptions).observeOn(AndroidSchedulers.mainThread());
         return CollectionBinding.from(collections.doOnNext(new OnCollectionLoadedAction()), toCollectionItems)
                 .withAdapter(adapter)
@@ -201,7 +201,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<CollectionItem> i
     }
 
     @Override
-    protected CollectionBinding<CollectionItem> onRefreshBinding() {
+    protected CollectionBinding<MyCollection, CollectionItem> onRefreshBinding() {
         final Observable<MyCollection> collections =
                 collectionOperations.updatedCollections(currentOptions)
                         .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.COLLECTIONS)))

@@ -50,6 +50,7 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implements
         FacebookListenerInvitesItemRenderer.Listener,
@@ -116,7 +117,7 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
     }
 
     @Override
-    protected CollectionBinding<StreamItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<List<StreamItem>, StreamItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(streamOperations.initialStreamItems())
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
@@ -124,7 +125,7 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
     }
 
     @Override
-    protected CollectionBinding<StreamItem> onRefreshBinding() {
+    protected CollectionBinding<List<StreamItem>, StreamItem> onRefreshBinding() {
         newItemsIndicator.hideAndReset();
         return CollectionBinding.from(
                 streamOperations.updatedStreamItems()

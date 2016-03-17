@@ -23,7 +23,7 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-class ShowAllStationsPresenter extends RecyclerViewPresenter<StationViewModel> {
+class ShowAllStationsPresenter extends RecyclerViewPresenter<List<StationViewModel>, StationViewModel> {
     private static final String COLLECTION_TYPE_KEY = "type";
 
     private final Func1<SyncResult, Observable<List<StationViewModel>>> toStationViewModels = new Func1<SyncResult, Observable<List<StationViewModel>>>() {
@@ -94,7 +94,7 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<StationViewModel> {
     }
 
     @Override
-    protected CollectionBinding<StationViewModel> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<List<StationViewModel>, StationViewModel> onBuildBinding(Bundle bundle) {
         source = stationsSource(bundle);
 
         return CollectionBinding
@@ -104,7 +104,7 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<StationViewModel> {
     }
 
     @Override
-    protected CollectionBinding<StationViewModel> onRefreshBinding() {
+    protected CollectionBinding<List<StationViewModel>, StationViewModel> onRefreshBinding() {
         return CollectionBinding
                 .from(operations.sync().flatMap(toStationViewModels))
                 .withAdapter(adapter)

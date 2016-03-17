@@ -12,7 +12,7 @@ ext {
   androidMultiDex = "1.0.1"
   androidSupportVersion = '23.1.1'
   playServicesVersion = '7.8.0'
-  androidKitVersion = '0.45'
+  androidKitVersion = '0.46'
   lightCycleVersion = '0.1.1'
   daggerVersion = '1.2.2'
   propellerVersion = '0.61'

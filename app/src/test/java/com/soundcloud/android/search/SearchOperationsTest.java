@@ -386,7 +386,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 thenReturn(Observable.<Object>just(lastPage));
 
         final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchOperations.TYPE_PLAYLISTS);
-        final Pager<SearchResult, SearchResult> searchResultPager = Pager.create(pagingFunction);
+        final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
         searchResultPager.page(operations.searchResult("q", SearchOperations.TYPE_PLAYLISTS)).subscribe(subscriber);
         searchResultPager.next();
 
@@ -407,7 +407,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 thenReturn(Observable.<Object>just(lastPage));
 
         final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingPremiumFunction(SearchOperations.TYPE_PLAYLISTS);
-        final Pager<SearchResult, SearchResult> searchResultPager = Pager.create(pagingFunction);
+        final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
         searchResultPager.page(operations.searchPremiumResult("q", SearchOperations.TYPE_PLAYLISTS)).subscribe(subscriber);
         searchResultPager.next();
 
@@ -432,7 +432,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 .thenReturn(Observable.<Object>just(firstPage));
 
         final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchOperations.TYPE_PLAYLISTS);
-        final Pager<SearchResult, SearchResult> searchResultPager = Pager.create(pagingFunction);
+        final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
         searchResultPager.page(operations.searchResult("q", SearchOperations.TYPE_PLAYLISTS)).subscribe(subscriber);
         searchResultPager.next();
 

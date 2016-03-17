@@ -121,7 +121,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
         setupAdapter();
         when(featureOperations.upsellHighTier()).thenReturn(false);
 
-        final CollectionBinding<ListItem> collectionBinding = presenter.onBuildBinding(new Bundle());
+        final CollectionBinding<SearchResult, ListItem> collectionBinding = presenter.onBuildBinding(new Bundle());
         final ListItem firstListItem = collectionBinding.adapter().getItem(0);
 
         assertThat(firstListItem).isInstanceOf(TrackItem.class);

@@ -14,6 +14,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
+
 import android.os.Bundle;
 
 import javax.inject.Inject;
@@ -35,7 +36,7 @@ class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(USER_URN_KEY);
         return CollectionBinding.from(profileOperations.pagedLikes(userUrn), pageTransformer)
                 .withAdapter(adapter)

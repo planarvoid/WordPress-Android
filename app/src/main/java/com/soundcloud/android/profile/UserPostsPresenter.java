@@ -33,7 +33,7 @@ class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn urn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
         return CollectionBinding.from(profileOperations.pagedPostItems(urn), pageTransformer)
                 .withAdapter(adapter)

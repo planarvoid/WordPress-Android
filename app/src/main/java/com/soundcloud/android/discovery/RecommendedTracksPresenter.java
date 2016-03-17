@@ -30,7 +30,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
+class RecommendedTracksPresenter extends RecyclerViewPresenter<List<TrackItem>, TrackItem> {
 
     static final String EXTRA_LOCAL_SEED_ID = "localSeedId";
 
@@ -84,13 +84,13 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
     }
 
     @Override
-    protected CollectionBinding<TrackItem> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<List<TrackItem>, TrackItem> onBuildBinding(Bundle bundle) {
         localSeedId = bundle.getLong(EXTRA_LOCAL_SEED_ID);
         return createCollectionBinding();
     }
 
     @Override
-    protected CollectionBinding<TrackItem> onRefreshBinding() {
+    protected CollectionBinding<List<TrackItem>, TrackItem> onRefreshBinding() {
         return createCollectionBinding();
     }
 
@@ -99,7 +99,7 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private CollectionBinding<TrackItem> createCollectionBinding() {
+    private CollectionBinding<List<TrackItem>, TrackItem> createCollectionBinding() {
         return CollectionBinding
                 .from(discoveryOperations.recommendedTracksForSeed(localSeedId))
                 .withAdapter(adapter)
