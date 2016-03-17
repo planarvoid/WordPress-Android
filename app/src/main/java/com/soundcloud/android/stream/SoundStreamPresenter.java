@@ -28,7 +28,6 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.timeline.TimelinePresenter;
@@ -74,7 +73,6 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
     private final MixedItemClickListener itemClickListener;
     private final StationsOperations stationsOperations;
     private final Navigator navigator;
-    private final FeatureFlags featureFlags;
     private final NewItemsIndicator newItemsIndicator;
 
     private CompositeSubscription viewLifeCycle;
@@ -90,7 +88,6 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
                          MixedItemClickListener.Factory itemClickListenerFactory,
                          FacebookInvitesDialogPresenter invitesDialogPresenter,
                          Navigator navigator,
-                         FeatureFlags featureFlags,
                          NewItemsIndicator newItemsIndicator) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build(),
                 newItemsIndicator, streamOperations, adapter);
@@ -101,7 +98,6 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
         this.navigator = navigator;
-        this.featureFlags = featureFlags;
         this.newItemsIndicator = newItemsIndicator;
 
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);

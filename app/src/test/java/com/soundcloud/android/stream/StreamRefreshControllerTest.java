@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.StreamEvent;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -27,7 +26,6 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
 
     @Mock AppCompatActivity activity;
     @Mock SoundStreamOperations operations;
-    @Mock FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
     private TestDateProvider dateProvider = new TestDateProvider();
@@ -37,7 +35,7 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        controller = new StreamRefreshController(eventBus, operations, dateProvider, scheduler, featureFlags);
+        controller = new StreamRefreshController(eventBus, operations, dateProvider, scheduler);
         when(operations.updatedStreamItems()).thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
     }
 

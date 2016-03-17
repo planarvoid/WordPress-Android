@@ -399,7 +399,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openNotificationPreferences(context);
+        verify(navigator).openNotificationPreferencesFromDeeplink(context);
     }
 
     public void setupIntentForUrl(String url) {

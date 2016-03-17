@@ -25,7 +25,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -73,7 +72,6 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     @Mock private StationsOperations stationsOperations;
     @Mock private View view;
-    @Mock private FeatureFlags featureFlags;
     @Mock private NewItemsIndicator newItemsIndicator;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -91,11 +89,10 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
                 itemClickListenerFactory,
                 facebookInvitesDialogPresenter,
                 navigator,
-                featureFlags,
                 newItemsIndicator);
 
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<StreamItem>>empty());
-        when(streamOperations.updatedStreamItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<StreamItem>>singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);
     }
@@ -351,7 +348,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRefreshOnCreate() {
-        when(streamOperations.updatedStreamItemsForStart()).thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.<StreamItem>emptyList()));
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(new Date(123L));
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
 
@@ -362,7 +359,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotUpdateIndicatorWhenUpdatedItemsForStartIsEmpty() {
-        when(streamOperations.updatedStreamItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<StreamItem>>empty());
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(new Date(123L));
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
 

@@ -6,7 +6,6 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.rx.RxUtils.returning;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -30,7 +29,6 @@ public class StreamRefreshController extends DefaultActivityLightCycle<AppCompat
     private final SoundStreamOperations operations;
     private final CurrentDateProvider dateProvider;
     private final Scheduler scheduler;
-    private final FeatureFlags featureFlags;
 
     private CompositeSubscription subscription = new CompositeSubscription();
 
@@ -45,13 +43,11 @@ public class StreamRefreshController extends DefaultActivityLightCycle<AppCompat
     public StreamRefreshController(EventBus eventBus,
                                    SoundStreamOperations operations,
                                    CurrentDateProvider dateProvider,
-                                   @Named(LOW_PRIORITY) Scheduler scheduler,
-                                   FeatureFlags featureFlags) {
+                                   @Named(LOW_PRIORITY) Scheduler scheduler) {
         this.eventBus = eventBus;
         this.operations = operations;
         this.dateProvider = dateProvider;
         this.scheduler = scheduler;
-        this.featureFlags = featureFlags;
     }
 
     @Override

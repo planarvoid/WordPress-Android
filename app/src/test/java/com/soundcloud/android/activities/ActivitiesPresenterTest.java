@@ -144,7 +144,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRefreshOnCreate() {
-        when(operations.updatedActivitiesForStart()).thenReturn(Observable.just(Collections.<ActivityItem>emptyList()));
+        when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.<ActivityItem>emptyList()));
         when(operations.getFirstItemTimestamp(anyListOf(ActivityItem.class))).thenReturn(new Date(123L));
         when(operations.newItemsSince(123L)).thenReturn(Observable.just(5));
 
