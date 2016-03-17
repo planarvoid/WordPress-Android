@@ -110,7 +110,7 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
 
     private void loadArtwork(PlayableItem playableItem) {
         imageOperations.displayInAdapterView(
-                playableItem.getEntityUrn(), ApiImageSize.getFullImageSize(resources),
+                playableItem.getUrn(), ApiImageSize.getFullImageSize(resources),
                 getImage());
     }
 

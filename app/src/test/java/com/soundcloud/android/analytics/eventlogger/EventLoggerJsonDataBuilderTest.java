@@ -845,7 +845,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .monetizationType("promoted")
                 .adUrn(item.getAdUrn())
                 .promotedBy(promotedBy)
-                .clickObject(item.getEntityUrn().toString())
+                .clickObject(item.getUrn().toString())
                 .clickTarget(promotedBy)
                 .clickName("item_navigation"));
     }
@@ -863,7 +863,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .adUrn(item.getAdUrn())
                 .promotedBy(item.getPromoterUrn().get().toString())
                 .impressionName("promoted_track")
-                .impressionObject(item.getEntityUrn().toString()));
+                .impressionObject(item.getUrn().toString()));
     }
 
     @Test
@@ -879,7 +879,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .adUrn(item.getAdUrn())
                 .promotedBy(item.getPromoterUrn().get().toString())
                 .impressionName("promoted_playlist")
-                .impressionObject(item.getEntityUrn().toString()));
+                .impressionObject(item.getUrn().toString()));
     }
 
     @Test

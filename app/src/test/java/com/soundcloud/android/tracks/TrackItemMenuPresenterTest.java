@@ -80,7 +80,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingOnAddToLikesAddTrackLike() {
         final PublishSubject<PropertySet> likeObservable = PublishSubject.create();
-        when(likeOperations.toggleLike(trackItem.getEntityUrn(), !trackItem.isLiked())).thenReturn(likeObservable);
+        when(likeOperations.toggleLike(trackItem.getUrn(), !trackItem.isLiked())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         presenter.show(activity, view, trackItem, 0);
@@ -92,7 +92,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickRepostItemRepostsTrack() {
         final PublishSubject<PropertySet> repostObservable = PublishSubject.create();
-        when(repostOperations.toggleRepost(trackItem.getEntityUrn(), !trackItem.isReposted())).thenReturn(repostObservable);
+        when(repostOperations.toggleRepost(trackItem.getUrn(), !trackItem.isReposted())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
         presenter.show(activity, view, trackItem, 0);

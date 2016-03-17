@@ -157,7 +157,7 @@ class UserProfileOperations {
 
     private PropertySet createPostForPlayback(PlayableItem playableItem) {
         final PropertySet postForPlayback = PropertySet.from(
-                EntityProperty.URN.bind(playableItem.getEntityUrn())
+                EntityProperty.URN.bind(playableItem.getUrn())
         );
         if (playableItem.isRepost()) {
             postForPlayback.put(PostProperty.REPOSTER_URN, playableItem.getReposterUrn());

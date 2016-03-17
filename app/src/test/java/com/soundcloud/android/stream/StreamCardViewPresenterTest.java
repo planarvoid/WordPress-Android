@@ -19,7 +19,6 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -183,7 +182,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
         verify(imageOperations)
                 .displayInAdapterView(
-                        eq(playlistItem.getEntityUrn()),
+                        eq(playlistItem.getUrn()),
                         any(ApiImageSize.class),
                         any(ImageView.class));
 

@@ -131,7 +131,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     public void forwardsTrackClicksToClickListener() {
         final TrackItem clickedTrack = ModelFixtures.create(TrackItem.class);
         final Observable<List<PropertySet>> streamTracks = Observable.just(
-                Arrays.asList(clickedTrack.getEntityUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
+                Arrays.asList(clickedTrack.getUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
@@ -145,7 +145,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     public void tracksPromotedTrackItemClick() {
         final PromotedTrackItem clickedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         final Observable<List<PropertySet>> streamTracks = Observable.just(
-                Arrays.asList(clickedTrack.getEntityUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
+                Arrays.asList(clickedTrack.getUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
@@ -159,7 +159,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     public void tracksPromotedPlaylistItemClick() {
         final PromotedPlaylistItem clickedPlaylist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
         final Observable<List<PropertySet>> streamTracks = Observable.just(
-                Arrays.asList(clickedPlaylist.getEntityUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
+                Arrays.asList(clickedPlaylist.getUrn().toPropertySet(), Urn.forTrack(634L).toPropertySet()));
 
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
@@ -174,7 +174,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     public void forwardsPlaylistClicksToClickListener() {
         final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
         final Observable<List<PropertySet>> streamTracks = Observable.just(
-                Arrays.asList(playlistItem.getEntityUrn().toPropertySet(),
+                Arrays.asList(playlistItem.getUrn().toPropertySet(),
                         Urn.forTrack(634L).toPropertySet()));
 
         when(adapter.getItem(0)).thenReturn(playlistItem);

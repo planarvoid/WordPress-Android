@@ -99,7 +99,7 @@ public class UserItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, Arrays.asList(userItem));
         verify(imageOperations).displayCircularInAdapterView(
                 Urn.forUser(2),
-                ApiImageSize.getListItemImageSize(itemView.getContext()),
+                ApiImageSize.getListItemImageSize(itemView.getResources()),
                 (android.widget.ImageView) itemView.findViewById(R.id.image));
     }
 

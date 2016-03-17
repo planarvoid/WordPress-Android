@@ -2,6 +2,7 @@ package com.soundcloud.android.users;
 
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.java.collections.Property;
+import com.soundcloud.java.optional.Optional;
 
 public final class UserProperty extends EntityProperty {
 
@@ -15,4 +16,6 @@ public final class UserProperty extends EntityProperty {
     public static final Property<String> MYSPACE_NAME = Property.of(UserProperty.class, String.class);
     public static final Property<String> DISCOGS_NAME = Property.of(UserProperty.class, String.class);
     public static final Property<Long> ID = Property.of(UserProperty.class, Long.class);
+    public static final Property<Optional<String>> ARTWORK_URL_TEMPLATE =
+            Property.ofOptional(UserProperty.class, String.class);
 }

@@ -18,7 +18,7 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
 
         assertCommonProperties(click);
         assertThat(click.getKind()).isEqualTo("click");
-        assertThat(click.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(promotedTrack.getEntityUrn().toString());
+        assertThat(click.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(promotedTrack.getUrn().toString());
         assertThat(click.get(AdTrackingKeys.KEY_CLICK_TARGET_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
         assertThat(click.get(AdTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
     }
@@ -29,8 +29,8 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
 
         assertCommonProperties(click);
         assertThat(click.getKind()).isEqualTo("click");
-        assertThat(click.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(promotedTrack.getEntityUrn().toString());
-        assertThat(click.get(AdTrackingKeys.KEY_CLICK_TARGET_URN)).isEqualTo(promotedTrack.getEntityUrn().toString());
+        assertThat(click.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(promotedTrack.getUrn().toString());
+        assertThat(click.get(AdTrackingKeys.KEY_CLICK_TARGET_URN)).isEqualTo(promotedTrack.getUrn().toString());
         assertThat(click.get(AdTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
     }
 
@@ -55,7 +55,7 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
         assertThat(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("stream");
         assertThat(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("promoted");
         assertThat(event.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(promotedTrack.getAdUrn());
-        assertThat(event.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(promotedTrack.getEntityUrn().toString());
+        assertThat(event.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(promotedTrack.getUrn().toString());
     }
 
 }

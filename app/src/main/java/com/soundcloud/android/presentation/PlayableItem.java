@@ -27,7 +27,7 @@ public abstract class PlayableItem implements StreamItem {
     public static final Function<PlayableItem, Urn> TO_URN = new Function<PlayableItem, Urn>() {
         @Override
         public Urn apply(PlayableItem item) {
-            return item.getEntityUrn();
+            return item.getUrn();
         }
     };
 
@@ -57,7 +57,7 @@ public abstract class PlayableItem implements StreamItem {
     }
 
     @Override
-    public Urn getEntityUrn() {
+    public Urn getUrn() {
         return source.get(PlayableProperty.URN);
     }
 
@@ -119,6 +119,11 @@ public abstract class PlayableItem implements StreamItem {
 
     public int getRepostCount() {
         return source.getOrElse(PlayableProperty.REPOSTS_COUNT, 0);
+    }
+
+    @Override
+    public Optional<String> getArtworkUrlTemplate() {
+        return source.get(PlayableProperty.ARTWORK_URL_TEMPLATE);
     }
 
     public PropertySet getSource() {

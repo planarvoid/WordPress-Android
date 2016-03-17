@@ -7,7 +7,7 @@ public class StationOnboardingStreamItem extends NotificationItem {
     public static final Urn URN = new Urn("soundcloud:notifications:stations-onboarding");
 
     @Override
-    public Urn getEntityUrn() {
+    public Urn getUrn() {
         return URN;
     }
 

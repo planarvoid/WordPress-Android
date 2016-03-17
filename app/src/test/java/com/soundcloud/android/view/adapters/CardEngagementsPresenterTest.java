@@ -20,7 +20,6 @@ import com.soundcloud.android.stream.StreamItemViewHolder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -59,8 +58,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
                 numberFormatter, likeOperations, repostOperations, accountOperations, eventBus);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(999));
-        when(likeOperations.toggleLike(playableItem.getEntityUrn(), !playableItem.isLiked())).thenReturn(testSubject);
-        when(repostOperations.toggleRepost(playableItem.getEntityUrn(), !playableItem.isReposted())).thenReturn(testSubject);
+        when(likeOperations.toggleLike(playableItem.getUrn(), !playableItem.isLiked())).thenReturn(testSubject);
+        when(repostOperations.toggleRepost(playableItem.getUrn(), !playableItem.isReposted())).thenReturn(testSubject);
         when(viewHolder.getContext()).thenReturn(context());
         when(screenProvider.getLastScreenTag()).thenReturn("screen");
     }
@@ -86,7 +85,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
         captureListener().onLikeClick(view);
 
-        verify(likeOperations).toggleLike(playableItem.getEntityUrn(), !playableItem.isLiked());
+        verify(likeOperations).toggleLike(playableItem.getUrn(), !playableItem.isLiked());
         assertThat(testSubject.hasObservers()).isTrue();
     }
 
@@ -96,7 +95,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
         captureListener().onRepostClick(view);
 
-        verify(repostOperations).toggleRepost(playableItem.getEntityUrn(), !playableItem.isReposted());
+        verify(repostOperations).toggleRepost(playableItem.getUrn(), !playableItem.isReposted());
         assertThat(testSubject.hasObservers()).isTrue();
     }
 

@@ -19,7 +19,7 @@ public class UpdateCurrentDownloadSubscriber  extends DefaultSubscriber<OfflineC
         boolean changed = false;
 
         for (ListItem item : adapter.getItems()) {
-            if (event.entities.contains(item.getEntityUrn())){
+            if (event.entities.contains(item.getUrn())){
                 changed = true;
                 item.update(PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(event.state)));
             }

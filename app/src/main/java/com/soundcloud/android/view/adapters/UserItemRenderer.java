@@ -67,7 +67,7 @@ public class UserItemRenderer implements CellRenderer<UserItem> {
 
     private void loadImage(View itemView, UserItem user) {
         imageOperations.displayCircularInAdapterView(
-                user.getEntityUrn(), ApiImageSize.getListItemImageSize(itemView.getContext()),
+                user.getUrn(), ApiImageSize.getListItemImageSize(itemView.getResources()),
                 (ImageView) itemView.findViewById(R.id.image));
     }
 }

@@ -53,7 +53,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
         trackItem = TrackItem.from(propertySet);
 
         when(trackItemView.getImage()).thenReturn(imageView);
-        when(trackItemView.getContext()).thenReturn(context());
+        when(trackItemView.getResources()).thenReturn(resources());
         when(imageView.getContext()).thenReturn(context());
         when(itemView.getContext()).thenReturn(context());
         when(itemView.getTag()).thenReturn(trackItemView);

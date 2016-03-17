@@ -27,7 +27,7 @@ public class MixedPlayableRecyclerItemAdapter extends PagingRecyclerItemAdapter<
 
     @Override
     public int getBasicItemViewType(int position) {
-        if (getItem(position).getEntityUrn().isTrack()) {
+        if (getItem(position).getUrn().isTrack()) {
             return TRACK_ITEM_TYPE;
         } else {
             return PLAYLIST_ITEM_TYPE;

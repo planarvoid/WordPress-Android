@@ -54,7 +54,7 @@ class SoundStreamAdapter
     @Override
     public int getBasicItemViewType(int position) {
         StreamItem item = getItem(position);
-        Urn urn = item.getEntityUrn();
+        Urn urn = item.getUrn();
 
         if (urn.isTrack()) {
             return TRACK_ITEM_TYPE;
@@ -78,7 +78,7 @@ class SoundStreamAdapter
         for (StreamItem viewModel : getItems()) {
             if (viewModel instanceof TrackItem) {
                 final TrackItem trackModel = (TrackItem) viewModel;
-                trackModel.setIsPlaying(trackModel.getEntityUrn().equals(currentlyPlayingUrn));
+                trackModel.setIsPlaying(trackModel.getUrn().equals(currentlyPlayingUrn));
             }
         }
         notifyDataSetChanged();

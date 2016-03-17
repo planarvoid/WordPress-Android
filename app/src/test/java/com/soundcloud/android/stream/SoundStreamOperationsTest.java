@@ -437,7 +437,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     private void assertStreamItemAtPosition(Urn urn, int index) {
         final TestSubscriber<List<StreamItem>> subscriber = subscribeToInitialStream();
         final StreamItem firstItem = subscriber.getOnNextEvents().get(0).get(index);
-        assertThat(firstItem.getEntityUrn()).isEqualTo(urn);
+        assertThat(firstItem.getUrn()).isEqualTo(urn);
     }
 
     private void assertNoUpsellInStream() {

@@ -80,7 +80,7 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<TrackItem> {
 
     @Override
     protected void onItemClicked(View view, int position) {
-        playRecommendedTracks(adapter.getItem(position).getEntityUrn(), discoveryOperations.recommendedTracks());
+        playRecommendedTracks(adapter.getItem(position).getUrn(), discoveryOperations.recommendedTracks());
     }
 
     @Override

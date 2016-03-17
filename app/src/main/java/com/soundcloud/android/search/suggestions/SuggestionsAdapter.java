@@ -329,14 +329,14 @@ public class SuggestionsAdapter extends CursorAdapter {
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
 
                 imageOperations.displayCircularInAdapterView(urn,
-                        ApiImageSize.getListItemImageSize(context),
+                        ApiImageSize.getListItemImageSize(context.getResources()),
                         tag.iv_icon);
             } else {
                 urn = Urn.forTrack(id);
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_sound);
 
                 imageOperations.displayInAdapterView(urn,
-                        ApiImageSize.getListItemImageSize(context),
+                        ApiImageSize.getListItemImageSize(context.getResources()),
                         tag.iv_icon);
             }
         }

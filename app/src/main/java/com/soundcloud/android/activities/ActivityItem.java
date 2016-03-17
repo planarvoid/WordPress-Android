@@ -46,8 +46,13 @@ class ActivityItem implements ListItem, Timestamped {
     }
 
     @Override
-    public Urn getEntityUrn() {
+    public Urn getUrn() {
         return sourceSet.get(ActivityProperty.USER_URN);
+    }
+
+    @Override
+    public Optional<String> getArtworkUrlTemplate() {
+        return Optional.absent();
     }
 
     @Override

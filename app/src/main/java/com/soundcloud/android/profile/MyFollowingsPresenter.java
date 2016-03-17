@@ -133,7 +133,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
 
     @Override
     protected void onItemClicked(View view, int position) {
-        navigator.openProfile(view.getContext(), adapter.getItem(position).getEntityUrn(), screen, searchQuerySourceInfo);
+        navigator.openProfile(view.getContext(), adapter.getItem(position).getUrn(), screen, searchQuerySourceInfo);
     }
 
     @Override

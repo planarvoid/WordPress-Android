@@ -75,23 +75,34 @@ public abstract class UserSoundsItem implements ListItem {
 
     @Override
     public ListItem update(PropertySet sourceSet) {
-        if (getItemType() == TYPE_TRACK && getTrackItem().isPresent()) {
+        if (isTrack()) {
             return getTrackItem().get().update(sourceSet);
-        }
-        if (getItemType() == TYPE_PLAYLIST && getPlaylistItem().isPresent()) {
+        } else if (isPlaylist()) {
             return getPlaylistItem().get().update(sourceSet);
+        } else {
+            return this;
         }
-        return this;
     }
 
     @Override
-    public Urn getEntityUrn() {
-        if (getItemType() == TYPE_TRACK && getTrackItem().isPresent()) {
-            return getTrackItem().get().getEntityUrn();
+    public Urn getUrn() {
+        if (isTrack()) {
+            return getTrackItem().get().getUrn();
+        } else if (isPlaylist()) {
+            return getPlaylistItem().get().getUrn();
+        } else {
+            return Urn.NOT_SET;
         }
-        if (getItemType() == TYPE_PLAYLIST && getPlaylistItem().isPresent()) {
-            return getPlaylistItem().get().getEntityUrn();
+    }
+
+    @Override
+    public Optional<String> getArtworkUrlTemplate() {
+        if (isTrack()) {
+            return getTrackItem().get().getArtworkUrlTemplate();
+        } else if (isPlaylist()) {
+            return getPlaylistItem().get().getArtworkUrlTemplate();
+        } else {
+            return Optional.absent();
         }
-        return Urn.NOT_SET;
     }
 }

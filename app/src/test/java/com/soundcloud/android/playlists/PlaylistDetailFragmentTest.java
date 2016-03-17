@@ -118,7 +118,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(trackItem);
 
         final PlaybackResult playbackResult = PlaybackResult.success();
-        when(playbackInitiator.playTracks(playlistTrackUrns, trackItem.getEntityUrn(), 0, getPlaySessionSource()))
+        when(playbackInitiator.playTracks(playlistTrackUrns, trackItem.getUrn(), 0, getPlaySessionSource()))
                 .thenReturn(Observable.just(playbackResult));
 
         list.getOnItemClickListener().onItemClick(list, mock(View.class), /* offset for header */ 1, 123);
@@ -195,7 +195,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
 
         createFragmentView(true);
 
-        verify(playbackInitiator).playTracks(playlistTrackUrns, playlistTrack.getEntityUrn(), 0, playSessionSource);
+        verify(playbackInitiator).playTracks(playlistTrackUrns, playlistTrack.getUrn(), 0, playSessionSource);
     }
 
     @Test
@@ -218,7 +218,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
 
         getPlayButton(layout).performClick();
 
-        verify(playbackInitiator).playTracks(playlistTrackUrns, playlistTrack.getEntityUrn(), 0, playSessionSource);
+        verify(playbackInitiator).playTracks(playlistTrackUrns, playlistTrack.getUrn(), 0, playSessionSource);
     }
 
     @Test

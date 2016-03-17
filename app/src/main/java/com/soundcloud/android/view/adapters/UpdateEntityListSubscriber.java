@@ -21,7 +21,7 @@ public final class UpdateEntityListSubscriber extends DefaultSubscriber<EntitySt
         boolean changed = false;
         final Map<Urn, PropertySet> changeSet = event.getChangeMap();
         for (ListItem item : adapter.getItems()) {
-            final Urn urn = item.getEntityUrn();
+            final Urn urn = item.getUrn();
             if (changeSet.containsKey(urn)){
                 changed = true;
                 item.update(changeSet.get(urn));

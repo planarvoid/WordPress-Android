@@ -42,7 +42,7 @@ public class UpdateEntityListSubscriberTest extends AndroidUnitTest {
         TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
         PropertySet changeSet = PropertySet.from(
-                PlayableProperty.URN.bind(track1.getEntityUrn()),
+                PlayableProperty.URN.bind(track1.getUrn()),
                 PlayableProperty.CREATOR_NAME.bind(UPDATED_CREATOR));
 
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));

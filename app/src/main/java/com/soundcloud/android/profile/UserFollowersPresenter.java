@@ -94,7 +94,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<UserItem> {
 
     @Override
     protected void onItemClicked(View view, int position) {
-        navigator.openProfile(view.getContext(), adapter.getItem(position).getEntityUrn());
+        navigator.openProfile(view.getContext(), adapter.getItem(position).getUrn());
     }
 
     @Override

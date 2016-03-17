@@ -113,7 +113,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private void loadArtwork(TrackItemView itemView, TrackItem track) {
         imageOperations.displayInAdapterView(
-                track.getEntityUrn(), ApiImageSize.getListItemImageSize(itemView.getContext()),
+                track.getUrn(), ApiImageSize.getListItemImageSize(itemView.getResources()),
                 itemView.getImage());
     }
 
@@ -123,7 +123,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             showPromoted(itemView, (PromotedTrackItem) track);
         } else if (track.isBlocked()) {
             itemView.showGeoBlocked();
-        } else if (track.isPlaying() || track.getEntityUrn().equals(playingTrack)) {
+        } else if (track.isPlaying() || track.getUrn().equals(playingTrack)) {
             itemView.showNowPlaying();
         } else if (featureOperations.isOfflineContentEnabled() && track.isUnavailableOffline()) {
             itemView.showNotAvailableOffline();

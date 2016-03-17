@@ -147,7 +147,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void opensPlaylist() {
         PromotedPlaylistItem playlist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
-        Urn playlistUrn = playlist.getEntityUrn();
+        Urn playlistUrn = playlist.getUrn();
 
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
         SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn);

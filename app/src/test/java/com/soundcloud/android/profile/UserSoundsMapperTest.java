@@ -60,11 +60,11 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
         assertThat(result.get(1).getCollectionType()).isEqualTo(UserSoundsTypes.TRACKS);
 
         assertThat(result.get(2).getItemType()).isEqualTo(UserSoundsItem.TYPE_TRACK);
-        assertThat(result.get(2).getEntityUrn())
+        assertThat(result.get(2).getUrn())
                 .isEqualTo(trackPost.toPropertySet().get(EntityProperty.URN));
 
         assertThat(result.get(3).getItemType()).isEqualTo(UserSoundsItem.TYPE_PLAYLIST);
-        assertThat(result.get(3).getEntityUrn())
+        assertThat(result.get(3).getUrn())
                 .isEqualTo(playlistPost.toPropertySet().get(EntityProperty.URN));
     }
 

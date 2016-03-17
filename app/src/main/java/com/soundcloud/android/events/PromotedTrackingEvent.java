@@ -33,14 +33,14 @@ public final class PromotedTrackingEvent extends TrackingEvent {
 
     public static PromotedTrackingEvent forPromoterClick(PromotedListItem promotedItem, String screen) {
         return basePromotedEvent(KIND_CLICK, promotedItem, promotedItem.getPromoterClickUrls(), screen)
-                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, promotedItem.getEntityUrn().toString())
+                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, promotedItem.getUrn().toString())
                 .put(AdTrackingKeys.KEY_CLICK_TARGET_URN, promotedItem.getPromoterUrn().get().toString());
     }
 
     public static PromotedTrackingEvent forItemClick(PromotedListItem promotedItem, String screen) {
         return basePromotedEvent(KIND_CLICK, promotedItem, promotedItem.getClickUrls(), screen)
-                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, promotedItem.getEntityUrn().toString())
-                .put(AdTrackingKeys.KEY_CLICK_TARGET_URN, promotedItem.getEntityUrn().toString());
+                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, promotedItem.getUrn().toString())
+                .put(AdTrackingKeys.KEY_CLICK_TARGET_URN, promotedItem.getUrn().toString());
     }
 
     public static PromotedTrackingEvent forImpression(PromotedListItem promotedItem, String screen) {

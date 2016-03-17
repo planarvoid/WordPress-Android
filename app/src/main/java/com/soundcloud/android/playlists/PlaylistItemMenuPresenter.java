@@ -113,7 +113,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             case R.id.upsell_offline_content:
                 navigator.openUpgrade(context);
                 eventBus.publish(EventQueue.TRACKING,
-                        UpgradeTrackingEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(), playlist.getEntityUrn()));
+                        UpgradeTrackingEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(), playlist.getUrn()));
                 return true;
             case R.id.make_offline_available:
                 saveOffline();
@@ -134,27 +134,27 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     }
 
     private void saveOffline() {
-        fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlist.getEntityUrn()));
+        fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlist.getUrn()));
         eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromAddOfflinePlaylist(
                 screenProvider.getLastScreenTag(),
-                playlist.getEntityUrn(),
+                playlist.getUrn(),
                 getPromotedSourceIfExists()));
     }
 
     private void removeFromOffline(FragmentManager fragmentManager) {
         if (offlineContentOperations.isOfflineCollectionEnabled()) {
-            ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlist.getEntityUrn(), getPromotedSourceIfExists());
+            ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlist.getUrn(), getPromotedSourceIfExists());
         } else {
-            fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn()));
+            fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlist.getUrn()));
             eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromRemoveOfflinePlaylist(
                     screenProvider.getLastScreenTag(),
-                    playlist.getEntityUrn(),
+                    playlist.getUrn(),
                     getPromotedSourceIfExists()));
         }
     }
 
     private void deletePlaylist(FragmentManager fragmentManager) {
-        DeletePlaylistDialogFragment.show(fragmentManager, playlist.getEntityUrn());
+        DeletePlaylistDialogFragment.show(fragmentManager, playlist.getUrn());
     }
 
     private PromotedSourceInfo getPromotedSourceIfExists() {
@@ -174,7 +174,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     }
 
     private void handleLike() {
-        final Urn playlistUrn = playlist.getEntityUrn();
+        final Urn playlistUrn = playlist.getUrn();
         boolean addLike = !playlist.isLiked();
         likeOperations.toggleLike(playlistUrn, addLike)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -182,7 +182,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
 
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike,
-                        playlist.getEntityUrn(),
+                        playlist.getUrn(),
                         getEventContextMetadata(),
                         getPromotedSourceIfExists(),
                         EntityMetadata.from(playlist)));
@@ -193,7 +193,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     }
 
     private void handleRepost() {
-        final Urn playlistUrn = playlist.getEntityUrn();
+        final Urn playlistUrn = playlist.getUrn();
         boolean addRepost = !playlist.isReposted();
         repostOperations.toggleRepost(playlistUrn, addRepost)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -201,7 +201,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
 
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleRepost(addRepost,
-                        playlist.getEntityUrn(),
+                        playlist.getUrn(),
                         getEventContextMetadata(),
                         getPromotedSourceIfExists(),
                         EntityMetadata.from(playlist)));
@@ -270,7 +270,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         }
         if (menu.findItem(R.id.upsell_offline_content).isVisible()) {
             eventBus.publish(EventQueue.TRACKING,
-                    UpgradeTrackingEvent.forPlaylistItemImpression(screenProvider.getLastScreenTag(), playlist.getEntityUrn()));
+                    UpgradeTrackingEvent.forPlaylistItemImpression(screenProvider.getLastScreenTag(), playlist.getUrn()));
         }
     }
 
@@ -321,7 +321,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private void loadPlaylist(PopupMenuWrapper menu) {
         playlistSubscription.unsubscribe();
         playlistSubscription = playlistOperations
-                .playlist(playlist.getEntityUrn())
+                .playlist(playlist.getUrn())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlaylistSubscriber(playlist, menu));
     }

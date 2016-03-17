@@ -29,7 +29,7 @@ public class PagedTracksRecyclerItemAdapter extends PagingRecyclerItemAdapter<Tr
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
         for (TrackItem item : getItems()) {
-            item.setIsPlaying(item.getEntityUrn().equals(currentlyPlayingUrn));
+            item.setIsPlaying(item.getUrn().equals(currentlyPlayingUrn));
         }
         notifyDataSetChanged();
     }

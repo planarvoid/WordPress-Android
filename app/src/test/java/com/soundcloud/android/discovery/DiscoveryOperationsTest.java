@@ -180,7 +180,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
         List<TrackItem> recommendedTracksForSeed = testSubscriber.getOnNextEvents().get(0);
         TrackItem recommendedTrackItem = recommendedTracksForSeed.get(0);
 
-        assertThat(recommendedTrackItem.getEntityUrn()).isEqualTo(recommendedTrack.getUrn());
+        assertThat(recommendedTrackItem.getUrn()).isEqualTo(recommendedTrack.getUrn());
         assertThat(recommendedTrackItem.getTitle()).isEqualTo(recommendedTrack.getTitle());
         assertThat(recommendedTrackItem.getCreatorName()).isEqualTo(recommendedTrack.getUserName());
         assertThat(recommendedTrackItem.getDuration()).isEqualTo(recommendedTrack.getFullDuration());

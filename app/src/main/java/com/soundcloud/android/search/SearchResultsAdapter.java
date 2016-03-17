@@ -48,7 +48,7 @@ class SearchResultsAdapter
 
     @Override
     public int getBasicItemViewType(int position) {
-        final SearchResultItem item = SearchResultItem.fromUrn(getItem(position).getEntityUrn());
+        final SearchResultItem item = SearchResultItem.fromUrn(getItem(position).getUrn());
         if (item.isUser()) {
             return TYPE_USER;
         } else if (item.isTrack()) {
@@ -67,10 +67,10 @@ class SearchResultsAdapter
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
         for (ListItem viewModel : getItems()) {
-            final SearchResultItem item = SearchResultItem.fromUrn(viewModel.getEntityUrn());
+            final SearchResultItem item = SearchResultItem.fromUrn(viewModel.getUrn());
             if (item.isTrack()) {
                 final TrackItem trackModel = (TrackItem) viewModel;
-                trackModel.setIsPlaying(trackModel.getEntityUrn().equals(currentlyPlayingUrn));
+                trackModel.setIsPlaying(trackModel.getUrn().equals(currentlyPlayingUrn));
             } else if (item.isPremiumContent()) {
                 ((SearchPremiumItem) viewModel).setTrackIsPlaying(currentlyPlayingUrn);
             }

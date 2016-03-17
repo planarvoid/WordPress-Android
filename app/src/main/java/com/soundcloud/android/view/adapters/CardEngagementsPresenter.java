@@ -76,7 +76,7 @@ public class CardEngagementsPresenter {
     }
 
     private void handleRepost(View repostButton, PlayableItem playableItem, EventContextMetadata contextMetadata) {
-        final Urn entityUrn = playableItem.getEntityUrn();
+        final Urn entityUrn = playableItem.getUrn();
         final boolean addRepost = !playableItem.isReposted();
         repostOperations.toggleRepost(entityUrn, addRepost)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -89,7 +89,7 @@ public class CardEngagementsPresenter {
     }
 
     private void handleLike(View likeButton, PlayableItem playableItem, EventContextMetadata contextMetadata) {
-        final Urn entityUrn = playableItem.getEntityUrn();
+        final Urn entityUrn = playableItem.getUrn();
         final boolean addLike = !playableItem.isLiked();
         likeOperations.toggleLike(entityUrn, addLike)
                 .observeOn(AndroidSchedulers.mainThread())

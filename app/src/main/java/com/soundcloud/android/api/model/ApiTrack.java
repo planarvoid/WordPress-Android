@@ -28,7 +28,7 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
     private String waveformUrl;
     private List<String> userTags;
     private Date createdAt;
-    private String artworkUrl;
+    private Optional<String> artworkUrlTemplate = Optional.absent();
     private String permalinkUrl;
     private Sharing sharing = Sharing.UNDEFINED;
     private Optional<String> description = Optional.absent();
@@ -136,14 +136,13 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
         this.waveformUrl = waveformUrl;
     }
 
-    @Deprecated
-    public String getArtworkUrl() {
-        return artworkUrl;
+    public Optional<String> getArtworkUrlTemplate() {
+        return artworkUrlTemplate;
     }
 
-    @JsonProperty("artwork_url")
-    public void setArtworkUrl(String mArtworkUrl) {
-        this.artworkUrl = mArtworkUrl;
+    @JsonProperty("artwork_url_template")
+    public void setArtworkUrlTemplate(String template) {
+        this.artworkUrlTemplate = Optional.fromNullable(template);
     }
 
     public String getPermalinkUrl() {
@@ -330,7 +329,7 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
                 .add("waveformUrl", waveformUrl)
                 .add("userTags", userTags)
                 .add("createdAt", createdAt)
-                .add("artworkUrl", artworkUrl)
+                .add("artworkUrl", artworkUrlTemplate)
                 .add("permalinkUrl", permalinkUrl)
                 .add("monetizable", monetizable)
                 .add("snipped", snipped)
@@ -365,7 +364,8 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
                 TrackProperty.REPOSTS_COUNT.bind(getStats().getRepostsCount()),
                 TrackProperty.CREATOR_NAME.bind(getUserName()),
                 TrackProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
-                TrackProperty.GENRE.bind(Optional.fromNullable(genre))
+                TrackProperty.GENRE.bind(Optional.fromNullable(genre)),
+                TrackProperty.ARTWORK_URL_TEMPLATE.bind(artworkUrlTemplate)
         );
 
         if (isSubMidTier().isPresent()){

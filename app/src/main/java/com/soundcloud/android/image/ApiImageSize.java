@@ -12,15 +12,9 @@ import java.util.EnumSet;
 
 public enum ApiImageSize {
     T500("t500x500", 500, 500),
-    CROP("crop", 400, 400),
     T300("t300x300", 300, 300),
     LARGE("large", 100, 100),
-    T67("t67x67", 67, 67),
-    BADGE("badge", 47, 47),
-    SMALL("small", 32, 32),
-    TINY_ARTWORK("tiny", 20, 20),
-    TINY_AVATAR("tiny", 18, 18),
-    MINI("mini", 16, 16),
+    T47("t47x47", 47, 47),
     Unknown("large", 100, 100);
 
     public final int width;
@@ -31,31 +25,13 @@ public enum ApiImageSize {
     public final static int MEDIUM_RESOLUTION_SIZE = 480; // hdpi, WVGA
 
     public static final EnumSet<ApiImageSize> SMALL_SIZES = EnumSet.of(
-            ApiImageSize.BADGE,
-            ApiImageSize.SMALL,
-            ApiImageSize.TINY_ARTWORK,
-            ApiImageSize.TINY_AVATAR,
-            ApiImageSize.MINI
+            ApiImageSize.T47
     );
 
     ApiImageSize(String sizeSpec, int width, int height) {
         this.sizeSpec = sizeSpec;
         this.width = width;
         this.height = height;
-    }
-
-    public static ApiImageSize fromString(String s) {
-        for (ApiImageSize gs : values()) {
-            if (gs.sizeSpec.equalsIgnoreCase(s)) {
-                return gs;
-            }
-        }
-        return Unknown;
-    }
-
-    @Deprecated // Use getListItemImageSize(Resources)
-    public static ApiImageSize getListItemImageSize(Context c) {
-        return getListItemImageSize(c.getResources());
     }
 
     public static ApiImageSize getListItemImageSize(Resources resources) {
@@ -65,7 +41,7 @@ public enum ApiImageSize {
             if (resources.getDisplayMetrics().density > 1) {
                 return ApiImageSize.LARGE;
             } else {
-                return ApiImageSize.BADGE;
+                return ApiImageSize.T47;
             }
         }
     }

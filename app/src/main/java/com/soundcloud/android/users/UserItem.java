@@ -34,8 +34,13 @@ public class UserItem implements ListItem {
     }
 
     @Override
-    public Urn getEntityUrn() {
+    public Urn getUrn() {
         return source.get(UserProperty.URN);
+    }
+
+    @Override
+    public Optional<String> getArtworkUrlTemplate() {
+        return source.get(UserProperty.ARTWORK_URL_TEMPLATE);
     }
 
     public String getName() {
