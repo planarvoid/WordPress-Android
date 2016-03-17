@@ -26,7 +26,7 @@ import android.widget.AdapterView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class CommentsFragment extends LightCycleSupportFragment implements ReactiveListComponent<Observable<List<Comment>>> {
+public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment> implements ReactiveListComponent<Observable<List<Comment>>> {
 
     static final String EXTRA_TRACK_URN = "track_urn";
 

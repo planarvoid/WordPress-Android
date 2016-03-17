@@ -8,11 +8,11 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.SyncResult;
-import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleBinder;
+import com.soundcloud.lightcycle.LightCycles;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -59,7 +59,7 @@ class StationsHomePresenter extends RecyclerViewPresenter<StationBucket> {
         this.stationsNowPlayingController = stationsNowPlayingController;
         this.playQueueManager = playQueueManager;
         this.stationsNowPlayingController.setAdapter(adapter);
-        LightCycleBinder.bind(this);
+        LightCycles.bind(this);
     }
 
     @Override

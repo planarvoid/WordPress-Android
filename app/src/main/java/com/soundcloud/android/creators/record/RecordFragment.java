@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class RecordFragment extends LightCycleSupportFragment {
+public class RecordFragment extends LightCycleSupportFragment<RecordFragment> {
     public static Fragment create() {
         return new RecordFragment();
     }

@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UploadMonitorFragment extends LightCycleSupportFragment {
+public class UploadMonitorFragment extends LightCycleSupportFragment<UploadMonitorFragment> {
 
     @Inject @LightCycle UploadMonitorPresenter uploadMonitorPresenter;
 

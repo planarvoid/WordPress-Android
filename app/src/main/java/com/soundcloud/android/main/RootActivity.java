@@ -7,10 +7,13 @@ import com.soundcloud.android.configuration.ForceUpdateLightCycle;
 import com.soundcloud.android.image.ImageOperationsController;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
+import com.soundcloud.lightcycle.LightCycles;
+
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-public abstract class RootActivity extends LightCycleAppCompatActivity {
+public abstract class RootActivity extends LightCycleAppCompatActivity<RootActivity> {
 
     @Inject @LightCycle ActivityLifeCyclePublisher lifeCyclePublisher;
     @Inject @LightCycle AnalyticsConnector analyticsConnector;
@@ -23,7 +26,7 @@ public abstract class RootActivity extends LightCycleAppCompatActivity {
     public RootActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         if (receiveConfigurationUpdates()) {
-            bind(configurationUpdateLightCycle);
+            bind(LightCycles.<AppCompatActivity, RootActivity>lift(configurationUpdateLightCycle));
         }
     }
 

@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class PlaylistResultsFragment extends LightCycleSupportFragment implements RefreshableScreen {
+public class PlaylistResultsFragment extends LightCycleSupportFragment<PlaylistResultsFragment> implements RefreshableScreen {
 
     public static final String TAG = "playlist_results";
     static final String KEY_PLAYLIST_TAG = "playlist_tag";

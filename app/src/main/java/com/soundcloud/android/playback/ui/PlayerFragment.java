@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class PlayerFragment extends LightCycleSupportFragment {
+public class PlayerFragment extends LightCycleSupportFragment<PlayerFragment> {
 
     @Inject @LightCycle PlayerPresenter controller;
 

@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class CollectionFragment extends LightCycleSupportFragment implements RefreshableScreen, ScrollContent {
+public class CollectionFragment extends LightCycleSupportFragment<CollectionFragment> implements RefreshableScreen, ScrollContent {
 
     @Inject @LightCycle CollectionPresenter presenter;
 

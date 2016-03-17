@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class TrackLikesFragment extends LightCycleSupportFragment implements RefreshableScreen {
+public class TrackLikesFragment extends LightCycleSupportFragment<TrackLikesFragment> implements RefreshableScreen {
 
     @Inject @LightCycle TrackLikesPresenter presenter;
 

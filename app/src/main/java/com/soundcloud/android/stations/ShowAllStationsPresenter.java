@@ -9,7 +9,7 @@ import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleBinder;
+import com.soundcloud.lightcycle.LightCycles;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -55,7 +55,7 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<StationViewModel> {
         this.playQueueManager = playQueueManager;
         this.stationsNowPlayingController = stationsNowPlayingController;
         this.stationsNowPlayingController.setAdapter(adapter);
-        LightCycleBinder.bind(this);
+        LightCycles.bind(this);
     }
 
     @Override

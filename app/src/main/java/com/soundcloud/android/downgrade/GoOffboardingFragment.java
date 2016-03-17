@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class GoOffboardingFragment extends LightCycleSupportFragment {
+public class GoOffboardingFragment extends LightCycleSupportFragment<GoOffboardingFragment> {
 
     @Inject @LightCycle GoOffboardingPresenter presenter;
 

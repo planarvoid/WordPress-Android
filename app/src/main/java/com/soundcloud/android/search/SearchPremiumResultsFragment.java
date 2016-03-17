@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class SearchPremiumResultsFragment extends LightCycleSupportFragment implements RefreshableScreen {
+public class SearchPremiumResultsFragment extends LightCycleSupportFragment<SearchPremiumResultsFragment> implements RefreshableScreen {
 
     public static final String TAG = "search_premium_results";
 

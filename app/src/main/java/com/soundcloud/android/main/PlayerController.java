@@ -4,7 +4,7 @@ import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleBinder;
+import com.soundcloud.lightcycle.LightCycles;
 
 import android.support.v7.app.AppCompatActivity;
 
@@ -23,7 +23,7 @@ public class PlayerController extends ActivityLightCycleDispatcher<AppCompatActi
                             AdPlayerController adPlayerController) {
         this.playerController = playerController;
         this.adPlayerController = adPlayerController;
-        LightCycleBinder.bind(this);
+        LightCycles.bind(this);
     }
 
     public boolean handleBackPressed() {

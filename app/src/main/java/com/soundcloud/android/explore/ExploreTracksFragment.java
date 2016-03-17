@@ -35,7 +35,7 @@ import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class ExploreTracksFragment extends LightCycleSupportFragment
+public class ExploreTracksFragment extends LightCycleSupportFragment<ExploreTracksFragment>
         implements RefreshableListComponent<ConnectableObservable<List<TrackItem>>> {
 
     static final String SCREEN_TAG_EXTRA = "screen_tag";

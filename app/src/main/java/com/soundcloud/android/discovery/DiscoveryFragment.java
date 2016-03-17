@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class DiscoveryFragment extends LightCycleSupportFragment implements ScrollContent {
+public class DiscoveryFragment extends LightCycleSupportFragment<DiscoveryFragment> implements ScrollContent {
 
     @Inject @LightCycle DiscoveryPresenter presenter;
 

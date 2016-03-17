@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class ActivitiesFragment extends LightCycleSupportFragment implements RefreshableScreen {
+public class ActivitiesFragment extends LightCycleSupportFragment<ActivitiesFragment> implements RefreshableScreen {
 
     @Inject @LightCycle ActivitiesPresenter presenter;
 
