@@ -627,4 +627,203 @@
     <item quantity="one">%s pista nueva</item>
     <item quantity="other">%s pistas nuevas</item>
   </plurals>
+  <!--__SUBS-->
+  <string name="pref_subscriptions_header">Suscripciones</string>
+  <string name="pref_subscription_buy_title">Mejorar la cuenta</string>
+  <string name="pref_subscription_buy_summary">Mejora tu cuenta</string>
+  <string name="pref_subscription_restore_title">Restablecer</string>
+  <string name="pref_subscription_restore_summary">Restablecer una suscripción existente</string>
+  <!--__CONVERSION-->
+  <string name="conversion_page_title">Suscribirse</string>
+  <string name="conversion_title">Hazte con SoundCloud Go</string>
+  <string name="conversion_price">%s / mes</string>
+  <string name="conversion_feature_1">Reproducir todas las pistas</string>
+  <string name="conversion_feature_2">Escuchar sin conexión en cualquier parte</string>
+  <string name="conversion_feature_3">Sin anuncios</string>
+  <string name="conversion_buy_loading">Cargando…</string>
+  <string name="conversion_buy_trial">Pruébalo gratis durante %d días</string>
+  <string name="conversion_buy_no_trial">Mejorar la cuenta</string>
+  <string name="conversion_retry_heading">Vaya... Inténtalo de nuevo</string>
+  <string name="conversion_retry_message">Parece que algo ha ido mal. Inténtalo de nuevo.</string>
+  <string name="conversion_retry_button">Inténtalo de nuevo</string>
+  <string name="conversion_buy_retry">Error al cargar. ¿Volver a intentarlo?</string>
+  <string name="conversion_restrictions">Existen limitaciones</string>
+  <string name="conversion_restrictions_dialog_title">Existen limitaciones</string>
+  <string name="conversion_restrictions_dialog_message">Oferta limitada a un periodo de prueba de 30 días por usuario. Tras los primeros 30 días, el usuario pagará una cuota mensual a menos que la cancele antes. El periodo de prueba se puede cancelar en cualquier momento durante los primeros 30 días.</string>
+  <string name="ads_why_ads_upsell_dialog_message">Cada vez que ves u oyes un anuncio, se les paga a los artistas. Ellos nos ayudan a mantener SoundCloud gratis para los oyentes.\n\n¿No quieres que te interrumpan? Olvídate de los anuncios y sigue apoyando a tus artistas favoritos con SoundCloud Go.</string>
+  <!--__PAYMENTS-->
+  <string name="payments_error_title_unavailable">Producto no disponible</string>
+  <string name="payments_error_title_no_billing">Facturación no disponible</string>
+  <string name="payments_error_title_already_subscribed">Ya hay una suscripción activa</string>
+  <string name="payments_error_title_unconfirmed_email">Dirección de email no confirmada</string>
+  <string name="payments_error_title_canceled">Error en la compra</string>
+  <string name="payments_error_title_stale">Error en la validación del pago</string>
+  <string name="payments_error_title_wrong_user">Suscripción de usuario incorrecta</string>
+  <string name="payments_error_title_verification_fail">Error en la verificación del pago</string>
+  <string name="payments_error_title_verification_timeout">Tiempo de verificación del pago excedido</string>
+  <string name="payments_error_unavailable">Hubo un problema al intentar conectar con el App Store. Inténtalo de nuevo.</string>
+  <string name="payments_error_no_billing">Parece que no hay un App Store válido en este dispositivo.</string>
+  <string name="payments_error_already_subscribed">Parece que ya existe una subscripción activa asociada a tu cuenta.</string>
+  <string name="payments_error_unconfirmed_email">Confirma tu dirección de email para adquirir SoundCloud Go. Busca las instrucciones de confirmación en tu bandeja de entrada.</string>
+  <string name="payments_error_cancelled">No hemos podido completar la compra. Inténtalo de nuevo.</string>
+  <string name="payments_error_stale">Ha pasado demasiado tiempo para validar tu pago. Si el problema persiste, ponte en contacto con nuestro equipo de soporte.</string>
+  <string name="payments_error_wrong_user">Tu suscripción está asociada a otra cuenta de SoundCloud. Comprueba que tu cuenta de SoundCloud coincide con la suscripción de tu cuenta de Google Play.</string>
+  <string name="payments_error_verification_issue">No hemos podido verificar tu pago. Inténtalo de nuevo más tarde.</string>
+  <string name="payments_sign_out">Cerrar sesión</string>
+  <!--__OFFLINE SYNC-->
+  <string name="offline_track_not_available">La pista no está disponible sin conexión</string>
+  <string name="offline_update_completed_title">Todas las pistas se guardaron sin conexión</string>
+  <string name="offline_update_completed_message">Listo para escuchar en modo sin conexión</string>
+  <string name="offline_update_storage_limit_reached_title">Límite de almacenamiento alcanzado</string>
+  <string name="offline_update_storage_limit_reached_message">Toca aquí para ver la configuración de almacenamiento</string>
+  <string name="offline_update_in_progress">Guardando sin conexión</string>
+  <string name="offline_likes_dialog_title">Guarda tus Me gusta sin conexión</string>
+  <string name="offline_likes_dialog_message">Tus Me gusta actuales y futuros se guardarán sin conexión para poder escucharlos sin Wi-Fi ni datos.</string>
+  <string name="make_offline_available">Guardar sin conexión</string>
+  <string name="make_offline_unavailable">Eliminar del modo sin conexión</string>
+  <string name="offline_dialog_go_online_continue">Continuar</string>
+  <string name="offline_dialog_go_online_error_title">No se pudo verificar tu suscripción</string>
+  <string name="offline_dialog_go_online_error_content">Este dispositivo lleva más de 30 días desconectado, por lo que no hemos podido verificar tu suscripción. Para poder acceder de nuevo a tu contenido sin conexión, conecta el dispositivo a Internet .</string>
+  <string name="offline_update_paused">Guardar sin conexión en pausa</string>
+  <string name="no_network_connection">No hay conexión a red</string>
+  <string name="no_wifi_connection">No hay conexión a Wi-Fi</string>
+  <string name="offline_not_available_offline">No disponible sin conexión</string>
+  <!--__GO ONBOARDING-->
+  <string name="go_onboarding_header">Bienvenido a SoundCloud Go</string>
+  <string name="go_onboarding_title">Guarda tu música sin conexión</string>
+  <string name="go_onboarding_subtext">Utiliza la flecha para guardar sin conexión\ntodos tus Me gusta o cualquiera de tus listas.</string>
+  <string name="go_onboarding_start">De acuerdo</string>
+  <string name="go_onboarding_retry">Error al cargar. ¿Volver a intentarlo?</string>
+  <string name="go_onboarding_error_dialog_title">Algo ha ido mal</string>
+  <string name="go_onboarding_error_dialog_msg">Hubo un problema al activar las funciones y los contenidos nuevos. Debes reiniciar la aplicación.</string>
+  <string name="go_onboarding_error_dialog_button">Inténtalo de nuevo más tarde</string>
+  <string name="go_onboarding_offline_settings_title">Guardar todo automáticamente</string>
+  <string name="go_onboarding_offline_settings_subtext">Al seleccionar esta opción se guardarán automáticamente tus listas y tus Me gusta actuales y futuros para escucharlos sin conexión.</string>
+  <string name="go_onboarding_offline_settings_continue">De acuerdo</string>
+  <!--__GO OFFBOARDING-->
+  <string name="go_offboarding_title">Tu suscripción a SoundCloud Go ha finalizado</string>
+  <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
+  <string name="go_offboarding_description">Es una pena que te vayas. Si echas de menos poder acceder al catálogo completo sin conexión y sin anuncios, no te preocupes. Puedes volver cuando quieras.</string>
+  <string name="go_offboarding_primary_button_text">Volver a suscribirse</string>
+  <string name="go_offboarding_secondary_button_text">Continuar</string>
+  <!--__OFFLINE SETTINGS-->
+  <string name="pref_offline_offline_collection">Guardar automáticamente</string>
+  <string name="pref_offline_offline_collection_description_off">Activa esta opción para guardar tus listas y tus Me gusta actuales y futuros sin conexión.</string>
+  <string name="pref_offline_offline_collection_description_on">Desactiva esta opción para dejar de guardar pistas sin conexión automáticamente y eliminar todas las guardadas hasta ahora.</string>
+  <string name="pref_offline_wifi_only_sync">Guardar solo con Wi-Fi</string>
+  <string name="pref_offline_wifi_only_description">Cuando esta opción está activada, solo sincronizamos pistas sin conexión con una conexión Wi-Fi.</string>
+  <string name="pref_offline_storage_limit">Límite de almacenamiento</string>
+  <string name="pref_offline_storage_limit_description">Esto determinará cuánto del almacenamiento que tienes disponible se utiliza para escuchar sin conexión.</string>
+  <string name="pref_offline_storage_free_gb">%1$.1f GB libres de %2$.1f GB</string>
+  <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
+  <string name="pref_offline_storage_usage">Uso del almacenamiento</string>
+  <string name="pref_offline_used_by_other_apps">Usado por otras aplicaciones</string>
+  <string name="pref_offline_used">Usado</string>
+  <string name="pref_offline_limit">Límite</string>
+  <string name="pref_offline_remove_all_offline_content">Eliminar contenido guardado sin conexión</string>
+  <string name="pref_offline_remove_all_offline_content_description">Esto borrará todo contenido almacenado en el dispositivo.</string>
+  <string name="remove_offline_content_title">¿Eliminar todo el contenido sin conexión?</string>
+  <string name="remove_offline_content_body_default">Estás a punto de eliminar todo el contenido sin conexión.</string>
+  <string name="remove_offline_content_body_sync_collection">Estás a punto de eliminar todo el contenido sin conexión. Además, tus  listas y tus Me gusta nuevos ya no se guardarán automáticamente.</string>
+  <string name="offline_cannot_set_limit_below_usage">No se puede fijar un límite inferior al almacenamiento actual.</string>
+  <string name="sign_out_title_offline">Si cierras sesión se eliminarán todas las pistas sin conexión.</string>
+  <string name="sign_out_description_offline">La próxima vez que inicies sesión podrás decidir qué pistas y listas se guardarán.</string>
+  <string name="disable_offline_collection_title">¿Dejar de guardar automáticamente llstas y Me gusta?</string>
+  <string name="disable_offline_collection_body">Tus listas y tus Me gusta nuevos dejarán de guardarse automáticamente y las pistas guardadas ya no se podrán escuchar sin conexión.</string>
+  <!--offline playlist creation-->
+  <string name="add_playlist_offline">Disponible sin conexión</string>
+  <!--offline settings-->
+  <string name="title_offline_settings">Configuración para escuchar sin conexión</string>
+  <string name="you_offline_sync_settings">Configuración para escuchar sin conexión</string>
+  <string name="unlimited">Sin límite</string>
+  <plurals name="downloading_track_of_tracks">
+    <item quantity="one">%1$d pista</item>
+    <item quantity="other">%1$d de %2$d pistas</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_title">
+    <item quantity="one">Verifica tu suscripción antes de %d día</item>
+    <item quantity="other">Verifica tu suscripción antes de %d días</item>
+  </plurals>
+  <plurals name="offline_dialog_go_online_warning_content">
+    <item quantity="one">Tu dispositivo tiene que estar en línea al menos una vez cada 30 días para verificar tu suscripción. Conéctate antes de %d día para que el contenido que guardaste sin conexión siga estándo accesible.</item>
+    <item quantity="other">Tu dispositivo tiene que estar en línea al menos una vez cada 30 días para verificar tu suscripción. Conéctate antes de %d días para que el  contenido que guardaste sin conexión siga estándo accesible.</item>
+  </plurals>
+  <!--__DEVICE MANAGEMENT-->
+  <string name="device_management_limit_title">Has alcanzado el límite de dispositivos</string>
+  <string name="device_management_limit_active">Ya tienes SoundCloud Go en tres dispositivos. Si registras este dispositivo, deshabilitaremos automáticamente el que lleves más tiempo sin usar.</string>
+  <string name="device_management_limit_registered">Ya tienes SoundCloud Go en 10 dispositivos. Debes cerrar sesión en uno de los dispositivos antes de poder iniciar sesión en este.</string>
+  <string name="device_management_conflict_message">Has alcanzado el límite de dispositivos con SoundCloud Go, por lo que hemos cerrado tu sesión en este dispositivo y lo hemos deshabilitado. Todo lo que guardaste sin conexión se ha eliminado. Debes iniciar sesión para poder volver a registrar el dispositivo.</string>
+  <string name="device_management_register">Registrar</string>
+  <!--__PROFILE-->
+  <string name="user_profile_sounds_header_spotlight">Spotlight</string>
+  <string name="user_profile_sounds_header_tracks">Pistas</string>
+  <string name="user_profile_sounds_header_releases">Lanzamientos</string>
+  <string name="user_profile_sounds_header_playlists">Listas</string>
+  <string name="user_profile_sounds_header_reposts">Reposts</string>
+  <string name="user_profile_sounds_header_likes">Me gusta</string>
+  <string name="user_profile_sounds_divider_temp_text">SEPARADOR</string>
+  <string name="user_profile_sounds_view_all">Ver todos</string>
+  <!--__UPSELL-->
+  <string name="upsell_remove_ads">Sin anuncios</string>
+  <string name="upsell_stream_upgrade_button">Hazte con SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_title">Pásate a SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_description">Accede al catálogo completo, sin conexión y sin anuncios.</string>
+  <string name="upsell_track_preview">Vista previa</string>
+  <string name="upsell_track_geo_blocked">No disponible en tu país</string>
+  <!--__STATIONS-->
+  <string name="station_type_track">Emisora de pistas</string>
+  <string name="station_type_genre">Emisora de géneros</string>
+  <string name="station_type_curator">Emisora de curadores</string>
+  <string name="stations_collection_title_saved_stations">Tus emisoras</string>
+  <string name="stations_collection_title_track_recommendations">Pistas recomendadas</string>
+  <string name="stations_collection_title_curator_recommendations">Recomendaciones del curador</string>
+  <string name="stations_collection_title_genre_recommendations">Recomendaciones por género</string>
+  <string name="station_bucket_action_text">Ver todo</string>
+  <!--__STREAMING-->
+  <string name="concurrent_streaming_stopped">Puesto en pausa porque iniciaste la reproducción en otro dispositivo</string>
+  <!--__PLAYER-->
+  <string name="playback_error_blocked">No disponible\nen tu país</string>
+  <string name="playback_preview_indicator">vista previa</string>
+  <string name="playback_upsell_button">Escuchar la pista entera</string>
+  <!--__SEARCH-->
+  <plurals name="search_premium_content_results_count">
+    <item quantity="one">Encontramos %1$d resultado de SoundCloud Go</item>
+    <item quantity="other">Encontramos %1$d resultados de SoundCloud Go</item>
+  </plurals>
+  <string name="search_premium_content_view_all">Ver todos los resultados de SoundCloud Go</string>
+  <string name="search_premium_content_upsell">Mejora tu cuenta para oír la pista entera</string>
+  <!--__NOTIFICATION SETTINGS-->
+  <string name="new_notification_settings">(Nuevo) Configuración de notificaciones</string>
+  <string name="push_notifications_all_title">Notificaciones push</string>
+  <string name="push_notifications_all_summary">Activa todas las notificaciones móviles\no selecciona cuál recibir</string>
+  <string name="push_notifications_follower">Nuevo seguidor</string>
+  <string name="push_notifications_repost">Repost de tu post</string>
+  <string name="push_notifications_new_post">Nuevo post de un usuario seguido</string>
+  <string name="push_notifications_like">Me gusta en tu post</string>
+  <string name="push_notifications_product_updates">Actualizaciones del producto</string>
+  <string name="push_notifications_survey">Invitación a encuesta</string>
+  <string name="push_notifications_tips">Consejos y prácticas recomendadas</string>
+  <string name="email_notifications_all_title">Notificaciones por correo electrónico</string>
+  <string name="email_notifications_all_summary">Activa todas las notificaciones por correo electrónico\no selecciona cuál recibir</string>
+  <string name="email_notifications_follower">Nuevo seguidor</string>
+  <string name="email_notifications_repost">Repost de tu post</string>
+  <string name="email_notifications_new_post">Nuevo post de un usuario seguido</string>
+  <string name="email_notifications_like">Me gusta en tu post</string>
+  <string name="email_notifications_message">Nuevo mensaje</string>
+  <string name="email_notifications_comment">Comentario en tu post</string>
+  <string name="email_notifications_group">Nuevo post de grupo</string>
+  <string name="email_notifications_product_updates">Actualizaciones del producto</string>
+  <string name="email_notifications_survey">Invitación a encuesta</string>
+  <string name="email_notifications_tips">Consejos y prácticas recomendadas</string>
+  <string name="email_notifications_newsletter">Boletín de noticias de SoundCloud</string>
+  <!--__STREAM-->
+  <plurals name="stream_new_posts">
+    <item quantity="one">1 post nuevo</item>
+    <item quantity="other">%s posts nuevos</item>
+  </plurals>
+  <!--__KILL SWITCH-->
+  <string name="kill_switch_message">Para seguir usando la aplicación de SoundCloud, actualiza a la versión más reciente.</string>
+  <string name="kill_switch_confirm">Actualizar ahora</string>
+  <!--__COLLECTIONS-->
+  <string name="collections_options_toggle_offline">Sin conexión</string>
 </resources>
