@@ -106,10 +106,9 @@ class StationsBucketRenderer implements CellRenderer<StationBucket> {
         }
 
         private int measureHeight(RecyclerView.Recycler recycler, RecyclerView.State state, int width) {
-            if (getItemCount() == 0) {
+            if (state.getItemCount() == 0) {
                 return 0;
             }
-
             final View child = recycler.getViewForPosition(0);
             final int itemHeight = getChildMeasuredHeight(width, child);
             final int numberOfRows = getNumberOfRows(state.getItemCount());

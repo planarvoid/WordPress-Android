@@ -23,19 +23,19 @@
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
             style="@style/Stations.ItemTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/type"
             style="@style/Stations.ItemType"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/now_playing"
             style="@style/Stations.ItemNowPlaying"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/ads_now_playing"
             android:visibility="gone" />
