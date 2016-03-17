@@ -154,15 +154,6 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void display(Urn urn,  ApiImageSize apiImageSize, ImageView imageView) {
-        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
-                imageAware,
-                ImageOptionsFactory.cache(),
-                notFoundListener);
-    }
-
     public void displayWithPlaceholder(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
@@ -229,10 +220,6 @@ public class ImageOperations {
         ImageSize targetSize = new ImageSize(targetWidth, targetHeight);
         ImageAware imageAware = new NonViewAware(targetSize, ViewScaleType.CROP);
         imageLoader.displayImage(buildUrlIfNotPreviouslyMissing(urn, apiImageSize), imageAware, new ImageListenerUILAdapter(imageListener));
-    }
-
-    public void display(String imageUrl, ImageView imageView) {
-        imageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false));
     }
 
     public void displayCircular(String imageUrl, ImageView imageView) {
