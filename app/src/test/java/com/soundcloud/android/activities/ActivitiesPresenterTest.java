@@ -53,7 +53,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
                 trackRepository,
                 navigator,
                 newItemsIndicator);
-        when(operations.updatedActivityItemsForStart()).thenReturn(Observable.<List<ActivityItem>>empty());
+        when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<ActivityItem>>empty());
         when(operations.pagingFunction()).thenReturn(TestPager.<List<ActivityItem>>singlePageFunction());
     }
 
@@ -144,7 +144,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRefreshOnCreate() {
-        when(operations.updatedActivityItemsForStart()).thenReturn(Observable.just(Collections.<ActivityItem>emptyList()));
+        when(operations.updatedActivitiesForStart()).thenReturn(Observable.just(Collections.<ActivityItem>emptyList()));
         when(operations.getFirstItemTimestamp(anyListOf(ActivityItem.class))).thenReturn(new Date(123L));
         when(operations.newItemsSince(123L)).thenReturn(Observable.just(5));
 

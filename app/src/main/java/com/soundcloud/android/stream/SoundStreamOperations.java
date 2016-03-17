@@ -1,6 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.stream.StreamItem.Kind.NOTIFICATION;
 import static com.soundcloud.android.stream.StreamItem.Kind.PLAYABLE;
@@ -157,19 +156,6 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
         this.upsellOperations = upsellOperations;
     }
 
-    public Observable<Integer> newItemsSince(long time) {
-        return soundStreamStorage.timelineItemCountSince(time)
-                .subscribeOn(scheduler);
-    }
-
-    public Observable<List<StreamItem>> updatedStreamItemsForStart() {
-        return hasSyncedBefore()
-                .filter(IS_TRUE)
-                .flatMap(continueWith(updatedTimelineItems()))
-                .onErrorResumeNext(Observable.<List<StreamItem>>empty())
-                .subscribeOn(scheduler);
-    }
-
     @Override
     protected Func1<List<PropertySet>, List<StreamItem>> toViewModels() {
         return TO_STREAM_ITEMS;
@@ -198,6 +184,11 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
         return super.updatedTimelineItems()
                 .subscribeOn(scheduler)
                 .doOnNext(promotedImpressionAction);
+    }
+
+    Observable<List<StreamItem>> updatedStreamItemsForStart() {
+        return updatedTimelineItemsForStart()
+                .subscribeOn(scheduler);
     }
 
     public Observable<List<PropertySet>> urnsForPlayback() {

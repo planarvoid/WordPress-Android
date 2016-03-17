@@ -1,5 +1,8 @@
 package com.soundcloud.android.sync.timeline;
 
+import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
+import static com.soundcloud.android.rx.RxUtils.continueWith;
+
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.ContentStats;
@@ -181,7 +184,20 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
         return syncStateStorage.lastSyncOrAttemptTime(syncContent.content.uri);
     }
 
-    public Observable<Boolean> hasSyncedBefore() {
+    private Observable<Boolean> hasSyncedBefore() {
         return syncStateStorage.hasSyncedBefore(syncContent.content.uri);
     }
+
+    public Observable<List<ItemT>> updatedTimelineItemsForStart() {
+        return hasSyncedBefore()
+                .filter(IS_TRUE)
+                .flatMap(continueWith(updatedTimelineItems()))
+                .onErrorResumeNext(Observable.<List<ItemT>>empty());
+    }
+
+    public Observable<Integer> newItemsSince(long time) {
+        return storage.timelineItemCountSince(time)
+                .subscribeOn(scheduler);
+    }
+
 }

@@ -150,7 +150,7 @@ class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> implements
     }
 
     private void refreshAndUpdateIndicator() {
-        operations.updatedActivityItemsForStart()
+        operations.updatedActivitiesForStart()
                 .flatMap(continueWith(updateIndicatorFromMostRecent()))
                 .subscribe();
     }
