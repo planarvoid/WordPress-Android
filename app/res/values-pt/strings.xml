@@ -31,7 +31,6 @@
   <string name="account_one_active">Você pode ter apenas uma conta ativa</string>
   <string name="comments">Comentários</string>
   <string name="display_name">Nome</string>
-  <!--__RELATED TRACKS-->
   <string name="following_zero">Seguido por você</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_stats_user_liked">Curtido por você</string>
@@ -87,8 +86,8 @@
   <string name="auth_disclaimer_title">Mais um passo</string>
   <string name="auth_disclaimer_message">Selecionando \"Continuar\", você concorda com os Termos de Uso e com a Política de Privacidade da SoundCloud.</string>
   <string name="facebook_authentication_failed_message">Tente novamente em seguida ou faça login usando seu endereço e sua senha.</string>
-  <string name="authentication_recover_password_msg">Insira seu endereço de e-mail, e nós lhe enviaremos um link para alterar sua senha. Se você ainda precisar de ajuda, visite nossa Central de Ajuda.</string>
-  <string name="authentication_recover_password_visit_our_Help_Center">Visite nossa Central de Ajuda</string>
+  <string name="authentication_recover_password_msg">Insira seu endereço de e-mail, e nós lhe enviaremos um link para alterar sua senha. Se você ainda precisar de ajuda, visite nossa Central de ajuda.</string>
+  <string name="authentication_recover_password_visit_our_Help_Center">Visite nossa Central de ajuda</string>
   <string name="authentication_recover_password_send">Enviar</string>
   <string name="authentication_blocked_title">Não conseguimos criar uma conta para você</string>
   <string name="authentication_blocked_message">Nossos robôs acham que esta inscrição parece ser spam. Se você acredita que isso seja um erro, entre em contato com o suporte da SoundCloud. </string>
@@ -116,14 +115,14 @@
   <string name="list_empty_you_followers_message">Você ainda não tem seguidores.</string>
   <string name="list_empty_you_followers_secondary">Compartilhe suas faixas e playlists favoritas para criar sua comunidade</string>
   <string name="empty_you_sounds_message">Você ainda não carregou nenhum som.</string>
-  <string name="empty_user_sounds_message">Esse usuário ainda não carregou sons públicos.</string>
+  <string name="empty_user_sounds_message">Essa pessoa ainda não enviou sons públicos.</string>
   <!--new profile-->
-  <string name="new_empty_user_posts_message">Esse usuário ainda não carregou\nsons públicos.</string>
-  <string name="new_empty_user_playlists_message">Esse usuário não possui nenhuma playlist no momento.</string>
-  <string name="new_empty_user_likes_text">Este usuário ainda não escolheu nenhuma curtida.</string>
+  <string name="new_empty_user_posts_message">Essa pessoa ainda não enviou\nsons públicos.</string>
+  <string name="new_empty_user_playlists_message">No momento, essa pessoa não tem playlists.</string>
+  <string name="new_empty_user_likes_text">Essa pessoa ainda não tem curtidas.</string>
   <!--@Todo from l10n: this string also shows up on your own profile. Can we create a new string and distinguish? "You aren\’t followed by anyone yet."-->
-  <string name="new_empty_user_followers_text">Este usuário ainda não está sendo seguido por ninguém.</string>
-  <string name="new_empty_user_followings_text">Este usuário ainda não está seguindo ninguém.</string>
+  <string name="new_empty_user_followers_text">Essa pessoa ainda não está sendo seguida por ninguém.</string>
+  <string name="new_empty_user_followings_text">Essa ainda não está seguindo ninguém.</string>
   <!--__ERRORS-->
   <!--@Todo from l10n: move these error messages to other categories-->
   <string name="error_unauthorized_message">Estamos tendo um problema com sua conta. Faça login novamente na SoundCloud para continuar usando o aplicativo.</string>
@@ -179,6 +178,9 @@
   <string name="onboarding_gender_option_custom">Personalizar</string>
   <string name="onboarding_gender_option_nopref">Prefere não dizer</string>
   <string name="ok_got_it">OK, entendi</string>
+  <string name="onboarding_email_use_notice">Podemos usar seu e-mail para enviar atualizações e dicas sobre os produtos e serviços da SoundCloud. Você poderá se descadastrar gratuitamente a qualquer momento nas suas preferências de notificação.</string>
+  <string name="onboarding_tou_reminder">Inscrevendo-se, você concorda com nossos Termos de Uso.</string>
+  <string name="onboarding_tou_reminder_link_highlight">Termos de Uso</string>
   <!--__LANDING-->
   <string name="landing_title">Encontre a música que você adora.</string>
   <string name="landing_sub_title">Descubra novos artistas.</string>
@@ -533,7 +535,7 @@
   <string name="you_notification_settings">Configurações de notificação</string>
   <string name="you_basic_settings">Configurações básicas</string>
   <string name="you_report_bug">Relatar bug</string>
-  <string name="you_help_center">Central de Ajuda</string>
+  <string name="you_help_center">Central de ajuda</string>
   <string name="you_legal">Legal</string>
   <string name="you_sign_out">Sair</string>
   <string name="you_view_public_profile">Ver perfil público</string>

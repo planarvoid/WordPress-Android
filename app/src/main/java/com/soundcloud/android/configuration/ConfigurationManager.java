@@ -8,7 +8,9 @@ import rx.Subscription;
 import android.util.Log;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class ConfigurationManager {
 
     public static final String TAG = "Configuration";
@@ -16,28 +18,35 @@ public class ConfigurationManager {
     private final ConfigurationOperations configurationOperations;
     private final AccountOperations accountOperations;
     private final DeviceManagementStorage deviceManagementStorage;
+    private final ForceUpdateHandler forceUpdateHandler;
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     public ConfigurationManager(ConfigurationOperations configurationOperations,
                                 AccountOperations accountOperations,
-                                DeviceManagementStorage deviceManagementStorage) {
+                                DeviceManagementStorage deviceManagementStorage,
+                                ForceUpdateHandler forceUpdateHandler) {
         this.configurationOperations = configurationOperations;
         this.accountOperations = accountOperations;
         this.deviceManagementStorage = deviceManagementStorage;
+        this.forceUpdateHandler = forceUpdateHandler;
     }
 
-    public void forceUpdate() {
+    public void forceConfigurationUpdate() {
         Log.d(TAG, "Forcing configuration update");
         subscription.unsubscribe();
         subscription = configurationOperations.update().subscribe(new ConfigurationSubscriber());
     }
 
-    void requestUpdate() {
+    void requestConfigurationUpdate() {
         Log.d(TAG, "Requesting configuration update");
         subscription.unsubscribe();
         subscription = configurationOperations.updateIfNecessary().subscribe(new ConfigurationSubscriber());
+    }
+
+    public void checkForForcedApplicationUpdate() {
+        forceUpdateHandler.checkPendingForcedUpdate();
     }
 
     boolean isPendingDowngrade() {

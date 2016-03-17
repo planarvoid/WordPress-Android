@@ -207,7 +207,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private void restoreSubscription(Preference preference) {
         preference.setEnabled(false);
-        configurationManager.forceUpdate();
+        configurationManager.forceConfigurationUpdate();
     }
 
     private void openSubscribeScreen() {

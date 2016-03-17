@@ -21,28 +21,38 @@ import java.util.Collections;
 
 public class ConfigurationManagerTest extends AndroidUnitTest {
 
-    private static final Configuration AUTHORIZED_DEVICE_CONFIG = new Configuration(Collections.<Feature>emptyList(),
-            new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(true, false));
+    private static final Configuration AUTHORIZED_DEVICE_CONFIG = new Configuration(
+            Collections.<Feature>emptyList(),
+            new UserPlan("free", Arrays.asList("high_tier")),
+            Collections.<Layer>emptyList(),
+            new DeviceManagement(true, false),
+            false);
 
-    private static final Configuration UNAUTHORIZED_DEVICE_CONFIG = new Configuration(Collections.<Feature>emptyList(),
-            new UserPlan("free", Arrays.asList("high_tier")), Collections.<Layer>emptyList(), new DeviceManagement(false, true));
+    private static final Configuration UNAUTHORIZED_DEVICE_CONFIG = new Configuration(
+            Collections.<Feature>emptyList(),
+            new UserPlan("free", Arrays.asList("high_tier")),
+            Collections.<Layer>emptyList(),
+            new DeviceManagement(false, true),
+            false);
 
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private DeviceManagementStorage deviceManagementStorage;
+    @Mock private ForceUpdateHandler forceUpdateHandler;
 
     private ConfigurationManager manager;
 
     @Before
     public void setUp() throws Exception {
-        manager = new ConfigurationManager(configurationOperations, accountOperations, deviceManagementStorage);
+        manager = new ConfigurationManager(configurationOperations, accountOperations,
+                deviceManagementStorage, forceUpdateHandler);
     }
 
     @Test
     public void forceUpdateWithAuthorizedDeviceResponseSavesConfiguration() {
         when(configurationOperations.update()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
 
-        manager.forceUpdate();
+        manager.forceConfigurationUpdate();
 
         verify(configurationOperations).saveConfiguration(AUTHORIZED_DEVICE_CONFIG);
     }
@@ -54,7 +64,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
 
-        manager.forceUpdate();
+        manager.forceConfigurationUpdate();
 
         logoutSubject.onNext(null);
         verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
@@ -64,7 +74,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
     public void requestedUpdateWithAuthorizedDeviceResponseSavesConfiguration() {
         when(configurationOperations.updateIfNecessary()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
 
-        manager.requestUpdate();
+        manager.requestConfigurationUpdate();
 
         verify(configurationOperations).saveConfiguration(AUTHORIZED_DEVICE_CONFIG);
     }
@@ -76,7 +86,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
 
-        manager.requestUpdate();
+        manager.requestConfigurationUpdate();
 
         logoutSubject.onNext(null);
         verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
@@ -86,7 +96,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
     public void requestedUnnecessaryUpdateIsNoOp() {
         when(configurationOperations.updateIfNecessary()).thenReturn(Observable.<Configuration>empty());
 
-        manager.requestUpdate();
+        manager.requestConfigurationUpdate();
 
         verify(configurationOperations, never()).saveConfiguration(any(Configuration.class));
         verifyZeroInteractions(accountOperations);

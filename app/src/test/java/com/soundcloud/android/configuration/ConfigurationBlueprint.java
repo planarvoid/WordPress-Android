@@ -15,7 +15,11 @@ public class ConfigurationBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new Configuration(createFeatures(), new UserPlan("free", Collections.singletonList("mid_tier")), createLayers(), new DeviceManagement(false, true));
+            return new Configuration(
+                    createFeatures(),
+                    new UserPlan("free", Collections.singletonList("mid_tier")),
+                    createLayers(), new DeviceManagement(false, true),
+                    false);
         }
     };
 

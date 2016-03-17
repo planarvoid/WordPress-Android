@@ -159,7 +159,7 @@ public class DevDrawerFragment extends PreferenceFragment {
         updateConfigPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                configurationManager.forceUpdate();
+                configurationManager.forceConfigurationUpdate();
                 return true;
             }
         });

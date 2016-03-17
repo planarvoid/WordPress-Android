@@ -178,6 +178,9 @@
   <string name="onboarding_gender_option_custom">Personalizado</string>
   <string name="onboarding_gender_option_nopref">Prefiero no decirlo</string>
   <string name="ok_got_it">De acuerdo</string>
+  <string name="onboarding_email_use_notice">Podemos usar tu correo electrónico para actualizaciones y consejos relativos a los productos y servicios de SoundCloud. Puedes anular la suscripción gratuitamente en cualquier momento en las preferencias de las notificaciones.</string>
+  <string name="onboarding_tou_reminder">Al iniciar sesión, aceptas nuestras Condiciones de uso.</string>
+  <string name="onboarding_tou_reminder_link_highlight">Condiciones de uso</string>
   <!--__LANDING-->
   <string name="landing_title">Encuentra tu música favorita.</string>
   <string name="landing_sub_title">Descubre nuevos artistas.</string>
