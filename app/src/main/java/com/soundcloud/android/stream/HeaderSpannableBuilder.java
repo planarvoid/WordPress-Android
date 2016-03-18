@@ -2,8 +2,8 @@ package com.soundcloud.android.stream;
 
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 
-import com.appboy.ui.support.StringUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 import android.text.SpannableString;
@@ -35,7 +35,7 @@ class HeaderSpannableBuilder {
     }
 
     HeaderSpannableBuilder actionSpannedString(String action, boolean isTrack) {
-        final String headerText = resources.getString(userActionTextId(isTrack), StringUtils.EMPTY_STRING, action);
+        final String headerText = resources.getString(userActionTextId(isTrack), Strings.EMPTY, action);
         final int spanEnd = action.length() + 1;
 
         createSpannedString(headerText, 0, spanEnd);

@@ -1,6 +1,5 @@
 package com.soundcloud.android.events;
 
-import com.appboy.ui.support.StringUtils;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
@@ -267,7 +266,7 @@ public final class UIEvent extends TrackingEvent {
         if (sourceInfo != null && sourceInfo.hasSource()) {
             return sourceInfo.getSource();
         } else {
-            return StringUtils.EMPTY_STRING;
+            return Strings.EMPTY;
         }
     }
 
