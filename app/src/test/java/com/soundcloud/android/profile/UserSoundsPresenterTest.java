@@ -47,8 +47,8 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Mock private SwipeRefreshAttacher swipeRefreshAttacker;
     @Mock private UserSoundsAdapter adapter;
     @Mock private UserProfileOperations operations;
-    @Mock private MixedItemClickListener.Factory itemClickListenerFactory;
     @Mock private UserSoundsMapper userSoundsMapper;
+    @Mock private UserSoundsItemClickListener clickListener;
 
     @Mock private UserSoundsItem userSoundsItem;
 
@@ -60,7 +60,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter = new UserSoundsPresenter(imagePauseOnScrollListener, swipeRefreshAttacker, adapter, operations,
-                itemClickListenerFactory, userSoundsMapper, eventBus);
+                userSoundsMapper, clickListener, eventBus);
 
         doReturn(Observable.just(userProfileResponse)).when(operations).userProfile(USER_URN);
     }
@@ -114,6 +114,16 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fakeLikePlaylistEvent(playlist));
 
         verify(adapter).notifyDataSetChanged();
+    }
+
+    @Test
+    public void shouldDelegateClickEventsToClickListener() throws Exception {
+        View view = mock(View.class);
+        when(adapter.getItem(0)).thenReturn(userSoundsItem);
+
+        presenter.onItemClicked(view, 0);
+
+        verify(clickListener).onItemClick(view, userSoundsItem);
     }
 
     private EntityStateChangedEvent fakeLikePlaylistEvent(ApiPlaylist apiPlaylist) {

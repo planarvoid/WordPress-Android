@@ -3,16 +3,13 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -23,17 +20,15 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
-import java.util.Collections;
 
 class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
-
-    private final MixedItemClickListener itemClickListener;
 
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final UserSoundsAdapter adapter;
     private final UserProfileOperations operations;
-    private UserSoundsMapper userSoundsMapper;
-    private EventBus eventBus;
+    private final UserSoundsMapper userSoundsMapper;
+    private final UserSoundsItemClickListener clickListener;
+    private final EventBus eventBus;
     private Urn userUrn;
     private Subscription eventSubscription = RxUtils.invalidSubscription();
 
@@ -42,16 +37,16 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
                         SwipeRefreshAttacher swipeRefreshAttacher,
                         UserSoundsAdapter adapter,
                         UserProfileOperations operations,
-                        MixedItemClickListener.Factory itemClickListenerFactory,
                         UserSoundsMapper userSoundsMapper,
+                        UserSoundsItemClickListener clickListener,
                         EventBus eventBus) {
         super(swipeRefreshAttacher, Options.list().useDividers(Options.DividerMode.NONE).build());
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.operations = operations;
         this.userSoundsMapper = userSoundsMapper;
+        this.clickListener = clickListener;
         this.eventBus = eventBus;
-        this.itemClickListener = itemClickListenerFactory.create(Screen.USER_SOUNDS, null);
     }
 
     @Override
@@ -107,12 +102,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
 
     @Override
     protected void onItemClicked(View view, int position) {
-        // In the future, this method should gather the playables from the list of items in the adapter
-        // and forward them to the mixedItemClickListener.
-        // Note: The mixed item click listener may need additional love to play through both tracks and playlists, as
-        // that is now supported by the playback functionality.
-
-        itemClickListener.onItemClick(Collections.<ListItem>emptyList(), view, position);
+        clickListener.onItemClick(view, adapter.getItem(position));
     }
 
     private void bindEmptyView(boolean isCurrentUser) {
