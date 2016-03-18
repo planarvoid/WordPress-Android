@@ -117,6 +117,9 @@ public enum Screen {
     STATIONS_SHOW_ALL("stations:show_all"),
     STATIONS_RECENT("stations:recent_stations"),
 
+    // Profile V2
+    PROFILE_SOUNDS_PLAYLIST("profile:sounds_playlist"),
+
     // PAYMENT
     CONVERSION("consumer-premium:main"),
     CHECKOUT("consumer-premium:checkout");
