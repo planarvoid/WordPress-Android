@@ -74,6 +74,13 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
         this.clickListener = cardEngagementClickListener;
     }
 
+    @Override
+    public void hideRepostStats() {
+        if (repostButton != null) {
+            repostButton.setVisibility(View.GONE);
+        }
+    }
+
     // @Nullable is required here to avoid crash in landscape mode
     @Nullable
     @OnClick(R.id.toggle_repost)

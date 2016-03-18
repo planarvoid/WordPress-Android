@@ -78,6 +78,13 @@ public class StreamItemViewHolder implements CardViewHolder {
         this.clickListener = overflowListener;
     }
 
+    @Override
+    public void hideRepostStats() {
+        if (repostButton != null) {
+            repostButton.setVisibility(View.GONE);
+        }
+    }
+
     public void setHeaderText(SpannableString headerString) {
         headerText.setText(headerString);
         headerText.setVisibility(View.VISIBLE);

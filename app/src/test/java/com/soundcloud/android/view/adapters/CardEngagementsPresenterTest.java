@@ -77,6 +77,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         presenter.bind(viewHolder, playableItem, contextMetadata);
 
         verify(viewHolder, never()).showRepostStats(formattedStats(playableItem.getRepostCount()), playableItem.isReposted());
+        verify(viewHolder).hideRepostStats();
     }
 
     @Test

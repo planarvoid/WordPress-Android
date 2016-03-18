@@ -58,7 +58,9 @@ public class CardEngagementsPresenter {
 
         viewHolder.showLikeStats(getCountString(playable.getLikesCount()), playable.isLiked());
 
-        if (!accountOperations.isLoggedInUser(playable.getCreatorUrn())) {
+        if (accountOperations.isLoggedInUser(playable.getCreatorUrn())) {
+            viewHolder.hideRepostStats();
+        } else {
             viewHolder.showRepostStats(getCountString(playable.getRepostCount()), playable.isReposted());
         }
 
