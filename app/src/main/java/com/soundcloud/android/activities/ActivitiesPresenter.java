@@ -22,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
 class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
 
@@ -62,7 +63,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
     }
 
     @Override
-    protected CollectionBinding<ActivityItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<List<ActivityItem>, ActivityItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(operations.initialActivities())
                 .withAdapter(adapter)
                 .withPager(operations.pagingFunction())
@@ -70,7 +71,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
     }
 
     @Override
-    protected CollectionBinding<ActivityItem> onRefreshBinding() {
+    protected CollectionBinding<List<ActivityItem>, ActivityItem> onRefreshBinding() {
         return CollectionBinding.from(operations.updatedActivities())
                 .withAdapter(adapter)
                 .withPager(operations.pagingFunction())

@@ -30,7 +30,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>> extends RecyclerViewPresenter<PlayableItem> {
+abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>> extends RecyclerViewPresenter<DataT, PlayableItem> {
 
     final MixedPlayableRecyclerItemAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;

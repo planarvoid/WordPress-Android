@@ -28,7 +28,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
+class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, PlaylistItem> {
 
     private static final Func1<SearchResult, List<PlaylistItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<PlaylistItem>>() {
         @Override
@@ -83,7 +83,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<PlaylistItem> {
     }
 
     @Override
-    protected CollectionBinding<PlaylistItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<SearchResult, PlaylistItem> onBuildBinding(Bundle fragmentArgs) {
         String playlistTag = fragmentArgs.getString(PlaylistResultsFragment.KEY_PLAYLIST_TAG);
         return CollectionBinding.from(operations.playlistsForTag(playlistTag), TO_PRESENTATION_MODELS)
                 .withAdapter(adapter)

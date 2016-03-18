@@ -32,7 +32,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class MyFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
+class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, UserItem> {
 
     private final MyProfileOperations profileOperations;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
@@ -111,7 +111,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
     }
 
     @Override
-    protected CollectionBinding<UserItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<List<PropertySet>, UserItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(profileOperations.pagedFollowings(), pageTransformer)
                 .withAdapter(adapter)
                 .withPager(profileOperations.followingsPagingFunction())
@@ -119,7 +119,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
     }
 
     @Override
-    protected CollectionBinding<UserItem> onRefreshBinding() {
+    protected CollectionBinding<List<PropertySet>, UserItem> onRefreshBinding() {
         return CollectionBinding.from(profileOperations.updatedFollowings(), pageTransformer)
                 .withAdapter(adapter)
                 .withPager(profileOperations.followingsPagingFunction())

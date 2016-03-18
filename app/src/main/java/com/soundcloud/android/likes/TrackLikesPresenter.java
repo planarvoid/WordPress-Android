@@ -30,6 +30,7 @@ import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -46,7 +47,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
+class TrackLikesPresenter extends RecyclerViewPresenter<List<PropertySet>, TrackItem> {
 
     @LightCycle final CollapsingScrollHelper scrollHelper;
     @LightCycle final TrackLikesHeaderPresenter headerPresenter;
@@ -90,7 +91,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     }
 
     @Override
-    protected CollectionBinding<TrackItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<List<PropertySet>, TrackItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(likeOperations.likedTracks(), TrackItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
@@ -98,7 +99,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     }
 
     @Override
-    protected CollectionBinding<TrackItem> onRefreshBinding() {
+    protected CollectionBinding<List<PropertySet>, TrackItem> onRefreshBinding() {
         return CollectionBinding.from(
                 likeOperations.updatedLikedTracks()
                         .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.LIKES))),
@@ -109,7 +110,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
     }
 
     @Override
-    protected void onSubscribeBinding(CollectionBinding<TrackItem> collectionBinding, CompositeSubscription viewLifeCycle) {
+    protected void onSubscribeBinding(CollectionBinding<List<PropertySet>, TrackItem> collectionBinding, CompositeSubscription viewLifeCycle) {
         Observable<List<Urn>> allLikedTrackUrns = collectionBinding.items()
                 .first()
                 .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))

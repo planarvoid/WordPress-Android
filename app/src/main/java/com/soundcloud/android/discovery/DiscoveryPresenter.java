@@ -28,7 +28,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListener {
+class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListener {
 
     private final DiscoveryOperations discoveryOperations;
     private final DiscoveryAdapter adapter;
@@ -69,7 +69,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     }
 
     @Override
-    public void onSearchClicked(Context context){
+    public void onSearchClicked(Context context) {
         navigator.openSearch((Activity) context);
     }
 
@@ -79,9 +79,10 @@ class DiscoveryPresenter extends RecyclerViewPresenter<DiscoveryItem> implements
     }
 
     @Override
-    protected CollectionBinding<DiscoveryItem> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onBuildBinding(Bundle bundle) {
         adapter.setDiscoveryListener(this);
-        return CollectionBinding.from(buildDiscoveryItemsObservable())
+        return CollectionBinding
+                .from(buildDiscoveryItemsObservable())
                 .withAdapter(adapter).build();
     }
 

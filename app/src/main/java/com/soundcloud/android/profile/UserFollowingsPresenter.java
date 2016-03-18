@@ -24,7 +24,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class UserFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
+class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollection, UserItem> {
 
     private final UserProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
@@ -53,7 +53,7 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<UserItem> {
     }
 
     @Override
-    protected CollectionBinding<UserItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<PagedRemoteCollection, UserItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
         return CollectionBinding.from(profileOperations.pagedFollowings(userUrn), pageTransformer)
                 .withAdapter(adapter)

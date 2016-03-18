@@ -229,8 +229,9 @@ class UserProfileOperations {
         });
     }
 
-    public Observable<? extends UserProfileRecord> userProfile(Urn user) {
+    public Observable<UserProfileRecord> userProfile(Urn user) {
         return profileApi.userProfile(user)
+                .cast(UserProfileRecord.class)
                 .doOnNext(storeProfileCommand.toAction1())
                 .subscribeOn(scheduler);
     }

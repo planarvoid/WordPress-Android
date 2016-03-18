@@ -40,7 +40,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
+class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, ListItem>
         implements SearchUpsellRenderer.OnUpsellClickListener {
 
     private static final Func1<SearchResult, List<ListItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<ListItem>>() {
@@ -136,7 +136,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
     }
 
     @Override
-    protected CollectionBinding<ListItem> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<SearchResult, ListItem> onBuildBinding(Bundle bundle) {
         searchQuery = bundle.getString(EXTRA_SEARCH_QUERY);
         searchType = bundle.getInt(EXTRA_SEARCH_TYPE);
         final List<PropertySet> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
@@ -146,7 +146,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
     }
 
     @Override
-    protected CollectionBinding<ListItem> onRefreshBinding() {
+    protected CollectionBinding<SearchResult, ListItem> onRefreshBinding() {
         return createCollectionBinding(searchOperations.searchPremiumResult(searchQuery, searchType));
     }
 
@@ -155,7 +155,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<ListItem>
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private CollectionBinding<ListItem> createCollectionBinding(Observable<SearchResult> searchResultObservable) {
+    private CollectionBinding<SearchResult, ListItem> createCollectionBinding(Observable<SearchResult> searchResultObservable) {
         adapter.setUpsellListener(this);
         pagingFunction = searchOperations.pagingPremiumFunction(searchType);
         return CollectionBinding

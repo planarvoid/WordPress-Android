@@ -33,7 +33,7 @@ class MyPostsPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<List<PropertySet>, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(profileOperations.pagedPostItems(), pageTransformer)
                 .withAdapter(adapter)
                 .withPager(profileOperations.postsPagingFunction())
@@ -41,7 +41,7 @@ class MyPostsPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onRefreshBinding() {
+    protected CollectionBinding<List<PropertySet>, PlayableItem> onRefreshBinding() {
         return CollectionBinding.from(profileOperations.updatedPosts(), pageTransformer)
                 .withAdapter(adapter)
                 .withPager(profileOperations.postsPagingFunction())

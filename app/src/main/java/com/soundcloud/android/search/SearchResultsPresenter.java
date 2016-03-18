@@ -38,7 +38,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
+class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListItem>
         implements SearchPremiumContentRenderer.OnPremiumContentClickListener {
 
     private static final int PREMIUM_ITEMS_POSITION = 0;
@@ -132,7 +132,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     }
 
     @Override
-    protected CollectionBinding<ListItem> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<SearchResult, ListItem> onBuildBinding(Bundle bundle) {
         searchType = bundle.getInt(EXTRA_TYPE);
         searchQuery = bundle.getString(EXTRA_QUERY);
         publishSearchSubmissionEvent = bundle.getBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT);
@@ -140,11 +140,11 @@ class SearchResultsPresenter extends RecyclerViewPresenter<ListItem>
     }
 
     @Override
-    protected CollectionBinding<ListItem> onRefreshBinding() {
+    protected CollectionBinding<SearchResult, ListItem> onRefreshBinding() {
         return createCollectionBinding();
     }
 
-    private CollectionBinding<ListItem> createCollectionBinding() {
+    private CollectionBinding<SearchResult, ListItem> createCollectionBinding() {
         adapter.setPremiumContentListener(this);
         pagingFunction = searchOperations.pagingFunction(searchType);
         return CollectionBinding

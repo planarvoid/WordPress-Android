@@ -24,9 +24,10 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.util.Date;
+import java.util.List;
 
 public abstract class TimelinePresenter<ItemT extends Timestamped>
-        extends RecyclerViewPresenter<ItemT>
+        extends RecyclerViewPresenter<List<ItemT>, ItemT>
         implements NewItemsIndicator.Listener {
 
     private final NewItemsIndicator newItemsIndicator;

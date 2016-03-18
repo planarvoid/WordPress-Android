@@ -37,7 +37,7 @@ class UserPlaylistsPresenter extends ProfilePlayablePresenter<PagedRemoteCollect
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(USER_URN_KEY);
         return CollectionBinding.from(getPagedObservable(userUrn), pageTransformer)
                 .withAdapter(adapter)
