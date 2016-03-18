@@ -30,7 +30,7 @@ class FetchLikesCommand extends LegacyCommand<ApiEndpoints, NavigableSet<Propert
     public NavigableSet<PropertySet> call() throws Exception {
         final ApiRequest request =
                 ApiRequest.get(input.path())
-                        .forPrivateApi(1)
+                        .forPrivateApi()
                         .build();
 
         final ModelCollection<ApiLike> apiLikes = apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiLike>>() {

@@ -15,7 +15,7 @@ public class ApiRequestExceptionTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        request = ApiRequest.get("/").forPrivateApi(1).build();
+        request = ApiRequest.get("/").forPrivateApi().build();
         response = new ApiResponse(request, 400, "bad request");
     }
 

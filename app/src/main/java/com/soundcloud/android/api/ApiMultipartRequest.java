@@ -13,10 +13,10 @@ public class ApiMultipartRequest extends ApiRequest {
     private final List<FormPart> parts;
     private final ProgressListener progressListener;
 
-    ApiMultipartRequest(Uri uri, String method, int endpointVersion, Boolean isPrivate,
+    ApiMultipartRequest(Uri uri, String method, Boolean isPrivate,
                         @NotNull MultiMap<String, String> queryParams,
                         @NotNull Map<String, String> headers, List<FormPart> parts, ProgressListener progressListener) {
-        super(uri, method, endpointVersion, isPrivate, queryParams, headers);
+        super(uri, method, isPrivate, queryParams, headers);
         this.parts = parts;
         this.progressListener = progressListener;
     }

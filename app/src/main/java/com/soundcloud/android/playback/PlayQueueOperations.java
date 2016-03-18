@@ -117,7 +117,7 @@ public class PlayQueueOperations {
     public Observable<RecommendedTracksCollection> relatedTracks(Urn seedTrack, boolean continuousPlay) {
         final String endpoint = String.format(ApiEndpoints.RELATED_TRACKS.path(), seedTrack.toEncodedString());
         final ApiRequest request = ApiRequest.get(endpoint)
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .addQueryParam("continuous_play", continuousPlay ? "true" : "false")
                 .build();
 

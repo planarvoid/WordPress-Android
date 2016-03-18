@@ -31,7 +31,7 @@ class PushPlaylistRemovalsCommand extends LegacyCommand<Collection<Urn>, Collect
         for (Urn urn : input) {
             final ApiRequest request =
                     ApiRequest.<ApiPlaylistWithTracks>delete(ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, urn))
-                            .forPrivateApi(1)
+                            .forPrivateApi()
                             .build();
             throwNetworkOrServerError(apiClient.fetchResponse(request));
         }

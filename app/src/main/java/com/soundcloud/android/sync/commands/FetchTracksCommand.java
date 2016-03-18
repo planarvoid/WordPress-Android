@@ -34,7 +34,7 @@ public class FetchTracksCommand extends BulkFetchCommand<ApiTrack> {
         body.put("urns", Urns.toString(urns));
 
         return ApiRequest.post(ApiEndpoints.TRACKS_FETCH.path())
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .withContent(body)
                 .build();
     }

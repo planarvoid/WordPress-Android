@@ -31,7 +31,7 @@ public class TrackSyncer implements SyncStrategy {
     @Override
     public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         final Urn trackUrn = Urn.forTrack(ContentUris.parseId(uri));
-        final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACKS.path(trackUrn)).forPrivateApi(1).build();
+        final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACKS.path(trackUrn)).forPrivateApi().build();
         final ApiTrack track = apiClient.fetchMappedResponse(request, ApiTrack.class);
 
         final WriteResult writeResult = storeTracksCommand.call(Collections.singleton(track));

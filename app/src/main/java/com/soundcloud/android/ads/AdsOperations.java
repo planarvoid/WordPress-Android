@@ -65,7 +65,7 @@ public class AdsOperations {
 
     public Observable<ApiAdsForTrack> ads(Urn sourceUrn, boolean playerVisible, boolean inForeground) {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
-        final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi(1);
+        final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi();
 
         return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
                 .subscribeOn(scheduler)

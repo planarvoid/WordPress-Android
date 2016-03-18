@@ -116,7 +116,7 @@ public class MyPlaylistsSyncer implements SyncStrategy {
         final List<Urn> removeUrns = loadPlaylistPendingRemovalCommand.call(null);
         for (Urn urn : removeUrns) {
             final ApiResponse response = apiClient.fetchResponse(ApiRequest.delete(ApiEndpoints.PLAYLISTS_DELETE.path(urn))
-                    .forPrivateApi(1)
+                    .forPrivateApi()
                     .build());
             if (response.isSuccess() || isErrorIgnored(response)) {
                 removePlaylistCommand.call(urn);
@@ -139,7 +139,7 @@ public class MyPlaylistsSyncer implements SyncStrategy {
             final List<Urn> trackUrns = loadPlaylistTrackUrnsCommand.with(playlistUrn).call();
 
             final ApiRequest request = ApiRequest.post(ApiEndpoints.PLAYLISTS_CREATE.path())
-                    .forPrivateApi(1)
+                    .forPrivateApi()
                     .withContent(createPlaylistBody(localPlaylist, trackUrns))
                     .build();
 

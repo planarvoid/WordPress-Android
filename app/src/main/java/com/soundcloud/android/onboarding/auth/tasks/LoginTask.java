@@ -106,7 +106,7 @@ public class LoginTask extends AuthTask {
 
     protected ApiRequest buildRequest() {
         return ApiRequest.get(ApiEndpoints.ME.path())
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
     }
 }

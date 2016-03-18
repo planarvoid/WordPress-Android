@@ -43,7 +43,7 @@ public class WebPaymentOperations {
     Observable<Optional<WebProduct>> product() {
         final ApiRequest request = ApiRequest
                 .get(ApiEndpoints.WEB_PRODUCTS.path())
-                .forPrivateApi(API_VERSION)
+                .forPrivateApi()
                 .build();
 
         return apiClientRx.mappedResponse(request, new TypeToken<ModelCollection<WebProduct>>() {})

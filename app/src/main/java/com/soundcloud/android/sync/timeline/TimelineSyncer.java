@@ -87,7 +87,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
         final ApiRequest.Builder requestBuilder =
                 ApiRequest.get(endpoint.path())
                         .addQueryParam(ApiRequest.Param.PAGE_SIZE, LIMIT)
-                        .forPrivateApi(1);
+                        .forPrivateApi();
 
         ModelCollection<TimelineModel> items = apiClient.fetchMappedResponse(requestBuilder.build(),
                 collectionTypeToken);
@@ -108,7 +108,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
             final String nextPageUrl = timelineSyncStorage.getNextPageUrl();
             log("Building request from stored next link " + nextPageUrl);
 
-            final ApiRequest.Builder requestBuilder = ApiRequest.get(nextPageUrl).forPrivateApi(1);
+            final ApiRequest.Builder requestBuilder = ApiRequest.get(nextPageUrl).forPrivateApi();
 
             ModelCollection<TimelineModel> items = apiClient.fetchMappedResponse(requestBuilder.build(),
                     collectionTypeToken);
@@ -131,7 +131,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
         final String futurePageUrl = timelineSyncStorage.getFuturePageUrl();
         log("Building request from stored future link " + futurePageUrl);
 
-        final ApiRequest.Builder requestBuilder = ApiRequest.get(futurePageUrl).forPrivateApi(1);
+        final ApiRequest.Builder requestBuilder = ApiRequest.get(futurePageUrl).forPrivateApi();
 
         ModelCollection<TimelineModel> items = apiClient.fetchMappedResponse(requestBuilder.build(),
                 collectionTypeToken);
