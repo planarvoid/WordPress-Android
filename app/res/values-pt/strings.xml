@@ -699,7 +699,6 @@ Se você sente falta de um acesso offline sem anúncio ao nosso catálogo expand
   <string name="search_premium_content_view_all">Ver todos os resultados do SoundCloud Go</string>
   <string name="search_premium_content_upsell">Atualizar para ouvir as faixas completas</string>
   <!--__NOTIFICATION SETTINGS-->
-  <string name="new_notification_settings">(Novo) Configurações de notificação</string>
   <string name="push_notifications_all_title">Notificações push</string>
   <string name="push_notifications_all_summary">Ativar todas as notificações móveis\nou selecionar qual receber</string>
   <string name="push_notifications_follower">Novo seguidor</string>

@@ -697,7 +697,6 @@
   <string name="search_premium_content_view_all">Ver todos los resultados de SoundCloud Go</string>
   <string name="search_premium_content_upsell">Mejora tu cuenta para oír la pista entera</string>
   <!--__NOTIFICATION SETTINGS-->
-  <string name="new_notification_settings">(Nuevo) Configuración de notificaciones</string>
   <string name="push_notifications_all_title">Notificaciones push</string>
   <string name="push_notifications_all_summary">Activa todas las notificaciones móviles\no selecciona cuál recibir</string>
   <string name="push_notifications_follower">Nuevo seguidor</string>
