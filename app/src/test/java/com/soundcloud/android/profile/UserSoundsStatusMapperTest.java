@@ -51,7 +51,7 @@ public class UserSoundsStatusMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdatePlaylistLikedStatusToTrue() throws Exception {
-        statusMap.put(playlistItem.getEntityUrn(), PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(true)));
+        statusMap.put(playlistItem.getUrn(), PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(true)));
         when(loadPlaylistLikedStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
 
         subject.map(newArrayList(fromPlaylistItem(playlistItem, UserSoundsTypes.SPOTLIGHT)));
@@ -61,7 +61,7 @@ public class UserSoundsStatusMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdatePlaylistLikedStatusToFalse() throws Exception {
-        statusMap.put(playlistItem.getEntityUrn(), PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(false)));
+        statusMap.put(playlistItem.getUrn(), PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(false)));
         when(loadPlaylistLikedStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
 
         subject.map(newArrayList(fromPlaylistItem(playlistItem, UserSoundsTypes.SPOTLIGHT)));
@@ -71,7 +71,7 @@ public class UserSoundsStatusMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdatePlaylistRepostStatusToTrue() throws Exception {
-        statusMap.put(playlistItem.getEntityUrn(), PropertySet.from(PlayableProperty.IS_USER_REPOST.bind(true)));
+        statusMap.put(playlistItem.getUrn(), PropertySet.from(PlayableProperty.IS_USER_REPOST.bind(true)));
         when(loadPlaylistRepostStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
 
         subject.map(newArrayList(fromPlaylistItem(playlistItem, UserSoundsTypes.SPOTLIGHT)));
@@ -81,7 +81,7 @@ public class UserSoundsStatusMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdatePlaylistRepostStatusToFalse() throws Exception {
-        statusMap.put(playlistItem.getEntityUrn(), PropertySet.from(PlayableProperty.IS_USER_REPOST.bind(false)));
+        statusMap.put(playlistItem.getUrn(), PropertySet.from(PlayableProperty.IS_USER_REPOST.bind(false)));
         when(loadPlaylistRepostStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
 
         subject.map(newArrayList(fromPlaylistItem(playlistItem, UserSoundsTypes.SPOTLIGHT)));
@@ -91,7 +91,7 @@ public class UserSoundsStatusMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdateTrackLikedStatusToTrue() throws Exception {
-        statusMap.put(trackItem.getEntityUrn(), PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(true)));
+        statusMap.put(trackItem.getUrn(), PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(true)));
         when(loadTrackLikedStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
 
         subject.map(newArrayList(fromTrackItem(trackItem, UserSoundsTypes.SPOTLIGHT)));
@@ -101,7 +101,7 @@ public class UserSoundsStatusMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdateTrackLikedStatusToFalse() throws Exception {
-        statusMap.put(trackItem.getEntityUrn(), PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(false)));
+        statusMap.put(trackItem.getUrn(), PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(false)));
         when(loadTrackLikedStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
 
         subject.map(newArrayList(fromTrackItem(trackItem, UserSoundsTypes.SPOTLIGHT)));
@@ -111,7 +111,7 @@ public class UserSoundsStatusMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdateTrackRepostStatusToTrue() throws Exception {
-        statusMap.put(trackItem.getEntityUrn(), PropertySet.from(PlayableProperty.IS_USER_REPOST.bind(true)));
+        statusMap.put(trackItem.getUrn(), PropertySet.from(PlayableProperty.IS_USER_REPOST.bind(true)));
         when(loadTrackRepostStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
 
         subject.map(newArrayList(fromTrackItem(trackItem, UserSoundsTypes.SPOTLIGHT)));
@@ -121,7 +121,7 @@ public class UserSoundsStatusMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldUpdateTrackRepostStatusToFalse() throws Exception {
-        statusMap.put(trackItem.getEntityUrn(), PropertySet.from(PlayableProperty.IS_USER_REPOST.bind(false)));
+        statusMap.put(trackItem.getUrn(), PropertySet.from(PlayableProperty.IS_USER_REPOST.bind(false)));
         when(loadTrackRepostStatuses.call(anyListOf(PropertySet.class))).thenReturn(statusMap);
 
         subject.map(newArrayList(fromTrackItem(trackItem, UserSoundsTypes.SPOTLIGHT)));
