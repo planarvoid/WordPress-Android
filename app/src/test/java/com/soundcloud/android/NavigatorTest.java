@@ -28,6 +28,7 @@ import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
+import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
@@ -133,6 +134,14 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(MainActivity.class)
                 .containsExtra(Navigator.EXTRA_UPGRADE_INTENT, true);
+    }
+
+    @Test
+    public void openNotificationPreferencesFromDeeplink() {
+        navigator.openNotificationPreferencesFromDeeplink(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(NotificationPreferencesActivity.class)
+                .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     }
 
     @Test

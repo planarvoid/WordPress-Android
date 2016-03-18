@@ -1,6 +1,8 @@
 package com.soundcloud.android.activities;
 
 import static java.util.Collections.singletonList;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -9,9 +11,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,6 +24,10 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.view.View;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 public class ActivitiesPresenterTest extends AndroidUnitTest {
 
@@ -33,11 +41,20 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Mock private TrackRepository trackRepository;
     @Mock private Navigator navigator;
     @Mock private View itemView;
+    @Mock private NewItemsIndicator newItemsIndicator;
 
     @Before
     public void setUp() throws Exception {
         when(itemView.getContext()).thenReturn(context());
-        presenter = new ActivitiesPresenter(swipeRefreshAttacher, operations, adapter, trackRepository, navigator);
+        presenter = new ActivitiesPresenter(
+                swipeRefreshAttacher,
+                operations,
+                adapter,
+                trackRepository,
+                navigator,
+                newItemsIndicator);
+        when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<ActivityItem>>empty());
+        when(operations.pagingFunction()).thenReturn(TestPager.<List<ActivityItem>>singlePageFunction());
     }
 
     @Test
@@ -112,4 +129,29 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         verify(navigator).openTrackComments(context(), track.get(TrackProperty.URN));
     }
+
+    @Test
+    public void onNewItemsIndicatorClickedUpdatesActivitiesAgain() {
+        when(operations.initialActivities())
+                .thenReturn(Observable.just(Collections.<ActivityItem>emptyList()));
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onNewItemsIndicatorClicked();
+
+        verify(operations, times(2)).initialActivities();
+    }
+
+    @Test
+    public void shouldRefreshOnCreate() {
+        when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.<ActivityItem>emptyList()));
+        when(operations.getFirstItemTimestamp(anyListOf(ActivityItem.class))).thenReturn(new Date(123L));
+        when(operations.newItemsSince(123L)).thenReturn(Observable.just(5));
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(newItemsIndicator).update(5);
+    }
+
+
 }

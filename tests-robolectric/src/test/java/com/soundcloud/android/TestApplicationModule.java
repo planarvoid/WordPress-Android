@@ -236,6 +236,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(StorageModule.NOTIFICATION_PREFERENCES)
+    public SharedPreferences provideNotificationPreferences() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
     @Named(StorageModule.SYNCER)
     public SharedPreferences provideSyncerPreferences() {
         return provideSharedPreferences();

@@ -40,6 +40,9 @@ public class StorageModule {
     public static final String STATIONS = "stations";
     public static final String SYNCER = "syncer";
     public static final String STREAM = "stream";
+    public static final String NOTIFICATION_PREFERENCES = "NotificationPreferences";
+
+    public static final String PREFS_NOTIFICATION_PREFERENCES = "notification_preferences";
 
     private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
     private static final String PREFS_DEVICE_MANAGEMENT = "device_management";
@@ -59,6 +62,7 @@ public class StorageModule {
     private static final String PREFS_STREAM = "stream";
     private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
     private static final String PREFS_CONFIGURATION_SETTINGS = "device_config_settings";
+
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY)
@@ -178,6 +182,12 @@ public class StorageModule {
     @Named(SYNCER)
     public SharedPreferences provideSyncerPreferences(Context context) {
         return context.getSharedPreferences(PREFS_SYNCER, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(NOTIFICATION_PREFERENCES)
+    public SharedPreferences provideNotificationPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_NOTIFICATION_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     @Provides

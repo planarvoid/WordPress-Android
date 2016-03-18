@@ -8,9 +8,11 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.sync.timeline.TimelinePresenter;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import rx.Subscription;
@@ -21,7 +23,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> {
+class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
 
     private final ActivitiesOperations operations;
     private final ActivitiesAdapter adapter;
@@ -34,8 +36,10 @@ class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> {
                         ActivitiesOperations operations,
                         ActivitiesAdapter adapter,
                         TrackRepository trackRepository,
-                        Navigator navigator) {
-        super(swipeRefreshAttacher, Options.list().build());
+                        Navigator navigator,
+                        NewItemsIndicator newItemsIndicator) {
+        super(swipeRefreshAttacher, RecyclerViewPresenter.Options.list().build(),
+                newItemsIndicator, operations, adapter);
         this.operations = operations;
         this.adapter = adapter;
         this.trackRepository = trackRepository;
@@ -102,5 +106,10 @@ class ActivitiesPresenter extends RecyclerViewPresenter<ActivityItem> {
             final Urn userUrn = item.getEntityUrn();
             navigator.openProfile(view.getContext(), userUrn);
         }
+    }
+
+    @Override
+    public int getNewItemsTextResourceId() {
+        return R.plurals.activities_new_notification;
     }
 }

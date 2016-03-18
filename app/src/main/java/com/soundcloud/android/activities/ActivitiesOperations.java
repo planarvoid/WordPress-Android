@@ -64,4 +64,5 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
     protected boolean isEmptyResult(List<ActivityItem> result) {
         return result.isEmpty();
     }
+
 }

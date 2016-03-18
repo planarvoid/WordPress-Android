@@ -12,4 +12,6 @@ public interface TimelineStorage {
     Observable<PropertySet> timelineItemsBefore(long timestamp, int limit);
 
     List<PropertySet> timelineItemsSince(long timestamp, int limit);
+
+    Observable<Integer> timelineItemCountSince(long timestamp);
 }

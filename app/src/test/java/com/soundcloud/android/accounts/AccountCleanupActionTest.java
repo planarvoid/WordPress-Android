@@ -16,11 +16,11 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
+import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.stream.SoundStreamOperations;
 import com.soundcloud.android.sync.SyncCleanupAction;
-import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -37,7 +37,6 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     private AccountCleanupAction action;
 
     @Mock private Context context;
-    @Mock private SyncStateManager syncStateManager;
     @Mock private PlaylistTagStorage tagStorage;
     @Mock private SoundRecorder soundRecorder;
     @Mock private SharedPreferences sharedPreferences;
@@ -57,13 +56,14 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private CollectionOperations collectionOperations;
     @Mock private SoundStreamOperations soundStreamOperations;
     @Mock private ConfigurationOperations configurationOperations;
+    @Mock private NotificationPreferencesStorage notificationPreferencesStorage;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(userAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, syncCleanupAction, planStorage,
                 removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations,
-                collectionOperations, soundStreamOperations, configurationOperations);
+                collectionOperations, soundStreamOperations, configurationOperations, notificationPreferencesStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -165,6 +165,12 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldClearPolicies() {
         action.call();
         verify(clearTableCommand).call(Table.TrackPolicies);
+    }
+
+    @Test
+    public void shouldClearNotificationPreferences() {
+        action.call();
+        verify(notificationPreferencesStorage).clear();
     }
 
     @Test

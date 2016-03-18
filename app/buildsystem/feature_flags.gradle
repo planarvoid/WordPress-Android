@@ -6,8 +6,6 @@ def FALSE = "false"
 
 enum Feature {
   SOUNDCLOUD_GO,
-  NEW_NOTIFICATION_SETTINGS,
-  AUTO_REFRESH_STREAM,
   WEB_UPGRADE_FLOW,
   STATIONS_HOME,
   PUBLISH_PLAY_EVENTS_TO_TPUB,
@@ -21,8 +19,6 @@ enum Feature {
 android {
   defaultConfig {
     buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), FALSE
-    buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), FALSE
     buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), FALSE
     buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), FALSE
     buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
@@ -35,8 +31,6 @@ android {
 
   buildTypes {
     alpha {
-      buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), TRUE
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
@@ -53,8 +47,6 @@ android {
 
     debug {
       buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), TRUE
-      buildConfigField BOOLEAN, Feature.NEW_NOTIFICATION_SETTINGS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.AUTO_REFRESH_STREAM.name(), TRUE
       buildConfigField BOOLEAN, Feature.SOUNDCLOUD_GO.name(), TRUE
       buildConfigField BOOLEAN, Feature.WEB_UPGRADE_FLOW.name(), TRUE
       buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE

@@ -26,6 +26,10 @@ public class BaseLayoutHelper {
         return createActionBarLayout(activity, R.layout.container_layout);
     }
 
+    public View setContainerLoadingLayout(AppCompatActivity activity) {
+        return createActionBarLayout(activity, R.layout.container_loading_layout);
+    }
+
     public View setBaseLayout(AppCompatActivity activity) {
         return createActionBarLayout(activity, R.layout.base);
     }

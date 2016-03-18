@@ -88,6 +88,18 @@ public abstract class LoggedInActivity extends RootActivity {
                 .commit();
     }
 
+    protected void clearContentFragment() {
+        Fragment fragment = getFragmentManager()
+                .findFragmentById(getContentHolderViewId());
+
+        if (fragment != null) {
+            getFragmentManager()
+                    .beginTransaction()
+                    .remove(fragment)
+                    .commit();
+        }
+    }
+
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (castConnectionHelper.onDispatchVolumeEvent(event)) {

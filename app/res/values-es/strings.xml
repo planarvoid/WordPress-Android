@@ -399,29 +399,6 @@
   <string name="title_about">Acerca de</string>
   <string name="title_legal">Legal</string>
   <string name="title_notification_settings">Configuración de notificaciones</string>
-  <!--__SETTINGS (PUSH) NOTIFICATIONS-->
-  <string name="pref_notifications_activity">Actividad</string>
-  <string name="pref_notifications_comments">Comentarios</string>
-  <string name="pref_notifications_comments_description">Recibe notificaciones sobre los nuevos comentarios en tus pistas</string>
-  <string name="pref_notifications_likes">Me gusta</string>
-  <string name="pref_notifications_likes_description">Recibe notificaciones cuando a alguien le guste una de tus pistas.</string>
-  <string name="pref_notifications_followers">Seguidores</string>
-  <string name="pref_notifications_followers_description">Recibe una notificación cuando alguien comience a seguirte.</string>
-  <string name="pref_notifications_frequency">Frecuencia de las notificaciones</string>
-  <string name="pref_notifications_frequency_description">Ajustar la frecuencia entre las notificaciones.</string>
-  <string name="pref_notifications_incoming">Pistas entrantes</string>
-  <string name="pref_notifications_incoming_description">Recibe notificaciones de nuevas pistas públicas compartidas contigo.</string>
-  <string name="pref_notifications_stream">Stream</string>
-  <string name="pref_notifications_wifi_only">Notificaciones solo con Wi-Fi</string>
-  <string name="pref_notifications_wifi_only_description">Recibe notificaciones solo cuando estés conectado a través de Wi-Fi.</string>
-  <string name="pref_notifications_reposts">Reposts</string>
-  <string name="pref_notifications_reposts_description">Recibe notificaciones sobre reposts nuevos de tus pistas.</string>
-  <string-array name="pref_notifications_frequency_entries">
-    <item>Cada hora</item>
-    <item>Cada 4 horas</item>
-    <item>Cada 12 horas</item>
-    <item>Cada 24 horas</item>
-  </string-array>
   <!--__STATIONS-->
   <string name="stations_start_track_station">Iniciar emisora de pista</string>
   <string name="stations_unable_to_start_station">No podemos iniciar esta emisora. inténtalo de nuevo dentro de unos minutos.</string>
@@ -555,78 +532,6 @@
   <string name="notification_username_reposted_tracktitle">republicó %s</string>
   <string name="notification_username_commented_on_tracktitle">hizo un comentario sobre %s</string>
   <string name="notification_username_started_following_you">comenzó a seguirte</string>
-  <!--_NOTIFICATION_AGGREGATIONS-->
-  <string name="dashboard_notifications_message_incoming">de %s</string>
-  <string name="dashboard_notifications_message_incoming_2">de %1$s y %2$s</string>
-  <string name="dashboard_notifications_message_incoming_others">de %1$s, %2$s y otros</string>
-  <string name="dashboard_notifications_activity_message_repost">%1$s republicó %2$s</string>
-  <string name="dashboard_notifications_activity_message_repost_one">de %1$s</string>
-  <string name="dashboard_notifications_activity_message_repost_two">de %1$s y %2$s</string>
-  <string name="dashboard_notifications_activity_message_repost_other">de %1$s, %2$s y otras pistas</string>
-  <string name="dashboard_notifications_activity_message_activity_one_user_one_playable">de %1$s de %2$s</string>
-  <string name="dashboard_notifications_activity_message_activity_one_user_multiple_playables">de %1$s</string>
-  <string name="dashboard_notifications_activity_message_activity_two">Comentarios y Me gusta de %1$s y %2$s</string>
-  <string name="dashboard_notifications_activity_message_activity_other">Comentarios y Me gusta de %1$s, %2$s y otros</string>
-  <string name="dashboard_notifications_activity_message_comment_single_track_one">comentario nuevo de %1$s de %2$s</string>
-  <string name="dashboard_notifications_activity_message_comment_single_track_two">%1$d comentarios nuevos de %2$s de %3$s y %4$s</string>
-  <string name="dashboard_notifications_activity_message_comment_single_track_other">%1$d comentarios nuevos de %2$s de %3$s, %4$s y otros</string>
-  <string name="dashboard_notifications_activity_message_likes">A %1$s le gusta %2$s</string>
-  <string name="dashboard_notifications_activity_message_like_one">de %1$s</string>
-  <string name="dashboard_notifications_activity_message_like_two">de %1$s y %2$s</string>
-  <string name="dashboard_notifications_activity_message_like_other">de %1$s, %2$s y otras pistas</string>
-  <string name="dashboard_notifications_activity_message_follow_one">%1$s te ha seguido</string>
-  <string name="dashboard_notifications_activity_message_follow_two">%1$s y %2$s te han seguido</string>
-  <string name="dashboard_notifications_activity_message_follow_three">%1$s, %2$s y 1 más te han seguido</string>
-  <string name="dashboard_notifications_activity_message_follow_many">%1$s, %2$s y %3$s más te han seguido</string>
-  <string name="dashboard_notifications_activity_message_comment_one">Comentarios de %s</string>
-  <string name="dashboard_notifications_activity_message_comment_two">Comentarios de %1$s y %2$s</string>
-  <string name="dashboard_notifications_activity_message_comment_other">Comentarios de %1$s, %2$s y otros</string>
-  <plurals name="dashboard_notifications_activity_ticker_repost">
-    <item quantity="one">%d repost nuevo</item>
-    <item quantity="other">%d reposts nuevos</item>
-  </plurals>
-  <plurals name="dashboard_notifications_activity_ticker_activity">
-    <item quantity="one">%d actividad nueva</item>
-    <item quantity="other">%d actividades nuevas</item>
-  </plurals>
-  <plurals name="dashboard_notifications_activity_ticker_comment">
-    <item quantity="one">%d comentario nuevo</item>
-    <item quantity="other">%d comentarios nuevos</item>
-  </plurals>
-  <plurals name="dashboard_notifications_activity_ticker_like">
-    <item quantity="one">%d me gusta nuevo</item>
-    <item quantity="other">%d me gusta nuevos</item>
-  </plurals>
-  <plurals name="dashboard_notifications_activity_title_activity">
-    <item quantity="one">%d actividad nueva</item>
-    <item quantity="other">%d actividades nuevas</item>
-  </plurals>
-  <plurals name="dashboard_notifications_activity_title_comment">
-    <item quantity="one">%d comentario nuevo</item>
-    <item quantity="other">%d comentarios nuevos</item>
-  </plurals>
-  <plurals name="dashboard_notifications_activity_title_like">
-    <item quantity="one">%d me gusta nuevo</item>
-    <item quantity="other">%d me gusta nuevos</item>
-  </plurals>
-  <plurals name="dashboard_notifications_activity_title_repost">
-    <item quantity="one">%d repost nuevo</item>
-    <item quantity="other">%d resposts nuevos</item>
-  </plurals>
-  <plurals name="dashboard_notifications_activity_follower">
-    <item quantity="one">%d seguidor nuevo</item>
-    <item quantity="other">%d seguidores nuevos</item>
-  </plurals>
-  <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
-  <plurals name="dashboard_notifications_ticker">
-    <item quantity="one">%s pista nueva</item>
-    <item quantity="other">%s pistas nuevas</item>
-  </plurals>
-  <!--When number is greater than 100, the string "100+" is used otherwise the number as a string-->
-  <plurals name="dashboard_notifications_title">
-    <item quantity="one">%s pista nueva</item>
-    <item quantity="other">%s pistas nuevas</item>
-  </plurals>
   <!--__SUBS-->
   <string name="pref_subscriptions_header">Suscripciones</string>
   <string name="pref_subscription_buy_title">Mejorar la cuenta</string>

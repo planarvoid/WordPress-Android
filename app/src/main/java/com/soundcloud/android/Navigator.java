@@ -31,10 +31,9 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.settings.LegalActivity;
-import com.soundcloud.android.settings.NewNotificationSettingsActivity;
-import com.soundcloud.android.settings.NotificationSettingsActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
+import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.ShowAllStationsActivity;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
@@ -219,8 +218,13 @@ public class Navigator {
         context.startActivity(new Intent(context, OfflineSettingsActivity.class));
     }
 
-    public void openNotificationSettings(Context context) {
-        context.startActivity(new Intent(context, NotificationSettingsActivity.class));
+    public void openNotificationPreferences(Context context) {
+        context.startActivity(new Intent(context, NotificationPreferencesActivity.class));
+    }
+
+    public void openNotificationPreferencesFromDeeplink(Context context) {
+        context.startActivity(new Intent(context, NotificationPreferencesActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
     }
 
     public void openLegal(Context context) {
@@ -286,10 +290,6 @@ public class Navigator {
     public void openTrackComments(Context context, Urn trackUrn) {
         context.startActivity(new Intent(context, TrackCommentsActivity.class)
                 .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
-    }
-
-    public void openNewNotificationSettings(Context context) {
-        context.startActivity(new Intent(context, NewNotificationSettingsActivity.class));
     }
 
     public void openOfflineSettingsOnboarding(Context context) {

@@ -10,6 +10,7 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
+import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.stream.SoundStreamOperations;
@@ -42,6 +43,7 @@ class AccountCleanupAction implements Action0 {
     private final CollectionOperations collectionOperations;
     private final SoundStreamOperations soundStreamOperations;
     private final ConfigurationOperations configurationOperations;
+    private final NotificationPreferencesStorage notificationPreferencesStorage;
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
@@ -54,7 +56,9 @@ class AccountCleanupAction implements Action0 {
                          ClearTableCommand clearTableCommand,
                          StationsOperations stationsOperations,
                          CollectionOperations collectionOperations,
-                         SoundStreamOperations soundStreamOperations, ConfigurationOperations configurationOperations) {
+                         SoundStreamOperations soundStreamOperations,
+                         ConfigurationOperations configurationOperations,
+                         NotificationPreferencesStorage notificationPreferencesStorage) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -70,6 +74,7 @@ class AccountCleanupAction implements Action0 {
         this.collectionOperations = collectionOperations;
         this.soundStreamOperations = soundStreamOperations;
         this.configurationOperations = configurationOperations;
+        this.notificationPreferencesStorage = notificationPreferencesStorage;
     }
 
     @Override
@@ -90,6 +95,7 @@ class AccountCleanupAction implements Action0 {
         collectionOperations.clearData();
         soundStreamOperations.clearData();
         configurationOperations.clearConfigurationSettings();
+        notificationPreferencesStorage.clear();
     }
 
     private void clearCollections() {

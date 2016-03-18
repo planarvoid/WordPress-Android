@@ -215,6 +215,26 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
         subscriber.assertValue(123L);
     }
 
+    @Test
+    public void shouldReturnNewItemsSinceTimestamp() {
+        final TestSubscriber<Integer> subscriber = new TestSubscriber<>();
+        when(storage.timelineItemCountSince(123L)).thenReturn(Observable.just(3));
+
+        operations.newItemsSince(123L).subscribe(subscriber);
+
+        subscriber.assertValue(3);
+    }
+
+    @Test
+    public void shouldNotUpdateStreamForStartWhenNeverSyncedBefore() {
+        when(syncStateStorage.hasSyncedBefore(syncContent.content.uri)).thenReturn(Observable.just(false));
+        when(syncInitiator.refreshTimelineItems(syncContent)).thenReturn(Observable.just(true));
+
+        operations.updatedTimelineItemsForStart().subscribe(subscriber);
+
+        subscriber.assertNoValues();
+    }
+
     protected List<PropertySet> createItems(int length, long lastItemTimestamp) {
         final List<PropertySet> headList = Collections.nCopies(length - 1, createTimelineItem(FIRST_ITEM_TIMESTAMP));
         final ArrayList<PropertySet> propertySets = new ArrayList<>(headList);

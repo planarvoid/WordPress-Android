@@ -102,6 +102,9 @@ public class IntentResolver {
             case SOUNDCLOUD_GO_UPSELL:
                 showUpgradeScreen(context, referrer);
                 break;
+            case NOTIFICATION_PREFERENCES:
+                showNotificationPreferencesScreen(context, referrer);
+                break;
             default:
                 resolve(context, uri, referrer);
         }
@@ -182,6 +185,11 @@ public class IntentResolver {
             trackForegroundEvent(referrer);
             navigator.openStream(context, Screen.DEEPLINK);
         }
+    }
+
+    private void showNotificationPreferencesScreen(Context context, String referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openNotificationPreferencesFromDeeplink(context);
     }
 
     private void startActivityForResource(Context context, Urn urn, String referrer) {

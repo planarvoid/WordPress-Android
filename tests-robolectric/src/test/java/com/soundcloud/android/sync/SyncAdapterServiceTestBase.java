@@ -5,18 +5,13 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.activities.ActivitiesNotifier;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
-import com.soundcloud.android.sync.stream.SoundStreamNotifier;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.xtremelabs.robolectric.Robolectric;
@@ -31,13 +26,11 @@ import org.mockito.Mockito;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.content.TestIntentSender;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,12 +47,6 @@ public abstract class SyncAdapterServiceTestBase {
         TestHelper.connectedViaWifi(true);
 
         TestHelper.setUserId(133201L);
-
-        // always notify
-        PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
-                .edit()
-                .putString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY, 0 + "")
-                .apply();
     }
 
     @After
@@ -113,12 +100,7 @@ public abstract class SyncAdapterServiceTestBase {
         m.cancelAll();
         SyncResult result = new SyncResult();
 
-        final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory = new SyncServiceResultReceiver.Factory(app,
-                Mockito.mock(SoundStreamNotifier.class),
-                Mockito.mock(ActivitiesNotifier.class),
-                Mockito.mock(SyncStateManager.class),
-                new ContentStats(app),
-                Mockito.mock(SyncConfig.class));
+        final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory = new SyncServiceResultReceiver.Factory(Mockito.mock(SyncStateManager.class));
 
         SyncAdapterService.performSync(
                 app,
@@ -129,8 +111,7 @@ public abstract class SyncAdapterServiceTestBase {
                 syncServiceResultReceiverFactory,
                 Mockito.mock(MyLikesStateProvider.class),
                 Mockito.mock(PlaylistStorage.class),
-                Mockito.mock(SyncConfig.class),
-                Mockito.mock(FeatureFlags.class));
+                Mockito.mock(SyncConfig.class));
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 

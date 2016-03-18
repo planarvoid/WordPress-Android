@@ -392,7 +392,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         when(syncInitiator.refreshTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
         when(storage.timelineItems(PAGE_SIZE)).thenReturn(from(items));
 
-        operations.updatedStreamItemsForStart().subscribe(subscriber);
+        operations.updatedTimelineItemsForStart().subscribe(subscriber);
 
         subscriber.assertValue(viewModels);
     }
@@ -402,7 +402,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         when(syncStateStorage.hasSyncedBefore(SYNC_CONTENT.content.uri)).thenReturn(Observable.just(false));
         when(syncInitiator.refreshTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
 
-        operations.updatedStreamItemsForStart().subscribe(subscriber);
+        operations.updatedTimelineItemsForStart().subscribe(subscriber);
 
         subscriber.assertNoValues();
     }

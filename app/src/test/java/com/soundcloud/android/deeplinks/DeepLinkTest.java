@@ -54,6 +54,7 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertThat(DeepLink.HOME.requiresResolve()).isFalse();
         assertThat(DeepLink.STREAM.requiresResolve()).isFalse();
         assertThat(DeepLink.WEB_VIEW.requiresResolve()).isFalse();
+        assertThat(DeepLink.NOTIFICATION_PREFERENCES.requiresResolve()).isFalse();
     }
 
     @Test
@@ -62,6 +63,7 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertThat(DeepLink.ENTITY.requiresLoggedInUser()).isTrue();
         assertThat(DeepLink.SEARCH.requiresLoggedInUser()).isTrue();
         assertThat(DeepLink.RECORD.requiresLoggedInUser()).isTrue();
+        assertThat(DeepLink.NOTIFICATION_PREFERENCES.requiresLoggedInUser()).isTrue();
 
         assertThat(DeepLink.HOME.requiresLoggedInUser()).isFalse();
         assertThat(DeepLink.STREAM.requiresLoggedInUser()).isFalse();
@@ -84,6 +86,7 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.RECORD, "soundcloud://upload");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://soundcloudgo");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://go");
+        assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "soundcloud://notification_preferences");
         assertDeeplink(DeepLink.ENTITY, "soundcloud://anythingelse");
     }
 
