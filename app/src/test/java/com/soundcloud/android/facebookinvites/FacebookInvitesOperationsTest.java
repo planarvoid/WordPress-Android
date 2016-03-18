@@ -167,7 +167,7 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
         operations.creatorInvites().subscribe(subscriber);
 
         final FacebookInvitesItem invitesItem = subscriber.getOnNextEvents().get(0).get();
-        assertThat(invitesItem.getEntityUrn()).isEqualTo(FacebookInvitesItem.CREATOR_URN);
+        assertThat(invitesItem.getUrn()).isEqualTo(FacebookInvitesItem.CREATOR_URN);
         assertThat(invitesItem.getTrackUrn()).isEqualTo(track.get(PlayableProperty.URN));
         assertThat(invitesItem.getTrackUrl()).isEqualTo(track.get(PlayableProperty.PERMALINK_URL));
     }

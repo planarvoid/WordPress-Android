@@ -172,10 +172,10 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
 
         subscriber.assertValues(
                 Arrays.asList(
-                        PropertySet.from(TrackProperty.URN.bind(trackPostItem.getEntityUrn())),
-                        PropertySet.from(TrackProperty.URN.bind(trackRepostItem.getEntityUrn()), PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn())),
-                        PropertySet.from(PlaylistProperty.URN.bind(playlistPostItem.getEntityUrn())),
-                        PropertySet.from(PlaylistProperty.URN.bind(playlistRepostItem.getEntityUrn()), PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn()))
+                        PropertySet.from(TrackProperty.URN.bind(trackPostItem.getUrn())),
+                        PropertySet.from(TrackProperty.URN.bind(trackRepostItem.getUrn()), PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn())),
+                        PropertySet.from(PlaylistProperty.URN.bind(playlistPostItem.getUrn())),
+                        PropertySet.from(PlaylistProperty.URN.bind(playlistRepostItem.getUrn()), PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn()))
                 )
         );
     }

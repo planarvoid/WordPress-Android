@@ -34,7 +34,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldHaveCorrectUrn() {
-        assertThat(searchPremiumItem.getEntityUrn()).isEqualTo(PREMIUM_URN);
+        assertThat(searchPremiumItem.getUrn()).isEqualTo(PREMIUM_URN);
     }
 
     @Test
@@ -43,7 +43,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
         searchPremiumItem = buildWithPropertySet(propertySet);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(TrackItem.class);
-        assertThat(searchPremiumItem.getFirstItem().getEntityUrn()).isEqualTo(TRACK_URN);
+        assertThat(searchPremiumItem.getFirstItem().getUrn()).isEqualTo(TRACK_URN);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
         searchPremiumItem = buildWithPropertySet(propertySet);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(PlaylistItem.class);
-        assertThat(searchPremiumItem.getFirstItem().getEntityUrn()).isEqualTo(PLAYLIST_URN);
+        assertThat(searchPremiumItem.getFirstItem().getUrn()).isEqualTo(PLAYLIST_URN);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
         searchPremiumItem = buildWithPropertySet(propertySet);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(UserItem.class);
-        assertThat(searchPremiumItem.getFirstItem().getEntityUrn()).isEqualTo(USER_URN);
+        assertThat(searchPremiumItem.getFirstItem().getUrn()).isEqualTo(USER_URN);
     }
 
     @Test

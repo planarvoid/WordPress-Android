@@ -65,7 +65,7 @@ public class ImageOptionsFactoryTest {
     @Test
     public void shouldCreateAdapterViewWithRGB565BitmapConfigForSmallImageSize() {
         Drawable drawable = mock(Drawable.class);
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.MINI);
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(drawable, ApiImageSize.T47);
         assertThat(displayImageOptions.getDecodingOptions().inPreferredConfig).isEqualTo(Bitmap.Config.RGB_565);
     }
 

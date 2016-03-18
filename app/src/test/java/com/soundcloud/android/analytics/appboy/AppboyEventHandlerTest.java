@@ -45,7 +45,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
             .addProperty("creator_display_name", TRACK.getCreatorName())
             .addProperty("creator_urn", TRACK.getCreatorUrn().toString())
             .addProperty("playable_title", TRACK.getTitle())
-            .addProperty("playable_urn", TRACK.getEntityUrn().toString())
+            .addProperty("playable_urn", TRACK.getUrn().toString())
             .addProperty("playable_type", "track");
 
 

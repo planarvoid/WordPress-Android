@@ -55,8 +55,13 @@ class SearchPremiumItem implements ListItem {
     }
 
     @Override
-    public Urn getEntityUrn() {
+    public Urn getUrn() {
         return PREMIUM_URN;
+    }
+
+    @Override
+    public Optional<String> getArtworkUrlTemplate() {
+        return Optional.absent();
     }
 
     List<PropertySet> getSourceSet() {
@@ -76,9 +81,9 @@ class SearchPremiumItem implements ListItem {
     }
 
     void setTrackIsPlaying(Urn currentlyPlayingUrn) {
-        if (SearchResultItem.fromUrn(firstItem.getEntityUrn()).isTrack()) {
+        if (SearchResultItem.fromUrn(firstItem.getUrn()).isTrack()) {
             final TrackItem trackItem = (TrackItem) firstItem;
-            trackItem.setIsPlaying(trackItem.getEntityUrn().equals(currentlyPlayingUrn));
+            trackItem.setIsPlaying(trackItem.getUrn().equals(currentlyPlayingUrn));
         }
     }
 }

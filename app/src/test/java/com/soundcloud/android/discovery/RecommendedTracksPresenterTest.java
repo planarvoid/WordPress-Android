@@ -83,8 +83,8 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         when(view.getResources()).thenReturn(context().getResources());
         when(recyclerView.getAdapter()).thenReturn(adapter);
 
-        when(recommendedTrackItemOne.getEntityUrn()).thenReturn(RECOMMENDED_ENTITY_1);
-        when(recommendedTrackItemTwo.getEntityUrn()).thenReturn(RECOMMENDED_ENTITY_2);
+        when(recommendedTrackItemOne.getUrn()).thenReturn(RECOMMENDED_ENTITY_1);
+        when(recommendedTrackItemTwo.getUrn()).thenReturn(RECOMMENDED_ENTITY_2);
 
         final List<TrackItem> trackItems = Arrays.asList(recommendedTrackItemOne, recommendedTrackItemTwo);
         when(discoveryOperations.recommendedTracksForSeed(anyLong())).thenReturn(Observable.just(trackItems));

@@ -454,7 +454,6 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         ApiTrack apiTrack = new ApiTrack();
         apiTrack.setUrn(getUrn());
         apiTrack.setCreatedAt(created_at);
-        apiTrack.setArtworkUrl(artwork_url);
         apiTrack.setCommentable(commentable);
         apiTrack.setSnippetDuration(duration);
         apiTrack.setFullDuration(duration);

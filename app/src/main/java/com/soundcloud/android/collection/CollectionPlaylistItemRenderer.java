@@ -69,7 +69,7 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
         likeIndicator.setVisibility(playlistItem.isLiked() ? View.VISIBLE : View.GONE);
 
         imageOperations.displayInAdapterView(
-                playlistItem.getEntityUrn(),
+                playlistItem.getUrn(),
                 ApiImageSize.getFullImageSize(resources),
                 artwork
         );
@@ -103,7 +103,7 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                navigator.openPlaylist(view.getContext(), playlistItem.getEntityUrn(), Screen.COLLECTIONS);
+                navigator.openPlaylist(view.getContext(), playlistItem.getUrn(), Screen.COLLECTIONS);
             }
         };
     }

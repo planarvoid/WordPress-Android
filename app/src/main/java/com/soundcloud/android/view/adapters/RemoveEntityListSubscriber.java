@@ -16,7 +16,7 @@ public final class RemoveEntityListSubscriber extends DefaultSubscriber<Urn> {
     public void onNext(final Urn urn) {
         int adapterCount = adapter.getItemCount();
         for (int position = 0; position < adapterCount; position++) {
-            Urn itemUrn = adapter.getItem(position).getEntityUrn();
+            Urn itemUrn = adapter.getItem(position).getUrn();
             if (itemUrn.equals(urn)) {
                 removeItemFromAdapterAt(position);
                 break;

@@ -73,6 +73,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
         when(trackItemView.getImage()).thenReturn(imageView);
         when(trackItemView.getContext()).thenReturn(context());
+        when(trackItemView.getResources()).thenReturn(resources());
         when(imageView.getContext()).thenReturn(context());
         when(itemView.getResources()).thenReturn(resources());
         when(itemView.getTag()).thenReturn(trackItemView);

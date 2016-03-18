@@ -50,6 +50,7 @@ public class ApiTrackTest extends AndroidUnitTest {
         assertThat(propertySet.get(TrackProperty.REPOSTS_COUNT)).isEqualTo(track.getStats().getRepostsCount());
         assertThat(propertySet.get(TrackProperty.SUB_MID_TIER)).isEqualTo(track.isSubMidTier().get());
         assertThat(propertySet.get(TrackProperty.MONETIZATION_MODEL)).isEqualTo(track.getMonetizationModel().get());
+        assertThat(propertySet.get(TrackProperty.ARTWORK_URL_TEMPLATE)).isEqualTo(track.getArtworkUrlTemplate());
 
         assertThat(propertySet.get(TrackProperty.CREATOR_NAME)).isEqualTo(track.getUserName());
         assertThat(propertySet.get(TrackProperty.CREATOR_URN)).isEqualTo(track.getUser().getUrn());

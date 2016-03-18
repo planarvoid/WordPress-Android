@@ -43,12 +43,12 @@ public class MixedItemClickListener {
     }
 
     public void onItemClick(Observable<List<Urn>> playables, View view, int position, ListItem clickedItem) {
-        if (clickedItem.getEntityUrn().isTrack()) {
+        if (clickedItem.getUrn().isTrack()) {
             final TrackItem item = (TrackItem) clickedItem;
             final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
             playbackInitiator
-                    .playTracks(playables, item.getEntityUrn(), position, playSessionSource)
+                    .playTracks(playables, item.getUrn(), position, playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else {
             handleNonTrackItemClick(view, clickedItem);
@@ -56,7 +56,7 @@ public class MixedItemClickListener {
     }
 
     public void onPostClick(Observable<List<PropertySet>> playables, View view, int position, ListItem clickedItem) {
-        if (clickedItem.getEntityUrn().isTrack()) {
+        if (clickedItem.getUrn().isTrack()) {
             final TrackItem item = (TrackItem) clickedItem;
             final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
@@ -64,7 +64,7 @@ public class MixedItemClickListener {
                 playSessionSource.setPromotedSourceInfo(PromotedSourceInfo.fromItem((PromotedTrackItem) clickedItem));
             }
             playbackInitiator
-                    .playPosts(playables, item.getEntityUrn(), position, playSessionSource)
+                    .playPosts(playables, item.getUrn(), position, playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else {
             handleNonTrackItemClick(view, clickedItem);
@@ -73,7 +73,7 @@ public class MixedItemClickListener {
 
     public void onItemClick(List<? extends ListItem> playables, View view, int position) {
         ListItem playable = playables.get(position);
-        if (playable.getEntityUrn().isTrack()) {
+        if (playable.getUrn().isTrack()) {
             handleTrackClick(playables, position);
         } else {
             handleNonTrackItemClick(view, playable);
@@ -81,7 +81,7 @@ public class MixedItemClickListener {
     }
 
     private void handleNonTrackItemClick(View view, ListItem item) {
-        Urn entityUrn = item.getEntityUrn();
+        Urn entityUrn = item.getUrn();
         if (entityUrn.isPlaylist()) {
             navigator.openPlaylist(view.getContext(), entityUrn, screen, searchQuerySourceInfo, promotedPlaylistInfo(item));
         } else if (entityUrn.isUser()) {
@@ -108,8 +108,8 @@ public class MixedItemClickListener {
     private List<Urn> filterTracks(List<? extends ListItem> data) {
         ArrayList<Urn> urns = new ArrayList<>(data.size());
         for (ListItem listItem : data) {
-            if (listItem.getEntityUrn().isTrack()) {
-                urns.add(listItem.getEntityUrn());
+            if (listItem.getUrn().isTrack()) {
+                urns.add(listItem.getUrn());
             }
         }
         return urns;

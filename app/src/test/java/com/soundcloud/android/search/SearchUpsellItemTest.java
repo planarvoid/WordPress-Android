@@ -20,7 +20,7 @@ public class SearchUpsellItemTest {
 
     @Test
     public void shouldHaveCorrectUrn() {
-        assertThat(searchUpsellItem.getEntityUrn()).isEqualTo(UPSELL_URN);
+        assertThat(searchUpsellItem.getUrn()).isEqualTo(UPSELL_URN);
     }
 
 }

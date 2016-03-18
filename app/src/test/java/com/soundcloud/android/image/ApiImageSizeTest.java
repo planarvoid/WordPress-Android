@@ -16,23 +16,17 @@ public class ApiImageSizeTest extends AndroidUnitTest {
 
     @Test
     public void shouldFormatUriFromAnyKnownSizeToAnyOtherSize() throws Exception {
-        assertThat(ApiImageSize.LARGE.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809"))
+        assertThat(ApiImageSize.LARGE.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t47x47.jpg?2479809"))
                 .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg?2479809");
 
-        assertThat(ApiImageSize.TINY_ARTWORK.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t300x300.jpg?2479809"))
-                .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");
+        assertThat(ApiImageSize.LARGE.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t300x300.jpg?2479809"))
+                .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg?2479809");
     }
 
     @Test
     public void shouldFormatUriForT500Size() throws Exception {
-        assertThat(ApiImageSize.T500.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809"))
+        assertThat(ApiImageSize.T500.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg?2479809"))
                 .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t500x500.jpg?2479809");
-    }
-
-    @Test
-    public void shouldFormatUriForCropSize() throws Exception {
-        assertThat(ApiImageSize.CROP.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t500x500.jpg?2479809"))
-                .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-crop.jpg?2479809");
     }
 
     @Test
@@ -44,44 +38,14 @@ public class ApiImageSizeTest extends AndroidUnitTest {
 
     @Test
     public void shouldFormatUriForLargeSize() throws Exception {
-        assertThat(ApiImageSize.LARGE.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809"))
+        assertThat(ApiImageSize.LARGE.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t47x47.jpg?2479809"))
                 .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg?2479809");
     }
 
     @Test
-    public void shouldFormatUriForT67Size() throws Exception {
-        assertThat(ApiImageSize.T67.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-mini.jpg?2479809"))
-                .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t67x67.jpg?2479809");
-    }
-
-    @Test
-    public void shouldFormatUriForBadgeSize() throws Exception {
-        assertThat(ApiImageSize.BADGE.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-crop.jpg?2479809"))
-                .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-badge.jpg?2479809");
-    }
-
-    @Test
-    public void shouldFormatUriForSmallSize() throws Exception {
-        assertThat(ApiImageSize.SMALL.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t300x300.jpg?2479809"))
-                .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-small.jpg?2479809");
-    }
-
-    @Test
-    public void shouldFormatUriForTinyArtSize() throws Exception {
-        assertThat(ApiImageSize.TINY_ARTWORK.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-small.jpg?2479809"))
-                .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");
-    }
-
-    @Test
-    public void shouldFormatUriForTinyAvatarSize() throws Exception {
-        assertThat(ApiImageSize.TINY_AVATAR.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t300x300.jpg?2479809"))
-                .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");
-    }
-
-    @Test
-    public void shouldFormatUriForMiniSize() throws Exception {
-        assertThat(ApiImageSize.MINI.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t300x300.jpg?2479809"))
-                .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-mini.jpg?2479809");
+    public void shouldFormatUriForT47Size() throws Exception {
+        assertThat(ApiImageSize.T47.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg?2479809"))
+                .isEqualTo("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t47x47.jpg?2479809");
     }
 
     @Test
@@ -104,21 +68,21 @@ public class ApiImageSizeTest extends AndroidUnitTest {
 
     @Test
     public void shouldFormatResolverUri() throws Exception {
-        assertThat(ApiImageSize.TINY_ARTWORK.formatUri("https://api.soundcloud.com/resolve/image?url=soundcloud:users:1234&size=large"))
-                .isEqualTo("https://api.soundcloud.com/resolve/image?url=soundcloud:users:1234&size=tiny");
+        assertThat(ApiImageSize.LARGE.formatUri("https://api.soundcloud.com/resolve/image?url=soundcloud:users:1234&size=badge"))
+                .isEqualTo("https://api.soundcloud.com/resolve/image?url=soundcloud:users:1234&size=large");
 
-        assertThat(ApiImageSize.TINY_ARTWORK.formatUri("https://api.soundcloud.com/resolve/image?url=soundcloud:users:1234"))
-                .isEqualTo("https://api.soundcloud.com/resolve/image?url=soundcloud:users:1234&size=tiny");
+        assertThat(ApiImageSize.LARGE.formatUri("https://api.soundcloud.com/resolve/image?url=soundcloud:users:1234"))
+                .isEqualTo("https://api.soundcloud.com/resolve/image?url=soundcloud:users:1234&size=large");
     }
 
     @Test
     public void shouldReturnLargeIconSizeForHiResScreens() {
-        assertFormatUri(2.0f, "https://i1.sndcdn.com/artworks-000032795722-aaqx24-mini.jpg", "https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg");
+        assertFormatUri(2.0f, "https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg", "https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg");
     }
 
     @Test
     public void shouldReturnT300IconSizeForHiResScreens() {
-        assertFormatUri(10.0f, "https://i1.sndcdn.com/artworks-000032795722-aaqx24-mini.jpg", "https://i1.sndcdn.com/artworks-000032795722-aaqx24-t300x300.jpg");
+        assertFormatUri(10.0f, "https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg", "https://i1.sndcdn.com/artworks-000032795722-aaqx24-t300x300.jpg");
     }
 
     @Test

@@ -278,14 +278,14 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
-        when(playQueueManager.getCurrentPromotedSourceInfo(promotedTrackItem.getEntityUrn())).thenReturn(promotedSourceInfo);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(promotedTrackItem.getEntityUrn()));
+        when(playQueueManager.getCurrentPromotedSourceInfo(promotedTrackItem.getUrn())).thenReturn(promotedSourceInfo);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(promotedTrackItem.getUrn()));
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(promotedTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         controller.handleToggleLikeAction(true);
 
-        verify(engagementsTracking).likeTrackUrn(promotedTrackItem.getEntityUrn(), true, getWidgetContextMetadata(), promotedSourceInfo);
+        verify(engagementsTracking).likeTrackUrn(promotedTrackItem.getUrn(), true, getWidgetContextMetadata(), promotedSourceInfo);
     }
 
 

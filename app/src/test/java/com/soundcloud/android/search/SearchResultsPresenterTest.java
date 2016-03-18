@@ -185,8 +185,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         verify(clickListener).onItemClick(listArgumentCaptor.capture(), eq(fragmentRule.getView()), eq(1));
 
         final List<ListItem> playQueue = listArgumentCaptor.getValue();
-        assertThat(playQueue.get(0).getEntityUrn()).isEqualTo(SearchPremiumItem.PREMIUM_URN);
-        assertThat(playQueue.get(1).getEntityUrn()).isEqualTo(TRACK_URN);
+        assertThat(playQueue.get(0).getUrn()).isEqualTo(SearchPremiumItem.PREMIUM_URN);
+        assertThat(playQueue.get(1).getUrn()).isEqualTo(TRACK_URN);
     }
 
     @Test
@@ -204,8 +204,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         verify(clickListener).onItemClick(listArgumentCaptor.capture(), eq(fragmentRule.getView()), eq(0));
 
         final List<ListItem> playQueue = listArgumentCaptor.getValue();
-        assertThat(playQueue.get(0).getEntityUrn()).isEqualTo(PREMIUM_TRACK_URN_ONE);
-        assertThat(playQueue.get(1).getEntityUrn()).isEqualTo(TRACK_URN);
+        assertThat(playQueue.get(0).getUrn()).isEqualTo(PREMIUM_TRACK_URN_ONE);
+        assertThat(playQueue.get(1).getUrn()).isEqualTo(TRACK_URN);
     }
 
     private List<ListItem> setupAdapter() {

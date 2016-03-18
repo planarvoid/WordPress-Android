@@ -172,7 +172,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackItem> {
             String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + position;
             ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
         } else {
-            Urn initialTrack = item.getEntityUrn();
+            Urn initialTrack = item.getUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.LIKES);
             playbackOperations
                     .playTracks(likeOperations.likedTrackUrns(), initialTrack, position, playSessionSource)

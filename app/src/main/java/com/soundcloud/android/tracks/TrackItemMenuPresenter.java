@@ -139,7 +139,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     private void loadTrack(PopupMenuWrapper menu) {
         trackSubscription.unsubscribe();
         trackSubscription = trackRepository
-                .track(track.getEntityUrn())
+                .track(track.getUrn())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new TrackSubscriber(track, menu));
     }
@@ -169,7 +169,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                 return true;
             case R.id.remove_from_playlist:
                 checkState(isOwnedPlaylist());
-                playlistOperations.removeTrackFromPlaylist(removeTrackListener.getPlaylistUrn(), track.getEntityUrn())
+                playlistOperations.removeTrackFromPlaylist(removeTrackListener.getPlaylistUrn(), track.getUrn())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new DefaultSubscriber<PropertySet>() {
                             @Override
@@ -179,7 +179,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
                         });
                 return true;
             case R.id.start_station:
-                startStationPresenter.startStationForTrack(context, track.getEntityUrn());
+                startStationPresenter.startStationForTrack(context, track.getUrn());
                 return true;
             default:
                 return false;
@@ -192,13 +192,13 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
 
     private void showAddToPlaylistDialog() {
         AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(
-                track.getEntityUrn(), track.getTitle(), ScreenElement.LIST.get(),
+                track.getUrn(), track.getTitle(), ScreenElement.LIST.get(),
                 screenProvider.getLastScreenTag());
         from.show(activity.getFragmentManager());
     }
 
     private void trackLike(boolean addLike) {
-        final Urn trackUrn = track.getEntityUrn();
+        final Urn trackUrn = track.getUrn();
 
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike,
@@ -209,7 +209,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     }
 
     private void trackRepost(boolean repost) {
-        final Urn trackUrn = track.getEntityUrn();
+        final Urn trackUrn = track.getUrn();
 
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleRepost(repost,
@@ -230,7 +230,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     }
 
     private void handleLike() {
-        final Urn trackUrn = track.getEntityUrn();
+        final Urn trackUrn = track.getUrn();
         final boolean addLike = !track.isLiked();
         likeOperations.toggleLike(trackUrn, addLike)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -240,7 +240,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     }
 
     private void handleRepost() {
-        final Urn trackUrn = track.getEntityUrn();
+        final Urn trackUrn = track.getUrn();
         final boolean repost = !track.isReposted();
         repostOperations.toggleRepost(trackUrn, repost)
                 .observeOn(AndroidSchedulers.mainThread())

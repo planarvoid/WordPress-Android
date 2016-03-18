@@ -43,8 +43,8 @@ public class FollowableUserItemRenderer extends UserItemRenderer {
         toggleFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fireAndForget(followingOperations.toggleFollowing(user.getEntityUrn(), toggleFollow.isChecked()));
-                engagementsTracking.followUserUrn(user.getEntityUrn(), toggleFollow.isChecked());
+                fireAndForget(followingOperations.toggleFollowing(user.getUrn(), toggleFollow.isChecked()));
+                engagementsTracking.followUserUrn(user.getUrn(), toggleFollow.isChecked());
             }
         });
     }

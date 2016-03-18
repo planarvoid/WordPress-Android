@@ -5,6 +5,7 @@ import static com.soundcloud.android.stream.StreamItem.Kind.UPSELL;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
@@ -19,8 +20,13 @@ class UpsellNotificationItem implements StreamItem {
     }
 
     @Override
-    public Urn getEntityUrn() {
+    public Urn getUrn() {
         return URN;
+    }
+
+    @Override
+    public Optional<String> getArtworkUrlTemplate() {
+        return Optional.absent();
     }
 
     @Override

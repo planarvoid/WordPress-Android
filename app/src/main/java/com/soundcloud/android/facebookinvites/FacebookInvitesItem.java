@@ -29,7 +29,7 @@ public class FacebookInvitesItem extends NotificationItem {
     }
 
     @Override
-    public Urn getEntityUrn() {
+    public Urn getUrn() {
         return urn;
     }
 

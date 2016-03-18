@@ -38,9 +38,6 @@ public class ApiTrackBlueprint {
     long fullDuration = 678910L;
 
     @Default
-    String artworkUrl = "http://i1.sndcdn.com/artworks-000056989650-zm98k6-large.jpg?5e64f12";
-
-    @Default
     String waveformUrl = "http://waveform.url";
 
     @Default
@@ -66,6 +63,7 @@ public class ApiTrackBlueprint {
             if (model.getUser() == null){
                 model.setUser(ModelFixtures.create(ApiUser.class));
             }
+            model.setArtworkUrlTemplate("https://i1.sndcdn.com/artworks-000151307749-v2r7oy-{size}.jpg");
             model.setMonetizationModel("SUB_MID_TIER");
             model.setSubMidTier(true);
             model.setSubHighTier(true);

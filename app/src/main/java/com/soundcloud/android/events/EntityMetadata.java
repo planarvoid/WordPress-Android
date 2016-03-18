@@ -72,7 +72,7 @@ public class EntityMetadata {
                 playable.getCreatorName(),
                 playable.getCreatorUrn(),
                 playable.getTitle(),
-                playable.getEntityUrn());
+                playable.getUrn());
     }
 
     public static EntityMetadata from(@Nullable PlayerTrackState track) {

@@ -73,7 +73,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onItemClicked(view, 0);
 
-        verify(navigator).openPlaylist(fragmentRule.getActivity(), clickedPlaylist.getEntityUrn(), Screen.SEARCH_PLAYLIST_DISCO);
+        verify(navigator).openPlaylist(fragmentRule.getActivity(), clickedPlaylist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
     }
 
     @Test

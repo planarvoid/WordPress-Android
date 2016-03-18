@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.annotation.ColorRes;
 import android.support.annotation.LayoutRes;
 import android.view.LayoutInflater;
@@ -136,6 +137,10 @@ public class TrackItemView {
 
     public Context getContext() {
         return title.getContext();
+    }
+
+    public Resources getResources() {
+        return title.getResources();
     }
 
     public void showNotAvailableOffline() {

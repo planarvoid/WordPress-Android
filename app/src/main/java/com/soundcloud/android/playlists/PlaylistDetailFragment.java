@@ -359,7 +359,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         }
 
         playbackInitiator.playTracks(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn()),
-                initialTrack.getEntityUrn(), trackPosition, playSessionSource)
+                initialTrack.getUrn(), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);
     }
 

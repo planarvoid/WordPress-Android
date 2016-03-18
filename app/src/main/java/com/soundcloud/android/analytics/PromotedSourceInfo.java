@@ -33,7 +33,7 @@ public final class PromotedSourceInfo implements Parcelable {
     public static PromotedSourceInfo fromItem(PromotedListItem item) {
         return new PromotedSourceInfo(
                 item.getAdUrn(),
-                item.getEntityUrn(),
+                item.getUrn(),
                 item.getPromoterUrn(),
                 item.getPlayUrls()
         );

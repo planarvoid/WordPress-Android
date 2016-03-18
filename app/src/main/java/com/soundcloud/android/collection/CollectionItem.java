@@ -5,6 +5,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
@@ -89,8 +90,13 @@ public class CollectionItem implements ListItem {
     }
 
     @Override
-    public Urn getEntityUrn() {
-        return type == TYPE_PLAYLIST_ITEM ? playlistItem.getEntityUrn() : Urn.NOT_SET;
+    public Urn getUrn() {
+        return type == TYPE_PLAYLIST_ITEM ? playlistItem.getUrn() : Urn.NOT_SET;
+    }
+
+    @Override
+    public Optional<String> getArtworkUrlTemplate() {
+        return type == TYPE_PLAYLIST_ITEM ? playlistItem.getArtworkUrlTemplate() : Optional.<String>absent();
     }
 
     @Override

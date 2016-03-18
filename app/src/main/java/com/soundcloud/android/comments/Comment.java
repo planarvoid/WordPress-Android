@@ -4,6 +4,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
@@ -22,8 +23,13 @@ public class Comment implements ListItem {
     }
 
     @Override
-    public Urn getEntityUrn() {
+    public Urn getUrn() {
         return apiComment.getUrn();
+    }
+
+    @Override
+    public Optional<String> getArtworkUrlTemplate() {
+        return Optional.absent();
     }
 
     Urn getUserUrn() {

@@ -77,7 +77,7 @@ class StreamCardViewPresenter {
 
     private void loadArtwork(StreamItemViewHolder itemView, PlayableItem playableItem) {
         imageOperations.displayInAdapterView(
-                playableItem.getEntityUrn(), ApiImageSize.getFullImageSize(resources),
+                playableItem.getUrn(), ApiImageSize.getFullImageSize(resources),
                 itemView.getImage());
     }
 

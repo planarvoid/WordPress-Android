@@ -191,7 +191,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         PlaybackResult playbackResult = PlaybackResult.success();
         when(adapter.getItem(0)).thenReturn(clickedTrack);
-        when(playbackInitiator.playTracks(eq(likedTrackUrns), eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
+        when(playbackInitiator.playTracks(eq(likedTrackUrns), eq(clickedTrack.getUrn()), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(playbackResult));
         return playbackResult;
     }
