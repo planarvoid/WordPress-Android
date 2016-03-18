@@ -106,7 +106,7 @@ class NotificationPreferencesOperations {
     private ApiRequest buildFetchRequest() {
         return ApiRequest
                 .get(ApiEndpoints.NOTIFICATION_PREFERENCES.path())
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
     }
 
@@ -114,7 +114,7 @@ class NotificationPreferencesOperations {
         return ApiRequest
                 .put(ApiEndpoints.NOTIFICATION_PREFERENCES.path())
                 .withContent(storage.buildNotificationPreferences())
-                .forPrivateApi(1)
+                .forPrivateApi()
                 .build();
     }
 }
