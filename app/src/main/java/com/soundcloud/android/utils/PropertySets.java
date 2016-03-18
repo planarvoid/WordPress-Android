@@ -5,8 +5,11 @@ import static com.soundcloud.java.collections.Lists.transform;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
@@ -29,6 +32,18 @@ public final class PropertySets {
             urns.add(propertySet.get(EntityProperty.URN));
         }
         return urns;
+    }
+
+    public static List<Long> extractIds(Iterable<PropertySet> entities, Optional<Predicate<Urn>> predicate) {
+        final List<Long> ids = new ArrayList<>(Iterables.size(entities));
+
+        for (PropertySet propertySet : entities) {
+            final Urn urn = propertySet.getOrElse(EntityProperty.URN, Urn.NOT_SET);
+            if (!predicate.isPresent() || predicate.get().apply(urn)) {
+                ids.add(urn.getNumericId());
+            }
+        }
+        return ids;
     }
 
     @SuppressFBWarnings(

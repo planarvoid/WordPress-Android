@@ -27,6 +27,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.PropertySets;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;

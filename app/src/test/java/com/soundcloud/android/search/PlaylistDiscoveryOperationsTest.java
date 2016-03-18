@@ -28,6 +28,8 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.MultiMap;

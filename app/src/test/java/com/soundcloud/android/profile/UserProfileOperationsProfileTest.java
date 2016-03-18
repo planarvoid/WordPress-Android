@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;

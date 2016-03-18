@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.strings.Strings;
 
 import android.support.annotation.NonNull;
@@ -18,7 +19,7 @@ public final class Urns {
             return urn.getNumericId();
         }
     };
-    
+
     private static final Function<Urn, String> URN_TO_STRING = new Function<Urn, String>() {
         @Override
         public String apply(Urn input) {
@@ -30,7 +31,7 @@ public final class Urns {
         return URN_TO_STRING;
     }
 
-    public static ArrayList<String> toString(List<Urn> urns){
+    public static ArrayList<String> toString(List<Urn> urns) {
         final ArrayList<String> urnStrings = new ArrayList<>(urns.size());
         for (Urn urn : urns) {
             urnStrings.add(urn.toString());
@@ -38,12 +39,30 @@ public final class Urns {
         return urnStrings;
     }
 
-    public static String toJoinedIds(List<Urn> urns, String delimiter){
+    public static String toJoinedIds(List<Urn> urns, String delimiter) {
         final ArrayList<String> idStrings = new ArrayList<>(urns.size());
         for (Urn urn : urns) {
             idStrings.add(String.valueOf(urn.getNumericId()));
         }
         return Strings.joinOn(delimiter).join(idStrings);
+    }
+
+    public static Predicate<Urn> trackPredicate() {
+        return new Predicate<Urn>() {
+            @Override
+            public boolean apply(Urn urn) {
+                return urn.isTrack();
+            }
+        };
+    }
+
+    public static Predicate<Urn> playlistPredicate() {
+        return new Predicate<Urn>() {
+            @Override
+            public boolean apply(Urn urn) {
+                return urn.isPlaylist();
+            }
+        };
     }
 
     @NonNull

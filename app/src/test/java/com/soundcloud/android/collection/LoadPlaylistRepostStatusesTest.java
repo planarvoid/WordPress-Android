@@ -1,4 +1,4 @@
-package com.soundcloud.android.search;
+package com.soundcloud.android.collection;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,6 +8,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
