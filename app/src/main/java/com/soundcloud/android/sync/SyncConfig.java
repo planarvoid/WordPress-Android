@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class SyncConfig {
     public static final long DEFAULT_SYNC_DELAY = TimeUnit.HOURS.toSeconds(1); // interval between syncs
-    public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
+    public static final String AUTHORITY = BuildConfig.ACCOUNT_AUTHORITY;
 
     static final long TRACK_STALE_TIME      = TimeUnit.HOURS.toMillis(1);
     static final long ACTIVITY_STALE_TIME   = TimeUnit.HOURS.toMillis(6);

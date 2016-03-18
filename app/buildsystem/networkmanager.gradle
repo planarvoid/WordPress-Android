@@ -18,7 +18,7 @@ task downloadNetworkManagerApk(type:Exec, dependsOn: ["assembleProd${project.bui
 
 task uninstallNetworkManagerApk(type:Exec) {
   description 'Uninstalls any existing Android Network Manager APK from the connected device.'
-  commandLine "/usr/local/bin/adb", "uninstall", rootProject.ext.androidNetorkManagerApplicationId
+  commandLine "/usr/local/bin/adb", "uninstall", rootProject.ext.androidNetworkManagerApplicationId
 }
 
 task installNetworkManagerApk(type:Exec, dependsOn: ['uninstallNetworkManagerApk', 'downloadNetworkManagerApk']) {

@@ -386,8 +386,6 @@
     <string name="sc_upload_public">\u00A0Public</string>
 
     <!-- __DISCOVERY SEARCH -->
-    <string name="search_hint">Search SoundCloud</string>
-    <string name="search_settings_description">Search sounds</string>
     <string name="search_type_all">ALL</string>
     <string name="search_type_tracks">TRACKS</string>
     <string name="search_type_playlists">PLAYLISTS</string>

@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.widget;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -27,7 +28,7 @@ import javax.inject.Inject;
 
 class PlayerWidgetPresenter {
 
-    private static final ComponentName PLAYER_WIDGET_PROVIDER = new ComponentName("com.soundcloud.android",
+    private static final ComponentName PLAYER_WIDGET_PROVIDER = new ComponentName(BuildConfig.APPLICATION_ID,
             PlayerAppWidgetProvider.class.getCanonicalName());
     private final AppWidgetManager appWidgetManager;
     private final ImageOperations imageOperations;

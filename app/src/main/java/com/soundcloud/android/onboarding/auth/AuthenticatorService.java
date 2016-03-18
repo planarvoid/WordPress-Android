@@ -23,7 +23,6 @@ import android.os.IBinder;
 import javax.inject.Inject;
 
 public class AuthenticatorService extends Service {
-    public static final String KEY_ACCOUNT_RESULT = "com.soundcloud.android.account-result";
 
     @Inject SoundCloudAuthenticator authenticator;
 

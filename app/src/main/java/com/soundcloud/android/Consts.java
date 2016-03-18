@@ -15,7 +15,7 @@ public final class Consts {
     // general purpose storage, removed on reinstall
     public static final File FILES_PATH = new File(
             Environment.getExternalStorageDirectory(),
-            "Android/data/com.soundcloud.android/files");
+            "Android/data/" + BuildConfig.APPLICATION_ID + "/files");
 
     // dot file to have it excluded from media scanning - also use .nomedia
     public static final File OLD_EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".cache");

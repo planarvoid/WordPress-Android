@@ -92,7 +92,7 @@ def runTests(label, excludeAnnotations, systemProperties, classFilter, Test[] te
 def createSession(systemProperties) {
   def applicationPackage = new Package(project.('applicationId'), findApkPath(project.('buildType'), project.('alphaVersionCode')))
   def testPackage = new Package(project.('testApplicationId'), project.('testApkPath'))
-  def toolsPackages = [new Package(project.('androidNetorkManagerApplicationId'), project.('networkManagerApkPath'))] as Package[]
+  def toolsPackages = [new Package(project.('androidNetworkManagerApplicationId'), project.('networkManagerApkPath'))] as Package[]
   return new Session(applicationPackage, testPackage, toolsPackages, systemProperties)
 }
 

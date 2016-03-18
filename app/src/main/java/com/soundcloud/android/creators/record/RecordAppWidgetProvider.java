@@ -1,6 +1,7 @@
 package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 
 import android.app.PendingIntent;
@@ -16,8 +17,8 @@ public class RecordAppWidgetProvider extends AppWidgetProvider {
 
     private static final String TAG = "RecordWidget";
     static final ComponentName THIS_APPWIDGET =
-            new ComponentName("com.soundcloud.android",
-                    "com.soundcloud.android.service.record.RecordAppWidgetProvider");
+            new ComponentName(BuildConfig.APPLICATION_ID,
+                    BuildConfig.APPLICATION_ID + ".service.record.RecordAppWidgetProvider");
 
     private static RecordAppWidgetProvider instance;
 
