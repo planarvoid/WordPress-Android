@@ -9,7 +9,9 @@ import static com.soundcloud.java.collections.MoreCollections.transform;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
@@ -17,26 +19,31 @@ import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Func1;
 
+import android.support.annotation.NonNull;
+
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserSoundsItem>> {
 
     private final EntityHolderMapper entityHolderMapper;
+    private final UserSoundsStatusMapper statusMapper;
 
     @Inject
-    public UserSoundsMapper(EntityHolderMapper entityHolderMapper) {
+    public UserSoundsMapper(EntityHolderMapper entityHolderMapper, UserSoundsStatusMapper statusMapper) {
         this.entityHolderMapper = entityHolderMapper;
+        this.statusMapper = statusMapper;
     }
 
     @Override
     public Iterable<UserSoundsItem> call(UserProfileRecord userProfile) {
         final List<UserSoundsItem> items = new ArrayList<>(estimateItemCount(userProfile));
 
-        items.addAll(entityHolderMapper.map(UserSoundsTypes.SPOTLIGHT,
-                convertToApiEntityHolderCollection(userProfile.getSpotlight())));
+        addSpotlightItems(userProfile, items);
+
         items.addAll(entityHolderMapper.map(UserSoundsTypes.TRACKS, userProfile.getTracks()));
         items.addAll(entityHolderMapper.map(UserSoundsTypes.RELEASES, userProfile.getReleases()));
         items.addAll(entityHolderMapper.map(UserSoundsTypes.PLAYLISTS, userProfile.getPlaylists()));
@@ -46,6 +53,13 @@ public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserS
                 convertToApiEntityHolderCollection(userProfile.getLikes())));
 
         return items;
+    }
+
+    private void addSpotlightItems(UserProfileRecord userProfile, List<UserSoundsItem> items) {
+        List<UserSoundsItem> spotlightItems = entityHolderMapper.map(UserSoundsTypes.SPOTLIGHT,
+                convertToApiEntityHolderCollection(userProfile.getSpotlight()));
+        statusMapper.map(spotlightItems);
+        items.addAll(spotlightItems);
     }
 
     private int estimateItemCount(UserProfileRecord userProfile) {

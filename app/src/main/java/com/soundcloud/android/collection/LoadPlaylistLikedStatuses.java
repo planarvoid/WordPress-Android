@@ -1,26 +1,29 @@
-package com.soundcloud.android.search;
+package com.soundcloud.android.collection;
 
+import static com.soundcloud.android.utils.PropertySets.extractIds;
+import static com.soundcloud.android.utils.Urns.playlistPredicate;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.PropertySets;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class LoadPlaylistLikedStatuses extends Command<Iterable<PropertySet>, Map<Urn,PropertySet>> {
+public class LoadPlaylistLikedStatuses extends Command<Iterable<PropertySet>, Map<Urn, PropertySet>> {
 
     private static final String COLUMN_IS_LIKED = "is_liked";
 
@@ -45,23 +48,12 @@ public class LoadPlaylistLikedStatuses extends Command<Iterable<PropertySet>, Ma
 
         return Query.from(Table.SoundView.name())
                 .select(TableColumns.SoundView._ID, exists(isLiked).as(COLUMN_IS_LIKED))
-                .whereIn(TableColumns.SoundView._ID, getPlaylistIds(input))
+                .whereIn(TableColumns.SoundView._ID, extractIds(input, Optional.of(playlistPredicate())))
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
     }
 
-    private List<Long> getPlaylistIds(Iterable<PropertySet> propertySets) {
-        final List<Long> playlistIds = new ArrayList<>();
-        for (PropertySet set : propertySets) {
-            final Urn urn = set.getOrElse(PlayableProperty.URN, Urn.NOT_SET);
-            if (urn.isPlaylist()) {
-                playlistIds.add(urn.getNumericId());
-            }
-        }
-        return playlistIds;
-    }
-
-    private Map<Urn,PropertySet> toLikedSet(QueryResult result) {
-        Map<Urn,PropertySet> likedMap = new HashMap<>();
+    private Map<Urn, PropertySet> toLikedSet(QueryResult result) {
+        Map<Urn, PropertySet> likedMap = new HashMap<>();
         for (CursorReader reader : result) {
             final Urn playlistUrn = Urn.forPlaylist(reader.getLong(TableColumns.SoundView._ID));
             likedMap.put(playlistUrn, PropertySet.from(PlaylistProperty.IS_USER_LIKE.bind(reader.getBoolean(COLUMN_IS_LIKED))));

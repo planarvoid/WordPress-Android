@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -26,23 +27,35 @@ import java.util.Map;
 public class UserSoundsMapperTest extends AndroidUnitTest {
 
     @Mock UserSoundsMapper.EntityHolderMapper entityHolderMapper;
+    @Mock UserSoundsStatusMapper statusMapper;
+    @Mock UserSoundsItem mockUserSoundsSpotlightItem;
     @Mock UserSoundsItem mockUserSoundsItem;
 
     @Test
     public void shouldMapItemsToUserSoundsItems() throws Exception {
         final ApiUserProfile profile = new UserProfileFixtures.Builder().populateAllCollections().build();
 
-        mockEntityHolderMapper(UserSoundsTypes.SPOTLIGHT, toApiEntityHolderCollection(profile.getSpotlight()));
+        when(entityHolderMapper.map(UserSoundsTypes.SPOTLIGHT, toApiEntityHolderCollection(profile.getSpotlight())))
+                .thenReturn(newArrayList(mockUserSoundsSpotlightItem));
         mockEntityHolderMapper(UserSoundsTypes.TRACKS, profile.getTracks());
         mockEntityHolderMapper(UserSoundsTypes.RELEASES, profile.getReleases());
         mockEntityHolderMapper(UserSoundsTypes.PLAYLISTS, profile.getPlaylists());
         mockEntityHolderMapper(UserSoundsTypes.REPOSTS, toApiEntityHolderCollection(profile.getReposts()));
         mockEntityHolderMapper(UserSoundsTypes.LIKES, toApiEntityHolderCollection(profile.getLikes()));
 
-        ArrayList<UserSoundsItem> result = newArrayList(new UserSoundsMapper(entityHolderMapper).call(profile));
+        UserSoundsMapper subject = new UserSoundsMapper(entityHolderMapper, statusMapper);
+        ArrayList<UserSoundsItem> result = newArrayList(subject.call(profile));
 
         assertThat(result.size()).isEqualTo(6);
-        for (UserSoundsItem item : result) assertThat(item).isEqualTo(mockUserSoundsItem);
+
+        assertThat(result.get(0)).isEqualTo(mockUserSoundsSpotlightItem);
+        assertThat(result.get(1)).isEqualTo(mockUserSoundsItem);
+        assertThat(result.get(2)).isEqualTo(mockUserSoundsItem);
+        assertThat(result.get(3)).isEqualTo(mockUserSoundsItem);
+        assertThat(result.get(4)).isEqualTo(mockUserSoundsItem);
+        assertThat(result.get(5)).isEqualTo(mockUserSoundsItem);
+
+        verify(statusMapper).map(newArrayList(mockUserSoundsSpotlightItem));
     }
 
     @Test
@@ -82,10 +95,10 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
     }
 
     private ModelCollection<ApiEntityHolder> toApiEntityHolderCollection(
-            ModelCollection<? extends ApiEntityHolderSource> spotlight) {
-        ApiEntityHolder apiEntityHolder = spotlight.getCollection().get(0).getEntityHolder().get();
+            ModelCollection<? extends ApiEntityHolderSource> apiEntityHolderSources) {
+        ApiEntityHolder apiEntityHolder = apiEntityHolderSources.getCollection().get(0).getEntityHolder().get();
         ArrayList<ApiEntityHolder> apiEntityHolders = newArrayList(apiEntityHolder);
-        return new ModelCollection<>(apiEntityHolders, spotlight.getLinks());
+        return new ModelCollection<>(apiEntityHolders, apiEntityHolderSources.getLinks());
     }
 
     private void mockEntityHolderMapper(int collectionType, ModelCollection<? extends ApiEntityHolder> collection) {

@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -8,10 +9,14 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -28,7 +33,9 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
     private final UserSoundsAdapter adapter;
     private final UserProfileOperations operations;
     private UserSoundsMapper userSoundsMapper;
+    private EventBus eventBus;
     private Urn userUrn;
+    private Subscription eventSubscription = RxUtils.invalidSubscription();
 
     @Inject
     UserSoundsPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener,
@@ -36,12 +43,14 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
                         UserSoundsAdapter adapter,
                         UserProfileOperations operations,
                         MixedItemClickListener.Factory itemClickListenerFactory,
-                        UserSoundsMapper userSoundsMapper) {
+                        UserSoundsMapper userSoundsMapper,
+                        EventBus eventBus) {
         super(swipeRefreshAttacher, Options.list().useDividers(Options.DividerMode.NONE).build());
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.operations = operations;
         this.userSoundsMapper = userSoundsMapper;
+        this.eventBus = eventBus;
         this.itemClickListener = itemClickListenerFactory.create(Screen.USER_SOUNDS, null);
     }
 
@@ -71,6 +80,13 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
     }
 
     @Override
+    protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
+        super.onCreateCollectionView(fragment, view, savedInstanceState);
+
+        eventSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter));
+    }
+
+    @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
@@ -79,6 +95,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserSoundsItem> {
 
     @Override
     public void onDestroyView(Fragment fragment) {
+        eventSubscription.unsubscribe();
         getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
         super.onDestroyView(fragment);
     }

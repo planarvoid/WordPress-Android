@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.R.layout.default_recyclerview_with_refresh;
+import static com.soundcloud.android.profile.UserSoundsItem.fromPlaylistItem;
 import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -8,13 +9,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,7 +40,8 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
 
     private UserSoundsPresenter presenter;
     private ApiUserProfile userProfileResponse;
-    Bundle fragmentArgs;
+    private Bundle fragmentArgs;
+    private TestEventBus eventBus = new TestEventBus();
 
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacker;
@@ -52,7 +60,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter = new UserSoundsPresenter(imagePauseOnScrollListener, swipeRefreshAttacker, adapter, operations,
-                itemClickListenerFactory, userSoundsMapper);
+                itemClickListenerFactory, userSoundsMapper, eventBus);
 
         doReturn(Observable.just(userProfileResponse)).when(operations).userProfile(USER_URN);
     }
@@ -92,6 +100,24 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
 
         verify(emptyView).setImage(R.drawable.empty_stream);
         verify(emptyView).setMessageText(R.string.empty_you_sounds_message);
+    }
+
+    @Test
+    public void shouldNotifyAdapterWhenPlaylistEntityStateChanged() {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        when(adapter.getItems())
+                .thenReturn(singletonList(fromPlaylistItem(PlaylistItem.from(playlist), UserSoundsTypes.SPOTLIGHT)));
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fakeLikePlaylistEvent(playlist));
+
+        verify(adapter).notifyDataSetChanged();
+    }
+
+    private EntityStateChangedEvent fakeLikePlaylistEvent(ApiPlaylist apiPlaylist) {
+        return EntityStateChangedEvent.fromLike(apiPlaylist.getUrn(), true, apiPlaylist.getLikesCount() + 1);
     }
 
     private View view(EmptyView emptyView) {

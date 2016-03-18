@@ -1,17 +1,20 @@
-package com.soundcloud.android.search;
+package com.soundcloud.android.collection;
 
 import static com.soundcloud.android.storage.TableColumns.Likes;
 import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
+import static com.soundcloud.android.utils.PropertySets.extractIds;
+import static com.soundcloud.android.utils.Urns.playlistPredicate;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
@@ -19,12 +22,10 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-class LoadPlaylistRepostStatuses extends Command<Iterable<PropertySet>, Map<Urn, PropertySet>> {
+public class LoadPlaylistRepostStatuses extends Command<Iterable<PropertySet>, Map<Urn, PropertySet>> {
 
     private final PropellerDatabase propeller;
 
@@ -42,24 +43,13 @@ class LoadPlaylistRepostStatuses extends Command<Iterable<PropertySet>, Map<Urn,
         return Query.from(Table.SoundView.name())
                 .select(SoundView._ID, Posts.TYPE)
                 .leftJoin(Table.Posts.name(), joinCondition())
-                .whereIn(SoundView._ID, getPlaylistIds(input));
+                .whereIn(SoundView._ID, extractIds(input, Optional.of(playlistPredicate())));
     }
 
     private static Where joinCondition() {
         return filter().whereEq(SoundView._ID, Posts.TARGET_ID)
                 .whereEq(Table.Posts.field(Posts.TARGET_TYPE), Sounds.TYPE_PLAYLIST)
                 .whereNull(Table.Posts.field(Likes.REMOVED_AT));
-    }
-
-    private List<Long> getPlaylistIds(Iterable<PropertySet> propertySets) {
-        final List<Long> playlistIds = new ArrayList<>();
-        for (PropertySet set : propertySets) {
-            final Urn urn = set.getOrElse(PlayableProperty.URN, Urn.NOT_SET);
-            if (urn.isPlaylist()) {
-                playlistIds.add(urn.getNumericId());
-            }
-        }
-        return playlistIds;
     }
 
     private Map<Urn, PropertySet> toRepostedSet(QueryResult queryResult) {

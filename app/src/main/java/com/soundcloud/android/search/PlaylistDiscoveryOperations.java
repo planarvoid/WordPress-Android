@@ -13,6 +13,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicates;
