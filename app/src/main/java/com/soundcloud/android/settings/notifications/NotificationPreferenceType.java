@@ -19,14 +19,16 @@ enum NotificationPreferenceType {
     REPOSTS(            "reposts",          "reposts_mobile",           "reposts_mail"),
     PRODUCT_UPDATES(    "productUpdates",   "productUpdates_mobile",    "productUpdates_mail"),
     SURVEYS(            "surveys",          "surveys_mobile",           "surveys_mail"),
-    TIPS(               "tips",             "tips_mobile",              "tips_mail");
+    TIPS(               "tips",             "tips_mobile",              "tips_mail"),
+    RECOMMENDATIONS(    "recommendations",  "recommendations_mobile",   "recommendations_mail");
 
     private static EnumSet<NotificationPreferenceType> MOBILE_PREFERENCES =
-            EnumSet.of(FOLLOWS, NEW_CONTENT, LIKES, REPOSTS, PRODUCT_UPDATES, SURVEYS, TIPS);
+            EnumSet.of(FOLLOWS, NEW_CONTENT, LIKES, REPOSTS, PRODUCT_UPDATES, SURVEYS, TIPS,
+                    RECOMMENDATIONS);
 
     private static EnumSet<NotificationPreferenceType> MAIL_PREFERENCES =
             EnumSet.of(MESSAGES, GROUPS, NEWSLETTERS, COMMENTS, FOLLOWS, NEW_CONTENT, LIKES,
-                    REPOSTS, PRODUCT_UPDATES, SURVEYS, TIPS);
+                    REPOSTS, PRODUCT_UPDATES, SURVEYS, TIPS, RECOMMENDATIONS);
 
     private static final Function<NotificationPreferenceType, String> TO_MOBILE_KEY = new Function<NotificationPreferenceType, String>() {
         public String apply(NotificationPreferenceType type) {

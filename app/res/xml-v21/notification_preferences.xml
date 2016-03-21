@@ -44,6 +44,11 @@
         android:key="@string/key_push_notifications_tips"
         android:title="@string/push_notifications_tips" />
 
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_push_notifications_recommendations"
+        android:title="@string/push_notifications_recommendations" />
+
     <Preference android:layout="@layout/preferences_separator" />
 
     <SwitchPreference
@@ -104,6 +109,11 @@
         android:defaultValue="true"
         android:key="@string/key_email_notifications_tips"
         android:title="@string/email_notifications_tips" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/key_email_notifications_recommendations"
+        android:title="@string/email_notifications_recommendations" />
 
     <SwitchPreference
         android:defaultValue="true"
