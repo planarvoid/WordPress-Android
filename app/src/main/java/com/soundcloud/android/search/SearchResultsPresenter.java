@@ -165,7 +165,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         if (!premiumItems.isEmpty()) {
             playables.add(premiumItems.get(0));
         }
-        playables.addAll(adapter.getItems().subList(1, numberOfItemsInPlayQueue));
+        playables.addAll(adapter.getResultItems());
         return playables;
     }
 

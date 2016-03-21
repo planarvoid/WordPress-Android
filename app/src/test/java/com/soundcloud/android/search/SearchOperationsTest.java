@@ -527,10 +527,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         pagingFunction.call(searchResult);
 
-        final List<Urn> allUrns = pagingFunction.getAllUrns();
-        assertThat(allUrns.get(0)).isEqualTo(TRACK_ONE_URN);
-        assertThat(allUrns.get(1)).isEqualTo(TRACK_TWO_URN);
-        assertThat(allUrns.size()).isEqualTo(2);
+        assertThat(pagingFunction.getAllUrns()).containsExactly(TRACK_ONE_URN, TRACK_TWO_URN);
     }
 
     @Test
@@ -545,10 +542,20 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         pagingFunction.call(searchResult);
 
-        final List<Urn> allUrns = pagingFunction.getAllUrns();
-        assertThat(allUrns.get(0)).isEqualTo(PREMIUM_TRACK_URN);
-        assertThat(allUrns.get(1)).isEqualTo(track.getUrn());
-        assertThat(allUrns.size()).isEqualTo(2);
+        assertThat(pagingFunction.getAllUrns()).containsExactly(PREMIUM_TRACK_URN, track.getUrn());
+    }
+
+    @Test
+    public void contentUpsellUrnShouldNotBeIncludedInPaginatedContent() {
+        final PropertySet upsellItem = PropertySet.create().put(EntityProperty.URN, SearchUpsellItem.UPSELL_URN);
+        final PropertySet trackOne = PropertySet.create().put(EntityProperty.URN, TRACK_ONE_URN);
+        final PropertySet trackTwo = PropertySet.create().put(EntityProperty.URN, TRACK_TWO_URN);
+        final SearchResult searchResult = SearchResult.fromPropertySets(Arrays.asList(upsellItem, trackOne, trackTwo), Optional.<Link>absent(), Urn.NOT_SET);
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchOperations.TYPE_ALL);
+
+        pagingFunction.call(searchResult);
+
+        assertThat(pagingFunction.getAllUrns()).containsExactly(TRACK_ONE_URN, TRACK_TWO_URN);
     }
 
     private <T> void mockPremiumSearchApiResponse(List<T> searchItems, SearchModelCollection<T> apiPremiumItems) {

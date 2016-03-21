@@ -17,6 +17,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
 class SearchResultsAdapter
         extends PagingRecyclerItemAdapter<ListItem, SearchResultsAdapter.SearchViewHolder>
@@ -62,6 +63,14 @@ class SearchResultsAdapter
         } else {
             throw new IllegalStateException("Unexpected item type in " + SearchResultsAdapter.class.getSimpleName());
         }
+    }
+
+    List<ListItem> getResultItems() {
+        final int viewType = getBasicItemViewType(0);
+        if (viewType == TYPE_UPSELL || viewType == TYPE_PREMIUM_CONTENT) {
+            return getItems().subList(1, getItems().size());
+        }
+        return getItems();
     }
 
     @Override
