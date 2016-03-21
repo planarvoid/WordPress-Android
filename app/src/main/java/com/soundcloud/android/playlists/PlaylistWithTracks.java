@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
@@ -10,13 +11,14 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class PlaylistWithTracks {
+public class PlaylistWithTracks implements ImageResource {
 
     public static final Function<PlaylistWithTracks, Urn> TO_URN = new Function<PlaylistWithTracks, Urn>() {
         @Override
@@ -45,8 +47,14 @@ public class PlaylistWithTracks {
         return getTracks().isEmpty();
     }
 
+    @Override
     public Urn getUrn() {
         return sourceSet.get(PlaylistProperty.URN);
+    }
+
+    @Override
+    public Optional<String> getArtworkUrlTemplate() {
+        return sourceSet.getOrElse(PlaylistProperty.ARTWORK_URL_TEMPLATE, Optional.<String>absent());
     }
 
     public Urn getCreatorUrn() {

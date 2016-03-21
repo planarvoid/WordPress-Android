@@ -2,6 +2,7 @@ package com.soundcloud.android.image;
 
 import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -14,10 +15,9 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.ApiEndpoints;
-import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.cache.Cache;
 import com.soundcloud.android.utils.cache.Cache.ValueProvider;
 import com.soundcloud.android.utils.images.ImageUtils;
@@ -54,13 +54,14 @@ import java.util.regex.Pattern;
 @Singleton
 public class ImageOperations {
 
+    private static final String TAG = ImageLoader.TAG;
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // available mem in bytes
     private static final Pattern PATTERN = Pattern.compile("^https?://(.+)");
     private static final String URL_BASE = "http://%s";
     private static final String PLACEHOLDER_KEY_BASE = "%s_%s_%s";
 
     private final ImageLoader imageLoader;
-    private final ApiUrlBuilder urlBuilder;
+    private final ImageUrlBuilder imageUrlBuilder;
     private final PlaceholderGenerator placeholderGenerator;
 
     private final Set<String> notFoundUris = new HashSet<>();
@@ -81,10 +82,10 @@ public class ImageOperations {
     private ImageProcessor imageProcessor;
 
     @Inject
-    public ImageOperations(ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator, CircularPlaceholderGenerator circularPlaceholderGenerator,
+    public ImageOperations(PlaceholderGenerator placeholderGenerator, CircularPlaceholderGenerator circularPlaceholderGenerator,
                            FallbackBitmapLoadingAdapter.Factory adapterFactory, BitmapLoadingAdapter.Factory bitmapAdapterFactory,
-                           ImageProcessor imageProcessor) {
-        this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, circularPlaceholderGenerator,
+                           ImageProcessor imageProcessor, ImageUrlBuilder imageUrlBuilder) {
+        this(ImageLoader.getInstance(), imageUrlBuilder, placeholderGenerator, circularPlaceholderGenerator,
                 adapterFactory, bitmapAdapterFactory, imageProcessor,
                 Cache.<String, TransitionDrawable>withSoftValues(50),
                 Cache.<Urn, Bitmap>withSoftValues(10),
@@ -94,13 +95,13 @@ public class ImageOperations {
     private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
 
     @VisibleForTesting
-    ImageOperations(ImageLoader imageLoader, ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
+    ImageOperations(ImageLoader imageLoader, ImageUrlBuilder imageUrlBuilder, PlaceholderGenerator placeholderGenerator,
                     CircularPlaceholderGenerator circularPlaceholderGenerator,
                     FallbackBitmapLoadingAdapter.Factory adapterFactory, BitmapLoadingAdapter.Factory bitmapAdapterFactory,
                     ImageProcessor imageProcessor, Cache<String, TransitionDrawable> placeholderCache,
                     Cache<Urn, Bitmap> blurredImageCache, FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
-        this.urlBuilder = urlBuilder;
+        this.imageUrlBuilder = imageUrlBuilder;
         this.placeholderGenerator = placeholderGenerator;
         this.circularPlaceholderGenerator = circularPlaceholderGenerator;
         this.placeholderCache = placeholderCache;
@@ -134,30 +135,78 @@ public class ImageOperations {
         imageLoader.clearDiskCache();
     }
 
-    public void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
-        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
-                imageAware,
-                ImageOptionsFactory.adapterView(getPlaceholderDrawable(urn, imageAware), apiImageSize), notFoundListener);
+    /**
+     * Load an image for a list item whereby a best attempt is made to load it directly via URL provided by the
+     * item itself. This is the preferred way for loading artwork and avatars, since it's more efficient than
+     * resolving the URL first.
+     * <p/>
+     * If no URL is provided, the indirect resolution via the image resolver is used.
+     */
+    public void displayInAdapterView(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
+        displayInAdapterView(imageResource.getUrn(), apiImageSize, imageView,
+                buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
     }
 
+    /**
+     * Load an image for a list item by using the image resolver on the given URN.
+     * <p/>
+     * This kind of resolution puts more pressure on our backends, so always prefer to load via {@link ImageResource}
+     * if possible.
+     */
+    public void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
+        displayInAdapterView(urn, apiImageSize, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize));
+    }
+
+    private void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, String imageUrl) {
+        final ImageViewAware imageAware = new ImageViewAware(imageView, false);
+        final DisplayImageOptions options = ImageOptionsFactory.adapterView(
+                getPlaceholderDrawable(urn, imageAware), apiImageSize);
+        imageLoader.displayImage(
+                imageUrl,
+                imageAware,
+                options, notFoundListener);
+    }
+
+    /**
+     * @see {@link #displayInAdapterView(ImageResource, ApiImageSize, ImageView)}
+     */
+    public void displayCircularInAdapterView(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
+        final String imageUrl = buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize);
+        displayCircularInAdapterView(imageResource.getUrn(), apiImageSize, imageView, imageUrl);
+    }
+
+    /**
+     * @see {@link #displayInAdapterView(Urn, ApiImageSize, ImageView)}
+     */
     public void displayCircularInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
+        final String imageUrl = buildUrlIfNotPreviouslyMissing(urn, apiImageSize);
+        displayCircularInAdapterView(urn, apiImageSize, imageView, imageUrl);
+    }
+
+    private void displayCircularInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, String imageUrl) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final TransitionDrawable placeholderDrawable = getCircularPlaceholderDrawable(urn,
                 imageAware.getWidth(), imageAware.getHeight());
-
         imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
+                imageUrl,
                 imageAware,
                 ImageOptionsFactory.adapterViewCircular(placeholderDrawable, apiImageSize),
                 notFoundListener);
     }
 
+    public void displayWithPlaceholder(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
+        displayWithPlaceholder(imageResource.getUrn(), imageView,
+                buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
+    }
+
     public void displayWithPlaceholder(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
+        displayWithPlaceholder(urn, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize));
+    }
+
+    private void displayWithPlaceholder(Urn urn, ImageView imageView, String imageUrl) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
+                imageUrl,
                 imageAware,
                 ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)),
                 notFoundListener);
@@ -327,7 +376,7 @@ public class ImageOperations {
 
     @Nullable
     public Bitmap getCachedBitmap(Urn resourceUrn, ApiImageSize apiImageSize, int targetWidth, int targetHeight) {
-        final String imageUrl = getImageUrl(resourceUrn, apiImageSize);
+        final String imageUrl = imageUrlBuilder.imageResolverUrl(resourceUrn, apiImageSize);
         if (notFoundUris.contains(imageUrl)) {
             return null;
         }
@@ -382,7 +431,6 @@ public class ImageOperations {
 
     private Drawable getPlaceholderDrawable(final Urn urn, ImageViewAware imageViewAware) {
         return getPlaceholderDrawable(urn, imageViewAware.getWidth(), imageViewAware.getHeight());
-
     }
 
     /**
@@ -411,14 +459,22 @@ public class ImageOperations {
     }
 
     @Nullable
-    private String buildUrlIfNotPreviouslyMissing(Urn urn, ApiImageSize apiImageSize) {
-        final String imageUrl = getImageUrl(urn, apiImageSize);
+    private String buildUrlIfNotPreviouslyMissing(ImageResource imageResource, ApiImageSize apiImageSize) {
+        final String imageUrl = imageUrlBuilder.buildUrl(imageResource, apiImageSize);
+        Log.d(TAG, "Loading by ImageResource; url=" + imageUrl);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 
-    // TODO: Separate concerns of url building with image operations (see https://github.com/soundcloud/SoundCloud-Android/pull/4513#discussion-diff-47249877)
+    @Nullable
+    private String buildUrlIfNotPreviouslyMissing(Urn urn, ApiImageSize apiImageSize) {
+        final String imageUrl = imageUrlBuilder.imageResolverUrl(urn, apiImageSize);
+        Log.d(TAG, "Loading by URN; url=" + imageUrl);
+        return notFoundUris.contains(imageUrl) ? null : imageUrl;
+    }
+
+    @Nullable
     public String getImageUrl(Urn urn, ApiImageSize apiImageSize) {
-        return urlBuilder.from(ApiEndpoints.IMAGES, urn, apiImageSize.sizeSpec).build();
+        return buildUrlIfNotPreviouslyMissing(urn, apiImageSize);
     }
 
     @VisibleForTesting
@@ -448,7 +504,10 @@ public class ImageOperations {
         @Override
         public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
             if (failReason.getCause() instanceof FileNotFoundException) {
+                Log.d(TAG, "404 Not Found for " + imageUri);
                 notFoundUris.add(imageUri);
+            } else {
+                Log.d(TAG, "Failed loading " + imageUri + "; reason: " + failReason.getType());
             }
             animatePlaceholder(view);
             if (listenerAdapter != null) {

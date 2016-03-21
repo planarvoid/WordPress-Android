@@ -57,7 +57,7 @@ class PlaylistPresenter {
 
         getTitleView().setText(item.getTitle());
         usernameView.setText(item.getCreatorName());
-        imageOperations.displayWithPlaceholder(item.getUrn(), artworkSize, artworkView);
+        imageOperations.displayWithPlaceholder(item, artworkSize, artworkView);
     }
 
     private TextView getTitleView() {

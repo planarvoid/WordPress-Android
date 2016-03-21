@@ -113,7 +113,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private void loadArtwork(TrackItemView itemView, TrackItem track) {
         imageOperations.displayInAdapterView(
-                track.getUrn(), ApiImageSize.getListItemImageSize(itemView.getResources()),
+                track, ApiImageSize.getListItemImageSize(itemView.getResources()),
                 itemView.getImage());
     }
 

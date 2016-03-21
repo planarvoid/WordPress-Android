@@ -183,7 +183,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     public void shouldLoadIcon() {
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
         verify(imageOperations).displayInAdapterView(
-                Urn.forPlaylist(123),
+                playlistItem,
                 ApiImageSize.getListItemImageSize(itemView.getResources()),
                 (android.widget.ImageView) itemView.findViewById(R.id.image));
     }

@@ -40,7 +40,7 @@ public class UserItem implements ListItem {
 
     @Override
     public Optional<String> getArtworkUrlTemplate() {
-        return source.get(UserProperty.ARTWORK_URL_TEMPLATE);
+        return source.getOrElse(UserProperty.ARTWORK_URL_TEMPLATE, Optional.<String>absent());
     }
 
     public String getName() {

@@ -69,7 +69,7 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
         likeIndicator.setVisibility(playlistItem.isLiked() ? View.VISIBLE : View.GONE);
 
         imageOperations.displayInAdapterView(
-                playlistItem.getUrn(),
+                playlistItem,
                 ApiImageSize.getFullImageSize(resources),
                 artwork
         );

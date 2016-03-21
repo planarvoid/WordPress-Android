@@ -159,7 +159,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void shouldLoadTrackArtwork() {
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
         verify(imageOperations).displayInAdapterView(
-                Urn.forTrack(123),
+                trackItem,
                 ApiImageSize.getListItemImageSize(itemView.getResources()),
                 imageView);
     }

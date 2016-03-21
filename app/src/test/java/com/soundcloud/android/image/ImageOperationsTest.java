@@ -62,7 +62,6 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     private static final int RES_ID = 123;
     private static final String URL = "https://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
-    private static final String ADJUSTED_URL = "http://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
     private static final String RESOLVER_URL = "https://api-mobile.soundcloud.com/images/soundcloud:tracks:1/large";
     private static final Urn URN = new Urn("soundcloud:tracks:1");
 
@@ -100,7 +99,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         imageOperations = new ImageOperations(
-                imageLoader, apiUrlBuilder, placeholderGenerator, circlePlaceholderGenerator, viewlessLoadingAdapterFactory,
+                imageLoader, new ImageUrlBuilder(apiUrlBuilder), placeholderGenerator, circlePlaceholderGenerator, viewlessLoadingAdapterFactory,
                 bitmapLoadingAdapterFactory, imageProcessor, placeholderCache, blurCache, fileNameGenerator);
         scheduler = Schedulers.immediate();
 

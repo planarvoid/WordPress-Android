@@ -120,7 +120,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     private void loadArtwork(PlaylistViewHolder itemView, PlayableItem playableItem) {
         imageOperations.displayInAdapterView(
-                playableItem.getUrn(), ApiImageSize.getFullImageSize(resources),
+                playableItem, ApiImageSize.getFullImageSize(resources),
                 itemView.image);
     }
 
