@@ -12,7 +12,7 @@ enum NotificationPreferenceType {
     MESSAGES(           "messages",         null,                       "messages_mail"),
     GROUPS(             "groups",           null,                       "groups_mail"),
     NEWSLETTERS(        "newsletters",      null,                       "newsletters_mail"),
-    COMMENTS(           "comments",         null,                       "comments_mail"),
+    COMMENTS(           "comments",         "comments_mobile",          "comments_mail"),
     FOLLOWS(            "follows",          "follows_mobile",           "follows_mail"),
     NEW_CONTENT(        "newContent",       "newContent_mobile",        "newContent_mail"),
     LIKES(              "likes",            "likes_mobile",             "likes_mail"),
@@ -23,8 +23,8 @@ enum NotificationPreferenceType {
     RECOMMENDATIONS(    "recommendations",  "recommendations_mobile",   "recommendations_mail");
 
     private static EnumSet<NotificationPreferenceType> MOBILE_PREFERENCES =
-            EnumSet.of(FOLLOWS, NEW_CONTENT, LIKES, REPOSTS, PRODUCT_UPDATES, SURVEYS, TIPS,
-                    RECOMMENDATIONS);
+            EnumSet.of(COMMENTS, FOLLOWS, NEW_CONTENT, LIKES, REPOSTS, PRODUCT_UPDATES, SURVEYS,
+                    TIPS, RECOMMENDATIONS);
 
     private static EnumSet<NotificationPreferenceType> MAIL_PREFERENCES =
             EnumSet.of(MESSAGES, GROUPS, NEWSLETTERS, COMMENTS, FOLLOWS, NEW_CONTENT, LIKES,

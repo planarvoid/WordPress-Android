@@ -11,6 +11,7 @@
 
     <!-- New Notification settings -->
     <string name="key_push_notifications_all">all_mobile</string>
+    <string name="key_push_notifications_comments">comments_mobile</string>
     <string name="key_push_notifications_follows">follows_mobile</string>
     <string name="key_push_notifications_reposts">reposts_mobile</string>
     <string name="key_push_notifications_new_content">newContent_mobile</string>

@@ -31,6 +31,11 @@
 
     <CheckBoxPreference
         android:defaultValue="true"
+        android:key="@string/key_push_notifications_comments"
+        android:title="@string/push_notifications_comment" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
         android:key="@string/key_push_notifications_product_updates"
         android:title="@string/push_notifications_product_updates" />
 
