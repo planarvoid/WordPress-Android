@@ -1,5 +1,6 @@
 package com.soundcloud.android.configuration;
 
+import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
@@ -15,11 +16,14 @@ public class ConfigurationBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new Configuration(
-                    createFeatures(),
-                    new UserPlan("free", Collections.singletonList("mid_tier")),
-                    createLayers(), new DeviceManagement(false, true),
-                    false);
+            return Configuration.builder()
+                    .features(createFeatures())
+                    .userPlan(new UserPlan("free", Collections.singletonList("mid_tier")))
+                    .assignment(new Assignment(createLayers()))
+                    .deviceManagement(new DeviceManagement(false, true))
+                    .selfDestruct(false)
+                    .imageSizeSpecs(Collections.<String>emptyList())
+                    .build();
         }
     };
 

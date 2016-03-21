@@ -2,6 +2,7 @@ package com.soundcloud.android.configuration;
 
 import static com.soundcloud.android.configuration.ConfigurationOperations.CONFIGURATION_STALE_TIME_MILLIS;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.geq;
 import static org.mockito.Matchers.any;
@@ -22,6 +23,7 @@ import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.image.ImageConfigurationStorage;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -52,6 +54,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private DeviceManagementStorage deviceManagementStorage;
     @Mock private ConfigurationSettingsStorage configurationSettingsStorage;
+    @Mock private ImageConfigurationStorage imageConfigurationStorage;
     @Mock private Sleeper sleeper;
 
     private ConfigurationOperations operations;
@@ -68,7 +71,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         TryWithBackOff.Factory factory = new TryWithBackOff.Factory(sleeper);
         operations = new ConfigurationOperations(apiClientRx,
                 experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler, featureFlags, configurationSettingsStorage,
-                factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1), scheduler);
+                imageConfigurationStorage, factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1), scheduler);
 
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
@@ -168,7 +171,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
-        verify(featureOperations).updatePlan(withPlan.userPlan);
+        verify(featureOperations).updatePlan(withPlan.getUserPlan());
     }
 
     @Test
@@ -265,7 +268,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
                         .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
                 eq(Configuration.class))).thenReturn(configuration);
 
-        assertThat(operations.registerDevice(token)).isSameAs(configuration.deviceManagement);
+        assertThat(operations.registerDevice(token)).isSameAs(configuration.getDeviceManagement());
     }
 
     @Test
@@ -278,8 +281,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         operations.registerDevice(token);
 
         verify(featureOperations).updateFeatures(TestFeatures.asList());
-        verify(featureOperations).updatePlan(configuration.userPlan);
-        verify(experimentOperations).update(configuration.assignment);
+        verify(featureOperations).updatePlan(configuration.getUserPlan());
+        verify(experimentOperations).update(configuration.getAssignment());
     }
 
     @Test
@@ -290,18 +293,51 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
                         .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
                 eq(Configuration.class))).thenReturn(configuration);
 
-        assertThat(operations.forceRegisterDevice(token)).isSameAs(configuration.deviceManagement);
+        assertThat(operations.forceRegisterDevice(token)).isSameAs(configuration.getDeviceManagement());
     }
 
     @Test
-    public void saveConfigurationStoresFeaturesPlanAndExperiments() {
-        final Configuration authorized = getHighTierConfiguration();
+    public void saveConfigurationStoresFeatures() {
+        final Configuration configuration = Configuration.builder()
+                .features(TestFeatures.asList())
+                .build();
 
-        operations.saveConfiguration(authorized);
+        operations.saveConfiguration(configuration);
 
         verify(featureOperations).updateFeatures(TestFeatures.asList());
-        verify(featureOperations).updatePlan(authorized.userPlan);
-        verify(experimentOperations).update(authorized.assignment);
+    }
+
+    @Test
+    public void saveConfigurationStoresUserPlan() {
+        final Configuration configuration = Configuration.builder()
+                .userPlan(getHighTierConfiguration().getUserPlan())
+                .build();
+
+        operations.saveConfiguration(configuration);
+
+        verify(featureOperations).updatePlan(configuration.getUserPlan());
+    }
+
+    @Test
+    public void saveConfigurationStoresExperimentAssignments() {
+        final Configuration configuration = Configuration.builder()
+                .assignment(new Assignment(ConfigurationBlueprint.createLayers()))
+                .build();
+
+        operations.saveConfiguration(configuration);
+
+        verify(experimentOperations).update(configuration.getAssignment());
+    }
+
+    @Test
+    public void saveConfigurationStoresImageSizeSpecs() {
+        final Configuration configuration = Configuration.builder()
+                .imageSizeSpecs(asList("t500x500", "t47"))
+                .build();
+
+        operations.saveConfiguration(configuration);
+
+        verify(imageConfigurationStorage).storeAvailableSizeSpecs(asList("t500x500", "t47"));
     }
 
     @Test
@@ -359,14 +395,12 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     private Configuration getNoPlanConfiguration() {
         final UserPlan userPlan = new UserPlan(Plan.FREE_TIER.planId, Collections.<String>emptyList());
-        return new Configuration(ConfigurationBlueprint.createFeatures(), userPlan,
-                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false), false);
+        return Configuration.builder().userPlan(userPlan).build();
     }
 
     private Configuration getHighTierConfiguration() {
         final UserPlan userPlan = new UserPlan(Plan.HIGH_TIER.planId, Collections.<String>emptyList());
-        return new Configuration(ConfigurationBlueprint.createFeatures(), userPlan,
-                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, false), false);
+        return Configuration.builder().userPlan(userPlan).build();
     }
 
 }

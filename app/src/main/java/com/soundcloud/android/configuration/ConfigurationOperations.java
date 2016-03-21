@@ -12,6 +12,7 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.image.ImageConfigurationStorage;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
@@ -54,6 +55,7 @@ public class ConfigurationOperations {
     private final ForceUpdateHandler forceUpdateHandler;
     private final FeatureFlags featureFlags;
     private final ConfigurationSettingsStorage configurationSettingsStorage;
+    private final ImageConfigurationStorage imageConfigurationStorage;
     private final TryWithBackOff<Configuration> tryWithBackOff;
     private final Scheduler scheduler;
 
@@ -82,7 +84,7 @@ public class ConfigurationOperations {
         return new Func1<Configuration, Boolean>() {
             @Override
             public Boolean call(Configuration configuration) {
-                return configuration.userPlan.currentPlan.equals(plan);
+                return configuration.getUserPlan().currentPlan.equals(plan);
             }
         };
     }
@@ -96,9 +98,10 @@ public class ConfigurationOperations {
                                    TryWithBackOff.Factory tryWithBackOffFactory,
                                    @Named(HIGH_PRIORITY) Scheduler scheduler,
                                    PlanChangeDetector planChangeDetector,
-                                   ForceUpdateHandler forceUpdateHandler) {
+                                   ForceUpdateHandler forceUpdateHandler,
+                                   ImageConfigurationStorage imageConfigurationStorage) {
         this(apiClientRx, experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler, featureFlags,
-                configurationSettingsStorage, tryWithBackOffFactory.<Configuration>withDefaults(), scheduler);
+                configurationSettingsStorage, imageConfigurationStorage, tryWithBackOffFactory.<Configuration>withDefaults(), scheduler);
     }
 
     @VisibleForTesting
@@ -109,11 +112,13 @@ public class ConfigurationOperations {
                             ForceUpdateHandler forceUpdateHandler,
                             FeatureFlags featureFlags,
                             ConfigurationSettingsStorage configurationSettingsStorage,
+                            ImageConfigurationStorage imageConfigurationStorage,
                             TryWithBackOff<Configuration> tryWithBackOff,
                             @Named(HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.planChangeDetector = planChangeDetector;
         this.forceUpdateHandler = forceUpdateHandler;
+        this.imageConfigurationStorage = imageConfigurationStorage;
         this.apiClient = apiClientRx.getApiClient();
         this.experimentOperations = experimentOperations;
         this.featureOperations = featureOperations;
@@ -193,7 +198,7 @@ public class ConfigurationOperations {
 
         Configuration configuration = apiClient.fetchMappedResponse(request, Configuration.class);
         saveConfiguration(configuration);
-        return configuration.deviceManagement;
+        return configuration.getDeviceManagement();
     }
 
     public DeviceManagement forceRegisterDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {
@@ -203,7 +208,7 @@ public class ConfigurationOperations {
                 .forPrivateApi()
                 .build();
 
-        return apiClient.fetchMappedResponse(request, Configuration.class).deviceManagement;
+        return apiClient.fetchMappedResponse(request, Configuration.class).getDeviceManagement();
     }
 
     public Observable<Object> deregisterDevice() {
@@ -238,12 +243,13 @@ public class ConfigurationOperations {
 
         forceUpdateHandler.checkForForcedUpdate(configuration);
 
-        experimentOperations.update(configuration.assignment);
+        experimentOperations.update(configuration.getAssignment());
+        imageConfigurationStorage.storeAvailableSizeSpecs(configuration.getImageSizeSpecs());
 
         if (featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)) {
-            featureOperations.updateFeatures(configuration.features);
-            planChangeDetector.handleRemotePlan(configuration.userPlan.currentPlan);
-            featureOperations.updatePlan(configuration.userPlan);
+            featureOperations.updateFeatures(configuration.getFeatures());
+            planChangeDetector.handleRemotePlan(configuration.getUserPlan().currentPlan);
+            featureOperations.updatePlan(configuration.getUserPlan());
         }
     }
 
