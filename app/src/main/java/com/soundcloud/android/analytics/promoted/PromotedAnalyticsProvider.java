@@ -85,6 +85,10 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
                 urls = event.getAudioAdSkipUrls();
                 break;
+            case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
+            case UIEvent.KIND_VIDEO_AD_SHRINK:
+                urls = event.getVideoSizeChangeUrls();
+                break;
             default:
                 return;
         }

@@ -1,6 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -32,9 +33,11 @@ public final class UIEvent extends TrackingEvent {
     public static final String TYPE_MONETIZABLE_PROMOTED = "promoted";
     private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
     private static final String SKIPS = "SKIPS";
+    private static final String SIZE_CHANGES = "SIZE_CHANGES";
 
     private static final String TYPE_TRACK = "track";
     private static final String TYPE_PLAYLIST = "playlist";
+    private static final String TYPE_VIDEO_AD = "video_ad";
     private static final String TYPE_UNKNOWN = "unknown";
 
     private final Map<String, List<String>> promotedTrackingUrls;
@@ -53,10 +56,12 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_SHUFFLE_LIKES = "shuffle_likes";
     public static final String KIND_SHUFFLE_PLAYLIST = "shuffle_playlist";
     public static final String KIND_NAVIGATION = "navigation";
-    public static final String KIND_AUDIO_AD_CLICK = "audio_ad_click";
-    public static final String KIND_SKIP_AUDIO_AD_CLICK = "skip_audio_ad_click";
     public static final String KIND_PLAYER_OPEN = "player_open";
     public static final String KIND_PLAYER_CLOSE = "player_close";
+    public static final String KIND_VIDEO_AD_FULLSCREEN= "video_ad_fullscreen";
+    public static final String KIND_VIDEO_AD_SHRINK = "video_ad_shrink";
+    public static final String KIND_AUDIO_AD_CLICK = "audio_ad_click";
+    public static final String KIND_SKIP_AUDIO_AD_CLICK = "skip_audio_ad_click";
 
     public static UIEvent fromPlayerOpen(String method) {
         return new UIEvent(KIND_PLAYER_OPEN)
@@ -161,6 +166,23 @@ public final class UIEvent extends TrackingEvent {
 
     public static UIEvent fromSearchAction() {
         return new UIEvent(KIND_NAVIGATION).put(LocalyticTrackingKeys.KEY_PAGE, "search");
+    }
+
+    public static UIEvent fromVideoAdFullscreen(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
+        return fromVideoAdSizeChange(KIND_VIDEO_AD_FULLSCREEN, videoAd, trackSourceInfo, videoAd.getFullScreenUrls());
+    }
+
+    public static UIEvent fromVideoAdShrink(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
+        return fromVideoAdSizeChange(KIND_VIDEO_AD_SHRINK, videoAd, trackSourceInfo, videoAd.getExitFullScreenUrls());
+    }
+
+    private static UIEvent fromVideoAdSizeChange(String kind, VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo, List<String> trackingUrls) {
+        return new UIEvent(kind, System.currentTimeMillis())
+                .addPromotedTrackingUrls(SIZE_CHANGES, trackingUrls)
+                .put(AdTrackingKeys.KEY_AD_URN, videoAd.getAdUrn().toString())
+                .put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, videoAd.getMonetizableTrackUrn().toString())
+                .put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_VIDEO_AD)
+                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
     }
 
     public static UIEvent fromAudioAdClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
@@ -297,6 +319,11 @@ public final class UIEvent extends TrackingEvent {
 
     public List<String> getAudioAdSkipUrls() {
         List<String> urls = promotedTrackingUrls.get(SKIPS);
+        return urls == null ? Collections.<String>emptyList() : urls;
+    }
+
+    public List<String> getVideoSizeChangeUrls() {
+        List<String> urls = promotedTrackingUrls.get(SIZE_CHANGES);
         return urls == null ? Collections.<String>emptyList() : urls;
     }
 

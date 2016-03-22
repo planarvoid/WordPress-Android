@@ -18,6 +18,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -25,6 +26,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 
 public class AdPlayerControllerTest extends AndroidUnitTest {
@@ -33,13 +35,14 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     @Mock private PlaySessionController playSessionController;
     @Mock private AdsOperations adsOperations;
     @Mock private AppCompatActivity activity;
+    @Mock private DeviceHelper deviceHelper;
 
     private TestEventBus eventBus = new TestEventBus();
     private AdPlayerController controller;
 
     @Before
     public void setUp() throws Exception {
-        controller = new AdPlayerController(eventBus, adsOperations, playSessionController);
+        controller = new AdPlayerController(eventBus, adsOperations, deviceHelper, playQueueManager, playSessionController);
     }
 
     @Test
@@ -63,7 +66,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void forcePlayerLandscapeShouldntChangeOrientationForTracks() {
+    public void forcePlayerLandscapeShouldNotChangeOrientationForTracks() {
         setAudioAdIsPlaying(false);
 
         controller.onResume(activity);
@@ -73,7 +76,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void forcePlayerLandscapeShouldntChangeOrientationForAudioAds() {
+    public void forcePlayerLandscapeShouldNotChangeOrientationForAudioAds() {
         setAudioAdIsPlaying(true);
 
         controller.onResume(activity);
@@ -83,7 +86,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void forcePlayerPortraitShouldntChangeOrientationForTracks() {
+    public void forcePlayerPortraitShouldNotChangeOrientationForTracks() {
         setAudioAdIsPlaying(false);
 
         controller.onResume(activity);
@@ -93,13 +96,33 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void forcePlayerPortraitShouldntChangeOrientationForAudioAds() {
+    public void forcePlayerPortraitShouldNotChangeOrientationForAudioAds() {
         setAudioAdIsPlaying(true);
 
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.forcePlayerPortrait());
 
         verify(activity, never()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
+    @Test
+    public void orientationChangeToLandscapeSendsFullscreenVideoAdUIEvent() {
+        when(activity.isChangingConfigurations()).thenReturn(true);
+        when(deviceHelper.isOrientation(Configuration.ORIENTATION_LANDSCAPE)).thenReturn(true);
+        setVideoAdIsPlaying(true);
+
+        controller.onPause(activity);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_FULLSCREEN);
+    }
+
+    @Test
+    public void orientationChangeToPortraitSendsShrinkVideoAdUIEvent() {
+        when(activity.isChangingConfigurations()).thenReturn(true);
+        when(deviceHelper.isOrientation(Configuration.ORIENTATION_PORTRAIT)).thenReturn(true);
+        setVideoAdIsPlaying(true);
+
+        controller.onPause(activity);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_SHRINK);
     }
 
     @Test
@@ -233,6 +256,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
         final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L), videoSource));
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(videoItem.getAdData());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(videoItem, Urn.NOT_SET, 0));
     }
 

@@ -271,6 +271,40 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void tracksFullscreenAdEventsForVideo() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final UIEvent fullscreenEvent = UIEvent.fromVideoAdFullscreen(videoAd, sourceInfo);
+
+        analyticsProvider.handleTrackingEvent(fullscreenEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        assertPromotedTrackingRecord(event1, "video_fullscreen1", fullscreenEvent.getTimestamp());
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        assertPromotedTrackingRecord(event2, "video_fullscreen2", fullscreenEvent.getTimestamp());
+    }
+
+    @Test
+    public void tracksShrinkAdEventsForVideo() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final UIEvent fullscreenEvent = UIEvent.fromVideoAdShrink(videoAd, sourceInfo);
+
+        analyticsProvider.handleTrackingEvent(fullscreenEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        assertPromotedTrackingRecord(event1, "video_exit_full1", fullscreenEvent.getTimestamp());
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        assertPromotedTrackingRecord(event2, "video_exit_full2", fullscreenEvent.getTimestamp());
+    }
+
+    @Test
     public void forwardsFlushCallToEventTracker() {
         analyticsProvider.flush();
         verify(eventTracker).flush(PromotedAnalyticsProvider.BACKEND_NAME);

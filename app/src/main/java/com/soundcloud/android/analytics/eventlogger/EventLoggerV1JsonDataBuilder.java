@@ -176,6 +176,10 @@ public class EventLoggerV1JsonDataBuilder {
                 return transform(buildEngagementEvent("like::add", event));
             case UIEvent.KIND_UNLIKE:
                 return transform(buildEngagementEvent("like::remove", event));
+            case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
+                return transform(buildVideoAdSizeChangeEvent("ad::full_screen", event));
+            case UIEvent.KIND_VIDEO_AD_SHRINK:
+                return transform(buildVideoAdSizeChangeEvent("ad::exit_full_screen", event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -237,6 +241,12 @@ public class EventLoggerV1JsonDataBuilder {
                 .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
                 .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN))
                 .clickObject(event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN));
+    }
+
+    private EventLoggerEventData buildVideoAdSizeChangeEvent(String clickName, UIEvent event) {
+        EventLoggerEventData eventData = buildClickEvent(clickName, event)
+                .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN));
+        return eventData;
     }
 
     private EventLoggerEventData buildEngagementEvent(String engagementClickName, UIEvent event) {
