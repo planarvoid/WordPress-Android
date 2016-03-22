@@ -91,6 +91,34 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
         assertThat(adapter.getItemViewType(4)).isEqualTo(TYPE_UPSELL);
     }
 
+    @Test
+    public void shouldFilterUpsellItemWhenGettingResultItems() {
+        final UserItem userItem = dummyUserItem();
+        final TrackItem trackItem = dummyTrackItem();
+        final PlaylistItem playlistItem = dummyPlaylistItem();
+
+        adapter.addItem(dummySearchUpsellItem());
+        adapter.addItem(userItem);
+        adapter.addItem(trackItem);
+        adapter.addItem(playlistItem);
+
+        assertThat(adapter.getResultItems()).containsExactly(userItem, trackItem, playlistItem);
+    }
+
+    @Test
+    public void shouldFilterPremiumContentItemWhenGettingResultItems() {
+        final UserItem userItem = dummyUserItem();
+        final TrackItem trackItem = dummyTrackItem();
+        final PlaylistItem playlistItem = dummyPlaylistItem();
+
+        adapter.addItem(dummySearchPremiumItem());
+        adapter.addItem(userItem);
+        adapter.addItem(trackItem);
+        adapter.addItem(playlistItem);
+
+        assertThat(adapter.getResultItems()).containsExactly(userItem, trackItem, playlistItem);
+    }
+
     private UserItem dummyUserItem() {
         return UserItem.from(ApiUniversalSearchItem.forUser(ModelFixtures.create(ApiUser.class)).toPropertySet());
     }

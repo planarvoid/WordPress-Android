@@ -10,15 +10,16 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.PropertySets;
-import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -388,11 +389,8 @@ class SearchOperations {
 
         @Override
         public Observable<SearchResult> call(SearchResult searchResultsCollection) {
-            final Optional<SearchResult> premiumContent = searchResultsCollection.getPremiumContent();
-            if (premiumContent.isPresent()) {
-                allUrns.add(premiumContent.get().getFirstItemUrn());
-            }
-            allUrns.addAll(PropertySets.extractUrns(searchResultsCollection.getItems()));
+            addPremiumItem(searchResultsCollection.getPremiumContent());
+            allUrns.addAll(PropertySets.extractUrns(filterUrnCollection(searchResultsCollection.getItems())));
 
             final Optional<Urn> queryUrn = searchResultsCollection.queryUrn;
             if (queryUrn.isPresent()) {
@@ -405,6 +403,19 @@ class SearchOperations {
             } else {
                 return Pager.finish();
             }
+        }
+
+        private void addPremiumItem(Optional<SearchResult> premiumContent) {
+            if (premiumContent.isPresent()) {
+                allUrns.add(premiumContent.get().getFirstItemUrn());
+            }
+        }
+
+        private List<PropertySet> filterUrnCollection(List<PropertySet> propertySets) {
+            if (propertySets.get(0).get(EntityProperty.URN).equals(SearchUpsellItem.UPSELL_URN)) {
+                return propertySets.subList(1, propertySets.size());
+            }
+            return propertySets;
         }
 
         @VisibleForTesting

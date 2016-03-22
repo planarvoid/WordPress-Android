@@ -150,6 +150,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
         final List<ListItem> listItems = Collections.singletonList((ListItem) trackItem);
         when(adapter.getItem(0)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);
+        when(adapter.getResultItems()).thenReturn(listItems);
         return listItems;
     }
 }

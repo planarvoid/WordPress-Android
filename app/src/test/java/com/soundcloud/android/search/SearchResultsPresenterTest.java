@@ -213,11 +213,12 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         final List<ListItem> listItems = Collections.singletonList((ListItem) trackItem);
         when(adapter.getItem(0)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);
+        when(adapter.getResultItems()).thenReturn(listItems);
         when(searchPagingFunction.getSearchQuerySourceInfo(0, TRACK_URN)).thenReturn(searchQuerySourceInfo);
         return listItems;
     }
 
-    private List<ListItem> setupAdapterWithPremiumContent() {
+    private void setupAdapterWithPremiumContent() {
         PropertySet propertySet = PropertySet.create();
         propertySet.put(TrackProperty.URN, PREMIUM_TRACK_URN_ONE);
 
@@ -228,9 +229,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(premiumItem);
         when(adapter.getItem(1)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);
+        when(adapter.getResultItems()).thenReturn(Collections.<ListItem>singletonList(trackItem));
         when(searchPagingFunction.getSearchQuerySourceInfo(0, TRACK_URN)).thenReturn(searchQuerySourceInfo);
-
-        return listItems;
     }
 
     private void setupFragmentArguments(boolean publishSearchSubmissionEvent) {
