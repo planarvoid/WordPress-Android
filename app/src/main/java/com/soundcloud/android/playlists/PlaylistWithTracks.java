@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
@@ -53,8 +54,8 @@ public class PlaylistWithTracks implements ImageResource {
     }
 
     @Override
-    public Optional<String> getArtworkUrlTemplate() {
-        return sourceSet.getOrElse(PlaylistProperty.ARTWORK_URL_TEMPLATE, Optional.<String>absent());
+    public Optional<String> getImageUrlTemplate() {
+        return sourceSet.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
     }
 
     public Urn getCreatorUrn() {

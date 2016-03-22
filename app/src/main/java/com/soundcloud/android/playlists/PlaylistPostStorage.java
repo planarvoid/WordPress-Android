@@ -63,6 +63,7 @@ public class PlaylistPostStorage {
                         field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TableColumns.SoundView.TRACK_COUNT),
                         field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(TableColumns.SoundView.LIKES_COUNT),
                         field(SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
+                        field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(TableColumns.SoundView.ARTWORK_URL),
                         field(Posts.field(TableColumns.Posts.CREATED_AT)).as(TableColumns.Posts.CREATED_AT),
                         count(PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
                         exists(likeQuery()).as(TableColumns.SoundView.USER_LIKE),

@@ -20,6 +20,7 @@ import com.soundcloud.android.storage.TableColumns.Users;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ScalarMapper;
@@ -192,6 +193,7 @@ public class UserAssociationStorage {
                         field(Users.USERNAME),
                         field(Users.COUNTRY),
                         field(Users.FOLLOWERS_COUNT),
+                        field(Users.AVATAR_URL),
                         UserAssociations.field(POSITION),
                         UserAssociations.field(ADDED_AT),
                         UserAssociations.field(REMOVED_AT),
@@ -224,6 +226,7 @@ public class UserAssociationStorage {
                         field(Users.USERNAME),
                         field(Users.COUNTRY),
                         field(Users.FOLLOWERS_COUNT),
+                        field(Users.AVATAR_URL),
                         field(POSITION),
                         field(ADDED_AT),
                         field(REMOVED_AT))
@@ -265,6 +268,7 @@ public class UserAssociationStorage {
             final PropertySet propertySet = PropertySet.create(reader.getColumnCount() + 1);
             propertySet.put(UserProperty.URN, Urn.forUser(reader.getLong(BaseColumns._ID)));
             propertySet.put(UserProperty.USERNAME, reader.getString(Users.USERNAME));
+            propertySet.put(UserProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(reader.getString(Users.AVATAR_URL)));
             if (reader.isNotNull(Users.COUNTRY)) {
                 propertySet.put(UserProperty.COUNTRY, reader.getString(Users.COUNTRY));
             }

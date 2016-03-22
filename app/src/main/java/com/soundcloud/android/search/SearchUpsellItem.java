@@ -20,7 +20,7 @@ class SearchUpsellItem implements ListItem {
     }
 
     @Override
-    public Optional<String> getArtworkUrlTemplate() {
+    public Optional<String> getImageUrlTemplate() {
         return Optional.absent();
     }
 }

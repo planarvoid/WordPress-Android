@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
@@ -337,6 +338,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 SoundStreamProperty.CREATED_AT.bind(createdAt),
                 PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
                 PlayableProperty.TITLE.bind(track.getTitle()),
+                EntityProperty.IMAGE_URL_TEMPLATE.bind(track.getImageUrlTemplate()),
                 TrackProperty.SNIPPET_DURATION.bind(track.getSnippetDuration()),
                 TrackProperty.FULL_DURATION.bind(track.getFullDuration()),
                 PlayableProperty.CREATOR_NAME.bind(track.getUser().getUsername()),
@@ -356,6 +358,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 SoundStreamProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
                 PlayableProperty.TITLE.bind(playlist.getTitle()),
+                EntityProperty.IMAGE_URL_TEMPLATE.bind(playlist.getImageUrlTemplate()),
                 PlaylistProperty.PLAYLIST_DURATION.bind(playlist.getDuration()),
                 PlayableProperty.CREATOR_NAME.bind(playlist.getUser().getUsername()),
                 PlayableProperty.CREATOR_URN.bind(playlist.getUser().getUrn()),

@@ -3,11 +3,13 @@ package com.soundcloud.android.tracks;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
@@ -42,6 +44,8 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlayableProperty.IS_USER_REPOST, cursorReader.getBoolean(SoundView.USER_REPOST));
         propertySet.put(PlayableProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(SoundView.SHARING)));
         propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundView.CREATED_AT));
+        propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(
+                cursorReader.getString(SoundView.ARTWORK_URL)));
 
         putOptionalFields(cursorReader, propertySet);
         putOptionalOfflineSyncDates(cursorReader, propertySet);

@@ -1,11 +1,9 @@
 package com.soundcloud.android.users;
 
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.java.optional.Optional;
 
-public interface UserRecord {
-
-    Urn getUrn();
+public interface UserRecord extends ImageResource {
 
     String getPermalink();
 
@@ -14,8 +12,6 @@ public interface UserRecord {
     String getCountry();
 
     int getFollowersCount();
-
-    @Deprecated String getAvatarUrl();
 
     Optional<String> getDescription();
 

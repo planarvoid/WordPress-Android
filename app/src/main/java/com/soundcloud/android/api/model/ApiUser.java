@@ -19,7 +19,7 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
     private int followersCount;
     private String permalink;
     private String username;
-    private String avatarUrl;
+    private Optional<String> avatarUrlTemplate = Optional.absent();
     private String description;
     private String myspaceName;
     private String website;
@@ -35,6 +35,11 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
     @Override
     public Urn getUrn() {
         return urn;
+    }
+
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return avatarUrlTemplate;
     }
 
     public void setUrn(Urn urn) {
@@ -61,14 +66,9 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
         this.username = username;
     }
 
-    @Deprecated
-    public String getAvatarUrl() {
-        return avatarUrl;
-    }
-
-    @JsonProperty("avatar_url")
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
+    @JsonProperty("avatar_url_template")
+    public void setAvatarUrlTemplate(String avatarUrlTemplate) {
+        this.avatarUrlTemplate = Optional.fromNullable(avatarUrlTemplate);
     }
 
     @Nullable
@@ -156,7 +156,8 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
         final PropertySet bindings = PropertySet.from(
                 UserProperty.URN.bind(urn),
                 UserProperty.USERNAME.bind(username),
-                UserProperty.FOLLOWERS_COUNT.bind(followersCount)
+                UserProperty.FOLLOWERS_COUNT.bind(followersCount),
+                UserProperty.IMAGE_URL_TEMPLATE.bind(avatarUrlTemplate)
         );
         // this should be modeled with an Option type instead:
         // https://github.com/soundcloud/propeller/issues/32

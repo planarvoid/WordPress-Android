@@ -6,6 +6,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
@@ -39,6 +40,7 @@ public class UserStorage {
                         TableColumns.Users.COUNTRY,
                         TableColumns.Users.FOLLOWERS_COUNT,
                         TableColumns.Users.DESCRIPTION,
+                        TableColumns.Users.AVATAR_URL,
                         TableColumns.Users.WEBSITE_URL,
                         TableColumns.Users.WEBSITE_NAME,
                         TableColumns.Users.MYSPACE_NAME,
@@ -64,6 +66,8 @@ public class UserStorage {
             propertySet.put(UserProperty.USERNAME, cursorReader.getString(TableColumns.Users.USERNAME));
             propertySet.put(UserProperty.FOLLOWERS_COUNT, cursorReader.getInt(TableColumns.Users.FOLLOWERS_COUNT));
             propertySet.put(UserProperty.IS_FOLLOWED_BY_ME, cursorReader.getBoolean(IS_FOLLOWING));
+            propertySet.put(UserProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(
+                    cursorReader.getString(TableColumns.Users.AVATAR_URL)));
             putOptionalFields(cursorReader, propertySet);
 
             return propertySet;

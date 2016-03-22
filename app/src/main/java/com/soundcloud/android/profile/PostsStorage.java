@@ -16,7 +16,6 @@ import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.OfflinePlaylistMapper;
 import com.soundcloud.android.playlists.PlaylistMapper;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
@@ -130,6 +129,7 @@ public class PostsStorage {
                         field(SoundView.field(TableColumns.SoundView._TYPE)).as(TableColumns.SoundView._TYPE),
                         field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID),
                         field(SoundView.field(TableColumns.SoundView.TITLE)).as(TableColumns.SoundView.TITLE),
+                        field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(TableColumns.SoundView.ARTWORK_URL),
                         field(SoundView.field(TableColumns.SoundView.USERNAME)).as(TableColumns.SoundView.USERNAME),
                         field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TableColumns.SoundView.TRACK_COUNT),
                         field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(TableColumns.SoundView.LIKES_COUNT),
@@ -186,13 +186,15 @@ public class PostsStorage {
         }
     }
 
-    private static class PostedPlaylistMapper extends OfflinePlaylistMapper {
+    private static class PostedPlaylistMapper extends RxResultMapper<PropertySet> {
 
         @Override
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
             propertySet.put(PlaylistProperty.URN, Urn.forPlaylist(cursorReader.getLong(BaseColumns._ID)));
             propertySet.put(PlaylistProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
+            propertySet.put(PlaylistProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(
+                    cursorReader.getString(TableColumns.SoundView.ARTWORK_URL)));
             propertySet.put(PlaylistProperty.CREATOR_NAME, cursorReader.getString(TableColumns.SoundView.USERNAME));
             propertySet.put(PlaylistProperty.TRACK_COUNT, readTrackCount(cursorReader));
             propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
@@ -209,12 +211,14 @@ public class PostsStorage {
         }
     }
 
-    private static class PostedTracksMapper extends OfflinePlaylistMapper {
+    private static class PostedTracksMapper extends RxResultMapper<PropertySet> {
         @Override
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
             propertySet.put(TrackProperty.URN, Urn.forTrack(cursorReader.getLong(BaseColumns._ID)));
             propertySet.put(TrackProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
+            propertySet.put(TrackProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(
+                    cursorReader.getString(TableColumns.SoundView.ARTWORK_URL)));
             propertySet.put(TrackProperty.CREATOR_NAME, cursorReader.getString(TableColumns.SoundView.USERNAME));
             propertySet.put(TrackProperty.SNIPPET_DURATION, cursorReader.getLong(TableColumns.SoundView.SNIPPET_DURATION));
             propertySet.put(TrackProperty.FULL_DURATION, cursorReader.getLong(TableColumns.SoundView.FULL_DURATION));

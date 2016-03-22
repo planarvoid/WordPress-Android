@@ -497,6 +497,11 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         return Optional.absent();
     }
 
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return Optional.absent();
+    }
+
     protected static String fixWaveform(String input) {
         if (input != null && !input.endsWith("_m.png")) {
             return input.replace(".png", "_m.png");

@@ -11,6 +11,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
@@ -298,6 +299,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         return playlist.toPropertySet().slice(
                 PlaylistProperty.URN,
                 PlaylistProperty.TITLE,
+                EntityProperty.IMAGE_URL_TEMPLATE,
                 PlaylistProperty.CREATOR_URN,
                 PlaylistProperty.CREATOR_NAME,
                 PlaylistProperty.TRACK_COUNT,

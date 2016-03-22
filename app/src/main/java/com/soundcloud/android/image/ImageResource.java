@@ -7,6 +7,6 @@ public interface ImageResource {
 
     Urn getUrn();
 
-    Optional<String> getArtworkUrlTemplate();
+    Optional<String> getImageUrlTemplate();
 
 }

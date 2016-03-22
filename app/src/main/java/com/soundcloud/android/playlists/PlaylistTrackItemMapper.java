@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineStateMapper;
@@ -7,6 +8,7 @@ import com.soundcloud.android.policies.PolicyMapper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
@@ -26,6 +28,8 @@ class PlaylistTrackItemMapper extends RxResultMapper<PropertySet> {
 
         propertySet.put(TrackProperty.URN, readTrackUrn(cursorReader));
         propertySet.put(PlayableProperty.TITLE, cursorReader.getString(TableColumns.Sounds.TITLE));
+        propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(
+                cursorReader.getString(TableColumns.Sounds.ARTWORK_URL)));
         propertySet.put(TrackProperty.SNIPPET_DURATION, cursorReader.getLong(TableColumns.Sounds.SNIPPET_DURATION));
         propertySet.put(TrackProperty.FULL_DURATION, cursorReader.getLong(TableColumns.Sounds.FULL_DURATION));
         propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.Sounds.PLAYBACK_COUNT));

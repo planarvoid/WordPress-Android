@@ -50,6 +50,7 @@ public class SoundStreamStorage implements TimelineStorage {
             SoundView.LIKES_COUNT,
             SoundView.REPOSTS_COUNT,
             SoundView.SHARING,
+            SoundView.ARTWORK_URL,
             field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
             SoundView.POLICIES_SNIPPED,
             SoundView.POLICIES_SUB_HIGH_TIER,
@@ -159,6 +160,7 @@ public class SoundStreamStorage implements TimelineStorage {
             propertySet.put(SoundStreamProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_PRIVATE,
                     Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
+            propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(cursorReader.getString(SoundView.ARTWORK_URL)));
 
             addDurations(cursorReader, propertySet, urn.isPlaylist());
             addUserLike(cursorReader, propertySet);

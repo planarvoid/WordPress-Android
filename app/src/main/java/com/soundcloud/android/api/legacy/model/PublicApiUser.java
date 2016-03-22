@@ -8,7 +8,6 @@ import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.utils.images.ImageUtils;
@@ -17,7 +16,6 @@ import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -111,22 +109,12 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     public PublicApiUser(UserRecord user) {
         setUrn(user.getUrn().toString());
         setUsername(user.getUsername());
-        avatar_url = user.getAvatarUrl();
     }
 
     @Override
     public void setId(long id) {
         super.setId(id);
         urn = Urn.forUser(id);
-    }
-
-    public static PublicApiUser fromActivityView(Cursor c) {
-        PublicApiUser u = new PublicApiUser();
-        u.setId(c.getLong(c.getColumnIndex(TableColumns.ActivityView.USER_ID)));
-        u.username = c.getString(c.getColumnIndex(TableColumns.ActivityView.USER_USERNAME));
-        u.permalink = c.getString(c.getColumnIndex(TableColumns.ActivityView.USER_PERMALINK));
-        u.avatar_url = c.getString(c.getColumnIndex(TableColumns.ActivityView.USER_AVATAR_URL));
-        return u;
     }
 
     @Override
@@ -336,7 +324,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         final ApiUser apiUser = new ApiUser();
         apiUser.setUrn(getUrn());
         apiUser.setPermalink(getPermalink());
-        apiUser.setAvatarUrl(avatar_url);
+        apiUser.setAvatarUrlTemplate(imageUrlToTemplate(avatar_url).orNull());
         apiUser.setCountry(country);
         apiUser.setFollowersCount(followers_count);
         apiUser.setUsername(username);
@@ -364,5 +352,8 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         this.myspace_name = myspaceName;
     }
 
-
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return imageUrlToTemplate(avatar_url);
+    }
 }

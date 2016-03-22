@@ -35,6 +35,7 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
         final ContentValuesBuilder baseBuilder = getBaseBuilder(user);
 
         putOptionalString(baseBuilder, user.getDescription(), TableColumns.Users.DESCRIPTION);
+        putOptionalString(baseBuilder, user.getImageUrlTemplate(), TableColumns.Users.AVATAR_URL);
         putOptionalString(baseBuilder, user.getWebsiteUrl(), TableColumns.Users.WEBSITE_URL);
         putOptionalString(baseBuilder, user.getWebsiteName(), TableColumns.Users.WEBSITE_NAME);
         putOptionalString(baseBuilder, user.getDiscogsName(), TableColumns.Users.DISCOGS_NAME);

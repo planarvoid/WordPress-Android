@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Urn;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
+import com.tobedevoured.modelcitizen.callback.AfterCreateCallback;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
 import java.util.Arrays;
@@ -36,9 +37,6 @@ public class ApiPlaylistBlueprint {
     Integer trackCount = 2;
 
     @Default
-    String artworkUrl = "http://assets.soundcloud.com/1";
-
-    @Default
     Date createdAt = new Date();
 
     @Default
@@ -57,6 +55,16 @@ public class ApiPlaylistBlueprint {
         @Override
         public int getLikesCount() {
             return 10;
+        }
+    };
+
+    // avoid the setter problem where getters and setters are typed differently
+    // https://github.com/mguymon/model-citizen/issues/20
+    AfterCreateCallback<ApiPlaylist> afterCreate = new AfterCreateCallback<ApiPlaylist>() {
+        @Override
+        public ApiPlaylist afterCreate(ApiPlaylist model) {
+            model.setArtworkUrlTemplate("https://i1.sndcdn.com/artworks-000151307749-v2r7oy-{size}.jpg");
+            return model;
         }
     };
 }

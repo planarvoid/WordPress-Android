@@ -51,7 +51,7 @@ class ActivityItem implements ListItem, Timestamped {
     }
 
     @Override
-    public Optional<String> getArtworkUrlTemplate() {
+    public Optional<String> getImageUrlTemplate() {
         return Optional.absent();
     }
 

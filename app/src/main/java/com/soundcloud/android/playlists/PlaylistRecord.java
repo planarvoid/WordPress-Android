@@ -1,13 +1,12 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.api.model.Sharing;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.users.UserRecord;
 
 import java.util.Date;
 
-public interface PlaylistRecord {
-    Urn getUrn();
+public interface PlaylistRecord extends ImageResource {
 
     String getTitle();
 

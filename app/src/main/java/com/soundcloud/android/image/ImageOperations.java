@@ -21,7 +21,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.cache.Cache;
 import com.soundcloud.android.utils.cache.Cache.ValueProvider;
 import com.soundcloud.android.utils.images.ImageUtils;
-import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
@@ -48,16 +47,12 @@ import javax.inject.Singleton;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Singleton
 public class ImageOperations {
 
     private static final String TAG = ImageLoader.TAG;
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // available mem in bytes
-    private static final Pattern PATTERN = Pattern.compile("^https?://(.+)");
-    private static final String URL_BASE = "http://%s";
     private static final String PLACEHOLDER_KEY_BASE = "%s_%s_%s";
 
     private final ImageLoader imageLoader;
@@ -212,12 +207,24 @@ public class ImageOperations {
                 notFoundListener);
     }
 
+    public void displayCircularWithPlaceholder(ImageResource imageResource,  ApiImageSize apiImageSize, ImageView imageView) {
+        displayCircularWithPlaceholder(imageResource.getUrn(), imageView,
+                buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
+    }
+
     public void displayCircularWithPlaceholder(Urn urn,  ApiImageSize apiImageSize, ImageView imageView) {
+        displayCircularWithPlaceholder(urn, imageView,
+                buildUrlIfNotPreviouslyMissing(urn, apiImageSize));
+    }
+
+    private void displayCircularWithPlaceholder(Urn urn, ImageView imageView, String imageUrl) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
+        final DisplayImageOptions options = ImageOptionsFactory.placeholderCircular(
+                getCircularPlaceholderDrawable(urn, imageAware.getWidth(), imageAware.getHeight()));
         imageLoader.displayImage(
-                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
+                imageUrl,
                 imageAware,
-                ImageOptionsFactory.placeholderCircular(getCircularPlaceholderDrawable(urn, imageAware.getWidth(), imageAware.getHeight())),
+                options,
                 notFoundListener);
     }
 
@@ -272,7 +279,7 @@ public class ImageOperations {
     }
 
     public void displayCircular(String imageUrl, ImageView imageView) {
-        imageLoader.displayImage(adjustUrl(imageUrl), new ImageViewAware(imageView, false),
+        imageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false),
                 ImageOptionsFactory.placeholderCircular(imageView.getResources().getDrawable(R.drawable.circular_placeholder)));
     }
 
@@ -416,19 +423,6 @@ public class ImageOperations {
         }
     }
 
-    /**
-     * Adjust urls to use insecure protocol. Will result in more cache hits
-     */
-    private String adjustUrl(String url) {
-        if (Strings.isNotBlank(url)) {
-            Matcher matcher = PATTERN.matcher(url);
-            if (matcher.find() && matcher.groupCount() == 1) {
-                return String.format(URL_BASE, matcher.group(1));
-            }
-        }
-        return url; // fallback to original url
-    }
-
     private Drawable getPlaceholderDrawable(final Urn urn, ImageViewAware imageViewAware) {
         return getPlaceholderDrawable(urn, imageViewAware.getWidth(), imageViewAware.getHeight());
     }
@@ -461,14 +455,14 @@ public class ImageOperations {
     @Nullable
     private String buildUrlIfNotPreviouslyMissing(ImageResource imageResource, ApiImageSize apiImageSize) {
         final String imageUrl = imageUrlBuilder.buildUrl(imageResource, apiImageSize);
-        Log.d(TAG, "Loading by ImageResource; url=" + imageUrl);
+        Log.d(TAG, "ImageResource " + imageResource.getUrn() + "; url=" + imageUrl);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 
     @Nullable
     private String buildUrlIfNotPreviouslyMissing(Urn urn, ApiImageSize apiImageSize) {
         final String imageUrl = imageUrlBuilder.imageResolverUrl(urn, apiImageSize);
-        Log.d(TAG, "Loading by URN; url=" + imageUrl);
+        Log.d(TAG, "URN " + urn + "; url=" + imageUrl);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 

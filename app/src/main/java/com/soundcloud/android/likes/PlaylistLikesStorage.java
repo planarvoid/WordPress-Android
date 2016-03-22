@@ -70,6 +70,7 @@ public class PlaylistLikesStorage {
                         TableColumns.SoundView.TRACK_COUNT,
                         TableColumns.SoundView.LIKES_COUNT,
                         TableColumns.SoundView.SHARING,
+                        TableColumns.SoundView.ARTWORK_URL,
                         count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(LOCAL_TRACK_COUNT),
                         field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
                         exists(HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(HAS_PENDING_DOWNLOAD_REQUEST),

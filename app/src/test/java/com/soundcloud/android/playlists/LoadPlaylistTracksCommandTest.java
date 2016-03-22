@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Table;
@@ -123,6 +124,7 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
         return PropertySet.from(
                 TrackProperty.URN.bind(apiTrack.getUrn()),
                 TrackProperty.TITLE.bind(apiTrack.getTitle()),
+                EntityProperty.IMAGE_URL_TEMPLATE.bind(apiTrack.getImageUrlTemplate()),
                 TrackProperty.SNIPPET_DURATION.bind(apiTrack.getSnippetDuration()),
                 TrackProperty.FULL_DURATION.bind(apiTrack.getFullDuration()),
                 TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
