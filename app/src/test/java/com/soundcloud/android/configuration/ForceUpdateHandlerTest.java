@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.configuration.experiments.Layer;
-import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.utils.BuildHelper;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -17,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
-import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ForceUpdateHandlerTest {
@@ -85,16 +82,14 @@ public class ForceUpdateHandlerTest {
     }
 
     private Configuration normalConfiguration() {
-        final UserPlan userPlan = new UserPlan(Plan.FREE_TIER.planId, Collections.<String>emptyList());
-        final boolean selfDestruct = false;
-        return new Configuration(Collections.<Feature>emptyList(), userPlan,
-                Collections.<Layer>emptyList(), new DeviceManagement(true, false), selfDestruct);
+        return Configuration.builder()
+                .selfDestruct(false)
+                .build();
     }
 
     private Configuration forceUpdateConfiguration() {
-        final UserPlan userPlan = new UserPlan(Plan.FREE_TIER.planId, Collections.<String>emptyList());
-        final boolean selfDestruct = true;
-        return new Configuration(Collections.<Feature>emptyList(), userPlan,
-                Collections.<Layer>emptyList(), new DeviceManagement(true, false), selfDestruct);
+        return Configuration.builder()
+                .selfDestruct(true)
+                .build();
     }
 }

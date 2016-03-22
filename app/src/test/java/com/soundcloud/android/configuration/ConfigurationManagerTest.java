@@ -7,8 +7,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.configuration.experiments.Layer;
-import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,24 +14,15 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 public class ConfigurationManagerTest extends AndroidUnitTest {
 
-    private static final Configuration AUTHORIZED_DEVICE_CONFIG = new Configuration(
-            Collections.<Feature>emptyList(),
-            new UserPlan("free", Arrays.asList("high_tier")),
-            Collections.<Layer>emptyList(),
-            new DeviceManagement(true, false),
-            false);
+    private static final Configuration AUTHORIZED_DEVICE_CONFIG = Configuration.builder()
+            .deviceManagement(new DeviceManagement(true, false))
+            .build();
 
-    private static final Configuration UNAUTHORIZED_DEVICE_CONFIG = new Configuration(
-            Collections.<Feature>emptyList(),
-            new UserPlan("free", Arrays.asList("high_tier")),
-            Collections.<Layer>emptyList(),
-            new DeviceManagement(false, true),
-            false);
+    private static final Configuration UNAUTHORIZED_DEVICE_CONFIG = Configuration.builder()
+            .deviceManagement(new DeviceManagement(false, true))
+            .build();
 
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountOperations accountOperations;

@@ -242,6 +242,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(StorageModule.IMAGE_CONFIG)
+    public SharedPreferences provideImageConfigPreferences() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
     @Named(StorageModule.SYNCER)
     public SharedPreferences provideSyncerPreferences() {
         return provideSharedPreferences();

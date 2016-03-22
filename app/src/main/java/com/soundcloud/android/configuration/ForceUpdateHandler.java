@@ -28,7 +28,7 @@ class ForceUpdateHandler {
     }
 
     void checkForForcedUpdate(Configuration configuration) {
-        if (configuration.selfDestruct) {
+        if (configuration.isSelfDestruct()) {
             storage.storeForceUpdateVersion(deviceHelper.getAppVersionCode());
             publishForceUpdateEvent();
         } else {
