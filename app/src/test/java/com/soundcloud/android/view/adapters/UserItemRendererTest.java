@@ -98,7 +98,7 @@ public class UserItemRendererTest extends AndroidUnitTest {
     public void shouldLoadUserImage() {
         renderer.bindItemView(0, itemView, Arrays.asList(userItem));
         verify(imageOperations).displayCircularInAdapterView(
-                Urn.forUser(2),
+                userItem,
                 ApiImageSize.getListItemImageSize(itemView.getResources()),
                 (android.widget.ImageView) itemView.findViewById(R.id.image));
     }

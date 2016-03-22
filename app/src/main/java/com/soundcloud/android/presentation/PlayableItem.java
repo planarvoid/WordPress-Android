@@ -123,7 +123,7 @@ public abstract class PlayableItem implements StreamItem {
 
     @Override
     public Optional<String> getArtworkUrlTemplate() {
-        return source.get(PlayableProperty.ARTWORK_URL_TEMPLATE);
+        return source.getOrElse(PlayableProperty.ARTWORK_URL_TEMPLATE, Optional.<String>absent());
     }
 
     public PropertySet getSource() {

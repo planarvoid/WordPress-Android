@@ -182,7 +182,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
         verify(imageOperations)
                 .displayInAdapterView(
-                        eq(playlistItem.getUrn()),
+                        eq(playlistItem),
                         any(ApiImageSize.class),
                         any(ImageView.class));
 

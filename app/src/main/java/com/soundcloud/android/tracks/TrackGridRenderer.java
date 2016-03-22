@@ -63,7 +63,7 @@ public class TrackGridRenderer implements CellRenderer<TrackItem> {
         viewHolder.playcount.setText(numberFormatter.format(track.getPlayCount()));
 
         final ApiImageSize apiImageSize = ApiImageSize.getFullImageSize(itemView.getResources());
-        imageOperations.displayInAdapterView(track.getUrn(), apiImageSize, viewHolder.imageView);
+        imageOperations.displayInAdapterView(track, apiImageSize, viewHolder.imageView);
     }
 
     @VisibleForTesting
