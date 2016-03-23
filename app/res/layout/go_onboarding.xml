@@ -25,6 +25,14 @@
             android:layout_marginBottom="12dp"
             android:text="@string/go_onboarding_header" />
 
+        <com.soundcloud.android.view.CustomFontTextView
+            style="@style/GoOnboarding.Text.SubHeader"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/go_onboarding_header"
+            android:text="@string/go_onboarding_subheader" />
+
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
