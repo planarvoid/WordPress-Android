@@ -711,7 +711,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForFirstQuartileAdPlaybackProgressEvent() throws ApiMapperException {
-        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forFirstQuartile(Urn.forAd("dfp", "905"), AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forFirstQuartile(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
         jsonDataBuilder.buildForAdPlaybackProgressEvent(event);
 
@@ -720,13 +720,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .adUrn("dfp:ads:905")
                 .pageName("collection:likes")
                 .monetizationType("video_ad")
-                .clickObject("dfp:ads:905")
                 .clickName("ad::first_quartile"));
     }
 
     @Test
     public void createsJsonForSecondQuartileAdPlaybackProgressEvent() throws ApiMapperException {
-        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forSecondQuartile(Urn.forAd("dfp", "905"), AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forSecondQuartile(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
         jsonDataBuilder.buildForAdPlaybackProgressEvent(event);
 
@@ -735,13 +734,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .adUrn("dfp:ads:905")
                 .pageName("collection:likes")
                 .monetizationType("video_ad")
-                .clickObject("dfp:ads:905")
                 .clickName("ad::second_quartile"));
     }
 
     @Test
     public void createsJsonForThirdQuartileAdPlaybackProgressEvent() throws ApiMapperException {
-        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forThirdQuartile(Urn.forAd("dfp", "905"), AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forThirdQuartile(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
         jsonDataBuilder.buildForAdPlaybackProgressEvent(event);
 
@@ -750,7 +748,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .adUrn("dfp:ads:905")
                 .pageName("collection:likes")
                 .monetizationType("video_ad")
-                .clickObject("dfp:ads:905")
                 .clickName("ad::third_quartile"));
     }
 

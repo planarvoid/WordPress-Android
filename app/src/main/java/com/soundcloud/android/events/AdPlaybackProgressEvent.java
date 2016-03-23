@@ -19,27 +19,25 @@ public class AdPlaybackProgressEvent extends TrackingEvent {
     private static final String MONETIZATION_AUDIO = "audio_ad";
     private static final String MONETIZATION_VIDEO = "video_ad";
 
-    public final Urn itemUrn;
     public final TrackSourceInfo trackSourceInfo;
 
     private List<String> quartileTrackingUrls = Collections.emptyList();
 
-    public static AdPlaybackProgressEvent forFirstQuartile(Urn itemUrn, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackProgressEvent(FIRST_QUARTILE_TYPE, itemUrn, adData, trackSourceInfo);
+    public static AdPlaybackProgressEvent forFirstQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+        return new AdPlaybackProgressEvent(FIRST_QUARTILE_TYPE, adData, trackSourceInfo);
     }
 
-    public static AdPlaybackProgressEvent forSecondQuartile(Urn itemUrn, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackProgressEvent(SECOND_QUARTILE_TYPE, itemUrn, adData, trackSourceInfo);
+    public static AdPlaybackProgressEvent forSecondQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+        return new AdPlaybackProgressEvent(SECOND_QUARTILE_TYPE, adData, trackSourceInfo);
     }
 
-    public static AdPlaybackProgressEvent forThirdQuartile(Urn itemUrn, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackProgressEvent(THIRD_QUARTILE_TYPE, itemUrn, adData, trackSourceInfo);
+    public static AdPlaybackProgressEvent forThirdQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+        return new AdPlaybackProgressEvent(THIRD_QUARTILE_TYPE, adData, trackSourceInfo);
     }
 
-    private AdPlaybackProgressEvent(String quartileType, Urn itemUrn, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+    private AdPlaybackProgressEvent(String quartileType, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
         super(EVENT_KIND_QUARTILE, System.currentTimeMillis());
 
-        this.itemUrn = itemUrn;
         this.trackSourceInfo = trackSourceInfo;
 
         put(AdTrackingKeys.KEY_QUARTILE_TYPE, quartileType);

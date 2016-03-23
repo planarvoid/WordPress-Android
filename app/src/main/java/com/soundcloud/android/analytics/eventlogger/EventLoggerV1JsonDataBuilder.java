@@ -109,7 +109,6 @@ public class EventLoggerV1JsonDataBuilder {
                 .clickName(eventData.get(AdTrackingKeys.KEY_QUARTILE_TYPE))
                 .adUrn(eventData.get(AdTrackingKeys.KEY_AD_URN))
                 .pageName(eventData.trackSourceInfo.getOriginScreen())
-                .clickObject(eventData.itemUrn.toString())
                 .monetizedObject(eventData.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(eventData.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
