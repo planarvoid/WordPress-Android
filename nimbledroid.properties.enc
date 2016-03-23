@@ -1,0 +1,31 @@
+Encrypted with http://shibboleth/encrypt
+
+Decrypt with:
+
+  curl -T THISFILE http://shibboleth/decrypt
+
+This file is safe to checkin to shared source control, the
+decrypted plaintext of this message is NOT safe to checkin.
+
+-----BEGIN PGP MESSAGE-----
+Version: Shibboleth
+Date: Tue, 29 Mar 2016 11:18:25 UTC
+
+wcBMA+GH2G8Ee/RHAQgAJ35Js8aAfE/XMrQzHwEl6+89f0qOF+PaMHs40G7+wbzu
+hcbGR+68B5gqRtMP/u7b7A3uSvmfMxOFlxh0dR7fvCpHI3XcvdhalaKvB24TaqKG
+l/X+IQFFwM85Tp7PdfEBXnCzuNxV+3u75b+VSK7NCoJtqCLExOabTacQUmgD4GT8
+xRMKHzGwyhx1fDA4I0sMZCXXjaCyIiiTJ70z0z/mEx+Wt47XnaZkKWzhmVk4TDB7
+7DqariHsMYjsO/88hfj8UfTKirBVAt/IVeePcH2nWpE/uVHB63MdAxqTQG/6KUHr
+iDika7GoPCryc1ywpgc7FChnXvpx0sf89arbewsy9NLgAeS8R/w6Vdu0oFQJGzhV
+9Dy24YjF4cjR49xsOqLrD4rr4r85zQHg2uCP4OzhZVrgAeJDbLZ64IHm+HMareDM
+viw9WRmA9RyTA9Glle2/lgag9XYZYdvLJXREGVzfi150fMtAOpBlu/fYCwyJ9G0+
+QGu5Q/Lk6xQRC+C+5dmSVId2N7jKZVwBhlc+Tdir5tH+VPRLesIenlLrmY9f4Ibi
+jOpvT+DV4aMF4EPhKI3gueTf9Ks5jxUn1COACKsJeT9w4h8tqWHhFLvhFi3h4YTh
+ZkvoqEMkQwtF3hHi2XvnGScIoU2clsrFMQ8YFFII79UQsbb2Oy+EfChxGjl3Z8eN
+4dR/4wpNZjuGkC5Z8sas67rxYDVIRpl6z8KaqhrBEKb7ArG9VnePq2dfacufaPjR
+ayLaQ28hsjL2awUDRmmISoRag8LYsRrHZgu05dto3vnPRLV39SbwkCrBO4c/5OQ6
+nRenslvAFIM8dbJ56jocXX7ccq7Z5UZq7vLEF7KiG3hThA1f6NPYmnpMRQy+7Zal
+MYok60IT/vrVz+RvF5mRJO2QWTca2wbGgc+2VAXld5OGqW6sp1A5TqgiMPw/4lCo
+4yIjtzig6WLrYnA9Ot374TGxuuR1tCCgo6vXgm4wbufz6/cr4m6QJ2LhuEAA
+=AxGF
+-----END PGP MESSAGE-----
