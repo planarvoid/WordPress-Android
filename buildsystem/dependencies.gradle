@@ -13,7 +13,7 @@ ext {
   androidSupportVersion = '23.1.1'
   playServicesVersion = '7.8.0'
   androidKitVersion = '0.46'
-  lightCycleVersion = '0.1.1'
+  lightCycleVersion = '1.0.0'
   daggerVersion = '1.2.2'
   propellerVersion = '0.61'
   findBugsVersion = '3.0.0'
