@@ -671,7 +671,7 @@
     <!-- __GO OFFBOARDING -->
     <string name="go_offboarding_title">Your SoundCloud Go subscription has ended</string>
     <!-- Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving." -->
-    <string name="go_offboarding_description">We’re sad to see you go (no pun intended). If you miss having ad-free, offline access to the expanded catalog, don’t worry. You can come back anytime.</string>
+    <string name="go_offboarding_description">We’re sad to see you go (no pun intended). If you miss having ad-free, offline access to an expanded catalog, don’t worry. You can come back anytime.</string>
     <string name="go_offboarding_primary_button_text">Resubscribe</string>
     <string name="go_offboarding_secondary_button_text">Continue</string>
 
@@ -746,7 +746,7 @@
     <string name="upsell_remove_ads">Go ad-free</string>
     <string name="upsell_stream_upgrade_button">Get SoundCloud Go</string>
     <string name="upsell_stream_upgrade_title">Upgrade to SoundCloud Go</string>
-    <string name="upsell_stream_upgrade_description">Get the expanded catalog, with offline listening and no ads.</string>
+    <string name="upsell_stream_upgrade_description">Get our expanded catalog, with offline listening and no ads.</string>
     <string name="upsell_track_preview">Preview</string>
     <string name="upsell_track_geo_blocked">Not available in your country</string>
 
