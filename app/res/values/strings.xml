@@ -656,6 +656,7 @@
 
     <!-- __GO ONBOARDING -->
     <string name="go_onboarding_header">Welcome to SoundCloud Go</string>
+    <string name="go_onboarding_subheader">Now you can enjoy even more music, offline and ad-free.</string>
     <string name="go_onboarding_title">Save your music offline</string>
     <string name="go_onboarding_subtext">Use the arrow to save all your likes or\nany of your playlists offline.</string>
     <string name="go_onboarding_start">OK, got it</string>
