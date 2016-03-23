@@ -11,8 +11,6 @@
     <!-- production fb sc app id -->
     <string name='production_facebook_app_id'>19507961798</string>
 
-    <string name="account_type">com.soundcloud.android.account</string>
-
     <string name="at_tracking_subdomain">logc252</string>
     <string name="at_tracking_siteid">497388</string>
 

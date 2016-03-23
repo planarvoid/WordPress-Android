@@ -6,6 +6,7 @@ import static com.appboy.push.AppboyNotificationUtils.APPBOY_NOTIFICATION_RECEIV
 import com.appboy.AppboyGcmReceiver;
 import com.appboy.Constants;
 import com.appboy.push.AppboyNotificationUtils;
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
@@ -21,7 +22,7 @@ import android.util.Log;
 public class AppboyBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "AppboyBroadcastReceiver";
     private static final String SOURCE_KEY = "source";
-    private static final String APPLICATION_ID = "com.soundcloud.android";
+    private static final String APPLICATION_ID = BuildConfig.APPLICATION_ID;
     private static final String NOTIFICATION_OPENED = APPLICATION_ID + APPBOY_NOTIFICATION_OPENED_SUFFIX;
     private static final String NOTIFICATION_RECEIVED = APPLICATION_ID + APPBOY_NOTIFICATION_RECEIVED_SUFFIX;
 

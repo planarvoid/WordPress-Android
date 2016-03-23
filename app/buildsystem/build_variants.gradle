@@ -24,6 +24,18 @@ android {
     }
   }
 
+  afterEvaluate {
+    android.applicationVariants.each { variant ->
+      def appId = variant.applicationId
+      String accountAuthority = appId + ".provider.ScContentProvider"
+      variant.buildConfigField "String", "ACCOUNT_AUTHORITY", "\"$accountAuthority\""
+
+      variant.resValue "string", "app_id", appId
+      variant.resValue "string", "account_type", "${appId}.account"
+      variant.resValue "string", "account_authority", accountAuthority
+    }
+  }
+
   buildTypes {
     releaseNoProguard {
       versionNameSuffix '-releaseNoProguard'
@@ -60,6 +72,7 @@ android {
 
     alpha.initWith(buildTypes.release)
     alpha {
+      applicationIdSuffix '.alpha'
       versionNameSuffix '-alpha'
       ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
       ext.betaDistributionNotifications = false
@@ -68,6 +81,7 @@ android {
     }
 
     debug {
+      applicationIdSuffix '.debug'
       versionNameSuffix '-debug'
       debuggable true
       signingConfig signingConfigs.debug

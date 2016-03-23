@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.payments;
 
+import com.soundcloud.android.BuildConfig;
+
 import java.util.Random;
 
 final class FakeResult {
@@ -23,7 +25,7 @@ final class FakeResult {
     private FakeResult(String checkoutToken, String tokenPrefix) {
         long time = System.currentTimeMillis();
         orderId = generateOrderId();
-        packageName = "com.soundcloud.android";
+        packageName = BuildConfig.APPLICATION_ID;
         productId = "android_test_product";
         purchaseTime = time;
         purchaseState = 0;

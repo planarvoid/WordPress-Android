@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.ads.AdFunctions;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.EngagementsTracking;
@@ -37,7 +38,7 @@ import javax.inject.Singleton;
 @Singleton
 public class PlayerWidgetController {
 
-    public static final String ACTION_LIKE_CHANGED = "com.soundcloud.android.widgetLike";
+    public static final String ACTION_LIKE_CHANGED = BuildConfig.APPLICATION_ID + ".widgetLike";
     public static final String EXTRA_ADD_LIKE = "isLike";
 
     private final Context context;

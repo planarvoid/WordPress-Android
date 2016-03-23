@@ -352,8 +352,6 @@
   <string name="sc_upload_private">\u00A0Privado</string>
   <string name="sc_upload_public">\u00A0Público</string>
   <!--__DISCOVERY SEARCH-->
-  <string name="search_hint">Pesquisar na SoundCloud</string>
-  <string name="search_settings_description">Pesquisar faixas</string>
   <string name="search_type_all">TUDO</string>
   <string name="search_type_tracks">FAIXAS</string>
   <string name="search_type_playlists">PLAYLISTS</string>

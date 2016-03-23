@@ -25,16 +25,12 @@ allprojects {
     javaSrcDirs = 'src/main/java'
     resSrcDirs = 'res'
     assetsSrcDirs = 'assets'
-    applicationId = 'com.soundcloud.android'
 
     androidCompileSdkVersion = 23
     androidMinSdkVersion = 14
     androidTargetSdkVersion = 22
 
-    testApplicationId = "${applicationId}.tests"
-    testInstrumentationRunner = "${applicationId}.framework.runner.RandomizingRunner"
-
-    androidNetorkManagerApplicationId = 'com.soundcloud.androidnetworkmanager'
+    androidNetworkManagerApplicationId = 'com.soundcloud.androidnetworkmanager'
 
     mobileTestRunnerUser = "mobile"
     mobileTestRunnerHost = 'chaos-slave.mobile.s-cloud.net'

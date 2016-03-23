@@ -23,7 +23,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
     public static TestApplication application;
 
     public DefaultTestRunner(Class testClass) throws InitializationError {
-        super(testClass, new RobolectricConfig(SoundCloudTestRunner.MANIFEST, SoundCloudTestRunner.RESOURCES, SoundCloudTestRunner.ASSETS));
+        super(testClass, SoundCloudTestRunner.getRobolectricConfig());
 
         // remove native calls + replace with shadows
         addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.NativeAmplitudeAnalyzer");

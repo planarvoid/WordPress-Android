@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
@@ -102,7 +103,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
                 getInstrumentation().getTargetContext().getSystemService(Context.ACTIVITY_SERVICE);
 
         for (ActivityManager.RunningAppProcessInfo pi : activityManager.getRunningAppProcesses()) {
-            if ("com.soundcloud.android".equals(pi.processName)) {
+            if (BuildConfig.APPLICATION_ID.equals(pi.processName)) {
                 Log.d(getClass().getSimpleName(), "killSelf:" + pi.processName + "," + pi.pid);
                 android.os.Process.killProcess(pi.pid);
             }

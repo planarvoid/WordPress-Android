@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsController;
@@ -297,16 +298,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     // public service actions
     public interface Action {
-        String TOGGLE_PLAYBACK = "com.soundcloud.android.playback.toggleplayback";
-        String PRELOAD = "com.soundcloud.android.playback.preload";
-        String PLAY_CURRENT = "com.soundcloud.android.playback.playcurrent";
-        String RESUME = "com.soundcloud.android.playback.playcurrent";
-        String PAUSE = "com.soundcloud.android.playback.pause";
-        String SEEK = "com.soundcloud.android.playback.seek";
-        String RESET_ALL = "com.soundcloud.android.playback.reset"; // used on logout
-        String STOP = "com.soundcloud.android.playback.stop"; // from the notification
-
-        String PLAY = "com.soundcloud.android.playback.play";
+        String TOGGLE_PLAYBACK = BuildConfig.APPLICATION_ID + ".playback.toggleplayback";
+        String PRELOAD = BuildConfig.APPLICATION_ID + ".playback.preload";
+        String PLAY_CURRENT = BuildConfig.APPLICATION_ID + ".playback.playcurrent";
+        String RESUME = BuildConfig.APPLICATION_ID + ".playback.playcurrent";
+        String PAUSE = BuildConfig.APPLICATION_ID + ".playback.pause";
+        String SEEK = BuildConfig.APPLICATION_ID + ".playback.seek";
+        String RESET_ALL = BuildConfig.APPLICATION_ID + ".playback.reset"; // used on logout
+        String STOP = BuildConfig.APPLICATION_ID + ".playback.stop"; // from the notification
+        String PLAY = BuildConfig.APPLICATION_ID + ".playback.play";
     }
 
     public interface ActionExtras {
@@ -314,13 +314,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String PLAYBACK_ITEM = "playback_item";
         String PRELOAD_ITEM = "preload_item";
         String URN = "urn";
-    }
-
-    // broadcast notifications
-    public interface Broadcasts {
-        String PLAYSTATE_CHANGED = "com.soundcloud.android.playstatechanged";
-        @Deprecated
-        String META_CHANGED = "com.soundcloud.android.metachanged";
     }
 
     private static final class DelayedStopHandler extends Handler {

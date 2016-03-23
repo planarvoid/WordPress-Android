@@ -23,6 +23,8 @@ import dagger.ObjectGraph;
 import org.junit.runners.model.InitializationError;
 import org.mockito.MockitoAnnotations;
 
+import android.support.annotation.NonNull;
+
 import java.io.File;
 import java.lang.reflect.Method;
 
@@ -39,11 +41,26 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
     public static final File ASSETS = new File("../app/build/intermediates/assets/dev/debug");
 
     public SoundCloudTestRunner(Class testClass) throws InitializationError {
-        super(testClass, new RobolectricConfig(MANIFEST, RESOURCES, ASSETS));
+        super(testClass, getRobolectricConfig());
         RobolectricTestRunner.setStaticValue(android.os.Build.class, "MANUFACTURER", "me");
 
         // remove native calls + replace with shadows
         addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.VorbisEncoder");
+    }
+
+    @NonNull
+    public static RobolectricConfig getRobolectricConfig() {
+        return new RobolectricConfig(MANIFEST, RESOURCES, ASSETS) {
+            @Override
+            public String getPackageName() {
+                return "com.soundcloud.android";
+            }
+
+            @Override
+            public String getRClassName() throws Exception {
+                return getPackageName() + ".R";
+            }
+        };
     }
 
     @Override

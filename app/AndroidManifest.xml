@@ -34,8 +34,8 @@
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
 
     <!-- c2dm -->
-    <permission android:name="com.soundcloud.android.permission.C2D_MESSAGE" android:protectionLevel="signature"/>
-    <uses-permission android:name="com.soundcloud.android.permission.C2D_MESSAGE"/>
+    <permission android:name="${applicationId}.permission.C2D_MESSAGE" android:protectionLevel="signature"/>
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE"/>
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
 
     <!--
@@ -69,21 +69,20 @@
         <meta-data android:name="android.app.default_searchable" android:value=".search.MainActivity"/>
         <activity android:launchMode="singleTop" android:name=".main.MainActivity">
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.STREAM"/>
+                <action android:name="${applicationId}.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.COLLECTION"/>
+                <action android:name="${applicationId}.action.COLLECTION"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 
-            <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.SEARCH"/>
+                <action android:name="${applicationId}.action.SEARCH"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
@@ -93,7 +92,7 @@
                 <data android:mimeType="vnd.soundcloud/search_item"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.PERFORM_SEARCH"/>
+                <action android:name="${applicationId}.action.PERFORM_SEARCH"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -166,7 +165,7 @@
 
         <activity android:label="@string/side_menu_explore" android:name=".explore.ExploreActivity">
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.EXPLORE"/>
+                <action android:name="${applicationId}.action.EXPLORE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
@@ -175,7 +174,7 @@
 
         <activity android:label="@string/side_menu_notifications" android:name=".activities.ActivitiesActivity">
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.ACTIVITY"/>
+                <action android:name="${applicationId}.action.ACTIVITY"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -191,7 +190,7 @@
         <activity android:label="@string/age_verify_label" android:name=".profile.VerifyAgeActivity" android:theme="@style/Theme.SoundCloud"/>
         <activity android:label="" android:name=".profile.ProfileActivity" android:theme="@style/Theme.SoundCloud">
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.USER_BROWSER"/>
+                <action android:name="${applicationId}.action.USER_BROWSER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
@@ -206,19 +205,19 @@
 
         <activity android:label="@string/app_name" android:launchMode="singleTask" android:name=".creators.record.RecordActivity">
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.RECORD"/>
+                <action android:name="${applicationId}.action.RECORD"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.RECORD_START"/>
+                <action android:name="${applicationId}.action.RECORD_START"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.RECORD_STOP"/>
+                <action android:name="${applicationId}.action.RECORD_STOP"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="com.soundcloud.android.actions.upload.monitor"/>
+                <action android:name="${applicationId}.actions.upload.monitor"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -229,7 +228,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="com.soundcloud.android.SHARE"/>
+                <action android:name="${applicationId}.SHARE"/>
                 <!--<data android:mimeType="audio/*"/>-->
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
@@ -237,7 +236,7 @@
         <activity android:label="@string/comments" android:name=".comments.TrackCommentsActivity"/>
         <activity android:name=".playlists.PlaylistDetailActivity">
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.PLAYLIST"/>
+                <action android:name="${applicationId}.action.PLAYLIST"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
@@ -279,7 +278,8 @@
         <activity android:name="com.appboy.ui.AppboyWebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar" />
 
         <!-- providers -->
-        <provider android:authorities="com.soundcloud.android.provider.ScContentProvider" android:exported="false" android:name=".storage.provider.ScContentProvider"/>
+        <provider android:authorities="${applicationId}.provider.ScContentProvider" android:exported="false"
+            android:name=".storage.provider.ScContentProvider"/>
 
         <!-- services -->
         <service android:name=".sync.ApiSyncService"/>
@@ -290,8 +290,8 @@
 
         <service android:exported="false" android:name=".creators.upload.UploadService">
             <intent-filter>
-                <action android:name="com.soundcloud.android.actions.upload"/>
-                <action android:name="com.soundcloud.android.actions.upload.cancel"/>
+                <action android:name="${applicationId}.actions.upload"/>
+                <action android:name="${applicationId}.actions.upload.cancel"/>
             </intent-filter>
         </service>
 
@@ -314,12 +314,12 @@
         <!-- receivers -->
         <receiver android:name=".playback.external.PlaybackActionReceiver">
             <intent-filter>
-                <action android:name="com.soundcloud.android.playback.external.toggleplayback"/>
-                <action android:name="com.soundcloud.android.playback.external.play"/>
-                <action android:name="com.soundcloud.android.playback.external.pause"/>
-                <action android:name="com.soundcloud.android.playback.external.previous"/>
-                <action android:name="com.soundcloud.android.playback.external.next"/>
-                <action android:name="com.soundcloud.android.playback.external.close"/>
+                <action android:name="${applicationId}.playback.external.toggleplayback"/>
+                <action android:name="${applicationId}.playback.external.play"/>
+                <action android:name="${applicationId}.playback.external.pause"/>
+                <action android:name="${applicationId}.playback.external.previous"/>
+                <action android:name="${applicationId}.playback.external.next"/>
+                <action android:name="${applicationId}.playback.external.close"/>
             </intent-filter>
         </receiver>
 
@@ -350,7 +350,7 @@
 
         <receiver android:name=".playback.widget.PlayerWidgetReceiver">
             <intent-filter>
-                <action android:name="com.soundcloud.android.widgetLike"/>
+                <action android:name="${applicationId}.widgetLike"/>
             </intent-filter>
         </receiver>
 
@@ -367,34 +367,34 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <category android:name="com.soundcloud.android" />
+                <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
 
         <receiver android:name=".gcm.AppboyBroadcastReceiver" android:exported="false" >
             <intent-filter>
-                <action android:name="com.soundcloud.android.intent.APPBOY_PUSH_RECEIVED" />
-                <action android:name="com.soundcloud.android.intent.APPBOY_NOTIFICATION_OPENED" />
+                <action android:name="${applicationId}.intent.APPBOY_PUSH_RECEIVED" />
+                <action android:name="${applicationId}.intent.APPBOY_NOTIFICATION_OPENED" />
             </intent-filter>
         </receiver>
 
         <service
-            android:name="com.soundcloud.android.gcm.GcmInstanceIDListenerService"
+            android:name=".gcm.GcmInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID"/>
             </intent-filter>
         </service>
         <service
-            android:name="com.soundcloud.android.gcm.GcmRegistrationService"
+            android:name=".gcm.GcmRegistrationService"
             android:exported="false">
         </service>
 
-        <receiver android:name="com.soundcloud.android.gcm.GcmMessageReceiver"
+        <receiver android:name=".gcm.GcmMessageReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="com.soundcloud.android" />
+                <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
 

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -83,13 +84,13 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
 
     private void verifyUpdateViaPlayBackWidgetProvider(VerificationMode verificationMode) {
         ComponentName expectedComponentName =
-                new ComponentName("com.soundcloud.android", PlayerAppWidgetProvider.class.getCanonicalName());
+                new ComponentName(BuildConfig.APPLICATION_ID, PlayerAppWidgetProvider.class.getCanonicalName());
         verify(appWidgetManager, verificationMode).updateAppWidget(eq(expectedComponentName), any(RemoteViews.class));
     }
 
     private void verifyUpdateViaPlayBackWidgetProvider() {
         ComponentName expectedComponentName =
-                new ComponentName("com.soundcloud.android", PlayerAppWidgetProvider.class.getCanonicalName());
+                new ComponentName(BuildConfig.APPLICATION_ID, PlayerAppWidgetProvider.class.getCanonicalName());
         verify(appWidgetManager).updateAppWidget(eq(expectedComponentName), any(RemoteViews.class));
     }
 

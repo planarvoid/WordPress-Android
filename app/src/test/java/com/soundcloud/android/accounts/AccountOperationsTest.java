@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
@@ -45,7 +46,7 @@ import android.os.Handler;
 
 public class AccountOperationsTest extends AndroidUnitTest {
     
-    private static final String SC_ACCOUNT_TYPE = "com.soundcloud.android.account";
+    private static final String SC_ACCOUNT_TYPE = BuildConfig.APPLICATION_ID + ".account";
     private static final String KEY = "key";
 
     private AccountOperations accountOperations;

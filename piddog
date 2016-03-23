@@ -14,4 +14,4 @@ do
 done
 GREP_PATTERN="(${GREP_PATTERN})"
 
-pidcat com.soundcloud.android --always-display-tags | egrep $GREP_PATTERN
+pidcat com.soundcloud.android.debug --always-display-tags | egrep $GREP_PATTERN
