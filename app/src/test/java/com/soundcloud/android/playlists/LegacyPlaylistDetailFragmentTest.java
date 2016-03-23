@@ -59,10 +59,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class PlaylistDetailFragmentTest extends AndroidUnitTest {
+public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
 
     private final Observable<List<Urn>> playlistTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1)));
-    private PlaylistDetailFragment fragment;
+    private LegacyPlaylistDetailFragment fragment;
     private PlaylistWithTracks playlistWithTracks;
     private TestEventBus eventBus = new TestEventBus();
 
@@ -84,7 +84,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        fragment = new PlaylistDetailFragment(
+        fragment = new LegacyPlaylistDetailFragment(
                 controllerProvider,
                 playSessionController,
                 playbackInitiator,
@@ -387,7 +387,7 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
-        assertThat(fragment.getArguments().getParcelable(PlaylistDetailFragment.EXTRA_URN)).isEqualTo(newPlaylist.getUrn());
+        assertThat(fragment.getArguments().getParcelable(LegacyPlaylistDetailFragment.EXTRA_URN)).isEqualTo(newPlaylist.getUrn());
     }
 
     private View createFragmentView() {
@@ -396,8 +396,8 @@ public class PlaylistDetailFragmentTest extends AndroidUnitTest {
 
     private View createFragmentView(boolean autoplay) {
         Bundle fragmentArguments = new Bundle();
-        fragmentArguments.putParcelable(PlaylistDetailFragment.EXTRA_URN, playlistWithTracks.getUrn());
-        fragmentArguments.putBoolean(PlaylistDetailFragment.EXTRA_AUTOPLAY, autoplay);
+        fragmentArguments.putParcelable(LegacyPlaylistDetailFragment.EXTRA_URN, playlistWithTracks.getUrn());
+        fragmentArguments.putBoolean(LegacyPlaylistDetailFragment.EXTRA_AUTOPLAY, autoplay);
         Screen.STREAM.addToBundle(fragmentArguments);
         fragment.setArguments(fragmentArguments);
         SupportFragmentTestUtil.startVisibleFragment(fragment);

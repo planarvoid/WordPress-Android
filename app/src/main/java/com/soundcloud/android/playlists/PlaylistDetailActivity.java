@@ -87,7 +87,7 @@ public class PlaylistDetailActivity extends PlayerActivity {
         boolean autoplay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false);
         Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);
 
-        Fragment fragment = PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
+        Fragment fragment = LegacyPlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 

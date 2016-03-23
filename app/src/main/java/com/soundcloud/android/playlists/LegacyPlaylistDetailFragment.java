@@ -64,7 +64,7 @@ import java.util.List;
 
 @SuppressLint("ValidFragment")
 @SuppressWarnings("PMD.TooManyFields")
-public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDetailFragment> implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, PlaylistDetailsController.Listener {
+public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<LegacyPlaylistDetailFragment> implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, PlaylistDetailsController.Listener {
 
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
@@ -141,37 +141,37 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         }
     };
 
-    public static PlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo, PromotedSourceInfo promotedInfo, boolean autoplay) {
+    public static LegacyPlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo, PromotedSourceInfo promotedInfo, boolean autoplay) {
         final Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_URN, playlistUrn);
         bundle.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchInfo);
         bundle.putParcelable(EXTRA_PROMOTED_SOURCE_INFO, promotedInfo);
         bundle.putBoolean(EXTRA_AUTOPLAY, autoplay);
         screen.addToBundle(bundle);
-        PlaylistDetailFragment fragment = new PlaylistDetailFragment();
+        LegacyPlaylistDetailFragment fragment = new LegacyPlaylistDetailFragment();
         fragment.setArguments(bundle);
         return fragment;
     }
 
-    public PlaylistDetailFragment() {
+    public LegacyPlaylistDetailFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         addLifeCycleComponents();
     }
 
     @VisibleForTesting
-    PlaylistDetailFragment(PlaylistDetailsController.Provider controllerProvider,
-                           PlaySessionController playSessionController,
-                           PlaybackInitiator playbackInitiator,
-                           PlaylistOperations playlistOperations,
-                           EventBus eventBus,
-                           ImageOperations imageOperations,
-                           PlaylistEngagementsPresenter engagementsPresenter,
-                           PullToRefreshController pullToRefreshController,
-                           PlayQueueManager playQueueManager,
-                           PlaylistPresenter playlistPresenter,
-                           Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                           AccountOperations accountOperations,
-                           Navigator navigator) {
+    LegacyPlaylistDetailFragment(PlaylistDetailsController.Provider controllerProvider,
+                                 PlaySessionController playSessionController,
+                                 PlaybackInitiator playbackInitiator,
+                                 PlaylistOperations playlistOperations,
+                                 EventBus eventBus,
+                                 ImageOperations imageOperations,
+                                 PlaylistEngagementsPresenter engagementsPresenter,
+                                 PullToRefreshController pullToRefreshController,
+                                 PlayQueueManager playQueueManager,
+                                 PlaylistPresenter playlistPresenter,
+                                 Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                                 AccountOperations accountOperations,
+                                 Navigator navigator) {
         this.controllerProvider = controllerProvider;
         this.playSessionController = playSessionController;
         this.playlistOperations = playlistOperations;

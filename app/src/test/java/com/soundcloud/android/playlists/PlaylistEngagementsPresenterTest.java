@@ -94,7 +94,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
     private static Bundle fragmentArgs() {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(PlaylistDetailFragment.EXTRA_URN, PLAYLIST_URN);
+        bundle.putParcelable(LegacyPlaylistDetailFragment.EXTRA_URN, PLAYLIST_URN);
         return bundle;
     }
 

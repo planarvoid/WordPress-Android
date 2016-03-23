@@ -12,7 +12,7 @@ import javax.inject.Provider;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 PlaylistDetailActivity.class,
-                PlaylistDetailFragment.class,
+                LegacyPlaylistDetailFragment.class,
                 AddToPlaylistDialogFragment.class,
                 CreatePlaylistDialogFragment.class,
                 DeletePlaylistDialogFragment.class

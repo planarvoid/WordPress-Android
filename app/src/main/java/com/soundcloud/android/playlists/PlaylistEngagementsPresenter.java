@@ -106,7 +106,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     public void onCreate(Fragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         if (featureOperations.upsellOfflineContent()) {
-            Urn playlistUrn = fragment.getArguments().getParcelable(PlaylistDetailFragment.EXTRA_URN);
+            Urn playlistUrn = fragment.getArguments().getParcelable(LegacyPlaylistDetailFragment.EXTRA_URN);
             eventBus.publish(EventQueue.TRACKING,
                     UpgradeTrackingEvent.forPlaylistPageImpression(playlistUrn));
         }
