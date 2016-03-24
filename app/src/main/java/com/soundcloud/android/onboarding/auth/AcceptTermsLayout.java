@@ -83,7 +83,7 @@ public class AcceptTermsLayout extends RelativeLayout {
                 }, false, false);
 
         ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
-                getResources().getString(R.string.privacy),
+                getResources().getString(R.string.privacy_policy),
                 new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override
                     public void onClick() {
