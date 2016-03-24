@@ -350,7 +350,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdPlaybackProgressEvents() {
         TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", false);
-        AdPlaybackProgressEvent adEvent = AdPlaybackProgressEvent.forFirstQuartile(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(321L)), trackSourceInfo);
+        AdPlaybackProgressEvent adEvent = AdPlaybackProgressEvent.forFirstQuartile(AdFixtures.getAudioAd(Urn.forTrack(321L)), trackSourceInfo);
         when(dataBuilderv1.buildForAdPlaybackProgressEvent(adEvent)).thenReturn("AdPlaybackProgressEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);

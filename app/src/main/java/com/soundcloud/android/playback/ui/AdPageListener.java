@@ -2,11 +2,9 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.ads.AdFunctions;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;
-import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;

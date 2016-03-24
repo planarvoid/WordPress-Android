@@ -69,13 +69,13 @@ class PlaybackSessionAnalyticsController {
             final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
             if (!adData.hasReportedFirstQuartile() && progress.isPastFirstQuartile()) {
                 adData.setFirstQuartileReported();
-                publishAdQuartileEvent(AdPlaybackProgressEvent.forFirstQuartile(progressEvent.getUrn(), adData, trackSourceInfo));
+                publishAdQuartileEvent(AdPlaybackProgressEvent.forFirstQuartile(adData, trackSourceInfo));
             } else if (!adData.hasReportedSecondQuartile() && progress.isPastSecondQuartile()) {
                 adData.setSecondQuartileReported();
-                publishAdQuartileEvent(AdPlaybackProgressEvent.forSecondQuartile(progressEvent.getUrn(), adData, trackSourceInfo));
+                publishAdQuartileEvent(AdPlaybackProgressEvent.forSecondQuartile(adData, trackSourceInfo));
             } else if (!adData.hasReportedThirdQuartile() && progress.isPastThirdQuartile()) {
                 adData.setThirdQuartileReported();
-                publishAdQuartileEvent(AdPlaybackProgressEvent.forThirdQuartile(progressEvent.getUrn(), adData, trackSourceInfo));
+                publishAdQuartileEvent(AdPlaybackProgressEvent.forThirdQuartile(adData, trackSourceInfo));
             }
         }
     }

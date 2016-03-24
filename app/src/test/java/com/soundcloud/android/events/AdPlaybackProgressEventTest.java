@@ -24,11 +24,10 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromFirstQuartileForAudioAd() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forFirstQuartile(Urn.forTrack(321L), audioAd, sourceInfo);
+        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forFirstQuartile(audioAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
-        assertThat(progressEvent.itemUrn).isEqualTo(Urn.forTrack(321L));
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
 
@@ -39,11 +38,10 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromSecondQuartileForAudioAd() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forSecondQuartile(Urn.forTrack(321L), audioAd, sourceInfo);
+        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forSecondQuartile(audioAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::second_quartile");
-        assertThat(progressEvent.itemUrn).isEqualTo(Urn.forTrack(321L));
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
@@ -53,11 +51,10 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromThirdQuartileForAudioAd() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forThirdQuartile(Urn.forTrack(321L), audioAd, sourceInfo);
+        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forThirdQuartile(audioAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::third_quartile");
-        assertThat(progressEvent.itemUrn).isEqualTo(Urn.forTrack(321L));
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
@@ -67,11 +64,10 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromFirstQuartileForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forFirstQuartile(Urn.forTrack(321L), videoAd, sourceInfo);
+        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forFirstQuartile(videoAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
-        assertThat(progressEvent.itemUrn).isEqualTo(Urn.forTrack(321L));
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "905").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
@@ -81,11 +77,10 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromSecondQuartileForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forSecondQuartile(Urn.forTrack(321L), videoAd, sourceInfo);
+        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forSecondQuartile(videoAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::second_quartile");
-        assertThat(progressEvent.itemUrn).isEqualTo(Urn.forTrack(321L));
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "905").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
@@ -95,11 +90,10 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromThirdQuartileForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forThirdQuartile(Urn.forTrack(321L), videoAd, sourceInfo);
+        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forThirdQuartile(videoAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::third_quartile");
-        assertThat(progressEvent.itemUrn).isEqualTo(Urn.forTrack(321L));
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "905").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
