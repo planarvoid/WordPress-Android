@@ -190,7 +190,6 @@ public class OfflineContentController {
     private Observable<Object> playlistRemovedFromOfflineCollection() {
         // Note : fired by user interactions and the syncer
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .filter(isOfflineCollectionEnabled)
                 .filter(IS_PLAYLIST_UNLIKED_OR_DELETED)
                 .map(EntityStateChangedEvent.TO_URNS)
                 .flatMap(removeOfflinePlaylist)
