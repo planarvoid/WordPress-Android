@@ -40,6 +40,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
+        // this has to be called before onCreate, otherwise engagementsPresenter onCreate will not be called
         LightCycles.bind(this);
         super.onCreate(fragment, bundle);
 
