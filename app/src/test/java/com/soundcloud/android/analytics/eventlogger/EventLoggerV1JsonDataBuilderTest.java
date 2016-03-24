@@ -755,6 +755,34 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsJsonForFullScreenVideoAdUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromVideoAdFullscreen(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .monetizedObject(TRACK_URN.toString())
+                .adUrn("dfp:ads:905")
+                .pageName("collection:likes")
+                .monetizationType("video_ad")
+                .clickName("ad::full_screen"));
+    }
+
+    @Test
+    public void createsJsonForShrinkVideoAdUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromVideoAdShrink(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .monetizedObject(TRACK_URN.toString())
+                .adUrn("dfp:ads:905")
+                .pageName("collection:likes")
+                .monetizationType("video_ad")
+                .clickName("ad::exit_full_screen"));
+    }
+
+    @Test
     public void createsJsonForShareEvent() throws ApiMapperException {
         final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
 

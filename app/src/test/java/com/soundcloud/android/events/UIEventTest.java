@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.main.Screen;
@@ -1047,6 +1048,30 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
         assertThat(uiEvent.getAudioAdSkipUrls()).contains("audio_skip1", "audio_skip2");
+    }
+
+    @Test
+    public void shouldCreateEventFromVideoAdFullScreenClick() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(321L));
+        UIEvent uiEvent = UIEvent.fromVideoAdFullscreen(videoAd, trackSourceInfo);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_FULLSCREEN);
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(uiEvent.getVideoSizeChangeUrls()).contains("video_fullscreen1", "video_fullscreen2");
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
+    }
+
+    @Test
+    public void shouldCreateEventFromVideoAdShrinkClick() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(321L));
+        UIEvent uiEvent = UIEvent.fromVideoAdShrink(videoAd, trackSourceInfo);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_SHRINK);
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(uiEvent.getVideoSizeChangeUrls()).contains("video_exit_full1", "video_exit_full2");
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
     }
 
     @Test

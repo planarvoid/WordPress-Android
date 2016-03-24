@@ -151,6 +151,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_REPOST:
             case UIEvent.KIND_UNREPOST:
             case UIEvent.KIND_SHARE:
+            case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
+            case UIEvent.KIND_VIDEO_AD_SHRINK:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:

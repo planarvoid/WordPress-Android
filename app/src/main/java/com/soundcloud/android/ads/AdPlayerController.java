@@ -7,10 +7,12 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -21,6 +23,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
@@ -30,8 +33,10 @@ import java.lang.ref.WeakReference;
 @Singleton
 public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActivity> {
 
-    private final EventBus eventBus;
     private final AdsOperations adsOperations;
+    private final DeviceHelper deviceHelper;
+    private final EventBus eventBus;
+    private final PlayQueueManager playQueueManager;
     private final PlaySessionController playSessionController;
 
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -66,9 +71,15 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     };
 
     @Inject
-    public AdPlayerController(final EventBus eventBus, AdsOperations adsOperations, PlaySessionController playSessionController) {
+    public AdPlayerController(final EventBus eventBus,
+                              AdsOperations adsOperations,
+                              DeviceHelper deviceHelper,
+                              PlayQueueManager playQueueManager,
+                              PlaySessionController playSessionController) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
+        this.deviceHelper = deviceHelper;
+        this.playQueueManager = playQueueManager;
         this.playSessionController = playSessionController;
     }
 
@@ -86,10 +97,23 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
 
     @Override
     public void onPause(AppCompatActivity activity) {
-        if (adsOperations.isCurrentItemVideoAd() && !activity.isChangingConfigurations()) {
-            playSessionController.pause();
+        if (adsOperations.isCurrentItemVideoAd()) {
+            if (activity.isChangingConfigurations()) {
+                trackVideoSizeChange();
+            } else {
+                playSessionController.pause();
+            }
         }
         subscription.unsubscribe();
+    }
+
+    private void trackVideoSizeChange() {
+        final VideoAd videoAd = (VideoAd) adsOperations.getCurrentTrackAdData().get();
+        if (deviceHelper.isOrientation(Configuration.ORIENTATION_PORTRAIT)) {
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromVideoAdShrink(videoAd, playQueueManager.getCurrentTrackSourceInfo()));
+        } else if (deviceHelper.isOrientation(Configuration.ORIENTATION_LANDSCAPE)) {
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromVideoAdFullscreen(videoAd, playQueueManager.getCurrentTrackSourceInfo()));
+        }
     }
 
     private class PlayerCommandSubscriber extends DefaultSubscriber<PlayerUICommand> {
