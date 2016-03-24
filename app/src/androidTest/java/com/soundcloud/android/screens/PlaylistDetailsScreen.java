@@ -3,13 +3,13 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.EmptyViewElement;
+import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
-import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -33,7 +33,7 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen scrollToBottom() {
-        tracksListElement().scrollToBottom();
+        tracks().scrollToBottom();
         return this;
     }
 
@@ -109,7 +109,7 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen scrollToLastTrackItem() {
-        testDriver.scrollListToLine(tracksListElement().getItemCount() - 1);
+        testDriver.scrollListToLine(tracks().getItemCount() - 1);
         return this;
     }
 
@@ -143,28 +143,24 @@ public class PlaylistDetailsScreen extends Screen {
                 .click();
     }
 
-    private ListElement tracksListElement() {
+    private RecyclerViewElement tracks() {
         return testDriver
-                .findOnScreenElement(With.id(android.R.id.list))
-                .toListView();
+                .findOnScreenElement(With.id(R.id.ak_recycler_view))
+                .toRecyclerView();
     }
 
     public int getTrackCount() {
-        return trackItemsList().getItemCount();
+        return tracks().getItemCount();
     }
 
     private List<TrackItemElement> trackItemElements() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return Lists.transform(
                 testDriver
-                        .findOnScreenElement(With.id(android.R.id.list))
+                        .findOnScreenElement(With.id(R.id.ak_recycler_view))
                         .findOnScreenElements(With.id(R.id.track_list_item)),
                 toTrackItemElement
         );
-    }
-
-    private ListElement trackItemsList() {
-        return testDriver.findOnScreenElement(With.id(android.R.id.list)).toListView();
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
