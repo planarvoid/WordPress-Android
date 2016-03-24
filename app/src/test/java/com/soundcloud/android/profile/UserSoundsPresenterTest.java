@@ -20,7 +20,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,7 +38,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Rule public final FragmentRule fragmentRule = new FragmentRule(default_recyclerview_with_refresh, new Bundle());
 
     private UserSoundsPresenter presenter;
-    private ApiUserProfile userProfileResponse;
+    private UserProfile userProfileResponse;
     private Bundle fragmentArgs;
     private TestEventBus eventBus = new TestEventBus();
 

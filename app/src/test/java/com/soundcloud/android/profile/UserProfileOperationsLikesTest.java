@@ -11,6 +11,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackLike;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.collection.PlayableItemStatusLoader;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
@@ -50,6 +51,7 @@ public class UserProfileOperationsLikesTest {
     @Mock private UserRepository userRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
+    @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
 
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
@@ -71,7 +73,8 @@ public class UserProfileOperationsLikesTest {
                 loadPlaylistLikedStatuses,
                 userRepository,
                 writeMixedRecordsCommand,
-                storeProfileCommand);
+                storeProfileCommand,
+                spotlightItemStatusLoader);
     }
 
     @Test

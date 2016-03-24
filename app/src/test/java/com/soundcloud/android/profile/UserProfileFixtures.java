@@ -1,96 +1,78 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.apiTrackHolder;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Collections;
 
-class UserProfileFixtures {
-    private static ModelCollection<ApiPlayableSource> emptyPlayableSources() {
-        return new ModelCollection<>(Collections.<ApiPlayableSource>emptyList());
-    }
-
-    private static ModelCollection<ApiTrackPost> emptyTrackPosts() {
-        return new ModelCollection<>(Collections.<ApiTrackPost>emptyList());
-    }
-
-    private static ModelCollection<ApiPlaylistPost> emptyPlaylistPosts() {
-        return new ModelCollection<>(Collections.<ApiPlaylistPost>emptyList());
+public class UserProfileFixtures {
+    private static ModelCollection<PropertySet> emptyPropertySets() {
+        return new ModelCollection<>(Collections.<PropertySet>emptyList());
     }
 
     static class Builder {
-        private ApiUser user = create(ApiUser.class);
-        private ModelCollection<ApiPlayableSource> spotlight = emptyPlayableSources();
-        private ModelCollection<ApiTrackPost> tracks = emptyTrackPosts();
-        private ModelCollection<ApiPlaylistPost> releases = emptyPlaylistPosts();
-        private ModelCollection<ApiPlaylistPost> playlists = emptyPlaylistPosts();
-        private ModelCollection<ApiPlayableSource> reposts = emptyPlayableSources();
-        private ModelCollection<ApiPlayableSource> likes = emptyPlayableSources();
+        private PropertySet user = create(ApiUser.class).toPropertySet();
+        private ModelCollection<PropertySet> spotlight = emptyPropertySets();
+        private ModelCollection<PropertySet> tracks = emptyPropertySets();
+        private ModelCollection<PropertySet> releases = emptyPropertySets();
+        private ModelCollection<PropertySet> playlists = emptyPropertySets();
+        private ModelCollection<PropertySet> reposts = emptyPropertySets();
+        private ModelCollection<PropertySet> likes = emptyPropertySets();
 
-        Builder user(ApiUser user) {
+        Builder user(PropertySet user) {
             this.user = user;
             return this;
         }
 
-        Builder spotlight(ModelCollection<ApiPlayableSource> spotlight) {
+        Builder spotlight(ModelCollection<PropertySet> spotlight) {
             this.spotlight = spotlight;
             return this;
         }
 
-        Builder tracks(ModelCollection<ApiTrackPost> tracks) {
+        Builder tracks(ModelCollection<PropertySet> tracks) {
             this.tracks = tracks;
             return this;
         }
 
-        Builder releases(ModelCollection<ApiPlaylistPost> releases) {
+        Builder releases(ModelCollection<PropertySet> releases) {
             this.releases = releases;
             return this;
         }
 
-        Builder playlists(ModelCollection<ApiPlaylistPost> playlists) {
+        Builder playlists(ModelCollection<PropertySet> playlists) {
             this.playlists = playlists;
             return this;
         }
 
-        Builder reposts(ModelCollection<ApiPlayableSource> reposts) {
+        Builder reposts(ModelCollection<PropertySet> reposts) {
             this.reposts = reposts;
             return this;
         }
 
-        Builder likes(ModelCollection<ApiPlayableSource> likes) {
+        Builder likes(ModelCollection<PropertySet> likes) {
             this.likes = likes;
             return this;
         }
 
         Builder populateAllCollections() {
-            spotlight = new ModelCollection<>(singletonList(apiTrackHolder()));
-            tracks = new ModelCollection<>(singletonList(new ApiTrackPost(create(ApiTrack.class))));
-            releases = new ModelCollection<>(singletonList(new ApiPlaylistPost(create(ApiPlaylist.class))));
-            playlists = new ModelCollection<>(singletonList(new ApiPlaylistPost(create(ApiPlaylist.class))));
-            reposts = new ModelCollection<>(singletonList(apiTrackHolder()));
-            likes = new ModelCollection<>(singletonList(apiTrackHolder()));
+            spotlight = new ModelCollection<>(singletonList(create(ApiTrack.class).toPropertySet()));
+            tracks = new ModelCollection<>(singletonList(create(ApiTrack.class).toPropertySet()));
+            releases = new ModelCollection<>(singletonList(create(ApiPlaylist.class).toPropertySet()));
+            playlists = new ModelCollection<>(singletonList(create(ApiPlaylist.class).toPropertySet()));
+            reposts = new ModelCollection<>(singletonList(create(ApiTrack.class).toPropertySet()));
+            likes = new ModelCollection<>(singletonList(create(ApiTrack.class).toPropertySet()));
 
             return this;
         }
 
-        ApiUserProfile build() {
-            return ApiUserProfile.create(
-                    user,
-                    spotlight,
-                    tracks,
-                    releases,
-                    playlists,
-                    reposts,
-                    likes
-            );
+        UserProfile build() {
+            return new UserProfile(user, spotlight, tracks, releases, playlists, reposts, likes);
         }
     }
 }

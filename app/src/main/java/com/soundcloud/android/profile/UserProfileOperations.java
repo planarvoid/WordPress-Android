@@ -3,6 +3,7 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PostProperty;
@@ -10,7 +11,6 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -45,6 +45,7 @@ class UserProfileOperations {
     private final UserRepository userRepository;
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;
     private final StoreProfileCommand storeProfileCommand;
+    private final SpotlightItemStatusLoader spotlightItemStatusLoader;
 
     private final Func1<PagedRemoteCollection, PagedRemoteCollection> mergePlayableInfo =
             new Func1<PagedRemoteCollection, PagedRemoteCollection>() {
@@ -75,19 +76,28 @@ class UserProfileOperations {
                 }
             };
 
+    private Func1<UserProfileRecord, UserProfile> TO_USER_PROFILE = new Func1<UserProfileRecord, UserProfile>() {
+        @Override
+        public UserProfile call(UserProfileRecord userProfileRecord) {
+            return UserProfile.fromUserProfileRecord(userProfileRecord);
+        }
+    };
+
     @Inject
     UserProfileOperations(ProfileApi profileApi,
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
                           UserRepository userRepository,
                           WriteMixedRecordsCommand writeMixedRecordsCommand,
-                          StoreProfileCommand storeProfileCommand) {
+                          StoreProfileCommand storeProfileCommand,
+                          SpotlightItemStatusLoader spotlightItemStatusLoader) {
         this.profileApi = profileApi;
         this.scheduler = scheduler;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.userRepository = userRepository;
         this.writeMixedRecordsCommand = writeMixedRecordsCommand;
         this.storeProfileCommand = storeProfileCommand;
+        this.spotlightItemStatusLoader = spotlightItemStatusLoader;
     }
 
     public Observable<ProfileUser> getLocalProfileUser(Urn user) {
@@ -229,10 +239,12 @@ class UserProfileOperations {
         });
     }
 
-    public Observable<UserProfileRecord> userProfile(Urn user) {
+    public Observable<UserProfile> userProfile(Urn user) {
         return profileApi.userProfile(user)
                 .cast(UserProfileRecord.class)
                 .doOnNext(storeProfileCommand.toAction1())
+                .map(TO_USER_PROFILE)
+                .doOnNext(spotlightItemStatusLoader.toAction1())
                 .subscribeOn(scheduler);
     }
 
