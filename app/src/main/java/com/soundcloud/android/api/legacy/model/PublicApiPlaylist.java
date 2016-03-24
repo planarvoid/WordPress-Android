@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import android.os.Bundle;
 import android.os.Parcel;
@@ -142,7 +143,7 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
         ApiPlaylist apiPlaylist = new ApiPlaylist();
         apiPlaylist.setUrn(getUrn());
         apiPlaylist.setCreatedAt(created_at);
-        apiPlaylist.setArtworkUrl(artwork_url);
+        apiPlaylist.setArtworkUrlTemplate(imageUrlToTemplate(artwork_url).orNull());
         apiPlaylist.setDuration(duration);
         apiPlaylist.setPermalinkUrl(permalink_url);
         apiPlaylist.setSharing(sharing);
@@ -157,5 +158,10 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
         apiPlaylist.setStats(stats);
 
         return apiPlaylist;
+    }
+
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return imageUrlToTemplate(artwork_url);
     }
 }

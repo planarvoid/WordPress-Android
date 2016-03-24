@@ -39,6 +39,7 @@ public class LoadPlaylistTracksCommand extends Command<Urn, List<PropertySet>> {
                 .select(
                         field(fullSoundIdColumn).as(BaseColumns._ID),
                         TableColumns.Sounds.TITLE,
+                        TableColumns.Sounds.ARTWORK_URL,
                         TableColumns.Sounds.USER_ID,
                         TableColumns.Users.USERNAME,
                         TableColumns.Sounds.SNIPPET_DURATION,

@@ -2,7 +2,9 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.legacy.model.PlayableStats;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.ApiEntityHolder;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistRecord;
@@ -14,14 +16,14 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 import java.util.List;
 
-public class ApiPlaylist implements ApiEntityHolder, PlaylistRecord, PlaylistRecordHolder {
+public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistRecord, PlaylistRecordHolder {
 
     private Urn urn;
     private String title;
     private ApiUser user;
     private List<String> tags;
     private int trackCount;
-    private String artworkUrl;
+    private Optional<String> artworkUrlTemplate = Optional.absent();
     private Date createdAt;
     private PlayableStats stats;
     private long duration;
@@ -45,6 +47,16 @@ public class ApiPlaylist implements ApiEntityHolder, PlaylistRecord, PlaylistRec
 
     public void setUrn(Urn urn) {
         this.urn = urn;
+    }
+
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return artworkUrlTemplate;
+    }
+
+    @JsonProperty("artwork_url_template")
+    public void setArtworkUrlTemplate(String artworkUrlTemplate) {
+        this.artworkUrlTemplate = Optional.fromNullable(artworkUrlTemplate);
     }
 
     public long getId() {
@@ -136,16 +148,6 @@ public class ApiPlaylist implements ApiEntityHolder, PlaylistRecord, PlaylistRec
         this.permalinkUrl = permalinkUrl;
     }
 
-    @Deprecated
-    public String getArtworkUrl() {
-        return artworkUrl;
-    }
-
-    @JsonProperty("artwork_url")
-    public void setArtworkUrl(String artworkUrl) {
-        this.artworkUrl = artworkUrl;
-    }
-
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -192,7 +194,8 @@ public class ApiPlaylist implements ApiEntityHolder, PlaylistRecord, PlaylistRec
                 PlaylistProperty.REPOSTS_COUNT.bind(getStats().getRepostsCount()),
                 PlaylistProperty.CREATOR_NAME.bind(getUsername()),
                 PlaylistProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
-                PlaylistProperty.TAGS.bind(Optional.fromNullable(tags))
+                PlaylistProperty.TAGS.bind(Optional.fromNullable(tags)),
+                EntityProperty.IMAGE_URL_TEMPLATE.bind(artworkUrlTemplate)
         );
     }
 

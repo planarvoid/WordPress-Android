@@ -97,7 +97,8 @@ public class UserStorageTest  extends StorageIntegrationTest {
         return PropertySet.from(
                 UserProperty.URN.bind(apiUser.getUrn()),
                 UserProperty.USERNAME.bind(apiUser.getUsername()),
-                UserProperty.FOLLOWERS_COUNT.bind(apiUser.getFollowersCount())
+                UserProperty.FOLLOWERS_COUNT.bind(apiUser.getFollowersCount()),
+                UserProperty.IMAGE_URL_TEMPLATE.bind(apiUser.getImageUrlTemplate())
         );
     }
 }

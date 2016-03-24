@@ -3,6 +3,7 @@ package com.soundcloud.android.api.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.ApiEntityHolder;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -136,7 +137,8 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
         this.waveformUrl = waveformUrl;
     }
 
-    public Optional<String> getArtworkUrlTemplate() {
+    @Override
+    public Optional<String> getImageUrlTemplate() {
         return artworkUrlTemplate;
     }
 
@@ -365,7 +367,7 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
                 TrackProperty.CREATOR_NAME.bind(getUserName()),
                 TrackProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
                 TrackProperty.GENRE.bind(Optional.fromNullable(genre)),
-                TrackProperty.ARTWORK_URL_TEMPLATE.bind(artworkUrlTemplate)
+                EntityProperty.IMAGE_URL_TEMPLATE.bind(artworkUrlTemplate)
         );
 
         if (isSubMidTier().isPresent()){

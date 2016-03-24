@@ -95,8 +95,8 @@ public class CollectionItem implements ListItem {
     }
 
     @Override
-    public Optional<String> getArtworkUrlTemplate() {
-        return type == TYPE_PLAYLIST_ITEM ? playlistItem.getArtworkUrlTemplate() : Optional.<String>absent();
+    public Optional<String> getImageUrlTemplate() {
+        return type == TYPE_PLAYLIST_ITEM ? playlistItem.getImageUrlTemplate() : Optional.<String>absent();
     }
 
     @Override

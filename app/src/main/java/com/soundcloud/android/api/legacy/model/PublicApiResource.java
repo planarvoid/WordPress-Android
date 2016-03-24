@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
+import com.soundcloud.java.optional.Optional;
+
+import android.support.annotation.Nullable;
 
 import java.util.List;
 
@@ -62,6 +65,14 @@ public abstract class PublicApiResource
      */
     public boolean isSaved() {
         return getId() > NOT_SET;
+    }
+
+    // terrible hack that makes public API resources support artwork templates
+    protected Optional<String> imageUrlToTemplate(@Nullable String imageUrl) {
+        if (imageUrl != null) {
+            return Optional.of(imageUrl.replaceAll("-large", "-{size}"));
+        }
+        return Optional.absent();
     }
 
     public static class ResourceHolder<T extends PublicApiResource> extends CollectionHolder<T> {

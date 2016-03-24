@@ -170,6 +170,7 @@ public class LikesStorageTest extends StorageIntegrationTest {
                 TrackProperty.URN,
                 TrackProperty.TITLE,
                 TrackProperty.CREATOR_NAME,
+                EntityProperty.IMAGE_URL_TEMPLATE,
                 TrackProperty.LIKES_COUNT,
                 TrackProperty.PLAY_COUNT,
                 TrackProperty.SNIPPET_DURATION,
@@ -203,6 +204,7 @@ public class LikesStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.URN,
                 PlaylistProperty.TITLE,
                 PlaylistProperty.CREATOR_NAME,
+                EntityProperty.IMAGE_URL_TEMPLATE,
                 PlaylistProperty.LIKES_COUNT,
                 PlaylistProperty.TRACK_COUNT,
                 PlaylistProperty.IS_PRIVATE

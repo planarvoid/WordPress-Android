@@ -117,6 +117,7 @@ public class PlaylistStorage {
                         TableColumns.SoundView.PERMALINK_URL,
                         TableColumns.SoundView.SHARING,
                         TableColumns.SoundView.CREATED_AT,
+                        TableColumns.SoundView.ARTWORK_URL,
                         count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
                         exists(likeQuery(playlistUrn)).as(TableColumns.SoundView.USER_LIKE),
                         exists(repostQuery(playlistUrn)).as(TableColumns.SoundView.USER_REPOST),

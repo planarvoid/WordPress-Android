@@ -1,11 +1,14 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
-class ProfileUser {
+class ProfileUser implements ImageResource {
 
     private final PropertySet source;
 
@@ -13,8 +16,14 @@ class ProfileUser {
         this.source = source;
     }
 
+    @Override
     public Urn getUrn() {
         return source.get(UserProperty.URN);
+    }
+
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return source.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
     }
 
     public String getName() {

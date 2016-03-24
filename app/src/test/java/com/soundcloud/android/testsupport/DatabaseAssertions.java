@@ -33,6 +33,7 @@ import static com.soundcloud.android.storage.TableColumns.PromotedTracks.PROMOTE
 import static com.soundcloud.android.storage.TableColumns.ResourceTable.CREATED_AT;
 import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
 import static com.soundcloud.android.storage.TableColumns.SoundView.USERNAME;
+import static com.soundcloud.android.storage.TableColumns.Sounds.ARTWORK_URL;
 import static com.soundcloud.android.storage.TableColumns.Sounds.COMMENTABLE;
 import static com.soundcloud.android.storage.TableColumns.Sounds.COMMENT_COUNT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.DURATION;
@@ -66,6 +67,7 @@ import static com.soundcloud.android.storage.TableColumns.UserAssociations.RESOU
 import static com.soundcloud.android.storage.TableColumns.UserAssociations.TARGET_ID;
 import static com.soundcloud.android.storage.TableColumns.UserAssociations.TYPE_FOLLOWING;
 import static com.soundcloud.android.storage.TableColumns.UserAssociations.TYPE_RESOURCE_USER;
+import static com.soundcloud.android.storage.TableColumns.Users.AVATAR_URL;
 import static com.soundcloud.android.storage.TableColumns.Users.COUNTRY;
 import static com.soundcloud.android.storage.TableColumns.Users.DESCRIPTION;
 import static com.soundcloud.android.storage.TableColumns.Users.DISCOGS_NAME;
@@ -159,6 +161,7 @@ public class DatabaseAssertions {
                 .whereEq(WAVEFORM_URL, track.getWaveformUrl())
                 .whereEq(STREAM_URL, track.getStreamUrl())
                 .whereEq(PERMALINK_URL, track.getPermalinkUrl())
+                .whereEq(ARTWORK_URL, track.getImageUrlTemplate().orNull())
                 .whereEq(CREATED_AT, track.getCreatedAt().getTime())
                 .whereEq(GENRE, track.getGenre())
                 .whereEq(SHARING, track.getSharing().value())
@@ -463,6 +466,7 @@ public class DatabaseAssertions {
                 .whereEq(DURATION, playlist.getDuration())
                 .whereEq(CREATED_AT, playlist.getCreatedAt().getTime())
                 .whereEq(PERMALINK_URL, playlist.getPermalinkUrl())
+                .whereEq(ARTWORK_URL, playlist.getImageUrlTemplate().orNull())
                 .whereEq(SHARING, playlist.getSharing().value())
                 .whereEq(USER_ID, playlist.getUser().getId())
                 .whereEq(LIKES_COUNT, playlist.getStats().getLikesCount())
@@ -650,6 +654,7 @@ public class DatabaseAssertions {
 
         assertOptionalColumn(query, DESCRIPTION, user.getDescription());
         assertOptionalColumn(query, WEBSITE_URL, user.getWebsiteUrl());
+        assertOptionalColumn(query, AVATAR_URL, user.getImageUrlTemplate());
         assertOptionalColumn(query, WEBSITE_NAME, user.getWebsiteName());
         assertOptionalColumn(query, DISCOGS_NAME, user.getDiscogsName());
         assertOptionalColumn(query, MYSPACE_NAME, user.getMyspaceName());

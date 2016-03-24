@@ -21,6 +21,7 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ProfileApiMobileLikeTest extends AndroidUnitTest {
 
@@ -67,8 +68,8 @@ public class ProfileApiMobileLikeTest extends AndroidUnitTest {
     }
 
     private void assertAllLikesEmitted() {
-        subscriber.assertReceivedOnNext(Arrays.asList(new ModelCollection<>(
-                Arrays.asList(apiTrack, apiPlaylist), NEXT_HREF)));
+        final List<ApiEntityHolder> entities = Arrays.<ApiEntityHolder>asList(apiTrack, apiPlaylist);
+        subscriber.assertValue(new ModelCollection<>(entities, NEXT_HREF));
     }
 
 }

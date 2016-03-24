@@ -59,6 +59,7 @@ class TrackStorage {
                         TableColumns.SoundView.REPOSTS_COUNT,
                         TableColumns.SoundView.WAVEFORM_URL,
                         TableColumns.SoundView.STREAM_URL,
+                        TableColumns.SoundView.ARTWORK_URL,
                         TableColumns.SoundView.POLICIES_MONETIZABLE,
                         TableColumns.SoundView.POLICIES_BLOCKED,
                         TableColumns.SoundView.POLICIES_SNIPPED,

@@ -71,6 +71,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.SNIPPET_DURATION, track.getSnippetDuration());
         cv.put(TableColumns.Sounds.FULL_DURATION, track.getFullDuration());
         cv.put(TableColumns.Sounds.WAVEFORM_URL, track.getWaveformUrl());
+        cv.put(TableColumns.Sounds.ARTWORK_URL, track.getImageUrlTemplate().orNull());
         cv.put(TableColumns.Sounds.STREAM_URL, track.getStreamUrl());
         cv.put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount());
         cv.put(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount());
@@ -309,23 +310,28 @@ public class DatabaseFixtures {
     }
 
     public void insertUser(UserRecord user) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Users._ID, user.getUrn().getNumericId());
-        cv.put(TableColumns.Users.USERNAME, user.getUsername());
-        cv.put(TableColumns.Users.COUNTRY, user.getCountry());
-        cv.put(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount());
-
-        insertInto(Table.Users, cv);
+        insertInto(Table.Users, basicUserContentValues(user));
     }
 
-    public void insertExtendedUser(ApiUser user, String description, String websiteUrl, String websiteTitle,
-                                   String discogsName, String myspaceName) {
-
+    @NonNull
+    private ContentValues basicUserContentValues(UserRecord user) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Users._ID, user.getUrn().getNumericId());
         cv.put(TableColumns.Users.USERNAME, user.getUsername());
         cv.put(TableColumns.Users.COUNTRY, user.getCountry());
         cv.put(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount());
+        cv.put(TableColumns.Users.AVATAR_URL, user.getImageUrlTemplate().orNull());
+        return cv;
+    }
+
+    public void insertExtendedUser(ApiUser user,
+                                   String description,
+                                   String websiteUrl,
+                                   String websiteTitle,
+                                   String discogsName,
+                                   String myspaceName) {
+
+        ContentValues cv = basicUserContentValues(user);
         cv.put(TableColumns.Users.DESCRIPTION, description);
         cv.put(TableColumns.Users.WEBSITE_URL, websiteUrl);
         cv.put(TableColumns.Users.WEBSITE_NAME, websiteTitle);
@@ -497,6 +503,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
         cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
         cv.put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime());
+        cv.put(TableColumns.Sounds.ARTWORK_URL, playlist.getImageUrlTemplate().orNull());
         cv.put(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()));
         return cv;
     }

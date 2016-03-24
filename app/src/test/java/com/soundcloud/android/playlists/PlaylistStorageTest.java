@@ -137,6 +137,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                         PlayableProperty.LIKES_COUNT,
                         PlayableProperty.REPOSTS_COUNT,
                         PlayableProperty.PERMALINK_URL,
+                        EntityProperty.IMAGE_URL_TEMPLATE,
                         PlayableProperty.CREATED_AT,
                         PlayableProperty.IS_PRIVATE,
                         PlayableProperty.IS_USER_LIKE,

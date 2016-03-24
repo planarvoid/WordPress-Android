@@ -96,11 +96,11 @@ public abstract class UserSoundsItem implements ListItem {
     }
 
     @Override
-    public Optional<String> getArtworkUrlTemplate() {
+    public Optional<String> getImageUrlTemplate() {
         if (isTrack()) {
-            return getTrackItem().get().getArtworkUrlTemplate();
+            return getTrackItem().get().getImageUrlTemplate();
         } else if (isPlaylist()) {
-            return getPlaylistItem().get().getArtworkUrlTemplate();
+            return getPlaylistItem().get().getImageUrlTemplate();
         } else {
             return Optional.absent();
         }

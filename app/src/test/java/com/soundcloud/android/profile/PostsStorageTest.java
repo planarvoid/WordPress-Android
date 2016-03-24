@@ -219,6 +219,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.URN,
                 PlaylistProperty.TITLE,
                 PlaylistProperty.CREATOR_NAME,
+                PlaylistProperty.IMAGE_URL_TEMPLATE,
                 PlaylistProperty.TRACK_COUNT,
                 PlaylistProperty.LIKES_COUNT,
                 PlaylistProperty.IS_PRIVATE
@@ -231,6 +232,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
         return track.toPropertySet().slice(
                 TrackProperty.URN,
                 TrackProperty.TITLE,
+                TrackProperty.IMAGE_URL_TEMPLATE,
                 TrackProperty.CREATOR_NAME,
                 TrackProperty.LIKES_COUNT,
                 TrackProperty.PLAY_COUNT,

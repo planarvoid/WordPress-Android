@@ -25,7 +25,7 @@ class UpsellNotificationItem implements StreamItem {
     }
 
     @Override
-    public Optional<String> getArtworkUrlTemplate() {
+    public Optional<String> getImageUrlTemplate() {
         return Optional.absent();
     }
 

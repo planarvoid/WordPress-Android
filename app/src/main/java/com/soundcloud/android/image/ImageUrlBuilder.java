@@ -23,7 +23,7 @@ class ImageUrlBuilder {
 
     @Nullable
     String buildUrl(ImageResource imageResource, ApiImageSize apiImageSize) {
-        final Optional<String> urlTemplate = imageResource.getArtworkUrlTemplate();
+        final Optional<String> urlTemplate = imageResource.getImageUrlTemplate();
         if (urlTemplate.isPresent()) {
             return urlTemplate.get().replaceAll(SIZE_TOKEN, apiImageSize.sizeSpec);
         } else if (!imageResource.getUrn().isUser()) {

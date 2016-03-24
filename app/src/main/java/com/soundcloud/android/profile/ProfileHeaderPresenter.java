@@ -79,7 +79,7 @@ class ProfileHeaderPresenter {
 
         if (!user.getUrn().equals(lastUser)){
             lastUser = user.getUrn();
-            imageOperations.displayCircularWithPlaceholder(lastUser,
+            imageOperations.displayCircularWithPlaceholder(user,
                     ApiImageSize.getFullImageSize(image.getResources()),
                     image);
         }

@@ -47,6 +47,7 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
                 .put(Sounds.WAVEFORM_URL, trackRecord.getWaveformUrl())
                 .put(Sounds.STREAM_URL, trackRecord.getStreamUrl())
                 .put(Sounds.PERMALINK_URL, trackRecord.getPermalinkUrl())
+                .put(Sounds.ARTWORK_URL, trackRecord.getImageUrlTemplate().orNull())
                 .put(Sounds.CREATED_AT, trackRecord.getCreatedAt().getTime())
                 .put(Sounds.GENRE, trackRecord.getGenre())
                 .put(Sounds.SHARING, trackRecord.getSharing().value())

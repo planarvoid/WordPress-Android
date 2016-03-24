@@ -30,6 +30,11 @@ public class TestUserRecord implements UserRecord {
     }
 
     @Override
+    public Optional<String> getImageUrlTemplate() {
+        return apiUser.getImageUrlTemplate();
+    }
+
+    @Override
     public String getPermalink() {
         return apiUser.getPermalink();
     }
@@ -47,11 +52,6 @@ public class TestUserRecord implements UserRecord {
     @Override
     public int getFollowersCount() {
         return apiUser.getFollowersCount();
-    }
-
-    @Override
-    public String getAvatarUrl() {
-        return apiUser.getAvatarUrl();
     }
 
     @Override

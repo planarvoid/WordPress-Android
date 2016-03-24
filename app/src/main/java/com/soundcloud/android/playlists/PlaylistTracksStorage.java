@@ -83,6 +83,7 @@ class PlaylistTracksStorage {
                 .select(
                         field(Table.SoundView.field(SoundView._ID)).as(SoundView._ID),
                         field(Table.SoundView.field(SoundView.TITLE)).as(SoundView.TITLE),
+                        field(Table.SoundView.field(SoundView.ARTWORK_URL)).as(SoundView.ARTWORK_URL),
                         field(Table.SoundView.field(SoundView.SHARING)).as(SoundView.SHARING),
                         field(Table.SoundView.field(SoundView.TRACK_COUNT)).as(SoundView.TRACK_COUNT),
                         count(PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),

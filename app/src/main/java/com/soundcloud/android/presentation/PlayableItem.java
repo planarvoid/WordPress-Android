@@ -122,8 +122,8 @@ public abstract class PlayableItem implements StreamItem {
     }
 
     @Override
-    public Optional<String> getArtworkUrlTemplate() {
-        return source.getOrElse(PlayableProperty.ARTWORK_URL_TEMPLATE, Optional.<String>absent());
+    public Optional<String> getImageUrlTemplate() {
+        return source.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
     }
 
     public PropertySet getSource() {

@@ -1,9 +1,11 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.api.model.Sharing;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
@@ -18,6 +20,8 @@ public abstract class PlaylistMapper extends RxResultMapper<PropertySet> {
         final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
         propertySet.put(PlaylistProperty.URN, readSoundUrn(cursorReader));
         propertySet.put(PlaylistProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
+        propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(
+                cursorReader.getString(TableColumns.SoundView.ARTWORK_URL)));
         propertySet.put(PlaylistProperty.CREATOR_NAME, cursorReader.getString(TableColumns.SoundView.USERNAME));
         propertySet.put(PlaylistProperty.TRACK_COUNT, readTrackCount(cursorReader));
         propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
