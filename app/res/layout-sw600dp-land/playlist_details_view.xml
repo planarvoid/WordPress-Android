@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -18,7 +19,9 @@
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginTop="32dp"
         android:enabled="false"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        tools:visibility="visible"
+        tools:text="Creator"/>
 
     <com.soundcloud.android.view.JaggedTextView
         android:id="@+id/title"
@@ -27,18 +30,21 @@
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginRight="@dimen/playlist_header_padding"
         android:layout_marginTop="4dp"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        tools:visibility="visible"
+        tools:text="Track title"/>
 
-    <com.soundcloud.android.view.CustomFontTextView
+    <com.soundcloud.android.view.JaggedTextView
         android:id="@+id/title_private"
         style="@style/ShrinkWrap.Primary.Medium"
-        android:drawableLeft="@drawable/ic_private_playlist_lock"
-        android:drawablePadding="4dp"
         android:layout_below="@id/username"
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginRight="@dimen/playlist_header_padding"
         android:layout_marginTop="4dp"
-        android:visibility="gone" />
+        android:drawableLeft="@drawable/ic_private_playlist_lock"
+        android:drawablePadding="4dp"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
     <ImageButton
         android:id="@+id/btn_play"

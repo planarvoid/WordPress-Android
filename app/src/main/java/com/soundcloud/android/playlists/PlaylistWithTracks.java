@@ -36,6 +36,10 @@ public class PlaylistWithTracks implements ImageResource {
         this.tracks = tracks;
     }
 
+    public PlaylistItem getPlaylistItem(){
+        return PlaylistItem.from(sourceSet);
+    }
+
     public boolean isLocalPlaylist(){
         return sourceSet.contains(PlaylistProperty.URN) && sourceSet.get(PlaylistProperty.URN).getNumericId() < 0;
     }

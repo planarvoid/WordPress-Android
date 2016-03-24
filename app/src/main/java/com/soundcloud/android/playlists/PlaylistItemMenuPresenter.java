@@ -215,7 +215,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
 
     private boolean isUnlikingNotOwnedPlaylistInOfflineMode(boolean addLike) {
         boolean offlineContentEnabled = featureOperations.isOfflineContentEnabled() && menuOptions.showOffline();
-        return offlineContentEnabled && !addLike && !playlist.isPosted();
+        return offlineContentEnabled && !addLike && !playlist.isPostedByUser();
     }
 
     private PopupMenuWrapper setupMenu(View button) {

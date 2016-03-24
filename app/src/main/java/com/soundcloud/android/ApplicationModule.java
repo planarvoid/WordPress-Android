@@ -33,6 +33,9 @@ import com.soundcloud.android.playback.notification.BigNotificationBuilder;
 import com.soundcloud.android.playback.notification.MediaStyleNotificationBuilder;
 import com.soundcloud.android.playback.notification.NotificationBuilder;
 import com.soundcloud.android.playback.notification.RichNotificationBuilder;
+import com.soundcloud.android.playback.ui.CompatLikeButtonPresenter;
+import com.soundcloud.android.playback.ui.LikeButtonPresenter;
+import com.soundcloud.android.playback.ui.MaterialLikeButtonPresenter;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -321,5 +324,14 @@ public class ApplicationModule {
     @Singleton
     public FabricReporter provideFabricReporter() {
         return new FabricReporter();
+    }
+
+    @Provides
+    public LikeButtonPresenter provideLikeButtonPresenter(CondensedNumberFormatter numberFormatter) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return new MaterialLikeButtonPresenter(numberFormatter);
+        } else {
+            return new CompatLikeButtonPresenter(numberFormatter);
+        }
     }
 }

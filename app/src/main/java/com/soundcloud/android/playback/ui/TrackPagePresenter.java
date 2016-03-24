@@ -157,7 +157,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.artworkController.setFullDuration(trackState.getFullDuration());
         holder.waveformController.setDurations(trackState.getPlayableDuration(), trackState.getFullDuration());
 
-        likeButtonPresenter.setLikeCount(holder.likeToggle, trackState.getLikeCount());
+        likeButtonPresenter.setLikeCount(holder.likeToggle, trackState.getLikeCount(),
+                R.drawable.player_like_active, R.drawable.player_like);
 
         holder.likeToggle.setChecked(trackState.isUserLike());
         holder.likeToggle.setTag(trackState.getUrn());
@@ -312,7 +313,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_USER_LIKE));
         }
         if (changeSet.contains(PlayableProperty.LIKES_COUNT)) {
-            likeButtonPresenter.setLikeCount(holder.likeToggle, changeSet.get(PlayableProperty.LIKES_COUNT));
+            likeButtonPresenter.setLikeCount(holder.likeToggle, changeSet.get(PlayableProperty.LIKES_COUNT),
+                    R.drawable.player_like_active, R.drawable.player_like);
         }
         if (changeSet.contains(PlayableProperty.IS_USER_REPOST)) {
             final boolean isReposted = changeSet.get(PlayableProperty.IS_USER_REPOST);
