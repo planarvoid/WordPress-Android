@@ -6,4 +6,10 @@
         <item name="android:textColor">@color/translucent_white</item>
     </style>
 
+    <style name="GoOnboarding.Text.SubText">
+        <item name="android:textSize">@dimen/go_onboarding_sub_title_text_size</item>
+        <item name="android:textColor">@color/translucent_white</item>
+        <item name="android:layout_marginTop">10dp</item>
+    </style>
+
 </resources>
