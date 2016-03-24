@@ -61,6 +61,7 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
+    @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
 
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
@@ -89,7 +90,8 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
                 loadPlaylistLikedStatuses,
                 userRepository,
                 writeMixedRecordsCommand,
-                storeProfileCommand);
+                storeProfileCommand,
+                spotlightItemStatusLoader);
 
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
     }

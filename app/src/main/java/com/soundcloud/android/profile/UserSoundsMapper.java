@@ -2,67 +2,44 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.UserSoundsItem.fromPlaylistItem;
 import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.java.collections.MoreCollections.filter;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
-import org.jetbrains.annotations.Nullable;
 import rx.functions.Func1;
-
-import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserSoundsItem>> {
+public class UserSoundsMapper implements Func1<UserProfile, Iterable<UserSoundsItem>> {
 
     private final EntityHolderMapper entityHolderMapper;
-    private final UserSoundsStatusMapper statusMapper;
 
     @Inject
-    public UserSoundsMapper(EntityHolderMapper entityHolderMapper, UserSoundsStatusMapper statusMapper) {
+    public UserSoundsMapper(EntityHolderMapper entityHolderMapper) {
         this.entityHolderMapper = entityHolderMapper;
-        this.statusMapper = statusMapper;
     }
 
     @Override
-    public Iterable<UserSoundsItem> call(UserProfileRecord userProfile) {
+    public Iterable<UserSoundsItem> call(UserProfile userProfile) {
         final List<UserSoundsItem> items = new ArrayList<>(estimateItemCount(userProfile));
 
-        addSpotlightItems(userProfile, items);
-
+        items.addAll(entityHolderMapper.map(UserSoundsTypes.SPOTLIGHT, userProfile.getSpotlight()));
         items.addAll(entityHolderMapper.map(UserSoundsTypes.TRACKS, userProfile.getTracks()));
         items.addAll(entityHolderMapper.map(UserSoundsTypes.RELEASES, userProfile.getReleases()));
         items.addAll(entityHolderMapper.map(UserSoundsTypes.PLAYLISTS, userProfile.getPlaylists()));
-        items.addAll(entityHolderMapper.map(UserSoundsTypes.REPOSTS,
-                convertToApiEntityHolderCollection(userProfile.getReposts())));
-        items.addAll(entityHolderMapper.map(UserSoundsTypes.LIKES,
-                convertToApiEntityHolderCollection(userProfile.getLikes())));
+        items.addAll(entityHolderMapper.map(UserSoundsTypes.REPOSTS, userProfile.getReposts()));
+        items.addAll(entityHolderMapper.map(UserSoundsTypes.LIKES, userProfile.getLikes()));
 
         return items;
     }
 
-    private void addSpotlightItems(UserProfileRecord userProfile, List<UserSoundsItem> items) {
-        List<UserSoundsItem> spotlightItems = entityHolderMapper.map(UserSoundsTypes.SPOTLIGHT,
-                convertToApiEntityHolderCollection(userProfile.getSpotlight()));
-        statusMapper.map(spotlightItems);
-        items.addAll(spotlightItems);
-    }
-
-    private int estimateItemCount(UserProfileRecord userProfile) {
+    private int estimateItemCount(UserProfile userProfile) {
         //We can guess this pretty accurately. So why now.
         return 3 + userProfile.getSpotlight().getCollection().size()
                 + 3 + userProfile.getTracks().getCollection().size()
@@ -70,26 +47,6 @@ public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserS
                 + 3 + userProfile.getPlaylists().getCollection().size()
                 + 3 + userProfile.getReposts().getCollection().size()
                 + 3 + userProfile.getLikes().getCollection().size();
-    }
-
-    private ModelCollection<ApiEntityHolder> convertToApiEntityHolderCollection(
-            ModelCollection<? extends ApiEntityHolderSource> sources) {
-        Collection<? extends ApiEntityHolderSource> apiEntityHolderSources = filter(sources.getCollection(),
-                new Predicate<ApiEntityHolderSource>() {
-                    @Override
-                    public boolean apply(ApiEntityHolderSource input) {
-                        return input.getEntityHolder().isPresent();
-                    }
-                });
-        Collection<ApiEntityHolder> apiEntityHolders = transform(apiEntityHolderSources,
-                new Function<ApiEntityHolderSource, ApiEntityHolder>() {
-                    @Nullable
-                    @Override
-                    public ApiEntityHolder apply(ApiEntityHolderSource input) {
-                        return input.getEntityHolder().get();
-                    }
-                });
-        return new ModelCollection<>(newArrayList(apiEntityHolders), sources.getLinks());
     }
 
     public static class EntityHolderMapper {
@@ -100,7 +57,7 @@ public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserS
 
         public List<UserSoundsItem> map(
                 int collectionType,
-                ModelCollection<? extends ApiEntityHolder> itemsToMap) {
+                ModelCollection<PropertySet> itemsToMap) {
             final List<UserSoundsItem> items = new ArrayList<>(3 + itemsToMap.getCollection().size());
 
             if (!itemsToMap.getCollection().isEmpty()) {
@@ -119,13 +76,11 @@ public class UserSoundsMapper implements Func1<UserProfileRecord, Iterable<UserS
             return items;
         }
 
-        private Function<ApiEntityHolder, UserSoundsItem> toUserSoundsItem(
+        private Function<PropertySet, UserSoundsItem> toUserSoundsItem(
                 final int collectionType) {
-            return new Function<ApiEntityHolder, UserSoundsItem>() {
+            return new Function<PropertySet, UserSoundsItem>() {
                 @Override
-                public UserSoundsItem apply(ApiEntityHolder holder) {
-                    final PropertySet properties = holder.toPropertySet();
-
+                public UserSoundsItem apply(PropertySet properties) {
                     if (properties.get(EntityProperty.URN).isTrack()) {
                         return fromTrackItem(TrackItem.from(properties), collectionType);
                     } else {

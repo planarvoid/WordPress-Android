@@ -21,7 +21,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class UserSoundsPresenter extends RecyclerViewPresenter<UserProfileRecord, UserSoundsItem> {
+class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsItem> {
 
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final UserSoundsAdapter adapter;
@@ -50,7 +50,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfileRecord, UserS
     }
 
     @Override
-    protected CollectionBinding<UserProfileRecord, UserSoundsItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<UserProfile, UserSoundsItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
 
         return CollectionBinding
@@ -60,7 +60,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfileRecord, UserS
     }
 
     @Override
-    protected CollectionBinding<UserProfileRecord, UserSoundsItem> onRefreshBinding() {
+    protected CollectionBinding<UserProfile, UserSoundsItem> onRefreshBinding() {
         return CollectionBinding
                 .from(operations.userProfile(userUrn), userSoundsMapper)
                 .withAdapter(adapter)
