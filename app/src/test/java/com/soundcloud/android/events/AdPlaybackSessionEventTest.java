@@ -4,6 +4,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 
@@ -32,7 +33,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
 
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
-        assertThat(progressEvent.getQuartileTrackingUrls()).isEmpty();
+        assertThat(progressEvent.getTrackingUrls()).isEmpty();
     }
 
     @Test
@@ -45,7 +46,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
-        assertThat(progressEvent.getQuartileTrackingUrls()).isEmpty();
+        assertThat(progressEvent.getTrackingUrls()).isEmpty();
     }
 
     @Test
@@ -58,7 +59,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
-        assertThat(progressEvent.getQuartileTrackingUrls()).isEmpty();
+        assertThat(progressEvent.getTrackingUrls()).isEmpty();
     }
 
     @Test
@@ -71,7 +72,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "905").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
-        assertThat(progressEvent.getQuartileTrackingUrls()).containsExactly("video_quartile1_1", "video_quartile1_2");
+        assertThat(progressEvent.getTrackingUrls()).containsExactly("video_quartile1_1", "video_quartile1_2");
     }
 
     @Test
@@ -84,7 +85,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "905").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
-        assertThat(progressEvent.getQuartileTrackingUrls()).containsExactly("video_quartile2_1", "video_quartile2_2");
+        assertThat(progressEvent.getTrackingUrls()).containsExactly("video_quartile2_1", "video_quartile2_2");
     }
 
     @Test
@@ -97,6 +98,59 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "905").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
-        assertThat(progressEvent.getQuartileTrackingUrls()).containsExactly("video_quartile3_1", "video_quartile3_2");
+        assertThat(progressEvent.getTrackingUrls()).containsExactly("video_quartile3_1", "video_quartile3_2");
+    }
+
+    @Test
+    public void shouldCreateFromPlayEventWithImpressionAndStartUrlsForVideoAd() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, videoAd.getAdUrn(), 0L, 2000L);
+        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, sourceInfo, stateTransition);
+
+        assertThat(playEvent.getKind()).isEqualTo("play");
+        assertThat(playEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
+        assertThat(playEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "905").toString());
+        assertThat(playEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(playEvent.getTrackingUrls()).containsExactly("video_impression1", "video_impression2", "video_start1", "video_start2");
+    }
+
+    @Test
+    public void shouldCreateFromPlayEventWithResumeUrlsForVideoAd() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, videoAd.getAdUrn(), 1001L, 2000L);
+        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, sourceInfo, stateTransition);
+
+        assertThat(playEvent.getKind()).isEqualTo("play");
+        assertThat(playEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
+        assertThat(playEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "905").toString());
+        assertThat(playEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(playEvent.getTrackingUrls()).containsExactly("video_resume1", "video_resume2");
+    }
+
+
+    @Test
+    public void shouldCreateFromStopEventWithFinishUrlsForVideoAd() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final Player.StateTransition stateTransition = Player.StateTransition.DEFAULT;
+        final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd, sourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+
+        assertThat(stopEvent.getKind()).isEqualTo("stop");
+        assertThat(stopEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
+        assertThat(stopEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "905").toString());
+        assertThat(stopEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(stopEvent.getTrackingUrls()).containsExactly("video_finish1", "video_finish2");
+    }
+
+    @Test
+    public void shouldCreateFromStopEventWithPauseUrlsForVideoAd() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final Player.StateTransition stateTransition = Player.StateTransition.DEFAULT;
+        final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd, sourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_PAUSE);
+
+        assertThat(stopEvent.getKind()).isEqualTo("stop");
+        assertThat(stopEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
+        assertThat(stopEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "905").toString());
+        assertThat(stopEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(stopEvent.getTrackingUrls()).containsExactly("video_pause1", "video_pause2");
     }
 }

@@ -1,8 +1,10 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -10,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -38,6 +41,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -45,6 +49,7 @@ import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
+import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -348,10 +353,59 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackAdPlaybackProgressEvents() {
-        TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", false);
+    public void shouldTrackAdPlaybackQuartileEvents() {
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forFirstQuartile(AdFixtures.getAudioAd(Urn.forTrack(321L)), trackSourceInfo);
-        when(dataBuilderv1.buildForAdPlaybackSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
+        when(dataBuilderv1.buildForAdProgressQuartileEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
+    }
+
+    @Test
+    public void shouldTrackAdPlayImpressionEvents() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, videoAd.getAdUrn(), 0L, 1000L);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo, stateTransition);
+        when(dataBuilderv1.buildForAdImpression(adEvent)).thenReturn("AdPlaybackSessionEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
+    }
+
+    @Test
+    public void shouldNotTrackAdResumeEvents() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, videoAd.getAdUrn(), 2500L, 5000L);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo, stateTransition);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
+
+        verify(eventTracker, never()).trackEvent(any(TrackingRecord.class));
+    }
+
+    @Test
+    public void shouldNotTrackAdPauseEvents() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, videoAd.getAdUrn(), 1000L, 2000L);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_PAUSE);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
+
+        verify(eventTracker, never()).trackEvent(any(TrackingRecord.class));
+    }
+
+    @Test
+    public void shouldTrackAdFinishEvents() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, videoAd.getAdUrn(), 2000L, 2000L);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        when(dataBuilderv1.buildForAdFinished(adEvent)).thenReturn("AdPlaybackSessionEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 

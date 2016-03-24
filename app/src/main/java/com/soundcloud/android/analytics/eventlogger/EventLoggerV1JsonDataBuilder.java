@@ -104,11 +104,29 @@ public class EventLoggerV1JsonDataBuilder {
                 .adsRequestSuccess(false));
     }
 
-    public String buildForAdPlaybackSessionEvent(AdPlaybackSessionEvent eventData) {
+    public String buildForAdProgressQuartileEvent(AdPlaybackSessionEvent eventData) {
         return transform(buildBaseEvent(CLICK_EVENT, eventData)
                 .clickName(eventData.get(AdTrackingKeys.KEY_QUARTILE_TYPE))
                 .adUrn(eventData.get(AdTrackingKeys.KEY_AD_URN))
                 .pageName(eventData.trackSourceInfo.getOriginScreen())
+                .monetizedObject(eventData.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .monetizationType(eventData.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)));
+    }
+
+    public String buildForAdFinished(AdPlaybackSessionEvent eventData) {
+        return transform(buildBaseEvent(CLICK_EVENT, eventData)
+                .clickName("ad::finish")
+                .adUrn(eventData.get(AdTrackingKeys.KEY_AD_URN))
+                .pageName(eventData.trackSourceInfo.getOriginScreen())
+                .monetizedObject(eventData.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .monetizationType(eventData.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)));
+    }
+
+    public String buildForAdImpression(AdPlaybackSessionEvent eventData) {
+        return transform(buildBaseEvent(IMPRESSION_EVENT, eventData)
+                .adUrn(eventData.get(AdTrackingKeys.KEY_AD_URN))
+                .pageName(eventData.trackSourceInfo.getOriginScreen())
+                .impressionName("video_ad_impression")
                 .monetizedObject(eventData.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(eventData.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
