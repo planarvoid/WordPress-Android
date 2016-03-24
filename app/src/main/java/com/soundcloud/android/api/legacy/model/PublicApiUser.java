@@ -1,6 +1,5 @@
 package com.soundcloud.android.api.legacy.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -10,7 +9,6 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRecord;
-import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
 @Deprecated
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -56,9 +53,6 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     @JsonProperty("public_likes_count")
     public int public_likes_count = NOT_SET;
     // internal fields
-    @Nullable @JsonIgnore public String _list_avatar_uri;
-    @JsonIgnore public boolean user_follower;  // is the user following the logged in user
-    @JsonIgnore public boolean user_following; // is the user being followed by the logged in user
     @Nullable private String city;
     @Nullable private String country;
     @Nullable private Boolean primary_email_confirmed;
@@ -180,33 +174,10 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         primary_email_confirmed = val;
     }
 
-    public boolean addAFollower() {
-        if (isFollowersCountSet()) {
-            followers_count++;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean removeAFollower() {
-        if (isFollowersCountSet()) {
-            followers_count--;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     @NotNull
     @Override
     public PublicApiUser getUser() {
         return this;
-    }
-
-    @Nullable
-    public String getCity() {
-        return city;
     }
 
     public final void setCity(@Nullable String city) {
@@ -266,30 +237,9 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return propertySet;
     }
 
-    public boolean shouldLoadIcon() {
-        return ImageUtils.checkIconShouldLoad(avatar_url);
-    }
-
-    public boolean isFollowersCountSet() {
-        return followers_count > NOT_SET;
-    }
-
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    public
-    @Nullable
-    String getWebSiteTitle() {
-        if (!TextUtils.isEmpty(website_title)) {
-            return website_title;
-        } else if (!TextUtils.isEmpty(website)) {
-            return website.replace("http://www.", "")
-                    .replace("http://", "");
-        } else {
-            return null;
-        }
     }
 
     @Override

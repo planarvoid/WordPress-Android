@@ -1,6 +1,5 @@
 package com.soundcloud.android.api.legacy.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
@@ -24,9 +23,6 @@ public abstract class PublicApiResource
         extends ScModel
         implements Identifiable {
 
-    @JsonIgnore
-    public long last_updated = NOT_SET;
-
     public PublicApiResource() {
     }
 
@@ -36,10 +32,6 @@ public abstract class PublicApiResource
 
     public PublicApiResource(String urn) {
         super(urn);
-    }
-
-    public void setUpdated() {
-        last_updated = System.currentTimeMillis();
     }
 
     @Override

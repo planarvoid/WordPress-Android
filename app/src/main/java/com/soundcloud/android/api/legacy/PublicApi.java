@@ -135,7 +135,6 @@ public class PublicApi {
             return new Request();
         }
     };
-    private static final int API_LOOKUP_BATCH_SIZE = 200;
     private static final String UNCHECKED = "unchecked";
     private static final List<String> HIDDEN_HEADERS = Collections.singletonList(AUTH.WWW_AUTH_RESP);
 
@@ -469,28 +468,7 @@ public class PublicApi {
         return result;
     }
 
-    @SuppressWarnings(UNCHECKED)
-    public <T extends PublicApiResource> List<T> readListFromIds(Request request, List<Long> ids) throws IOException {
-        List<PublicApiResource> resources = new ArrayList<>(ids.size());
-        int i = 0;
-        while (i < ids.size()) {
-            List<Long> batch = ids.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
-            List<PublicApiResource> res = readList(
-                    new Request(request)
-                            .add(LINKED_PARTITIONING, "1")
-                            .add("limit", API_LOOKUP_BATCH_SIZE)
-                            .add("ids", TextUtils.join(",", batch))
-            );
-
-            resources.addAll(res);
-            i += API_LOOKUP_BATCH_SIZE;
-        }
-        return (List<T>) resources;
-    }
-
-    public
-    @NotNull
-    <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request,
+    public @NotNull <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request,
                                                                   Class<C> ch) throws IOException {
         List<T> objects = new ArrayList<>();
         C holder = null;
@@ -513,20 +491,6 @@ public class PublicApi {
         } while (!TextUtils.isEmpty(holder.next_href));
 
         return objects;
-    }
-
-    @SuppressWarnings(UNCHECKED)
-    public <T extends PublicApiResource> PublicApiResource.ResourceHolder<T> readCollection(Request req) throws IOException {
-        InputStream inputStream = getInputStream(get(req), req);
-        try {
-            return getMapper().readValue(inputStream, PublicApiResource.ResourceHolder.class);
-        } finally {
-            IOUtils.close(inputStream);
-        }
-    }
-
-    public Env getEnv() {
-        return env;
     }
 
     public String getUserAgent() {
