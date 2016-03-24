@@ -40,8 +40,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
-        super.onCreate(fragment, bundle);
         LightCycles.bind(this);
+        super.onCreate(fragment, bundle);
 
         this.fragment = fragment;
     }
@@ -51,7 +51,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         super.onViewCreated(fragment, view, savedInstanceState);
 
         final View headerView = view.findViewById(R.id.playlist_details);
-        if (headerView != null){
+        if (headerView != null) {
             setView(headerView);
         }
     }
