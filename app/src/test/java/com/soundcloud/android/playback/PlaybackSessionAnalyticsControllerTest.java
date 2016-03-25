@@ -10,7 +10,7 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
-import com.soundcloud.android.events.AdPlaybackProgressEvent;
+import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -88,7 +88,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         analyticsController.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100), Urn.forAd("dfp", "809")));
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
-        AdPlaybackProgressEvent adEvent = (AdPlaybackProgressEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        AdPlaybackSessionEvent adEvent = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(adEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
     }
 

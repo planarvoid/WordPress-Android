@@ -4,7 +4,7 @@ import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
-import com.soundcloud.android.events.AdPlaybackProgressEvent;
+import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -43,8 +43,8 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
             handleLeaveBehindImpression((AdOverlayTrackingEvent) event);
         } else if (event instanceof PromotedTrackingEvent) {
             handlePromotedTrackEvent((PromotedTrackingEvent) event);
-        } else if (event instanceof AdPlaybackProgressEvent) {
-            handleAdPlaybackProgressEvent((AdPlaybackProgressEvent) event);
+        } else if (event instanceof AdPlaybackSessionEvent) {
+            handleAdPlaybackSessionEvent((AdPlaybackSessionEvent) event);
         }
     }
 
@@ -60,7 +60,7 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
         trackAllUrls(event.getTimestamp(), event.getTrackingUrls());
     }
 
-    private void handleAdPlaybackProgressEvent(AdPlaybackProgressEvent event) {
+    private void handleAdPlaybackSessionEvent(AdPlaybackSessionEvent event) {
         trackAllUrls(event.getTimestamp(), event.getQuartileTrackingUrls());
     }
 

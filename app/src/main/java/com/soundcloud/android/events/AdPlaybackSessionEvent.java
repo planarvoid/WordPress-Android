@@ -2,13 +2,12 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 
 import java.util.Collections;
 import java.util.List;
 
-public class AdPlaybackProgressEvent extends TrackingEvent {
+public class AdPlaybackSessionEvent extends TrackingEvent {
 
     private static final String EVENT_KIND_QUARTILE = "quartile_event";
 
@@ -23,19 +22,19 @@ public class AdPlaybackProgressEvent extends TrackingEvent {
 
     private List<String> quartileTrackingUrls = Collections.emptyList();
 
-    public static AdPlaybackProgressEvent forFirstQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackProgressEvent(FIRST_QUARTILE_TYPE, adData, trackSourceInfo);
+    public static AdPlaybackSessionEvent forFirstQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+        return new AdPlaybackSessionEvent(FIRST_QUARTILE_TYPE, adData, trackSourceInfo);
     }
 
-    public static AdPlaybackProgressEvent forSecondQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackProgressEvent(SECOND_QUARTILE_TYPE, adData, trackSourceInfo);
+    public static AdPlaybackSessionEvent forSecondQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+        return new AdPlaybackSessionEvent(SECOND_QUARTILE_TYPE, adData, trackSourceInfo);
     }
 
-    public static AdPlaybackProgressEvent forThirdQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackProgressEvent(THIRD_QUARTILE_TYPE, adData, trackSourceInfo);
+    public static AdPlaybackSessionEvent forThirdQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+        return new AdPlaybackSessionEvent(THIRD_QUARTILE_TYPE, adData, trackSourceInfo);
     }
 
-    private AdPlaybackProgressEvent(String quartileType, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+    private AdPlaybackSessionEvent(String quartileType, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
         super(EVENT_KIND_QUARTILE, System.currentTimeMillis());
 
         this.trackSourceInfo = trackSourceInfo;

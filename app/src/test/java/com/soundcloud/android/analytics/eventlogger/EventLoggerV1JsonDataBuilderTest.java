@@ -15,7 +15,7 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
-import com.soundcloud.android.events.AdPlaybackProgressEvent;
+import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
@@ -711,9 +711,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForFirstQuartileAdPlaybackProgressEvent() throws ApiMapperException {
-        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forFirstQuartile(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forFirstQuartile(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
-        jsonDataBuilder.buildForAdPlaybackProgressEvent(event);
+        jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .monetizedObject(TRACK_URN.toString())
@@ -725,9 +725,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForSecondQuartileAdPlaybackProgressEvent() throws ApiMapperException {
-        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forSecondQuartile(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forSecondQuartile(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
-        jsonDataBuilder.buildForAdPlaybackProgressEvent(event);
+        jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .monetizedObject(TRACK_URN.toString())
@@ -739,9 +739,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForThirdQuartileAdPlaybackProgressEvent() throws ApiMapperException {
-        final AdPlaybackProgressEvent event = AdPlaybackProgressEvent.forThirdQuartile(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forThirdQuartile(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
-        jsonDataBuilder.buildForAdPlaybackProgressEvent(event);
+        jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                 .monetizedObject(TRACK_URN.toString())

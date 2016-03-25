@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AdPlaybackProgressEventTest extends AndroidUnitTest {
+public class AdPlaybackSessionEventTest extends AndroidUnitTest {
 
     private TrackSourceInfo sourceInfo;
 
@@ -24,7 +24,7 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromFirstQuartileForAudioAd() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forFirstQuartile(audioAd, sourceInfo);
+        final AdPlaybackSessionEvent progressEvent = AdPlaybackSessionEvent.forFirstQuartile(audioAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
@@ -38,7 +38,7 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromSecondQuartileForAudioAd() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forSecondQuartile(audioAd, sourceInfo);
+        final AdPlaybackSessionEvent progressEvent = AdPlaybackSessionEvent.forSecondQuartile(audioAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::second_quartile");
@@ -51,7 +51,7 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromThirdQuartileForAudioAd() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forThirdQuartile(audioAd, sourceInfo);
+        final AdPlaybackSessionEvent progressEvent = AdPlaybackSessionEvent.forThirdQuartile(audioAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::third_quartile");
@@ -64,7 +64,7 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromFirstQuartileForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forFirstQuartile(videoAd, sourceInfo);
+        final AdPlaybackSessionEvent progressEvent = AdPlaybackSessionEvent.forFirstQuartile(videoAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
@@ -77,7 +77,7 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromSecondQuartileForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forSecondQuartile(videoAd, sourceInfo);
+        final AdPlaybackSessionEvent progressEvent = AdPlaybackSessionEvent.forSecondQuartile(videoAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::second_quartile");
@@ -90,7 +90,7 @@ public class AdPlaybackProgressEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromThirdQuartileForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackProgressEvent progressEvent = AdPlaybackProgressEvent.forThirdQuartile(videoAd, sourceInfo);
+        final AdPlaybackSessionEvent progressEvent = AdPlaybackSessionEvent.forThirdQuartile(videoAd, sourceInfo);
 
         assertThat(progressEvent.getKind()).isEqualTo("quartile_event");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::third_quartile");

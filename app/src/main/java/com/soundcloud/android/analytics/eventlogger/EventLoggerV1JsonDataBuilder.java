@@ -8,7 +8,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
-import com.soundcloud.android.events.AdPlaybackProgressEvent;
+import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -104,7 +104,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .adsRequestSuccess(false));
     }
 
-    public String buildForAdPlaybackProgressEvent(AdPlaybackProgressEvent eventData) {
+    public String buildForAdPlaybackSessionEvent(AdPlaybackSessionEvent eventData) {
         return transform(buildBaseEvent(CLICK_EVENT, eventData)
                 .clickName(eventData.get(AdTrackingKeys.KEY_QUARTILE_TYPE))
                 .adUrn(eventData.get(AdTrackingKeys.KEY_AD_URN))

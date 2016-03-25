@@ -6,7 +6,7 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
-import com.soundcloud.android.events.AdPlaybackProgressEvent;
+import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -69,19 +69,19 @@ class PlaybackSessionAnalyticsController {
             final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
             if (!adData.hasReportedFirstQuartile() && progress.isPastFirstQuartile()) {
                 adData.setFirstQuartileReported();
-                publishAdQuartileEvent(AdPlaybackProgressEvent.forFirstQuartile(adData, trackSourceInfo));
+                publishAdQuartileEvent(AdPlaybackSessionEvent.forFirstQuartile(adData, trackSourceInfo));
             } else if (!adData.hasReportedSecondQuartile() && progress.isPastSecondQuartile()) {
                 adData.setSecondQuartileReported();
-                publishAdQuartileEvent(AdPlaybackProgressEvent.forSecondQuartile(adData, trackSourceInfo));
+                publishAdQuartileEvent(AdPlaybackSessionEvent.forSecondQuartile(adData, trackSourceInfo));
             } else if (!adData.hasReportedThirdQuartile() && progress.isPastThirdQuartile()) {
                 adData.setThirdQuartileReported();
-                publishAdQuartileEvent(AdPlaybackProgressEvent.forThirdQuartile(adData, trackSourceInfo));
+                publishAdQuartileEvent(AdPlaybackSessionEvent.forThirdQuartile(adData, trackSourceInfo));
             }
         }
     }
 
-    private void publishAdQuartileEvent(AdPlaybackProgressEvent adPlaybackProgressEvent) {
-        eventBus.publish(EventQueue.TRACKING, adPlaybackProgressEvent);
+    private void publishAdQuartileEvent(AdPlaybackSessionEvent adPlaybackSessionEvent) {
+        eventBus.publish(EventQueue.TRACKING, adPlaybackSessionEvent);
     }
 
     public void onStateTransition(Player.StateTransition stateTransition) {

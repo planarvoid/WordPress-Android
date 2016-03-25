@@ -17,7 +17,7 @@ import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
-import com.soundcloud.android.events.AdPlaybackProgressEvent;
+import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
@@ -350,14 +350,14 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdPlaybackProgressEvents() {
         TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin", false);
-        AdPlaybackProgressEvent adEvent = AdPlaybackProgressEvent.forFirstQuartile(AdFixtures.getAudioAd(Urn.forTrack(321L)), trackSourceInfo);
-        when(dataBuilderv1.buildForAdPlaybackProgressEvent(adEvent)).thenReturn("AdPlaybackProgressEvent");
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forFirstQuartile(AdFixtures.getAudioAd(Urn.forTrack(321L)), trackSourceInfo);
+        when(dataBuilderv1.buildForAdPlaybackSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackProgressEvent");
+        assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
     }
 
     @Test

@@ -5,7 +5,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
-import com.soundcloud.android.events.AdPlaybackProgressEvent;
+import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -83,8 +83,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             handleOfflinePerformanceEvent((OfflinePerformanceEvent) event);
         } else if (event instanceof AdDeliveryEvent) {
             handleAdDeliveryEvent((AdDeliveryEvent) event);
-        } else if (event instanceof AdPlaybackProgressEvent) {
-            handleAdPlaybackProgressEvent((AdPlaybackProgressEvent) event);
+        } else if (event instanceof AdPlaybackSessionEvent) {
+            handleAdPlaybackSessionEvent((AdPlaybackSessionEvent) event);
         }
     }
 
@@ -178,8 +178,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
         trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdDelivery(eventData));
     }
 
-    private void handleAdPlaybackProgressEvent(AdPlaybackProgressEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdPlaybackProgressEvent(eventData));
+    private void handleAdPlaybackSessionEvent(AdPlaybackSessionEvent eventData) {
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdPlaybackSessionEvent(eventData));
     }
 
     @Override
