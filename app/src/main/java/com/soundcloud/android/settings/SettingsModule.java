@@ -14,6 +14,7 @@ import dagger.Module;
                 ClearCacheDialog.class,
                 NotificationPreferencesActivity.class,
                 LegalActivity.class,
+                LegalFragment.class,
                 LicensesActivity.class
         })
 public class SettingsModule {}

@@ -15,7 +15,12 @@
                 android:title="@string/terms_of_use">
         <intent android:action="android.intent.action.VIEW"
                 android:data="@string/url_terms" />
+    </Preference>
 
+    <Preference android:key="go_terms"
+        android:title="@string/terms_of_use_go">
+        <intent android:action="android.intent.action.VIEW"
+            android:data="@string/url_go_terms" />
     </Preference>
 
     <Preference android:key="privacy_policy"
