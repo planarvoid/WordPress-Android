@@ -270,7 +270,6 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     public void onBackground(View adPage) {
         final SurfaceHolder surfaceHolder = getViewHolder(adPage).videoSurfaceView.getHolder();
         surfaceHolder.removeCallback(mediaPlayerAdapter);
-        mediaPlayerAdapter.surfaceDestroyed(null);
     }
 
     private Holder getViewHolder(View videoPage) {
