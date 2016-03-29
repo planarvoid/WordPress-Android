@@ -42,5 +42,6 @@ public class SettingKey {
     public static final String TERMS_OF_SERVICE = "terms_of_service";
     public static final String PRIVACY_POLICY = "privacy_policy";
     public static final String IMPRINT = "imprint";
+    public static final String GO_TERMS = "go_terms";
 
 }
