@@ -14,6 +14,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +38,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -46,6 +48,7 @@ import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
@@ -87,6 +90,8 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private Navigator navigator;
+    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private ShareOperations shareOperations;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
@@ -103,7 +108,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         controller = new PlaylistEngagementsPresenter(eventBus, repostOperations, accountOperations, likeOperations,
                 engagementsView, featureOperations, offlineContentOperations, playbackInitiator,
-                playlistOperations, playbackToastHelper, navigator, shareOperations);
+                playlistOperations, playbackToastHelper, connectionHelper, offlineSettings, navigator, shareOperations);
 
         controller.bindView(fragmentRule.getView());
         controller.onResume(fragmentRule.getFragment());
@@ -114,6 +119,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         publishSubject = PublishSubject.create();
 
         when(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn())).thenReturn(playlistTrackurns);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
     }
 
     @After
@@ -506,6 +512,40 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
 
         verify(engagementsView).showOfflineState(OfflineState.DOWNLOADED);
+    }
+
+    @Test
+    public void showWarningTextWhenPendingDownloadAndOffline() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        controller.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(singletonList(playlistWithTracks.getUrn()), false));
+
+        verify(engagementsView).showNoConnection();
+    }
+
+    @Test
+    public void showWarningTextWhenPendingDownloadAndWifiOnly() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        controller.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+        when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
+        when(connectionHelper.isWifiConnected()).thenReturn(false);
+
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(singletonList(playlistWithTracks.getUrn()), false));
+
+        verify(engagementsView).showNoWifi();
+    }
+
+    @Test
+    public void doNotShowWarningTextForNonPendingStates() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        controller.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloaded(singletonList(playlistWithTracks.getUrn()), false));
+
+        verify(engagementsView, times(0)).showNoConnection();
     }
 
     @Test
