@@ -133,7 +133,7 @@ nimbledroid {
     def nimbledroidProperties = new Properties()
     nimbledroidProperties.load(new FileInputStream(propertiesFile))
 
-    apkFilename "app-dev-debug.apk"
+    apkFilename "app-prod-release.apk"
     apiKey nimbledroidProperties.getProperty('apiKey')
     appData {
       username nimbledroidProperties.getProperty('username')
