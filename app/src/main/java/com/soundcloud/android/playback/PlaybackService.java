@@ -187,10 +187,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 onIdleState();
             }
 
-            // Temporarily until event logging is handled for video ads
-            if (currentPlaybackItem.get().getPlaybackType() != PlaybackType.VIDEO_DEFAULT) {
-                analyticsController.onStateTransition(stateTransition);
-            }
+            analyticsController.onStateTransition(stateTransition);
             adsController.onPlayStateTransition(stateTransition);
             eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
         }

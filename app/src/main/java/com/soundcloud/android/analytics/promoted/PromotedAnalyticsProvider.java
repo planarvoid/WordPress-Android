@@ -61,7 +61,7 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleAdPlaybackSessionEvent(AdPlaybackSessionEvent event) {
-        trackAllUrls(event.getTimestamp(), event.getQuartileTrackingUrls());
+        trackAllUrls(event.getTimestamp(), event.getTrackingUrls());
     }
 
     private void handlePlaybackSessionEvent(PlaybackSessionEvent event) {

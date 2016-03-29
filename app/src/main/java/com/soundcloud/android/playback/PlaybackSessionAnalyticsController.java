@@ -1,9 +1,11 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
@@ -14,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
@@ -32,25 +35,18 @@ class PlaybackSessionAnalyticsController {
     private final AppboyPlaySessionState appboyPlaySessionState;
     private final StopReasonProvider stopReasonProvider;
     private final UuidProvider uuidProvider;
-    private PlaybackSessionEvent lastSessionEventData;
-    private AudioAd lastPlayAudioAd;
 
-    private TrackSourceInfo currentTrackSourceInfo;
+    private PlaybackSessionEvent lastSessionEventData;
+    private AdData lastPlayAd;
+
+    private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
     private Player.StateTransition lastStateTransition = Player.StateTransition.DEFAULT;
     private ReplaySubject<PropertySet> trackObservable;
-
-    private final Func1<PropertySet, Boolean> lastEventWasNotPlayEvent = new Func1<PropertySet, Boolean>() {
-        @Override
-        public Boolean call(PropertySet track) {
-            return lastSessionEventData == null || !lastSessionEventData.isPlayEvent();
-        }
-    };
 
     @Inject
     public PlaybackSessionAnalyticsController(EventBus eventBus, TrackRepository trackRepository,
                                               AccountOperations accountOperations, PlayQueueManager playQueueManager,
-                                              AdsOperations adsOperations,
-                                              AppboyPlaySessionState appboyPlaySessionState,
+                                              AdsOperations adsOperations, AppboyPlaySessionState appboyPlaySessionState,
                                               StopReasonProvider stopReasonProvider, UuidProvider uuidProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
@@ -85,16 +81,18 @@ class PlaybackSessionAnalyticsController {
     }
 
     public void onStateTransition(Player.StateTransition stateTransition) {
-        final Urn currentTrack = stateTransition.getUrn();
-        if (!currentTrack.equals(lastStateTransition.getUrn())) {
+        final Urn currentItem = stateTransition.getUrn();
+        if (!currentItem.equals(lastStateTransition.getUrn())) {
             if (lastStateTransition.isPlayerPlaying()) {
                 // publish skip event manually, since it went from playing the last track to playing the new
                 // track without seeing a stop event first (which only happens if you change tracks manually)
                 publishStopEvent(lastStateTransition, PlaybackSessionEvent.STOP_REASON_SKIP);
             }
 
-            trackObservable = ReplaySubject.createWithSize(1);
-            trackRepository.track(currentTrack).subscribe(trackObservable);
+            if (!adsOperations.isCurrentItemVideoAd()) {
+                trackObservable = ReplaySubject.createWithSize(1);
+                trackRepository.track(currentItem).subscribe(trackObservable);
+            }
         }
 
         if (stateTransition.isPlayerPlaying()) {
@@ -106,13 +104,21 @@ class PlaybackSessionAnalyticsController {
     }
 
     private void publishPlayEvent(final Player.StateTransition stateTransition) {
-        currentTrackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-        if (currentTrackSourceInfo != null) {
-            trackObservable
-                    .filter(lastEventWasNotPlayEvent)
-                    .map(stateTransitionToSessionPlayEvent(stateTransition))
-                    .subscribe(eventBus.queue(EventQueue.TRACKING));
+        currentTrackSourceInfo = Optional.fromNullable(playQueueManager.getCurrentTrackSourceInfo());
+        if (currentTrackSourceInfo.isPresent() && lastEventWasNotPlayEvent()) {
+            if (adsOperations.isCurrentItemVideoAd()) {
+                lastPlayAd = adsOperations.getCurrentTrackAdData().get();
+                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay((PlayerAdData) lastPlayAd, currentTrackSourceInfo.get(), stateTransition));
+            } else {
+                trackObservable
+                        .map(stateTransitionToSessionPlayEvent(stateTransition))
+                        .subscribe(eventBus.queue(EventQueue.TRACKING));
+            }
         }
+    }
+
+    private boolean lastEventWasNotPlayEvent() {
+        return (lastSessionEventData == null || !lastSessionEventData.isPlayEvent()) && lastPlayAd == null;
     }
 
     private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionPlayEvent(final Player.StateTransition stateTransition) {
@@ -127,12 +133,12 @@ class PlaybackSessionAnalyticsController {
                 final boolean localStoragePlayback = isLocalStoragePlayback(stateTransition);
                 final boolean marketablePlay = appboyPlaySessionState.isMarketablePlay();
 
-                lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo,
+                lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo.get(),
                         progress, protocol, playerType, connectionType, localStoragePlayback, marketablePlay, uuidProvider.getRandomUuid());
 
                 if (adsOperations.isCurrentItemAudioAd()) {
-                    lastPlayAudioAd = (AudioAd) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
-                    lastSessionEventData = lastSessionEventData.withAudioAd(lastPlayAudioAd);
+                    lastPlayAd = playQueueManager.getCurrentPlayQueueItem().getAdData().get();
+                    lastSessionEventData = lastSessionEventData.withAudioAd((AudioAd) lastPlayAd);
                 } else {
                     final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
                     PlaySessionSource playSource = playQueueManager.getCurrentPlaySessionSource();
@@ -151,7 +157,7 @@ class PlaybackSessionAnalyticsController {
                         }
                     }
 
-                    lastPlayAudioAd = null;
+                    lastPlayAd = null;
                 }
 
                 return lastSessionEventData;
@@ -163,10 +169,16 @@ class PlaybackSessionAnalyticsController {
         // note that we only want to publish a stop event if we have a corresponding play event. This value
         // will be nulled out after it is used, and we will not publish another stop event until a play event
         // creates a new value for lastSessionEventData
-        if (lastSessionEventData != null && currentTrackSourceInfo != null) {
-            trackObservable.map(stateTransitionToSessionStopEvent(stopReason, stateTransition, lastSessionEventData)).subscribe(eventBus.queue(EventQueue.TRACKING));
+        if ((lastSessionEventData != null || lastPlayAd != null) && currentTrackSourceInfo.isPresent()) {
+            if (lastPlayAd instanceof VideoAd) {
+                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forStop((VideoAd) lastPlayAd, currentTrackSourceInfo.get(), stateTransition, stopReason));
+            } else {
+                trackObservable
+                        .map(stateTransitionToSessionStopEvent(stopReason, stateTransition, lastSessionEventData))
+                        .subscribe(eventBus.queue(EventQueue.TRACKING));
+            }
             lastSessionEventData = null;
-            lastPlayAudioAd = null;
+            lastPlayAd = null;
         }
     }
 
@@ -180,11 +192,10 @@ class PlaybackSessionAnalyticsController {
                 final String connectionType = getConnectionType(stateTransition);
                 final boolean localStoragePlayback = isLocalStoragePlayback(stateTransition);
                 PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(track, accountOperations.getLoggedInUserUrn(),
-                        currentTrackSourceInfo, lastPlayEventData, progress, protocol, playerType,
+                        currentTrackSourceInfo.get(), lastPlayEventData, progress, protocol, playerType,
                         connectionType, stopReason, localStoragePlayback, uuidProvider.getRandomUuid());
-
-                if (lastPlayAudioAd != null) {
-                    stopEvent = stopEvent.withAudioAd(lastPlayAudioAd);
+                if (lastPlayAd instanceof AudioAd) {
+                    stopEvent = stopEvent.withAudioAd((AudioAd) lastPlayAd);
                 }
                 return stopEvent;
             }

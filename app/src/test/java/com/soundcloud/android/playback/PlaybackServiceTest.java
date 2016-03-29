@@ -12,7 +12,6 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -35,7 +34,6 @@ import android.media.AudioManager;
 
 public class PlaybackServiceTest extends AndroidUnitTest {
 
-    private static final int DURATION = 1000;
     private static final long START_POSITION = 123L;
     private PlaybackService playbackService;
     private PlaybackItem playbackItem = AudioPlaybackItem.create(TestPropertySets.fromApiTrack(), START_POSITION);
@@ -215,6 +213,20 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onPlaystateChanged(stateTransition);
 
         verify(adsController).onPlayStateTransition(stateTransition);
+    }
+
+    @Test
+    public void shouldForwardVideoAdPlayerStateTransitionToAnalyticsController() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123));
+        when(streamPlayer.getLastStateTransition()).thenReturn(Player.StateTransition.DEFAULT);
+        playbackItem = VideoPlaybackItem.create(videoAd);
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+
+        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, videoAd.getAdUrn(), 0, 123, dateProvider);
+        playbackService.onPlaystateChanged(stateTransition);
+
+        verify(analyticsController).onStateTransition(stateTransition);
     }
 
     @Test
