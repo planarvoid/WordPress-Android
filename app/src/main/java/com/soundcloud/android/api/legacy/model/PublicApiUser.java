@@ -229,7 +229,8 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
                 UserProperty.URN.bind(getUrn()),
                 UserProperty.USERNAME.bind(username),
                 UserProperty.FOLLOWERS_COUNT.bind(followers_count),
-                UserProperty.ID.bind(getId())
+                UserProperty.ID.bind(getId()),
+                UserProperty.IMAGE_URL_TEMPLATE.bind(getImageUrlTemplate())
         );
         if (country != null) {
             propertySet.put(UserProperty.COUNTRY, country);
