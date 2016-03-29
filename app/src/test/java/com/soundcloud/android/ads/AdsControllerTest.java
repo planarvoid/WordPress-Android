@@ -18,7 +18,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
-import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
+import com.soundcloud.android.events.AdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -431,7 +431,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void playStateChangedEventWhenBufferingAndAdAutoAdvancesTrackAfterTimeout() {
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
         adsController.subscribe();
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
@@ -442,8 +442,8 @@ public class AdsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playStateChangedEventWhenBufferingAndAdAutoLogATrackingEvent() {
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+    public void playStateChangedEventWhenBufferingAnAudioAdAutoLogATrackingEvent() {
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
         adsController.subscribe();
 
         final Urn trackUrn = Urn.forTrack(123L);
@@ -453,10 +453,28 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
-        final AudioAdFailedToBufferEvent event = (AudioAdFailedToBufferEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
+        final AdFailedToBufferEvent event = (AdFailedToBufferEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
         assertThat(event.getAttributes().get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(trackUrn.toString());
-        assertThat(event.getAttributes().get(AudioAdFailedToBufferEvent.PLAYBACK_POSITION)).isEqualTo("12");
-        assertThat(event.getAttributes().get(AudioAdFailedToBufferEvent.WAIT_PERIOD)).isEqualTo("6");
+        assertThat(event.getAttributes().get(AdFailedToBufferEvent.PLAYBACK_POSITION)).isEqualTo("12");
+        assertThat(event.getAttributes().get(AdFailedToBufferEvent.WAIT_PERIOD)).isEqualTo("6");
+    }
+
+    @Test
+    public void playStateChangedEventWhenBufferingAVideoAdAutoLogATrackingEvent() {
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        adsController.subscribe();
+
+        final Urn videoAdUrn = Urn.forAd("dfp", "video-ad");
+        final StateTransition stateTransition = new StateTransition(PlayerState.BUFFERING, Reason.NONE, videoAdUrn, 12, 1200);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
+
+        scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
+
+        final AdFailedToBufferEvent event = (AdFailedToBufferEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
+        assertThat(event.getAttributes().get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(videoAdUrn.toString());
+        assertThat(event.getAttributes().get(AdFailedToBufferEvent.PLAYBACK_POSITION)).isEqualTo("12");
+        assertThat(event.getAttributes().get(AdFailedToBufferEvent.WAIT_PERIOD)).isEqualTo("6");
     }
 
     @Test
@@ -509,7 +527,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void playbackErrorEventCausesAdToBeSkipped() {
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
         adsController.subscribe();
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(Reason.ERROR_FAILED));

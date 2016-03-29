@@ -5,7 +5,7 @@ import static com.soundcloud.android.utils.Log.ADS_TAG;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
-import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
+import com.soundcloud.android.events.AdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -14,7 +14,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.PlayerFunctions;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.rx.RxUtils;
@@ -97,10 +96,10 @@ public class AdsController {
         }
     };
 
-    private final Func1<Player.StateTransition, Boolean> isBufferingAudioAd = new Func1<Player.StateTransition, Boolean>() {
+    private final Func1<Player.StateTransition, Boolean> isBufferingAd = new Func1<Player.StateTransition, Boolean>() {
         @Override
         public Boolean call(Player.StateTransition state) {
-            return state.isBuffering() && adsOperations.isCurrentItemAudioAd();
+            return state.isBuffering() && adsOperations.isCurrentItemAd();
         }
     };
 
@@ -116,7 +115,7 @@ public class AdsController {
         public void call(Player.StateTransition stateTransition) {
             if (stateTransition.isPlayerPlaying() || stateTransition.isPaused()) {
                 skipFailedAdSubscription.unsubscribe();
-            } else if (stateTransition.wasError() && adsOperations.isCurrentItemAudioAd()) {
+            } else if (stateTransition.wasError() && adsOperations.isCurrentItemAd()) {
                 skipFailedAdSubscription.unsubscribe();
                 playQueueManager.autoMoveToNextPlayableItem();
             }
@@ -181,8 +180,7 @@ public class AdsController {
 
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .doOnNext(unsubscribeFailedAdSkip)
-                .filter(PlayerFunctions.IS_NOT_VIDEO_AD)
-                .filter(isBufferingAudioAd)
+                .filter(isBufferingAd)
                 .subscribe(new SkipFailedAdSubscriber());
 
         visualAdImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
@@ -340,7 +338,6 @@ public class AdsController {
     }
 
     private final class SkipFailedAdSubscriber extends DefaultSubscriber<Player.StateTransition> {
-
         @Override
         public void onNext(final Player.StateTransition state) {
             skipFailedAdSubscription.unsubscribe();
@@ -349,11 +346,8 @@ public class AdsController {
                         @Override
                         public void onNext(Long args) {
                             Log.i(ADS_TAG, "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
-                            final AudioAdFailedToBufferEvent event =
-                                    new AudioAdFailedToBufferEvent(
-                                        state.getUrn(),
-                                        state.getProgress(),
-                                        FAILED_AD_WAIT_SECS);
+                            final AdFailedToBufferEvent event =
+                                    new AdFailedToBufferEvent(state.getUrn(), state.getProgress(), FAILED_AD_WAIT_SECS);
                             eventBus.publish(EventQueue.TRACKING, event);
                             playQueueManager.autoMoveToNextPlayableItem();
                         }
@@ -362,7 +356,6 @@ public class AdsController {
     }
 
     private class AdsFetchOperation {
-
         private final Subscription subscription;
         private final long createdAtMillis;
 
