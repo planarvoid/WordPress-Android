@@ -25,8 +25,9 @@ public class UserSoundsItemClickListener {
         // Note: The mixed item click listener may need additional love to play through both tracks and playlists, as
         // that is now supported by the playback functionality.
         // mixedItemClickListener.onItemClick(Collections.<ListItem>emptyList(), view, position);
+        final int itemType = item.getItemType();
 
-        switch (item.getItemType()) {
+        switch (itemType) {
             case UserSoundsItem.TYPE_PLAYLIST:
                 PlaylistItem playlist = item.getPlaylistItem().get();
                 navigator.openPlaylist(view.getContext(), playlist.getUrn(), Screen.PROFILE_SOUNDS_PLAYLIST);
@@ -35,16 +36,23 @@ public class UserSoundsItemClickListener {
                 handleViewAllClickEvent(view, item, userUrn, searchQuerySourceInfo);
                 break;
             default:
+                throw new IllegalArgumentException("Unknown item type : " + itemType);
         }
     }
 
     private void handleViewAllClickEvent(View view, UserSoundsItem item, Urn userUrn,
                                          SearchQuerySourceInfo searchQuerySourceInfo) {
-        switch (item.getCollectionType()) {
+        final int collectionType = item.getCollectionType();
+
+        switch (collectionType) {
             case UserSoundsTypes.REPOSTS:
                 navigator.openReposts(view.getContext(), userUrn, Screen.USERS_REPOSTS, searchQuerySourceInfo);
                 break;
+            case UserSoundsTypes.TRACKS:
+                navigator.openProfileTracks(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
+                break;
             default:
+                throw new IllegalArgumentException("Unknown collection type : " + collectionType);
         }
     }
 }
