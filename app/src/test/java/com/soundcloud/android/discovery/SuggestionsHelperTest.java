@@ -14,7 +14,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
+import com.soundcloud.android.search.suggestions.LegacySuggestionsAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class SuggestionsHelperTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private EventBus eventBus;
     @Mock private PlaybackInitiator playbackInitiator;
-    @Mock private SuggestionsAdapter adapter;
+    @Mock private LegacySuggestionsAdapter adapter;
 
     private TestSubscriber testSubscriber = new TestSubscriber();
     private Provider expandPlayerSubscriberProvider = providerOf(testSubscriber);

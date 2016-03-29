@@ -51,7 +51,7 @@ class SearchSuggestionOperations {
             final ApiRequest request =
                     ApiRequest.get(ApiEndpoints.SEARCH_SUGGESTIONS.path())
                             .addQueryParam("q", query)
-                            .addQueryParam("limit", SuggestionsAdapter.MAX_REMOTE)
+                            .addQueryParam("limit", LegacySuggestionsAdapter.MAX_REMOTE)
                             .forPrivateApi()
                             .build();
             return apiClientRx.mappedResponse(request, ApiSearchSuggestions.class)

@@ -77,7 +77,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
         final ApiSearchSuggestions suggestions = getMixedSuggestions();
         final ApiRequestTo requestMatcher = isApiRequestTo("GET", ApiEndpoints.SEARCH_SUGGESTIONS.path())
                 .withQueryParam("q", "blah")
-                .withQueryParam("limit", String.valueOf(SuggestionsAdapter.MAX_REMOTE));
+                .withQueryParam("limit", String.valueOf(LegacySuggestionsAdapter.MAX_REMOTE));
 
         when(apiClientRx.mappedResponse(argThat(requestMatcher), same(ApiSearchSuggestions.class)))
                 .thenReturn(Observable.just(suggestions));

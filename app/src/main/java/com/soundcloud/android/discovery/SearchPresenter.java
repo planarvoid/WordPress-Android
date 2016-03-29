@@ -5,7 +5,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
-import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
+import com.soundcloud.android.search.suggestions.LegacySuggestionsAdapter;
 import com.soundcloud.android.utils.KeyboardHelper;
 import com.soundcloud.android.utils.TransitionUtils;
 import com.soundcloud.java.strings.Strings;
@@ -62,7 +62,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     private final SearchIntentResolver intentResolver;
     private final SearchTracker tracker;
     private final Resources resources;
-    private final SuggestionsAdapter adapter;
+    private final LegacySuggestionsAdapter adapter;
     private final SuggestionsHelper suggestionsHelper;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
@@ -71,7 +71,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     SearchPresenter(SearchIntentResolverFactory intentResolverFactory,
                     SearchTracker tracker,
                     Resources resources,
-                    SuggestionsAdapter adapter,
+                    LegacySuggestionsAdapter adapter,
                     SuggestionsHelperFactory suggestionsHelperFactory,
                     EventBus eventBus,
                     KeyboardHelper keyboardHelper) {

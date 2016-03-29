@@ -10,7 +10,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
+import com.soundcloud.android.search.suggestions.LegacySuggestionsAdapter;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
@@ -28,13 +28,13 @@ class SuggestionsHelper {
     private final EventBus eventBus;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlaybackInitiator playbackInitiator;
-    private final SuggestionsAdapter adapter;
+    private final LegacySuggestionsAdapter adapter;
 
     SuggestionsHelper(@Provided Navigator navigator,
                       @Provided EventBus eventBus,
                       @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                       @Provided PlaybackInitiator playbackInitiator,
-                      SuggestionsAdapter suggestionsAdapter) {
+                      LegacySuggestionsAdapter suggestionsAdapter) {
         this.navigator = navigator;
         this.eventBus = eventBus;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;

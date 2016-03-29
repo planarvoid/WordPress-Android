@@ -39,7 +39,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SuggestionsAdapter extends CursorAdapter {
+@Deprecated
+public class LegacySuggestionsAdapter extends CursorAdapter {
     private final Context context;
 
     private final static int TYPE_SEARCH_ITEM = 0;
@@ -85,10 +86,10 @@ public class SuggestionsAdapter extends CursorAdapter {
     private final int colorTextSuggestion;
 
     @Inject
-    public SuggestionsAdapter(Context context,
-                              ShortcutsStorage shortcutsStorage,
-                              ImageOperations imageOperations,
-                              SearchSuggestionOperations searchSuggestionOperations) {
+    public LegacySuggestionsAdapter(Context context,
+                                    ShortcutsStorage shortcutsStorage,
+                                    ImageOperations imageOperations,
+                                    SearchSuggestionOperations searchSuggestionOperations) {
         super(context, null, 0);
         this.context = context;
         this.imageOperations = imageOperations;
@@ -132,13 +133,13 @@ public class SuggestionsAdapter extends CursorAdapter {
 
     public Urn getQueryUrn(int position) {
         final Cursor cursor = (Cursor) getItem(position);
-        final String data = cursor.getString(cursor.getColumnIndex(SuggestionsAdapter.QUERY_URN));
+        final String data = cursor.getString(cursor.getColumnIndex(LegacySuggestionsAdapter.QUERY_URN));
         return data == null ? Urn.NOT_SET : new Urn(data);
     }
 
     public int getQueryPosition(int position) {
         final Cursor cursor = (Cursor) getItem(position);
-        return cursor.getInt(cursor.getColumnIndex(SuggestionsAdapter.QUERY_POSITION));
+        return cursor.getInt(cursor.getColumnIndex(LegacySuggestionsAdapter.QUERY_POSITION));
     }
 
     public boolean isSearchItem(int position) {
@@ -189,7 +190,7 @@ public class SuggestionsAdapter extends CursorAdapter {
 
     public Cursor createCursor(SearchSuggestions<? extends SearchSuggestion> searchSuggestions) {
         int searchQueryIndex = 0;
-        final MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
+        final MatrixCursor cursor = new MatrixCursor(LegacySuggestionsAdapter.COLUMN_NAMES);
         for (SearchSuggestion suggestion : searchSuggestions.getCollection()) {
             addSuggestionToCursor(cursor, suggestion, searchQueryIndex, searchSuggestions.getQueryUrn());
             if(suggestion.isRemote()) {
