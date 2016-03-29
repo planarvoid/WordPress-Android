@@ -73,6 +73,14 @@ class TrackLikesHeaderView {
         }
     }
 
+    public void showNoWifi() {
+        downloadStateView.setHeaderText(resources.getString(R.string.offline_no_wifi));
+    }
+
+    public void showNoConnection() {
+        downloadStateView.setHeaderText(resources.getString(R.string.offline_no_connection));
+    }
+
     public void setDownloadedButtonState(final boolean isOffline) {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(isOffline);
@@ -102,12 +110,12 @@ class TrackLikesHeaderView {
         this.trackCount = trackCount;
         if (headerOpt.isPresent()) {
             headerOpt.get().setVisibility(trackCount == 0 ? View.GONE : View.VISIBLE);
-            downloadStateView.setHeaderText(getHeaderText(trackCount));
+            downloadStateView.setHeaderText(getLikedTrackText(trackCount));
             updateShuffleButton(trackCount);
         }
     }
 
-    private String getHeaderText(int likedTracks) {
+    private String getLikedTrackText(int likedTracks) {
         return resources.getQuantityString(R.plurals.number_of_liked_tracks_you_liked, likedTracks, likedTracks);
     }
 

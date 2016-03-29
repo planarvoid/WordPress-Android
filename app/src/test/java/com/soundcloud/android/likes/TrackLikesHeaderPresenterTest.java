@@ -29,6 +29,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
+import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -40,6 +41,7 @@ import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,6 +73,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private OfflineLikesDialog offlineLikesDialog;
+    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private Navigator navigator;
 
     @Mock private ListItemAdapter<TrackItem> adapter;
@@ -94,6 +98,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 playbackInitiator,
                 TestSubscribers.expandPlayerSubscriber(),
                 InjectionSupport.providerOf(offlineLikesDialog),
+                connectionHelper,
+                offlineSettings,
                 navigator,
                 eventBus);
 
@@ -104,6 +110,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 .thenReturn(just(OfflineState.NOT_OFFLINE));
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(just(true));
         when(headerViewFactory.create(any(View.class), any(TrackLikesHeaderView.Listener.class))).thenReturn(headerView);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
     }
 
     @Test
@@ -319,6 +326,46 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         verify(offlineContentOperations).disableOfflineLikedTracks();
         verifyZeroInteractions(offlineLikesDialog);
+    }
+
+    @Test
+    public void showWarningTextWhenPendingDownloadAndWifiOnly() {
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
+        when(offlineStateOperations.loadLikedTracksOfflineState())
+                .thenReturn(just(OfflineState.REQUESTED));
+        when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
+        when(connectionHelper.isWifiConnected()).thenReturn(false);
+
+        presenter.onViewCreated(fragment, layoutView, null);
+        presenter.onResume(fragment);
+
+        verify(headerView).showNoWifi();
+    }
+
+    @Test
+    public void showWarningTextWhenPendingDownloadAndOffline() {
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
+        when(offlineStateOperations.loadLikedTracksOfflineState())
+                .thenReturn(just(OfflineState.REQUESTED));
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+
+        presenter.onViewCreated(fragment, layoutView, null);
+        presenter.onResume(fragment);
+
+        verify(headerView).showNoConnection();
+    }
+
+    @Test
+    public void doNotShowWarningTextForNonPendingStates() {
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
+        when(offlineStateOperations.loadLikedTracksOfflineState())
+                .thenReturn(just(OfflineState.DOWNLOADED));
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+
+        presenter.onViewCreated(fragment, layoutView, null);
+        presenter.onResume(fragment);
+
+        verify(headerView, times(0)).showNoConnection();
     }
 
     @Test

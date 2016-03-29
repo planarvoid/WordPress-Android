@@ -13,6 +13,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
+import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -20,6 +21,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -48,6 +50,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final Navigator navigator;
     private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
     private final OfflineContentOperations offlineContentOperations;
+    private final NetworkConnectionHelper connectionHelper;
+    private final OfflineSettingsOperations offlineSettings;
 
     private Optional<TrackLikesHeaderView> viewOpt = Optional.absent();
 
@@ -71,6 +75,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      PlaybackInitiator playbackInitiator,
                                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                      Provider<OfflineLikesDialog> syncLikesDialogProvider,
+                                     NetworkConnectionHelper connectionHelper,
+                                     OfflineSettingsOperations offlineSettings,
                                      Navigator navigator,
                                      EventBus eventBus) {
         this.headerViewFactory = headerViewFactory;
@@ -81,6 +87,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         this.featureOperations = featureOperations;
         this.eventBus = eventBus;
         this.likeOperations = likeOperations;
+        this.connectionHelper = connectionHelper;
+        this.offlineSettings = offlineSettings;
         this.navigator = navigator;
         this.offlineContentOperations = offlineContentOperations;
     }
@@ -151,7 +159,19 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         public void onNext(OfflineState offlineState) {
             if (viewOpt.isPresent() && featureOperations.isOfflineContentEnabled()) {
                 viewOpt.get().show(offlineState);
+
+                if (offlineState == OfflineState.REQUESTED) {
+                    showConnectionWarningIfNecessary();
+                }
             }
+        }
+    }
+
+    private void showConnectionWarningIfNecessary() {
+        if (offlineSettings.isWifiOnlyEnabled() && !connectionHelper.isWifiConnected()) {
+            viewOpt.get().showNoWifi();
+        } else if (!connectionHelper.isNetworkConnected()) {
+            viewOpt.get().showNoConnection();
         }
     }
 

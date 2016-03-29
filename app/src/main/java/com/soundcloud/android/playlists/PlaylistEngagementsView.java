@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,6 +65,14 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     void showOfflineState(OfflineState state) {
         downloadStateView.show(state);
+    }
+
+    public void showNoWifi() {
+        downloadStateView.setHeaderText(resources.getString(R.string.offline_no_wifi));
+    }
+
+    public void showNoConnection() {
+        downloadStateView.setHeaderText(resources.getString(R.string.offline_no_connection));
     }
 
     @OnClick(R.id.toggle_like)

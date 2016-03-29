@@ -23,6 +23,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
@@ -30,6 +31,7 @@ import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -70,6 +72,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private final PlaybackToastHelper playbackToastHelper;
     private final Navigator navigator;
     private final ShareOperations shareOperations;
+    private final NetworkConnectionHelper connectionHelper;
+    private final OfflineSettingsOperations offlineSettings;
 
     private Subscription foregroundSubscription = RxUtils.invalidSubscription();
     private Subscription offlineStateSubscription = RxUtils.invalidSubscription();
@@ -83,7 +87,10 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                                         FeatureOperations featureOperations,
                                         OfflineContentOperations offlineOperations,
                                         PlaybackInitiator playbackInitiator,
-                                        PlaylistOperations playlistOperations, PlaybackToastHelper playbackToastHelper,
+                                        PlaylistOperations playlistOperations,
+                                        PlaybackToastHelper playbackToastHelper,
+                                        NetworkConnectionHelper connectionHelper,
+                                        OfflineSettingsOperations offlineSettings,
                                         Navigator navigator,
                                         ShareOperations shareOperations) {
         this.eventBus = eventBus;
@@ -96,6 +103,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.playbackInitiator = playbackInitiator;
         this.playlistOperations = playlistOperations;
         this.playbackToastHelper = playbackToastHelper;
+        this.connectionHelper = connectionHelper;
+        this.offlineSettings = offlineSettings;
         this.navigator = navigator;
         this.shareOperations = shareOperations;
     }
@@ -369,6 +378,18 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         public void onNext(OfflineState state) {
             updateOfflineAvailability(state != OfflineState.NOT_OFFLINE);
             playlistEngagementsView.showOfflineState(state);
+
+            if (state == OfflineState.REQUESTED) {
+                showConnectionWarningIfNecessary();
+            }
+        }
+    }
+
+    private void showConnectionWarningIfNecessary() {
+        if (offlineSettings.isWifiOnlyEnabled() && !connectionHelper.isWifiConnected()) {
+            playlistEngagementsView.showNoWifi();
+        } else if (!connectionHelper.isNetworkConnected()) {
+            playlistEngagementsView.showNoConnection();
         }
     }
 

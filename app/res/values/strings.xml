@@ -650,6 +650,8 @@
     <string name="no_network_connection">No network connection</string>
     <string name="no_wifi_connection">No Wi-Fi connection</string>
     <string name="offline_not_available_offline">Not available offline</string>
+    <string name="offline_no_wifi">No Wi-Fi</string>
+    <string name="offline_no_connection">No connection</string>
 
     <!-- __GO ONBOARDING -->
     <string name="go_onboarding_header">Welcome to SoundCloud Go</string>
