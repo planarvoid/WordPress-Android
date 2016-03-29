@@ -47,6 +47,7 @@
       ],  
       "next-stages": [
         "test",
+        "performances",
         "deploy"
       ]
     }, 
@@ -99,6 +100,18 @@
             }
           }
         ]
+      ]
+    },
+    {
+      "name": "performances",
+      "jobs": [
+        {
+          "analyse_release": {
+            "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 assembleRelease ndUpload ndGetProfile",
+            "manual": true,
+            "schedule": "H 3 * * 2-6"
+          }
+        }
       ]
     },
     {
