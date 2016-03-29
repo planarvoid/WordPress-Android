@@ -64,6 +64,7 @@ public class PlaylistTagsPresenter {
     };
 
     public void displayPopularTags(View view, List<String> tags) {
+        view.findViewById(R.id.popular_tags_container).setVisibility(VISIBLE);
         displayTags(view, tags, R.id.all_tags, popularTagClickListener);
     }
 
