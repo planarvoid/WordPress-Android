@@ -22,10 +22,10 @@ public class PlayQueueAdvancer {
     private final PlaySessionController playSessionController;
     private final AdsController adsController;
 
-    private final Func1<StateTransition, Boolean> shouldAdvanceTracks = new Func1<StateTransition, Boolean>() {
+    private final Func1<StateTransition, Boolean> shouldAdvanceItems = new Func1<StateTransition, Boolean>() {
         @Override
         public Boolean call(StateTransition stateTransition) {
-            return playQueueManager.isCurrentTrack(stateTransition.getUrn())
+            return playQueueManager.isCurrentItem(stateTransition.getUrn())
                     && stateTransition.isPlayerIdle()
                     && !stateTransition.isPlayQueueComplete()
                     && (stateTransition.playbackEnded() || unrecoverableErrorDuringAutoplay(stateTransition));
@@ -55,7 +55,7 @@ public class PlayQueueAdvancer {
 
     public void subscribe(){
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .filter(shouldAdvanceTracks)
+                .filter(shouldAdvanceItems)
                 .doOnNext(reconfigureUpcomingAd)
                 .subscribe(new AdvanceTrackSubscriber());
 
