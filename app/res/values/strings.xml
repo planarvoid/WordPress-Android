@@ -23,9 +23,8 @@
     <string name="password">Password</string>
     <string name="website">Website</string>
     <string name="imprint">Imprint</string>
-    <string name="privacy">Privacy</string>
-    <string name="terms_of_use">Terms of use</string>
-    <string name="privacy_policy">Privacy policy</string>
+    <string name="terms_of_use">Terms of Use</string>
+    <string name="privacy_policy">Privacy Policy</string>
     <string name="contact_support">Contact support</string>
     <string name="copyright_information">Copyright information</string>
     <!-- @Todo from l10n: please explain -->
@@ -90,7 +89,7 @@
     <string name="authentication_log_in_with_google">Sign in with Google</string>
     <string name="error_google_sign_in_failed">We couldn’t sign you in with Google+. To activate your Google+ account and try again, go to plus.google.com.</string>
     <string name="auth_disclaimer_title">One more step</string>
-    <string name="auth_disclaimer_message">By selecting \"Continue\", you agree to the Terms of use and Privacy policy of SoundCloud.</string>
+    <string name="auth_disclaimer_message">By selecting \"Continue\", you agree to the Terms of Use and Privacy Policy of SoundCloud.</string>
     <string name="facebook_authentication_failed_message">Try again soon or sign in using your email address and password.</string>
     <string name="authentication_recover_password_msg">Enter your email address and we’ll send you a link to change your password. If you still need help, visit our Help Center.</string>
     <string name="authentication_recover_password_visit_our_Help_Center">Visit our Help Center</string>
@@ -419,9 +418,9 @@
     <string name="pref_sync_wifi_only">Only update data over Wi-Fi</string>
     <string name="pref_sync_wifi_only_description">Only update new likes etc. over Wi-Fi</string>
     <string name="pref_analytics">Analytics</string>
-    <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app, which helps us improve the app. For details, refer to our Privacy policy.</string>
+    <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app, which helps us improve the app. For details, refer to our Privacy Policy.</string>
     <string name="pref_crashlogs">Crashlogs</string>
-    <string name="pref_crashlogs_desc">Enabling crash logs helps us improve the app significantly. We don’t collect any personal data. For details, refer to our Privacy policy.</string>
+    <string name="pref_crashlogs_desc">Enabling crash logs helps us improve the app significantly. We don’t collect any personal data. For details, refer to our Privacy Policy.</string>
     <string name="cache_clearing">Clearing cache</string>
     <string name="cache_clearing_message">Deleting cached files...</string>
     <string name="cache_cleared">Cache cleared</string>
