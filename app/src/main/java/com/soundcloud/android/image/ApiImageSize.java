@@ -13,9 +13,9 @@ import java.util.EnumSet;
 public enum ApiImageSize {
     T500("t500x500", 500, 500),
     T300("t300x300", 300, 300),
-    LARGE("large", 100, 100),
+    T120("t120x120", 120, 120),
     T47("t47x47", 47, 47),
-    Unknown("large", 100, 100);
+    Unknown("t120x120", 120, 120);
 
     public final int width;
     public final int height;
@@ -36,10 +36,10 @@ public enum ApiImageSize {
 
     public static ApiImageSize getListItemImageSize(Resources resources) {
         if (ImageUtils.isScreenXL(resources)) {
-            return ApiImageSize.LARGE;
+            return ApiImageSize.T120;
         } else {
             if (resources.getDisplayMetrics().density > 1) {
-                return ApiImageSize.LARGE;
+                return ApiImageSize.T120;
             } else {
                 return ApiImageSize.T47;
             }
@@ -58,7 +58,7 @@ public enum ApiImageSize {
         if (metrics.density > 2) {
             return ApiImageSize.T300;
         } else {
-            return ApiImageSize.LARGE;
+            return ApiImageSize.T120;
         }
     }
 
@@ -71,7 +71,7 @@ public enum ApiImageSize {
         } else if (maxResolution >= MEDIUM_RESOLUTION_SIZE) {
             return ApiImageSize.T300;
         } else {
-            return ApiImageSize.LARGE;
+            return ApiImageSize.T120;
         }
     }
 

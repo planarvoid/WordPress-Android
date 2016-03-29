@@ -91,7 +91,7 @@ public class BigNotificationBuilder implements NotificationBuilder {
 
     @Override
     public ApiImageSize getImageSize() {
-        return ApiImageSize.LARGE;
+        return ApiImageSize.T120;
     }
 
     @Override

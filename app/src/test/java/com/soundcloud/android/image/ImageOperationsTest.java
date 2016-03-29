@@ -117,7 +117,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(failReason.getCause()).thenReturn(new FileNotFoundException());
 
         // 1st load
-        imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
         InOrder inOrder = Mockito.inOrder(imageLoader);
         inOrder.verify(imageLoader)
                 .displayImage(eq(RESOLVER_URL), any(ImageViewAware.class), any(DisplayImageOptions.class),
@@ -125,7 +125,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL, imageView, failReason);
 
         // 2nd load
-        imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
         inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class),
                 any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
         when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
@@ -135,12 +135,12 @@ public class ImageOperationsTest extends AndroidUnitTest {
     public void shouldReturnNullForCachedBitmapWhenPreviousAttemptToLoadFailedWithNotFound() {
         when(failReason.getCause()).thenReturn(new FileNotFoundException());
 
-        imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
         verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
                 any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
         imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL, imageView, failReason);
 
-        assertThat(imageOperations.getCachedBitmap(URN, ApiImageSize.LARGE, 100, 100)).isNull();
+        assertThat(imageOperations.getCachedBitmap(URN, ApiImageSize.T120, 100, 100)).isNull();
         verifyZeroInteractions(imageLoader);
     }
 
@@ -149,14 +149,14 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(failReason.getCause()).thenReturn(new IOException());
 
         // 1st load
-        imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
         InOrder inOrder = Mockito.inOrder(imageLoader);
         inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
                 any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
         imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL, imageView, failReason);
 
         // 2nd load
-        imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
         inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
                 any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
     }
@@ -166,21 +166,21 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(failReason.getCause()).thenReturn(new FileNotFoundException());
 
         // 1st load
-        imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
         InOrder inOrder = Mockito.inOrder(imageLoader);
         inOrder.verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
                 any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
         imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL, imageView, failReason);
 
         // 2nd load
-        imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
         inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class),
                 any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
     }
 
     @Test
     public void displayImageInAdapterViewShouldRequestImagesThroughMobileImageResolver() {
-        imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
         verify(imageLoader).displayImage(
                 eq(RESOLVER_URL), any(ImageAware.class),
                 any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
@@ -188,7 +188,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void displayImageInAdapterViewShouldWrapAndForwardTheGivenImageView() {
-        imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
 
         verify(imageLoader).displayImage(
                 anyString(), imageViewAwareCaptor.capture(),
@@ -198,7 +198,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void displayImageInAdapterViewShouldShouldUseCorrectDisplayOptions() {
-        imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
 
         verify(imageLoader).displayImage(anyString(), any(ImageAware.class),
                 displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
@@ -243,7 +243,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         final String imageUrl = RESOLVER_URL;
         when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
 
-        imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
 
         verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(),
                 displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
@@ -259,7 +259,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(1, 2, Bitmap.Config.RGB_565);
-        imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, bitmap, true);
+        imageOperations.displayInPlayer(URN, ApiImageSize.T120, imageView, bitmap, true);
 
         verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(),
                 displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
@@ -276,7 +276,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(1, 2, Bitmap.Config.RGB_565);
-        imageOperations.displayInPlayer(URN, ApiImageSize.LARGE, imageView, bitmap, false);
+        imageOperations.displayInPlayer(URN, ApiImageSize.T120, imageView, bitmap, false);
 
         verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
         assertThat(displayOptionsCaptor.getValue().getDelayBeforeLoading()).isEqualTo(DELAY_BEFORE_LOADING);
@@ -284,7 +284,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void precacheTrackArtworkCachesImageOnDisc() {
-        imageOperations.precacheTrackArtwork(URN, ApiImageSize.LARGE);
+        imageOperations.precacheTrackArtwork(URN, ApiImageSize.T120);
 
         verify(imageLoader).loadImage(eq(RESOLVER_URL), displayOptionsCaptor.capture(), isNull(ImageLoadingListener.class));
         assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isTrue();
@@ -310,7 +310,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     public void displayImageInAdapterViewShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
         when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(ValueProvider.class))).thenReturn(transitionDrawable);
-        imageOperations.displayInAdapterView(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageAware.class),
                 displayOptionsCaptor.capture(), any(ImageLoadingListener.class));
@@ -323,7 +323,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     public void displayWithPlaceholderShouldUsePlaceholderFromCache() throws ExecutionException {
         when(imageView.getLayoutParams()).thenReturn(new ViewGroup.LayoutParams(100, 100));
         when(placeholderCache.get(eq("soundcloud:tracks:1_100_100"), any(ValueProvider.class))).thenReturn(transitionDrawable);
-        imageOperations.displayWithPlaceholder(URN, ApiImageSize.LARGE, imageView);
+        imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
 
         verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageAware.class), displayOptionsCaptor.capture(), any(ImageLoadingListener.class));
         assertThat(displayOptionsCaptor.getValue().getImageOnLoading(resources())).isSameAs(transitionDrawable);
@@ -366,7 +366,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         final Bitmap bitmap = Mockito.mock(Bitmap.class);
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.artwork(URN, ApiImageSize.LARGE);
+        Observable<Bitmap> observable = imageOperations.artwork(URN, ApiImageSize.T120);
         TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), any(Bitmap.class)))
                 .thenReturn(fallbackBitmapLoadingAdapter);
@@ -381,7 +381,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     public void artworkObservablePassesLoadFailedToLoadingAdapter() {
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.artwork(URN, ApiImageSize.LARGE);
+        Observable<Bitmap> observable = imageOperations.artwork(URN, ApiImageSize.T120);
         TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), any(Bitmap.class)))
                 .thenReturn(fallbackBitmapLoadingAdapter);
