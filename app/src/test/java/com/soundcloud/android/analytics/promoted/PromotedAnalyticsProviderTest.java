@@ -95,7 +95,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void tracksAdSkips() throws Exception {
+    public void tracksAudioAdSkips() throws Exception {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         UIEvent event = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), userUrn, trackSourceInfo, 10000);
 
@@ -110,6 +110,22 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         TrackingRecord adEvent = allValues.get(0);
         assertPromotedTrackingRecord(adEvent, "audio_skip1", event.getTimestamp());
         assertThat(allValues.get(1).getData()).isEqualTo("audio_skip2");
+    }
+
+    @Test
+    public void tracksVideoAdSkips() throws Exception {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        UIEvent event = UIEvent.fromSkipVideoAdClick(videoAd, trackSourceInfo);
+
+        analyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        List<TrackingRecord> events = captor.getAllValues();
+        assertThat(events.size()).isEqualTo(2);
+        assertPromotedTrackingRecord(events.get(0), "video_skip1", event.getTimestamp());
+        assertPromotedTrackingRecord(events.get(1), "video_skip2", event.getTimestamp());
     }
 
     @Test

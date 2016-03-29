@@ -153,6 +153,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_SHARE:
             case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
             case UIEvent.KIND_VIDEO_AD_SHRINK:
+            case UIEvent.KIND_SKIP_VIDEO_AD_CLICK:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:

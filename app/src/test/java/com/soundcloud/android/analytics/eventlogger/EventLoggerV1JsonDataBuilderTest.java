@@ -781,6 +781,20 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsJsonForSkipVideoAdUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromSkipVideoAdClick(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .monetizedObject(TRACK_URN.toString())
+                .adUrn("dfp:ads:905")
+                .pageName("collection:likes")
+                .monetizationType("video_ad")
+                .clickName("ad::skip"));
+    }
+
+    @Test
     public void createsJsonForVideoAdImpression() throws ApiMapperException {
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo, Player.StateTransition.DEFAULT);
 

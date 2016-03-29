@@ -62,6 +62,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_VIDEO_AD_SHRINK = "video_ad_shrink";
     public static final String KIND_AUDIO_AD_CLICK = "audio_ad_click";
     public static final String KIND_SKIP_AUDIO_AD_CLICK = "skip_audio_ad_click";
+    public static final String KIND_SKIP_VIDEO_AD_CLICK = "skip_video_ad_click";
 
     public static UIEvent fromPlayerOpen(String method) {
         return new UIEvent(KIND_PLAYER_OPEN)
@@ -179,6 +180,15 @@ public final class UIEvent extends TrackingEvent {
     private static UIEvent fromVideoAdSizeChange(String kind, VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo, List<String> trackingUrls) {
         return new UIEvent(kind, System.currentTimeMillis())
                 .addPromotedTrackingUrls(SIZE_CHANGES, trackingUrls)
+                .put(AdTrackingKeys.KEY_AD_URN, videoAd.getAdUrn().toString())
+                .put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, videoAd.getMonetizableTrackUrn().toString())
+                .put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_VIDEO_AD)
+                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
+    }
+
+    public static UIEvent fromSkipVideoAdClick(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
+        return new UIEvent(KIND_SKIP_VIDEO_AD_CLICK, System.currentTimeMillis())
+                .addPromotedTrackingUrls(SKIPS, videoAd.getSkipUrls())
                 .put(AdTrackingKeys.KEY_AD_URN, videoAd.getAdUrn().toString())
                 .put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, videoAd.getMonetizableTrackUrn().toString())
                 .put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_VIDEO_AD)
@@ -317,7 +327,7 @@ public final class UIEvent extends TrackingEvent {
         return urls == null ? Collections.<String>emptyList() : urls;
     }
 
-    public List<String> getAudioAdSkipUrls() {
+    public List<String> getAdSkipUrls() {
         List<String> urls = promotedTrackingUrls.get(SKIPS);
         return urls == null ? Collections.<String>emptyList() : urls;
     }

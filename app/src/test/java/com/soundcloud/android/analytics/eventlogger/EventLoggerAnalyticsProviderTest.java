@@ -49,7 +49,6 @@ import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
-import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -412,6 +411,19 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
+    }
+
+    @Test
+    public void shouldVideoAdSkipEvent() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        UIEvent adEvent = UIEvent.fromSkipVideoAdClick(videoAd, trackSourceInfo);
+        when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("UIEvent");
     }
 
     @Test
