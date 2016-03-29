@@ -113,12 +113,12 @@ public class ApiClient {
     }
 
     private void logRequest(com.squareup.okhttp.Request request) {
-        Log.d(TAG, "[OkHttp][" + Thread.currentThread().getName() + "] " + request.method() + " "
-                + request.urlString() + "; headers = " + request.headers());
+        Log.d(TAG, "[Req][" + Thread.currentThread().getName() + "] " + request.method() + " "
+                + request.urlString() + "; headers = " + request.headers().toString().replaceAll("\\n", " | "));
     }
 
     private void logResponse(Response response) {
-        Log.d(TAG, "[OkHttp] " + response);
+        Log.d(TAG, "[Rsp][" + Thread.currentThread().getName() + "] " + response);
     }
 
     private void setHttpHeaders(ApiRequest request, com.squareup.okhttp.Request.Builder builder) {
