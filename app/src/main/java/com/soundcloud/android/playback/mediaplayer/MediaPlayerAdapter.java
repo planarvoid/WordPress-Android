@@ -156,7 +156,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
             if (playerListener != null && playerListener.requestAudioFocus()) {
                 play();
-                publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, currentStreamUrl);
+                publishTimeToPlayEventIfAudio(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, currentStreamUrl);
 
                 if (resumePos > 0) {
                     seek(resumePos, true);
@@ -177,11 +177,13 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         connectionRetries = 0;
     }
 
-    private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
-        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
-                getPlaybackProtocol(), PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
-                streamUrl, accountOperations.getLoggedInUserUrn());
-        eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
+    private void publishTimeToPlayEventIfAudio(long timeToPlay, String streamUrl) {
+        if (currentItem.getPlaybackType() != VIDEO_DEFAULT) {
+            final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
+                    getPlaybackProtocol(), PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
+                    streamUrl, accountOperations.getLoggedInUserUrn());
+            eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
+        }
     }
 
     private PlaybackProtocol getPlaybackProtocol() {
