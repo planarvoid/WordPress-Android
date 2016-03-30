@@ -742,6 +742,8 @@
     <string name="user_profile_sounds_view_all_playlists">View all playlists</string>
     <string name="user_profile_sounds_view_all_reposts">View all reposts</string>
     <string name="user_profile_sounds_view_all_likes">View all likes</string>
+    <string name="user_reposts_empty">This person doesn’t have any reposts yet.</string>
+    <string name="user_reposts_label">Reposts</string>
 
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Go ad-free</string>

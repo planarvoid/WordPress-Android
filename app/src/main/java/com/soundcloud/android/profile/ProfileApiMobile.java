@@ -128,4 +128,24 @@ public class ProfileApiMobile implements ProfileApi {
 
         return apiClientRx.mappedResponse(request, ApiUserProfile.class);
     }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userReposts(Urn user) {
+        return getRepostsCollection(ApiEndpoints.USER_REPOSTS.path(user));
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userReposts(String nextPageLink) {
+        return getRepostsCollection(nextPageLink);
+    }
+
+    @NotNull
+    private Observable<ModelCollection<ApiEntityHolder>> getRepostsCollection(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPrivateApi()
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);
+    }
 }

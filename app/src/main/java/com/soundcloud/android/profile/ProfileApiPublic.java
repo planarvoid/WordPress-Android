@@ -107,6 +107,16 @@ public class ProfileApiPublic implements ProfileApi {
         throw new UnsupportedOperationException("User Profile will not be supported by Public API");
     }
 
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userReposts(Urn user) {
+        throw new UnsupportedOperationException("User Reposts will not be supported by Public API");
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userReposts(String nextPageLink) {
+        throw new UnsupportedOperationException("User Reposts will not be supported by Public API");
+    }
+
     @NotNull
     private Observable<ModelCollection<ApiPlaylist>> getPlaylists(String path) {
         final ApiRequest request = ApiRequest.get(path)

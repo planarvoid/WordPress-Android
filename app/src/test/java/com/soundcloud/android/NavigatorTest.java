@@ -26,6 +26,7 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
@@ -407,5 +408,17 @@ public class NavigatorTest extends AndroidUnitTest {
                 .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         Assertions.assertThat(activityContext.isFinishing()).isTrue();
+    }
+
+    @Test
+    public void opensReposts() {
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        navigator.openReposts(activityContext, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
+                .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
+                .containsScreen(Screen.USERS_REPOSTS)
+                .opensActivity(UserRepostsActivity.class);
     }
 }

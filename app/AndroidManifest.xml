@@ -200,6 +200,7 @@
                 <data android:mimeType="vnd.soundcloud/user"/>
             </intent-filter>
         </activity>
+        <activity android:label="@string/user_reposts_label" android:name=".profile.UserRepostsActivity" android:theme="@style/Theme.SoundCloud"/>
 
         <activity android:label="@string/track_likes_title" android:name=".likes.TrackLikesActivity" android:theme="@style/Theme.SoundCloud" />
 

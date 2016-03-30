@@ -76,4 +76,14 @@ public class ProfileApiDelegator implements ProfileApi {
     public Observable<ApiUserProfile> userProfile(Urn user) {
         return profileApiMobile.get().userProfile(user);
     }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userReposts(Urn user) {
+        return profileApiMobile.get().userReposts(user);
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userReposts(String nextPageLink) {
+        return profileApiMobile.get().userReposts(nextPageLink);
+    }
 }

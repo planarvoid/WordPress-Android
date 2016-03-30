@@ -248,6 +248,27 @@ class UserProfileOperations {
                 .subscribeOn(scheduler);
     }
 
+    public Observable<PagedRemoteCollection> userReposts(Urn user) {
+        return profileApi.userReposts(user)
+                .doOnNext(writeMixedRecordsCommand.toAction1())
+                .map(TO_PAGED_REMOTE_COLLECTION)
+                .map(mergePlayableInfo)
+                .subscribeOn(scheduler);
+    }
+
+    public PagingFunction<PagedRemoteCollection> repostsPagingFunction() {
+        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
+            @Override
+            public Observable<PagedRemoteCollection> call(String nextPageLink) {
+                return profileApi.userReposts(nextPageLink)
+                        .doOnNext(writeMixedRecordsCommand.toAction1())
+                        .map(TO_PAGED_REMOTE_COLLECTION)
+                        .map(mergePlayableInfo)
+                        .subscribeOn(scheduler);
+            }
+        });
+    }
+
     public Observable<PagedRemoteCollection> pagedFollowers(Urn user) {
         return profileApi
                 .userFollowers(user)
