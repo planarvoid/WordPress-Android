@@ -16,6 +16,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -246,7 +247,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void settingPlayQueueItemPublishesAdSkippedTrackingEventWhenTrackIsAudioAd() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
 
         controller.setCurrentPlayQueueItem(trackPlayQueueItem);
@@ -286,7 +287,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void previousTrackCallsMoveToPreviousTrackOnPlayQueueManagerIfProgressEqualToleranceAndPlayingAudioAd() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000));
 
         controller.previousTrack();
@@ -315,8 +316,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void previousTrackCallsPreviousItemIfPlayingAudioAdWithProgressEqualToTimeout() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
+    public void previousTrackCallsPreviousItemIfPlayingAdWithProgressEqualToTimeout() {
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(PlaybackProgress.empty());
 
         controller.previousTrack();
@@ -325,8 +326,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void previousTrackDoesNothingIfPlayingAudioAdWithProgressLessThanTimeout() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+    public void previousTrackDoesNothingIfPlayingAdWithProgressLessThanTimeout() {
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         controller.previousTrack();
 
@@ -335,7 +336,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void previousTrackShowsUnskippableToastWhenPlaybackNotSkippable() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         controller.previousTrack();
 
@@ -344,9 +345,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void previousTrackPublishesAdSkippedTrackingEventWhenTrackIsAudioAd() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000));
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
 
         controller.previousTrack();
 
@@ -361,8 +361,24 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void previousTrackPublishesAdSkippedTrackingEventWhenTrackIsVideoAd() {
+        setupVideoAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(3000L, 5000));
+
+        controller.previousTrack();
+
+        // make sure we test for the current track being an ad *before* we skip
+        InOrder inOrder = inOrder(adsOperations, playQueueManager);
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemVideoAd();
+        inOrder.verify(playQueueManager).moveToPreviousPlayableItem();
+
+        final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_VIDEO_AD_CLICK);
+    }
+
+    @Test
     public void previousTrackDoesNotPublishAdSkippedTrackingEventWhenAdNotYetSkippable() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         controller.previousTrack();
 
@@ -380,7 +396,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void nextTrackShowsUnskippableToastWhenPlaybackNotSkippable() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         controller.nextTrack();
 
@@ -395,8 +411,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void nextTrackCallsNextItemIfPlayingAudioAdWithProgressEqualToTimeout() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
+    public void nextTrackCallsNextItemIfPlayingAdWithProgressEqualToTimeout() {
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
 
         controller.nextTrack();
 
@@ -404,8 +420,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void nextTrackDoesNothingIfPlayingAudioAdWithProgressLessThanTimeout() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+    public void nextTrackDoesNothingIfPlayingAdWithProgressLessThanTimeout() {
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         controller.nextTrack();
 
@@ -414,14 +430,13 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void nextTrackPublishesAdSkippedTrackingEventWhenTrackIsAudioAd() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
 
         controller.nextTrack();
 
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
-        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAd();
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAudioAd();
         inOrder.verify(playQueueManager).moveToNextPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -430,8 +445,23 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void nextTrackPublishesAdSkippedTrackingEventWhenTrackIsVideoAd() {
+        setupVideoAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1);
+
+        controller.nextTrack();
+
+        // make sure we test for the current track being an ad *before* we skip
+        InOrder inOrder = inOrder(adsOperations, playQueueManager);
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemVideoAd();
+        inOrder.verify(playQueueManager).moveToNextPlayableItem();
+
+        final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_VIDEO_AD_CLICK);
+    }
+
+    @Test
     public void nextTrackDoesNotPublishAdSkippedTrackingEventWhenAdNotYetSkippable() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         controller.nextTrack();
 
@@ -464,7 +494,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void seekSeeksToProvidedPositionIfPlayingAudioAdWithProgressEqualTimeout() {
         when(playSessionStateProvider.isPlayingCurrentPlayQueueItem()).thenReturn(true);
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS);
 
         controller.seek(350L);
 
@@ -473,7 +503,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void seekDoesNothingIfPlayingAudioAdWithProgressLessThanTimeout() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         controller.seek(350L);
 
@@ -498,7 +528,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playNewQueueWhenUnskippableReturnsPlaybackError() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
         Urn track = Urn.forTrack(123L);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
@@ -512,7 +542,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playNewQueueDoesNotPlayCurrentTrackIfErrorSettingQueue() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
         Urn track = Urn.forTrack(123L);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
@@ -605,13 +635,25 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                 .thenReturn(result);
     }
 
-    private void setupAdInProgress(long currentProgress) {
-        final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000);
-        final AudioAd adData = AdFixtures.getAudioAd(Urn.forTrack(456L));
-        final PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), adData);
+    private void setupVideoAdInProgress(long currentProgress) {
+        final VideoAd adData = AdFixtures.getVideoAd(Urn.forTrack(456L));
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(adData);
+        when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
+        setupAdInProgress(currentProgress, videoItem);
+    }
 
+    private void setupAudioAdInProgress(long currentProgress) {
+        final AudioAd adData = AdFixtures.getAudioAd(Urn.forTrack(456L));
+        final PlayQueueItem audioAdItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), adData);
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        setupAdInProgress(currentProgress, audioAdItem);
+    }
+
+    private void setupAdInProgress(long currentProgress, PlayQueueItem playQueueItem) {
+        final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(playQueueItem);
         when(playSessionStateProvider.getLastProgressEventForCurrentPlayQueueItem()).thenReturn(progress);
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(playQueueItem);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(playQueueItem.getAdData());
     }
 }

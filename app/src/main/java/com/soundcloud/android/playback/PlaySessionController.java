@@ -5,9 +5,11 @@ import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPP
 import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -19,6 +21,7 @@ import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -158,7 +161,7 @@ public class PlaySessionController {
                     && !adsOperations.isCurrentItemAd()) {
                 seek(SEEK_POSITION_RESET);
             } else {
-                publishSkipEventIfAudioAd();
+                publishSkipEventIfAd();
                 playQueueManager.moveToPreviousPlayableItem();
             }
         }
@@ -168,7 +171,7 @@ public class PlaySessionController {
         if (shouldDisableSkipping()) {
             playbackToastHelper.showUnskippableAdToast();
         } else {
-            publishSkipEventIfAudioAd();
+            publishSkipEventIfAd();
             playQueueManager.moveToNextPlayableItem();
         }
     }
@@ -181,7 +184,7 @@ public class PlaySessionController {
     public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {
         if (!playQueueManager.getCurrentPlayQueueItem().equals(playQueueItem)) {
             adsController.publishAdDeliveryEventIfUpcoming();
-            publishSkipEventIfAudioAd();
+            publishSkipEventIfAd();
             playQueueManager.setCurrentPlayQueueItem(playQueueItem);
         }
     }
@@ -198,13 +201,16 @@ public class PlaySessionController {
         }
     }
 
-    private void publishSkipEventIfAudioAd() {
+    private void publishSkipEventIfAd() {
+        final Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
         if (adsOperations.isCurrentItemAudioAd()) {
-            final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueueManager.getCurrentPlayQueueItem();
-            final AudioAd audioAd = (AudioAd) trackQueueItem.getAdData().get();
-            final UIEvent event = UIEvent.fromSkipAudioAdClick(audioAd, trackQueueItem.getUrn(),
-                    accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo());
-            eventBus.publish(EventQueue.TRACKING, event);
+            final UIEvent audioSkipEvent = UIEvent.fromSkipAudioAdClick((AudioAd) adData.get(),
+                    playQueueManager.getCurrentPlayQueueItem().getUrn(),
+                    accountOperations.getLoggedInUserUrn(),
+                    playQueueManager.getCurrentTrackSourceInfo());
+            eventBus.publish(EventQueue.TRACKING, audioSkipEvent);
+        } else if (adsOperations.isCurrentItemVideoAd()) {
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromSkipVideoAdClick((VideoAd) adData.get(), playQueueManager.getCurrentTrackSourceInfo()));
         }
     }
 
