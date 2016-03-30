@@ -31,10 +31,13 @@ class PlaylistTagRenderer implements CellRenderer<PlaylistDiscoveryItem> {
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistDiscoveryItem> discoveryItems) {
         final List<String> recentTags = discoveryItems.get(position).getRecentTags();
+        final List<String> popularTags = discoveryItems.get(position).getPopularTags();
         if (!recentTags.isEmpty()) {
             playlistTagsPresenter.displayRecentTags(itemView, recentTags);
         }
-        playlistTagsPresenter.displayPopularTags(itemView, discoveryItems.get(position).getPopularTags());
+        if (!popularTags.isEmpty()) {
+            playlistTagsPresenter.displayPopularTags(itemView, popularTags);
+        }
     }
 
     void setOnTagClickListener(PlaylistTagsPresenter.Listener itemListener) {
