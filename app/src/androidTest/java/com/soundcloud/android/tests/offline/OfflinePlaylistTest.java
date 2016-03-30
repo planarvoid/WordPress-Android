@@ -105,7 +105,11 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat(downloadElement, is(not(downloading())));
         assertThat("Playlist should be unavailable ", downloadElement.isUnavailable());
 
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen.goBackToCollections().getPlaylistWithTitle(UNAVAILABLE_PLAYLIST).downloadElement();
+        final DownloadImageViewElement collectionsDownloadElement =
+                playlistDetailsScreen
+                        .goBackToCollections()
+                        .scrollToPlaylistWithTitle(UNAVAILABLE_PLAYLIST)
+                        .downloadElement();
         assertThat(collectionsDownloadElement, is(not(downloading())));
         assertThat("Playlist should be unavailable ", collectionsDownloadElement.isUnavailable());
     }
