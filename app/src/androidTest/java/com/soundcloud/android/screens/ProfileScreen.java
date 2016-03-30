@@ -26,10 +26,12 @@ public class ProfileScreen extends Screen {
 
     public ProfileScreen(Han solo) {
         super(solo);
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public ProfileScreen(Han solo, String username) {
         super(solo);
+        waiter.waitForContentAndRetryIfLoadingFailed();
         waiter.waitForElement(new TextElement(userName()), username);
     }
 
@@ -54,14 +56,12 @@ public class ProfileScreen extends Screen {
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
 
         return new TrackItemElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.track_list_item)))
                 .clickOverflowButton();
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistWithTracks() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         final List<PlaylistElement> playlists = getPlaylists();
         for (PlaylistElement playlistElement : playlists) {
             final String trackCount = playlistElement.getTrackCount();
@@ -78,7 +78,6 @@ public class ProfileScreen extends Screen {
     }
 
     public List<PlaylistElement> getPlaylists() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
     }
 
