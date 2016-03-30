@@ -184,10 +184,14 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     public boolean isCurrentTrack(@NotNull Urn trackUrn) {
+        return trackUrn.isTrack() && isCurrentItem(trackUrn);
+    }
+
+    public boolean isCurrentItem(@NotNull Urn itemUrn) {
         int currentPosition1 = getCurrentPosition();
         return currentPosition1 < getQueueSize() &&
-                getPlayQueueItemAtPosition(currentPosition1).isTrack() &&
-                getPlayQueueItemAtPosition(currentPosition1).getUrn().equals(trackUrn);
+                !getPlayQueueItemAtPosition(currentPosition1).isEmpty() &&
+                getPlayQueueItemAtPosition(currentPosition1).getUrn().equals(itemUrn);
     }
 
     public boolean wasLastSavedItem(Urn urn) {

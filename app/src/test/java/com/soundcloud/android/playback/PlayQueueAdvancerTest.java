@@ -58,7 +58,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
         trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn);
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(playQueueManager.isCurrentTrack(trackUrn)).thenReturn(true);
+        when(playQueueManager.isCurrentItem(trackUrn)).thenReturn(true);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
@@ -130,7 +130,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionDoesNotAdvanceTracksIfNotCurrentPlayQueueTrack() {
-        when(playQueueManager.isCurrentTrack(trackUrn)).thenReturn(false);
+        when(playQueueManager.isCurrentItem(trackUrn)).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
         verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
@@ -145,6 +145,16 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     @Test
     public void onStateTransitionTriesToAdvanceItem() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, trackUrn));
+        verify(playQueueManager).autoMoveToNextPlayableItem();
+    }
+
+    @Test
+    public void onStateTransitionTriesToAdvanceWhenCurrentItemIsVideo() {
+        final Urn videoUrn = Urn.forAd("dfp", "video-ad");
+        when(playQueueManager.isCurrentItem(videoUrn)).thenReturn(true);
+
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, videoUrn));
+
         verify(playQueueManager).autoMoveToNextPlayableItem();
     }
 

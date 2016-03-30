@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -965,6 +966,37 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void isCurrentTrackShouldReturnFalseWhenPlayQueueIsEmpty() {
         assertThat(playQueueManager.isCurrentTrack(Urn.forTrack(123L))).isFalse();
+    }
+
+    @Test
+    public void isCurrentItemShouldReturnFalseWhenPlayQueueIsEmpty() {
+        assertThat(playQueueManager.isCurrentItem(Urn.forTrack(123L))).isFalse();
+    }
+
+    @Test
+    public void isCurrentItemShouldReturnTrueWhenGivenItemIsCurrentItem() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
+        playQueueManager.setNewPlayQueue(createPlayQueue(tracksUrn), playlistSessionSource);
+        playQueueManager.setPosition(1, true);
+        assertThat(playQueueManager.isCurrentItem(Urn.forTrack(2L))).isTrue();
+    }
+
+    @Test
+    public void isCurrentItemShouldReturnFalseIfGivenItemIsNotCurrentItem() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
+        playQueueManager.setNewPlayQueue(createPlayQueue(tracksUrn), playlistSessionSource);
+        playQueueManager.setPosition(1, true);
+        assertThat(playQueueManager.isCurrentItem(Urn.forTrack(3L))).isFalse();
+    }
+
+    @Test
+    public void isCurrentItemShouldReturnTrueIfGivenVideoItemIsCurrentVideoItem() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(2L));
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        playQueue.insertVideo(1, videoAd);
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
+        playQueueManager.setPosition(1, true);
+        assertThat(playQueueManager.isCurrentItem(videoAd.getAdUrn())).isTrue();
     }
 
     @Test
