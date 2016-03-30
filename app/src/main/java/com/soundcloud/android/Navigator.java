@@ -27,6 +27,7 @@ import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
@@ -193,6 +194,11 @@ public class Navigator {
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
+    public void openReposts(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        context.startActivity(createRepostsIntent(context, user, screen)
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+    }
+
     public void openActivities(Context context) {
         context.startActivity(new Intent(context, ActivitiesActivity.class));
     }
@@ -346,6 +352,13 @@ public class Navigator {
     public Intent createProfileIntent(Context context, Urn user, Screen screen, Referrer referrer) {
         Intent intent = createProfileIntent(context, user, screen);
         referrer.addToIntent(intent);
+        return intent;
+    }
+
+    private Intent createRepostsIntent(Context context, Urn user, Screen screen) {
+        Intent intent = new Intent(context, UserRepostsActivity.class)
+                .putExtra(UserRepostsActivity.EXTRA_USER_URN, user);
+        screen.addToIntent(intent);
         return intent;
     }
 

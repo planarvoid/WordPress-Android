@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -34,6 +35,7 @@ import android.view.View;
 public class UserSoundsPresenterTest extends AndroidUnitTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
+    private static final SearchQuerySourceInfo SEARCH_QUERY_SOURCE_INFO = new SearchQuerySourceInfo(Urn.forTrack(123L));
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(default_recyclerview_with_refresh, new Bundle());
 
@@ -56,6 +58,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         userProfileResponse = new UserProfileFixtures.Builder().build();
         fragmentArgs = new Bundle();
         fragmentArgs.putParcelable(ProfileArguments.USER_URN_KEY, USER_URN);
+        fragmentArgs.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, SEARCH_QUERY_SOURCE_INFO);
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter = new UserSoundsPresenter(imagePauseOnScrollListener, swipeRefreshAttacker, adapter, operations,
@@ -120,9 +123,10 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         View view = mock(View.class);
         when(adapter.getItem(0)).thenReturn(userSoundsItem);
 
+        presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onItemClicked(view, 0);
 
-        verify(clickListener).onItemClick(view, userSoundsItem);
+        verify(clickListener).onItemClick(view, userSoundsItem, USER_URN, SEARCH_QUERY_SOURCE_INFO);
     }
 
     private EntityStateChangedEvent fakeLikePlaylistEvent(ApiPlaylist apiPlaylist) {

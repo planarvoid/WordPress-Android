@@ -20,7 +20,9 @@ import dagger.Provides;
                 UserFollowersFragment.class,
                 UserSoundsFragment.class,
                 UserDetailsFragment.class,
-                VerifyAgeActivity.class
+                VerifyAgeActivity.class,
+                UserRepostsActivity.class,
+                UserRepostsFragment.class
         }, includes = AssociationsModule.class)
 public class ProfileModule {
 

@@ -5,13 +5,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.rx.eventbus.EventBus;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -20,6 +20,7 @@ import android.content.Context;
 import android.view.View;
 
 public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
+    private static final Urn USER_URN = Urn.forUser(123L);
 
     @Mock private Navigator navigator;
     @Mock private View view;
@@ -36,8 +37,16 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void shouldOpenPlaylist() throws Exception {
         PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        subject.onItemClick(view, fromPlaylistItem(playlistItem, UserSoundsTypes.SPOTLIGHT));
+        subject.onItemClick(view, fromPlaylistItem(playlistItem, UserSoundsTypes.SPOTLIGHT), null, null);
 
         verify(navigator).openPlaylist(context, playlistItem.getUrn(), Screen.PROFILE_SOUNDS_PLAYLIST);
+    }
+
+    @Test
+    public void shouldOpenReposts() throws Exception {
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        subject.onItemClick(view, UserSoundsItem.fromViewAll(UserSoundsTypes.REPOSTS), USER_URN, searchSourceInfo);
+
+        verify(navigator).openReposts(context, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
     }
 }

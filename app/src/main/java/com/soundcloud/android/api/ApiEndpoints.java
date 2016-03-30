@@ -79,6 +79,7 @@ public enum ApiEndpoints {
 
     // profile
     PROFILE("/users/%s/profile/v2"),
+    USER_REPOSTS("/users/%s/reposts"),
 
     // stations
     STATION("/stations/%s/station_and_tracks"),

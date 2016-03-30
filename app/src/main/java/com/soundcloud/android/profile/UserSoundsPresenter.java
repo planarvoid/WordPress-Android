@@ -1,6 +1,9 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.profile.ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY;
+
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
@@ -31,6 +34,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     private final EventBus eventBus;
     private Urn userUrn;
     private Subscription eventSubscription = RxUtils.invalidSubscription();
+    private SearchQuerySourceInfo searchQuerySourceInfo;
 
     @Inject
     UserSoundsPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener,
@@ -71,6 +75,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
+        searchQuerySourceInfo = fragment.getArguments().getParcelable(SEARCH_QUERY_SOURCE_INFO_KEY);
         getBinding().connect();
     }
 
@@ -102,7 +107,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
 
     @Override
     protected void onItemClicked(View view, int position) {
-        clickListener.onItemClick(view, adapter.getItem(position));
+        clickListener.onItemClick(view, adapter.getItem(position), userUrn, searchQuerySourceInfo);
     }
 
     private void bindEmptyView(boolean isCurrentUser) {
