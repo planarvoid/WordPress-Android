@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 public class PlaylistTagsPresenter {
@@ -66,6 +67,10 @@ public class PlaylistTagsPresenter {
     public void displayPopularTags(View view, List<String> tags) {
         view.findViewById(R.id.popular_tags_container).setVisibility(VISIBLE);
         displayTags(view, tags, R.id.all_tags, popularTagClickListener);
+    }
+
+    public void hidePopularTags(View view) {
+        view.findViewById(R.id.popular_tags_container).setVisibility(GONE);
     }
 
     public void displayRecentTags(View view, List<String> tags) {

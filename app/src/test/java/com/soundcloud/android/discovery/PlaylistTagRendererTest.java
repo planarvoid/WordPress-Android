@@ -68,6 +68,7 @@ public class PlaylistTagRendererTest {
 
         verify(playlistTagsPresenter, never()).displayPopularTags(itemView, playListTags);
         verify(playlistTagsPresenter, never()).displayRecentTags(same(itemView), anyList());
+        verify(playlistTagsPresenter).hidePopularTags(itemView);
     }
 
     @Test

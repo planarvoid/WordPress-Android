@@ -35,7 +35,9 @@ class PlaylistTagRenderer implements CellRenderer<PlaylistDiscoveryItem> {
         if (!recentTags.isEmpty()) {
             playlistTagsPresenter.displayRecentTags(itemView, recentTags);
         }
-        if (!popularTags.isEmpty()) {
+        if (popularTags.isEmpty()) {
+            playlistTagsPresenter.hidePopularTags(itemView);
+        } else {
             playlistTagsPresenter.displayPopularTags(itemView, popularTags);
         }
     }
