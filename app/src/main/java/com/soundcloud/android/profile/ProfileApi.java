@@ -40,4 +40,8 @@ interface ProfileApi {
     Observable<ModelCollection<ApiEntityHolder>> userReposts(Urn user);
 
     Observable<ModelCollection<ApiEntityHolder>> userReposts(String nextPageLink);
+
+    Observable<ModelCollection<ApiEntityHolder>> userTracks(Urn user);
+
+    Observable<ModelCollection<ApiEntityHolder>> userTracks(String nextPageLink);
 }
