@@ -191,6 +191,17 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void preparedListenerShouldntReportTimeToPlayOnVideoPlayback() {
+        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
+        when(dateProvider.getCurrentDate()).thenReturn(new Date(0));
+        mediaPlayerAdapter.play(videoItem);
+        when(dateProvider.getCurrentDate()).thenReturn(new Date(1000));
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE)).isEmpty();
+    }
+
+    @Test
     public void playUrlShouldResetAndReuseOldMediaPlayer() {
         playUrlAndSetPrepared(trackItem);
         mediaPlayerAdapter.play(trackItem);
