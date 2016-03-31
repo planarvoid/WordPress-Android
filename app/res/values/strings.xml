@@ -817,7 +817,7 @@
     <!-- __ACTIVITIES -->
     <plurals name="activities_new_notification">
         <item quantity="one">1 new notification</item>
-        <item quantity="other">%s new notifications</item> <!-- 9+ new notifications -->
+        <item quantity="other">%s new notifications</item>
     </plurals>
 
     <!-- __KILL SWITCH -->

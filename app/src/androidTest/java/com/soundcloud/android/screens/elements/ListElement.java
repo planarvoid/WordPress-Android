@@ -11,23 +11,18 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
 
-public class ListElement {
-    private final Han testDriver;
+import java.util.List;
+
+public class ListElement extends AdapterElement {
     private final AbsListView absListView;
-    private final Waiter waiter;
 
     public ListElement(View element, Han driver) {
-        testDriver = driver;
+        super(element, driver);
         absListView = (AbsListView)element;
-        waiter = new Waiter(testDriver);
     }
 
     public ViewElement getItemAt(int index) {
-        return new DefaultViewElement(absListView.getChildAt(index), testDriver);
-    }
-
-    public int getVisibleItemViewCount() {
-        return absListView.getChildCount();
+        return new DefaultViewElement(absListView.getChildAt(index), getTestDriver());
     }
 
     public int getItemCount() {
@@ -39,7 +34,8 @@ public class ListElement {
         return absListView.getAdapter();
     }
 
-    public void scrollToBottom() {
-        testDriver.scrollToBottom(absListView);
+    public ListElement scrollToBottom() {
+        getTestDriver().scrollToBottom(absListView);
+        return this;
     }
 }
