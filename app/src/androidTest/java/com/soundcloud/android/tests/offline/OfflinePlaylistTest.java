@@ -66,8 +66,11 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
 
         assertThat(playlistDetailsScreen.headerDownloadElement(), is(downloadingOrDownloaded()));
 
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen.goBackToCollections().getPlaylistWithTitle(OFFLINE_PLAYLIST).downloadElement();
-        assertThat(collectionsDownloadElement,  is(downloadingOrDownloaded()));
+        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+                .goBackToCollections()
+                .scrollToPlaylistWithTitle(OFFLINE_PLAYLIST)
+                .downloadElement();
+        assertThat(collectionsDownloadElement, is(downloadingOrDownloaded()));
     }
 
     public void testDownloadPlaylistWhenMadeAvailableOfflineFromPlaylistDetails() {
@@ -78,11 +81,14 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         final DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
         assertThat(downloadElement, is(downloading()));
 
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen.goBackToCollections().getPlaylistWithTitle(OFFLINE_PLAYLIST).downloadElement();
-        assertThat(collectionsDownloadElement,  is(downloadingOrDownloaded()));
+        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+                .goBackToCollections()
+                .scrollToPlaylistWithTitle(OFFLINE_PLAYLIST)
+                .downloadElement();
+        assertThat(collectionsDownloadElement, is(downloadingOrDownloaded()));
     }
 
-    public void testEmptyPlaylistsAreMarkedAsRequested() throws Exception {
+    public void testEmptyPlaylistsAreMarkedAsRequested() {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
                 .scrollToAndClickPlaylistWithTitle(EMPTY_PLAYLIST)
                 .clickDownloadToggle();
@@ -91,12 +97,15 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat(downloadElement, is(not(downloading())));
         assertThat("Playlist should be requested ", downloadElement.isRequested());
 
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen.goBackToCollections().getPlaylistWithTitle(EMPTY_PLAYLIST).downloadElement();
+        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+                .goBackToCollections()
+                .scrollToPlaylistWithTitle(EMPTY_PLAYLIST)
+                .downloadElement();
         assertThat(collectionsDownloadElement, is(not(downloading())));
         assertThat("Playlist should be requested ", collectionsDownloadElement.isRequested());
     }
 
-    public void testUnavailablePlaylistsAreMarkedAsUnavailable() throws Exception {
+    public void testUnavailablePlaylistsAreMarkedAsUnavailable() {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
                 .scrollToAndClickPlaylistWithTitle(UNAVAILABLE_PLAYLIST)
                 .clickDownloadToggle();
@@ -114,19 +123,23 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat("Playlist should be unavailable ", collectionsDownloadElement.isUnavailable());
     }
 
-    public void testPlaylistsWithAvailableTracksAreNotMarkedAsUnavailable() throws Exception {
-        final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
+    public void testPlaylistsWithAvailableTracksAreNotMarkedAsUnavailable() {
+        final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
+                .goToCollections()
                 .scrollToAndClickPlaylistWithTitle(MIXED_PLAYLIST)
                 .clickDownloadToggle();
 
         final DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
         assertThat("Playlist should not be unavailable ", !downloadElement.isUnavailable());
 
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen.goBackToCollections().getPlaylistWithTitle(MIXED_PLAYLIST).downloadElement();
+        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+                .goBackToCollections()
+                .scrollToPlaylistWithTitle(MIXED_PLAYLIST)
+                .downloadElement();
         assertThat("Playlist should not be unavailable ", !collectionsDownloadElement.isUnavailable());
     }
 
-    public void testPlaylistIsRequestedWhenNetworkIsOff() throws Exception {
+    public void testPlaylistIsRequestedWhenNetworkIsOff() {
         final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
         collectionScreen.scrollToPlaylistWithTitle(OFFLINE_PLAYLIST);
         networkManagerClient.switchWifiOff();
@@ -138,8 +151,10 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat(downloadElement, is(not(downloading())));
         assertThat("Playlist should be requested ", downloadElement.isRequested());
 
-
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen.goBackToCollections().getPlaylistWithTitle(OFFLINE_PLAYLIST).downloadElement();
+        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+                .goBackToCollections()
+                .scrollToPlaylistWithTitle(OFFLINE_PLAYLIST)
+                .downloadElement();
         assertThat(collectionsDownloadElement, is(not(downloading())));
         assertThat("Playlist should be requested ", collectionsDownloadElement.isRequested());
     }
