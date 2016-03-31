@@ -2,13 +2,13 @@ package com.soundcloud.android.framework.viewelements;
 
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.elements.AdapterElement;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-
-public class RecyclerViewElement extends DefaultViewElement {
+public class RecyclerViewElement extends AdapterElement {
 
     private final RecyclerView recyclerView;
 
@@ -21,7 +21,7 @@ public class RecyclerViewElement extends DefaultViewElement {
         recyclerView = (RecyclerView) view;
     }
 
-    public RecyclerViewElement scrollToBottom() {
+    public AdapterElement scrollToBottom() {
         getTestDriver().scrollToPosition(recyclerView, getItemCount() - 1);
         return this;
     }

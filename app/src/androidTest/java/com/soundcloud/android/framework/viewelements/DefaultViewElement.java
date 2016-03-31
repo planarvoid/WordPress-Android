@@ -330,12 +330,12 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
-    /* package */ View getView() {
+    protected View getView() {
         return view;
     }
 
     @Override
-    /* package */ Han getTestDriver() {
+    protected Han getTestDriver() {
         return testDriver;
     }
 
