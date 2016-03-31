@@ -81,7 +81,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     private Urn trackUrn = Urn.forTrack(123L);
     private PlaybackItem trackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
-    private VideoPlaybackItem videoItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)));
+    private VideoPlaybackItem videoItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)), 0L);
     private int duration = 20000;
 
     private Urn userUrn;

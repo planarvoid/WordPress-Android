@@ -14,8 +14,8 @@ import auto.parcel.AutoParcel;
 @AutoParcel
 public abstract class VideoPlaybackItem implements PlaybackItem, Parcelable {
 
-    public static VideoPlaybackItem create(VideoAd adData) {
-        return new AutoParcel_VideoPlaybackItem(adData.getAdUrn(), adData.getVideoSources(), 0, PlaybackType.VIDEO_DEFAULT, Consts.NOT_SET);
+    public static VideoPlaybackItem create(VideoAd adData, long startPosition) {
+        return new AutoParcel_VideoPlaybackItem(adData.getAdUrn(), adData.getVideoSources(), startPosition, PlaybackType.VIDEO_DEFAULT, Consts.NOT_SET);
     }
 
     @Override
