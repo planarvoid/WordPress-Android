@@ -20,8 +20,8 @@ public class PlayQueueEventTest {
     }
 
     @Test
-    public void shouldCreateEventForAudioAdRemoved() {
-        PlayQueueEvent event = PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET);
+    public void shouldCreateEventForAdsRemoved() {
+        PlayQueueEvent event = PlayQueueEvent.fromAdsRemoved(Urn.NOT_SET);
         assertThat(event.getKind()).isEqualTo(2);
     }
 
