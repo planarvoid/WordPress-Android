@@ -94,7 +94,7 @@ class AdPageListener extends PageListener {
 
     private void videoAdClickThrough(VideoAd videoAd) {
         startActivity(videoAd.getClickThroughUrl());
-        // TODO: Tracking events
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromVideoAdClickThrough(videoAd, playQueueManager.getCurrentTrackSourceInfo()));
     }
 
     public void onAboutAds(Context context) {

@@ -1034,7 +1034,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(audioAd.getVisualAd().getClickThroughUrl().toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
-        assertThat(uiEvent.getAudioAdClickthroughUrls()).contains("comp_click1", "comp_click2");
+        assertThat(uiEvent.getAdClickthroughUrls()).contains("comp_click1", "comp_click2");
     }
 
     @Test
@@ -1071,6 +1071,19 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
         assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
         assertThat(uiEvent.getVideoSizeChangeUrls()).contains("video_exit_full1", "video_exit_full2");
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
+    }
+
+    @Test
+    public void shouldCreateEventFromVideoAdClickThrough() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(321L));
+        UIEvent uiEvent = UIEvent.fromVideoAdClickThrough(videoAd, trackSourceInfo);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_CLICKTHROUGH);
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo("http://clickthrough.videoad.com");
+        assertThat(uiEvent.getAdClickthroughUrls()).contains("video_click1", "video_click2");
         assertThat(uiEvent.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
     }
 

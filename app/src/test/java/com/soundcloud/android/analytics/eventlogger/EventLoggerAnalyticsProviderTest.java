@@ -427,6 +427,19 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldVideoAdClickthroughEvent() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        UIEvent adEvent = UIEvent.fromVideoAdClickThrough(videoAd, trackSourceInfo);
+        when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("UIEvent");
+    }
+
+    @Test
     public void shouldTrackAdDeliveryEvents() {
         AdsReceived adsReceived = new AdsReceived(Urn.NOT_SET, Urn.NOT_SET, Urn.NOT_SET);
         AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Urn.forTrack(123), Urn.NOT_SET, "endpoint", adsReceived, false, false, false);

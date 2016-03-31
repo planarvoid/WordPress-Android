@@ -58,6 +58,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_NAVIGATION = "navigation";
     public static final String KIND_PLAYER_OPEN = "player_open";
     public static final String KIND_PLAYER_CLOSE = "player_close";
+    public static final String KIND_VIDEO_AD_CLICKTHROUGH = "video_ad_click_through";
     public static final String KIND_VIDEO_AD_FULLSCREEN= "video_ad_fullscreen";
     public static final String KIND_VIDEO_AD_SHRINK = "video_ad_shrink";
     public static final String KIND_AUDIO_AD_CLICK = "audio_ad_click";
@@ -170,25 +171,32 @@ public final class UIEvent extends TrackingEvent {
     }
 
     public static UIEvent fromVideoAdFullscreen(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
-        return fromVideoAdSizeChange(KIND_VIDEO_AD_FULLSCREEN, videoAd, trackSourceInfo, videoAd.getFullScreenUrls());
+        final UIEvent event = new UIEvent(KIND_VIDEO_AD_FULLSCREEN, System.currentTimeMillis());
+        return withBasicVideoAdAttributes(event, videoAd, trackSourceInfo)
+                .addPromotedTrackingUrls(SIZE_CHANGES, videoAd.getFullScreenUrls());
     }
 
     public static UIEvent fromVideoAdShrink(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
-        return fromVideoAdSizeChange(KIND_VIDEO_AD_SHRINK, videoAd, trackSourceInfo, videoAd.getExitFullScreenUrls());
-    }
-
-    private static UIEvent fromVideoAdSizeChange(String kind, VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo, List<String> trackingUrls) {
-        return new UIEvent(kind, System.currentTimeMillis())
-                .addPromotedTrackingUrls(SIZE_CHANGES, trackingUrls)
-                .put(AdTrackingKeys.KEY_AD_URN, videoAd.getAdUrn().toString())
-                .put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, videoAd.getMonetizableTrackUrn().toString())
-                .put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_VIDEO_AD)
-                .put(AdTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
+        final UIEvent event = new UIEvent(KIND_VIDEO_AD_SHRINK, System.currentTimeMillis());
+        return withBasicVideoAdAttributes(event, videoAd, trackSourceInfo)
+                .addPromotedTrackingUrls(SIZE_CHANGES, videoAd.getExitFullScreenUrls());
     }
 
     public static UIEvent fromSkipVideoAdClick(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
-        return new UIEvent(KIND_SKIP_VIDEO_AD_CLICK, System.currentTimeMillis())
-                .addPromotedTrackingUrls(SKIPS, videoAd.getSkipUrls())
+        final UIEvent event = new UIEvent(KIND_SKIP_VIDEO_AD_CLICK, System.currentTimeMillis());
+        return withBasicVideoAdAttributes(event, videoAd, trackSourceInfo)
+                .addPromotedTrackingUrls(SKIPS, videoAd.getSkipUrls());
+    }
+
+    public static UIEvent fromVideoAdClickThrough(VideoAd videoAd, TrackSourceInfo trackSourceInfo) {
+        final UIEvent event = new UIEvent(KIND_VIDEO_AD_CLICKTHROUGH, System.currentTimeMillis());
+        return withBasicVideoAdAttributes(event, videoAd, trackSourceInfo)
+                .addPromotedTrackingUrls(CLICKTHROUGHS, videoAd.getClickUrls())
+                .put(AdTrackingKeys.KEY_CLICK_THROUGH_URL, videoAd.getClickThroughUrl().toString());
+    }
+
+    private static UIEvent withBasicVideoAdAttributes(UIEvent adEvent, VideoAd videoAd, TrackSourceInfo trackSourceInfo) {
+        return adEvent
                 .put(AdTrackingKeys.KEY_AD_URN, videoAd.getAdUrn().toString())
                 .put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, videoAd.getMonetizableTrackUrn().toString())
                 .put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_VIDEO_AD)
@@ -322,7 +330,7 @@ public final class UIEvent extends TrackingEvent {
         }
     }
 
-    public List<String> getAudioAdClickthroughUrls() {
+    public List<String> getAdClickthroughUrls() {
         List<String> urls = promotedTrackingUrls.get(CLICKTHROUGHS);
         return urls == null ? Collections.<String>emptyList() : urls;
     }

@@ -21,6 +21,7 @@ public abstract class VideoAd extends PlayerAdData {
                 VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties()),
                 Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoSource),
                 Uri.parse(apiVideoAd.getClickThroughUrl()),
+                videoTracking.clickUrls,
                 videoTracking.startUrls,
                 videoTracking.firstQuartileUrls,
                 videoTracking.secondQuartileUrls,
@@ -41,6 +42,8 @@ public abstract class VideoAd extends PlayerAdData {
     public abstract List<VideoSource> getVideoSources();
 
     public abstract Uri getClickThroughUrl();
+
+    public abstract List<String> getClickUrls();
 
     public abstract List<String> getStartUrls();
 

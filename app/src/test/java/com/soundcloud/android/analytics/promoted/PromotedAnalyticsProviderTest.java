@@ -129,6 +129,22 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void tracksVideoAdClickthrough() throws Exception {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        UIEvent event = UIEvent.fromVideoAdClickThrough(videoAd, trackSourceInfo);
+
+        analyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        List<TrackingRecord> events = captor.getAllValues();
+        assertThat(events.size()).isEqualTo(2);
+        assertPromotedTrackingRecord(events.get(0), "video_click1", event.getTimestamp());
+        assertPromotedTrackingRecord(events.get(1), "video_click2", event.getTimestamp());
+    }
+
+    @Test
     public void doesNotTrackNavigationEvents() throws Exception {
         analyticsProvider.handleTrackingEvent(UIEvent.fromExploreNav());
         analyticsProvider.handleTrackingEvent(UIEvent.fromLikesNav());
