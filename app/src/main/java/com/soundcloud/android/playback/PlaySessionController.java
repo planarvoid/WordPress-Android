@@ -56,7 +56,6 @@ public class PlaySessionController {
     private final AccountOperations accountOperations;
     private final PlaybackServiceInitiator playbackServiceInitiator;
 
-    private Subscription currentTrackSubscription = RxUtils.invalidSubscription();
     private Subscription subscription = RxUtils.invalidSubscription();
 
     private final Action0 stopLoadingPreviousTrack = new Action0() {
@@ -229,14 +228,17 @@ public class PlaySessionController {
     }
 
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+
+        private Urn lastKnownPlayQueueTrackUrn = Urn.NOT_SET;
+
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            currentTrackSubscription.unsubscribe();
+            subscription.unsubscribe();
 
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
             if (playQueueItem.isTrack()) {
                 if (castConnectionHelper.isCasting()) {
-                    if (playSessionStateProvider.isPlaying() && !playQueueManager.isCurrentTrack(playQueueItem.getUrn())) {
+                    if (playSessionStateProvider.isPlaying() && !lastKnownPlayQueueTrackUrn.equals(playQueueItem.getUrn())) {
                         playCurrent();
                     }
                 } else if (playSessionStateProvider.isPlaying()) {
@@ -248,6 +250,7 @@ public class PlaySessionController {
                     playCurrent();
                 }
             }
+            lastKnownPlayQueueTrackUrn = playQueueItem.getUrnOrNotSet();
         }
     }
 
