@@ -278,7 +278,7 @@
     <item quantity="other">%d titres</item>
   </plurals>
   <!--__PLAYLIST IN NEW STREAM-->
-  <plurals name="number_of_tracks">
+  <plurals name="number_of_tracks" tools:ignore="ImpliedQuantity">
     <item quantity="one">TITRE</item>
     <item quantity="other">TITRES</item>
   </plurals>
@@ -721,7 +721,7 @@
   <string name="email_notifications_newsletter">Bulletin d\'infos de SoundCloud</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts">
-    <item quantity="one">1 nouvelle publication</item>
+    <item quantity="one">%d nouvelle publication</item>
     <item quantity="other">%s nouvelles publications</item>
   </plurals>
   <!--__ACTIVITIES-->
