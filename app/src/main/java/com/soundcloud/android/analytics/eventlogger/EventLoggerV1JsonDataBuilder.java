@@ -131,6 +131,11 @@ public class EventLoggerV1JsonDataBuilder {
                 .monetizationType(eventData.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
 
+    public EventLoggerEventData buildAdClickThroughEvent(String clickName, UIEvent event) {
+        return buildClickEvent(clickName, event)
+                .clickTarget(event.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL));
+    }
+
     public String buildForFacebookInvites(FacebookInvitesEvent event) {
         switch (event.getKind()) {
             case FacebookInvitesEvent.KIND_CLICK:
@@ -197,6 +202,8 @@ public class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent("ad::full_screen", event));
             case UIEvent.KIND_VIDEO_AD_SHRINK:
                 return transform(buildClickEvent("ad::exit_full_screen", event));
+            case UIEvent.KIND_VIDEO_AD_CLICKTHROUGH:
+                return transform(buildAdClickThroughEvent("clickthrough::video_ad", event));
             case UIEvent.KIND_SKIP_VIDEO_AD_CLICK:
                 return transform(buildClickEvent("ad::skip", event));
             default:
