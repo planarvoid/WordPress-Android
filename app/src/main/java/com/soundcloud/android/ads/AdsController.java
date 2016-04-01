@@ -13,7 +13,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.rx.RxUtils;
@@ -96,9 +96,9 @@ public class AdsController {
         }
     };
 
-    private final Func1<Player.StateTransition, Boolean> isBufferingAd = new Func1<Player.StateTransition, Boolean>() {
+    private final Func1<PlaybackStateTransition, Boolean> isBufferingAd = new Func1<PlaybackStateTransition, Boolean>() {
         @Override
-        public Boolean call(Player.StateTransition state) {
+        public Boolean call(PlaybackStateTransition state) {
             return state.isBuffering() && adsOperations.isCurrentItemAd();
         }
     };
@@ -110,9 +110,9 @@ public class AdsController {
         }
     };
 
-    private final Action1<Player.StateTransition> unsubscribeFailedAdSkip = new Action1<Player.StateTransition>() {
+    private final Action1<PlaybackStateTransition> unsubscribeFailedAdSkip = new Action1<PlaybackStateTransition>() {
         @Override
-        public void call(Player.StateTransition stateTransition) {
+        public void call(PlaybackStateTransition stateTransition) {
             if (stateTransition.isPlayerPlaying() || stateTransition.isPaused()) {
                 skipFailedAdSubscription.unsubscribe();
             } else if (stateTransition.wasError() && adsOperations.isCurrentItemAd()) {
@@ -231,7 +231,7 @@ public class AdsController {
         return Urn.NOT_SET;
     }
 
-    public void onPlayStateTransition(Player.StateTransition stateTransition) {
+    public void onPlayStateTransition(PlaybackStateTransition stateTransition) {
         if (adsOperations.isCurrentItemAudioAd() && stateTransition.playbackEnded()) {
             final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
             if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
@@ -337,9 +337,9 @@ public class AdsController {
         }
     }
 
-    private final class SkipFailedAdSubscriber extends DefaultSubscriber<Player.StateTransition> {
+    private final class SkipFailedAdSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
         @Override
-        public void onNext(final Player.StateTransition state) {
+        public void onNext(final PlaybackStateTransition state) {
             skipFailedAdSubscription.unsubscribe();
             skipFailedAdSubscription = Observable.timer(FAILED_AD_WAIT_SECS, TimeUnit.SECONDS, scheduler)
                     .subscribe(new DefaultSubscriber<Long>() {

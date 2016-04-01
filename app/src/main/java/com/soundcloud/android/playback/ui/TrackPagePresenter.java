@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.Player.StateTransition;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.R;
@@ -16,6 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
@@ -283,7 +283,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     @Override
-    public void setPlayState(View trackPage, StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
+    public void setPlayState(View trackPage, PlaybackStateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
         final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
@@ -301,7 +301,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         configureAdOverlay(stateTransition, isCurrentTrack, isForeground, holder);
     }
 
-    private void configureAdOverlay(StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
+    private void configureAdOverlay(PlaybackStateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
         if (isCurrentTrack) {
             if (stateTransition.isPlayerPlaying() && isForeground) {
                 holder.adOverlayController.show(true);
@@ -378,7 +378,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
+    private void setWaveformPlayState(TrackPageHolder holder, PlaybackStateTransition state, boolean isCurrentTrack) {
         if (isCurrentTrack && state.playSessionIsActive()) {
             if (state.isPlayerPlaying()) {
                 holder.waveformController.showPlayingState(state.getProgress());
@@ -390,7 +390,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private void setViewPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
+    private void setViewPlayState(TrackPageHolder holder, PlaybackStateTransition state, boolean isCurrentTrack) {
         updateErrorState(holder, state, isCurrentTrack);
         holder.artworkController.setPlayState(state, isCurrentTrack);
 
@@ -401,7 +401,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setTextBackgrounds(holder, state.playSessionIsActive());
     }
 
-    private void updateErrorState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
+    private void updateErrorState(TrackPageHolder holder, PlaybackStateTransition state, boolean isCurrentTrack) {
         if (isCurrentTrack && state.wasError()) {
             holder.errorViewController.showError(getErrorStateFromPlayerState(state));
         } else {
@@ -409,7 +409,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private ErrorViewController.ErrorState getErrorStateFromPlayerState(StateTransition state) {
+    private ErrorViewController.ErrorState getErrorStateFromPlayerState(PlaybackStateTransition state) {
         switch (state.getReason()) {
             case ERROR_NOT_FOUND:
             case ERROR_FORBIDDEN:

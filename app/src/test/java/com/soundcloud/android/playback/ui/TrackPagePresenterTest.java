@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.Player.Reason;
+import com.soundcloud.android.playback.PlayStateReason;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +25,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
@@ -219,7 +219,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void playingStateWithCurrentTrackSetsPlayStateOnArtwork() {
-        final Player.StateTransition state = TestPlayStates.playing(10, 20, dateProvider);
+        final PlaybackStateTransition state = TestPlayStates.playing(10, 20, dateProvider);
         presenter.setPlayState(trackView, state, true, true);
 
         verify(artworkController).setPlayState(state, true);
@@ -580,14 +580,14 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void onPlaybackErrorDismissOnLeaveBehindController() {
-        presenter.setPlayState(trackView, TestPlayStates.error(Reason.ERROR_FAILED), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.error(PlayStateReason.ERROR_FAILED), true, true);
 
         verify(adOverlayController).clear();
     }
 
     @Test
     public void onPlaybackErrorShowErrorState() {
-        presenter.setPlayState(trackView, TestPlayStates.error(Reason.ERROR_FAILED), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.error(PlayStateReason.ERROR_FAILED), true, true);
 
         verify(errorViewController).showError(ErrorViewController.ErrorState.FAILED);
     }

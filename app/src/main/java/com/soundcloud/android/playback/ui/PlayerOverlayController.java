@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 
 import android.view.View;
@@ -24,7 +24,7 @@ class PlayerOverlayController implements ScrubController.OnScrubListener {
         this.overlayAnimator = overlayAnimator;
     }
 
-    public void setPlayState(Player.StateTransition stateTransition) {
+    public void setPlayState(PlaybackStateTransition stateTransition) {
         playSessionIsActive = stateTransition.playSessionIsActive();
         configureOverlay();
     }

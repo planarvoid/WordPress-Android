@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ViewUtils;
@@ -199,7 +199,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     }
 
     @Override
-    public void setPlayState(View adPage, Player.StateTransition stateTransition, boolean isCurrentItem, boolean isForeground) {
+    public void setPlayState(View adPage, PlaybackStateTransition stateTransition, boolean isCurrentItem, boolean isForeground) {
         final Holder holder = getViewHolder(adPage);
         holder.playControlsHolder.setVisibility(stateTransition.playSessionIsActive() ? View.GONE : View.VISIBLE);
         holder.playerOverlayController.setPlayState(stateTransition);
@@ -216,7 +216,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         }
     }
 
-    private void setLoadingState(Holder holder, Player.StateTransition stateTransition, boolean isCurrentItem) {
+    private void setLoadingState(Holder holder, PlaybackStateTransition stateTransition, boolean isCurrentItem) {
         if (isCurrentItem) {
             holder.videoProgress.setVisibility(stateTransition.isBuffering() && stateTransition.playSessionIsActive() ? View.VISIBLE : View.GONE);
             if (stateTransition.isPlayerPlaying() && !isVideoSurfaceVisible(holder)) {

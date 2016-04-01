@@ -1,13 +1,12 @@
 package com.soundcloud.android.peripherals;
 
-import static com.soundcloud.android.playback.Player.StateTransition;
-
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playback.Durations;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -83,9 +82,9 @@ public class PeripheralsController {
         }
     }
 
-    private class PlayStateChangedSubscriber extends DefaultSubscriber<StateTransition> {
+    private class PlayStateChangedSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
         @Override
-        public void onNext(StateTransition state) {
+        public void onNext(PlaybackStateTransition state) {
             notifyPlayStateChanged(state.playSessionIsActive());
         }
     }

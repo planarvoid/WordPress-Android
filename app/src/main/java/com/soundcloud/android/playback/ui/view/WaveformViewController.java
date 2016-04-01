@@ -1,13 +1,13 @@
 package com.soundcloud.android.playback.ui.view;
 
-import static com.soundcloud.android.playback.Player.PlayerState.BUFFERING;
-import static com.soundcloud.android.playback.Player.PlayerState.IDLE;
-import static com.soundcloud.android.playback.Player.PlayerState.PLAYING;
+import static com.soundcloud.android.playback.PlaybackState.BUFFERING;
+import static com.soundcloud.android.playback.PlaybackState.IDLE;
+import static com.soundcloud.android.playback.PlaybackState.PLAYING;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
@@ -62,7 +62,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private boolean isWaveformLoaded;
 
     private PlaybackProgress latestProgress = PlaybackProgress.empty();
-    private Player.PlayerState currentState = IDLE;
+    private PlaybackState currentState = IDLE;
     private long fullDuration;
     private long playDuration;
 

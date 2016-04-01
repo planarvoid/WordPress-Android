@@ -9,6 +9,8 @@ import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoPlaybackItem;
@@ -37,7 +39,8 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-import static com.soundcloud.android.playback.PlaybackType.*;
+import static com.soundcloud.android.playback.PlaybackState.*;
+import static com.soundcloud.android.playback.PlaybackType.VIDEO_DEFAULT;
 
 @Singleton
 public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -372,11 +375,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
 
         if (playerListener != null && currentItem != null) {
-            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), currentItem.getUrn(), progress, duration, dateProvider);
-            stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
-            stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
-            stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
-            stateTransition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, networkConnectionHelper.getCurrentConnectionType().getValue());
+            final PlaybackStateTransition stateTransition = new PlaybackStateTransition(getTranslatedState(), getTranslatedReason(), currentItem.getUrn(), progress, duration, dateProvider);
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, networkConnectionHelper.getCurrentConnectionType().getValue());
             playerListener.onPlaystateChanged(stateTransition);
             bufferUnderrunListener.onPlaystateChanged(stateTransition,
                     getPlaybackProtocol(),
@@ -502,32 +505,32 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
     }
 
-    private PlayerState getTranslatedState() {
+    private com.soundcloud.android.playback.PlaybackState getTranslatedState() {
         switch (internalState) {
             case PREPARING:
             case PAUSED_FOR_BUFFERING:
-                return PlayerState.BUFFERING;
+                return BUFFERING;
             case PLAYING:
-                return PlayerState.PLAYING;
+                return PLAYING;
             case ERROR:
             case COMPLETED:
             case PAUSED:
             case STOPPED:
             case ERROR_RETRYING:
-                return PlayerState.IDLE;
+                return IDLE;
             default:
                 throw new IllegalArgumentException("No translated state for " + internalState);
         }
     }
 
-    private Reason getTranslatedReason() {
+    private PlayStateReason getTranslatedReason() {
         switch (internalState) {
             case ERROR:
-                return networkConnectionHelper.isNetworkConnected() ? Reason.ERROR_NOT_FOUND : Reason.ERROR_FAILED;
+                return networkConnectionHelper.isNetworkConnected() ? PlayStateReason.ERROR_NOT_FOUND : PlayStateReason.ERROR_FAILED;
             case COMPLETED:
-                return Reason.PLAYBACK_COMPLETE;
+                return PlayStateReason.PLAYBACK_COMPLETE;
             default:
-                return Reason.NONE;
+                return PlayStateReason.NONE;
         }
     }
 

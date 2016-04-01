@@ -16,10 +16,9 @@ import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.Player.PlayerState;
-import com.soundcloud.android.playback.Player.Reason;
-import com.soundcloud.android.playback.Player.StateTransition;
+import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ProgressReporter;
@@ -68,7 +67,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
 
     @Override
     public void onDisconnected() {
-        reportStateChange(getStateTransition(PlayerState.IDLE, Reason.NONE)); // possibly show disconnect error here instead?
+        reportStateChange(getStateTransition(PlaybackState.IDLE, PlayStateReason.NONE)); // possibly show disconnect error here instead?
     }
 
     @Override
@@ -79,23 +78,23 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     void onMediaPlayerStatusUpdatedListener(int playerState, int idleReason) {
         switch (playerState) {
             case MediaStatus.PLAYER_STATE_PLAYING:
-                reportStateChange(getStateTransition(PlayerState.PLAYING, Reason.NONE));
+                reportStateChange(getStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE));
                 break;
 
             case MediaStatus.PLAYER_STATE_PAUSED:
                 // we have to suppress pause events while we should be playing.
                 // The receiver sends thes back often, as in when the track first loads, even if autoplay is true
-                reportStateChange(getStateTransition(PlayerState.IDLE, Reason.NONE));
+                reportStateChange(getStateTransition(PlaybackState.IDLE, PlayStateReason.NONE));
                 break;
 
             case MediaStatus.PLAYER_STATE_BUFFERING:
-                reportStateChange(getStateTransition(PlayerState.BUFFERING, Reason.NONE));
+                reportStateChange(getStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE));
                 break;
 
             case MediaStatus.PLAYER_STATE_IDLE:
-                final Reason translatedIdleReason = getTranslatedIdleReason(idleReason);
+                final PlayStateReason translatedIdleReason = getTranslatedIdleReason(idleReason);
                 if (translatedIdleReason != null) {
-                    reportStateChange(getStateTransition(PlayerState.IDLE, translatedIdleReason));
+                    reportStateChange(getStateTransition(PlaybackState.IDLE, translatedIdleReason));
                 }
                 break;
 
@@ -107,7 +106,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         }
     }
 
-    private void reportStateChange(StateTransition stateTransition) {
+    private void reportStateChange(PlaybackStateTransition stateTransition) {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
         final boolean playerPlaying = stateTransition.isPlayerPlaying();
         if (playerPlaying) {
@@ -127,19 +126,19 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         }
     }
 
-    private StateTransition getStateTransition(PlayerState state, Reason reason) {
-        return new StateTransition(state, reason, castOperations.getRemoteCurrentTrackUrn(), getProgress(), getDuration());
+    private PlaybackStateTransition getStateTransition(PlaybackState state, PlayStateReason reason) {
+        return new PlaybackStateTransition(state, reason, castOperations.getRemoteCurrentTrackUrn(), getProgress(), getDuration());
     }
 
     @Nullable
-    private Reason getTranslatedIdleReason(int idleReason) {
+    private PlayStateReason getTranslatedIdleReason(int idleReason) {
         switch (idleReason) {
             case MediaStatus.IDLE_REASON_ERROR:
-                return Reason.ERROR_FAILED;
+                return PlayStateReason.ERROR_FAILED;
             case MediaStatus.IDLE_REASON_FINISHED:
-                return Reason.PLAYBACK_COMPLETE;
+                return PlayStateReason.PLAYBACK_COMPLETE;
             case MediaStatus.IDLE_REASON_CANCELED:
-                return Reason.NONE;
+                return PlayStateReason.NONE;
             default:
                 // do not fail fast, we want to ignore non-handled codes
                 return null;
@@ -175,7 +174,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                 if (localPlayQueue.isEmpty() || isInitialTrackDifferent(localPlayQueue)) {
                     return Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_CAST));
                 } else {
-                    reportStateChange(new StateTransition(PlayerState.BUFFERING, Reason.NONE, localPlayQueue.currentTrackUrn));
+                    reportStateChange(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, localPlayQueue.currentTrackUrn));
                     setNewPlayQueue(localPlayQueue, playSessionSource);
                     return Observable.just(PlaybackResult.success());
                 }
@@ -198,7 +197,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         if (isCurrentlyLoadedOnRemotePlayer(currentTrackUrn)) {
             reconnectToExistingSession();
         } else {
-            reportStateChange(new StateTransition(PlayerState.BUFFERING, Reason.NONE, currentTrackUrn));
+            reportStateChange(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, currentTrackUrn));
             playCurrentSubscription.unsubscribe();
             playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns())
                     .subscribe(new PlayCurrentLocalQueueOnRemote(currentTrackUrn, position));
@@ -221,7 +220,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
 
         @Override
         public void onError(Throwable e) {
-            reportStateChange(new Player.StateTransition(PlayerState.IDLE, Player.Reason.ERROR_FAILED, currentTrackUrn));
+            reportStateChange(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, currentTrackUrn));
         }
     }
 
@@ -244,7 +243,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         return new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                reportStateChange(new StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, initialTrackUrnCandidate));
+                reportStateChange(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, initialTrackUrnCandidate));
             }
         };
     }

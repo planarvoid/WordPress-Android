@@ -58,16 +58,16 @@ public class BufferUnderrunDetectorTest {
         assertThat(detector.onStateTransitionEvent(idleEvent(Urn.forTrack(123L)))).isFalse();
     }
 
-    private Player.StateTransition bufferingEvent(Urn track, int position) {
+    private PlaybackStateTransition bufferingEvent(Urn track, int position) {
         final int duration = position * 2;
-        return new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, track, position, duration);
+        return new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, position, duration);
     }
 
-    private Player.StateTransition playEvent(Urn track) {
-        return new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, track);
+    private PlaybackStateTransition playEvent(Urn track) {
+        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track);
     }
 
-    private Player.StateTransition idleEvent(Urn track) {
-        return new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, track);
+    private PlaybackStateTransition idleEvent(Urn track) {
+        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, track);
     }
 }

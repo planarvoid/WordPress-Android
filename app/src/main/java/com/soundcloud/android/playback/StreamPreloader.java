@@ -61,9 +61,9 @@ public class StreamPreloader {
         }
     };
 
-    private final Func3<Player.StateTransition, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState> toPlaybackNetworkState = new Func3<Player.StateTransition, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState>() {
+    private final Func3<PlaybackStateTransition, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState> toPlaybackNetworkState = new Func3<PlaybackStateTransition, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState>() {
         @Override
-        public PlaybackNetworkState call(Player.StateTransition stateTransition, ConnectionType connectionType, PlaybackProgressEvent playbackProgressEvent) {
+        public PlaybackNetworkState call(PlaybackStateTransition stateTransition, ConnectionType connectionType, PlaybackProgressEvent playbackProgressEvent) {
             return new PlaybackNetworkState(stateTransition, playbackProgressEvent.getPlaybackProgress(), connectionType);
         }
     };
@@ -165,10 +165,10 @@ public class StreamPreloader {
 
     private static class PlaybackNetworkState {
         private final PlaybackProgress playbackProgress;
-        private final Player.StateTransition playerState;
+        private final PlaybackStateTransition playerState;
         private final ConnectionType connectionType;
 
-        private PlaybackNetworkState(Player.StateTransition playerState, PlaybackProgress playbackProgress, ConnectionType connectionType) {
+        private PlaybackNetworkState(PlaybackStateTransition playerState, PlaybackProgress playbackProgress, ConnectionType connectionType) {
             this.playbackProgress = playbackProgress;
             this.playerState = playerState;
             this.connectionType = connectionType;

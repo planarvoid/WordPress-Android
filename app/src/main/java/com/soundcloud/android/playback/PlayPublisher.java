@@ -39,17 +39,17 @@ public class PlayPublisher {
     private final Scheduler scheduler;
     private final ApiClient apiClient;
 
-    private static final Func1<Player.StateTransition, Boolean> IS_PLAYER_PLAYING_A_TRACK =
-            new Func1<Player.StateTransition, Boolean>() {
+    private static final Func1<PlaybackStateTransition, Boolean> IS_PLAYER_PLAYING_A_TRACK =
+            new Func1<PlaybackStateTransition, Boolean>() {
                 @Override
-                public Boolean call(Player.StateTransition stateTransition) {
+                public Boolean call(PlaybackStateTransition stateTransition) {
                     return !stateTransition.getUrn().isAd() && stateTransition.isPlayerPlaying();
                 }
             };
 
-    private Func1<Player.StateTransition, Observable<ApiResponse>> toApiResponse = new Func1<Player.StateTransition, Observable<ApiResponse>>() {
+    private Func1<PlaybackStateTransition, Observable<ApiResponse>> toApiResponse = new Func1<PlaybackStateTransition, Observable<ApiResponse>>() {
         @Override
-        public Observable<ApiResponse> call(final Player.StateTransition stateTransition) {
+        public Observable<ApiResponse> call(final PlaybackStateTransition stateTransition) {
             return Observable
                     .defer(new Func0<Observable<ApiResponse>>() {
                         @Override
@@ -86,7 +86,7 @@ public class PlayPublisher {
     }
 
     @NonNull
-    private Payload createPayload(Player.StateTransition stateTransition) {
+    private Payload createPayload(PlaybackStateTransition stateTransition) {
         return new Payload(resources.getString(R.string.gcm_gateway_id),
                 gcmStorage.getToken(),
                 dateProvider.getCurrentTime(),

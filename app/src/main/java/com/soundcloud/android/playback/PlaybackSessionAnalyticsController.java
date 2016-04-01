@@ -40,7 +40,7 @@ class PlaybackSessionAnalyticsController {
     private AdData lastPlayAd;
 
     private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
-    private Player.StateTransition lastStateTransition = Player.StateTransition.DEFAULT;
+    private PlaybackStateTransition lastStateTransition = PlaybackStateTransition.DEFAULT;
     private ReplaySubject<PropertySet> trackObservable;
 
     @Inject
@@ -80,7 +80,7 @@ class PlaybackSessionAnalyticsController {
         eventBus.publish(EventQueue.TRACKING, adPlaybackSessionEvent);
     }
 
-    public void onStateTransition(Player.StateTransition stateTransition) {
+    public void onStateTransition(PlaybackStateTransition stateTransition) {
         final Urn currentItem = stateTransition.getUrn();
         if (!currentItem.equals(lastStateTransition.getUrn())) {
             if (lastStateTransition.isPlayerPlaying()) {
@@ -103,7 +103,7 @@ class PlaybackSessionAnalyticsController {
         lastStateTransition = stateTransition;
     }
 
-    private void publishPlayEvent(final Player.StateTransition stateTransition) {
+    private void publishPlayEvent(final PlaybackStateTransition stateTransition) {
         currentTrackSourceInfo = Optional.fromNullable(playQueueManager.getCurrentTrackSourceInfo());
         if (currentTrackSourceInfo.isPresent() && lastEventWasNotPlayEvent()) {
             if (adsOperations.isCurrentItemVideoAd()) {
@@ -121,7 +121,7 @@ class PlaybackSessionAnalyticsController {
         return (lastSessionEventData == null || !lastSessionEventData.isPlayEvent()) && lastPlayAd == null;
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionPlayEvent(final Player.StateTransition stateTransition) {
+    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionPlayEvent(final PlaybackStateTransition stateTransition) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
@@ -165,7 +165,7 @@ class PlaybackSessionAnalyticsController {
         };
     }
 
-    private void publishStopEvent(final Player.StateTransition stateTransition, final int stopReason) {
+    private void publishStopEvent(final PlaybackStateTransition stateTransition, final int stopReason) {
         // note that we only want to publish a stop event if we have a corresponding play event. This value
         // will be nulled out after it is used, and we will not publish another stop event until a play event
         // creates a new value for lastSessionEventData
@@ -182,7 +182,7 @@ class PlaybackSessionAnalyticsController {
         }
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionStopEvent(final int stopReason, final Player.StateTransition stateTransition, final PlaybackSessionEvent lastPlayEventData) {
+    private Func1<PropertySet, PlaybackSessionEvent> stateTransitionToSessionStopEvent(final int stopReason, final PlaybackStateTransition stateTransition, final PlaybackSessionEvent lastPlayEventData) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
@@ -202,19 +202,19 @@ class PlaybackSessionAnalyticsController {
         };
     }
 
-    private String getPlayerType(Player.StateTransition stateTransition) {
-        return stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_PLAYER_TYPE);
+    private String getPlayerType(PlaybackStateTransition stateTransition) {
+        return stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE);
     }
 
-    private String getConnectionType(Player.StateTransition stateTransition) {
-        return stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_CONNECTION_TYPE);
+    private String getConnectionType(PlaybackStateTransition stateTransition) {
+        return stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE);
     }
 
-    private String getProtocol(Player.StateTransition stateTransition) {
-        return stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL);
+    private String getProtocol(PlaybackStateTransition stateTransition) {
+        return stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL);
     }
 
-    private boolean isLocalStoragePlayback(Player.StateTransition stateTransition) {
-        return URLUtil.isFileUrl(stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_URI));
+    private boolean isLocalStoragePlayback(PlaybackStateTransition stateTransition) {
+        return URLUtil.isFileUrl(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_URI));
     }
 }

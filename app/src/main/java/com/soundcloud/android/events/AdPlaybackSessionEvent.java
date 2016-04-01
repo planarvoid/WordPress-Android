@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.Player.StateTransition;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
     public final TrackSourceInfo trackSourceInfo;
 
     private int stopReason;
-    private StateTransition stateTransition;
+    private PlaybackStateTransition stateTransition;
     private List<String> trackingUrls = Collections.emptyList();
 
     public static AdPlaybackSessionEvent forFirstQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
@@ -49,13 +49,13 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
                 .put(AdTrackingKeys.KEY_QUARTILE_TYPE, THIRD_QUARTILE_TYPE);
     }
 
-    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo, StateTransition stateTransition) {
+    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo, PlaybackStateTransition stateTransition) {
         return new AdPlaybackSessionEvent(EVENT_KIND_PLAY, adData, trackSourceInfo)
                 .setStateTransition(stateTransition)
                 .setPlaybackTrackingUrls(adData);
     }
 
-    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, TrackSourceInfo trackSourceInfo, StateTransition stateTransition, int stopReason) {
+    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, TrackSourceInfo trackSourceInfo, PlaybackStateTransition stateTransition, int stopReason) {
         return new AdPlaybackSessionEvent(EVENT_KIND_STOP, adData, trackSourceInfo)
                 .setStateTransition(stateTransition)
                 .setStopReason(stopReason)
@@ -101,7 +101,7 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
         return this;
     }
 
-    public AdPlaybackSessionEvent setStateTransition(StateTransition stateTransition) {
+    public AdPlaybackSessionEvent setStateTransition(PlaybackStateTransition stateTransition) {
         this.stateTransition = stateTransition;
         return this;
     }

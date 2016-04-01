@@ -1,9 +1,9 @@
 package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.Player.PlayerState;
-import com.soundcloud.android.playback.Player.Reason;
-import com.soundcloud.android.playback.Player.StateTransition;
+import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 
@@ -11,47 +11,47 @@ public class TestPlayStates {
 
     private static final Urn URN = Urn.forTrack(123L);
 
-    public static StateTransition playing() {
-        return new StateTransition(PlayerState.PLAYING, Reason.NONE, URN);
+    public static PlaybackStateTransition playing() {
+        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, URN);
     }
 
-    public static StateTransition playing(long position, long duration) {
-        return new StateTransition(PlayerState.PLAYING, Reason.NONE, URN, position, duration);
+    public static PlaybackStateTransition playing(long position, long duration) {
+        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, URN, position, duration);
     }
 
-    public static StateTransition playing(long position, long duration, CurrentDateProvider dateProvider) {
-        return new StateTransition(PlayerState.PLAYING, Reason.NONE, URN, position, duration, dateProvider);
+    public static PlaybackStateTransition playing(long position, long duration, CurrentDateProvider dateProvider) {
+        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, URN, position, duration, dateProvider);
     }
 
-    public static StateTransition idle() {
-        return new StateTransition(PlayerState.IDLE, Reason.NONE, URN);
+    public static PlaybackStateTransition idle() {
+        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, URN);
     }
 
-    public static StateTransition idle(long position, long duration) {
-        return new StateTransition(PlayerState.IDLE, Reason.NONE, URN, position, duration);
+    public static PlaybackStateTransition idle(long position, long duration) {
+        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, URN, position, duration);
     }
 
-    public static StateTransition idleDefault() {
-        return new StateTransition(PlayerState.IDLE, Reason.NONE, Urn.NOT_SET);
+    public static PlaybackStateTransition idleDefault() {
+        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.NOT_SET);
     }
 
-    public static StateTransition complete() {
-        return new StateTransition(PlayerState.IDLE, Reason.PLAYBACK_COMPLETE, URN);
+    public static PlaybackStateTransition complete() {
+        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, URN);
     }
 
-    public static StateTransition buffering() {
-        return new StateTransition(PlayerState.BUFFERING, Reason.NONE, URN);
+    public static PlaybackStateTransition buffering() {
+        return new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN);
     }
 
-    public static StateTransition buffering(TestDateProvider dateProvider) {
-        return new StateTransition(PlayerState.BUFFERING, Reason.NONE, URN, 0, 0, dateProvider);
+    public static PlaybackStateTransition buffering(TestDateProvider dateProvider) {
+        return new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN, 0, 0, dateProvider);
     }
 
-    public static StateTransition buffering(long position, long duration) {
-        return new StateTransition(PlayerState.BUFFERING, Reason.NONE, URN, position, duration);
+    public static PlaybackStateTransition buffering(long position, long duration) {
+        return new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN, position, duration);
     }
 
-    public static StateTransition error(Reason reason) {
-        return new StateTransition(PlayerState.IDLE, reason, URN);
+    public static PlaybackStateTransition error(PlayStateReason reason) {
+        return new PlaybackStateTransition(PlaybackState.IDLE, reason, URN);
     }
 }
