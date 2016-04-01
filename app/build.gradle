@@ -25,7 +25,7 @@ ext {
   gitBranch               = System.env.containsKey('GIT_BRANCH') ? System.env.GIT_BRANCH.replace('origin/','') : '' // '' signals local build
 
   rootPackage               = "com.soundcloud.android"
-  applicationId             = buildType == 'releaseNoProguard' ? rootPackage : "${rootPackage}.${buildType}"
+  applicationId             = provideApplicationId()
   testApplicationId         = "${applicationId}.tests"
   testInstrumentationRunner = "${rootPackage}.framework.runner.RandomizingRunner"
 
@@ -35,6 +35,11 @@ ext {
   networkManagerApkPath = "$outputsDir/androidnetworkmanager-${rootProject.('networkManager')}.apk"
 
   buildSrcDir = 'buildsystem'
+}
+
+private def provideApplicationId() {
+  boolean isReleaseBuild = (buildType == 'releaseNoProguard' || buildType == 'beta' || buildType == 'release')
+  return isReleaseBuild ? rootPackage : "${rootPackage}.${buildType}"
 }
 
 buildscript {
