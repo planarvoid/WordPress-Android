@@ -29,8 +29,10 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -70,7 +72,7 @@ public class CastPlayerTest extends AndroidUnitTest {
     @Mock private PendingResult<RemoteMediaPlayer.MediaChannelResult> pendingResultCallback;
     @Mock private PlayQueueManager playQueueManager;
 
-    @Captor private ArgumentCaptor<Player.StateTransition> transitionArgumentCaptor;
+    @Captor private ArgumentCaptor<PlaybackStateTransition> transitionArgumentCaptor;
     @Captor private ArgumentCaptor<ProgressReporter.ProgressPuller> progressPusherArgumentCaptor;
 
     @Before
@@ -97,9 +99,9 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PLAYING, MediaStatus.IDLE_REASON_NONE);
 
-        final Player.StateTransition stateTransition = captureLastStateTransition();
-        assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.PLAYING);
-        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.NONE);
+        final PlaybackStateTransition stateTransition = captureLastStateTransition();
+        assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.PLAYING);
+        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.NONE);
     }
 
     @Test
@@ -117,9 +119,9 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PAUSED, MediaStatus.IDLE_REASON_NONE);
 
-        final Player.StateTransition stateTransition = captureLastStateTransition();
-        assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.IDLE);
-        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.NONE);
+        final PlaybackStateTransition stateTransition = captureLastStateTransition();
+        assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.IDLE);
+        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.NONE);
     }
 
     @Test
@@ -137,9 +139,9 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_BUFFERING, MediaStatus.IDLE_REASON_NONE);
 
-        final Player.StateTransition stateTransition = captureLastStateTransition();
-        assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.BUFFERING);
-        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.NONE);
+        final PlaybackStateTransition stateTransition = captureLastStateTransition();
+        assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.BUFFERING);
+        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.NONE);
     }
 
     @Test
@@ -157,9 +159,9 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_ERROR);
 
-        final Player.StateTransition stateTransition = captureLastStateTransition();
-        assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.IDLE);
-        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.ERROR_FAILED);
+        final PlaybackStateTransition stateTransition = captureLastStateTransition();
+        assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.IDLE);
+        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.ERROR_FAILED);
     }
 
     @Test
@@ -177,9 +179,9 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_FINISHED);
 
-        final Player.StateTransition stateTransition = captureLastStateTransition();
-        assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.IDLE);
-        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.PLAYBACK_COMPLETE);
+        final PlaybackStateTransition stateTransition = captureLastStateTransition();
+        assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.IDLE);
+        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.PLAYBACK_COMPLETE);
     }
 
     @Test
@@ -197,9 +199,9 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_CANCELED);
 
-        final Player.StateTransition stateTransition = captureLastStateTransition();
-        assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.IDLE);
-        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.NONE);
+        final PlaybackStateTransition stateTransition = captureLastStateTransition();
+        assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.IDLE);
+        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.NONE);
     }
 
     @Test
@@ -248,7 +250,7 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.playCurrent();
 
-        expectLastStateTransitionToBe(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN1);
+        expectLastStateTransitionToBe(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN1);
 
     }
 
@@ -307,7 +309,7 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.playCurrent();
 
-        expectLastStateTransitionToBe(Player.PlayerState.BUFFERING, Player.Reason.NONE, TRACK_URN1);
+        expectLastStateTransitionToBe(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN1);
     }
 
     @Test
@@ -318,8 +320,8 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.playCurrent();
 
-        Player.PlayerState newState = Player.PlayerState.BUFFERING;
-        Player.Reason reason = Player.Reason.NONE;
+        PlaybackState newState = PlaybackState.BUFFERING;
+        PlayStateReason reason = PlayStateReason.NONE;
         Urn trackUrn = TRACK_URN1;
         expectLastStateTransitionToBe(newState, reason, trackUrn);
     }
@@ -343,9 +345,9 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.reloadCurrentQueue().subscribe(observer);
 
-        final Player.StateTransition stateTransition = captureLastStateTransition();
-        assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.IDLE);
-        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.ERROR_FAILED);
+        final PlaybackStateTransition stateTransition = captureLastStateTransition();
+        assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.IDLE);
+        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.ERROR_FAILED);
         assertThat(stateTransition.getUrn()).isSameAs(TRACK_URN1);
     }
 
@@ -402,9 +404,9 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.playCurrent();
 
-        final Player.StateTransition stateTransition = captureLastStateTransition();
-        assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.IDLE);
-        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.ERROR_FAILED);
+        final PlaybackStateTransition stateTransition = captureLastStateTransition();
+        assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.IDLE);
+        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.ERROR_FAILED);
         assertThat(stateTransition.getUrn()).isSameAs(TRACK_URN1);
     }
 
@@ -442,9 +444,9 @@ public class CastPlayerTest extends AndroidUnitTest {
 
         castPlayer.onDisconnected();
 
-        final Player.StateTransition stateTransition = captureLastStateTransition();
-        assertThat(stateTransition.getNewState()).isSameAs(Player.PlayerState.IDLE);
-        assertThat(stateTransition.getReason()).isSameAs(Player.Reason.NONE);
+        final PlaybackStateTransition stateTransition = captureLastStateTransition();
+        assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.IDLE);
+        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.NONE);
     }
 
     private MediaInfo createMediaInfo(Urn urn) {
@@ -458,7 +460,7 @@ public class CastPlayerTest extends AndroidUnitTest {
                 .build();
     }
 
-    private Player.StateTransition captureLastStateTransition() {
+    private PlaybackStateTransition captureLastStateTransition() {
         return eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
     }
 
@@ -472,8 +474,8 @@ public class CastPlayerTest extends AndroidUnitTest {
         return new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN1), createMediaInfo(TRACK_URN1), TRACK_URN1);
     }
 
-    private void expectLastStateTransitionToBe(Player.PlayerState newState, Player.Reason reason, Urn trackUrn) {
-        final Player.StateTransition stateTransition = captureLastStateTransition();
+    private void expectLastStateTransitionToBe(PlaybackState newState, PlayStateReason reason, Urn trackUrn) {
+        final PlaybackStateTransition stateTransition = captureLastStateTransition();
         assertThat(stateTransition.getNewState()).isSameAs(newState);
         assertThat(stateTransition.getReason()).isSameAs(reason);
         assertThat(stateTransition.getUrn()).isEqualTo(trackUrn);

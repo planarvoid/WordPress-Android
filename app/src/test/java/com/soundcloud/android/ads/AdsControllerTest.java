@@ -1,8 +1,7 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.playback.Player.PlayerState;
-import static com.soundcloud.android.playback.Player.Reason;
-import static com.soundcloud.android.playback.Player.StateTransition;
+import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlayStateReason;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -26,6 +25,7 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -447,7 +447,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         final Urn trackUrn = Urn.forTrack(123L);
-        final StateTransition stateTransition = new StateTransition(PlayerState.BUFFERING, Reason.NONE, trackUrn, 12, 1200);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, trackUrn, 12, 1200);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
 
@@ -465,7 +465,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         final Urn videoAdUrn = Urn.forAd("dfp", "video-ad");
-        final StateTransition stateTransition = new StateTransition(PlayerState.BUFFERING, Reason.NONE, videoAdUrn, 12, 1200);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, videoAdUrn, 12, 1200);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
 
@@ -530,7 +530,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(Reason.ERROR_FAILED));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(PlayStateReason.ERROR_FAILED));
 
         verify(playQueueManager).autoMoveToNextPlayableItem();
     }
@@ -540,7 +540,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(false);
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(Reason.ERROR_FAILED));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(PlayStateReason.ERROR_FAILED));
 
         verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }

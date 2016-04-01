@@ -46,15 +46,15 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void stateListenerIgnoresDefaultEvent() {
-        final Player.StateTransition lastTransition = TestPlayStates.playing();
+        final PlaybackStateTransition lastTransition = TestPlayStates.playing();
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, Player.StateTransition.DEFAULT);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, PlaybackStateTransition.DEFAULT);
         assertThat(provider.isPlaying()).isTrue();
     }
 
     @Test
     public void isInErrorStateReturnsTrueIfLastTransitionWasError() {
-        final Player.StateTransition lastTransition = new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.ERROR_FAILED, TRACK_URN);
+        final PlaybackStateTransition lastTransition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
 
         assertThat(provider.isInErrorState()).isTrue();
@@ -80,35 +80,35 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForPlayStoresPlayingItemProgress() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN, 1, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN, 1, 456));
 
         Urn nextTrackUrn = Urn.forTrack(321);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, nextTrackUrn, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, nextTrackUrn, 123, 456));
 
         assertThat(provider.getLastProgressForItem(nextTrackUrn)).isEqualTo(createPlaybackProcess(123, 456));
     }
 
     private void sendIdleStateEvent() {
-        final Player.StateTransition lastTransition = new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, TRACK_URN);
+        final PlaybackStateTransition lastTransition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, TRACK_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
     }
 
     @Test
     public void onStateTransitionForItemEndSavesQueueWithPositionWithZero() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, TRACK_URN, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, TRACK_URN, 123, 456));
         verify(playQueueManager).saveCurrentProgress(0);
     }
 
     @Test
     public void onStateTransitionForReasonNoneSavesQueueWithPositionFromTransition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, TRACK_URN, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, TRACK_URN, 123, 456));
         verify(playQueueManager).saveCurrentProgress(123);
     }
 
     @Test
     public void onStateTransitionWithInvalidDurationUsesPreviousPosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN, 123, 456));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, TRACK_URN, 456, 0));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, TRACK_URN, 456, 0));
         verify(playQueueManager).saveCurrentProgress(123);
     }
 
@@ -116,14 +116,14 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     public void onStateTransitionForBufferingDoesNotSaveProgressIfResuming() throws Exception {
         when(playQueueManager.wasLastSavedItem(TRACK_URN)).thenReturn(true);
         when(playQueueManager.getLastSavedProgressPosition()).thenReturn(123L);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, TRACK_URN, 0, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN, 0, 456));
         verify(playQueueManager, never()).saveCurrentProgress(anyLong());
     }
 
     @Test
     public void onStateTransitionForWithConsecutivePlaylistEventsSavesProgressOnTrackChange() {
-        final Player.StateTransition state1 = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.forTrack(1L));
-        final Player.StateTransition state2 = createStateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.forTrack(2L), 123, 456);
+        final PlaybackStateTransition state1 = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.forTrack(1L));
+        final PlaybackStateTransition state2 = createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.forTrack(2L), 123, 456);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state1);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state2);
@@ -132,7 +132,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionShouldNotStoreCurrentProgressIfDurationIsInvalid() {
-        final Player.StateTransition state = createStateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.forTrack(2L), 123, 0);
+        final PlaybackStateTransition state = createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.forTrack(2L), 123, 0);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
@@ -141,15 +141,15 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionShouldStoreCurrentProgressIfDurationIsValid() {
-        final Player.StateTransition state = createStateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, Urn.forTrack(2L), 123, 1);
+        final PlaybackStateTransition state = createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.forTrack(2L), 123, 1);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
         assertThat(provider.hasLastKnownProgress(Urn.forTrack(2L))).isTrue();
     }
 
-    private Player.StateTransition createStateTransition(Player.PlayerState playing, Player.Reason none, Urn trackUrn, int currentProgress, int duration) {
-        return new Player.StateTransition(playing, none, trackUrn, currentProgress, duration, dateProvider);
+    private PlaybackStateTransition createStateTransition(PlaybackState playing, PlayStateReason none, Urn trackUrn, int currentProgress, int duration) {
+        return new PlaybackStateTransition(playing, none, trackUrn, currentProgress, duration, dateProvider);
     }
 
     private PlaybackProgress createPlaybackProcess(long position, long duration) {

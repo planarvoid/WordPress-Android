@@ -80,9 +80,9 @@ public class RemoteAudioManagerUpdater {
     public void subscribe() {
         eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new TrackChangedSubscriber());
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .filter(new Func1<Player.StateTransition, Boolean>() {
+                .filter(new Func1<PlaybackStateTransition, Boolean>() {
                     @Override
-                    public Boolean call(Player.StateTransition stateTransition) {
+                    public Boolean call(PlaybackStateTransition stateTransition) {
                         return playQueueManager.isCurrentTrack(stateTransition.getUrn());
                     }
                 })
@@ -145,9 +145,9 @@ public class RemoteAudioManagerUpdater {
         };
     }
 
-    private final class PlaybackStateSubscriber extends DefaultSubscriber<Player.StateTransition> {
+    private final class PlaybackStateSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
         @Override
-        public void onNext(Player.StateTransition stateTransition) {
+        public void onNext(PlaybackStateTransition stateTransition) {
             audioManager.setPlaybackState(stateTransition.playSessionIsActive());
         }
     }

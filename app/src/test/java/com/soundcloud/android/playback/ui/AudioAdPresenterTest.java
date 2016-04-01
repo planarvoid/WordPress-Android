@@ -1,8 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.Player.PlayerState;
-import static com.soundcloud.android.playback.Player.Reason;
-import static com.soundcloud.android.playback.Player.StateTransition;
+import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlayStateReason;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -12,11 +11,11 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -245,19 +244,19 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void setPlayingStateShouldHidePlayControls() {
-        presenter.setPlayState(adView, new StateTransition(PlayerState.PLAYING, Reason.NONE, Urn.forTrack(123L)), true, true);
+        presenter.setPlayState(adView, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.forTrack(123L)), true, true);
         assertThat(adView.findViewById(R.id.play_controls)).isGone();
     }
 
     @Test
     public void setBufferingStateShouldHidePlayControls() {
-        presenter.setPlayState(adView, new StateTransition(PlayerState.BUFFERING, Reason.NONE, Urn.forTrack(123L)), true, true);
+        presenter.setPlayState(adView, new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, Urn.forTrack(123L)), true, true);
         assertThat(adView.findViewById(R.id.play_controls)).isGone();
     }
 
     @Test
     public void setIdleStateShouldShowPlayControls() {
-        presenter.setPlayState(adView, new StateTransition(PlayerState.IDLE, Reason.NONE, Urn.forTrack(123L)), true, true);
+        presenter.setPlayState(adView, new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.forTrack(123L)), true, true);
         assertThat(adView.findViewById(R.id.play_controls)).isVisible();
     }
 

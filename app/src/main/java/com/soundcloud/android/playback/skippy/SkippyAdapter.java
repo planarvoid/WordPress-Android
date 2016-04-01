@@ -27,8 +27,11 @@ import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
@@ -157,7 +160,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         if (!playerListener.requestAudioFocus()){
             Log.e(TAG,"Unable to acquire audio focus, aborting playback");
-            final StateTransition stateTransition = new StateTransition(PlayerState.IDLE, Reason.ERROR_FAILED, currentTrackUrn, fromPos, Consts.NOT_SET, dateProvider);
+            final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, currentTrackUrn, fromPos, Consts.NOT_SET, dateProvider);
             playerListener.onPlaystateChanged(stateTransition);
             bufferUnderrunListener.onPlaystateChanged(stateTransition, getPlaybackProtocol(), PlayerType.SKIPPY, connectionHelper.getCurrentConnectionType());
             return;
@@ -299,14 +302,14 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         if (uri.equals(currentStreamUrl)) {
             lastStateChangeProgress = position;
 
-            final PlayerState translatedState = getTranslatedState(state, reason);
-            final Reason translatedReason = getTranslatedReason(reason, errorCode);
-            final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration, dateProvider);
-            transition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
-            transition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.SKIPPY.getValue());
-            transition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.getCurrentConnectionType().getValue());
-            transition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, String.valueOf(true));
-            transition.addExtraAttribute(StateTransition.EXTRA_URI, uri);
+            final PlaybackState translatedState = getTranslatedState(state, reason);
+            final PlayStateReason translatedReason = getTranslatedReason(reason, errorCode);
+            final PlaybackStateTransition transition = new PlaybackStateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration, dateProvider);
+            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
+            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, PlayerType.SKIPPY.getValue());
+            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.getCurrentConnectionType().getValue());
+            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, String.valueOf(true));
+            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_URI, uri);
 
             if (transition.playbackHasStopped()){
                 currentStreamUrl = null;
@@ -318,7 +321,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         }
     }
 
-    private void configureLockBasedOnNewState(StateTransition transition) {
+    private void configureLockBasedOnNewState(PlaybackStateTransition transition) {
         if (transition.isPlayerPlaying() || transition.isBuffering()){
             lockUtil.lock();
         } else {
@@ -339,34 +342,34 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         //Not implemented yet!
     }
 
-    private PlayerState getTranslatedState(Skippy.State state, Skippy.Reason reason) {
+    private PlaybackState getTranslatedState(Skippy.State state, Skippy.Reason reason) {
         switch (state) {
             case IDLE:
-                return PlayerState.IDLE;
+                return PlaybackState.IDLE;
             case PLAYING:
-                return reason == BUFFERING ? PlayerState.BUFFERING : PlayerState.PLAYING;
+                return reason == BUFFERING ? PlaybackState.BUFFERING : PlaybackState.PLAYING;
             default:
                 throw new IllegalArgumentException("Unexpected skippy state : " + state);
         }
     }
 
-    private Reason getTranslatedReason(Skippy.Reason reason, Skippy.Error lastError) {
+    private PlayStateReason getTranslatedReason(Skippy.Reason reason, Skippy.Error lastError) {
         if (reason == ERROR) {
             switch (lastError) {
                 case FAILED:
                 case TIMEOUT:
-                    return Reason.ERROR_FAILED;
+                    return PlayStateReason.ERROR_FAILED;
                 case FORBIDDEN:
-                    return Reason.ERROR_FORBIDDEN;
+                    return PlayStateReason.ERROR_FORBIDDEN;
                 case MEDIA_NOT_FOUND:
-                    return Reason.ERROR_NOT_FOUND;
+                    return PlayStateReason.ERROR_NOT_FOUND;
                 default:
                     throw new IllegalArgumentException("Unexpected skippy error code : " + lastError);
             }
         } else if (reason == COMPLETE) {
-            return Reason.PLAYBACK_COMPLETE;
+            return PlayStateReason.PLAYBACK_COMPLETE;
         } else {
-            return Reason.NONE;
+            return PlayStateReason.NONE;
         }
     }
 
@@ -487,7 +490,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         @Override
         public void handleMessage(Message msg) {
-            final StateTransition stateTransition = (StateTransition) msg.obj;
+            final PlaybackStateTransition stateTransition = (PlaybackStateTransition) msg.obj;
             if (playerListener != null) {
                 playerListener.onPlaystateChanged(stateTransition);
             }

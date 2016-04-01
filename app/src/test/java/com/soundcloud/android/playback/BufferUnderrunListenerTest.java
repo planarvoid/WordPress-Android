@@ -39,18 +39,18 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSendUninterruptedPlaytimeEvent() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.BUFFERING, new Date(), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(), false);
         final List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
     }
 
     @Test
     public void shouldSendUninterruptedPlaytimeEvent() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
 
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.BUFFERING, new Date(1000L), true);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(1000L), true);
         playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).hasSize(1);
 
@@ -61,27 +61,27 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldFilterBufferingEventOnSeekAndStart() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
 
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.BUFFERING, new Date(1000L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(1000L), false);
         playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
     }
 
     @Test
     public void shouldSaveUninterruptedPlaytimeOnIdle() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.PLAYING, new Date(100L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.IDLE, new Date(1000L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.IDLE, new Date(1000L), false);
 
         verify(uninterruptedPlaytimeStorage).setPlaytime(900L, PlayerType.SKIPPY);
     }
 
     @Test
     public void shouldSaveZeroedUninterruptedPlaytimeOnBufferUnderun() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.PLAYING, new Date(100L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.BUFFERING, new Date(1000L), true);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(1000L), true);
 
         verify(uninterruptedPlaytimeStorage).setPlaytime(0L, PlayerType.SKIPPY);
     }
@@ -90,8 +90,8 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
     public void shouldIncrementOverExistingUninterruptedPlaytime() {
         when(uninterruptedPlaytimeStorage.getPlayTime(PlayerType.SKIPPY)).thenReturn(50L);
 
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.PLAYING, new Date(1000L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.BUFFERING, new Date(2000L), true);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(1000L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(2000L), true);
 
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         PlaybackPerformanceEvent event = playbackPerformanceEvents.get(0);
@@ -101,13 +101,13 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldFilterPlayingAfterBufferUnderrun() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.PLAYING, new Date(100L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.BUFFERING, new Date(1000L), true);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(1000L), true);
 
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).hasSize(1);
 
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.PLAYING, new Date(1500), true);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(1500), true);
 
         playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).hasSize(1);
@@ -115,13 +115,13 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldFilterTimeCalculationOnPlayingAfterPlaying() {
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.PLAYING, new Date(100L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.PLAYING, new Date(1000L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(1000L), false);
 
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
 
-        createAndProcessStateTransition(PlayerType.SKIPPY, Player.PlayerState.BUFFERING, new Date(5000L), true);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(5000L), true);
 
         playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).hasSize(1);
@@ -131,9 +131,9 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         assertThat(event.getMetricValue()).isEqualTo(4900L);
     }
 
-    private void createAndProcessStateTransition(PlayerType player, Player.PlayerState newState, Date transitionTime, boolean isBufferUnderrun) {
-        Player.StateTransition stateTransition = new Player.StateTransition(newState, Player.Reason.NONE, track);
-        stateTransition.addExtraAttribute(Player.StateTransition.EXTRA_PLAYER_TYPE, player.getValue());
+    private void createAndProcessStateTransition(PlayerType player, PlaybackState newState, Date transitionTime, boolean isBufferUnderrun) {
+        PlaybackStateTransition stateTransition = new PlaybackStateTransition(newState, PlayStateReason.NONE, track);
+        stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, player.getValue());
         when(detector.onStateTransitionEvent(stateTransition)).thenReturn(isBufferUnderrun);
         when(dateProvider.getCurrentDate()).thenReturn(transitionTime);
         listener.onPlaystateChanged(stateTransition, PlaybackProtocol.HLS, player, ConnectionType.THREE_G);

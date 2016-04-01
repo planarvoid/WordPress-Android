@@ -21,8 +21,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.Player.StateTransition;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationRecord;
@@ -91,7 +90,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private List<PlayQueueItem> currentPlayQueue = Collections.emptyList();
     @NotNull private ViewVisibilityProvider viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
     private PlayerUIEvent lastPlayerUIEvent;
-    private StateTransition lastStateTransition;
+    private PlaybackStateTransition lastStateTransition;
     private boolean isForeground;
 
     private final LruCache<Urn, ReplaySubject<PropertySet>> trackObservableCache =
@@ -531,9 +530,9 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private final class PlaybackStateSubscriber extends DefaultSubscriber<Player.StateTransition> {
+    private final class PlaybackStateSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
         @Override
-        public void onNext(Player.StateTransition stateTransition) {
+        public void onNext(PlaybackStateTransition stateTransition) {
             lastStateTransition = stateTransition;
 
             for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
@@ -597,7 +596,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private void configurePageFromPlayerState(StateTransition stateTransition, PlayerPagePresenter presenter, View view) {
+    private void configurePageFromPlayerState(PlaybackStateTransition stateTransition, PlayerPagePresenter presenter, View view) {
         final boolean viewPresentingCurrentVideo = pagesInPlayer.containsKey(view)
                 && pagesInPlayer.get(view).isVideo()
                 && stateTransition.getUrn().equals(pagesInPlayer.get(view).getUrn());

@@ -37,11 +37,11 @@ public class BufferUnderrunListener {
         this.dateProvider = dateProvider;
     }
 
-    public void onPlaystateChanged(Player.StateTransition stateTransition,
+    public void onPlaystateChanged(PlaybackStateTransition stateTransition,
                                    PlaybackProtocol playbackProtocol,
                                    PlayerType playerType,
                                    ConnectionType currentConnectionType) {
-        Log.d(TAG, "StateTransition: " + stateTransition);
+        Log.d(TAG, "PlaybackStateTransition: " + stateTransition);
         boolean isBufferUnderrun = detector.onStateTransitionEvent(stateTransition);
         if (stateTransition.isPlayerPlaying()) {
             if (enteringPlayingStateTime == null) {
@@ -72,8 +72,8 @@ public class BufferUnderrunListener {
     }
 
     // This should be removed when we discover why we are getting empty player types
-    private void checkForEmptyPlayerType(Player.StateTransition stateTransition) {
-        if (TextUtils.isEmpty(stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_PLAYER_TYPE))) {
+    private void checkForEmptyPlayerType(PlaybackStateTransition stateTransition) {
+        if (TextUtils.isEmpty(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE))) {
             ErrorUtils.handleSilentException(TAG,
                     new IllegalStateException("Buffer Underrun event with empty player type: " + stateTransition.toString()));
         }
@@ -93,14 +93,14 @@ public class BufferUnderrunListener {
             // For Dagger
         }
 
-        public boolean onStateTransitionEvent(Player.StateTransition transition) {
+        public boolean onStateTransitionEvent(PlaybackStateTransition transition) {
             if (isStartingPlaybackAfterSeek) {
                 isStartingPlaybackAfterSeek = transition.isBuffering();
             }
             return !isStartingPlayback(transition) && transition.isBuffering();
         }
 
-        private boolean isStartingPlayback(Player.StateTransition transition) {
+        private boolean isStartingPlayback(PlaybackStateTransition transition) {
             return isStartingPlaybackAfterSeek || transition.getProgress().getPosition() == 0;
         }
 

@@ -178,7 +178,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     @Override
-    public void onPlaystateChanged(Player.StateTransition stateTransition) {
+    public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
         Log.d(TAG, "Received new playState " + stateTransition);
 
         // TODO : Fix threading in Skippy so we can never receive delayed messages
@@ -203,7 +203,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
     }
 
-    private static Player.StateTransition correctUnknownDuration(Player.StateTransition stateTransition, PlaybackItem playbackItem) {
+    private static PlaybackStateTransition correctUnknownDuration(PlaybackStateTransition stateTransition, PlaybackItem playbackItem) {
         final PlaybackProgress progress = stateTransition.getProgress();
         if (!progress.isDurationValid()) {
             progress.setDuration(playbackItem.getDuration());
