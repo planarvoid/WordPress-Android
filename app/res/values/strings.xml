@@ -595,9 +595,10 @@
     <string name="conversion_page_title">Subscribe</string>
     <string name="conversion_title">Get SoundCloud Go</string>
     <string name="conversion_price">%s / month</string>
-    <string name="conversion_feature_1">Play all tracks</string>
-    <string name="conversion_feature_2">Listen offline, anywhere</string>
-    <string name="conversion_feature_3">Go ad-free</string>
+    <string name="conversion_feature_1">Listen offline, anywhere</string>
+    <string name="conversion_feature_2">Unlock all previews</string>
+    <string name="conversion_feature_3">Get even more tracks</string>
+    <string name="conversion_feature_4">Go ad-free</string>
     <string name="conversion_buy_loading">Loading</string>
     <string name="conversion_buy_trial">Try it free for %d days</string>
     <string name="conversion_buy_no_trial">Upgrade now</string>

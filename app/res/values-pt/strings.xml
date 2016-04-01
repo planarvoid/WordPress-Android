@@ -540,9 +540,10 @@
   <string name="conversion_page_title">Inscrever</string>
   <string name="conversion_title">Obter SoundCloud Go</string>
   <string name="conversion_price">%s / mês</string>
-  <string name="conversion_feature_1">Reproduzir todas as faixas</string>
-  <string name="conversion_feature_2">Ouvir off-line em qualquer lugar</string>
-  <string name="conversion_feature_3">Retirar anúncios</string>
+  <string name="conversion_feature_1">Ouça off-line, em qualquer lugar</string>
+  <string name="conversion_feature_2">Desbloqueie todas as visualizações</string>
+  <string name="conversion_feature_3">Acesse ainda mais faixas</string>
+  <string name="conversion_feature_4">Livre-se de anúncios</string>
   <string name="conversion_buy_loading">Carregando…</string>
   <string name="conversion_buy_trial">Teste grátis por %d dias</string>
   <string name="conversion_buy_no_trial">Faz o upgrade agora</string>
