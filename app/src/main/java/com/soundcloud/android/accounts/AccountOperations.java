@@ -3,6 +3,7 @@ package com.soundcloud.android.accounts;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.ApplicationModule;
@@ -58,6 +59,7 @@ public class AccountOperations {
     private final Lazy<ConfigurationOperations> configurationOperations;
     private final Lazy<AccountCleanupAction> accountCleanupAction;
     private final Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand;
+    private final Lazy<LoginManager> facebookLoginManager;
 
     private volatile Urn loggedInUserUrn;
 
@@ -86,6 +88,7 @@ public class AccountOperations {
                       Lazy<ConfigurationOperations> configurationOperations,
                       Lazy<AccountCleanupAction> accountCleanupAction,
                       Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand,
+                      Lazy<LoginManager> facebookLoginManager,
                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.context = context;
         this.accountManager = accountManager;
@@ -94,6 +97,7 @@ public class AccountOperations {
         this.configurationOperations = configurationOperations;
         this.accountCleanupAction = accountCleanupAction;
         this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
+        this.facebookLoginManager = facebookLoginManager;
         this.scheduler = scheduler;
     }
 
@@ -115,7 +119,6 @@ public class AccountOperations {
 
     private long getLoggedInUserId() {
         return getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
-
     }
 
     public void clearLoggedInUser() {
@@ -209,12 +212,17 @@ public class AccountOperations {
                 clearTrackDownloadsCommand.get().call(null);
                 accountCleanupAction.get().call();
                 tokenOperations.resetToken();
+                clearFacebookStorage();
                 clearLoggedInUser();
                 eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
                 resetPlaybackService();
                 subscriber.onCompleted();
             }
         }).subscribeOn(scheduler);
+    }
+
+    private void clearFacebookStorage() {
+        facebookLoginManager.get().logOut();
     }
 
     // TODO: This should be made in the playback operations, which is not used at the moment, since it will cause a circular dependency

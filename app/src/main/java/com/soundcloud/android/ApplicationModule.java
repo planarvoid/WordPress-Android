@@ -5,6 +5,7 @@ import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFOR
 import com.appboy.Appboy;
 import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -82,7 +83,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Locale;
 
-@Module(library = true, includes = {ApiModule.class, StorageModule.class})
+@Module(library = true, includes = {ApiModule.class, StorageModule.class, FacebookModule.class})
 public class ApplicationModule {
 
     public static final String HIGH_PRIORITY = "HighPriority";
