@@ -4,6 +4,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.analytics.AnalyticsModule;
@@ -419,6 +420,11 @@ public class TestApplicationModule {
     @Provides
     AlarmManager provideAlarmManager() {
         return mock(AlarmManager.class);
+    }
+
+    @Provides
+    LoginManager provideLoginManager() {
+        return mock(LoginManager.class);
     }
 }
 

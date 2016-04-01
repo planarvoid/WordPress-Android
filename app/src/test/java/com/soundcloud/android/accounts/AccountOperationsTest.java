@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.facebook.login.LoginManager;
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
@@ -45,7 +46,7 @@ import android.os.Bundle;
 import android.os.Handler;
 
 public class AccountOperationsTest extends AndroidUnitTest {
-    
+
     private static final String SC_ACCOUNT_TYPE = BuildConfig.APPLICATION_ID + ".account";
     private static final String KEY = "key";
 
@@ -61,6 +62,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountCleanupAction accountCleanupAction;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
+    @Mock private LoginManager facebookLoginManager;
 
     private ApiUser user;
 
@@ -70,7 +72,9 @@ public class AccountOperationsTest extends AndroidUnitTest {
                 eventBus,
                 InjectionSupport.lazyOf(configurationOperations),
                 InjectionSupport.lazyOf(accountCleanupAction),
-                InjectionSupport.lazyOf(clearTrackDownloadsCommand), Schedulers.immediate());
+                InjectionSupport.lazyOf(clearTrackDownloadsCommand),
+                InjectionSupport.lazyOf(facebookLoginManager),
+                Schedulers.immediate());
 
         user = ModelFixtures.create(ApiUser.class);
     }
@@ -323,6 +327,16 @@ public class AccountOperationsTest extends AndroidUnitTest {
         accountOperations.purgeUserData().subscribe(observer);
 
         verify(tokenOperations).resetToken();
+    }
+
+    @Test
+    public void purgingUserDataShouldLogOutFacebook() {
+        accountOperations.purgeUserData().subscribe(observer);
+
+        InOrder inOrder = inOrder(observer, facebookLoginManager);
+        inOrder.verify(facebookLoginManager).logOut();
+        inOrder.verify(observer).onCompleted();
+        inOrder.verifyNoMoreInteractions();
     }
 
     @Test
