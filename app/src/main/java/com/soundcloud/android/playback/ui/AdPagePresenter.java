@@ -12,6 +12,7 @@ import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -30,32 +31,52 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
 
     @Override
     public void onPlayableUpdated(View trackPage, EntityStateChangedEvent trackChangedEvent) {
-        // no-op
+        // default no-op
     }
 
     @Override
     public void onBackground(View trackPage) {
-        // no-op
+        // default no-op
     }
 
     @Override
     public void onForeground(View trackPage) {
-        // no-op
+        // default no-op
     }
 
     @Override
     public void onDestroyView(View trackPage) {
-        // no-op
+        // default no-op
     }
 
     @Override
     public void clearAdOverlay(View trackPage) {
-        // no-op
+        // default no-op
     }
 
     @Override
     public void setCastDeviceName(View trackPage, String deviceName) {
-        // no-op
+        // default no-op
+    }
+
+    @Override
+    public void setCollapsed(View adPage) {
+        // default no-op
+    }
+
+    @Override
+    public void setExpanded(View trackPage, PlayQueueItem playQueueItem, boolean isSelected) {
+        // default no-op
+    }
+
+    @Override
+    public void onPlayerSlide(View adPage, float position) {
+        // default no-op
+    }
+
+    @Override
+    public void onViewSelected(View view, PlayQueueItem value, boolean isExpanded) {
+        // default no-op
     }
 
     void setClickListener(View.OnClickListener listener, Iterable<View> views) {

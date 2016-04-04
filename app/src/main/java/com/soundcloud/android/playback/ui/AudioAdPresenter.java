@@ -141,11 +141,6 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         holder.whyAds.setEnabled(slideOffset > 0);
     }
 
-    @Override
-    public void onViewSelected(View view, PlayQueueItem value, boolean isExpanded) {
-        // no-op
-    }
-
     private void resetAdImageLayouts(Holder holder) {
         holder.centeredAdArtworkView.setImageDrawable(null);
         holder.fullbleedAdArtworkView.setImageDrawable(null);
